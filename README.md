@@ -13,6 +13,8 @@ make demo
 
 Open <http://localhost:8080>. The Agent uses the host PID namespace, so enter a host PID visible from the Agent. `PID 1` is suitable for the demo.
 
+Without Docker, run `python scripts/run_local.py` and then `python scripts/demo.py`.
+
 ## What is implemented
 
 - Strict persisted state machine: `PENDING -> RUNNING -> UPLOADING -> DONE / FAILED`; every transition requires a reason.

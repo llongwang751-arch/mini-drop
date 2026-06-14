@@ -1,4 +1,5 @@
 import json
+import os
 import time
 import urllib.request
 
@@ -16,7 +17,9 @@ def req(path, method="GET", body=None):
 agents = req("/agents")
 if not agents:
     raise SystemExit("No agent online. Run docker compose up first.")
-task = req("/tasks", "POST", {"agent_id": agents[0]["id"], "pid": 1, "duration": 3, "rate": 10, "collector": "perf"})
+metadata = json.loads(agents[0].get("metadata") or "{}")
+pid = metadata.get("pid", 1) if os.name == "nt" else 1
+task = req("/tasks", "POST", {"agent_id": agents[0]["id"], "pid": pid, "duration": 3, "rate": 10, "collector": "perf"})
 print("Created", task["id"])
 for _ in range(30):
     task = req("/tasks/" + task["id"])

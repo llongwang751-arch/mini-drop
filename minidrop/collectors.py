@@ -1,4 +1,6 @@
 import os
+import csv
+import io
 import shutil
 import subprocess
 import time
@@ -13,19 +15,36 @@ def _read(path, default=""):
 
 
 def _proc_sample(pid):
+    if os.name == "nt":
+        run = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if run.returncode != 0 or "INFO:" in run.stdout or not run.stdout.strip():
+            raise ProcessLookupError(f"pid {pid} does not exist or is not visible")
+        row = next(csv.reader(io.StringIO(run.stdout)))
+        rss = int(row[4].replace(",", "").replace(" K", "").strip())
+        return {"ts": time.time(), "cpu_ticks": 0, "rss_kb": rss, "read_bytes": 0, "write_bytes": 0}
     stat = _read(f"/proc/{pid}/stat").split()
     if not stat:
         raise ProcessLookupError(f"pid {pid} does not exist or is not visible")
     status = _read(f"/proc/{pid}/status")
-    io = _read(f"/proc/{pid}/io")
+    io_stats = _read(f"/proc/{pid}/io")
     rss = next((int(x.split()[1]) for x in status.splitlines() if x.startswith("VmRSS:")), 0)
-    read_bytes = next((int(x.split()[1]) for x in io.splitlines() if x.startswith("read_bytes:")), 0)
-    write_bytes = next((int(x.split()[1]) for x in io.splitlines() if x.startswith("write_bytes:")), 0)
+    read_bytes = next((int(x.split()[1]) for x in io_stats.splitlines() if x.startswith("read_bytes:")), 0)
+    write_bytes = next((int(x.split()[1]) for x in io_stats.splitlines() if x.startswith("write_bytes:")), 0)
     return {"ts": time.time(), "cpu_ticks": int(stat[13]) + int(stat[14]), "rss_kb": rss,
             "read_bytes": read_bytes, "write_bytes": write_bytes}
 
 
 def _process_name(pid):
+    if os.name == "nt":
+        run = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if run.returncode == 0 and run.stdout.strip() and "INFO:" not in run.stdout:
+            return next(csv.reader(io.StringIO(run.stdout)))[0]
     return _read(f"/proc/{pid}/comm", f"pid-{pid}").strip() or f"pid-{pid}"
 
 
@@ -42,7 +61,8 @@ class ProcCollector:
         proc = _process_name(pid)
         stacks = [{"stack": ["kernel", "schedule", proc, "work"], "value": max(1, len(samples) // 2)},
                   {"stack": ["kernel", proc, "read"], "value": max(1, len(samples) // 3)}]
-        return {"samples": samples, "stacks": stacks, "meta": {"collector": self.name, "backend": "/proc"}}
+        backend = "tasklist" if os.name == "nt" else "/proc"
+        return {"samples": samples, "stacks": stacks, "meta": {"collector": self.name, "backend": backend}}
 
 
 class EBPFCollector(ProcCollector):
