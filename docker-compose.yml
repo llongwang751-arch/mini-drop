@@ -1,0 +1,22 @@
+services:
+  server:
+    build: .
+    command: python -m minidrop.server --db /data/minidrop.db
+    ports: ["8080:8080"]
+    volumes: [minidrop-data:/data]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    command: python -m minidrop.agent --server http://server:8080 --id local-agent
+    depends_on:
+      server: {condition: service_healthy}
+    pid: host
+    privileged: true
+volumes:
+  minidrop-data:
