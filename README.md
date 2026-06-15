@@ -2,6 +2,8 @@
 
 Mini-Drop is a compact, runnable performance-diagnostics platform containing a Web UI, control-plane Server, remote Agent, pluggable collectors, and Analyzer.
 
+The Web UI is implemented with React 19, Vite, and Phosphor Icons. The Server, Agent, collectors, and Analyzer remain Python 3.12 components.
+
 ## Quick start
 
 Requirements: Docker Engine with Compose, Linux kernel 5.4+, and root/privileged-container permission for eBPF. The basic `/proc` demo works without perf/eBPF kernel permission.
@@ -14,6 +16,8 @@ make demo
 Open <http://localhost:8080>. The Agent uses the host PID namespace, so enter a host PID visible from the Agent. `PID 1` is suitable for the demo.
 
 Without Docker, run `python scripts/run_local.py` and then `python scripts/demo.py`.
+
+For frontend development, run `npm install && npm run dev` in `frontend/`. Vite proxies `/api` requests to the Python Server on port 8080.
 
 ## What is implemented
 

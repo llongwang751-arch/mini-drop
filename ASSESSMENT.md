@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Web 创建采集任务，Server 持久化并调度任务，Agent 在目标机器执行 `perf`、`bpftrace` 或 `py-spy`，Analyzer 将原始栈转换为火焰图、热点 TopN、内核写入分布和可验证归因，Web 实时展示全过程。
+Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 React Web 创建采集任务，Python Server 持久化并调度任务，Agent 在目标机器执行 `perf`、`bpftrace` 或 `py-spy`，Analyzer 将原始栈转换为火焰图、热点 TopN、内核写入分布和可验证归因，Web 实时展示全过程。
 
 ## 逐项验收矩阵
 

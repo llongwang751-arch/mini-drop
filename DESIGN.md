@@ -2,13 +2,13 @@
 
 ## 1. Scope
 
-This implementation optimizes for a reproducible ten-minute review: one Compose command starts a control plane and a privileged Agent, while the browser demonstrates dispatch, live state, analysis, continuous slices, and connectivity audit. SQLite and Python's standard library keep the baseline small. Optional Linux profiling tools remain real processes rather than simulated APIs.
+This implementation optimizes for a reproducible ten-minute review: one Compose command builds the React UI and starts a Python control plane plus privileged Agent, while the browser demonstrates dispatch, live state, analysis, continuous slices, and connectivity audit. SQLite and Python's standard library keep the backend baseline small. Optional Linux profiling tools remain real processes rather than simulated APIs.
 
 ## 2. Architecture
 
 ```mermaid
 flowchart LR
-  U[Web UI] -->|REST/JSON| S[Server]
+  U[React Web UI] -->|REST/JSON| S[Python Server]
   A[Agent] -->|heartbeat / claim / upload| S
   S --> DB[(SQLite)]
   A --> C{Collector}
@@ -21,6 +21,8 @@ flowchart LR
 ```
 
 The Server owns task truth. Agents never write storage directly; they request a task, collect data, and submit either raw output or an explicit failure. The Analyzer is isolated as a module with a stable `analyze(raw) -> result` contract, so it can later move to a queue-backed worker without changing collectors or UI.
+
+The React UI is built by Vite during the Docker multi-stage build. The Python Server serves the generated static assets and owns every `/api` route, so frontend migration does not change the runtime API contract.
 
 ## 3. State machine
 
