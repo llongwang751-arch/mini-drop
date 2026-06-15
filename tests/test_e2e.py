@@ -50,6 +50,14 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(failed["status"], "FAILED")
         self.assertEqual(fetched["transitions"][-1]["reason"], "ValueError: unsupported collector: unknown")
 
+    def test_natural_language_request_creates_a_verifiable_plan(self):
+        status, response = self.app.routes("POST", "/api/natural-language", {
+            "text": "对 PID 1 做 2 秒 eBPF IO 采集，频率 19Hz"
+        })
+        self.assertEqual(status, 201)
+        self.assertEqual(response["plan"]["collector"], "ebpf")
+        self.assertEqual(response["task"]["status"], "PENDING")
+
     def test_continuous_task_creates_next_slice_and_window(self):
         _, task = self.app.routes("POST", "/api/tasks", {
             "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": "perf", "continuous": True
@@ -62,3 +70,8 @@ class EndToEndTests(unittest.TestCase):
         tasks = self.app.routes("GET", "/api/tasks", {})[1]
         self.assertEqual(len(window), 1)
         self.assertTrue(any(x["status"] == "PENDING" and x["continuous"] for x in tasks))
+        status, stopped = self.app.routes("POST", f"/api/tasks/{task['id']}/stop-continuous", {})
+        self.assertEqual(status, 200)
+        self.assertGreaterEqual(stopped["stopped"], 2)
+        tasks = self.app.routes("GET", "/api/tasks", {})[1]
+        self.assertFalse(any(x["continuous"] for x in tasks))

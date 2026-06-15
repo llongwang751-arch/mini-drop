@@ -23,6 +23,7 @@ Without Docker, run `python scripts/run_local.py` and then `python scripts/demo.
 - Automatic degradation to `/proc` when optional tools or kernel capabilities are unavailable, with the reason exposed in results.
 - CPU, RSS, and I/O samples; flame graph, TopN, eBPF distribution, and verifiable rule-based attribution.
 - Continuous profiling by automatic time-slice creation.
+- Natural-language collection planning that extracts a verifiable PID, collector, duration, rate, and Agent.
 - Structured logs, explicit errors, SQLite persistence, responsive Web UI, unit tests, and three end-to-end tests.
 
 ## Useful commands
@@ -52,9 +53,15 @@ The Agent image runs privileged because bpftrace needs access to kernel tracing.
 | `GET` | `/api/agents` | Agent inventory |
 | `GET` | `/api/audit` | Offline/recovery audit |
 | `GET` | `/api/continuous/{agent_id}` | Last five minutes of continuous slices |
+| `POST` | `/api/natural-language` | Parse a sentence and create a collection task |
+| `POST` | `/api/tasks/{id}/stop-continuous` | Stop successor slices for a continuous profile |
 | `POST` | `/api/agents/{id}/heartbeat` | Agent heartbeat |
 | `POST` | `/api/agents/{id}/claim` | Atomically claim work |
 | `POST` | `/api/tasks/{id}/upload` | Upload raw data and analyze |
 | `POST` | `/api/tasks/{id}/fail` | Persist explicit failure |
 
-See [DESIGN.md](DESIGN.md) for architecture, decisions, tradeoffs, and evaluation notes.
+Review documents:
+
+- [DESIGN.md](DESIGN.md): architecture, state machine, decisions, tradeoffs, and AI collaboration.
+- [ASSESSMENT.md](ASSESSMENT.md): requirement-by-requirement acceptance evidence and honest limitations.
+- [DEMO.md](DEMO.md): a ready-to-record 15-minute demonstration script.

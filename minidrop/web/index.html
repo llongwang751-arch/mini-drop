@@ -6,6 +6,7 @@
   <meta name="description" content="Mini-Drop 分布式性能诊断平台">
   <title>Mini-Drop 性能诊断平台</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/extensions.css">
 </head>
 <body>
   <a class="skip-link" href="#content">跳到主要内容</a>
@@ -49,6 +50,13 @@
           </table>
           <div id="taskEmpty" class="empty hidden"><b>暂无性能任务</b><p>创建第一个采集任务，Agent 会自动领取并分析结果。</p><button class="secondary" onclick="openModal()">创建任务</button></div>
         </div>
+      </section>
+      <section class="workspace continuous-panel">
+        <div class="section-head">
+          <div><h2>持续采样时间轴</h2><p>选择任意时间窗口，回看 Continuous Profiling 切片</p></div>
+          <div class="range-controls"><select id="continuousAgent"></select><input id="windowStart" type="datetime-local"><input id="windowEnd" type="datetime-local"><button class="secondary" onclick="loadContinuous()">查询窗口</button></div>
+        </div>
+        <div id="continuousTimeline" class="timeline-strip"><div class="empty"><b>暂无时间轴数据</b><p>创建任务时开启持续性能采集，即可在这里回看切片。</p></div></div>
       </section>
       <section id="detail" class="workspace detail hidden"></section>
     </section>

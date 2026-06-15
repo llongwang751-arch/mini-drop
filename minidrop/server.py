@@ -6,10 +6,11 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from .analyzer import analyze
 from .db import Store
+from .planner import plan_collection
 
 
 LOG = logging.getLogger("minidrop.server")
@@ -20,7 +21,8 @@ class App:
     def __init__(self, db_path="data/minidrop.db"):
         self.store = Store(db_path)
 
-    def routes(self, method, path, body):
+    def routes(self, method, path, body, query=None):
+        query = query or {}
         parts = path.strip("/").split("/")
         if method == "GET" and path == "/api/health":
             return 200, {"ok": True}
@@ -31,8 +33,14 @@ class App:
             return 200, self.store.list_tasks()
         if method == "GET" and path == "/api/audit":
             return 200, self.store.list_audit()
+        if method == "POST" and path == "/api/natural-language":
+            plan = plan_collection(body.get("text", ""), self.store.list_agents())
+            task = self.store.create_task(**plan)
+            return 201, {"plan": plan, "task": task}
         if method == "GET" and len(parts) == 3 and parts[:2] == ["api", "continuous"]:
-            return 200, self.store.continuous_window(parts[2])
+            start = float(query["start"][0]) if query.get("start") else None
+            end = float(query["end"][0]) if query.get("end") else None
+            return 200, self.store.continuous_window(parts[2], start, end)
         if method == "GET" and len(parts) == 3 and parts[:2] == ["api", "tasks"]:
             task = self.store.get_task(parts[2])
             return (200, task) if task else (404, {"error": "task not found"})
@@ -58,6 +66,8 @@ class App:
                 self.store.create_task(completed["agent_id"], completed["pid"], completed["duration"],
                                        completed["rate"], completed["collector"], True)
             return 200, completed
+        if method == "POST" and len(parts) == 4 and parts[:2] == ["api", "tasks"] and parts[3] == "stop-continuous":
+            return 200, self.store.stop_continuous(parts[2])
         if method == "POST" and len(parts) == 4 and parts[:2] == ["api", "tasks"] and parts[3] == "fail":
             return 200, self.store.transition(parts[2], "FAILED", body.get("reason", "unspecified agent failure"))
         return 404, {"error": "route not found"}
@@ -91,14 +101,15 @@ class Handler(BaseHTTPRequestHandler):
         return True
 
     def _dispatch(self, method):
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
         if not path.startswith("/api/") and method == "GET":
             if self._serve_static():
                 return
         try:
             size = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(size)) if size else {}
-            status, payload = self.app.routes(method, path, body)
+            status, payload = self.app.routes(method, path, body, parse_qs(parsed.query))
             self._json(status, payload)
         except (ValueError, KeyError, ProcessLookupError) as exc:
             self._json(400, {"error": str(exc)})

@@ -15,3 +15,31 @@ function renderFlame(node){let leaves=[];function walk(n,d){if(!n.children?.leng
 async function detail(id){selectedTask=id;let t=await api('/tasks/'+id),r=t.result;document.querySelectorAll('#tasks tr').forEach(x=>x.classList.toggle('selected',x.dataset.id===id));let degraded=r?.collector_meta?.degraded?`<span>降级原因：${esc(r.collector_meta.reason||r.collector_meta.stderr)}</span>`:'';$('#detail').classList.remove('hidden');$('#detail').innerHTML=`<div class="detail-header"><div><h2>任务 ${esc(id)}</h2><div class="detail-meta"><span>采集器：${zhCollector(t.collector)}</span><span>目标 PID：${t.pid}</span>${r?`<span>后端：${esc(r.collector_meta.backend)}</span><span>结果指纹：${r.fingerprint}</span>${degraded}`:''}</div></div><span class="pill ${t.status}">${zhStatus(t.status)}</span></div>${r?`<div class="detail-grid"><div class="analysis-block"><h3>采样火焰图</h3><div class="flame">${renderFlame(r.flamegraph)}</div>${r.histogram?.length?`<h3 style="margin-top:24px">内核写入分布</h3><div class="histogram">${r.histogram.slice().sort((a,b)=>b.count-a.count).slice(0,16).map(x=>`<div><span>${esc(x.bucket)}</span><b style="width:${Math.min(100,12+x.count/8)}%">${x.count}</b></div>`).join('')}</div>`:''}</div><aside class="analysis-block"><h3>热点函数 TopN</h3>${r.top.map(x=>`<div class="top-row"><span>${esc(x.name)}</span><b>${x.samples}</b></div>`).join('')}<h3 style="margin-top:24px">性能归因</h3>${r.attribution.map(x=>`<div class="attribution"><b>${esc(x.conclusion)}</b><code>证据 ${esc(JSON.stringify(x.evidence))}</code><code>规则 ${esc(x.rule)}</code></div>`).join('')}</aside></div>`:`<div class="empty"><b>正在等待分析结果</b><p>Agent 完成采集后，这里会显示火焰图与性能归因。</p></div>`}<div class="history"><h3>状态历史</h3>${t.transitions.map(x=>`<div class="audit-row"><b>${zhStatus(x.from_status||'NEW')} → ${zhStatus(x.to_status)}</b><span>${esc(zhReason(x.reason))} · ${when(x.created_at)}</span></div>`).join('')}</div>`;$('#detail').scrollIntoView({behavior:'smooth',block:'start'})}
 async function refresh(){try{let audit;[agents,tasks,audit]=await Promise.all([api('/agents'),api('/tasks'),api('/audit')]);$('#mAgents').textContent=agents.filter(x=>x.online).length;$('#mRunning').textContent=tasks.filter(x=>['RUNNING','UPLOADING'].includes(x.status)).length;$('#mDone').textContent=tasks.filter(x=>x.status==='DONE').length;$('#mFailed').textContent=tasks.filter(x=>x.status==='FAILED').length;$('#taskEmpty').classList.toggle('hidden',tasks.length>0);$('#tasks').innerHTML=tasks.map(t=>`<tr data-id="${t.id}" class="${selectedTask===t.id?'selected':''}" onclick="detail('${t.id}')"><td>${t.id}</td><td>${zhCollector(t.collector)}</td><td>${t.pid}</td><td><span class="pill ${t.status}">${zhStatus(t.status)}</span></td><td>${esc(zhReason(t.reason))}</td><td>${when(t.created_at)}</td></tr>`).join('');$('#agent').innerHTML=agents.filter(x=>x.online).map(x=>`<option>${esc(x.id)}</option>`).join('');$('#agentCards').innerHTML=agents.map(x=>`<article class="agent-row"><div><strong>${esc(x.id)}</strong><small>${esc(x.hostname)}</small></div><span>${esc(x.version)}</span><span>最后心跳 ${when(x.last_seen)}</span><span class="pill ${x.online?'DONE':'FAILED'}">${x.online?'在线':'离线'}</span></article>`).join('');$('#auditRows').innerHTML=audit.length?audit.map(x=>`<div class="audit-row"><b>${esc(auditText[x.kind]||x.kind)} · ${esc(x.subject)}</b><span>${esc(zhReason(x.message))} · ${when(x.created_at)}</span></div>`).join(''):`<div class="empty"><b>暂无审计记录</b><p>Agent 上线、离线与恢复事件会显示在这里。</p></div>`}catch(e){showToast(`数据刷新失败：${e.message}`)}}
 refresh();setInterval(refresh,2000);
+
+const baseDetail=detail;
+function languageView(r){return `<div class="language-stack">${r.top.map((x,i)=>`<div class="language-frame"><i>${String(i+1).padStart(2,'0')}</i><span>${esc(x.name)}</span><b>${x.samples} samples</b></div>`).join('')}</div>`}
+detail=async function(id){
+  await baseDetail(id);
+  let t=await api('/tasks/'+id);
+  if(t.collector!=='pyspy'||!t.result)return;
+  let flame=$('#detail .flame');
+  if(flame){
+    flame.outerHTML=`<div class="analysis-block language-view"><h3>Python 语言级调用栈</h3>${languageView(t.result)}</div>`;
+  }
+}
+async function loadContinuous(){
+  let agent=$('#continuousAgent').value;
+  if(!agent)return showToast('请选择 Agent');
+  let q=new URLSearchParams(),start=$('#windowStart').value,end=$('#windowEnd').value;
+  if(start)q.set('start',new Date(start).getTime()/1000);
+  if(end)q.set('end',new Date(end).getTime()/1000);
+  try{
+    let slices=await api(`/continuous/${agent}?${q}`);
+    $('#continuousTimeline').innerHTML=slices.length?slices.map(x=>`<button class="slice" onclick="detail('${x.id}')"><b>${x.id}</b><span>${when(x.updated_at)} · ${zhCollector(x.collector)}</span><span>${x.result?.fingerprint||'等待分析'}</span></button>`).join(''):`<div class="empty"><b>该时间窗口暂无切片</b><p>请选择其他时间范围，或创建持续性能采集任务。</p></div>`;
+  }catch(e){showToast(`时间轴查询失败：${e.message}`)}
+}
+function syncContinuousAgents(){
+  let select=$('#continuousAgent'),value=select.value,options=agents.map(x=>`<option value="${esc(x.id)}">${esc(x.id)}</option>`).join('');
+  if(select.innerHTML!==options){select.innerHTML=options;if(value)select.value=value}
+}
+setInterval(syncContinuousAgents,2000);

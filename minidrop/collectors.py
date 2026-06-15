@@ -4,6 +4,8 @@ import io
 import re
 import shutil
 import subprocess
+import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -49,16 +51,53 @@ def _process_name(pid):
     return _read(f"/proc/{pid}/comm", f"pid-{pid}").strip() or f"pid-{pid}"
 
 
-class ProcCollector:
-    name = "perf"
+def _sample_resources(pid, duration, rate):
+    samples = []
+    interval = max(0.05, min(1.0, 1 / max(rate, 1)))
+    deadline = time.time() + duration
+    while time.time() < deadline:
+        samples.append(_proc_sample(pid))
+        time.sleep(interval)
+    return samples
+
+
+def _parse_perf_script(text):
+    stacks = []
+    current = []
+    for line in text.splitlines():
+        if not line.strip():
+            if current:
+                stacks.append({"stack": list(reversed(current)), "value": 1})
+                current = []
+            continue
+        if line[:1].isspace():
+            fields = line.strip().split()
+            if len(fields) >= 2:
+                current.append(fields[1].split("+")[0])
+    if current:
+        stacks.append({"stack": list(reversed(current)), "value": 1})
+    return stacks
+
+
+def _collapsed_stacks(text, prefix=None):
+    stacks = []
+    for line in text.splitlines():
+        if " " not in line:
+            continue
+        stack, value = line.rsplit(" ", 1)
+        if value.isdigit():
+            frames = [x for x in stack.split(";") if x]
+            if prefix:
+                frames.insert(0, prefix)
+            stacks.append({"stack": frames, "value": int(value)})
+    return stacks
+
+
+class ResourceCollector:
+    name = "resource"
 
     def collect(self, pid, duration, rate):
-        samples = []
-        interval = max(0.05, min(1.0, 1 / max(rate, 1)))
-        deadline = time.time() + duration
-        while time.time() < deadline:
-            samples.append(_proc_sample(pid))
-            time.sleep(interval)
+        samples = _sample_resources(pid, duration, rate)
         proc = _process_name(pid)
         stacks = [{"stack": ["kernel", "schedule", proc, "work"], "value": max(1, len(samples) // 2)},
                   {"stack": ["kernel", proc, "read"], "value": max(1, len(samples) // 3)}]
@@ -66,7 +105,48 @@ class ProcCollector:
         return {"samples": samples, "stacks": stacks, "meta": {"collector": self.name, "backend": backend}}
 
 
-class EBPFCollector(ProcCollector):
+class PerfCollector(ResourceCollector):
+    name = "perf"
+
+    def collect(self, pid, duration, rate):
+        tool = shutil.which("perf")
+        if not tool or os.name != "posix":
+            result = super().collect(pid, duration, rate)
+            result["meta"].update({"collector": self.name, "degraded": True, "reason": "perf unavailable"})
+            return result
+        samples = []
+        error = []
+        def sample():
+            try:
+                samples.extend(_sample_resources(pid, duration, rate))
+            except Exception as exc:
+                error.append(str(exc))
+        worker = threading.Thread(target=sample)
+        worker.start()
+        with tempfile.TemporaryDirectory(prefix="minidrop-perf-") as tmp:
+            data = str(Path(tmp) / "perf.data")
+            run = subprocess.run(
+                [tool, "record", "-F", str(rate), "-g", "-p", str(pid), "-o", data, "--", "sleep", str(duration)],
+                capture_output=True, text=True, timeout=duration + 15,
+            )
+            script = subprocess.run([tool, "script", "-i", data], capture_output=True, text=True, timeout=20)
+        worker.join()
+        stacks = _parse_perf_script(script.stdout)
+        degraded = run.returncode != 0 or script.returncode != 0 or not stacks
+        if not stacks:
+            stacks = [{"stack": ["perf", _process_name(pid), "no-samples"], "value": max(1, len(samples))}]
+        return {
+            "samples": samples,
+            "stacks": stacks,
+            "meta": {
+                "collector": self.name, "backend": "perf record + perf script", "degraded": degraded,
+                "reason": "perf produced no stack samples" if degraded else "",
+                "stderr": (run.stderr + script.stderr + "".join(error))[-1000:],
+            },
+        }
+
+
+class EBPFCollector(ResourceCollector):
     name = "ebpf"
 
     def collect(self, pid, duration, rate):
@@ -91,7 +171,7 @@ class EBPFCollector(ProcCollector):
         return base
 
 
-class PySpyCollector(ProcCollector):
+class PySpyCollector(ResourceCollector):
     name = "pyspy"
 
     def collect(self, pid, duration, rate):
@@ -101,15 +181,28 @@ class PySpyCollector(ProcCollector):
             result["meta"].update({"collector": self.name, "degraded": True, "reason": "py-spy unavailable"})
             result["stacks"] = [{"stack": ["python", _process_name(pid), "language-frame"], "value": len(result["samples"])}]
             return result
-        run = subprocess.run([tool, "dump", "--pid", str(pid)], capture_output=True, text=True, timeout=duration + 5)
-        frames = [line.strip() for line in run.stdout.splitlines() if line.strip() and not line.startswith("Process")]
-        result = super().collect(pid, duration, rate)
+        with tempfile.TemporaryDirectory(prefix="minidrop-pyspy-") as tmp:
+            output = str(Path(tmp) / "stacks.txt")
+            run = subprocess.run(
+                [tool, "record", "--pid", str(pid), "--duration", str(duration), "--rate", str(rate),
+                 "--format", "raw", "--output", output],
+                capture_output=True, text=True, timeout=duration + 15,
+            )
+            raw = _read(output)
+        result = {"samples": [], "stacks": _collapsed_stacks(raw, "python"), "meta": {}}
+        try:
+            result["samples"] = [_proc_sample(pid)]
+        except ProcessLookupError:
+            pass
         result["meta"].update({"collector": self.name, "backend": "py-spy", "degraded": run.returncode != 0})
-        result["stacks"] = [{"stack": ["python"] + frames[:12], "value": max(1, len(result["samples"]))}]
+        if not result["stacks"]:
+            result["stacks"] = [{"stack": ["python", _process_name(pid), "no-language-samples"], "value": 1}]
+            result["meta"].update({"degraded": True, "reason": "py-spy produced no language stack samples",
+                                   "stderr": run.stderr[-1000:]})
         return result
 
 
-COLLECTORS = {"perf": ProcCollector, "ebpf": EBPFCollector, "pyspy": PySpyCollector}
+COLLECTORS = {"perf": PerfCollector, "ebpf": EBPFCollector, "pyspy": PySpyCollector}
 
 
 def get_collector(name):

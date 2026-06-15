@@ -161,17 +161,31 @@ class Store:
         with self.connect() as db:
             return self._rows(db.execute("SELECT * FROM tasks ORDER BY created_at DESC").fetchall())
 
-    def continuous_window(self, agent_id, seconds=300):
+    def continuous_window(self, agent_id, start=None, end=None):
+        end = end or time.time()
+        start = start or end - 300
         with self.connect() as db:
             rows = self._rows(db.execute(
                 """SELECT * FROM tasks WHERE agent_id=? AND continuous=1 AND status='DONE'
-                   AND updated_at>=? ORDER BY updated_at""",
-                (agent_id, time.time() - seconds),
+                   AND updated_at BETWEEN ? AND ? ORDER BY updated_at""",
+                (agent_id, start, end),
             ).fetchall())
         for row in rows:
             row["result"] = json.loads(row["result"]) if row["result"] else None
             row["raw_data"] = None
         return rows
+
+    def stop_continuous(self, task_id):
+        with self.lock, self.connect() as db:
+            task = db.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+            if not task:
+                raise KeyError(task_id)
+            cursor = db.execute(
+                """UPDATE tasks SET continuous=0,updated_at=?
+                   WHERE agent_id=? AND pid=? AND collector=? AND continuous=1""",
+                (time.time(), task["agent_id"], task["pid"], task["collector"]),
+            )
+        return {"stopped": cursor.rowcount, "task_id": task_id}
 
     def list_agents(self):
         with self.connect() as db:
