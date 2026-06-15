@@ -1,32 +1,83 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mini-Drop 分布式性能诊断平台">
   <title>Mini-Drop 性能诊断平台</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <aside>
-    <div class="brand"><span>◆</span> MINI-DROP</div>
-    <p class="muted">分布式性能诊断平台</p>
-    <nav><button onclick="showPage('overview')">总览</button><button onclick="showPage('agents')">采集节点</button><button onclick="showPage('audit')">审计日志</button></nav>
-    <div class="status"><i></i> 控制平面在线</div>
-  </aside>
-  <main>
-    <header><div><p class="eyebrow">可观测性 / 性能剖析</p><h1>性能诊断中心</h1></div><button class="primary" onclick="openModal()">新建采集任务</button></header>
+  <a class="skip-link" href="#content">跳到主要内容</a>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark">MD</div>
+      <div><strong>Mini-Drop</strong><span>性能诊断控制台</span></div>
+    </div>
+    <nav aria-label="主导航">
+      <button class="nav-item active" data-page="overview" onclick="showPage('overview',this)">任务总览</button>
+      <button class="nav-item" data-page="agents" onclick="showPage('agents',this)">采集节点</button>
+      <button class="nav-item" data-page="audit" onclick="showPage('audit',this)">审计日志</button>
+    </nav>
+    <div class="top-actions">
+      <div class="system-state"><i></i><span>控制平面在线</span></div>
+      <button class="primary" onclick="openModal()">新建采集任务</button>
+    </div>
+  </header>
+
+  <main id="content">
     <section id="overview">
-      <div class="metrics"><article><b id="mAgents">0</b><span>在线 Agent</span></article><article><b id="mRunning">0</b><span>执行中任务</span></article><article><b id="mDone">0</b><span>已完成任务</span></article><article><b id="mFailed">0</b><span>失败任务</span></article></div>
-      <div class="panel"><div class="panel-head"><h2>性能采集任务</h2><span class="muted">每 2 秒自动刷新</span></div><div class="table-wrap"><table><thead><tr><th>任务 ID</th><th>采集器</th><th>进程 PID</th><th>状态</th><th>状态原因</th><th>创建时间</th></tr></thead><tbody id="tasks"></tbody></table></div></div>
-      <div id="detail" class="panel hidden"></div>
+      <div class="page-heading">
+        <div><p class="kicker">Performance workspace</p><h1>性能任务</h1><p>下发采集任务，跟踪执行状态，查看内核与进程热点。</p></div>
+        <div class="heading-meta"><span>自动刷新</span><b>2s</b></div>
+      </div>
+      <div class="metrics" aria-label="任务指标">
+        <article><span>在线 Agent</span><b id="mAgents">0</b><small>可接收任务</small></article>
+        <article><span>执行中</span><b id="mRunning">0</b><small>采集或分析中</small></article>
+        <article><span>已完成</span><b id="mDone">0</b><small>分析结果可查看</small></article>
+        <article><span>失败</span><b id="mFailed">0</b><small>需要排查原因</small></article>
+      </div>
+      <section class="workspace">
+        <div class="section-head">
+          <div><h2>最近任务</h2><p>点击任务行查看采集结果与完整状态历史</p></div>
+          <div class="legend"><span><i class="done-dot"></i>已完成</span><span><i class="running-dot"></i>执行中</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>任务 ID</th><th>采集器</th><th>目标 PID</th><th>状态</th><th>最近进展</th><th>创建时间</th></tr></thead>
+            <tbody id="tasks"></tbody>
+          </table>
+          <div id="taskEmpty" class="empty hidden"><b>暂无性能任务</b><p>创建第一个采集任务，Agent 会自动领取并分析结果。</p><button class="secondary" onclick="openModal()">创建任务</button></div>
+        </div>
+      </section>
+      <section id="detail" class="workspace detail hidden"></section>
     </section>
-    <section id="agents" class="hidden"><div class="panel"><h2>Agent 采集节点</h2><div id="agentCards" class="cards"></div></div></section>
-    <section id="audit" class="hidden"><div class="panel"><h2>连接状态审计</h2><div id="auditRows"></div></div></section>
+
+    <section id="agents" class="hidden">
+      <div class="page-heading"><div><p class="kicker">Agent fleet</p><h1>采集节点</h1><p>查看 Agent 心跳、运行环境与在线状态。</p></div></div>
+      <div id="agentCards" class="agent-list"></div>
+    </section>
+
+    <section id="audit" class="hidden">
+      <div class="page-heading"><div><p class="kicker">Connectivity history</p><h1>审计日志</h1><p>记录 Agent 首次连接、离线与恢复事件。</p></div></div>
+      <section class="workspace"><div id="auditRows" class="timeline"></div></section>
+    </section>
   </main>
-  <dialog id="modal"><form method="dialog" onsubmit="createTask(event)"><div class="panel-head"><h2>创建性能采集任务</h2><button class="close" value="cancel">×</button></div>
-    <label>目标 Agent<select id="agent" required></select></label><label>目标进程 PID<input id="pid" type="number" min="1" value="1" required></label>
-    <div class="twocol"><label>采样时长（秒）<input id="duration" type="number" min="1" max="300" value="5"></label><label>采样频率（Hz）<input id="rate" type="number" min="1" max="999" value="10"></label></div>
-    <label>采集器<select id="collector"><option value="perf">CPU / perf 语义采样</option><option value="ebpf">eBPF 内核写入探针</option><option value="pyspy">Python 语言级调用栈</option></select></label>
-    <label class="check"><input id="continuous" type="checkbox"> 持续性能采集（自动分片）</label><button class="primary wide" value="default">下发采集任务</button>
-  </form></dialog>
+
+  <dialog id="modal">
+    <form method="dialog" onsubmit="createTask(event)">
+      <div class="dialog-head"><div><p class="kicker">New profile</p><h2>创建采集任务</h2></div><button class="close" value="cancel" aria-label="关闭">×</button></div>
+      <p class="form-help">任务下发后，在线 Agent 会自动领取并生成可视化结果。</p>
+      <label>目标 Agent<select id="agent" required></select></label>
+      <label>目标进程 PID<input id="pid" type="number" min="1" value="1" required><small>PID 必须对 Agent 可见</small></label>
+      <div class="twocol"><label>采样时长（秒）<input id="duration" type="number" min="1" max="300" value="5"></label><label>采样频率（Hz）<input id="rate" type="number" min="1" max="999" value="10"></label></div>
+      <label>采集器<select id="collector"><option value="perf">CPU / perf 语义采样</option><option value="ebpf">eBPF 内核写入探针</option><option value="pyspy">Python 语言级调用栈</option></select></label>
+      <label class="check"><input id="continuous" type="checkbox"><span><b>持续性能采集</b><small>任务完成后自动创建下一时间分片</small></span></label>
+      <div id="formError" class="form-error hidden"></div>
+      <button class="primary wide" value="default">下发采集任务</button>
+    </form>
+  </dialog>
+  <div id="toast" class="toast hidden" role="status"></div>
   <script src="/app.js"></script>
-</body></html>
+</body>
+</html>
