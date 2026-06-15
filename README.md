@@ -2,11 +2,11 @@
 
 Mini-Drop is a compact, runnable performance-diagnostics platform containing a Web UI, control-plane Server, remote Agent, pluggable collectors, and Analyzer.
 
-The Web UI is implemented with React 19, Vite, and Phosphor Icons. The Server, Agent, collectors, and Analyzer remain Python 3.12 components.
+The Web UI is implemented with React 19, Vite, and Phosphor Icons. The control plane uses FastAPI, SQLAlchemy, and MySQL 8; the Agent, collectors, and Analyzer remain Python 3.12 components.
 
 ## Quick start
 
-Requirements: Docker Engine with Compose, Linux kernel 5.4+, and root/privileged-container permission for eBPF. The basic `/proc` demo works without perf/eBPF kernel permission.
+Requirements: Docker Engine with Compose, Linux kernel 5.4+, and root/privileged-container permission for eBPF. Compose starts MySQL 8 automatically. The basic `/proc` demo works without perf/eBPF kernel permission.
 
 ```bash
 docker compose up --build
@@ -28,7 +28,9 @@ For frontend development, run `npm install && npm run dev` in `frontend/`. Vite 
 - CPU, RSS, and I/O samples; flame graph, TopN, eBPF distribution, and verifiable rule-based attribution.
 - Continuous profiling by automatic time-slice creation.
 - Natural-language collection planning that extracts a verifiable PID, collector, duration, rate, and Agent.
-- Structured logs, explicit errors, SQLite persistence, responsive Web UI, unit tests, and three end-to-end tests.
+- Structured logs, explicit errors, responsive Web UI, unit tests, and five end-to-end API tests.
+- FastAPI request validation and generated API documentation at <http://localhost:8080/docs>.
+- SQLAlchemy persistence backed by MySQL 8 in Docker Compose; tests use isolated in-memory SQLite.
 
 ## Useful commands
 

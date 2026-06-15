@@ -1,77 +1,79 @@
-import tempfile
 import unittest
-from pathlib import Path
 
-from minidrop.server import App
+from fastapi.testclient import TestClient
+
+from minidrop.server import create_app
 
 
 class EndToEndTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.app = App(str(Path(self.tmp.name) / "e2e.db"))
-        self.app.routes("POST", "/api/agents/demo/heartbeat", {"hostname": "test", "version": "1"})
+        self.app = create_app("sqlite:///:memory:", start_watcher=False)
+        self.client = TestClient(self.app)
+        self.client.post("/api/agents/demo/heartbeat", json={"hostname": "test", "version": "1"})
 
     def tearDown(self):
-        self.tmp.cleanup()
+        self.client.close()
+        self.app.state.store.engine.dispose()
 
     def create_and_claim(self, collector="perf"):
-        status, task = self.app.routes("POST", "/api/tasks", {
+        response = self.client.post("/api/tasks", json={
             "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": collector
         })
-        self.assertEqual(status, 201)
-        _, claimed = self.app.routes("POST", "/api/agents/demo/claim", {})
+        self.assertEqual(response.status_code, 201)
+        task = response.json()
+        claimed = self.client.post("/api/agents/demo/claim", json={}).json()
         return task, claimed
 
     def test_normal_path_reaches_done_with_analysis(self):
         task, _ = self.create_and_claim()
-        status, done = self.app.routes("POST", f"/api/tasks/{task['id']}/upload", {
+        response = self.client.post(f"/api/tasks/{task['id']}/upload", json={
             "reason": "profile ready",
             "raw": {"stacks": [{"stack": ["main", "work"], "value": 4}], "samples": []},
         })
-        self.assertEqual(status, 200)
+        self.assertEqual(response.status_code, 200)
+        done = response.json()
         self.assertEqual(done["status"], "DONE")
         self.assertIsNotNone(done["result"]["flamegraph"])
         self.assertEqual(len(done["transitions"]), 4)
 
     def test_process_collection_failure_reaches_failed(self):
         task, _ = self.create_and_claim()
-        _, failed = self.app.routes("POST", f"/api/tasks/{task['id']}/fail", {
+        failed = self.client.post(f"/api/tasks/{task['id']}/fail", json={
             "reason": "ProcessLookupError: pid 999999 does not exist"
-        })
+        }).json()
         self.assertEqual(failed["status"], "FAILED")
         self.assertIn("ProcessLookupError", failed["reason"])
 
     def test_unsupported_collector_failure_is_persisted(self):
         task, _ = self.create_and_claim("unknown")
-        _, failed = self.app.routes("POST", f"/api/tasks/{task['id']}/fail", {
+        failed = self.client.post(f"/api/tasks/{task['id']}/fail", json={
             "reason": "ValueError: unsupported collector: unknown"
-        })
-        fetched = self.app.routes("GET", f"/api/tasks/{task['id']}", {})[1]
+        }).json()
+        fetched = self.client.get(f"/api/tasks/{task['id']}").json()
         self.assertEqual(failed["status"], "FAILED")
         self.assertEqual(fetched["transitions"][-1]["reason"], "ValueError: unsupported collector: unknown")
 
     def test_natural_language_request_creates_a_verifiable_plan(self):
-        status, response = self.app.routes("POST", "/api/natural-language", {
+        response = self.client.post("/api/natural-language", json={
             "text": "对 PID 1 做 2 秒 eBPF IO 采集，频率 19Hz"
         })
-        self.assertEqual(status, 201)
-        self.assertEqual(response["plan"]["collector"], "ebpf")
-        self.assertEqual(response["task"]["status"], "PENDING")
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertEqual(data["plan"]["collector"], "ebpf")
+        self.assertEqual(data["task"]["status"], "PENDING")
 
     def test_continuous_task_creates_next_slice_and_window(self):
-        _, task = self.app.routes("POST", "/api/tasks", {
+        task = self.client.post("/api/tasks", json={
             "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": "perf", "continuous": True
-        })
-        self.app.routes("POST", "/api/agents/demo/claim", {})
-        self.app.routes("POST", f"/api/tasks/{task['id']}/upload", {
+        }).json()
+        self.client.post("/api/agents/demo/claim", json={})
+        self.client.post(f"/api/tasks/{task['id']}/upload", json={
             "raw": {"stacks": [{"stack": ["main"], "value": 1}]}
         })
-        window = self.app.routes("GET", "/api/continuous/demo", {})[1]
-        tasks = self.app.routes("GET", "/api/tasks", {})[1]
+        window = self.client.get("/api/continuous/demo").json()
+        tasks = self.client.get("/api/tasks").json()
         self.assertEqual(len(window), 1)
         self.assertTrue(any(x["status"] == "PENDING" and x["continuous"] for x in tasks))
-        status, stopped = self.app.routes("POST", f"/api/tasks/{task['id']}/stop-continuous", {})
-        self.assertEqual(status, 200)
+        stopped = self.client.post(f"/api/tasks/{task['id']}/stop-continuous", json={}).json()
         self.assertGreaterEqual(stopped["stopped"], 2)
-        tasks = self.app.routes("GET", "/api/tasks", {})[1]
-        self.assertFalse(any(x["continuous"] for x in tasks))
+        self.assertFalse(any(x["continuous"] for x in self.client.get("/api/tasks").json()))

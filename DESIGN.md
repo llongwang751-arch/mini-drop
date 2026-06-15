@@ -2,7 +2,7 @@
 
 ## 1. Scope
 
-This implementation optimizes for a reproducible ten-minute review: one Compose command builds the React UI and starts a Python control plane plus privileged Agent, while the browser demonstrates dispatch, live state, analysis, continuous slices, and connectivity audit. SQLite and Python's standard library keep the backend baseline small. Optional Linux profiling tools remain real processes rather than simulated APIs.
+This implementation optimizes for a reproducible ten-minute review: one Compose command builds the React UI and starts a FastAPI control plane, MySQL 8, and a privileged Agent, while the browser demonstrates dispatch, live state, analysis, continuous slices, and connectivity audit. Optional Linux profiling tools remain real processes rather than simulated APIs.
 
 ## 2. Architecture
 
@@ -10,7 +10,7 @@ This implementation optimizes for a reproducible ten-minute review: one Compose 
 flowchart LR
   U[React Web UI] -->|REST/JSON| S[Python Server]
   A[Agent] -->|heartbeat / claim / upload| S
-  S --> DB[(SQLite)]
+  S --> DB[(MySQL 8)]
   A --> C{Collector}
   C --> P[proc/perf semantics]
   C --> B[bpftrace kernel tracepoint]
@@ -20,9 +20,9 @@ flowchart LR
   DB --> U
 ```
 
-The Server owns task truth. Agents never write storage directly; they request a task, collect data, and submit either raw output or an explicit failure. The Analyzer is isolated as a module with a stable `analyze(raw) -> result` contract, so it can later move to a queue-backed worker without changing collectors or UI.
+The FastAPI Server owns task truth. Agents never write storage directly; they request a task, collect data, and submit either raw output or an explicit failure. SQLAlchemy keeps persistence portable and uses row locking when an Agent claims work. The Analyzer is isolated as a module with a stable `analyze(raw) -> result` contract, so it can later move to a queue-backed worker without changing collectors or UI.
 
-The React UI is built by Vite during the Docker multi-stage build. The Python Server serves the generated static assets and owns every `/api` route, so frontend migration does not change the runtime API contract.
+The React UI is built by Vite during the Docker multi-stage build. FastAPI serves the generated static assets, owns every `/api` route, validates requests with Pydantic, and publishes OpenAPI documentation at `/docs`.
 
 ## 3. State machine
 
@@ -37,7 +37,7 @@ stateDiagram-v2
   UPLOADING --> FAILED: analysis/storage error
 ```
 
-`Store.transition` is the only mutation path. It validates edges and rejects an empty reason. Task state and an append-only transition record are committed in the same SQLite transaction.
+`Store.transition` is the only mutation path. It validates edges and rejects an empty reason. Task state and an append-only transition record are committed in the same SQLAlchemy transaction.
 
 ## 4. Heartbeats and audit
 
@@ -65,21 +65,21 @@ A continuous task automatically creates its successor after a slice reaches `DON
 
 ## 8. Reliability and security
 
-SQLite WAL-sized workloads are sufficient for the demo, but writes are guarded with a process lock and indexed by Agent/status and task transition. Errors are returned as JSON and Agent failures become terminal state transitions. Static-file traversal is rejected using resolved path ancestry.
+MySQL stores task truth and large raw profiles use `LONGTEXT`. SQLAlchemy transactions keep state changes and transition records atomic, while `SELECT ... FOR UPDATE SKIP LOCKED` prevents two Agents from claiming the same task. Errors are returned as JSON and Agent failures become terminal state transitions.
 
 The eBPF Agent is privileged for demonstration. Production should use a signed, allow-listed probe catalog, narrow capabilities, authentication, TLS, tenant authorization, and object storage for raw profiles.
 
 ## 9. Testing and performance evidence
 
-Tests cover state-machine constraints, offline/recovery audit, collectors, natural-language planning, Analyzer output, and end-to-end workflows including success and two failure classes. Coverage is enforced at 50%; the final local acceptance result was 59%. Run `make coverage`.
+Tests cover state-machine constraints, offline/recovery audit, collectors, natural-language planning, Analyzer output, and end-to-end workflows including success and two failure classes. Coverage is enforced at 50%; the final local acceptance result was 66%. Run `make coverage`.
 
 Collection memory is proportional to `duration * min(rate, 20)` in ordinary usage. Analysis is linear in total frames. The UI only renders TopN and flame leaves, avoiding unbounded DOM growth for the demo. Before production, load tests should establish queue latency and cap raw profile size.
 
 ## 10. Key tradeoffs and seven more days
 
-Using one Python codebase makes the assessment easy to run and inspect, but it does not isolate Analyzer failure or provide horizontal scaling. SQLite avoids infrastructure startup cost, but PostgreSQL is the right next step for concurrent control planes.
+Using one Python codebase makes the assessment easy to run and inspect, but it does not isolate Analyzer failure or provide horizontal scaling. MySQL is appropriate for the control plane, while raw profiles should move to object storage instead of remaining in database `LONGTEXT`.
 
-With seven more days I would move analysis behind a durable queue, add PostgreSQL and S3/MinIO, implement authenticated Agent identities, enrich unresolved native symbols, enforce retention/backpressure, and publish coverage plus load-test reports in CI.
+With seven more days I would add Alembic schema migrations, move analysis behind a durable queue, add S3/MinIO, implement authenticated Agent identities, enrich unresolved native symbols, enforce retention/backpressure, and publish coverage plus load-test reports in CI.
 
 ## AI collaboration
 

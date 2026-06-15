@@ -1,9 +1,24 @@
 services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: minidrop
+      MYSQL_USER: minidrop
+      MYSQL_PASSWORD: minidrop
+      MYSQL_ROOT_PASSWORD: minidrop-root
+    volumes: [mysql-data:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uminidrop", "-pminidrop"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
   server:
     build: .
-    command: python -m minidrop.server --db /data/minidrop.db
+    environment:
+      DATABASE_URL: mysql+pymysql://minidrop:minidrop@mysql:3306/minidrop
     ports: ["8080:8080"]
-    volumes: [minidrop-data:/data]
+    depends_on:
+      mysql: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')"]
       interval: 3s
@@ -19,4 +34,4 @@ services:
     pid: host
     privileged: true
 volumes:
-  minidrop-data:
+  mysql-data:
