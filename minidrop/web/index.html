@@ -2,31 +2,31 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mini-Drop Performance Lab</title>
+  <title>Mini-Drop 性能诊断平台</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <aside>
     <div class="brand"><span>◆</span> MINI-DROP</div>
-    <p class="muted">Performance diagnostics</p>
-    <nav><button onclick="showPage('overview')">Overview</button><button onclick="showPage('agents')">Agents</button><button onclick="showPage('audit')">Audit log</button></nav>
-    <div class="status"><i></i> Control plane online</div>
+    <p class="muted">分布式性能诊断平台</p>
+    <nav><button onclick="showPage('overview')">总览</button><button onclick="showPage('agents')">采集节点</button><button onclick="showPage('audit')">审计日志</button></nav>
+    <div class="status"><i></i> 控制平面在线</div>
   </aside>
   <main>
-    <header><div><p class="eyebrow">OBSERVABILITY / PROFILING</p><h1>Performance Lab</h1></div><button class="primary" onclick="openModal()">New profile</button></header>
+    <header><div><p class="eyebrow">可观测性 / 性能剖析</p><h1>性能诊断中心</h1></div><button class="primary" onclick="openModal()">新建采集任务</button></header>
     <section id="overview">
-      <div class="metrics"><article><b id="mAgents">0</b><span>Online agents</span></article><article><b id="mRunning">0</b><span>Active profiles</span></article><article><b id="mDone">0</b><span>Completed</span></article><article><b id="mFailed">0</b><span>Failed</span></article></div>
-      <div class="panel"><div class="panel-head"><h2>Profiles</h2><span class="muted">Live refresh every 2 seconds</span></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Collector</th><th>PID</th><th>Status</th><th>Reason</th><th>Created</th></tr></thead><tbody id="tasks"></tbody></table></div></div>
+      <div class="metrics"><article><b id="mAgents">0</b><span>在线 Agent</span></article><article><b id="mRunning">0</b><span>执行中任务</span></article><article><b id="mDone">0</b><span>已完成任务</span></article><article><b id="mFailed">0</b><span>失败任务</span></article></div>
+      <div class="panel"><div class="panel-head"><h2>性能采集任务</h2><span class="muted">每 2 秒自动刷新</span></div><div class="table-wrap"><table><thead><tr><th>任务 ID</th><th>采集器</th><th>进程 PID</th><th>状态</th><th>状态原因</th><th>创建时间</th></tr></thead><tbody id="tasks"></tbody></table></div></div>
       <div id="detail" class="panel hidden"></div>
     </section>
-    <section id="agents" class="hidden"><div class="panel"><h2>Agents</h2><div id="agentCards" class="cards"></div></div></section>
-    <section id="audit" class="hidden"><div class="panel"><h2>Connectivity audit</h2><div id="auditRows"></div></div></section>
+    <section id="agents" class="hidden"><div class="panel"><h2>Agent 采集节点</h2><div id="agentCards" class="cards"></div></div></section>
+    <section id="audit" class="hidden"><div class="panel"><h2>连接状态审计</h2><div id="auditRows"></div></div></section>
   </main>
-  <dialog id="modal"><form method="dialog" onsubmit="createTask(event)"><div class="panel-head"><h2>Start profiling</h2><button class="close" value="cancel">×</button></div>
-    <label>Agent<select id="agent" required></select></label><label>Target PID<input id="pid" type="number" min="1" value="1" required></label>
-    <div class="twocol"><label>Duration (s)<input id="duration" type="number" min="1" max="300" value="5"></label><label>Rate (Hz)<input id="rate" type="number" min="1" max="999" value="10"></label></div>
-    <label>Collector<select id="collector"><option value="perf">CPU / perf semantics</option><option value="ebpf">eBPF block I/O</option><option value="pyspy">Python language stacks</option></select></label>
-    <label class="check"><input id="continuous" type="checkbox"> Continuous profiling (automatic slices)</label><button class="primary wide" value="default">Dispatch task</button>
+  <dialog id="modal"><form method="dialog" onsubmit="createTask(event)"><div class="panel-head"><h2>创建性能采集任务</h2><button class="close" value="cancel">×</button></div>
+    <label>目标 Agent<select id="agent" required></select></label><label>目标进程 PID<input id="pid" type="number" min="1" value="1" required></label>
+    <div class="twocol"><label>采样时长（秒）<input id="duration" type="number" min="1" max="300" value="5"></label><label>采样频率（Hz）<input id="rate" type="number" min="1" max="999" value="10"></label></div>
+    <label>采集器<select id="collector"><option value="perf">CPU / perf 语义采样</option><option value="ebpf">eBPF 内核写入探针</option><option value="pyspy">Python 语言级调用栈</option></select></label>
+    <label class="check"><input id="continuous" type="checkbox"> 持续性能采集（自动分片）</label><button class="primary wide" value="default">下发采集任务</button>
   </form></dialog>
   <script src="/app.js"></script>
 </body></html>

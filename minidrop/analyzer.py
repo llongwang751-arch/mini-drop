@@ -4,10 +4,10 @@ import re
 
 
 RULES = [
-    (re.compile(r"(malloc|alloc|gc)", re.I), "Allocation is hot; inspect object lifetime and pooling."),
-    (re.compile(r"(read|write|io|disk)", re.I), "I/O dominates; validate latency distribution and batching."),
-    (re.compile(r"(lock|mutex|futex)", re.I), "Locking is visible; inspect contention and critical-section size."),
-    (re.compile(r"(sleep|wait|poll)", re.I), "Waiting dominates samples; correlate with upstream latency."),
+    (re.compile(r"(malloc|alloc|gc)", re.I), "内存分配较热，建议检查对象生命周期、垃圾回收和对象池策略。"),
+    (re.compile(r"(read|write|io|disk)", re.I), "I/O 操作占比较高，建议检查延迟分布、批量处理和磁盘性能。"),
+    (re.compile(r"(lock|mutex|futex)", re.I), "检测到锁竞争，建议检查临界区大小和并发访问方式。"),
+    (re.compile(r"(sleep|wait|poll)", re.I), "等待操作占比较高，建议结合上游调用延迟进一步分析。"),
 ]
 
 
@@ -43,7 +43,7 @@ def analyze(raw):
         advice.append(
             {
                 "evidence": top[0] if top else {},
-                "conclusion": "No known anti-pattern matched; compare this profile with a historical baseline.",
+                "conclusion": "未匹配到已知性能模式，建议与历史基线进行对比分析。",
                 "rule": "fallback",
             }
         )
