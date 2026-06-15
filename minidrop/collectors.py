@@ -1,6 +1,7 @@
 import os
 import csv
 import io
+import re
 import shutil
 import subprocess
 import time
@@ -73,9 +74,12 @@ class EBPFCollector(ProcCollector):
         tool = shutil.which("bpftrace")
         histogram = []
         if tool and os.name == "posix":
-            program = f'tracepoint:syscalls:sys_enter_write {{ @writes[comm] = count(); }} interval:s:{duration} {{ exit(); }}'
+            program = f'kprobe:vfs_write {{ @writes[comm] = count(); }} interval:s:{duration} {{ exit(); }}'
             run = subprocess.run([tool, "-e", program], capture_output=True, text=True, timeout=duration + 10)
-            histogram = [{"bucket": line.strip(), "count": 1} for line in run.stdout.splitlines() if line.strip()]
+            for line in run.stdout.splitlines():
+                match = re.match(r"@writes\[(.+)\]:\s+(\d+)$", line.strip())
+                if match:
+                    histogram.append({"bucket": match.group(1), "count": int(match.group(2))})
             base["meta"].update({"backend": "bpftrace", "degraded": run.returncode != 0, "stderr": run.stderr[-500:]})
         else:
             disk = _read("/proc/diskstats")
@@ -83,7 +87,7 @@ class EBPFCollector(ProcCollector):
             base["meta"].update({"backend": "/proc/diskstats", "degraded": True,
                                  "reason": "bpftrace unavailable; install it for the real kernel tracepoint"})
         base["histogram"] = histogram
-        base["stacks"] = [{"stack": ["kernel", "sys_enter_write", _process_name(pid)], "value": len(base["samples"])}]
+        base["stacks"] = [{"stack": ["kernel", "vfs_write", _process_name(pid)], "value": len(base["samples"])}]
         return base
 
 

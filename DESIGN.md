@@ -46,7 +46,7 @@ The Agent heartbeats before every five-second claim cycle. A Server watcher scan
 All collectors implement `collect(pid, duration, rate)` and return the same envelope: time-series samples, folded stacks, optional histogram, and metadata.
 
 - CPU/perf semantics samples `/proc/<pid>/{stat,status,io}`. This always works when the PID is visible.
-- eBPF executes a real bpftrace `sys_enter_write` tracepoint and exposes its distribution. If kernel tracing is unavailable, `/proc/diskstats` keeps the demo operable while clearly marking the result degraded.
+- eBPF executes a real bpftrace `kprobe:vfs_write` kernel probe and exposes its distribution. If kernel tracing is unavailable, `/proc/diskstats` keeps the demo operable while clearly marking the result degraded.
 - py-spy obtains Python language-level frames. Its fallback is explicitly marked degraded.
 
 External commands use argument arrays with `subprocess.run`; no shell interpretation is involved.

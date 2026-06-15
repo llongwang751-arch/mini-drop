@@ -34,7 +34,7 @@ docker compose up --build
 make demo
 ```
 
-For a visible eBPF change, create an `ebpf` profile in the UI while running:
+For a visible eBPF `kprobe:vfs_write` change, create an `ebpf` profile in the UI while running:
 
 ```bash
 dd if=/dev/zero of=/tmp/minidrop-io.bin bs=1M count=512
