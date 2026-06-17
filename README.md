@@ -121,6 +121,7 @@ Agent 镜像使用 `privileged: true`，因为 bpftrace 需要访问内核 traci
 - [DESIGN.md](DESIGN.md)：架构、状态机、关键决策、取舍说明和 AI 协作说明
 - [ASSESSMENT.md](ASSESSMENT.md)：逐项验收矩阵、实机证据和合理简化说明
 - [DEMO.md](DEMO.md)：15 分钟演示脚本
+- [LEARNING_NOTES.md](LEARNING_NOTES.md)：学习笔记、实现取舍和后续学习计划
 
 ## 合理简化
 
