@@ -1,73 +1,129 @@
-# Mini-Drop
+# Mini-Drop 性能诊断系统
 
-Mini-Drop is a compact, runnable performance-diagnostics platform containing a Web UI, control-plane Server, remote Agent, pluggable collectors, and Analyzer.
+Mini-Drop 是一个可运行的轻量性能诊断平台，复刻 Drop 的核心链路：用户在 Web 上创建采集任务，Server 调度任务，Agent 在目标机器执行性能采集，Analyzer 生成可视化结果，最后在 Web 上展示火焰图、热点函数、eBPF 分布和状态历史。
 
-The Web UI is implemented with React 19, Vite, and Phosphor Icons. The control plane uses FastAPI, SQLAlchemy, and MySQL 8; the Agent, collectors, and Analyzer remain Python 3.12 components.
+## 技术栈
 
-## Quick start
+- 前端：React 19、Vite、Phosphor Icons
+- 后端：FastAPI、SQLAlchemy、MySQL 8、Uvicorn
+- Agent 与分析器：Python 3.12
+- 采集工具：Linux perf、bpftrace/eBPF、py-spy、`/proc`
+- 部署：Docker Compose
 
-Requirements: Docker Engine with Compose, Linux kernel 5.4+, and root/privileged-container permission for eBPF. Compose starts MySQL 8 automatically. The basic `/proc` demo works without perf/eBPF kernel permission.
+## 快速启动
+
+环境要求：
+
+- Docker Engine / Docker Desktop，支持 Docker Compose
+- Linux 内核 5.4+
+- 如需真实 eBPF 采集，需要特权容器权限
+- Docker Compose 会自动启动 MySQL 8
+
+启动项目：
 
 ```bash
 docker compose up --build
-make demo
 ```
 
-Open <http://localhost:8080>. The Agent uses the host PID namespace, so enter a host PID visible from the Agent. `PID 1` is suitable for the demo.
+打开页面：
 
-Without Docker, run `python scripts/run_local.py` and then `python scripts/demo.py`.
+- Web 控制台：<http://localhost:8080>
+- FastAPI 文档：<http://localhost:8080/docs>
 
-For frontend development, run `npm install && npm run dev` in `frontend/`. Vite proxies `/api` requests to the Python Server on port 8080.
+Agent 使用宿主机 PID 命名空间，因此页面中填写的 PID 必须是 Agent 可见的进程 PID。演示时可先使用 `PID 1`，或在 Agent 容器里启动一个 CPU 密集进程后填写对应 PID。
 
-## What is implemented
+## 已实现功能
 
-- Strict persisted state machine: `PENDING -> RUNNING -> UPLOADING -> DONE / FAILED`; every transition requires a reason.
-- Agent heartbeat every 5 seconds; Server marks it offline after 30 seconds and audits offline/recovery events.
-- Pluggable CPU/perf-semantics, real bpftrace kernel tracepoint, and py-spy language-stack collectors.
-- Automatic degradation to `/proc` when optional tools or kernel capabilities are unavailable, with the reason exposed in results.
-- CPU, RSS, and I/O samples; flame graph, TopN, eBPF distribution, and verifiable rule-based attribution.
-- Continuous profiling by automatic time-slice creation.
-- Natural-language collection planning that extracts a verifiable PID, collector, duration, rate, and Agent.
-- Structured logs, explicit errors, responsive Web UI, unit tests, and five end-to-end API tests.
-- FastAPI request validation and generated API documentation at <http://localhost:8080/docs>.
-- SQLAlchemy persistence backed by MySQL 8 in Docker Compose; tests use isolated in-memory SQLite.
+- Web 创建采集任务：指定 Agent、PID、采样时长、采样频率和采集器
+- 严格任务状态机：`PENDING -> RUNNING -> UPLOADING -> DONE / FAILED`
+- 每次状态迁移都写入 MySQL，并带有 `reason`
+- Agent 每 5 秒心跳，Server 30 秒无心跳判定离线
+- Agent 上线、离线和恢复事件写入审计日志
+- 真实 `perf record + perf script` CPU 采集
+- 真实 `bpftrace` eBPF 内核探针：`kprobe:vfs_write`
+- 真实 `py-spy` Python 语言级调用栈采集
+- CPU、内存 RSS、I/O 采样
+- 火焰图、热点函数 TopN、eBPF 写入分布、Python 调用栈视图
+- Continuous Profiling：自动切片、时间窗口回看、停止续建
+- 自然语言采集规划：从一句话中提取 PID、采集器、时长、频率和 Agent
+- FastAPI 请求校验与 OpenAPI 文档
+- SQLAlchemy + MySQL 持久化；测试环境使用内存 SQLite
+- 单元测试与端到端测试，覆盖率高于题目要求的 50%
 
-## Useful commands
+## 常用命令
+
+运行测试：
 
 ```bash
 make test
-pip install -r requirements-dev.txt && make coverage
+```
+
+运行覆盖率检查：
+
+```bash
+pip install -r requirements-dev.txt
+make coverage
+```
+
+重新构建并启动：
+
+```bash
 docker compose up --build
+```
+
+运行脚本演示：
+
+```bash
 make demo
 ```
 
-For a visible eBPF `kprobe:vfs_write` change, create an `ebpf` profile in the UI while running:
+前端开发模式：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite 会把 `/api` 请求代理到本地 FastAPI Server 的 `8080` 端口。
+
+## eBPF 演示
+
+为了让 `kprobe:vfs_write` 有明显变化，可以在采集 eBPF 任务时执行：
 
 ```bash
 dd if=/dev/zero of=/tmp/minidrop-io.bin bs=1M count=512
 ```
 
-The Agent image runs privileged because bpftrace needs access to kernel tracing. Production deployments should grant only the required capabilities and use an allow-listed probe catalog.
+任务完成后，Web 详情页会展示内核写入分布。
 
-## API summary
+Agent 镜像使用 `privileged: true`，因为 bpftrace 需要访问内核 tracing 能力。生产环境应改为最小权限能力集，并使用白名单探针目录。
 
-| Method | Endpoint | Purpose |
+## API 概览
+
+| 方法 | 路径 | 说明 |
 |---|---|---|
-| `POST` | `/api/tasks` | Create a profile |
-| `GET` | `/api/tasks` | List profiles |
-| `GET` | `/api/tasks/{id}` | Profile, transitions, and analysis |
-| `GET` | `/api/agents` | Agent inventory |
-| `GET` | `/api/audit` | Offline/recovery audit |
-| `GET` | `/api/continuous/{agent_id}` | Last five minutes of continuous slices |
-| `POST` | `/api/natural-language` | Parse a sentence and create a collection task |
-| `POST` | `/api/tasks/{id}/stop-continuous` | Stop successor slices for a continuous profile |
-| `POST` | `/api/agents/{id}/heartbeat` | Agent heartbeat |
-| `POST` | `/api/agents/{id}/claim` | Atomically claim work |
-| `POST` | `/api/tasks/{id}/upload` | Upload raw data and analyze |
-| `POST` | `/api/tasks/{id}/fail` | Persist explicit failure |
+| `POST` | `/api/tasks` | 创建采集任务 |
+| `GET` | `/api/tasks` | 查询任务列表 |
+| `GET` | `/api/tasks/{id}` | 查询任务详情、状态历史和分析结果 |
+| `GET` | `/api/agents` | 查询 Agent 列表 |
+| `GET` | `/api/audit` | 查询 Agent 上线、离线和恢复审计 |
+| `GET` | `/api/continuous/{agent_id}` | 查询持续采样时间窗口 |
+| `POST` | `/api/natural-language` | 解析自然语言并创建采集任务 |
+| `POST` | `/api/tasks/{id}/stop-continuous` | 停止持续采样后续切片 |
+| `POST` | `/api/agents/{id}/heartbeat` | Agent 心跳 |
+| `POST` | `/api/agents/{id}/claim` | Agent 原子领取任务 |
+| `POST` | `/api/tasks/{id}/upload` | 上传原始采集数据并触发分析 |
+| `POST` | `/api/tasks/{id}/fail` | 写入任务失败原因 |
 
-Review documents:
+## 交付说明
 
-- [DESIGN.md](DESIGN.md): architecture, state machine, decisions, tradeoffs, and AI collaboration.
-- [ASSESSMENT.md](ASSESSMENT.md): requirement-by-requirement acceptance evidence and honest limitations.
-- [DEMO.md](DEMO.md): a ready-to-record 15-minute demonstration script.
+- [DESIGN.md](DESIGN.md)：架构、状态机、关键决策、取舍说明和 AI 协作说明
+- [ASSESSMENT.md](ASSESSMENT.md)：逐项验收矩阵、实机证据和合理简化说明
+- [DEMO.md](DEMO.md)：15 分钟演示脚本
+
+## 合理简化
+
+Mini-Drop 的目标是复刻 Drop 的核心性能诊断链路，不是完整复刻生产级 Drop。当前版本暂未实现公司内部鉴权、多租户、对象存储、分布式队列、生产权限治理和长期数据保留策略。这些内容在设计文档中作为后续演进方向说明。
+
+核心链路保持真实可验证：React 下发任务，FastAPI 调度任务，MySQL 持久化状态，Python Agent 调用 `perf`、`bpftrace`、`py-spy` 完成真实性能采集，Analyzer 生成 Web 可展示结果。
