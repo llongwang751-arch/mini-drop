@@ -4,6 +4,8 @@
 
 This implementation optimizes for a reproducible ten-minute review: one Compose command builds the React UI and starts a FastAPI control plane, MySQL 8, and a privileged Agent, while the browser demonstrates dispatch, live state, analysis, continuous slices, and connectivity audit. Optional Linux profiling tools remain real processes rather than simulated APIs.
 
+The assessment has base, extension, and bonus layers. I treated the base layer as non-negotiable, implemented both requested extensions, and selected natural-language collection as the bonus item. The system intentionally simplifies production-only pieces such as authentication, COS/object storage, distributed queues, retention policy, and fine-grained eBPF permissions.
+
 ## 2. Architecture
 
 ```mermaid
@@ -83,4 +85,6 @@ With seven more days I would add Alembic schema migrations, move analysis behind
 
 ## AI collaboration
 
-AI was used to accelerate scaffolding, review interfaces against the assessment, and enumerate failure paths. Human-owned decisions include the persisted transition invariant, degraded-mode transparency, deterministic attribution evidence, and keeping the review path free from mandatory external services. Generated code was validated with repository tests and manual end-to-end execution.
+AI was used to accelerate scaffolding, review interfaces against the assessment, and enumerate failure paths. Human-owned decisions include the persisted transition invariant, degraded-mode transparency, deterministic attribution evidence, FastAPI/MySQL migration, and keeping the review path reproducible.
+
+AI quality was evaluated by evidence rather than appearance: each generated change had to pass unit tests, coverage, Docker Compose startup, API checks, and at least one real profiling path. When the first versions were too weak, prompts were tightened around concrete requirements: real eBPF instead of mock data, real `perf record`, py-spy language stacks, a visible continuous timeline, MySQL persistence, and honest documentation of simplifications.
