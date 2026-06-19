@@ -1,6 +1,8 @@
 # Mini-Drop 性能诊断系统
 
-Mini-Drop 是一个可运行的轻量性能诊断平台，复刻 Drop 的核心链路：用户在 Web 上创建采集任务，Server 调度任务，Agent 在目标机器执行性能采集，Analyzer 生成可视化结果，最后在 Web 上展示火焰图、热点函数、eBPF 分布和状态历史。
+Mini-Drop 是一个可运行的性能诊断平台，用于复刻 Drop 的主要能力：用户在 Web 上创建采集任务，Server 调度任务，Agent 在目标机器执行性能采集，Analyzer 生成可视化结果，最后在 Web 上展示火焰图、热点函数、eBPF 分布、持续采样切片和状态历史。
+
+项目重点不是做静态页面，而是把“创建任务、下发任务、真实采集、状态落库、结果分析、页面展示、审计追踪”这条链路跑通。当前版本覆盖基础题、扩展题和一个加分项，并保留真实 `perf`、`bpftrace/eBPF`、`py-spy` 采集能力。
 
 ## 技术栈
 
@@ -119,12 +121,14 @@ Agent 镜像使用 `privileged: true`，因为 bpftrace 需要访问内核 traci
 ## 交付说明
 
 - [DESIGN.md](DESIGN.md)：架构、状态机、关键决策、取舍说明和 AI 协作说明
-- [ASSESSMENT.md](ASSESSMENT.md)：逐项验收矩阵、实机证据和合理简化说明
+- [ASSESSMENT.md](ASSESSMENT.md)：逐项验收矩阵、实机证据和生产化差距说明
 - [DEMO.md](DEMO.md)：15 分钟演示脚本
 - [LEARNING_NOTES.md](LEARNING_NOTES.md)：学习笔记、实现取舍和后续学习计划
 
-## 合理简化
+## 完成度与生产化差距
 
-Mini-Drop 的目标是复刻 Drop 的核心性能诊断链路，不是完整复刻生产级 Drop。当前版本暂未实现公司内部鉴权、多租户、对象存储、分布式队列、生产权限治理和长期数据保留策略。这些内容在设计文档中作为后续演进方向说明。
+Mini-Drop 的目标是尽可能复刻 Drop 的完整诊断能力。当前版本已经覆盖 Web、Server、Agent、Analyzer、状态机、心跳审计、真实采集、Continuous Profiling 和自然语言采集规划。
+
+和生产级 Drop 相比，当前版本还缺少公司内部鉴权、多租户、COS/MinIO 对象存储、分布式队列、生产权限治理和长期数据保留策略。这些属于生产化能力，不影响演示中的核心诊断链路，但已经在设计文档中列为后续演进方向。
 
 核心链路保持真实可验证：React 下发任务，FastAPI 调度任务，MySQL 持久化状态，Python Agent 调用 `perf`、`bpftrace`、`py-spy` 完成真实性能采集，Analyzer 生成 Web 可展示结果。
