@@ -22,7 +22,7 @@ flowchart LR
   DB --> U
 ```
 
-FastAPI Server 是任务真相源。Agent 不直接写数据库，只领取任务、执行采集、上传原始结果或失败原因。SQLAlchemy 负责持久化，Agent 领取任务时使用行锁避免重复领取。Analyzer 独立成模块，保持 `analyze(raw) -> result` 这个稳定接口，后续可以迁移到队列 Worker，不影响采集器和 UI。
+FastAPI Server 是任务真相源。Agent 不直接写数据库，只领取任务、执行采集、上传原始结果或失败原因。后端按 FastAPI 多文件应用拆分：`server.py` 保留应用工厂和装配逻辑，`api/routers` 按领域拆分接口，`api/schemas.py` 放 Pydantic 请求模型，`api/dependencies.py` 通过 `Depends` 注入 `Store`。SQLAlchemy 负责持久化，Agent 领取任务时使用行锁避免重复领取。Analyzer 独立成模块，保持 `analyze(raw) -> result` 这个稳定接口，后续可以迁移到队列 Worker，不影响采集器和 UI。
 
 React UI 使用 TypeScript/TSX 编写，由 Vite 构建，Docker 多阶段构建后交给 FastAPI 托管静态资源。前端入口、路由、状态、API 和业务组件分层：`main.tsx` 只挂载应用，`router.tsx` 维护页面路由，Zustand store 管理 Agent、任务、审计、轮询和业务动作。FastAPI 统一处理 `/api` 路由，用 Pydantic 做请求校验，并在 `/docs` 暴露 OpenAPI 文档。
 
@@ -73,7 +73,7 @@ eBPF Agent 在演示环境使用 `privileged`，因为 bpftrace 需要内核 tra
 
 ## 9. 测试与证据
 
-测试覆盖状态机约束、离线/恢复审计、采集器、自然语言规划、Analyzer 输出，以及成功和失败路径的端到端流程。覆盖率阈值为 50%，当前本地验收结果为 66%。运行命令：`make coverage`。
+测试覆盖状态机约束、离线/恢复审计、采集器、自然语言规划、Analyzer 输出，以及成功和失败路径的端到端流程。覆盖率阈值为 50%，当前本地验收结果为 68%。运行命令：`make coverage`。
 
 普通使用下，采集内存和 `duration * min(rate, 20)` 成正比；分析复杂度和总栈帧数线性相关。UI 只渲染 TopN 和火焰图叶子节点，避免 DOM 无上限增长。进入生产前，需要用压测确定队列延迟和原始 profile 大小上限。
 

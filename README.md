@@ -101,6 +101,18 @@ Vite 会把 `/api` 请求代理到本地 FastAPI Server 的 `8080` 端口。
 - `src/features`：任务详情、持续采样、自然语言采集等业务组件
 - `src/components`：状态徽标、指标卡、空状态等通用组件
 
+## 后端工程规范
+
+后端按 FastAPI 多文件应用方式拆分，避免所有接口堆在 `server.py`：
+
+- `minidrop/server.py`：应用工厂，负责创建 FastAPI、注册路由、异常处理和静态前端托管
+- `minidrop/api/schemas.py`：Pydantic 请求模型
+- `minidrop/api/dependencies.py`：FastAPI `Depends` 依赖注入
+- `minidrop/api/routers`：按领域拆分 `agents`、`tasks`、`audit`、`continuous`、`natural_language` 和 `health`
+- `minidrop/db.py`：SQLAlchemy 模型、事务和状态机持久化
+- `minidrop/collectors.py`：perf、eBPF/bpftrace、py-spy 和 `/proc` 采集器
+- `minidrop/analyzer.py`：火焰图、TopN、histogram 和证据归因
+
 ## eBPF 演示
 
 为了让 `kprobe:vfs_write` 有明显变化，可以在采集 eBPF 任务时执行：
