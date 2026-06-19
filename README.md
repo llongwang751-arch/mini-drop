@@ -67,6 +67,18 @@ pip install -r requirements-dev.txt
 make coverage
 ```
 
+完整本地验收：
+
+```bash
+make check
+```
+
+Windows PowerShell 也可以直接执行：
+
+```powershell
+.\scripts\check.ps1
+```
+
 重新构建并启动：
 
 ```bash
@@ -112,6 +124,15 @@ Vite 会把 `/api` 请求代理到本地 FastAPI Server 的 `8080` 端口。
 - `minidrop/db.py`：SQLAlchemy 模型、事务和状态机持久化
 - `minidrop/collectors.py`：perf、eBPF/bpftrace、py-spy 和 `/proc` 采集器
 - `minidrop/analyzer.py`：火焰图、TopN、histogram 和证据归因
+
+## 仓库工程化
+
+- `.editorconfig`：统一编码、缩进和换行
+- `.env.example`：列出本地和 Compose 所需环境变量
+- `Makefile`：统一测试、覆盖率、前端类型检查、前端构建和 Docker 启停命令
+- `scripts/check.ps1`：Windows 下一键执行完整本地验收
+- `.github/workflows/ci.yml`：GitHub Actions 自动跑后端测试、覆盖率、前端类型检查和构建
+- `Dockerfile` / `docker-compose.yml`：一键启动 MySQL、FastAPI Server、React 静态前端和 Python Agent
 
 ## eBPF 演示
 
