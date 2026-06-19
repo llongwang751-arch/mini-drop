@@ -24,7 +24,7 @@ flowchart LR
 
 FastAPI Server 是任务真相源。Agent 不直接写数据库，只领取任务、执行采集、上传原始结果或失败原因。SQLAlchemy 负责持久化，Agent 领取任务时使用行锁避免重复领取。Analyzer 独立成模块，保持 `analyze(raw) -> result` 这个稳定接口，后续可以迁移到队列 Worker，不影响采集器和 UI。
 
-React UI 由 Vite 构建，Docker 多阶段构建后交给 FastAPI 托管静态资源。FastAPI 统一处理 `/api` 路由，用 Pydantic 做请求校验，并在 `/docs` 暴露 OpenAPI 文档。
+React UI 使用 TypeScript/TSX 编写，由 Vite 构建，Docker 多阶段构建后交给 FastAPI 托管静态资源。前端入口、路由、状态、API 和业务组件分层：`main.tsx` 只挂载应用，`router.tsx` 维护页面路由，Zustand store 管理 Agent、任务、审计、轮询和业务动作。FastAPI 统一处理 `/api` 路由，用 Pydantic 做请求校验，并在 `/docs` 暴露 OpenAPI 文档。
 
 ## 3. 状态机
 
