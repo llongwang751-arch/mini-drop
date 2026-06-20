@@ -77,7 +77,7 @@ eBPF Agent 在演示环境使用 `privileged`，因为 bpftrace 需要内核 tra
 
 ## 9. 测试与证据
 
-测试覆盖状态机约束、离线/恢复审计、采集器、自然语言规划、Analyzer 输出，以及成功和失败路径的端到端流程。覆盖率阈值为 50%，当前本地验收结果为 68%。运行命令：`make coverage`。
+测试覆盖状态机约束、离线/恢复审计、采集器、自然语言规划、Analyzer 输出、对象存储读写、轻量鉴权、定时任务，以及成功和失败路径的端到端流程。覆盖率阈值为 50%，当前本地验收结果为 68%。运行命令：`make coverage`。
 
 仓库提供统一工程化验收入口：`make check` 会依次执行 Python 编译检查、后端单元测试、覆盖率门禁、前端 TypeScript 检查和前端生产构建；Windows 环境可执行 `scripts/check.ps1`。GitHub Actions 的 CI 会在 push 和 pull request 上重复这些检查。
 

@@ -31,7 +31,7 @@ Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Re
 | 火焰图与专项可视化 | 火焰图、TopN、eBPF 分布、Python 语言栈 | 通过 |
 | 严格状态机与 reason | 每次迁移同时写 tasks 与 transitions | 通过 |
 | 5 秒心跳、30 秒离线、审计 | Agent 独立心跳线程与离线扫描器 | 通过 |
-| 日志、错误、测试 | JSON 日志；显式 FAILED；14 个测试；覆盖率 66% | 通过 |
+| 日志、错误、测试 | JSON 日志；显式 FAILED；17 个测试；覆盖率 68% | 通过 |
 | Continuous Profiling | 自动切片、任意时间窗口查询、停止续建 | 通过 |
 | perf 之外两个采集器 | 真正的 bpftrace 内核探针与 py-spy 语言栈 | 通过 |
 | 至少一个加分项 | 自然语言采集规划，拒绝无 PID 的不可验证请求 | 通过 |
@@ -46,7 +46,7 @@ Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Re
 - 真实 py-spy 任务：`cabe074141e5`，采到 `<module>` 与 `<genexpr>`，`degraded=false`。
 - 真实 eBPF 任务：`be376e59a0a0`，使用 `kprobe:vfs_write`，采到 `dd` 写入分布，`degraded=false`。
 - 持续采样：查询得到多个 DONE 切片；停止后任务数量不再增长。
-- 自动测试：`14/14` 通过；分支覆盖率 `66%`，高于要求的 `50%`。
+- 自动测试：`17/17` 通过；分支覆盖率 `68%`，高于要求的 `50%`。
 
 ## 生产化差距与诚实说明
 

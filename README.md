@@ -53,7 +53,7 @@ Agent 使用宿主机 PID 命名空间，因此页面中填写的 PID 必须是 
 - 轻量鉴权：可通过 `MINIDROP_API_KEY` 开启 API Key 校验
 - FastAPI 请求校验与 OpenAPI 文档
 - SQLAlchemy + MySQL 持久化；测试环境使用内存 SQLite
-- 单元测试与端到端测试，覆盖率高于题目要求的 50%
+- 单元测试与端到端测试，17 个测试通过，覆盖率高于题目要求的 50%
 
 ## 常用命令
 
