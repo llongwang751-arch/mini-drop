@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
+from fastapi import Request
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,9 +14,11 @@ from fastapi.staticfiles import StaticFiles
 from .api.routers import (
     agents_router,
     audit_router,
+    auth_router,
     continuous_router,
     health_router,
     natural_language_router,
+    schedules_router,
     tasks_router,
 )
 from .db import Store
@@ -31,11 +34,13 @@ def create_app(database_url: str | None = None, start_watcher: bool = True) -> F
     async def lifespan(_app: FastAPI):
         if start_watcher:
             threading.Thread(target=_offline_loop, args=(store,), daemon=True).start()
+            threading.Thread(target=_schedule_loop, args=(store,), daemon=True).start()
         yield
 
     app = FastAPI(title="Mini-Drop API", version="1.0.0", lifespan=lifespan)
     app.state.store = store
 
+    _register_auth_middleware(app)
     _include_api_routers(app)
     _register_exception_handlers(app)
     _mount_frontend(app)
@@ -44,11 +49,23 @@ def create_app(database_url: str | None = None, start_watcher: bool = True) -> F
 
 def _include_api_routers(app: FastAPI) -> None:
     app.include_router(health_router)
+    app.include_router(auth_router)
     app.include_router(agents_router)
     app.include_router(tasks_router)
     app.include_router(audit_router)
     app.include_router(continuous_router)
     app.include_router(natural_language_router)
+    app.include_router(schedules_router)
+
+
+def _register_auth_middleware(app: FastAPI) -> None:
+    @app.middleware("http")
+    async def api_key_auth(request: Request, call_next):
+        expected = os.getenv("MINIDROP_API_KEY")
+        if expected and request.url.path.startswith("/api") and request.url.path != "/api/health":
+            if request.headers.get("X-MiniDrop-Token") != expected:
+                return JSONResponse(status_code=401, content={"error": "invalid Mini-Drop API token"})
+        return await call_next(request)
 
 
 def _register_exception_handlers(app: FastAPI) -> None:
@@ -76,6 +93,12 @@ def _mount_frontend(app: FastAPI) -> None:
 def _offline_loop(store: Store) -> None:
     while True:
         store.mark_offline()
+        time.sleep(5)
+
+
+def _schedule_loop(store: Store) -> None:
+    while True:
+        store.run_due_schedules()
         time.sleep(5)
 
 

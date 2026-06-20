@@ -12,7 +12,7 @@ Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Re
 - 扩展题：完成 Continuous Profiling、真实 eBPF 探针、py-spy 语言级采集。
 - 加分项：选择自然语言采集规划；性能归因采用可验证规则和证据，没有把它包装成 LLM 智能归因。
 
-我优先保证演示效果和真实链路：真实 `perf`、真实 `bpftrace`、真实 `py-spy`、真实 MySQL 落库和可复现 Docker Compose。公司内部鉴权、COS 对象存储、生产级权限系统和横向扩容属于生产化差距，我在文档中单独列出，不把它们包装成已经完成。
+我优先保证演示效果和真实链路：真实 `perf`、真实 `bpftrace`、真实 `py-spy`、真实 MySQL 落库、MinIO 对象存储和可复现 Docker Compose。公司内部 SSO、多租户权限治理、gRPC 控制通道和横向扩容属于生产化差距，我在文档中单独列出，不把它们包装成已经完成。
 
 ## 根据导师 Q&A 的调整
 
@@ -35,6 +35,9 @@ Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Re
 | Continuous Profiling | 自动切片、任意时间窗口查询、停止续建 | 通过 |
 | perf 之外两个采集器 | 真正的 bpftrace 内核探针与 py-spy 语言栈 | 通过 |
 | 至少一个加分项 | 自然语言采集规划，拒绝无 PID 的不可验证请求 | 通过 |
+| 对象存储 | Compose 集成 MinIO，数据库保存对象 key，本地测试可退回文件存储 | 通过 |
+| 定时任务 | `/api/schedules` 创建周期采集计划，到点自动生成任务 | 通过 |
+| 轻量鉴权 | `MINIDROP_API_KEY` 开启 API Key 校验，用户/组通过请求头进入上下文 | 通过 |
 
 ## 实机验收证据
 
@@ -49,7 +52,7 @@ Mini-Drop 是一个面向 Linux 进程的轻量性能诊断平台。用户从 Re
 
 - 当前“性能归因”是带规则和证据的确定性归因；加分项选择的是自然语言采集。
 - `perf` 在 WSL2 中可能出现 `[unknown]` 符号，采样本身是真实执行；生产环境需要符号文件、构建 ID 与 debuginfod。
-- 为便于十分钟内复现，Compose 自动启动 MySQL 并由 SQLAlchemy 自动建表。生产化仍应加入 Alembic 迁移、认证 Agent、对象存储、队列和最小 eBPF 权限。
+- 为便于十分钟内复现，Compose 自动启动 MySQL、MinIO 并由 SQLAlchemy 自动建表。生产化仍应加入 Alembic 迁移、认证 Agent、持久队列和最小 eBPF 权限。
 - 演示视频与远程 Git 仓库链接仍需提交者录制和上传，这是代码仓库无法自动生成的外部交付物。
 
 ## 我如何评估 AI 产物质量

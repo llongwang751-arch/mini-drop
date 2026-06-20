@@ -4,7 +4,7 @@
 
 这个实现围绕“复刻 Drop 的主要诊断能力”展开：一条 `docker compose up --build` 命令构建 React UI，并启动 FastAPI 控制面、MySQL 8 和 Python Agent。浏览器中可以演示任务下发、实时状态、性能分析、持续采样切片和 Agent 审计。Linux 采集工具使用真实进程调用，采集结果会标记真实 backend 和降级状态。
 
-题目分基础题、扩展题和加分项。当前版本完成基础链路，覆盖 Continuous Profiling、eBPF、py-spy，并选择自然语言采集规划作为加分项。生产级鉴权、COS/对象存储、分布式队列、长期保留策略和细粒度 eBPF 权限还没有补齐，我把它们作为生产化差距列出。
+题目分基础题、扩展题和加分项。当前版本完成基础链路，覆盖 Continuous Profiling、eBPF、py-spy，并选择自然语言采集规划作为加分项。对象存储、轻量鉴权和定时任务已经补齐；生产级 SSO、多租户权限治理、gRPC 控制通道、分布式队列、长期保留策略和细粒度 eBPF 权限仍作为生产化差距列出。
 
 ## 2. 架构
 
@@ -25,6 +25,8 @@ flowchart LR
 FastAPI Server 是任务真相源。Agent 不直接写数据库，只领取任务、执行采集、上传原始结果或失败原因。后端按 FastAPI 多文件应用拆分：`server.py` 保留应用工厂和装配逻辑，`api/routers` 按领域拆分接口，`api/schemas.py` 放 Pydantic 请求模型，`api/dependencies.py` 通过 `Depends` 注入 `Store`。SQLAlchemy 负责持久化，Agent 领取任务时使用行锁避免重复领取。Analyzer 独立成模块，保持 `analyze(raw) -> result` 这个稳定接口，后续可以迁移到队列 Worker，不影响采集器和 UI。
 
 React UI 使用 TypeScript/TSX 编写，由 Vite 构建，Docker 多阶段构建后交给 FastAPI 托管静态资源。前端入口、路由、状态、API 和业务组件分层：`main.tsx` 只挂载应用，`router.tsx` 维护页面路由，Zustand store 管理 Agent、任务、审计、轮询和业务动作。FastAPI 统一处理 `/api` 路由，用 Pydantic 做请求校验，并在 `/docs` 暴露 OpenAPI 文档。
+
+原始采集数据和分析结果通过对象存储抽象保存：`Store.set_payload` 会把 JSON payload 写入对象存储，再在 MySQL 中保存对象 key。Docker Compose 环境使用 MinIO，本地测试默认走文件存储，接口返回仍保持原来的 `raw_data` 和 `result` 结构。
 
 ## 3. 状态机
 
@@ -71,6 +73,8 @@ MySQL 保存任务真相，较大的原始 profile 使用 `LONGTEXT`。SQLAlchem
 
 eBPF Agent 在演示环境使用 `privileged`，因为 bpftrace 需要内核 tracing 能力。生产环境应改成签名探针目录、能力集收敛、Agent 认证、TLS、租户授权，以及原始 profile 对象存储。
 
+当前鉴权是轻量 API Key：设置 `MINIDROP_API_KEY` 后，所有 `/api` 请求需要带 `X-MiniDrop-Token`。用户和用户组通过请求头形成上下文，用于演示权限模型；生产环境应替换为公司 SSO、租户授权和 Agent 身份认证。
+
 ## 9. 测试与证据
 
 测试覆盖状态机约束、离线/恢复审计、采集器、自然语言规划、Analyzer 输出，以及成功和失败路径的端到端流程。覆盖率阈值为 50%，当前本地验收结果为 68%。运行命令：`make coverage`。
@@ -81,9 +85,9 @@ eBPF Agent 在演示环境使用 `privileged`，因为 bpftrace 需要内核 tra
 
 ## 10. 继续完善计划
 
-一个 Python 代码库便于评审运行和检查，但还没有隔离 Analyzer 故障，也没有横向扩容能力。MySQL 适合保存控制面状态，原始 profile 后续应迁移到对象存储，不应长期放在数据库 `LONGTEXT` 中。
+一个 Python 代码库便于评审运行和检查，但还没有隔离 Analyzer 故障，也没有横向扩容能力。MySQL 适合保存控制面状态，原始 profile 已通过对象存储抽象从数据库正文中迁出。
 
-如果继续做，我会按顺序补 Alembic 数据库迁移、持久化队列、S3/MinIO、Agent 身份认证、native 符号解析、保留/背压策略，并在 CI 中发布覆盖率和压测报告。
+如果继续做，我会按顺序补 Alembic 数据库迁移、gRPC 控制通道、持久化队列、Agent 身份认证、native 符号解析、保留/背压策略，并在 CI 中发布覆盖率和压测报告。
 
 ## AI 协作
 

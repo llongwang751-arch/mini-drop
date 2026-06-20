@@ -120,6 +120,7 @@ Web 创建任务 -> Server 持久化和调度 -> Agent 采集 -> Analyzer 分析
 - Agent 真实采集
 - Analyzer 生成结果
 - MySQL 持久化状态
+- MinIO / 对象存储保存原始采集与分析结果
 - 状态机和 reason
 - 心跳和审计
 - perf、eBPF、py-spy
@@ -128,8 +129,8 @@ Web 创建任务 -> Server 持久化和调度 -> Agent 采集 -> Analyzer 分析
 
 尚未生产化的能力：
 
-- 未实现公司内部鉴权和多租户
-- 未接 COS / MinIO 对象存储
+- 未实现公司内部 SSO 和多租户权限治理
+- 未实现 gRPC 控制通道
 - 未引入消息队列
 - 未做长期数据保留和清理策略
 - 未做生产级 eBPF 权限收敛
@@ -154,9 +155,9 @@ Web 创建任务 -> Server 持久化和调度 -> Agent 采集 -> Analyzer 分析
 如果继续完善，我会按这个顺序学习和改进：
 
 1. Alembic 数据库迁移，替代自动建表。
-2. MinIO / COS 对象存储，把原始采集文件从 MySQL 中迁出。
+2. gRPC 控制通道，让 Agent/Server 通信更贴近生产 Drop。
 3. Celery / Redis / Kafka 等异步队列，让 Analyzer 独立运行。
-4. Agent 身份认证和 TLS，避免任意 Agent 接入。
+4. Agent 身份认证、SSO 和 TLS，避免任意 Agent 接入。
 5. eBPF 权限最小化，替代 `privileged: true`。
 6. perf 符号解析、debuginfo 和 debuginfod，提高火焰图可读性。
 7. LLM 工具调用归因，让模型只能基于结构化证据输出结论。

@@ -16,7 +16,10 @@ LOG = logging.getLogger("minidrop.agent")
 
 def request(url, method="GET", body=None):
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={"Content-Type": "application/json"})
+    headers = {"Content-Type": "application/json"}
+    if os.getenv("MINIDROP_API_KEY"):
+        headers["X-MiniDrop-Token"] = os.getenv("MINIDROP_API_KEY")
+    req = urllib.request.Request(url, data=data, method=method, headers=headers)
     with urllib.request.urlopen(req, timeout=15) as response:
         raw = response.read()
         return json.loads(raw) if raw else None

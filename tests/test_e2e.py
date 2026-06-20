@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -77,3 +78,35 @@ class EndToEndTests(unittest.TestCase):
         stopped = self.client.post(f"/api/tasks/{task['id']}/stop-continuous", json={}).json()
         self.assertGreaterEqual(stopped["stopped"], 2)
         self.assertFalse(any(x["continuous"] for x in self.client.get("/api/tasks").json()))
+
+    def test_payloads_are_read_back_from_object_storage(self):
+        task, _ = self.create_and_claim()
+        self.client.post(f"/api/tasks/{task['id']}/upload", json={
+            "reason": "profile ready",
+            "raw": {"stacks": [{"stack": ["main", "storage"], "value": 3}], "samples": []},
+        })
+        fetched = self.client.get(f"/api/tasks/{task['id']}").json()
+        self.assertEqual(fetched["raw_data"]["stacks"][0]["stack"], ["main", "storage"])
+        self.assertEqual(fetched["result"]["top"][0]["name"], "main")
+
+    def test_schedule_creates_pending_task(self):
+        response = self.client.post("/api/schedules", json={
+            "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": "perf",
+            "continuous": False, "interval_seconds": 30
+        })
+        self.assertEqual(response.status_code, 201)
+        created = self.client.post("/api/schedules/run-due", json={}).json()
+        self.assertEqual(len(created["created"]), 1)
+        self.assertEqual(created["created"][0]["status"], "PENDING")
+
+    def test_optional_api_key_auth(self):
+        with patch.dict("os.environ", {"MINIDROP_API_KEY": "secret"}):
+            app = create_app("sqlite:///:memory:", start_watcher=False)
+            client = TestClient(app)
+            try:
+                self.assertEqual(client.get("/api/health").status_code, 200)
+                self.assertEqual(client.get("/api/tasks").status_code, 401)
+                self.assertEqual(client.get("/api/tasks", headers={"X-MiniDrop-Token": "secret"}).status_code, 200)
+            finally:
+                client.close()
+                app.state.store.engine.dispose()

@@ -21,3 +21,7 @@ class UploadPayload(BaseModel):
 
 class FailurePayload(BaseModel):
     reason: str = "unspecified agent failure"
+
+
+class ScheduleRequest(TaskRequest):
+    interval_seconds: int = Field(default=300, ge=30, le=86400)

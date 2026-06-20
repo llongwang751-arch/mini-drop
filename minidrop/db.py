@@ -10,6 +10,8 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from .storage import create_object_store
+
 
 VALID_TRANSITIONS = {
     "PENDING": {"RUNNING", "FAILED"},
@@ -72,6 +74,21 @@ class AuditModel(Base):
     created_at: Mapped[float] = mapped_column(Float)
 
 
+class ScheduledTaskModel(Base):
+    __tablename__ = "scheduled_tasks"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    agent_id: Mapped[str] = mapped_column(String(64))
+    pid: Mapped[int] = mapped_column(Integer)
+    duration: Mapped[int] = mapped_column(Integer)
+    rate: Mapped[int] = mapped_column(Integer)
+    collector: Mapped[str] = mapped_column(String(32))
+    interval_seconds: Mapped[int] = mapped_column(Integer)
+    next_run: Mapped[float] = mapped_column(Float)
+    enabled: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[float] = mapped_column(Float)
+    updated_at: Mapped[float] = mapped_column(Float)
+
+
 def _database_url(value):
     if "://" in value:
         return value
@@ -90,6 +107,7 @@ class Store:
         self.engine = create_engine(self.database_url, **kwargs)
         self.Session = sessionmaker(self.engine, expire_on_commit=False)
         self.lock = threading.RLock()
+        self.object_store = create_object_store()
         self._create_tables()
 
     def _create_tables(self):
@@ -103,18 +121,23 @@ class Store:
                     raise
                 time.sleep(2)
 
-    @staticmethod
-    def _task(model, transitions=None, payloads=False):
+    def _task(self, model, transitions=None, payloads=False):
         item = {column.name: getattr(model, column.name) for column in TaskModel.__table__.columns}
         if payloads:
             for key in ("raw_data", "result"):
-                item[key] = json.loads(item[key]) if item[key] else None
+                item[key] = self._load_payload(item[key]) if item[key] else None
         if transitions is not None:
             item["transitions"] = [
                 {column.name: getattr(row, column.name) for column in TransitionModel.__table__.columns}
                 for row in transitions
             ]
         return item
+
+    def _load_payload(self, value):
+        payload = json.loads(value)
+        if isinstance(payload, dict) and payload.get("storage") == "object":
+            return self.object_store.get_json(payload["object_key"])
+        return payload
 
     @staticmethod
     def _agent(model):
@@ -193,7 +216,8 @@ class Store:
             task = session.get(TaskModel, task_id)
             if not task:
                 raise KeyError(task_id)
-            setattr(task, field, json.dumps(payload))
+            object_key = self.object_store.put_json(f"tasks/{task_id}/{field}", payload)
+            setattr(task, field, json.dumps({"storage": "object", "object_key": object_key}))
             task.updated_at = time.time()
 
     def get_task(self, task_id):
@@ -243,3 +267,52 @@ class Store:
         with self.Session() as session:
             rows = session.scalars(select(AuditModel).order_by(AuditModel.id.desc()).limit(100)).all()
             return [{column.name: getattr(row, column.name) for column in AuditModel.__table__.columns} for row in rows]
+
+    @staticmethod
+    def _schedule(model):
+        return {column.name: getattr(model, column.name) for column in ScheduledTaskModel.__table__.columns}
+
+    def create_schedule(self, agent_id, pid, duration, rate, collector, interval_seconds):
+        now = time.time()
+        with self.lock, self.Session.begin() as session:
+            schedule = ScheduledTaskModel(agent_id=agent_id, pid=pid, duration=duration, rate=rate,
+                                          collector=collector, interval_seconds=interval_seconds,
+                                          next_run=now, enabled=1, created_at=now, updated_at=now)
+            session.add(schedule)
+            session.flush()
+            schedule_id = schedule.id
+        return self.get_schedule(schedule_id)
+
+    def get_schedule(self, schedule_id):
+        with self.Session() as session:
+            schedule = session.get(ScheduledTaskModel, schedule_id)
+            return self._schedule(schedule) if schedule else None
+
+    def list_schedules(self):
+        with self.Session() as session:
+            schedules = session.scalars(select(ScheduledTaskModel).order_by(ScheduledTaskModel.id.desc())).all()
+            return [self._schedule(schedule) for schedule in schedules]
+
+    def run_due_schedules(self, now=None):
+        now = now or time.time()
+        due = []
+        with self.lock, self.Session.begin() as session:
+            schedules = session.scalars(
+                select(ScheduledTaskModel).where(ScheduledTaskModel.enabled == 1, ScheduledTaskModel.next_run <= now)
+                .order_by(ScheduledTaskModel.next_run)
+            ).all()
+            for schedule in schedules:
+                due.append(self._schedule(schedule))
+                schedule.next_run = now + schedule.interval_seconds
+                schedule.updated_at = now
+        return [self.create_task(item["agent_id"], item["pid"], item["duration"], item["rate"], item["collector"]) for item in due]
+
+    def stop_schedule(self, schedule_id):
+        now = time.time()
+        with self.lock, self.Session.begin() as session:
+            schedule = session.get(ScheduledTaskModel, schedule_id)
+            if not schedule:
+                raise KeyError(schedule_id)
+            schedule.enabled = 0
+            schedule.updated_at = now
+        return self.get_schedule(schedule_id)
