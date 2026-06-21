@@ -1,5 +1,4 @@
 import { UserFocus } from "@phosphor-icons/react";
-import { StatusBadge } from "../components/StatusBadge";
 import { formatTime } from "../constants";
 import { useDashboardStore } from "../store/dashboardStore";
 
@@ -25,7 +24,9 @@ export function AgentsPage() {
             </div>
             <code>{agent.version}</code>
             <span>最后心跳 {formatTime(agent.last_seen)}</span>
-            <StatusBadge value={agent.online ? "DONE" : "FAILED"} />
+            <span className={`agent-status ${agent.online ? "online" : "offline"}`}>
+              {agent.online ? "在线" : "离线"}
+            </span>
           </article>
         ))}
       </section>

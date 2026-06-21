@@ -4,7 +4,7 @@ import time
 import uuid
 from pathlib import Path
 
-from sqlalchemy import Float, Index, Integer, String, Text, create_engine, delete, select, update
+from sqlalchemy import Double, Index, Integer, String, Text, create_engine, delete, select, text, update
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
@@ -32,7 +32,7 @@ class AgentModel(Base):
     hostname: Mapped[str] = mapped_column(String(255))
     version: Mapped[str] = mapped_column(String(64))
     online: Mapped[int] = mapped_column(Integer)
-    last_seen: Mapped[float] = mapped_column(Float)
+    last_seen: Mapped[float] = mapped_column(Double)
     metadata_json: Mapped[str] = mapped_column("metadata", Text)
 
 
@@ -47,8 +47,8 @@ class TaskModel(Base):
     collector: Mapped[str] = mapped_column(String(32))
     status: Mapped[str] = mapped_column(String(32))
     reason: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[float] = mapped_column(Float)
-    updated_at: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[float] = mapped_column(Double)
+    updated_at: Mapped[float] = mapped_column(Double)
     raw_data: Mapped[str | None] = mapped_column(Text().with_variant(LONGTEXT, "mysql"), nullable=True)
     result: Mapped[str | None] = mapped_column(Text().with_variant(LONGTEXT, "mysql"), nullable=True)
     continuous: Mapped[int] = mapped_column(Integer, default=0)
@@ -62,7 +62,7 @@ class TransitionModel(Base):
     from_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
     to_status: Mapped[str] = mapped_column(String(32))
     reason: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[float] = mapped_column(Double)
 
 
 class AuditModel(Base):
@@ -71,7 +71,7 @@ class AuditModel(Base):
     kind: Mapped[str] = mapped_column(String(64))
     subject: Mapped[str] = mapped_column(String(64))
     message: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[float] = mapped_column(Double)
 
 
 class ScheduledTaskModel(Base):
@@ -83,10 +83,10 @@ class ScheduledTaskModel(Base):
     rate: Mapped[int] = mapped_column(Integer)
     collector: Mapped[str] = mapped_column(String(32))
     interval_seconds: Mapped[int] = mapped_column(Integer)
-    next_run: Mapped[float] = mapped_column(Float)
+    next_run: Mapped[float] = mapped_column(Double)
     enabled: Mapped[int] = mapped_column(Integer, default=1)
-    created_at: Mapped[float] = mapped_column(Float)
-    updated_at: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[float] = mapped_column(Double)
+    updated_at: Mapped[float] = mapped_column(Double)
 
 
 def _database_url(value):
@@ -115,11 +115,29 @@ class Store:
         for attempt in range(attempts):
             try:
                 Base.metadata.create_all(self.engine)
+                self._migrate_timestamp_precision()
                 return
             except OperationalError:
                 if attempt == attempts - 1:
                     raise
                 time.sleep(2)
+
+    def _migrate_timestamp_precision(self):
+        if not self.database_url.startswith("mysql"):
+            return
+        statements = [
+            "ALTER TABLE agents MODIFY last_seen DOUBLE NOT NULL",
+            "ALTER TABLE tasks MODIFY created_at DOUBLE NOT NULL",
+            "ALTER TABLE tasks MODIFY updated_at DOUBLE NOT NULL",
+            "ALTER TABLE transitions MODIFY created_at DOUBLE NOT NULL",
+            "ALTER TABLE audit MODIFY created_at DOUBLE NOT NULL",
+            "ALTER TABLE scheduled_tasks MODIFY next_run DOUBLE NOT NULL",
+            "ALTER TABLE scheduled_tasks MODIFY created_at DOUBLE NOT NULL",
+            "ALTER TABLE scheduled_tasks MODIFY updated_at DOUBLE NOT NULL",
+        ]
+        with self.engine.begin() as conn:
+            for statement in statements:
+                conn.execute(text(statement))
 
     def _task(self, model, transitions=None, payloads=False):
         item = {column.name: getattr(model, column.name) for column in TaskModel.__table__.columns}
