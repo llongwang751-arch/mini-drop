@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { X } from "@phosphor-icons/react";
 import { useDashboardStore } from "../../store/dashboardStore";
 import type { Agent, Collector, TaskRequest } from "../../types";
@@ -10,7 +10,8 @@ interface TaskDialogProps {
 
 export function TaskDialog({ agents, onClose }: TaskDialogProps) {
   const createTask = useDashboardStore((state) => state.createTask);
-  const defaultAgent = useMemo(() => agents.find((agent) => agent.online)?.id ?? agents[0]?.id ?? "", [agents]);
+  const onlineAgents = useMemo(() => agents.filter((agent) => agent.online), [agents]);
+  const defaultAgent = useMemo(() => onlineAgents[0]?.id ?? "", [onlineAgents]);
   const [form, setForm] = useState<TaskRequest>({
     agent_id: defaultAgent,
     pid: 1,
@@ -20,6 +21,12 @@ export function TaskDialog({ agents, onClose }: TaskDialogProps) {
     continuous: false,
   });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!form.agent_id || !onlineAgents.some((agent) => agent.id === form.agent_id)) {
+      setForm((current) => (current.agent_id === defaultAgent ? current : { ...current, agent_id: defaultAgent }));
+    }
+  }, [defaultAgent, form.agent_id, onlineAgents]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -46,13 +53,12 @@ export function TaskDialog({ agents, onClose }: TaskDialogProps) {
         <label>
           目标 Agent
           <select value={form.agent_id} onChange={(event) => setForm({ ...form, agent_id: event.target.value })}>
-            {agents
-              .filter((agent) => agent.online)
-              .map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.id}
-                </option>
-              ))}
+            {!onlineAgents.length && <option value="">暂无在线 Agent</option>}
+            {agents.map((agent) => (
+              <option key={agent.id} value={agent.id} disabled={!agent.online}>
+                {agent.id} {agent.online ? "（在线）" : "（离线）"}
+              </option>
+            ))}
           </select>
         </label>
         <label>

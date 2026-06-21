@@ -117,7 +117,15 @@ code { font-family: var(--mono); font-size: 12px; }
 .empty { min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); gap: 8px; font-size: 13px; }
 .empty b { color: var(--ink); font-size: 15px; }
 .empty.compact { min-height: 100px; width: 100%; }
-.range select, .range input, .modal input, .modal select { border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 9px; color: var(--ink); font-size: 12px; }
+.range select, .range input, .modal input, .modal select {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 4px;
+  padding: 9px;
+  color: var(--ink);
+  font-size: 12px;
+  min-height: 38px;
+}
 
 .slices { display: flex; gap: 8px; padding: 18px 22px; overflow: auto; }
 .slices > button { min-width: 185px; text-align: left; background: #f7f9f8; border: 1px solid var(--line); padding: 13px; cursor: pointer; border-radius: 4px; }
@@ -162,7 +170,8 @@ code { font-family: var(--mono); font-size: 12px; }
 .modal { width: min(540px, 100%); background: #fff; border: 1px solid var(--line); padding: 0 22px 22px; }
 .modal .panel-head { margin: 0 -22px 18px; }
 .modal label { display: grid; gap: 7px; margin: 13px 0; font-size: 13px; color: var(--muted); }
-.modal input, .modal select { width: 100%; padding: 11px; }
+.modal input, .modal select { width: 100%; padding: 11px; min-height: 44px; }
+.modal select option { color: var(--ink); background: #fff; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .check { grid-template-columns: auto 1fr !important; align-items: start; }
 .check input { width: auto; }
