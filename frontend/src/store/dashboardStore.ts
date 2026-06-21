@@ -14,6 +14,7 @@ interface DashboardState {
   createTask: (body: TaskRequest) => Promise<void>;
   planTask: (text: string) => Promise<Task>;
   loadContinuous: (agentId: string, start?: string, end?: string) => Promise<Task[]>;
+  stopContinuous: (taskId: string) => Promise<void>;
 }
 
 const toTimestamp = (value?: string) => (value ? String(new Date(value).getTime() / 1000) : undefined);
@@ -69,5 +70,10 @@ export const useDashboardStore = create<DashboardState>()((set, get) => ({
     if (startTime) query.set("start", startTime);
     if (endTime) query.set("end", endTime);
     return api<Task[]>(`/continuous/${agentId}?${query.toString()}`);
+  },
+
+  stopContinuous: async (taskId: string) => {
+    await api<{ stopped: number; task_id: string }>(`/tasks/${taskId}/stop-continuous`, { method: "POST" });
+    await get().refresh();
   },
 }));

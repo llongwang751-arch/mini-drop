@@ -180,7 +180,11 @@ class EBPFCollector(ResourceCollector):
                 match = re.match(r"@writes\[(.+)\]:\s+(\d+)$", line.strip())
                 if match:
                     histogram.append({"bucket": match.group(1), "count": int(match.group(2))})
-            base["meta"].update({"backend": "bpftrace", "degraded": run.returncode != 0, "stderr": run.stderr[-500:]})
+            degraded = run.returncode != 0
+            reason = "bpftrace returned non-zero status" if degraded else ""
+            if not histogram and not degraded:
+                reason = "bpftrace ran successfully but no vfs_write events were captured"
+            base["meta"].update({"backend": "bpftrace", "degraded": degraded, "reason": reason, "stderr": run.stderr[-500:]})
         else:
             disk = _read("/proc/diskstats")
             histogram = [{"bucket": "diskstat-lines", "count": len(disk.splitlines())}]

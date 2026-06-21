@@ -44,7 +44,7 @@ export interface ProfileResult {
   top: TopFrame[];
   histogram?: HistogramBucket[];
   attribution: Attribution[];
-  collector_meta: { backend: string; degraded?: boolean };
+  collector_meta: { backend: string; degraded?: boolean; reason?: string; stderr?: string; collector?: string };
   fingerprint: string;
 }
 

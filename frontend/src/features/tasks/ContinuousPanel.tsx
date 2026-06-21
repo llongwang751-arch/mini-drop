@@ -8,6 +8,7 @@ import type { Agent, Task } from "../../types";
 export function ContinuousPanel({ agents }: { agents: Agent[] }) {
   const selectTask = useDashboardStore((state) => state.selectTask);
   const loadContinuous = useDashboardStore((state) => state.loadContinuous);
+  const stopContinuous = useDashboardStore((state) => state.stopContinuous);
   const [agentId, setAgentId] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -47,13 +48,18 @@ export function ContinuousPanel({ agents }: { agents: Agent[] }) {
       <div className="slices">
         {slices.length ? (
           slices.map((slice) => (
-            <button key={slice.id} onClick={() => void selectTask(slice.id)}>
-              <code>{slice.id}</code>
-              <span>
-                {formatTime(slice.updated_at)} · {collectorText[slice.collector]}
-              </span>
-              <b>{slice.result?.fingerprint}</b>
-            </button>
+            <article className="slice-card" key={slice.id}>
+              <button type="button" onClick={() => void selectTask(slice.id)}>
+                <code>{slice.id}</code>
+                <span>
+                  {formatTime(slice.updated_at)} · {collectorText[slice.collector]}
+                </span>
+                <b>{slice.result?.fingerprint}</b>
+              </button>
+              <button className="stop-link" type="button" onClick={() => void stopContinuous(slice.id).then(load)}>
+                停止续建
+              </button>
+            </article>
           ))
         ) : (
           <EmptyState

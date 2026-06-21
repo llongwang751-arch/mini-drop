@@ -8,9 +8,11 @@ import { FlameChart } from "./FlameChart";
 
 export function TaskDetail({ task }: { task: Task | null }) {
   const clearSelectedTask = useDashboardStore((state) => state.clearSelectedTask);
+  const stopContinuous = useDashboardStore((state) => state.stopContinuous);
   if (!task) return null;
 
   const result = task.result;
+  const degraded = Boolean(result?.collector_meta.degraded);
   return (
     <section className="panel detail">
       <div className="panel-head">
@@ -20,16 +22,35 @@ export function TaskDetail({ task }: { task: Task | null }) {
             任务 <code>{task.id}</code>
           </h2>
         </div>
-        <button className="icon-btn" onClick={clearSelectedTask} aria-label="关闭详情">
-          <X size={18} />
-        </button>
+        <div className="detail-actions">
+          {task.continuous && (
+            <button className="secondary" type="button" onClick={() => void stopContinuous(task.id)}>
+              停止持续采样
+            </button>
+          )}
+          <button className="icon-btn" onClick={clearSelectedTask} aria-label="关闭详情">
+            <X size={18} />
+          </button>
+        </div>
       </div>
       <div className="detail-meta">
         <span>{collectorText[task.collector]}</span>
         <span>PID {task.pid}</span>
         {result && <span>{result.collector_meta.backend}</span>}
+        {result && <span className={degraded ? "meta-pill warn" : "meta-pill ok"}>{degraded ? "降级采集" : "真实采集"}</span>}
         <StatusBadge value={task.status} />
       </div>
+      {result && (
+        <div className="collector-meta">
+          <b>采集状态：{degraded ? "降级采集" : "真实采集"}</b>
+          <span>backend：{result.collector_meta.backend}</span>
+          {degraded ? (
+            <span>原因：{result.collector_meta.reason || "采集器返回降级标记，详情见 stderr。"}</span>
+          ) : (
+            <span>说明：采集器未标记 degraded，可作为录屏中的真实采集证据。</span>
+          )}
+        </div>
+      )}
       {result ? (
         <div className="analysis-grid">
           <article className="analysis">

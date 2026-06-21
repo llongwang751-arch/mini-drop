@@ -23,11 +23,20 @@ export const reasonText: Record<string, string> = {
   "no heartbeat for 30s": "超过 30 秒未收到心跳",
 };
 
-export const formatTime = (timestamp: number) =>
-  new Date(timestamp * 1000).toLocaleTimeString("zh-CN", { hour12: false });
+const chinaTime = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+export const formatTime = (timestamp: number) => chinaTime.format(new Date(timestamp * 1000));
 
 export const formatPreciseTime = (timestamp: number) => {
   const date = new Date(timestamp * 1000);
-  const base = date.toLocaleTimeString("zh-CN", { hour12: false });
+  const base = chinaTime.format(date);
   return `${base}.${String(date.getMilliseconds()).padStart(3, "0")}`;
 };

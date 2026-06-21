@@ -107,6 +107,15 @@ td { padding: 16px 18px; border-top: 1px solid var(--line); white-space: nowrap;
 tbody tr { cursor: pointer; transition: 0.15s; }
 tbody tr:hover, tbody tr.selected { background: #f0f5f2; }
 code { font-family: var(--mono); font-size: 12px; }
+.table-action {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 12px;
+}
 
 .status { display: inline-flex; padding: 5px 8px; border-radius: 999px; font: 700 10px var(--mono); letter-spacing: 0.04em; }
 .status.DONE { background: #e4f3eb; color: #176b4d; }
@@ -128,9 +137,17 @@ code { font-family: var(--mono); font-size: 12px; }
 }
 
 .slices { display: flex; gap: 8px; padding: 18px 22px; overflow: auto; }
-.slices > button { min-width: 185px; text-align: left; background: #f7f9f8; border: 1px solid var(--line); padding: 13px; cursor: pointer; border-radius: 4px; }
-.slices span, .slices b, .slices code { display: block; margin-top: 5px; font-size: 11px; color: var(--muted); }
+.slice-card { min-width: 205px; background: #f7f9f8; border: 1px solid var(--line); border-radius: 4px; padding: 0; }
+.slice-card > button:first-child { width: 100%; text-align: left; background: transparent; border: 0; padding: 13px; cursor: pointer; }
+.slice-card span, .slice-card b, .slice-card code { display: block; margin-top: 5px; font-size: 11px; color: var(--muted); }
+.stop-link { width: 100%; border: 0; border-top: 1px solid var(--line); background: #fff; color: #9a3939; cursor: pointer; padding: 8px 12px; font-size: 12px; text-align: left; }
 .detail-meta { display: flex; gap: 8px; align-items: center; padding: 14px 22px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.detail-actions { display: flex; gap: 8px; align-items: center; }
+.meta-pill { border-radius: 999px; padding: 4px 8px; font: 700 10px var(--mono); }
+.meta-pill.ok { background: #e4f3eb; color: #176b4d; }
+.meta-pill.warn { background: #f6f0df; color: #886a1c; }
+.collector-meta { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 22px; border-bottom: 1px solid var(--line); background: #fafbfa; font-size: 12px; color: var(--muted); }
+.collector-meta b { color: var(--ink); }
 .analysis-grid { display: grid; grid-template-columns: 2fr 1fr; }
 .analysis { padding: 22px; border-right: 1px solid var(--line); }
 .analysis:last-child { border: 0; }

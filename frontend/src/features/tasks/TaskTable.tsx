@@ -32,6 +32,7 @@ export function TaskTable({ tasks, selectedId, onSelect }: TaskTableProps) {
             <th>状态</th>
             <th>最近进展</th>
             <th>创建时间</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +48,14 @@ export function TaskTable({ tasks, selectedId, onSelect }: TaskTableProps) {
               </td>
               <td>{reasonText[task.reason] ?? task.reason}</td>
               <td>{formatTime(task.created_at)}</td>
+              <td>
+                <button className="table-action" type="button" onClick={(event) => {
+                  event.stopPropagation();
+                  onSelect(task.id);
+                }}>
+                  查看分析
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

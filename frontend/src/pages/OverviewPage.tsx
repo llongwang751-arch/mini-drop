@@ -1,5 +1,5 @@
 import { ArrowClockwise, CheckCircle, Heartbeat, Pulse, WarningCircle } from "@phosphor-icons/react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MetricCard } from "../components/MetricCard";
 import { ContinuousPanel } from "../features/tasks/ContinuousPanel";
 import { TaskDetail } from "../features/tasks/TaskDetail";
@@ -9,6 +9,7 @@ import { useDashboardStore } from "../store/dashboardStore";
 
 export function OverviewPage() {
   const { agents, tasks, selectedTask, refresh, selectTask } = useDashboardStore();
+  const detailRef = useRef<HTMLDivElement>(null);
   const metrics = useMemo(
     () => ({
       agents: agents.filter((agent) => agent.online).length,
@@ -18,6 +19,12 @@ export function OverviewPage() {
     }),
     [agents, tasks],
   );
+
+  useEffect(() => {
+    if (selectedTask) {
+      window.setTimeout(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    }
+  }, [selectedTask?.id]);
 
   return (
     <>
@@ -49,8 +56,10 @@ export function OverviewPage() {
         </div>
         <TaskTable tasks={tasks} selectedId={selectedTask?.id} onSelect={(id) => void selectTask(id)} />
       </section>
+      <div ref={detailRef}>
+        <TaskDetail task={selectedTask} />
+      </div>
       <ContinuousPanel agents={agents} />
-      <TaskDetail task={selectedTask} />
     </>
   );
 }
