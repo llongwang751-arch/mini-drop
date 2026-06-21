@@ -143,7 +143,7 @@ class Store:
     def _agent(model):
         return {
             "id": model.id, "hostname": model.hostname, "version": model.version,
-            "online": model.online, "last_seen": model.last_seen, "metadata": model.metadata_json,
+            "online": bool(model.online), "last_seen": model.last_seen, "metadata": model.metadata_json,
         }
 
     def create_task(self, agent_id, pid, duration, rate, collector, continuous=False):
