@@ -1,6 +1,6 @@
 import { Pulse, X } from "@phosphor-icons/react";
 import { StatusBadge } from "../../components/StatusBadge";
-import { collectorText, formatTime, reasonText, statusText } from "../../constants";
+import { collectorText, formatPreciseTime, reasonText, statusText } from "../../constants";
 import { useDashboardStore } from "../../store/dashboardStore";
 import type { Task } from "../../types";
 import { EmptyState } from "../../components/EmptyState";
@@ -90,7 +90,7 @@ export function TaskDetail({ task }: { task: Task | null }) {
               {transition.from_status ? statusText[transition.from_status] : "新建"} → {statusText[transition.to_status]}
             </b>
             <span>
-              {reasonText[transition.reason] ?? transition.reason} · {formatTime(transition.created_at)}
+              {reasonText[transition.reason] ?? transition.reason} · {formatPreciseTime(transition.created_at)}
             </span>
           </div>
         ))}

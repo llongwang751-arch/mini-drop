@@ -61,6 +61,28 @@ def _sample_resources(pid, duration, rate):
     return samples
 
 
+def _resource_stacks(pid, samples, prefix="proc"):
+    proc = _process_name(pid)
+    if not samples:
+        return [{"stack": [prefix, proc, "no-resource-samples"], "value": 1}]
+    first, last = samples[0], samples[-1]
+    cpu_delta = max(1, int(last.get("cpu_ticks", 0) - first.get("cpu_ticks", 0)))
+    write_delta = max(0, int(last.get("write_bytes", 0) - first.get("write_bytes", 0)))
+    read_delta = max(0, int(last.get("read_bytes", 0) - first.get("read_bytes", 0)))
+    rss_peak = max(int(item.get("rss_kb", 0)) for item in samples)
+    stacks = [
+        {"stack": [prefix, proc, "cpu-ticks"], "value": max(1, cpu_delta)},
+        {"stack": [prefix, proc, "rss-peak"], "value": max(1, rss_peak // 1024)},
+    ]
+    if write_delta:
+        stacks.append({"stack": [prefix, proc, "write-bytes"], "value": max(1, write_delta // 4096)})
+    if read_delta:
+        stacks.append({"stack": [prefix, proc, "read-bytes"], "value": max(1, read_delta // 4096)})
+    if len(stacks) < 3:
+        stacks.append({"stack": [prefix, proc, "sampler-loop"], "value": max(1, len(samples))})
+    return stacks
+
+
 def _parse_perf_script(text):
     stacks = []
     current = []
@@ -98,11 +120,9 @@ class ResourceCollector:
 
     def collect(self, pid, duration, rate):
         samples = _sample_resources(pid, duration, rate)
-        proc = _process_name(pid)
-        stacks = [{"stack": ["kernel", "schedule", proc, "work"], "value": max(1, len(samples) // 2)},
-                  {"stack": ["kernel", proc, "read"], "value": max(1, len(samples) // 3)}]
         backend = "tasklist" if os.name == "nt" else "/proc"
-        return {"samples": samples, "stacks": stacks, "meta": {"collector": self.name, "backend": backend}}
+        return {"samples": samples, "stacks": _resource_stacks(pid, samples, backend),
+                "meta": {"collector": self.name, "backend": backend}}
 
 
 class PerfCollector(ResourceCollector):
@@ -134,7 +154,7 @@ class PerfCollector(ResourceCollector):
         stacks = _parse_perf_script(script.stdout)
         degraded = run.returncode != 0 or script.returncode != 0 or not stacks
         if not stacks:
-            stacks = [{"stack": ["perf", _process_name(pid), "no-samples"], "value": max(1, len(samples))}]
+            stacks = _resource_stacks(pid, samples, "perf-fallback")
         return {
             "samples": samples,
             "stacks": stacks,

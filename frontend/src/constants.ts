@@ -25,3 +25,9 @@ export const reasonText: Record<string, string> = {
 
 export const formatTime = (timestamp: number) =>
   new Date(timestamp * 1000).toLocaleTimeString("zh-CN", { hour12: false });
+
+export const formatPreciseTime = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  const base = date.toLocaleTimeString("zh-CN", { hour12: false });
+  return `${base}.${String(date.getMilliseconds()).padStart(3, "0")}`;
+};
