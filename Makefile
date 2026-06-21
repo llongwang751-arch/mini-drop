@@ -1,13 +1,18 @@
-.PHONY: demo test coverage py-compile frontend-install frontend-typecheck frontend-build check docker-up docker-down
+PYTHON ?= python3
+
+.PHONY: demo demo-local test coverage py-compile frontend-install frontend-typecheck frontend-build check docker-up docker-down
 
 demo:
-	python scripts/demo.py
+	docker compose exec -T server python scripts/demo.py
+
+demo-local:
+	$(PYTHON) scripts/demo.py
 
 py-compile:
-	python -m compileall minidrop
+	$(PYTHON) -m compileall minidrop
 
 test:
-	python -m unittest discover -s tests -v
+	$(PYTHON) -m unittest discover -s tests -v
 
 coverage:
 	coverage run --source=minidrop -m unittest discover -s tests

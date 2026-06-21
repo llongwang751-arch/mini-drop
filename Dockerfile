@@ -10,6 +10,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 COPY minidrop /app/minidrop
+COPY scripts /app/scripts
 COPY --from=web /minidrop/web /app/minidrop/web
 RUN mkdir -p /app/data
 ENV PYTHONUNBUFFERED=1
