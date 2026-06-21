@@ -9,9 +9,10 @@ interface TaskTableProps {
   tasks: Task[];
   selectedId?: string;
   onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export function TaskTable({ tasks, selectedId, onSelect }: TaskTableProps) {
+export function TaskTable({ tasks, selectedId, onSelect, onDelete }: TaskTableProps) {
   const pageSize = 6;
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(tasks.length / pageSize));
@@ -60,12 +61,22 @@ export function TaskTable({ tasks, selectedId, onSelect }: TaskTableProps) {
                 <td>{reasonText[task.reason] ?? task.reason}</td>
                 <td>{formatTime(task.created_at)}</td>
                 <td>
-                  <button className="table-action" type="button" onClick={(event) => {
-                    event.stopPropagation();
-                    onSelect(task.id);
-                  }}>
-                    查看分析
-                  </button>
+                  <div className="row-actions">
+                    <button className="table-action" type="button" onClick={(event) => {
+                      event.stopPropagation();
+                      onSelect(task.id);
+                    }}>
+                      查看分析
+                    </button>
+                    <button className="table-action danger" type="button" onClick={(event) => {
+                      event.stopPropagation();
+                      if (window.confirm(`确认删除任务 ${task.id}？删除后列表和详情中将不再显示。`)) {
+                        onDelete(task.id);
+                      }
+                    }}>
+                      删除
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

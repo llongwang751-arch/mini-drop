@@ -4,7 +4,7 @@ import time
 import uuid
 from pathlib import Path
 
-from sqlalchemy import Float, Index, Integer, String, Text, create_engine, select, update
+from sqlalchemy import Float, Index, Integer, String, Text, create_engine, delete, select, update
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
@@ -258,6 +258,21 @@ class Store:
                 .values(continuous=0, updated_at=time.time())
             )
         return {"stopped": result.rowcount, "task_id": task_id}
+
+    def delete_task(self, task_id):
+        with self.lock, self.Session.begin() as session:
+            task = session.get(TaskModel, task_id)
+            if not task:
+                return False
+            if task.continuous:
+                session.execute(
+                    update(TaskModel).where(TaskModel.agent_id == task.agent_id, TaskModel.pid == task.pid,
+                                            TaskModel.collector == task.collector, TaskModel.continuous == 1)
+                    .values(continuous=0, updated_at=time.time())
+                )
+            session.execute(delete(TransitionModel).where(TransitionModel.task_id == task_id))
+            session.delete(task)
+        return True
 
     def list_agents(self):
         with self.Session() as session:

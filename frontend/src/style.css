@@ -107,16 +107,19 @@ td { padding: 16px 18px; border-top: 1px solid var(--line); white-space: nowrap;
 tbody tr { cursor: pointer; transition: 0.15s; }
 tbody tr:hover, tbody tr.selected { background: #f0f5f2; }
 code { font-family: var(--mono); font-size: 12px; }
-.table-action {
-  border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 999px;
-  color: var(--accent);
+  .table-action {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 999px;
+    color: var(--accent);
   cursor: pointer;
-  padding: 6px 10px;
-  font-size: 12px;
-}
-.pagination {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .row-actions { display: inline-flex; gap: 8px; align-items: center; }
+  .table-action.danger { color: #b42318; border-color: #f1c6c1; }
+  .table-action.danger:hover { background: #fff1ef; }
+  .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;

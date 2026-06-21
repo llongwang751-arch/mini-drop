@@ -13,6 +13,7 @@ interface DashboardState {
   clearSelectedTask: () => void;
   createTask: (body: TaskRequest) => Promise<void>;
   planTask: (text: string) => Promise<Task>;
+  deleteTask: (id: string) => Promise<void>;
   loadContinuous: (agentId: string, start?: string, end?: string) => Promise<Task[]>;
   stopContinuous: (taskId: string) => Promise<void>;
 }
@@ -61,6 +62,14 @@ export const useDashboardStore = create<DashboardState>()((set, get) => ({
     await get().refresh();
     await get().selectTask(response.task.id);
     return response.task;
+  },
+
+  deleteTask: async (id: string) => {
+    await api<{ deleted: string }>(`/tasks/${id}`, { method: "DELETE" });
+    if (get().selectedTask?.id === id) {
+      set({ selectedTask: null });
+    }
+    await get().refresh();
   },
 
   loadContinuous: async (agentId: string, start?: string, end?: string) => {

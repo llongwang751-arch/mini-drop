@@ -8,7 +8,7 @@ import { NaturalLanguageCommand } from "../features/natural-language/NaturalLang
 import { useDashboardStore } from "../store/dashboardStore";
 
 export function OverviewPage() {
-  const { agents, tasks, selectedTask, refresh, selectTask } = useDashboardStore();
+  const { agents, tasks, selectedTask, refresh, selectTask, deleteTask } = useDashboardStore();
   const detailRef = useRef<HTMLDivElement>(null);
   const metrics = useMemo(
     () => ({
@@ -54,7 +54,12 @@ export function OverviewPage() {
           </div>
           <span className="panel-note">点击任务查看完整分析</span>
         </div>
-        <TaskTable tasks={tasks} selectedId={selectedTask?.id} onSelect={(id) => void selectTask(id)} />
+        <TaskTable
+          tasks={tasks}
+          selectedId={selectedTask?.id}
+          onSelect={(id) => void selectTask(id)}
+          onDelete={(id) => void deleteTask(id)}
+        />
       </section>
       <div ref={detailRef}>
         <TaskDetail task={selectedTask} />

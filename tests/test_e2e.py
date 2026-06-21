@@ -89,6 +89,19 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(fetched["raw_data"]["stacks"][0]["stack"], ["main", "storage"])
         self.assertEqual(fetched["result"]["top"][0]["name"], "main")
 
+    def test_task_can_be_deleted_from_list(self):
+        response = self.client.post("/api/tasks", json={
+            "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": "perf"
+        })
+        self.assertEqual(response.status_code, 201)
+        task = response.json()
+        deleted = self.client.delete(f"/api/tasks/{task['id']}")
+        self.assertEqual(deleted.status_code, 200)
+        self.assertEqual(deleted.json()["deleted"], task["id"])
+        self.assertEqual(self.client.get(f"/api/tasks/{task['id']}").status_code, 404)
+        task_ids = [item["id"] for item in self.client.get("/api/tasks").json()]
+        self.assertNotIn(task["id"], task_ids)
+
     def test_schedule_creates_pending_task(self):
         response = self.client.post("/api/schedules", json={
             "agent_id": "demo", "pid": 1, "duration": 1, "rate": 1, "collector": "perf",

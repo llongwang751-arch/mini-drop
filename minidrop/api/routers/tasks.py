@@ -26,6 +26,13 @@ def get_task(task_id: str, store: Store = Depends(get_store)):
     return task
 
 
+@router.delete("/{task_id}")
+def delete_task(task_id: str, store: Store = Depends(get_store)):
+    if not store.delete_task(task_id):
+        raise HTTPException(status_code=404, detail="task not found")
+    return {"deleted": task_id}
+
+
 @router.post("/{task_id}/upload")
 def upload_task(task_id: str, body: UploadPayload, store: Store = Depends(get_store)):
     store.transition(task_id, "UPLOADING", body.reason)
