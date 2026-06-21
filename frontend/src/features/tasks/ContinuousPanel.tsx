@@ -13,6 +13,7 @@ export function ContinuousPanel({ agents }: { agents: Agent[] }) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [slices, setSlices] = useState<Task[]>([]);
+  const [queried, setQueried] = useState(false);
 
   useEffect(() => {
     if (!agentId && agents.length) setAgentId(agents[0].id);
@@ -20,6 +21,7 @@ export function ContinuousPanel({ agents }: { agents: Agent[] }) {
 
   const load = async () => {
     if (!agentId) return;
+    setQueried(true);
     setSlices(await loadContinuous(agentId, start, end));
   };
 
@@ -65,8 +67,8 @@ export function ContinuousPanel({ agents }: { agents: Agent[] }) {
           <EmptyState
             compact
             icon={ClockCounterClockwise}
-            title="暂无时间轴数据"
-            description="创建持续采集任务后，可在这里回看切片。"
+            title={queried ? "当前窗口没有切片" : "暂无时间轴数据"}
+            description={queried ? "可以扩大时间范围，或先创建一个持续采集任务。" : "创建持续采集任务后，可在这里回看切片。"}
           />
         )}
       </div>

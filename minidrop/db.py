@@ -254,7 +254,8 @@ class Store:
                 raise KeyError(task_id)
             result = session.execute(
                 update(TaskModel).where(TaskModel.agent_id == task.agent_id, TaskModel.pid == task.pid,
-                                        TaskModel.collector == task.collector, TaskModel.continuous == 1)
+                                        TaskModel.collector == task.collector, TaskModel.continuous == 1,
+                                        TaskModel.status != "DONE")
                 .values(continuous=0, updated_at=time.time())
             )
         return {"stopped": result.rowcount, "task_id": task_id}

@@ -76,8 +76,10 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(len(window), 1)
         self.assertTrue(any(x["status"] == "PENDING" and x["continuous"] for x in tasks))
         stopped = self.client.post(f"/api/tasks/{task['id']}/stop-continuous", json={}).json()
-        self.assertGreaterEqual(stopped["stopped"], 2)
-        self.assertFalse(any(x["continuous"] for x in self.client.get("/api/tasks").json()))
+        self.assertGreaterEqual(stopped["stopped"], 1)
+        tasks = self.client.get("/api/tasks").json()
+        self.assertFalse(any(x["status"] != "DONE" and x["continuous"] for x in tasks))
+        self.assertEqual(len(self.client.get("/api/continuous/demo").json()), 1)
 
     def test_payloads_are_read_back_from_object_storage(self):
         task, _ = self.create_and_claim()
