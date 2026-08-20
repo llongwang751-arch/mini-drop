@@ -43,5 +43,18 @@ def test_diagnosis_worker_advances_persisted_sessions_once() -> None:
     assert orchestrator.calls == 1
 
 
+def test_diagnosis_worker_also_advances_drop_insight_v2() -> None:
+    orchestrator = _Orchestrator()
+    calls = []
+    worker = DiagnosisWorker(
+        orchestrator,  # type: ignore[arg-type]
+        drop_insight_advancer=lambda: calls.append("v2") or 2,
+    )
+
+    assert worker.process_once() == 2
+    assert orchestrator.calls == 1
+    assert calls == ["v2"]
+
+
 def test_grpc_tcp_healthcheck_fails_for_closed_port() -> None:
     assert _tcp_healthcheck("127.0.0.1", 1, timeout=0.05) == 1

@@ -9,18 +9,56 @@ from __future__ import annotations
 import argparse
 import os
 import time
+from collections.abc import Callable
 
 from sqlalchemy import text
 
 from server.app.database import init_db, new_session
 from server.app.diagnosis import DiagnosisOrchestrator
 from server.app.diagnosis.continuous_trigger import ContinuousDiagnosisTrigger
+from server.app.drop_insight.service import advance_diagnosis
 from server.app.logging_utils import log_event
+from server.app.models import DropInsightToolCallModel
 from server.app.sql_repository import SqlRepository
 
 
+def _advance_active_drop_insight() -> int:
+    """推进已经下发真实采集任务、但尚未归档结果的 V2 诊断。
+
+    Drop Insight V2 与旧 DiagnosisOrchestrator 使用不同的持久化模型。此前只有
+    浏览器轮询会调用 ``advance_diagnosis``，页面关闭、SSE 断开或浏览器节流后，
+    已经 DONE 的采集任务会永久停留在 TASK_CREATED。这里由独立 Worker 接管，
+    使诊断推进不再依赖某个浏览器标签页保持在线。
+    """
+
+    with new_session() as session:
+        diagnosis_ids = [
+            row[0]
+            for row in (
+                session.query(DropInsightToolCallModel.diagnosis_id)
+                .filter(
+                    DropInsightToolCallModel.task_id.is_not(None),
+                    DropInsightToolCallModel.status.in_(("TASK_CREATED", "RUNNING")),
+                )
+                .distinct()
+                .all()
+            )
+        ]
+
+    advanced = 0
+    for diagnosis_id in diagnosis_ids:
+        result = advance_diagnosis(diagnosis_id)
+        if result and result.get("actions"):
+            advanced += 1
+    return advanced
+
+
 class DiagnosisWorker:
-    def __init__(self, orchestrator: DiagnosisOrchestrator) -> None:
+    def __init__(
+        self,
+        orchestrator: DiagnosisOrchestrator,
+        drop_insight_advancer: Callable[[], int] | None = None,
+    ) -> None:
         self.orchestrator = orchestrator
         # Lightweight process-isolation tests use a minimal orchestrator double
         # without a repository. The production orchestrator always owns `repo`.
@@ -28,6 +66,11 @@ class DiagnosisWorker:
             ContinuousDiagnosisTrigger(orchestrator)
             if hasattr(orchestrator, "repo")
             else None
+        )
+        self.drop_insight_advancer = (
+            drop_insight_advancer
+            if drop_insight_advancer is not None
+            else (_advance_active_drop_insight if hasattr(orchestrator, "repo") else None)
         )
 
     def process_once(self) -> int:
@@ -42,7 +85,12 @@ class DiagnosisWorker:
         ):
             promoted = self.continuous_trigger.scan_once()
         self.orchestrator.advance_active()
-        return promoted
+        drop_insight_advanced = (
+            self.drop_insight_advancer()
+            if self.drop_insight_advancer is not None
+            else 0
+        )
+        return promoted + drop_insight_advanced
 
 
 def _healthcheck() -> int:
