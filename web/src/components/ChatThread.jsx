@@ -61,6 +61,7 @@ export default function ChatThread({
       <ChatMessage role="assistant">
         {detail.status === "NEEDS_CLARIFICATION" && (
           <ScopeCard
+            key={detail.diagnosis_id || detail.id}
             questions={detail.clarification_questions || []}
             onClarify={onClarify}
             submitting={clarifying}

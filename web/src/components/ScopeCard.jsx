@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Typography, message } from "antd";
 import { AimOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { listAgents, listTopProcesses } from "../api/client";
@@ -23,19 +23,30 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
   const [agents, setAgents] = useState([]);
   const [processes, setProcesses] = useState([]);
   const [loadingTargets, setLoadingTargets] = useState(false);
+  const editingRef = useRef(false);
   const required = useMemo(() => new Set((questions || []).map((item) => item.question_id)), [questions]);
 
+  const initialService = initialTarget.service || "";
+  const initialEnvironment = initialTarget.environment || "";
+  const initialAgentId = initialTarget.agent_id || undefined;
+  const initialPid = initialTarget.pid || undefined;
+  const initialStart = initialTimeRange.start || "";
+  const initialEnd = initialTimeRange.end || "";
+
   useEffect(() => {
+    // SSE/polling returns a fresh detail object on every refresh. Do not let
+    // those object-identity changes overwrite values the user is typing.
+    if (editingRef.current) return;
     const range = defaultWindow();
     form.setFieldsValue({
-      service: initialTarget.service || "",
-      environment: initialTarget.environment || "",
-      agent_id: initialTarget.agent_id || undefined,
-      pid: initialTarget.pid || undefined,
-      start: initialTimeRange.start ? localDateTime(initialTimeRange.start) : range.start,
-      end: initialTimeRange.end ? localDateTime(initialTimeRange.end) : range.end,
+      service: initialService,
+      environment: initialEnvironment,
+      agent_id: initialAgentId,
+      pid: initialPid,
+      start: initialStart ? localDateTime(initialStart) : range.start,
+      end: initialEnd ? localDateTime(initialEnd) : range.end,
     });
-  }, [form, initialTarget, initialTimeRange]);
+  }, [form, initialService, initialEnvironment, initialAgentId, initialPid, initialStart, initialEnd]);
 
   useEffect(() => {
     let active = true;
@@ -63,6 +74,7 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
     const process = processes[0];
     const values = form.getFieldsValue();
     const range = defaultWindow();
+    editingRef.current = true;
     form.setFieldsValue({
       service: values.service || process?.comm || "demo-service",
       environment: values.environment || "demo",
@@ -111,7 +123,13 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
         </Space>
         <Alert type="info" showIcon message="这一步不是让 AI 猜机器" description="服务和环境用于理解业务；Agent 和 PID 决定去哪里采集；时间窗用于保证证据与故障发生时间一致。带 * 的字段补齐后才会进入真实取证。" />
         {(questions || []).length > 0 && <ul style={{ margin: 0, paddingLeft: 20 }}>{questions.map((q, i) => <li key={q.question_id || i}>{q.prompt}</li>)}</ul>}
-        <Form form={form} layout="vertical" onFinish={handleSubmit} requiredMark>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          onValuesChange={() => { editingRef.current = true; }}
+          requiredMark
+        >
           <Row gutter={12}>
             <Col xs={24} md={12} xl={8}><Form.Item name="service" label="服务" rules={[rule("target.service", "服务")]}><Input placeholder="例如 order-service" /></Form.Item></Col>
             <Col xs={24} md={12} xl={8}><Form.Item name="environment" label="环境" rules={[rule("target.environment", "环境")]}><Select placeholder="选择环境" options={["development", "staging", "production", "demo"].map((value) => ({ value, label: value }))} /></Form.Item></Col>
