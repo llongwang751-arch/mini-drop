@@ -37,7 +37,11 @@ class InitAgentService(init_pb2_grpc.InitAgentServicer):
         )
         return init_pb2.FetchConfigResponse(
             cos_config=init_pb2.common__pb2.CosConfig(
-                endpoint=os.getenv("MINIO_PUBLIC_ENDPOINT", os.getenv("MINIO_ENDPOINT", "minio:9000")),
+                # 浏览器使用 MINIO_PUBLIC_ENDPOINT；Agent 必须拿到自身可访问的地址。
+                # Compose 内为 minio:9000，多机部署时可用 MINIO_AGENT_ENDPOINT
+                # 显式配置控制节点地址。把 localhost:9000 下发给远端 Agent
+                # 会让它错误地连接自身，因此这里不能复用浏览器公开地址。
+                endpoint=os.getenv("MINIO_AGENT_ENDPOINT", os.getenv("MINIO_ENDPOINT", "minio:9000")),
                 access_key=os.getenv("MINIO_ACCESS_KEY", "") if distribute_credentials else "",
                 secret_key=os.getenv("MINIO_SECRET_KEY", "") if distribute_credentials else "",
                 bucket=os.getenv("MINIO_BUCKET", "mini-drop"),

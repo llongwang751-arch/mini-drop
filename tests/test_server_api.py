@@ -26,6 +26,7 @@ def _reset_repo(monkeypatch):
     """每个测试使用独立 SQLite 内存库，确保用例间无状态交叉。"""
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("MINI_DROP_AI_API_KEY", raising=False)
     monkeypatch.delenv("MINI_DROP_API_AUTH_ENABLED", raising=False)
     monkeypatch.delenv("MINI_DROP_API_KEY", raising=False)
     REGISTRY.clear()
@@ -64,6 +65,16 @@ class TestHealthz:
         assert resp.status_code == 200
         assert resp.json()["data"]["user_id"] == "demo_user"
 
+    def test_continuous_diagnosis_triggers_endpoint(self, client: TestClient):
+        resp = client.get("/api/v1/continuous-diagnosis-triggers")
+        assert resp.status_code == 200
+        assert resp.json()["data"] == {
+            "items": [],
+            "total": 0,
+            "offset": 0,
+            "limit": 100,
+        }
+
     def test_ai_config_never_returns_key(self, client: TestClient, monkeypatch):
         monkeypatch.setenv("MINI_DROP_AI_API_KEY", "secret-must-not-leak")
         monkeypatch.setenv("MINI_DROP_AI_MODEL", "deepseek-v4-flash")
@@ -87,6 +98,65 @@ class TestHealthz:
             resp = client.post("/api/ai-validation/runs")
         assert resp.status_code == 200
         assert resp.json()["data"]["status"] == "PASSED"
+
+    def test_golden_diagnosis_gate_endpoint_and_metrics(self, client: TestClient):
+        resp = client.get("/api/v1/diagnosis-evaluations/golden")
+
+        assert resp.status_code == 200
+        report = resp.json()["data"]
+        assert report["dataset_version"] == "2.0.0"
+        assert report["gate_status"] == "PASSED"
+        assert report["metrics"]["falsification_plan_rate"] == 1.0
+
+        metrics = client.get("/api/metrics").text
+        assert "mini_drop_ai_golden_gate_passed" in metrics
+        assert 'dataset_version="2.0.0"' in metrics
+
+
+class TestAnalysisJobsApi:
+    def _create_job(self):
+        from server.app.schemas import CreateTaskRequest
+
+        task = repo.create_task(CreateTaskRequest(
+            name="analysis-api",
+            agent_id="a1",
+            target_pid=101,
+            collector_type="sys_metrics",
+        ))
+        return repo.enqueue_analysis_job(
+            task.id,
+            analyzer_type="artifact-set",
+            analyzer_version="1.0.0",
+            input_checksum="e" * 64,
+            max_retries=0,
+        )
+
+    def test_list_and_detail(self, client: TestClient):
+        job = self._create_job()
+
+        listing = client.get("/api/analysis-jobs", params={"task_id": job.task_id})
+        detail = client.get(f"/api/analysis-jobs/{job.id}")
+
+        assert listing.status_code == 200
+        assert listing.json()["data"][0]["id"] == job.id
+        assert detail.status_code == 200
+        assert detail.json()["data"]["analyzer_version"] == "1.0.0"
+
+    def test_replay_dead_letter(self, client: TestClient):
+        job = self._create_job()
+        assert repo.claim_analysis_job("api-worker") is not None
+        repo.fail_analysis_job(
+            job.id,
+            "api-worker",
+            error_code="TEST",
+            error_message="forced",
+            retry_delay_sec=0,
+        )
+
+        response = client.post(f"/api/analysis-jobs/{job.id}/replay")
+
+        assert response.status_code == 200
+        assert response.json()["data"]["status"] == "PENDING"
 
 
 class TestStartupMinio:
@@ -138,6 +208,34 @@ class TestApiAuth:
         monkeypatch.setenv("MINI_DROP_API_KEY", "secret-token")
         resp = client.get("/api/tasks", headers={"X-API-Key": "secret-token"})
         assert resp.status_code == 200
+
+    def test_auth_enabled_accepts_trusted_gateway_identity(self, client: TestClient, monkeypatch):
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "1")
+        monkeypatch.delenv("MINI_DROP_API_KEY", raising=False)
+        monkeypatch.setenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "internal-secret")
+        resp = client.get(
+            "/api/tasks",
+            headers={
+                "X-Mini-Drop-Gateway-Token": "internal-secret",
+                "X-Mini-Drop-Principal": "operator-a",
+                "X-Mini-Drop-Roles": "operator",
+                "X-Mini-Drop-Agent-Scope": "agent-a",
+            },
+        )
+        assert resp.status_code == 200
+
+    def test_spoofed_gateway_identity_is_rejected(self, client: TestClient, monkeypatch):
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "1")
+        monkeypatch.delenv("MINI_DROP_API_KEY", raising=False)
+        monkeypatch.setenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "internal-secret")
+        resp = client.get(
+            "/api/tasks",
+            headers={
+                "X-Mini-Drop-Gateway-Token": "attacker-controlled",
+                "X-Mini-Drop-Principal": "admin",
+            },
+        )
+        assert resp.status_code == 401
 
     def test_healthz_stays_public_when_auth_enabled(self, client: TestClient, monkeypatch):
         monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "1")
@@ -467,54 +565,12 @@ class TestTaskArtifacts:
 
 
 class TestStoragePresign:
-    """对象存储预签名 URL 端点。"""
-
-    def test_presign_returns_url(self, client: TestClient, monkeypatch):
-        monkeypatch.setattr(
-            store,
-            "presigned_get_url",
-            lambda bucket, key, expires: "http://minio:9000/mini-drop/artifact.svg",
+    def test_generic_presign_endpoint_is_not_public(self, client: TestClient):
+        resp = client.get(
+            "/api/storage/presign",
+            params={"bucket": "mini-drop", "key": "tasks/demo/flamegraph.svg"},
         )
-        resp = client.get("/api/storage/presign", params={
-            "bucket": "mini-drop",
-            "key": "tasks/demo/flamegraph.svg",
-            "expires": 600,
-        })
-        assert resp.status_code == 200
-        assert resp.json()["data"]["url"].startswith("http://minio:9000")
-
-    def test_presign_rejects_empty_key(self, client: TestClient):
-        resp = client.get("/api/storage/presign", params={"bucket": "mini-drop"})
-        assert resp.status_code == 400
-
-    def test_presign_rejects_unallowed_bucket(self, client: TestClient):
-        resp = client.get("/api/storage/presign", params={
-            "bucket": "other-bucket",
-            "key": "tasks/demo/flamegraph.svg",
-        })
-        assert resp.status_code == 403
-
-    def test_presign_rejects_path_traversal_key(self, client: TestClient):
-        resp = client.get("/api/storage/presign", params={
-            "bucket": "mini-drop",
-            "key": "tasks/../secret.txt",
-        })
-        assert resp.status_code == 400
-
-    def test_presign_rejects_key_outside_task_artifacts(self, client: TestClient):
-        resp = client.get("/api/storage/presign", params={
-            "bucket": "mini-drop",
-            "key": "public/demo.svg",
-        })
-        assert resp.status_code == 403
-
-    def test_presign_rejects_invalid_expires(self, client: TestClient):
-        resp = client.get("/api/storage/presign", params={
-            "bucket": "mini-drop",
-            "key": "tasks/demo/flamegraph.svg",
-            "expires": 0,
-        })
-        assert resp.status_code == 400
+        assert resp.status_code == 404
 
 
 class TestDiagnose:
@@ -533,11 +589,16 @@ class TestDiagnose:
         assert "summary" in diag
         assert "ranked_causes" in diag
         assert "model" in diag
+        assert diag["generation_mode"] == "RULE_FALLBACK"
+        assert diag["semantic_validated"] is False
+        assert diag["validated"] is False
         assert len(diag["tool_results"]) >= 1
         assert diag["repair_plan"]["plan_id"].startswith("repair_")
 
         detail = client.get(f"/api/diagnoses/{diag['diagnosis_id']}").json()["data"]
         assert detail["run"]["task_id"] == task_id
+        assert detail["run"]["status"] == "DONE"
+        assert detail["run"]["validated"] is False
         assert len(detail["tool_results"]) >= 1
         history = client.get(f"/api/tasks/{task_id}/diagnoses").json()["data"]
         assert history[0]["id"] == diag["diagnosis_id"]
@@ -563,3 +624,105 @@ class TestDiagnose:
     def test_diagnosis_detail_404_for_nonexistent(self, client: TestClient):
         resp = client.get("/api/diagnoses/diag_missing")
         assert resp.status_code == 404
+
+
+class TestTaskCancellationApi:
+    def test_cancel_task_records_terminal_status_event_and_audit(self, client: TestClient):
+        created = client.post("/api/tasks", json={
+            "name": "cancel-api",
+            "agent_id": "a1",
+            "target_pid": 1,
+            "collector_type": "perf_cpu",
+        })
+        task_id = created.json()["data"]["task_id"]
+
+        response = client.post(
+            f"/api/tasks/{task_id}/cancel",
+            json={"reason": "operator requested cancellation"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["status"] == "CANCELLED"
+        assert client.get(f"/api/tasks/{task_id}").json()["data"]["status"] == "CANCELLED"
+        events = client.get(f"/api/tasks/{task_id}/events").json()["data"]
+        assert events[-1]["to_status"] == "CANCELLED"
+        audit = client.get("/api/audit-logs").json()["data"]["items"]
+        assert any(item["event_type"] == "TASK_CANCELLED" for item in audit)
+
+    def test_cancel_terminal_task_returns_conflict(self, client: TestClient):
+        created = client.post("/api/tasks", json={
+            "name": "already-failed",
+            "agent_id": "a1",
+            "target_pid": 1,
+            "collector_type": "perf_cpu",
+        })
+        task_id = created.json()["data"]["task_id"]
+        repo.transition_task(task_id, TaskStatus.RUNNING, "claimed", Actor.SERVER)
+        repo.transition_task(task_id, TaskStatus.FAILED, "collector failed", Actor.AGENT)
+
+        response = client.post(
+            f"/api/tasks/{task_id}/cancel",
+            json={"reason": "too late"},
+        )
+
+        assert response.status_code == 409
+
+    def test_task_attempts_endpoint_exposes_execution_record(self, client: TestClient):
+        created = client.post("/api/tasks", json={
+            "name": "attempt-api",
+            "agent_id": "a1",
+            "target_pid": 1,
+            "collector_type": "perf_cpu",
+        })
+        task_id = created.json()["data"]["task_id"]
+        repo.transition_task(task_id, TaskStatus.RUNNING, "claimed", Actor.SERVER)
+
+        response = client.get(f"/api/tasks/{task_id}/attempts")
+
+        assert response.status_code == 200
+        attempts = response.json()["data"]
+        assert len(attempts) == 1
+        assert attempts[0]["task_id"] == task_id
+        assert attempts[0]["attempt_no"] == 1
+        assert attempts[0]["status"] == "RUNNING"
+
+
+class TestProductionFailClosed:
+    def test_production_rejects_auth_disabled(self, monkeypatch):
+        from server.app.main import _production_fail_closed_check
+
+        monkeypatch.setenv("MINI_DROP_ENV", "production")
+        monkeypatch.delenv("MINI_DROP_API_AUTH_ENABLED", raising=False)
+        monkeypatch.setenv("MINI_DROP_API_KEY", "k")
+        with pytest.raises(RuntimeError, match="认证"):
+            _production_fail_closed_check()
+
+    def test_production_rejects_cors_wildcard(self, monkeypatch):
+        from server.app.main import _production_fail_closed_check
+
+        monkeypatch.setenv("MINI_DROP_ENV", "production")
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "true")
+        monkeypatch.setenv("MINI_DROP_API_KEY", "k")
+        monkeypatch.setenv("MINI_DROP_CORS_ORIGINS", "*")
+        with pytest.raises(RuntimeError, match="CORS"):
+            _production_fail_closed_check()
+
+    def test_production_passes_with_secure_defaults(self, monkeypatch):
+        from server.app.main import _production_fail_closed_check
+
+        monkeypatch.setenv("MINI_DROP_ENV", "production")
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "true")
+        monkeypatch.setenv("MINI_DROP_API_KEY", "k")
+        monkeypatch.setenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "internal-secret")
+        monkeypatch.setenv("MINI_DROP_CORS_ORIGINS", "https://minidrop.example.com")
+        _production_fail_closed_check()  # no exception
+
+    def test_production_rejects_default_gateway_token(self, monkeypatch):
+        from server.app.main import _production_fail_closed_check
+
+        monkeypatch.setenv("MINI_DROP_ENV", "production")
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "true")
+        monkeypatch.setenv("MINI_DROP_CORS_ORIGINS", "https://minidrop.example.com")
+        monkeypatch.setenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "mini-drop-internal-dev")
+        with pytest.raises(RuntimeError, match="GATEWAY_TOKEN"):
+            _production_fail_closed_check()

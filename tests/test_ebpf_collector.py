@@ -39,6 +39,7 @@ class TestEBPFAvailability:
     def test_script_not_found(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
         with mock.patch("shutil.which", return_value="/usr/bin/bpftrace"), \
+             mock.patch.object(collector, "_ensure_tracefs", return_value=None), \
              mock.patch("os.path.isfile", return_value=False):
             result = collector.collect(task)
         assert result.ok is False
@@ -60,6 +61,7 @@ class TestEBPFExecution:
         mock_proc.communicate.return_value = (b"", b"")
 
         with mock.patch("shutil.which", return_value="/usr/bin/bpftrace"), \
+             mock.patch.object(collector, "_ensure_tracefs", return_value=None), \
              mock.patch("os.path.isfile", return_value=True), \
              mock.patch("subprocess.Popen", return_value=mock_proc) as popen_mock:
             result = collector.collect(task)
@@ -74,7 +76,7 @@ class TestEBPFExecution:
             mock.ANY,
         ]
 
-    def test_timeout_sends_sigint(self, collector, task, tmp_path):
+    def test_timeout_without_samples_is_not_reported_as_success(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
         output_dir = tmp_path / task.id
         output_dir.mkdir(parents=True)
@@ -85,13 +87,15 @@ class TestEBPFExecution:
         mock_proc.communicate.return_value = (b"", b"")
 
         with mock.patch("shutil.which", return_value="/usr/bin/bpftrace"), \
+             mock.patch.object(collector, "_ensure_tracefs", return_value=None), \
              mock.patch("os.path.isfile", return_value=True), \
              mock.patch("subprocess.Popen", return_value=mock_proc):
             result = collector.collect(task)
 
         mock_proc.send_signal.assert_called_with(signal.SIGINT)
         mock_proc.wait.assert_called_once_with(timeout=task.duration_sec)
-        assert result.ok is True
+        assert result.ok is False
+        assert result.artifacts[0]["metadata"]["total_samples"] == 0
 
     def test_missing_output_file_fails(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
@@ -104,12 +108,31 @@ class TestEBPFExecution:
             return str(path).endswith("io_latency.bt")
 
         with mock.patch("shutil.which", return_value="/usr/bin/bpftrace"), \
+             mock.patch.object(collector, "_ensure_tracefs", return_value=None), \
              mock.patch("os.path.isfile", side_effect=script_only_isfile), \
              mock.patch("subprocess.Popen", return_value=mock_proc):
             result = collector.collect(task)
 
         assert result.ok is False
         assert "未产出" in result.reason
+
+    def test_early_255_exit_is_reported_as_attach_failure(
+        self, collector, task, tmp_path,
+    ):
+        collector.OUTPUT_BASE = str(tmp_path)
+        output_dir = tmp_path / task.id
+        output_dir.mkdir(parents=True)
+        (output_dir / "io_latency.txt").write_text("")
+        mock_proc = mock.MagicMock(returncode=255)
+        mock_proc.communicate.return_value = (
+            b"", b"ERROR: Error attaching probe",
+        )
+        with mock.patch("shutil.which", return_value="/usr/bin/bpftrace"), \
+             mock.patch.object(collector, "_ensure_tracefs", return_value=None), \
+             mock.patch("subprocess.Popen", return_value=mock_proc):
+            result = collector.collect(task)
+        assert result.ok is False
+        assert "Error attaching probe" in result.reason
 
 
 class TestHistogramParsing:

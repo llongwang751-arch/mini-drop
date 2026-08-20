@@ -1,0 +1,73 @@
+services:
+  flagd:
+    image: ghcr.io/open-feature/flagd:v0.16.0
+    command:
+      - start
+      - --uri
+      - file:./etc/flagd/demo.flagd.json
+    environment:
+      GOMEMLIMIT: 48MiB
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=mini-drop-benchmark,service.version=3.0.0,service.criticality=low
+      OTEL_SERVICE_NAME: flagd
+    volumes:
+      - type: bind
+        source: ${MINI_DROP_OTEL_FLAG_DIR:?set MINI_DROP_OTEL_FLAG_DIR to a per-run writable flag directory}
+        target: /etc/flagd
+    mem_limit: 64m
+    cpus: 0.20
+    pids_limit: 128
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      com.mini-drop.owner: ${MINI_DROP_OTEL_OWNER:-mini-drop}
+      com.mini-drop.scenario: ${MINI_DROP_OTEL_SCENARIO:?set MINI_DROP_OTEL_SCENARIO}
+      com.mini-drop.expires-at: ${MINI_DROP_OTEL_EXPIRES_AT:?set MINI_DROP_OTEL_EXPIRES_AT}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - fixture
+
+  otel-collector:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.157.0
+    command:
+      - --config=/etc/otelcol-contrib/config.yaml
+    volumes:
+      - type: bind
+        source: ./collector-minimal.yaml
+        target: /etc/otelcol-contrib/config.yaml
+        read_only: true
+    mem_limit: 128m
+    cpus: 0.20
+    pids_limit: 128
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      com.mini-drop.owner: ${MINI_DROP_OTEL_OWNER:-mini-drop}
+      com.mini-drop.scenario: ${MINI_DROP_OTEL_SCENARIO:?set MINI_DROP_OTEL_SCENARIO}
+      com.mini-drop.expires-at: ${MINI_DROP_OTEL_EXPIRES_AT:?set MINI_DROP_OTEL_EXPIRES_AT}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - fixture
+
+networks:
+  fixture:
+    internal: true
+    labels:
+      com.mini-drop.owner: ${MINI_DROP_OTEL_OWNER:-mini-drop}
+      com.mini-drop.scenario: ${MINI_DROP_OTEL_SCENARIO:?set MINI_DROP_OTEL_SCENARIO}
+      com.mini-drop.expires-at: ${MINI_DROP_OTEL_EXPIRES_AT:?set MINI_DROP_OTEL_EXPIRES_AT}

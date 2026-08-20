@@ -27,6 +27,33 @@ class TaskStatus(str, Enum):
     ANALYZING = "ANALYZING"
     DONE = "DONE"
     FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+@unique
+class CollectionStatus(str, Enum):
+    """采集执行状态；与 Analyzer 结果解耦。"""
+
+    QUEUED = "QUEUED"
+    COLLECTING = "COLLECTING"
+    UPLOADING = "UPLOADING"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+@unique
+class AnalysisStatus(str, Enum):
+    """分析执行状态；采集成功后才进入队列。"""
+
+    NOT_STARTED = "NOT_STARTED"
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    RETRYING = "RETRYING"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    SKIPPED = "SKIPPED"
+    CANCELLED = "CANCELLED"
 
 
 @unique
@@ -38,22 +65,26 @@ class Actor(str, Enum):
     AGENT = "agent"
     ANALYZER = "analyzer"
     AI = "ai"
+    SCHEDULE = "schedule"
 
 
 # 合法迁移表：from_status → 可以迁移到的 status 集合。
 # None 表示初始状态（任务创建时的 first transition）。
 ALLOWED_TRANSITIONS: dict[TaskStatus | None, set[TaskStatus]] = {
     None: {TaskStatus.PENDING},
-    TaskStatus.PENDING: {TaskStatus.RUNNING, TaskStatus.FAILED},
-    TaskStatus.RUNNING: {TaskStatus.UPLOADING, TaskStatus.FAILED},
-    TaskStatus.UPLOADING: {TaskStatus.ANALYZING, TaskStatus.FAILED},
-    TaskStatus.ANALYZING: {TaskStatus.DONE, TaskStatus.FAILED},
+    TaskStatus.PENDING: {TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.CANCELLED},
+    TaskStatus.RUNNING: {TaskStatus.UPLOADING, TaskStatus.FAILED, TaskStatus.CANCELLED},
+    TaskStatus.UPLOADING: {TaskStatus.ANALYZING, TaskStatus.FAILED, TaskStatus.CANCELLED},
+    TaskStatus.ANALYZING: {TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED},
     TaskStatus.DONE: set(),
     TaskStatus.FAILED: set(),
+    TaskStatus.CANCELLED: set(),
 }
 
 # 终态集合：进入这些状态后不再允许任何迁移。
-TERMINAL_STATES: frozenset[TaskStatus] = frozenset({TaskStatus.DONE, TaskStatus.FAILED})
+TERMINAL_STATES: frozenset[TaskStatus] = frozenset(
+    {TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED}
+)
 
 
 @dataclass(frozen=True)

@@ -14,6 +14,11 @@ CREATE_PROFILING_TASK_SCHEMA = {
                 "type": "string",
                 "description": "目标进程名，例如 mysqld / nginx / python3.9 / java",
             },
+            "target_pid": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "用户明确提供的目标 PID；没有提供时省略，由系统返回候选进程供用户确认",
+            },
             "collector_type": {
                 "type": "string",
                 "enum": ["perf_cpu", "ebpf_io", "pyspy", "continuous_perf", "java_async", "go_pprof", "memory_smaps", "sys_metrics"],

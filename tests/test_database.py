@@ -49,3 +49,37 @@ def test_init_db_adds_v2_columns_to_legacy_database(monkeypatch, tmp_path):
         item["name"] for item in inspector.get_columns("diagnosis_evidence")
     }
     reset_engine()
+
+
+def test_init_db_backfills_execution_dimensions_for_legacy_done_task(
+    monkeypatch, tmp_path
+):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'legacy-status.db'}")
+    reset_engine()
+    engine = _get_engine()
+    # Build the current schema first, then emulate an installation that had
+    # already received the new columns with their defaults but not the
+    # compatibility backfill.
+    init_db()
+    with engine.begin() as connection:
+        connection.execute(text("""
+            INSERT INTO tasks (
+                id, name, agent_id, target_pid, collector_type, sample_rate,
+                duration_sec, status, status_reason, request_params,
+                collection_status, analysis_status, created_at
+            ) VALUES (
+                'legacy-done', 'legacy', 'agent-a', 1, 'perf', 99, 10,
+                'DONE', 'legacy completed', '{}', 'QUEUED', 'NOT_STARTED',
+                CURRENT_TIMESTAMP
+            )
+        """))
+
+    init_db()
+    with engine.connect() as connection:
+        row = connection.execute(text(
+            "SELECT collection_status, analysis_status FROM tasks "
+            "WHERE id = 'legacy-done'"
+        )).one()
+    assert row.collection_status == "SUCCEEDED"
+    assert row.analysis_status == "SUCCEEDED"
+    reset_engine()

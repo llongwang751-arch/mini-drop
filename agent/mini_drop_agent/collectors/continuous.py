@@ -19,6 +19,12 @@ import sys
 import time
 from dataclasses import dataclass, field
 
+from .continuous_anomaly import (
+    WindowProfile,
+    detect_profile_anomaly,
+    summarize_top,
+)
+
 from agent.mini_drop_agent.collectors.base import CollectorResult, CollectorTask
 
 
@@ -147,21 +153,43 @@ class ContinuousCollector:
 
         all_artifacts: list[dict] = []
         summary_windows: list[dict] = []
+        profile_windows: list[WindowProfile] = []
         for w in windows:
             if w.ok:
                 all_artifacts.extend(w.artifacts)
-            summary_windows.append({
+            profile_metrics = next(
+                (
+                    item.get("metadata", {}).get("profile_metrics")
+                    for item in w.artifacts
+                    if item.get("artifact_type") == "continuous_top_json"
+                ),
+                None,
+            )
+            if profile_metrics:
+                profile_windows.append(WindowProfile(**profile_metrics))
+            window_summary = {
                 "window_index": w.index,
                 "start_ts": w.start_ts,
                 "end_ts": w.end_ts,
                 "ok": w.ok,
                 "reason": w.reason,
-            })
+            }
+            if profile_metrics:
+                window_summary["profile_metrics"] = profile_metrics
+            summary_windows.append(window_summary)
 
         ok_count = sum(1 for w in windows if w.ok)
+        anomaly_detection = detect_profile_anomaly(profile_windows)
         summary_path = os.path.join(task_base, "windows.json")
         with open(summary_path, "w", encoding="utf-8") as fh:
-            json.dump({"windows": summary_windows}, fh, indent=2)
+            json.dump(
+                {
+                    "windows": summary_windows,
+                    "anomaly_detection": anomaly_detection,
+                },
+                fh,
+                indent=2,
+            )
 
         return CollectorResult(
             ok=ok_count > 0,
@@ -172,7 +200,10 @@ class ContinuousCollector:
                 "local_path": summary_path,
                 "content_type": "application/json",
                 "size_bytes": os.path.getsize(summary_path),
-                "metadata": {"windows": summary_windows},
+                "metadata": {
+                    "windows": summary_windows,
+                    "anomaly_detection": anomaly_detection,
+                },
             }],
         )
 
@@ -212,12 +243,27 @@ class ContinuousCollector:
             path = os.path.join(output_dir, filename)
             if not os.path.isfile(path):
                 continue
+            metadata = {"window_index": index}
+            if artifact_type == "continuous_top_json":
+                try:
+                    rows = json.loads(
+                        open(path, encoding="utf-8").read()
+                    )
+                    metrics = summarize_top(index, rows)
+                    metadata["profile_metrics"] = {
+                        "window_index": metrics.window_index,
+                        "sample_total": metrics.sample_total,
+                        "top1_percent": metrics.top1_percent,
+                        "top_function": metrics.top_function,
+                    }
+                except (OSError, TypeError, ValueError, json.JSONDecodeError):
+                    metadata["profile_metrics_error"] = "invalid_top_json"
             artifacts.append({
                 "artifact_type": artifact_type,
                 "filename": f"{window_name}/{filename}",
                 "local_path": path,
                 "content_type": content_type,
                 "size_bytes": os.path.getsize(path),
-                "metadata": {"window_index": index},
+                "metadata": metadata,
             })
         return artifacts

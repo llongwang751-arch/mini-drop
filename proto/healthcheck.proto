@@ -29,6 +29,7 @@ message HealthCheckRequest {
   PidStats self_pstats     = 5;  // Agent 自身资源开销
   PidStats children_pstats = 6;  // 采集器子进程聚合开销
   bool busy                = 7;  // Agent 正在执行任务时只心跳，不拉取新任务
+  string active_task_id    = 8;  // Agent current task, used to receive cancellation
 }
 
 
@@ -42,4 +43,6 @@ message HealthCheckResponse {
   ServingStatus status  = 1;
   bool pending          = 2;         // true 表示有任务待执行
   TaskDesc task_desc    = 3;         // 待执行任务详情，仅在 pending=true 时有意义
+  string cancel_task_id = 4;         // non-empty asks Agent to terminate this task
+  string cancel_reason  = 5;         // structured cancellation reason
 }

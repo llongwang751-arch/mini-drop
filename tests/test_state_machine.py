@@ -200,3 +200,20 @@ class TestTerminalCheck:
     def test_active_states_are_not_terminal(self):
         for state in [TaskStatus.PENDING, TaskStatus.RUNNING, TaskStatus.UPLOADING, TaskStatus.ANALYZING]:
             assert is_terminal(state) is False
+
+
+class TestCancellationTransitions:
+    def test_each_active_state_can_be_cancelled(self):
+        for state in (
+            TaskStatus.PENDING,
+            TaskStatus.RUNNING,
+            TaskStatus.UPLOADING,
+            TaskStatus.ANALYZING,
+        ):
+            validate_transition(state, TaskStatus.CANCELLED, "operator cancelled")
+
+    def test_cancelled_is_terminal_and_has_no_exit(self):
+        assert is_terminal(TaskStatus.CANCELLED) is True
+        assert ALLOWED_TRANSITIONS[TaskStatus.CANCELLED] == set()
+        with pytest.raises(ValueError):
+            validate_transition(TaskStatus.CANCELLED, TaskStatus.RUNNING, "restart")

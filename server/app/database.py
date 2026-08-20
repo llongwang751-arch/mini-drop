@@ -75,6 +75,17 @@ def _get_sessionmaker() -> sessionmaker:
 def init_db() -> None:
     """创建所有表（幂等）。应用启动时调用一次。"""
     engine = _get_engine()
+    if os.getenv("MINI_DROP_SCHEMA_MANAGED", "0").strip().lower() in {
+        "1", "true", "yes", "on",
+    }:
+        tables = set(inspect(engine).get_table_names())
+        required = {"alembic_version", "tasks", "agents", "diagnosis_sessions"}
+        missing = sorted(required - tables)
+        if missing:
+            raise RuntimeError(
+                "database schema is not migrated; missing tables: " + ", ".join(missing)
+            )
+        return
     Base.metadata.create_all(bind=engine)
     _upgrade_legacy_schema(engine)
 
@@ -82,6 +93,11 @@ def init_db() -> None:
 _ADDITIVE_MIGRATIONS = {
     "tasks": {
         "diagnosis_step_id": "VARCHAR(128)",
+        "collection_status": "VARCHAR(16) NOT NULL DEFAULT 'QUEUED'",
+        "analysis_status": "VARCHAR(16) NOT NULL DEFAULT 'NOT_STARTED'",
+        "deleted_at": "TIMESTAMP",
+        "deleted_by": "VARCHAR(128)",
+        "delete_reason": "TEXT",
     },
     "diagnosis_sessions": {
         "row_version": "INTEGER NOT NULL DEFAULT 0",
@@ -94,9 +110,22 @@ _ADDITIVE_MIGRATIONS = {
         "retry_count": "INTEGER NOT NULL DEFAULT 0",
         "error_code": "VARCHAR(128)",
         "error_message": "TEXT",
+        "evidence_purpose": "VARCHAR(16) NOT NULL DEFAULT 'VERIFY'",
+        "round_index": "INTEGER NOT NULL DEFAULT 1",
     },
     "diagnosis_evidence": {
         "evidence_role": "VARCHAR(32) NOT NULL DEFAULT 'incident'",
+    },
+    "drop_insight_sessions": {
+        "deleted_at": "TIMESTAMP",
+        "deleted_by": "VARCHAR(128)",
+        "delete_reason": "TEXT",
+    },
+    "drop_insight_hypotheses": {
+        "source": "VARCHAR(32) NOT NULL DEFAULT 'DETERMINISTIC_RULE'",
+        "round_index": "INTEGER NOT NULL DEFAULT 1",
+        "parent_hypothesis_id": "VARCHAR(128)",
+        "generation_reason": "TEXT NOT NULL DEFAULT ''",
     },
 }
 
@@ -104,20 +133,73 @@ _ADDITIVE_MIGRATIONS = {
 def _upgrade_legacy_schema(engine: Engine) -> None:
     """Apply small, additive upgrades needed by pre-v2 SQLite/Postgres installs."""
 
-    inspector = inspect(engine)
-    tables = set(inspector.get_table_names())
     with engine.begin() as connection:
+        # The API, gRPC control plane and diagnosis worker are independent
+        # processes. They may start at the same time on a clean deployment, so
+        # schema upgrades must be serialized across processes rather than only
+        # guarded by the in-process ``_lock`` above.
+        if engine.dialect.name == "postgresql":
+            connection.execute(text(
+                "SELECT pg_advisory_xact_lock(hashtext('mini_drop_schema_migration'))"
+            ))
+
+        inspector = inspect(connection)
+        tables = set(inspector.get_table_names())
         for table, columns in _ADDITIVE_MIGRATIONS.items():
             if table not in tables:
                 continue
-            existing = {item["name"] for item in inspect(engine).get_columns(table)}
+            existing = {item["name"] for item in inspector.get_columns(table)}
             for column, declaration in columns.items():
                 if column not in existing:
-                    connection.execute(text(f'ALTER TABLE "{table}" ADD COLUMN "{column}" {declaration}'))
+                    if engine.dialect.name == "postgresql":
+                        statement = (
+                            f'ALTER TABLE "{table}" ADD COLUMN IF NOT EXISTS '
+                            f'"{column}" {declaration}'
+                        )
+                    else:
+                        statement = f'ALTER TABLE "{table}" ADD COLUMN "{column}" {declaration}'
+                    connection.execute(text(statement))
+                    # Keep this inspector snapshot accurate for duplicate
+                    # entries in future migration maps.
+                    existing.add(column)
         if "tasks" in tables:
+            # Columns added to a legacy installation receive their SQL
+            # defaults, which would otherwise make historical DONE tasks look
+            # like they are still queued. Only repair the untouched default
+            # pair, so statuses maintained by the new state machine are never
+            # overwritten.
+            task_columns = {
+                item["name"] for item in inspect(connection).get_columns("tasks")
+            }
+            if {"status", "collection_status", "analysis_status"}.issubset(task_columns):
+                connection.execute(text("""
+                    UPDATE tasks
+                    SET collection_status = CASE status
+                            WHEN 'RUNNING' THEN 'COLLECTING'
+                            WHEN 'UPLOADING' THEN 'UPLOADING'
+                            WHEN 'ANALYZING' THEN 'SUCCEEDED'
+                            WHEN 'DONE' THEN 'SUCCEEDED'
+                            WHEN 'FAILED' THEN 'FAILED'
+                            WHEN 'CANCELLED' THEN 'CANCELLED'
+                            ELSE collection_status
+                        END,
+                        analysis_status = CASE status
+                            WHEN 'ANALYZING' THEN 'QUEUED'
+                            WHEN 'DONE' THEN 'SUCCEEDED'
+                            WHEN 'FAILED' THEN 'SKIPPED'
+                            WHEN 'CANCELLED' THEN 'CANCELLED'
+                            ELSE analysis_status
+                        END
+                    WHERE collection_status = 'QUEUED'
+                      AND analysis_status = 'NOT_STARTED'
+                      AND status <> 'PENDING'
+                """))
             connection.execute(text(
                 "CREATE UNIQUE INDEX IF NOT EXISTS ix_tasks_diagnosis_step_id "
                 "ON tasks (diagnosis_step_id)"
+            ))
+            connection.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_tasks_deleted_at ON tasks (deleted_at)"
             ))
 
 

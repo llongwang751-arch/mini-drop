@@ -32,6 +32,10 @@ class EBPFCollector:
                 reason="bpftrace 命令不可用，请通过 apt install bpftrace 安装",
             )
 
+        tracefs_error = self._ensure_tracefs()
+        if tracefs_error:
+            return CollectorResult(ok=False, reason=tracefs_error)
+
         script_path = os.path.join(
             os.path.dirname(__file__), "scripts", "io_latency.bt",
         )
@@ -46,6 +50,7 @@ class EBPFCollector:
         output_file = os.path.join(output_dir, "io_latency.txt")
 
         stderr_text = ""
+        stopped_by_collector = False
 
         try:
             proc = subprocess.Popen(
@@ -57,6 +62,7 @@ class EBPFCollector:
             try:
                 proc.wait(timeout=task.duration_sec)
             except subprocess.TimeoutExpired:
+                stopped_by_collector = True
                 proc.send_signal(signal.SIGINT)
                 try:
                     _, stderr = proc.communicate(timeout=10)
@@ -68,9 +74,12 @@ class EBPFCollector:
                 _, stderr = proc.communicate(timeout=10)
                 stderr_text = stderr.decode("utf-8", errors="replace").strip()
 
-            # bpftrace 可能因信号退出返回非零码（-2=SIGINT, -9=SIGKILL, -15=SIGTERM, 255=unknown）
-            _allowed_exits = {0, -2, -9, -15, 255}
-            if proc.returncode not in _allowed_exits:
+            # 255 既可能是 SIGINT 后的 bpftrace 返回值，也可能是探针附加
+            # 失败。只有 Collector 主动停止时才接受信号类退出码。
+            allowed_exits = {0}
+            if stopped_by_collector:
+                allowed_exits.update({-2, -9, -15, 130, 255})
+            if proc.returncode not in allowed_exits or "ERROR:" in stderr_text:
                 return CollectorResult(
                     ok=False,
                     reason=f"bpftrace 执行失败 (exit={proc.returncode}): {stderr_text[:200]}",
@@ -99,26 +108,67 @@ class EBPFCollector:
         with open(metrics_path, "w", encoding="utf-8") as fh:
             json.dump(metrics, fh, indent=2)
 
+        artifacts = [
+            {
+                "artifact_type": "ebpf_metrics",
+                "filename": "ebpf_metrics.json",
+                "local_path": metrics_path,
+                "content_type": "application/json",
+                "size_bytes": os.path.getsize(metrics_path),
+                "metadata": {
+                    "schema_version": "ebpf_io.v1",
+                    "total_samples": metrics["total_samples"],
+                },
+            },
+            {
+                "artifact_type": "ebpf_raw",
+                "filename": "io_latency.txt",
+                "local_path": output_file,
+                "content_type": "text/plain",
+                "size_bytes": os.path.getsize(output_file) if os.path.isfile(output_file) else 0,
+            },
+        ]
+
+        # 探针成功启动不等于采到了有效证据。空直方图若仍标记 DONE，
+        # Web 会把“没有数据”误展示成一次真实的 eBPF 诊断。
+        if metrics["total_samples"] == 0:
+            return CollectorResult(
+                ok=False,
+                reason=(
+                    "eBPF 探针已运行，但未采集到块设备 IO 延迟样本；"
+                    "请在采集窗口内制造真实磁盘 IO，并检查当前内核是否开放 block tracepoint"
+                ),
+                artifacts=artifacts,
+            )
+
         return CollectorResult(
             ok=True,
             reason="bpftrace IO 延迟采集完成",
-            artifacts=[
-                {
-                    "artifact_type": "ebpf_metrics",
-                    "filename": "ebpf_metrics.json",
-                    "local_path": metrics_path,
-                    "content_type": "application/json",
-                    "size_bytes": os.path.getsize(metrics_path),
-                },
-                {
-                    "artifact_type": "ebpf_raw",
-                    "filename": "io_latency.txt",
-                    "local_path": output_file,
-                    "content_type": "text/plain",
-                    "size_bytes": os.path.getsize(output_file) if os.path.isfile(output_file) else 0,
-                },
-            ],
+            artifacts=artifacts,
         )
+
+    @staticmethod
+    def _ensure_tracefs() -> str | None:
+        """确保 tracefs 可见；容器环境通常不会自动挂载。"""
+        marker = "/sys/kernel/tracing/available_events"
+        if os.path.isfile(marker):
+            return None
+        try:
+            subprocess.run(
+                ["mount", "-t", "tracefs", "nodev", "/sys/kernel/tracing"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=5,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            return f"tracefs 挂载失败: {exc}"
+        if not os.path.isfile(marker):
+            return (
+                "tracefs 不可用；请在原生 Linux 上挂载 /sys/kernel/tracing，"
+                "并授予 Agent BPF/PERFMON 权限"
+            )
+        return None
 
     @staticmethod
     def _parse_histogram(path: str) -> dict[str, int]:

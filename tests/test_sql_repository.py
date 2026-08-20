@@ -10,7 +10,13 @@ import pytest
 from server.app.database import init_db, reset_engine
 from server.app.schemas import CreateTaskRequest
 from server.app.sql_repository import SqlRepository
-from server.app.state_machine import Actor, TaskStatus, now_utc
+from server.app.state_machine import (
+    Actor,
+    AnalysisStatus,
+    CollectionStatus,
+    TaskStatus,
+    now_utc,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -124,6 +130,50 @@ class TestTaskPersistence:
         ))
         assert task.status == TaskStatus.PENDING.value
         assert task.id
+
+    def test_active_task_cannot_be_archived(self, repo: SqlRepository):
+        repo.register_agent(self.AGENT_ID, "h", self.IP)
+        task = repo.create_task(CreateTaskRequest(
+            name="active-archive-guard", agent_id=self.AGENT_ID,
+            target_pid=100, collector_type="perf_cpu",
+        ))
+        with pytest.raises(ValueError, match="PENDING"):
+            repo.delete_task(task.id)
+        assert task.id in SqlRepository().tasks
+
+    def test_archive_hides_task_but_retains_artifact_and_ai_evidence(self, repo: SqlRepository):
+        from server.app.database import new_session
+        from server.app.models import ArtifactModel, DiagnosisRunModel, TaskModel
+
+        repo.register_agent(self.AGENT_ID, "h", self.IP)
+        task = repo.create_task(CreateTaskRequest(
+            name="retain-evidence", agent_id=self.AGENT_ID,
+            target_pid=101, collector_type="perf_cpu",
+        ))
+        repo.cancel_task(task.id, "test terminal state", Actor.WEB)
+        repo.add_artifacts(task.id, [{
+            "artifact_type": "raw", "bucket": "mini-drop",
+            "object_key": f"tasks/{task.id}/perf.data",
+        }])
+        repo.create_diagnosis_run(task.id, "rule-engine-only")
+
+        assert repo.delete_task(task.id) is True
+        assert task.id not in SqlRepository().tasks
+        assert repo.get_task(task.id) is None
+
+        session = new_session()
+        try:
+            stored = session.get(TaskModel, task.id)
+            assert stored is not None
+            assert stored.deleted_at is not None
+            assert session.query(ArtifactModel).filter_by(task_id=task.id).count() == 1
+            assert session.query(DiagnosisRunModel).filter_by(task_id=task.id).count() == 1
+        finally:
+            session.close()
+        assert any(
+            log.event_type == "TASK_ARCHIVED" and log.task_id == task.id
+            for log in repo.audit_logs
+        )
 
     def test_create_task_flushes_task_before_status_event(self, repo: SqlRepository, monkeypatch):
         repo.register_agent(self.AGENT_ID, "h", self.IP)
@@ -239,6 +289,30 @@ class TestArtifactPersistence:
         arts = repo.artifacts.get(task.id, [])
         assert len(arts) == 1
         assert arts[0]["artifact_type"] == "raw"
+        assert arts[0]["integrity_status"] == "LEGACY_UNVERIFIED"
+        assert arts[0]["manifest"]["manifest_version"] == "mini-drop.artifact.v1"
+
+    def test_local_artifact_persists_verified_manifest(self, repo: SqlRepository, tmp_path):
+        import hashlib
+
+        repo.register_agent(self.AGENT_ID, "h", self.IP)
+        task = repo.create_task(CreateTaskRequest(
+            name="art-integrity", agent_id=self.AGENT_ID,
+            target_pid=1, collector_type="perf_cpu",
+        ))
+        artifact_path = tmp_path / "sample.json"
+        artifact_path.write_bytes(b'{"ok":true}')
+        repo.add_artifacts(task.id, [{
+            "artifact_type": "top_json",
+            "local_path": str(artifact_path),
+            "filename": "sample.json",
+            "content_type": "application/json",
+        }])
+
+        artifact = repo.get_artifacts(task.id)[0]
+        assert artifact["sha256"] == hashlib.sha256(b'{"ok":true}').hexdigest()
+        assert artifact["integrity_status"] == "VERIFIED"
+        assert artifact["manifest"]["size_bytes"] == 11
 
     def test_artifacts_survive_repo_reload(self, repo: SqlRepository):
         repo.register_agent(self.AGENT_ID, "h", self.IP)
@@ -329,3 +403,68 @@ class TestRCAPersistence:
         priors = repo.get_feedback_priors()
         assert priors["cpu_hotspot_recursive"].positive_count == 1
         assert priors["cpu_hotspot_recursive"].weight_delta > 0
+
+
+class TestTaskCancellationPersistence:
+    def test_cancel_task_persists_terminal_state_event_and_audit(self, repo: SqlRepository):
+        agent_id = "cancel_agent"
+        repo.register_agent(agent_id, "h", "10.0.8.1")
+        task = repo.create_task(CreateTaskRequest(
+            name="cancel-me",
+            agent_id=agent_id,
+            target_pid=301,
+            collector_type="perf_cpu",
+        ))
+        repo.transition_task(task.id, TaskStatus.RUNNING, "Agent claimed", Actor.SERVER)
+
+        cancelled = repo.cancel_task(task.id, "operator requested cancellation", Actor.WEB)
+
+        assert cancelled.status == TaskStatus.CANCELLED.value
+        assert cancelled.finished_at is not None
+        assert repo.events[-1].to_status == TaskStatus.CANCELLED
+        assert any(
+            item.event_type == "TASK_CANCELLED" and item.task_id == task.id
+            for item in repo.audit_logs
+        )
+
+    def test_running_transition_creates_and_updates_attempt(self, repo: SqlRepository):
+        agent_id = "attempt_agent"
+        repo.register_agent(agent_id, "h", "10.0.8.2")
+        task = repo.create_task(CreateTaskRequest(
+            name="attempted-task",
+            agent_id=agent_id,
+            target_pid=302,
+            collector_type="perf_cpu",
+        ))
+
+        repo.transition_task(task.id, TaskStatus.RUNNING, "Agent claimed", Actor.SERVER)
+        attempts = repo.get_task_attempts(task.id)
+        assert len(attempts) == 1
+        assert attempts[0].attempt_no == 1
+        assert attempts[0].status == TaskStatus.RUNNING.value
+        assert attempts[0].lease_expires_at is not None
+
+        repo.transition_task(task.id, TaskStatus.FAILED, "collector failed", Actor.AGENT)
+        attempts = repo.get_task_attempts(task.id)
+        assert attempts[0].status == TaskStatus.FAILED.value
+        assert attempts[0].finished_at is not None
+
+    def test_collection_attempt_finishes_before_analyzer(self, repo: SqlRepository):
+        repo.register_agent("split_state_agent", "h", "10.0.8.3")
+        task = repo.create_task(CreateTaskRequest(
+            name="split-state-task",
+            agent_id="split_state_agent",
+            target_pid=303,
+            collector_type="perf_cpu",
+        ))
+
+        repo.transition_task(task.id, TaskStatus.RUNNING, "Agent claimed", Actor.SERVER)
+        repo.transition_task(task.id, TaskStatus.UPLOADING, "uploading", Actor.AGENT)
+        repo.transition_task(task.id, TaskStatus.ANALYZING, "artifact persisted", Actor.AGENT)
+
+        persisted = repo.get_task(task.id)
+        attempt = repo.get_task_attempts(task.id)[0]
+        assert persisted.collection_status == CollectionStatus.SUCCEEDED.value
+        assert persisted.analysis_status == AnalysisStatus.QUEUED.value
+        assert attempt.status == CollectionStatus.SUCCEEDED.value
+        assert attempt.finished_at is not None

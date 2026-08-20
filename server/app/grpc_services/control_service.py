@@ -23,20 +23,29 @@ class ControlService(control_pb2_grpc.ControlServicer):
         agent = self._repo.find_agent_by_ip(request.target_ip)
         if agent is None:
             context.abort(grpc.StatusCode.NOT_FOUND, f"目标 Agent IP 不存在: {request.target_ip}")
+        collector_type = self._collector_type(task_desc.profiler_type)
         payload = CreateTaskRequest(
             name=f"task_{request.task_id}" if request.task_id else "gRPC task",
             agent_id=agent.id,
             target_pid=task_desc.sample_argv.pid,
-            collector_type=self._collector_type(task_desc.profiler_type),
+            collector_type=collector_type,
             sample_rate=task_desc.sample_argv.hz or 99,
             duration_sec=int(task_desc.sample_argv.duration) if task_desc.sample_argv.duration else 15,
             options={
                 "callgraph": task_desc.sample_argv.callgraph or "fp",
-                "event": task_desc.sample_argv.event or "cpu-cycles",
+                "event": task_desc.sample_argv.event
+                or self._default_event(collector_type),
                 "subprocess": task_desc.sample_argv.subprocess,
             },
         )
-        task = self._repo.create_task(payload)
+        # The caller pre-assigns request.task_id; honour it as the idempotency
+        # key so a replayed Control.CreateTask returns the same task instead of
+        # creating a duplicate (guide §6.12, aligned with Go/Python HTTP entry).
+        task = self._repo.create_task(
+            payload,
+            idempotency_key=request.task_id or None,
+            creator_id="grpc:control",
+        )
         return control_pb2.CreateTaskResponse(task_id=task.id, status=_status_value(task.status))
 
     def StatAgent(self, request: control_pb2.StatAgentRequest, context) -> control_pb2.StatAgentResponse:
@@ -70,3 +79,11 @@ class ControlService(control_pb2_grpc.ControlServicer):
             logger.warning("unknown profiler_type=%s, defaulting to perf_cpu", profiler_type)
             return "perf_cpu"
         return ct
+
+    @staticmethod
+    def _default_event(collector_type: str) -> str:
+        return {
+            "java_async": "cpu",
+            "perf_cpu": "cpu-cycles",
+            "continuous_perf": "cpu-cycles",
+        }.get(collector_type, "")

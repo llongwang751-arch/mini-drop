@@ -39,6 +39,51 @@ _PROBES = {
         estimated_overhead={"cpu_percent": "2-8", "disk_mb": "20-200"},
         applicable_hypotheses=["SELF_CODE_REGRESSION", "CPU_SATURATION", "LOCK_CONTENTION"],
     ),
+    "java_cpu_profile": ProbeDefinition(
+        probe_id="java_cpu_profile",
+        name="Java CPU Profile",
+        purpose="使用 async-profiler 识别 JVM 热点、锁竞争和异常调用栈",
+        runner_task_kind="java_async",
+        supported_platforms=["linux"],
+        required_capabilities=["java_async"],
+        risk_level="R2",
+        requires_approval=True,
+        default_duration_seconds=15,
+        max_duration_seconds=60,
+        default_sample_rate=49,
+        estimated_overhead={"cpu_percent": "2-8", "disk_mb": "20-200"},
+        applicable_hypotheses=["SELF_CODE_REGRESSION", "CPU_SATURATION", "LOCK_CONTENTION"],
+    ),
+    "python_cpu_profile": ProbeDefinition(
+        probe_id="python_cpu_profile",
+        name="Python CPU Profile",
+        purpose="使用 py-spy 识别 Python 函数热点和阻塞调用栈",
+        runner_task_kind="pyspy",
+        supported_platforms=["linux"],
+        required_capabilities=["pyspy"],
+        risk_level="R2",
+        requires_approval=True,
+        default_duration_seconds=15,
+        max_duration_seconds=60,
+        default_sample_rate=49,
+        estimated_overhead={"cpu_percent": "1-5", "disk_mb": "10-100"},
+        applicable_hypotheses=["SELF_CODE_REGRESSION", "CPU_SATURATION"],
+    ),
+    "go_cpu_profile": ProbeDefinition(
+        probe_id="go_cpu_profile",
+        name="Go CPU Profile",
+        purpose="使用 pprof HTTP 识别 Go 函数热点和 goroutine 调用栈",
+        runner_task_kind="go_pprof",
+        supported_platforms=["linux"],
+        required_capabilities=["go_pprof"],
+        risk_level="R2",
+        requires_approval=True,
+        default_duration_seconds=15,
+        max_duration_seconds=60,
+        default_sample_rate=49,
+        estimated_overhead={"cpu_percent": "1-5", "disk_mb": "10-100"},
+        applicable_hypotheses=["SELF_CODE_REGRESSION", "CPU_SATURATION"],
+    ),
     "process_io_latency": ProbeDefinition(
         probe_id="process_io_latency",
         name="块设备 I/O 延迟",
@@ -83,13 +128,18 @@ def list_probes() -> list[ProbeDefinition]:
     return list(_PROBES.values())
 
 
-def choose_probe_ids(symptom: str) -> list[str]:
+def choose_probe_ids(symptom: str, runtime: str = "unknown") -> list[str]:
     """确定性策略先查低风险指标，再选择一个可区分假设的深度探针。"""
+    profile_probe = {
+        "java": "java_cpu_profile",
+        "python": "python_cpu_profile",
+        "go": "go_cpu_profile",
+    }.get(runtime, "process_cpu_profile")
     mapping = {
-        "cpu_saturation": ["host_process_metrics", "process_cpu_profile"],
-        "latency_increase": ["host_process_metrics", "process_cpu_profile"],
+        "cpu_saturation": ["host_process_metrics", profile_probe],
+        "latency_increase": ["host_process_metrics", profile_probe],
         "io_degradation": ["host_process_metrics", "process_io_latency"],
         "noisy_neighbor": ["host_process_metrics", "process_io_latency"],
         "memory_pressure": ["process_memory_map", "host_process_metrics"],
     }
-    return mapping.get(symptom, ["host_process_metrics", "process_cpu_profile"])
+    return mapping.get(symptom, ["host_process_metrics", profile_probe])

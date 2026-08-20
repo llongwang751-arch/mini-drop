@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mini-drop.local/contracts/taskkind.schema.json",
+  "title": "TaskKind",
+  "description": "Authoritative task-kind capability model (replication guide §2.11). Drives the API DTOs, Agent capability, Analyzer pipeline selection and the Web form metadata. Field numbers/names are frozen; additions must be additive.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "display_name",
+    "runner",
+    "analysis_pipeline",
+    "supported_os",
+    "supported_arch",
+    "requires_capabilities",
+    "default_duration_seconds",
+    "max_duration_seconds",
+    "max_concurrency_per_agent"
+  ],
+  "properties": {
+    "id": { "type": "integer", "description": "Stable numeric id (proto profiler_type)." },
+    "name": { "type": "string", "pattern": "^[a-z0-9_]+$", "description": "Machine name, e.g. PERF_CPU." },
+    "display_name": { "type": "string" },
+    "runner": { "type": "string", "description": "Runner plugin name, e.g. perf." },
+    "analysis_pipeline": { "type": "string", "description": "Analyzer pipeline id, e.g. perf_flamegraph." },
+    "supported_os": { "type": "array", "items": { "enum": ["linux"] } },
+    "supported_arch": { "type": "array", "items": { "enum": ["amd64", "arm64"] } },
+    "requires_capabilities": { "type": "array", "items": { "type": "string" } },
+    "supports_container": { "type": "boolean", "default": true },
+    "default_duration_seconds": { "type": "integer", "minimum": 1 },
+    "max_duration_seconds": { "type": "integer", "minimum": 1 },
+    "max_concurrency_per_agent": { "type": "integer", "minimum": 1, "default": 1 },
+    "parameter_schema": { "type": "string", "description": "Reference to a parameter JSON Schema." }
+  }
+}

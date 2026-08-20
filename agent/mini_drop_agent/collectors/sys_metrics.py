@@ -87,7 +87,13 @@ class SysMetricsCollector:
                 "local_path": output_path,
                 "content_type": "application/json",
                 "size_bytes": os.path.getsize(output_path),
-                "metadata": {"schema_version": self.SCHEMA_VERSION, **legacy},
+                "metadata": {
+                    "schema_version": self.SCHEMA_VERSION,
+                    "sample_count": len(samples),
+                    "duration_sec": duration_sec,
+                    "mode": mode,
+                    **legacy,
+                },
             }],
         )
 

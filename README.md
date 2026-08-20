@@ -1,9 +1,11 @@
-<p align="center">
+﻿<p align="center">
   <h1 align="center">🔥 Mini-Drop</h1>
   <p align="center"><strong>轻量级 Linux 性能诊断平台</strong> — 火焰图 · eBPF · AI 归因 · 自然语言采集</p>
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/C%2B%2B-17-00599c" alt="C++">
+  <img src="https://img.shields.io/badge/Go-1.23-00add8" alt="Go">
   <img src="https://img.shields.io/badge/python-3.9+-blue" alt="Python">
   <img src="https://img.shields.io/badge/react-18.x-61dafb" alt="React">
   <img src="https://img.shields.io/badge/gRPC-1.80-2ca5aa" alt="gRPC">
@@ -44,7 +46,7 @@
 git clone https://github.com/jiangyulin1/mini-drop.git && cd mini-drop
 cp .env.example .env
 
-# 2. 启动全栈服务（PostgreSQL + MinIO + Server + Agent + Web）
+# 2. 启动全栈服务（PostgreSQL + MinIO + Server + Agent + Analyzer + Web）
 docker compose up -d
 
 # 3. 端到端演示：启动热点进程 → 创建采集任务 → 轮询完成 → 验证火焰图
@@ -75,7 +77,7 @@ python dev.py test        # 运行测试
   - Analyzer 将 perf.data 转为 D3 交互式火焰图 + ECharts TopN 热点排行。
   - 5 层智能归因引擎，LLM 辅助推理但受 Schema 硬约束，每条 claim 可追溯到原始证据。
   - 自然语言采集——用户输入"mysqld CPU 飙高"，系统自动匹配进程、选采集器、定参数。
-- **运行形态**：React SPA 前端 + FastAPI 后端 + gRPC Agent 采集端 + PostgreSQL 持久化 + MinIO 对象存储。
+- **运行形态**：React SPA 前端 + Go API + Python AI/兼容服务 + C++ gRPC 灰度控制面与 Agent + Python Analyzer Worker + PostgreSQL + MinIO。
 
 ## 关键设计亮点
 
@@ -83,7 +85,7 @@ python dev.py test        # 运行测试
 - **gRPC 契约优先**：5 个 `.proto` 文件定义全部通信接口，强类型编译期发现字段不匹配，二进制序列化比 JSON 小 3-5 倍。
 - **采集器即插件**：所有采集器实现 `Collector(Protocol)` 协议——新增采集器只需实现 `collect(task) → CollectorResult`，Server 不绑定具体工具。
 - **工具驱动的 AI 归因**：LLM 不直接输出自由文本。5 层管线——证据采集 → 候选生成 → 五维置信度校准 → LLM 推理（Few-Shot + Schema 硬约束 + 自修复）→ 修复计划。`rules.json` 外部化，不开 IDE 即可扩展诊断场景。
-- **证据驱动诊断流水线 v2**：12 个可持久化节点、结构化 Action、CPU/IO/内存/网络/MySQL/JVM 确定性 Finding、静态 Knowledge 引用和报告 Verifier；完整设计见 [`docs/diagnosis_pipeline_v2.md`](docs/diagnosis_pipeline_v2.md)。
+- **证据驱动诊断流水线 v2**：12 个可持久化节点、结构化 Action、CPU/IO/内存/网络/MySQL/JVM 确定性 Finding、静态 Knowledge 引用和报告 Verifier；接口与证据约束见 [`docs/contracts/drop-insight-api.md`](docs/contracts/drop-insight-api.md) 和 [`docs/contracts/collector-evidence.md`](docs/contracts/collector-evidence.md)。
 - **自然语言采集**：用户描述意图 → LLM function calling 解析 → `/proc` PID 匹配 → 参数 clamp 安全范围 → 自动创建任务。
 - **白名单状态机**：`PENDING → RUNNING → UPLOADING → ANALYZING → DONE/FAILED`，每次迁移必写 `reason + actor` 到审计表，不允许跳状态，DONE/FAILED 终态不可回滚。
 - **AI 开关分层降级**：`none` / `nlp-only` / `rca-only` / `full` 四级可切换，不配 API Key 时火焰图等核心功能不受影响，AI 自动降级为纯规则引擎。
@@ -150,13 +152,20 @@ bash demo/demo.sh
 ```mermaid
 flowchart LR
     User["用户浏览器"] --> Web["React SPA\nAnt Design + ECharts"]
-    Web -->|REST + SSE| Server["Server\nFastAPI :8191"]
-    Server -->|任务下发 / 心跳| GRPC["gRPC :50051"]
-    GRPC --> Agent["Agent\nprivileged + pid:host"]
-    Agent --> Collectors["8 种采集器\nperf / eBPF / py-spy\njava / pprof / memory\nsys_metrics / continuous"]
-    Agent --> Analyzer["Analyzer CLI\n火焰图 + TopN + 建议"]
+    Web -->|REST + SSE| API["Go API :8080\n鉴权 / 任务 / Agent / 兼容路由"]
+    API -->|原生 SQL| Postgres["PostgreSQL"]
+    API -->|领域编排与兼容接口| Server["Python 服务\nAI / Analyzer / 兼容 API :8191"]
+    Server -->|默认任务下发 / 心跳| GRPC["Python gRPC :50051"]
+    Go -->|共享 PostgreSQL 状态机| NativeControl["C++ gRPC 灰度控制面 :50052"]
+    NativeControl --> Agent["C++ Agent\n受限进程组 + pid:host"]
+    GRPC --> Agent
+    Agent --> NativeCollectors["C++ 插件注册表\nperf / eBPF / py-spy / pprof / memory / continuous"]
+    GRPC --> PythonAgent["Python Agent\n兼容与回滚执行路径"]
     Agent -->|上传产物| MinIO["MinIO\n对象存储 + 预签名 URL"]
-    Server -->|持久化| Postgres["PostgreSQL"]
+    Server -->|持久化| Postgres
+    Server -->|创建 AnalysisJob| Postgres
+    Analyzer["Analyzer Worker\nLease + Retry + Dead Letter"] -->|领取 AnalysisJob| Postgres
+    Analyzer -->|读取原始产物 / 写回结果| MinIO
     Server -->|读取产物| MinIO
     Server -->|可选| AI["OpenAI-compatible\nDeepSeek / OpenAI 等"]
     Web -->|实时事件| SSE["SSE Stream\n任务 / Agent / 诊断"]
@@ -167,7 +176,8 @@ flowchart LR
 | 服务 | 端口 | 说明 |
 |------|------|------|
 | Web (nginx) | 80 | React SPA + API 反向代理 + SSE |
-| Server HTTP | 8191 | FastAPI REST + Swagger `/docs` |
+| Go API | 8080（容器内） | Web 唯一入口；鉴权、任务与 Agent 原生接口 |
+| Python 服务 | 8191（容器内） | Analyzer、AI 领域编排和兼容接口 |
 | Server gRPC | 50051 | Agent 通信 |
 | PostgreSQL | 5432 | 任务/事件/审计/诊断 |
 | MinIO API | 9000 | 对象存储 |
@@ -175,13 +185,17 @@ flowchart LR
 
 ### 架构决策
 
+**为什么采用 C++ / Go / Python / React 四层？** C++ Agent 贴近 Linux 内核，负责真实采集、资源限制、超时和进程组取消；Go API 负责高并发 HTTP 入口、鉴权、任务控制，以及 AI 写入口的 Schema、预算、安全策略和审计；Python 保留性能数据分析、模型调用与多轮诊断领域编排；React 负责交互式火焰图和诊断工作台。迁移采用绞杀者模式，先保持旧接口可用，再逐个替换，避免为了“换语言”破坏已经跑通的链路。当前原生边界及验证记录见 [`docs/architecture/implementation-status.md`](docs/architecture/implementation-status.md) 和 [`docs/contracts/go-diagnosis-query.md`](docs/contracts/go-diagnosis-query.md)。
+
+当前默认栈由 **C++ 控制面（`control-plane`，50051）与 C++ 原生 Agent（`native-agent`）** 构成；Python gRPC 控制面通过 `docker-compose.python-control.yml` 作为回滚，Python 兼容 Agent 通过 `docker compose --profile python-agent up -d agent` 作为本地开发/回滚路径（默认不启动）。C++ Agent 已通过 Collector Registry 原生支持 `perf_cpu`、`ebpf_io`、`pyspy`、`go_pprof`、`memory_smaps`、`sys_metrics` 与 `continuous_perf`；`java_async` 只在 async-profiler 运行时实际存在时声明能力，不用虚假 capability 掩盖缺失依赖。
+
 **为什么 gRPC？** Server ↔ Agent 使用 gRPC，5 个 `.proto` 文件定义全部通信接口，参考 DeepFlow `message/` 模式。强类型契约编译期发现字段不匹配，二进制序列化比 JSON 小 3-5 倍。Web ↔ Server 保留 REST/JSON——浏览器原生支持，易于 debug 和 curl 测试。
 
 **为什么分体部署？** Agent 需要 `privileged` + `pid:host` + `BPF` 等内核级权限，与 Web/Server 混在一个 Docker 里权限模型很脏。分开后，Agent 可以独立升级、独立重启，不影响 Web 服务。生产环境中一台 Server 管理多台主机的 Agent 是标准拓扑。
 
 **采集器统一接口。** 所有采集器实现 `Collector(Protocol)` 协议，Server 不绑定具体工具。新增采集器只需实现 `collect(task) → CollectorResult`。
 
-**Analyzer 火焰图管线。** Agent 本地执行 `perf script → stackcollapse-perf.pl → flamegraph.pl` 流水线，产出 d3-flame-graph 所需的 `{name, value, children}` JSON 树（深度 >50 层截断），同时产出 SVG 降级备用。
+**Analyzer 火焰图管线。** Agent 可以就地生成分析结果；当只上传原始 `perf.data` 时，Server 创建幂等 `AnalysisJob`，独立 Analyzer Worker 通过数据库租约领取，从 MinIO 下载原始产物并执行 `perf script → stackcollapse-perf.pl → flamegraph.pl`，再把 JSON、SVG 和 TopN 写回 MinIO。Worker 支持版本化 Registry、重试、租约恢复、死信和人工重放。
 
 **MINIO_PUBLIC_ENDPOINT 设计。** Docker 内部 MinIO 使用 `minio:9000`。Agent 通过 gRPC `FetchConfig` 获取 MinIO 地址时，Server 优先下发 `MINIO_PUBLIC_ENDPOINT`（外部可达地址），确保分体部署时 VM Agent 能直传产物到 Windows MinIO。浏览器预签名 URL 同理使用外部地址。
 
@@ -193,13 +207,15 @@ flowchart LR
 
 ### 1) 端到端采集全链路
 
-用户创建采集任务 → Server 写入 PostgreSQL 并置 `PENDING` → Agent 心跳拉取任务 → Agent 执行 perf/eBPF 采集 → 产物写入本地 `/tmp/mini-drop/{task_id}/` → Analyzer 将 `perf.data` 转为 `flamegraph.json` / `top.json` / `flamegraph.svg` → Agent 通知 Server（`NotifyResult` gRPC）→ Server 置 `UPLOADING` → Agent 上传产物到 MinIO → Server 置 `ANALYZING` → 规则引擎生成建议 → Server 置 `DONE`。
+用户创建采集任务 → Server 写入 PostgreSQL 并置 `PENDING` → Agent 心跳拉取任务 → Agent 执行 perf/eBPF 采集并上传 MinIO → Agent 调用 `NotifyResult` → Server 持久化 Artifact、置 `ANALYZING` 并创建幂等 AnalysisJob → Analyzer Worker 通过租约领取 → 从 MinIO 读取输入、生成或验证可视化结果 → 原子写入输出 Artifact 和 AnalysisJob 终态 → Server 任务置 `DONE`。
 
 全程每一步迁移写入 `task_status_events` 表（`from_status → to_status, reason, actor`）。
 
 ### 2) eBPF IO 延迟采集链路
 
-Agent 启动 `bpftrace io_latency.bt -o io_latency.txt` → 脚本挂载 `kprobe:blk_mq_start_request` 记录提交时间戳 → 挂载 `kprobe:blk_account_io_done` 计算 `(nsecs - start) / 1000` μs 延迟 → `interval:s:1` 定时打印 histogram → Agent SIGTERM 终止 bpftrace → 解析 regex 提取区间计数 → 输出 `ebpf_metrics.json`（`{io_latency_us: {"[32,64)": 9, ...}}`）→ Web 端 EBPFHistogram 组件渲染 ECharts 柱状图 + P50/P95/P99 分位。
+Agent 检查并按需挂载 `tracefs` → 启动 `bpftrace io_latency.bt -o io_latency.txt` → 脚本挂载稳定的 `tracepoint:block:block_rq_issue` 与 `tracepoint:block:block_rq_complete` → 按设备号和扇区关联请求，计算 `(nsecs - start) / 1000` 微秒延迟 → Agent 主动发送 SIGINT 结束采样 → 解析区间计数 → 输出 `ebpf_metrics.json` → Web 使用 EBPFHistogram 渲染延迟分布与 P50/P95/P99。
+
+采集器会区分 tracefs 不可用、探针附着失败和真实 IO 样本为空，不会把 bpftrace 在附着阶段的退出误判成成功。
 
 ### 3) 智能归因链路
 
@@ -375,7 +391,7 @@ micro-drop completion --shell bash
 POST   /api/tasks                          # 创建采集任务
 GET    /api/tasks?search=&sort_by=&sort_order=  # 列表（搜索+排序+分页）
 GET    /api/tasks/{id}                     # 详情
-DELETE /api/tasks/{id}                     # 删除（仅终态 + 级联删除关联数据）
+DELETE /api/tasks/{id}                     # 归档（仅终态，保留状态、Artifact 与诊断证据）
 GET    /api/tasks/{id}/events              # 状态迁移链
 GET    /api/tasks/{id}/artifacts           # 产物列表
 GET    /api/tasks/{id}/artifacts/{type}/content  # 产物内容
@@ -440,13 +456,14 @@ sudo bash deploy/scripts/install-worker.sh "$PWD"
 ```
 
 完整步骤、证书分发、端口矩阵和验收命令见
-[三机 VM 部署与联调指南](docs/three-node-vm-deployment.md)。SSH 自动化不包含在当前阶段。
+[三机 VM 部署与联调指南](docs/guides/multi-node-deployment.md)。SSH 自动化不包含在当前阶段。
 
 ### 离线 / 本地 Docker（SQLite，无需拉取外部镜像）
 
 ```bash
 npm --prefix web run build
-docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build server agent web
+# 离线演示使用 Python 兼容 Agent（在 base compose 中挂 python-agent profile）
+docker compose -f docker-compose.yml -f docker-compose.local.yml --profile python-agent up -d --build server agent web
 ```
 
 ### 一键演示
@@ -510,13 +527,22 @@ MINIO_PUBLIC_ENDPOINT=http://10.0.0.10:9000
 
 ```bash
 MINI_DROP_API_KEY=$(openssl rand -hex 32)
+MINI_DROP_INTERNAL_GATEWAY_TOKEN=$(openssl rand -hex 32)
 MINI_DROP_GRPC_TOKEN=$(openssl rand -hex 32)
 MINI_DROP_API_AUTH_ENABLED=1
 MINI_DROP_GRPC_AUTH_ENABLED=1
 ```
 
+`MINI_DROP_INTERNAL_GATEWAY_TOKEN` 只用于 Go API 到 Python 分析服务的
+内部可信跳转，必须与用户 API Key 分开生成，且不应提供给浏览器或 Agent。
+
 Web 顶栏填写的是 `MINI_DROP_API_KEY`（Control REST 访问凭据），不是 AI Provider Key。
 认证失败时 Agent/任务状态显示为“未知”并给出明确提示，不会把接口失败误显示成 0 个 Agent。
+
+生产环境可使用 `MINI_DROP_API_PRINCIPALS_JSON` 配置多个身份。每个身份包含
+`id`、`api_key`、`roles`、`agent_ids`、`service_ids` 和 `environments`。
+`viewer` 只读，`operator` 可创建任务和诊断，`approver` 只能审批受控探针，
+`admin` 拥有全部权限；不在资源范围内的 Agent/服务不会被允许操作。
 
 ---
 
@@ -586,34 +612,26 @@ npm --prefix web run dev  # Vite HMR :5173（可选）
 
 ```
 mini-drop/
-├── server/app/           FastAPI + gRPC + RCA + NLP + Prometheus
-│   ├── main.py           FastAPI 入口 + 全量 API 路由
-│   ├── grpc_server.py    gRPC 后台线程启动（共进程）
-│   ├── grpc_services/    4 个 gRPC 服务实现（Init/HealthCheck/Hotmethod/Control）
-│   ├── nlp/              自然语言意图解析 + 进程 PID 匹配 + AI 总结 + 追问
-│   ├── rca/              5 层归因引擎（evidence → candidates → calibrator → LLM → repair）
-│   ├── diagnosis/        集群诊断会话（intent → topology → hypotheses → probes → evidence）
-│   ├── models.py         SQLAlchemy ORM 模型
-│   ├── sql_repository.py 数据库仓储层（读写分离 + TTL 缓存 + 级联删除）
-│   ├── repository.py     内存仓储层（兼容旧版）
-│   ├── state_machine.py  白名单状态机 + 迁移校验
-│   └── schemas.py        Pydantic 请求/响应模型 + 参数边界常量
-├── agent/mini_drop_agent/ Agent 采集端（gRPC 长连接 + 指数退避重试）
-│   ├── main.py           Agent 主循环（注册 → 心跳 → 拉任务 → 执行 → 上报）
-│   ├── collectors/       8 种采集器（perf/eBPF/py-spy/java/pprof/memory/sys/continuous）
-│   │   └── scripts/      bpftrace 内核探针脚本
-│   ├── config.py         环境变量加载 + 参数边界校验
-│   └── connection.py     gRPC 连接管理 + 认证拦截器 + 重试逻辑
-├── analyzer/             perf.data → stackcollapse → flamegraph JSON 树 + TopN + SVG
-├── web/                  React 18 + Ant Design 5 + d3-flame-graph + ECharts
-│   ├── src/pages/        Dashboard / TaskResult / AgentDetail / AuditLogs / Settings / DiagnosisHistory
-│   └── src/components/   FlamegraphViewer / TopNChart / EBPFHistogram / NLPTaskInput / ErrorBoundary
-├── proto/                5 个 gRPC 契约文件（common/init/healthcheck/hotmethod/control）
-├── demo/                 演示脚本 & 15 种负载场景生成器
-├── deploy/               Dockerfiles + nginx 配置
-├── tests/                33 个测试文件（单元 + 集成 + E2E）
-└── docs/                 设计文档 + 智能归因评测报告
+├── native/               C++17 控制面与原生 Agent
+├── apiserver/            Go API、鉴权、持久化查询与 SSE
+├── analyzer/             Python 离线分析与 FlameGraph 工具
+├── server/               Python 兼容 API/gRPC、Analyzer Worker 与 AI 编排
+├── agent/                Python 兼容 Agent 与完整采集器插件
+├── web/                  React 18 Web
+├── proto/                跨语言 gRPC 契约
+├── benchmarks/           统一 AI 诊断用例
+├── golden_scenarios/     Golden 回归输入
+├── knowledge/            AI 诊断知识条目
+├── demo/                 多语言热点目标与故障负载
+├── deploy/               Dockerfile、Nginx、环境模板和 systemd
+├── scripts/              运维、实验与评测入口
+├── tests/                单元、契约、集成和 E2E 测试
+├── reports/              机器生成的验收结果
+└── docs/                 architecture/guides/ai/contracts/benchmarks
 ```
+
+完整目录说明及迁移期保留边界见
+[`docs/architecture/repository-layout.md`](docs/architecture/repository-layout.md)。
 
 ---
 
@@ -634,9 +652,9 @@ mini-drop/
 
 ## 关键决策与取舍
 
-### 为什么 Analyzer 跑在 Agent 侧而非 Server 侧？
+### 为什么 Analyzer 使用独立 Worker？
 
-Agent 本地执行 `perf script → stackcollapse → flamegraph` 流水线。火焰图 JSON 树通常只有几 KB 到几十 KB，比原始 `perf.data`（数百 KB 到数 MB）小得多。上传 JSON 而非原始数据到 MinIO，节省带宽和存储。
+Agent 只负责采集，Server 只负责控制和持久化，耗时分析由独立 Worker 承担。这样 API 重启不会丢失分析任务，多个 Worker 可以通过数据库租约并发消费，失败任务可以指数退避、进入死信并人工重放。Agent 仍可就地生成轻量结果，但 Server 不再在 gRPC 请求线程里同步执行 Analyzer。
 
 ### 为什么 D3 火焰图而不是 ECharts 热力图？
 
@@ -654,6 +672,16 @@ bpftrace 对演示场景足够——Shell 一行命令即可挂载内核探针�
 
 ## 更新日志
 
+### 2026-08-01：Go 控制 API 与持久化 SSE
+
+- Go 原生实现任务取消、任务事件、执行尝试、产物元数据、审计查询和 PostgreSQL 驱动的 SSE；
+- SSE 覆盖任务状态、Agent 上下线、AI 诊断完成，并支持复合游标断线续传；
+- 真实任务 `task_20260801_071045_64721a07` 验证 Go → C++ → Go 的取消链路；
+- 修复 AI Worker 对人工确认态反复推进造成的 `advance_failed` 事件洪泛；
+- 全量回归：Python 471 项、Go 测试、React 生产构建均通过。
+- Go 进一步原生接管产物内容读取与 MinIO 流式下载，加入任务目录归属校验、路径穿越防护、16 MiB 预览上限及安全下载响应头。
+- 任务删除改为生产级软归档：活动任务拒绝归档，终态任务从列表隐藏但保留状态、产物、AI 证据和审计；策略见 [任务归档与 AI 证据保留](docs/ai/task-archive-policy.md)。
+
 ### 2026-06-21 — Web 前端业务逻辑完善
 
 - **Dashboard 任务管理**：新增搜索（按名称/ID 模糊匹配）、排序（按字段 + 升/降序）、删除（确认弹窗 + 进行中任务保护 + 级联删除事件/产物/诊断/审计日志）。
@@ -663,6 +691,13 @@ bpftrace 对演示场景足够——Shell 一行命令即可挂载内核探针�
 - **NLPTaskInput**：Agent 选择优先匹配对应采集器能力的在线 Agent。
 - **ErrorBoundary**：全局渲染异常捕获，降级为友好错误页（重试/回首页），不白屏。
 - **EBPFHistogram**：eBPF IO 延迟分布 ECharts 柱状图——绿→红渐变着色、P50/P95/P99 分位估算、hint 提示。满足 题目要求 "eBPF 必须在 Web 上有自己的可视化形态"。
+
+### 2026-07-31 — Java 与 eBPF 真实链路验收
+
+- Java：新增 Temurin 21 热点目标，Agent 与目标容器安装 async-profiler 4.4，通过目标 mount namespace 输出 HTML 火焰图；真实任务 `task_20260731_043955_b8b2fe` 完成。
+- eBPF：探针切换为 block tracepoint，增加 tracefs 能力检查和早退识别；Docker Desktop WSL2 内核真实任务 `task_20260731_044630_5b86a4` 采到 1082 个 IO 延迟样本并完成分析。
+- 持续诊断：诊断历史页展示 anomaly → diagnosis 的幂等 Trigger，并增加 `scripts/continuous_soak.py` 长稳验收工具。
+- 本节实现取代下方旧版本中的 kprobe 与宽松退出码策略。
 
 ### 2026-06-21 — eBPF bpftrace 兼容性修复
 

@@ -62,9 +62,12 @@ def generate_candidates(
     return candidates
 
 
+_rules_mtime_cache: dict[str, float] = {}
+
+
 @lru_cache(maxsize=1)
-def load_rules(path: str | None = None) -> list[dict[str, Any]]:
-    """加载外部规则配置。测试可传入 path 或 clear cache 后重载。"""
+def _cached_load_rules(path: str | None = None) -> list[dict[str, Any]]:
+    """Load rules.json once per distinct mtime (guarded by load_rules)."""
     rules_path = Path(path) if path else RULES_PATH
     try:
         data = json.loads(rules_path.read_text(encoding="utf-8"))
@@ -84,6 +87,26 @@ def load_rules(path: str | None = None) -> list[dict[str, Any]]:
         logger.warning("RCA rules.json 没有有效规则，使用内置默认规则")
         return _builtin_rules()
     return rules
+
+
+def load_rules(path: str | None = None) -> list[dict[str, Any]]:
+    """Hot-reload aware rules loader.
+
+    Rules live in ``rules.json``. The loader caches by file mtime so a rules
+    edit takes effect on the next call without a process restart.
+    """
+    rules_path = Path(path) if path else RULES_PATH
+    mtime = rules_path.stat().st_mtime if rules_path.is_file() else 0.0
+    key = str(rules_path)
+    if _rules_mtime_cache.get(key) != mtime:
+        _cached_load_rules.cache_clear()
+        _rules_mtime_cache[key] = mtime
+    return _cached_load_rules(path)
+
+
+# Backwards-compatible alias so existing callers/tests can still
+# `load_rules.cache_clear()` to force a reload.
+load_rules.cache_clear = _cached_load_rules.cache_clear
 
 
 def _builtin_rules() -> list[dict[str, Any]]:

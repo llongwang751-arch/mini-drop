@@ -12,6 +12,7 @@ from server.app.nlp.intent_parser import (
     _clamp_and_validate,
     _keyword_fallback,
     _extract_process_name,
+    _extract_target_pid,
     parse_intent,
 )
 from server.app.nlp.process_resolver import resolve_pid
@@ -69,6 +70,18 @@ class TestIntentParsing:
         assert _extract_process_name("mysqld CPU 飙高") == "mysqld"
         assert _extract_process_name("nginx 高负载") == "nginx"
 
+    def test_explicit_pid_duration_and_rate_in_fallback(self):
+        intent = _keyword_fallback("对 PID 75263 做 10 秒 Python CPU 分析，频率 99Hz")
+        assert intent.target_pid == 75263
+        assert intent.process_name == "PID 75263"
+        assert intent.collector_type == "pyspy"
+        assert intent.duration_sec == 10
+        assert intent.sample_rate == 99
+
+    def test_extract_target_pid_does_not_treat_pid_as_process_name(self):
+        assert _extract_target_pid("分析 PID: 321") == 321
+        assert _extract_process_name("分析 PID 321 的 Python CPU") == "unknown"
+
     def test_api_key_not_set_uses_fallback(self):
         with mock.patch.dict("os.environ", {}, clear=True):
             import importlib
@@ -108,6 +121,28 @@ class TestIntentParsing:
                 assert result.collector_type == "perf_cpu"
                 assert result.duration_sec == 30
                 assert result.process_name == "mysqld"
+
+    def test_user_explicit_values_override_tool_result(self):
+        mock_resp = mock.MagicMock(status_code=200)
+        mock_resp.json.return_value = {
+            "choices": [{"message": {"tool_calls": [{"function": {
+                "name": "create_profiling_task",
+                "arguments": json.dumps({
+                    "process_name": "PID",
+                    "collector_type": "pyspy",
+                    "duration_sec": 15,
+                    "sample_rate": 49,
+                    "reasoning": "Python CPU analysis",
+                }),
+            }}]}}],
+        }
+        with mock.patch("server.app.nlp.intent_parser.is_feature_enabled", return_value=True):
+            with mock.patch("server.app.nlp.intent_parser.chat_completions", return_value=mock_resp):
+                result = parse_intent("对 PID 75263 做 10 秒 Python CPU 分析，频率 99Hz")
+        assert result.target_pid == 75263
+        assert result.process_name == "PID 75263"
+        assert result.duration_sec == 10
+        assert result.sample_rate == 99
 
     def test_api_call_forces_non_thinking_tool_choice(self):
         mock_resp = mock.MagicMock(status_code=200)

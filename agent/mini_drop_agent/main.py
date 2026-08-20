@@ -14,11 +14,11 @@ from __future__ import annotations
 import server.app._env  # noqa: F401 — 自动加载 .env
 
 import json
+import multiprocessing
 import os
 import queue
 import signal
 import socket
-import threading
 import time
 from dataclasses import replace
 from typing import Any
@@ -39,6 +39,7 @@ from agent.mini_drop_agent.connection import GrpcConnection
 from agent.mini_drop_agent.config import AgentConfig, load_config
 from agent.mini_drop_agent.logging_utils import log_event
 from agent.mini_drop_agent.metrics import ProcessStatsSampler
+from agent.mini_drop_agent.result_outbox import OutboxEntry, ResultOutbox
 from server.app.generated import (
     healthcheck_pb2,
     healthcheck_pb2_grpc,
@@ -132,6 +133,15 @@ def _fetch_config(stub: init_pb2_grpc.InitAgentStub, config: AgentConfig) -> Age
 def _apply_cos_config(config: AgentConfig, cos_config) -> AgentConfig:
     if not getattr(cos_config, "endpoint", ""):
         return config
+    # A control-host Agent may already have a private object-store endpoint
+    # such as ``minio:9000``.  Replacing it with the public Worker endpoint
+    # forces a container to hairpin through the cloud address and can hang
+    # artifact uploads.  Remote Agents keep the default server-distributed
+    # endpoint; only explicitly configured local Agents opt out.
+    if os.getenv("AGENT_KEEP_LOCAL_MINIO_ENDPOINT", "0").lower() in {
+        "1", "true", "yes",
+    }:
+        return config
     return replace(
         config,
         minio_endpoint=cos_config.endpoint,
@@ -146,6 +156,7 @@ def _heartbeat(
     config: AgentConfig,
     sampler: ProcessStatsSampler | None = None,
     busy: bool = False,
+    active_task_id: str = "",
 ) -> dict[str, Any] | None:
     """通过 gRPC HealthCheck.Do 发送心跳，返回待执行任务或 None。"""
     request = healthcheck_pb2.HealthCheckRequest(
@@ -154,6 +165,7 @@ def _heartbeat(
         ip_addr=config.agent_ip_addr,
         agent_version="0.1.0",
         busy=busy,
+        active_task_id=active_task_id,
     )
     if sampler is not None:
         _fill_pid_stats(request.self_pstats, sampler.sample_self())
@@ -162,6 +174,11 @@ def _heartbeat(
         request,
         timeout=5,
     )
+    if resp.cancel_task_id:
+        return {
+            "cancel_task_id": resp.cancel_task_id,
+            "cancel_reason": resp.cancel_reason or "任务已被取消",
+        }
     if resp.pending and resp.task_desc.task_id:
         task_type = resp.task_desc.task_type
         # task_type 优先路由（如 MemCheck → memory_smaps）
@@ -185,20 +202,13 @@ def _heartbeat(
     return None
 
 
-def _collector_worker(work_queue, result_queue, config: AgentConfig) -> None:
-    """Run collectors away from the heartbeat loop."""
-    while True:
-        task = work_queue.get()
-        try:
-            if task is None:
-                return
-            ok, reason, artifacts = _run_collector(task, config)
-            result_queue.put((task, ok, reason, artifacts))
-        except Exception as exc:
-            if task is not None:
-                result_queue.put((task, False, f"collector worker crashed: {exc}", []))
-        finally:
-            work_queue.task_done()
+def _collector_process(task, result_queue, config: AgentConfig) -> None:
+    """Run one collector in an isolated process so cancellation is enforceable."""
+    try:
+        ok, reason, artifacts = _run_collector(task, config)
+        result_queue.put((task, ok, reason, artifacts))
+    except Exception as exc:
+        result_queue.put((task, False, f"collector process crashed: {exc}", []))
 
 
 def _notify_result(
@@ -227,6 +237,46 @@ def _notify_result(
             ),
             timeout=10,
         )
+
+
+def _deliver_outbox_entry(
+    conn: GrpcConnection,
+    outbox: ResultOutbox,
+    entry: OutboxEntry,
+) -> bool:
+    payload = entry.payload
+    try:
+        conn.call_with_retry(
+            lambda: _notify_result(
+                hotmethod_pb2_grpc.HotmethodStub(conn.channel),
+                str(payload["task_id"]),
+                bool(payload.get("ok")),
+                str(payload.get("reason") or ""),
+                list(payload.get("artifacts") or []),
+            )
+        )
+    except grpc.RpcError as exc:
+        log_event(
+            "error",
+            "notify_result_deferred",
+            task_id=payload.get("task_id"),
+            code=exc.code(),
+            details=exc.details(),
+            outbox_path=str(entry.path),
+        )
+        return False
+    outbox.acknowledge(entry)
+    log_event("info", "notify_result_acknowledged", task_id=payload.get("task_id"))
+    return True
+
+
+def _flush_result_outbox(conn: GrpcConnection, outbox: ResultOutbox) -> int:
+    delivered = 0
+    for entry in outbox.pending():
+        if not _deliver_outbox_entry(conn, outbox, entry):
+            break
+        delivered += 1
+    return delivered
 
 
 # ── 主循环 ─────────────────────────────────────────────────────────
@@ -283,22 +333,26 @@ def main() -> None:
     config = load_config()
     conn = GrpcConnection(config.server_grpc_addr, auth_token=config.grpc_auth_token)
     sampler = ProcessStatsSampler()
+    outbox = ResultOutbox(
+        config.result_outbox_dir,
+        max_entries=config.result_outbox_max_entries,
+    )
 
     signal.signal(signal.SIGINT, _on_signal)
     signal.signal(signal.SIGTERM, _on_signal)
 
     # 初始化注册 + 拉取配置（带重试）
     config = _init_register_with_retry(conn, config)
+    _flush_result_outbox(conn, outbox)
 
-    work_queue = queue.Queue(maxsize=1)
-    result_queue = queue.Queue()
-    worker = threading.Thread(
-        target=_collector_worker,
-        args=(work_queue, result_queue, config),
-        name="collector-worker",
-        daemon=True,
-    )
-    worker.start()
+    # A gRPC channel has already started background threads at this point.
+    # Forking a multithreaded process can leave inherited locks/pollers in an
+    # inconsistent state and make an otherwise completed collector hang
+    # forever.  ``spawn`` gives each collector a clean interpreter and is also
+    # consistent across Linux and Windows.
+    process_context = multiprocessing.get_context("spawn")
+    result_queue = process_context.Queue()
+    worker_process = None
     active_task: dict[str, Any] | None = None
 
     while not _should_exit:
@@ -307,32 +361,31 @@ def main() -> None:
         except queue.Empty:
             pass
         else:
+            entry = outbox.enqueue(finished_task["id"], ok, reason, artifacts)
             try:
-                conn.call_with_retry(
-                    lambda: _notify_result(
-                        hotmethod_pb2_grpc.HotmethodStub(conn.channel),
-                        finished_task["id"],
-                        ok,
-                        reason,
-                        artifacts,
-                    )
-                )
+                delivered = _deliver_outbox_entry(conn, outbox, entry)
+                if not delivered:
+                    raise RuntimeError("result retained in durable outbox")
                 if ok:
                     log_event("info", "task_completed", task_id=finished_task["id"], artifact_count=len(artifacts))
                 else:
                     log_event("error", "task_failed", task_id=finished_task["id"], reason=reason)
-            except grpc.RpcError as exc:
+            except RuntimeError as exc:
                 log_event(
                     "error",
                     "notify_result_failed",
                     task_id=finished_task["id"],
-                    code=exc.code(),
-                    details=exc.details(),
+                    details=str(exc),
                 )
             finally:
                 if active_task and active_task.get("id") == finished_task.get("id"):
                     active_task = None
-                result_queue.task_done()
+                if worker_process is not None:
+                    worker_process.join(timeout=1)
+                    worker_process = None
+
+        # 重放最旧的结果后再领取新任务；失败时保留文件，下一轮继续。
+        _flush_result_outbox(conn, outbox)
 
         try:
             task = conn.call_with_retry(
@@ -341,6 +394,7 @@ def main() -> None:
                     config,
                     sampler,
                     busy=active_task is not None,
+                    active_task_id=active_task.get("id", "") if active_task else "",
                 )
             )
         except grpc.RpcError as exc:
@@ -349,6 +403,25 @@ def main() -> None:
             continue
 
         if task is None:
+            time.sleep(config.heartbeat_interval_sec)
+            continue
+
+        if task.get("cancel_task_id"):
+            if active_task and task["cancel_task_id"] == active_task.get("id"):
+                if worker_process is not None and worker_process.is_alive():
+                    worker_process.terminate()
+                    worker_process.join(timeout=5)
+                    if worker_process.is_alive():
+                        worker_process.kill()
+                        worker_process.join(timeout=2)
+                log_event(
+                    "info",
+                    "task_cancelled",
+                    task_id=task["cancel_task_id"],
+                    reason=task.get("cancel_reason", ""),
+                )
+                active_task = None
+                worker_process = None
             time.sleep(config.heartbeat_interval_sec)
             continue
 
@@ -370,12 +443,20 @@ def main() -> None:
             pid=task["target_pid"],
         )
         active_task = task
-        work_queue.put(task)
+        worker_process = process_context.Process(
+            target=_collector_process,
+            args=(task, result_queue, config),
+            name=f"collector-{task['id']}",
+            daemon=True,
+        )
+        worker_process.start()
 
         time.sleep(config.heartbeat_interval_sec)
 
-    work_queue.put(None)
-    worker.join(timeout=5)
+    if worker_process is not None and worker_process.is_alive():
+        worker_process.terminate()
+        worker_process.join(timeout=5)
+    result_queue.close()
     conn.close()
 
 

@@ -66,15 +66,23 @@ class JavaAsyncProfilerCollector:
             )
 
         output_file = os.path.join(output_dir, "java_flamegraph.html")
+        profiler_output, visible_output = self._target_output_paths(
+            task.target_pid,
+            task.id,
+            output_file,
+        )
+        target_library = self._target_library_path(profiler_path, task.target_pid)
         duration = task.duration_sec
 
         cmd = [
-            sys.executable, profiler_path,
+            *self._launcher(profiler_path),
             "-d", str(duration),
             "-e", event,
-            "-f", output_file,
-            str(task.target_pid),
+            "-f", profiler_output,
         ]
+        if target_library:
+            cmd.extend(["--libpath", target_library])
+        cmd.append(str(task.target_pid))
 
         timeout = duration + 60
 
@@ -89,10 +97,20 @@ class JavaAsyncProfilerCollector:
 
             if proc.returncode != 0:
                 err_msg = stderr.decode("utf-8", errors="replace").strip()
+                self._stop_profiler(profiler_path, task.target_pid)
                 return CollectorResult(
                     ok=False,
                     reason=f"async-profiler 执行失败 (exit={proc.returncode}): {err_msg[:200]}",
                 )
+
+            # 容器目标由目标 JVM 写入自己的 mount namespace。Agent 通过
+            # /proc/<pid>/root 读取，再复制到自己的制品工作目录。
+            if visible_output != output_file and os.path.isfile(visible_output):
+                shutil.copy2(visible_output, output_file)
+                try:
+                    os.remove(visible_output)
+                except OSError:
+                    pass
 
             # async-profiler 可能在 PID 退出前返回，确认产物存在
             if not os.path.isfile(output_file) or os.path.getsize(output_file) == 0:
@@ -111,10 +129,17 @@ class JavaAsyncProfilerCollector:
                     "local_path": output_file,
                     "content_type": "text/html",
                     "size_bytes": size,
+                    "metadata": {
+                        "schema_version": "java_async.v1",
+                        "duration_sec": duration,
+                        "event": event,
+                        "backend": os.path.basename(profiler_path),
+                    },
                 }],
             )
 
         except subprocess.TimeoutExpired:
+            self._stop_profiler(profiler_path, task.target_pid)
             try:
                 if hasattr(os, "killpg"):
                     os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
@@ -170,21 +195,25 @@ class JavaAsyncProfilerCollector:
 
     @staticmethod
     def _find_profiler() -> str | None:
-        """查找 async-profiler 的 profiler.sh 路径。"""
+        """优先查找 async-profiler 2.x+ 的 asprof，兼容旧 profiler.sh。"""
         # 方式 1: 环境变量
         home = os.getenv("ASYNC_PROFILER_HOME", "").strip()
         if home:
-            candidate = os.path.join(home, "profiler.sh")
-            if os.path.isfile(candidate):
-                return candidate
+            for relative in ("bin/asprof", "asprof", "profiler.sh"):
+                candidate = os.path.join(home, relative)
+                if os.path.isfile(candidate):
+                    return candidate
 
         # 方式 2: PATH 搜索
-        which = shutil.which("profiler.sh")
-        if which:
-            return which
+        for command in ("asprof", "profiler.sh"):
+            which = shutil.which(command)
+            if which:
+                return which
 
         # 方式 3: 常见安装路径
         for path in [
+            "/opt/async-profiler/bin/asprof",
+            "/usr/local/async-profiler/bin/asprof",
             "/opt/async-profiler/profiler.sh",
             "/usr/local/async-profiler/profiler.sh",
         ]:
@@ -192,3 +221,79 @@ class JavaAsyncProfilerCollector:
                 return path
 
         return None
+
+    @staticmethod
+    def _launcher(profiler_path: str) -> list[str]:
+        """返回 argv 前缀；禁止把 Shell 字符串交给 shell=True 执行。"""
+        if profiler_path.endswith(".py"):
+            return [sys.executable, profiler_path]
+        return [profiler_path]
+
+    @classmethod
+    def _stop_profiler(cls, profiler_path: str, pid: int) -> None:
+        """失败后尽力停止 JVM 内残留会话，避免污染下一次采集。"""
+        try:
+            subprocess.run(
+                [*cls._launcher(profiler_path), "stop", "-o", "flat", str(pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    @staticmethod
+    def _target_output_paths(
+        pid: int,
+        task_id: str,
+        local_output: str,
+    ) -> tuple[str, str]:
+        """返回 JVM 看到的路径，以及 Agent 读取该路径时使用的路径。"""
+        target_root = f"/proc/{pid}/root"
+        if not os.path.isdir(target_root):
+            return local_output, local_output
+
+        target_dir = f"/tmp/mini-drop/{task_id}"
+        visible_dir = os.path.join(target_root, target_dir.lstrip("/"))
+        try:
+            os.makedirs(visible_dir, exist_ok=True)
+        except OSError:
+            return local_output, local_output
+
+        target_output = f"{target_dir}/java_flamegraph.html"
+        visible_output = os.path.join(target_root, target_output.lstrip("/"))
+        return target_output, visible_output
+
+    @staticmethod
+    def _target_library_path(profiler_path: str, pid: int) -> str | None:
+        """Expose libasyncProfiler.so inside a containerized target namespace.
+
+        jattach asks the target JVM to load the library by path.  When Agent
+        and JVM are in different mount namespaces, the Agent's `/opt` path is
+        invisible to the JVM even though host PID access works.  Copying the
+        immutable library through `/proc/<pid>/root` gives both sides a stable
+        target-visible path without requiring the application image to bundle
+        async-profiler itself.
+        """
+
+        source = os.path.abspath(
+            os.path.join(os.path.dirname(profiler_path), "..", "lib", "libasyncProfiler.so")
+        )
+        if not os.path.isfile(source):
+            return None
+        target_root = f"/proc/{pid}/root"
+        if not os.path.isdir(target_root):
+            return None
+        target_path = "/tmp/mini-drop/runtime/libasyncProfiler.so"
+        visible_path = os.path.join(target_root, target_path.lstrip("/"))
+        try:
+            os.makedirs(os.path.dirname(visible_path), exist_ok=True)
+            if (
+                not os.path.isfile(visible_path)
+                or os.path.getsize(visible_path) != os.path.getsize(source)
+            ):
+                shutil.copy2(source, visible_path)
+        except OSError:
+            return None
+        return target_path

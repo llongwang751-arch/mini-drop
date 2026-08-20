@@ -4,7 +4,6 @@ import { Button, Input, Layout, Menu, message, Space, Tag, Tooltip, Typography }
 import {
   DashboardOutlined,
   AuditOutlined,
-  ExperimentOutlined,
   SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -14,6 +13,8 @@ import {
   ApiOutlined,
   WifiOutlined,
   RobotOutlined,
+  ScheduleOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
 import { getStoredApiKey, saveApiKey, createEventSource } from "../api/client";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -21,13 +22,47 @@ import { COLORS, LAYOUT, SPACING, FONT_SIZES } from "../theme";
 
 const { Sider, Header, Content } = Layout;
 
+// 一级导航收敛（方案 §7）：AI 诊断默认首页，任务/系统为二级分组。
+// 复合任务不再单独占一级菜单，收进「任务」分组。
 const MENU_ITEMS = [
-  { key: "/", icon: <DashboardOutlined />, label: "任务面板" },
-  { key: "/ai-diagnosis", icon: <RobotOutlined />, label: "AI 集群诊断" },
-  { key: "/diagnoses", icon: <ExperimentOutlined />, label: "诊断历史" },
-  { key: "/audit", icon: <AuditOutlined />, label: "审计日志" },
-  { key: "/settings", icon: <SettingOutlined />, label: "系统设置" },
+  { key: "/ai-diagnosis", icon: <RobotOutlined />, label: "AI 诊断" },
+  {
+    key: "tasks",
+    icon: <DashboardOutlined />,
+    label: "任务",
+    children: [
+      { key: "/tasks", label: "任务面板" },
+      { key: "/schedules", label: "计划任务" },
+      { key: "/composites", label: "复合任务" },
+    ],
+  },
+  {
+    key: "system",
+    icon: <SettingOutlined />,
+    label: "系统",
+    children: [
+      { key: "/audit", label: "审计日志" },
+      { key: "/settings", label: "系统设置" },
+    ],
+  },
 ];
+
+// 根据 pathname 得到应高亮的叶子菜单 key 及其父级（用于展开二级菜单）。
+function menuSelection(pathname) {
+  if (pathname === "/ai-diagnosis") return { selected: "/ai-diagnosis", parent: null };
+  if (
+    pathname === "/tasks" ||
+    pathname.startsWith("/task/") ||
+    pathname.startsWith("/agent/")
+  ) {
+    return { selected: "/tasks", parent: "tasks" };
+  }
+  if (pathname === "/schedules") return { selected: "/schedules", parent: "tasks" };
+  if (pathname === "/composites") return { selected: "/composites", parent: "tasks" };
+  if (pathname === "/audit") return { selected: "/audit", parent: "system" };
+  if (pathname === "/settings") return { selected: "/settings", parent: "system" };
+  return { selected: "/ai-diagnosis", parent: null };
+}
 
 // ── 暗色主题 tokens ───────────────────────────────────────────
 
@@ -68,6 +103,11 @@ export default function AppLayout() {
 
   // SSE 连接状态
   const [sseConnected, setSseConnected] = useState(false);
+  // 二级菜单展开状态
+  const [openKeys, setOpenKeys] = useState(() => {
+    const { parent } = menuSelection(location.pathname);
+    return parent ? [parent] : [];
+  });
 
   const T = darkMode ? DARK_TOKENS : LIGHT_TOKENS;
 
@@ -96,10 +136,14 @@ export default function AppLayout() {
 
   // ── 路由激活 key ─────────────────────────────────────────
 
-  const path = location.pathname;
-  const selectedKey = MENU_ITEMS.find(
-    (item) => path === item.key || (item.key !== "/" && path.startsWith(item.key))
-  )?.key || "/";
+  const { selected: selectedKey, parent: selectedParent } = menuSelection(location.pathname);
+
+  // 路由变化时展开对应父级（例如从任务详情返回时仍停留在「任务」分组）。
+  useEffect(() => {
+    if (selectedParent) {
+      setOpenKeys((prev) => (prev.includes(selectedParent) ? prev : [...prev, selectedParent]));
+    }
+  }, [selectedParent]);
 
   // ── 保存 API Key ─────────────────────────────────────────
 
@@ -174,6 +218,8 @@ export default function AppLayout() {
           theme="dark"
           mode="inline"
           selectedKeys={[selectedKey]}
+          openKeys={openKeys}
+          onOpenChange={setOpenKeys}
           items={MENU_ITEMS}
           onClick={({ key }) => navigate(key)}
           style={{ marginTop: SPACING.sm }}
@@ -216,7 +262,7 @@ export default function AppLayout() {
       </Sider>
 
       {/* ── 主区域 ─────────────────────────────────────────── */}
-      <Layout>
+      <Layout style={{ minWidth: 0 }}>
         {/* 顶栏 */}
         <Header
           style={{
@@ -289,6 +335,7 @@ export default function AppLayout() {
         {/* 内容 */}
         <Content
           style={{
+            minWidth: 0,
             margin: SPACING.lg,
             padding: SPACING.xl,
             background: T.bgContent,

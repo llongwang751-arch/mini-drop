@@ -1,0 +1,45 @@
+services:
+  email:
+    build:
+      context: ../../external/opentelemetry-demo
+      dockerfile: src/email/Dockerfile
+    image: mini-drop/otel-demo-email:3684411
+    environment:
+      APP_ENV: production
+      EMAIL_PORT: "6060"
+      FLAGD_HOST: flagd
+      FLAGD_PORT: "8013"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: cumulative
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=mini-drop-benchmark,service.version=3.0.0,service.criticality=medium
+      OTEL_SERVICE_NAME: email
+    depends_on:
+      flagd:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+    ports:
+      - "127.0.0.1::6060"
+    healthcheck:
+      test: ["CMD", "ruby", "-e", "require 'socket'; TCPSocket.new('localhost', 6060).close"]
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 100m
+    cpus: 0.50
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      com.mini-drop.owner: ${MINI_DROP_OTEL_OWNER:-mini-drop}
+      com.mini-drop.scenario: ${MINI_DROP_OTEL_SCENARIO:?set MINI_DROP_OTEL_SCENARIO}
+      com.mini-drop.expires-at: ${MINI_DROP_OTEL_EXPIRES_AT:?set MINI_DROP_OTEL_EXPIRES_AT}
+      com.mini-drop.memory-abort-percent: "80"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - fixture

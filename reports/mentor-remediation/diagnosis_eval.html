@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mini-Drop 统一诊断评测报告</title><style>
+body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;margin:0;background:#f5f7fa;color:#172033}
+main{max-width:1180px;margin:32px auto;padding:0 20px 48px}header,.scenario{background:#fff;border:1px solid #e5e9f0;border-radius:12px;margin-bottom:14px}
+header{padding:24px}h1{margin:0 0 8px}.meta{color:#667085;font-size:14px}.gate{float:right;padding:6px 12px;border-radius:999px;font-weight:700}
+.pass{color:#067647;background:#ecfdf3}.fail,.bad{color:#b42318;background:#fef3f2}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:20px}
+.metric{padding:14px;background:#f8fafc;border-radius:10px}.metric span{display:block;color:#667085;font-size:13px}.metric strong{display:block;font-size:24px;margin-top:5px}
+.scenario summary{cursor:pointer;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}.scenario summary em{font-style:normal;padding:4px 9px;border-radius:999px}
+.checks,.compare{padding:0 18px 18px}ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;padding:0;list-style:none}li{padding:8px;border-radius:7px}li.ok{color:#067647;background:#ecfdf3}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}pre{white-space:pre-wrap;word-break:break-word;background:#0b1220;color:#d6e0f0;padding:14px;border-radius:9px;max-height:420px;overflow:auto}
+@media(max-width:760px){.compare{grid-template-columns:1fr}.gate{float:none;display:inline-block;margin-bottom:10px}}
+</style></head><body><main><header><span class="gate pass">PASSED</span>
+<h1>Mini-Drop 统一诊断评测报告</h1><div class="meta">数据集 mini-drop-diagnosis-golden@2.0.0 · 场景 7 · 指纹 bef12ba05ba1d9ed…</div>
+<div class="metrics"><section class="metric"><span>场景通过率</span><strong>100.0%</strong></section><section class="metric"><span>根因分类准确率</span><strong>100.0%</strong></section><section class="metric"><span>证据引用完整率</span><strong>100.0%</strong></section><section class="metric"><span>反证计划覆盖率</span><strong>100.0%</strong></section><section class="metric"><span>诊断分析覆盖率</span><strong>100.0%</strong></section><section class="metric"><span>不安全自动执行</span><strong>0</strong></section></div></header><details class="scenario"><summary><b>downstream_cpu_hotspot</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;downstream_dependency&quot;,
+  &quot;finding_types&quot;: [
+    &quot;host_cpu_pressure&quot;,
+    &quot;downstream_dependency&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;distributed.downstream_pressure&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;downstream_dependency&quot;,
+  &quot;confidence_level&quot;: &quot;中&quot;,
+  &quot;finding_types&quot;: [
+    &quot;downstream_dependency&quot;,
+    &quot;host_cpu_pressure&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;distributed.downstream_pressure&quot;,
+    &quot;linux.cpu.process_pressure&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 2,
+    &quot;checked_knowledge_refs&quot;: 2,
+    &quot;checked_actions&quot;: 3,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>memory_leak</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;finding_types&quot;: [
+    &quot;rss_growth&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.memory.process_growth&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;perf_cpu&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;confidence_level&quot;: &quot;中&quot;,
+  &quot;finding_types&quot;: [
+    &quot;rss_growth&quot;,
+    &quot;self_code_or_process_pressure&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.cpu.process_pressure&quot;,
+    &quot;linux.memory.process_growth&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;perf_cpu&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 1,
+    &quot;checked_knowledge_refs&quot;: 2,
+    &quot;checked_actions&quot;: 3,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>mysql_lock_wait</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;insufficient_evidence&quot;,
+  &quot;finding_types&quot;: [
+    &quot;mysql_lock_wait&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;mysql.lock_wait&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;perf_cpu&quot;,
+    &quot;ebpf_io&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;insufficient_evidence&quot;,
+  &quot;confidence_level&quot;: &quot;低&quot;,
+  &quot;finding_types&quot;: [
+    &quot;insufficient_evidence&quot;,
+    &quot;mysql_lock_wait&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;mysql.lock_wait&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;ebpf_io&quot;,
+    &quot;perf_cpu&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 1,
+    &quot;checked_knowledge_refs&quot;: 1,
+    &quot;checked_actions&quot;: 4,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>network_packet_loss</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;finding_types&quot;: [
+    &quot;packet_loss_or_latency&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.network.retransmit&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;perf_cpu&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;confidence_level&quot;: &quot;中&quot;,
+  &quot;finding_types&quot;: [
+    &quot;packet_loss_or_latency&quot;,
+    &quot;self_code_or_process_pressure&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.cpu.process_pressure&quot;,
+    &quot;linux.network.retransmit&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;perf_cpu&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 1,
+    &quot;checked_knowledge_refs&quot;: 2,
+    &quot;checked_actions&quot;: 3,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>same_host_cpu_noise</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;same_host_noisy_neighbor&quot;,
+  &quot;finding_types&quot;: [
+    &quot;host_cpu_pressure&quot;,
+    &quot;same_host_noisy_neighbor&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;distributed.same_host_noisy_neighbor&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;ebpf_io&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;same_host_noisy_neighbor&quot;,
+  &quot;confidence_level&quot;: &quot;高&quot;,
+  &quot;finding_types&quot;: [
+    &quot;host_cpu_pressure&quot;,
+    &quot;same_host_noisy_neighbor&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;distributed.same_host_noisy_neighbor&quot;,
+    &quot;linux.cpu.process_pressure&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;ebpf_io&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 2,
+    &quot;checked_knowledge_refs&quot;: 2,
+    &quot;checked_actions&quot;: 4,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>self_code_hotspot</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;finding_types&quot;: [
+    &quot;userland_hotspot&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.cpu.process_pressure&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;perf_cpu&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;self_code_or_process_pressure&quot;,
+  &quot;confidence_level&quot;: &quot;中&quot;,
+  &quot;finding_types&quot;: [
+    &quot;self_code_or_process_pressure&quot;,
+    &quot;userland_hotspot&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.cpu.process_pressure&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;perf_cpu&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 2,
+    &quot;checked_knowledge_refs&quot;: 1,
+    &quot;checked_actions&quot;: 3,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details><details class="scenario"><summary><b>shared_io_contention</b><em class="pass">PASS</em></summary><div class="checks"><h3>逐项判定</h3><ul><li class="ok">classification：通过</li><li class="ok">finding_types：通过</li><li class="ok">knowledge_refs：通过</li><li class="ok">action_collectors：通过</li><li class="ok">report_verification：通过</li><li class="ok">no_auto_execute：通过</li><li class="ok">falsification_plan：通过</li></ul></div><div class="compare"><div><h3>标准答案（Oracle）</h3><pre>{
+  &quot;classification&quot;: &quot;host_resource_contention&quot;,
+  &quot;finding_types&quot;: [
+    &quot;io_wait_high&quot;,
+    &quot;host_resource_contention&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.iowait.shared_block_device&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;sys_metrics&quot;,
+    &quot;ebpf_io&quot;
+  ]
+}</pre></div><div><h3>系统输出</h3><pre>{
+  &quot;classification&quot;: &quot;host_resource_contention&quot;,
+  &quot;confidence_level&quot;: &quot;高&quot;,
+  &quot;finding_types&quot;: [
+    &quot;host_resource_contention&quot;,
+    &quot;io_wait_high&quot;
+  ],
+  &quot;knowledge_refs&quot;: [
+    &quot;linux.iowait.shared_block_device&quot;
+  ],
+  &quot;action_collectors&quot;: [
+    &quot;ebpf_io&quot;,
+    &quot;sys_metrics&quot;
+  ],
+  &quot;verification&quot;: {
+    &quot;status&quot;: &quot;passed&quot;,
+    &quot;checked_evidence_refs&quot;: 4,
+    &quot;checked_knowledge_refs&quot;: 1,
+    &quot;checked_actions&quot;: 3,
+    &quot;issues&quot;: []
+  }
+}</pre></div></div></details></main></body></html>

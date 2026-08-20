@@ -12,15 +12,19 @@
  * @returns {"green"|"red"|"blue"|"default"|"gray"}
  */
 export function statusColor(status) {
-  if (status === "DONE" || status === "ONLINE") return "green";
+  if (status === "DONE" || status === "ONLINE" || status === "SUCCEEDED") return "green";
   if (status === "FAILED" || status === "OFFLINE") return "red";
+  if (status === "CANCELLED") return "orange";
   if (
     status === "RUNNING" ||
     status === "ANALYZING" ||
-    status === "UPLOADING"
+    status === "UPLOADING" ||
+    status === "COLLECTING" ||
+    status === "QUEUED" ||
+    status === "RETRYING"
   )
     return "blue";
-  if (status === "PENDING") return "default";
+  if (status === "PENDING" || status === "NOT_STARTED" || status === "SKIPPED") return "default";
   return "default";
 }
 

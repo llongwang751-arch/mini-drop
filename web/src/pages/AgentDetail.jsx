@@ -229,7 +229,7 @@ export default function AgentDetail() {
         description={`Agent "${agentId}" 未找到`}
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       >
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/")}>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/tasks")}>
           返回任务面板
         </Button>
       </Empty>
@@ -252,7 +252,7 @@ export default function AgentDetail() {
           <Button
             icon={<ArrowLeftOutlined />}
             type="text"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/tasks")}
           >
             返回
           </Button>

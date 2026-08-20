@@ -9,7 +9,6 @@ from __future__ import annotations
 from uuid import uuid4
 
 from server.app.rca.models import DiagnosisReport, EvidenceInput, RepairAction, RepairPlan
-from server.app.schemas import CreateTaskRequest
 
 
 SAFE_AUTO = "safe_auto"
@@ -49,7 +48,7 @@ def build_repair_plan(task_id: str, report: DiagnosisReport, evidence: EvidenceI
             description="热点函数疑似计算密集，建议人工审查算法复杂度、缓存策略或循环边界。",
         ))
 
-    if cause_id == "io_wait_high":
+    if cause_id == "io_wait_high" and agent_id and target_pid:
         actions.append(RepairAction(
             action_id=f"action_{uuid4().hex[:8]}",
             action_type="create_followup_task",
@@ -58,7 +57,7 @@ def build_repair_plan(task_id: str, report: DiagnosisReport, evidence: EvidenceI
             payload={
                 "name": f"followup_ebpf_{task_id}",
                 "agent_id": agent_id,
-                "target_pid": target_pid or 1,
+                "target_pid": target_pid,
                 "collector_type": "ebpf_io",
                 "sample_rate": 99,
                 "duration_sec": max(int(evidence.task_metadata.get("duration_sec", 15)), 15),
@@ -70,6 +69,13 @@ def build_repair_plan(task_id: str, report: DiagnosisReport, evidence: EvidenceI
             action_type="system_tuning_suggestion",
             risk_level=MANUAL_ONLY,
             description="建议人工检查磁盘队列、IO 调度器、容器限速和底层存储吞吐。",
+        ))
+    elif cause_id == "io_wait_high":
+        actions.append(RepairAction(
+            action_id=f"action_{uuid4().hex[:8]}",
+            action_type="collect_more_evidence",
+            risk_level=MANUAL_ONLY,
+            description="缺少明确的 Agent 或目标 PID，先确认采集范围；系统不会隐式扩大到 PID 1。",
         ))
 
     if cause_id == "collector_permission_denied":
@@ -102,22 +108,26 @@ def build_repair_plan(task_id: str, report: DiagnosisReport, evidence: EvidenceI
 
 
 def execute_safe_actions(plan: RepairPlan, repo) -> RepairPlan:
-    """执行 safe_auto 动作，其余动作保持 planned。"""
+    """阻止 Legacy RCA 绕过统一策略控制面产生副作用。
+
+    旧入口仍保留该函数以兼容调用方，但采集任务必须转交 Drop Insight
+    ToolCall，由 Policy、Approval、Budget 和 Audit 统一处理。
+    """
+    del repo
+    handed_off = False
     for action in plan.actions:
         if action.risk_level != SAFE_AUTO:
             continue
         if action.action_type != "create_followup_task":
             continue
-        try:
-            task = repo.create_task(CreateTaskRequest(**action.payload))
-            action.status = "executed"
-            action.result = f"已创建二次采集任务 {task.id}"
-        except Exception as exc:
-            action.status = "failed"
-            action.result = str(exc)
+        action.status = "policy_handoff_required"
+        action.result = (
+            "Legacy RCA 不直接执行；请通过 Drop Insight ToolCall 提交，"
+            "由统一策略、审批、预算和审计链路处理。"
+        )
+        handed_off = True
 
-    if any(action.status == "failed" for action in plan.actions if action.risk_level == SAFE_AUTO):
-        plan.status = "partial_failed"
-    elif any(action.status == "executed" for action in plan.actions):
-        plan.status = "safe_actions_executed"
+    if handed_off:
+        plan.status = "policy_handoff_required"
+        plan.requires_user_confirm = True
     return plan

@@ -20,7 +20,7 @@ import {
   FireOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import { nlpParse, createTask, listAgents } from "../api/client";
+import { nlpParse, createTask, listAgents, listTopProcesses } from "../api/client";
 import {
   COLLECTOR_OPTIONS,
   collectorMeta,
@@ -37,6 +37,8 @@ export default function NLPTaskInput({ onTaskCreated }) {
   const [quickCollector, setQuickCollector] = useState("perf_cpu");
   const [quickAgentId, setQuickAgentId] = useState("");
   const [quickPid, setQuickPid] = useState(null);
+  const [topProcesses, setTopProcesses] = useState([]);
+  const [topProcessesLoading, setTopProcessesLoading] = useState(false);
   const [quickDuration, setQuickDuration] = useState(
     collectorMeta("perf_cpu").defaultDuration,
   );
@@ -52,6 +54,18 @@ export default function NLPTaskInput({ onTaskCreated }) {
     return candidates.find((agent) =>
       (agent.capabilities || []).includes(collectorType)
     ) || candidates[0];
+  }
+
+  async function loadTopProcesses() {
+    setTopProcessesLoading(true);
+    try {
+      const items = await listTopProcesses(20);
+      setTopProcesses(items || []);
+    } catch {
+      setTopProcesses([]);
+    } finally {
+      setTopProcessesLoading(false);
+    }
   }
 
   async function loadAgents() {
@@ -74,6 +88,7 @@ export default function NLPTaskInput({ onTaskCreated }) {
 
   useEffect(() => {
     loadAgents();
+    loadTopProcesses();
   }, []);
 
   function changeQuickCollector(value) {
@@ -238,15 +253,27 @@ export default function NLPTaskInput({ onTaskCreated }) {
                       }))}
                     />
                   </Col>
-                  <Col xs={12} md={6} lg={4}>
+                  <Col xs={24} md={6} lg={4}>
                     <Typography.Text type="secondary">目标 PID</Typography.Text>
-                    <InputNumber
-                      min={1}
+                    <Select
+                      showSearch
+                      allowClear
+                      loading={topProcessesLoading}
                       value={quickPid}
-                      placeholder="例如 1234"
                       onChange={setQuickPid}
+                      placeholder="选忙进程或输入"
+                      optionFilterProp="label"
                       style={{ width: "100%", marginTop: 4 }}
+                      options={topProcesses.map((p) => ({
+                        value: p.pid,
+                        label: `${p.pid} · ${p.comm} (${p.cpu_percent}%)`,
+                      }))}
                     />
+                    <Typography.Text type="secondary" style={{ fontSize: 11, display: "block", marginTop: 4 }}>
+                      {quickCollector === "go_pprof"
+                        ? "go_pprof 自动采样 Go 服务的 /debug/pprof，无需忙 PID"
+                        : "perf/eBPF 需要 CPU 繁忙的宿主 PID；下拉里选一个忙进程（如 go-hotspot）"}
+                    </Typography.Text>
                   </Col>
                   <Col xs={12} md={6} lg={4}>
                     <Typography.Text type="secondary">采样时长（秒）</Typography.Text>

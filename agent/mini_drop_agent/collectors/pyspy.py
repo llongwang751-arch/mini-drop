@@ -106,6 +106,12 @@ class PySpyCollector:
                     "local_path": svg_path,
                     "content_type": "image/svg+xml",
                     "size_bytes": size,
+                    "metadata": {
+                        "schema_version": "pyspy.v1",
+                        "duration_sec": task.duration_sec,
+                        "sample_rate": task.sample_rate,
+                        "expected_samples": task.duration_sec * task.sample_rate,
+                    },
                 }
             ],
         )

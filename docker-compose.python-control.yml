@@ -1,0 +1,23 @@
+# Rollback override for the legacy Python gRPC control plane.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.python-control.yml up -d --build
+services:
+  control-plane:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/server.Dockerfile
+    image: mini-drop-server:local
+    pull_policy: never
+    env_file:
+      - .env
+    entrypoint: ["server-entrypoint"]
+    command: ["python", "-m", "server.app.grpc_main"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
+      MINI_DROP_GRPC_PORT: "50051"
+      AGENT_OFFLINE_TIMEOUT_SEC: ${AGENT_OFFLINE_TIMEOUT_SEC:-30}
+      MINI_DROP_CONTROL_MAINTENANCE_SEC: ${MINI_DROP_CONTROL_MAINTENANCE_SEC:-5}
+      MINI_DROP_SCHEMA_MANAGED: "1"
+    healthcheck:
+      test: ["CMD", "python", "-m", "server.app.grpc_main", "--healthcheck"]
+      start_period: 10s

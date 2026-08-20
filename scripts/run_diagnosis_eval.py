@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from server.app.diagnosis.eval_harness import render_markdown, run_evaluation
+from server.app.diagnosis.eval_harness import render_html, render_markdown, run_evaluation
 
 
 def main() -> int:
@@ -18,10 +18,15 @@ def main() -> int:
     report = run_evaluation(args.scenario_root)
     if args.output_dir:
         args.output_dir.mkdir(parents=True, exist_ok=True)
-        (args.output_dir / "diagnosis_eval.json").write_text(
-            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8",
+        (args.output_dir / "diagnosis_eval.json").write_bytes(
+            (json.dumps(report, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         )
-        (args.output_dir / "diagnosis_eval.md").write_text(render_markdown(report), encoding="utf-8")
+        (args.output_dir / "diagnosis_eval.md").write_bytes(
+            render_markdown(report).encode("utf-8")
+        )
+        (args.output_dir / "diagnosis_eval.html").write_bytes(
+            render_html(report).encode("utf-8")
+        )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report["failed"] == 0 else 2
 

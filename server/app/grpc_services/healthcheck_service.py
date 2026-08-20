@@ -3,6 +3,7 @@
 from typing import Any
 
 from server.app.generated import healthcheck_pb2, healthcheck_pb2_grpc, hotmethod_pb2
+from server.app.state_machine import TaskStatus
 
 
 class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
@@ -21,6 +22,15 @@ class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
         if getattr(request, "busy", False):
             if hasattr(self._repo, "heartbeat_only"):
                 self._repo.heartbeat_only(request.agent_id, request.ip_addr)
+            active_task_id = getattr(request, "active_task_id", "")
+            if active_task_id:
+                getter = getattr(self._repo, "get_task", None)
+                task = getter(active_task_id) if callable(getter) else self._repo.tasks.get(active_task_id)
+                if task is not None:
+                    status = task.status.value if isinstance(task.status, TaskStatus) else task.status
+                    if status == TaskStatus.CANCELLED.value:
+                        response.cancel_task_id = active_task_id
+                        response.cancel_reason = task.status_reason or "任务已被取消"
             response.pending = False
             return response
 
@@ -40,9 +50,20 @@ class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
         task_desc.sample_argv.hz = task.sample_rate
         task_desc.sample_argv.duration = task.duration_sec
         task_desc.sample_argv.pid = task.target_pid
-        task_desc.sample_argv.callgraph = task.request_params.get("options", {}).get("callgraph", "fp")
-        task_desc.sample_argv.event = task.request_params.get("options", {}).get("event", "cpu-cycles")
-        task_desc.sample_argv.subprocess = task.request_params.get("options", {}).get("subprocess", False)
+        options = task.request_params.get("options", {})
+        task_desc.sample_argv.callgraph = options.get("callgraph", "fp")
+        task_desc.sample_argv.event = options.get(
+            "event", self._default_event(task.collector_type)
+        )
+        task_desc.sample_argv.subprocess = options.get("subprocess", False)
+        # container_name is a namespace hint, not a shell fragment. Native agents
+        # use it only to decide whether the host PID should be translated through
+        # NSpid/nsenter before collection.
+        task_desc.container_name = str(options.get("container_name", ""))[:128]
+        task_desc.container_type = int(options.get("container_type", 0) or 0)
+        task_desc.timeout_sec = int(
+            options.get("timeout_sec", max(task.duration_sec + 30, 60)) or 0
+        )
         return response
 
     @staticmethod
@@ -64,6 +85,15 @@ class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
             "continuous_perf": 7,
         }
         return mapping.get(collector_type, 0)
+
+    @staticmethod
+    def _default_event(collector_type: str) -> str:
+        """Return an event name accepted by the selected collector backend."""
+        return {
+            "java_async": "cpu",
+            "perf_cpu": "cpu-cycles",
+            "continuous_perf": "cpu-cycles",
+        }.get(collector_type, "")
 
 
 def _pid_stats_to_dict(stats) -> dict:

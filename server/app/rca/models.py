@@ -101,6 +101,12 @@ class ValidatedReport(BaseModel):
     evidence_snapshot: dict
     report: DiagnosisReport
     validated: bool = True
+    generation_mode: str = "MODEL"
+    schema_validated: bool = False
+    reference_validated: bool = False
+    semantic_validated: bool = False
+    model_invoked: bool = False
+    fallback_reason: str | None = None
     validation_issues: list[str] = Field(default_factory=list)
     retry_count: int = 0
 

@@ -47,6 +47,7 @@ import TopNChart from "../components/TopNChart";
 import EBPFHistogram from "../components/EBPFHistogram";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
+import SafeMarkdown from "../components/SafeMarkdown";
 import usePolling from "../hooks/usePolling";
 import echarts from "../lib/echarts";
 import { isTaskActive } from "../utils/status";
@@ -194,6 +195,32 @@ export default function TaskResult() {
   const repairPlan = diagnosis?.repair_plan;
   const toolResults = diagnosis?.tool_results || [];
   const topCause = rankedCauses[0];
+
+  // 可信分层展示（assessment §4.2）：不再用单一 validated 布尔表示"通过/未通过"。
+  const generationMode = report.generation_mode || diagnosis?.generation_mode;
+  const semanticValidated = report.semantic_validated ?? diagnosis?.semantic_validated;
+  const modelInvoked = report.model_invoked ?? diagnosis?.model_invoked;
+  const fallbackReason = report.fallback_reason || diagnosis?.fallback_reason;
+  const verificationStatus = report.verification?.status;
+  const trustTags = (
+    <Space size={4} wrap>
+      <Tag color={generationMode === "MODEL" ? "green" : "orange"}>
+        {generationMode || "未知模式"}
+      </Tag>
+      <Tag color={modelInvoked ? "blue" : "default"}>
+        模型{modelInvoked ? "已调用" : "未调用"}
+      </Tag>
+      <Tag color={semanticValidated ? "green" : "orange"}>
+        语义{semanticValidated ? "可信" : "未验证"}
+      </Tag>
+      {verificationStatus && (
+        <Tag color={verificationStatus === "VERIFIED" ? "green" : "gold"}>
+          反证门禁:{verificationStatus}
+        </Tag>
+      )}
+      {fallbackReason && <Tag color="red">{fallbackReason}</Tag>}
+    </Space>
+  );
   const topArtifact = artifacts.find((item) => item.artifact_type === "top_json");
   const flameArtifact = artifacts.find(
     (item) =>
@@ -209,6 +236,7 @@ export default function TaskResult() {
   const suggestionArtifact = artifacts.find(
     (item) => item.artifact_type === "suggestions_md"
   );
+  const [suggestionContent, setSuggestionContent] = useState(null);
   const continuousSummary = artifacts.find(
     (item) => item.artifact_type === "continuous_summary"
   );
@@ -242,6 +270,23 @@ export default function TaskResult() {
       setSelectedContinuousIndex(continuousWindows[0].window_index);
     }
   }, [continuousWindows, selectedContinuousIndex]);
+
+  useEffect(() => {
+    if (!suggestionArtifact) {
+      setSuggestionContent(null);
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const payload = await getTaskArtifactContent(taskId, "suggestions_md");
+        if (!cancelled) setSuggestionContent(payload || null);
+      } catch {
+        if (!cancelled) setSuggestionContent(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [taskId, suggestionArtifact]);
 
   async function downloadArtifact(record) {
     const key = `${record.artifact_type}:${record.metadata?.window_index ?? ""}`;
@@ -389,7 +434,7 @@ export default function TaskResult() {
           <Button
             icon={<ArrowLeftOutlined />}
             type="text"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/tasks")}
           >
             返回任务面板
           </Button>
@@ -425,8 +470,14 @@ export default function TaskResult() {
                   {task.id}
                 </Typography.Text>
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label="兼容总状态">
                 <StatusTag status={task.status} />
+              </Descriptions.Item>
+              <Descriptions.Item label="采集状态">
+                <StatusTag status={task.collection_status || task.status} />
+              </Descriptions.Item>
+              <Descriptions.Item label="分析状态">
+                <StatusTag status={task.analysis_status || "NOT_STARTED"} />
               </Descriptions.Item>
               <Descriptions.Item label="名称">{task.name}</Descriptions.Item>
               <Descriptions.Item label="Agent">{task.agent_id}</Descriptions.Item>
@@ -444,11 +495,13 @@ export default function TaskResult() {
             message={`预期可视化：${taskCollector.resultLabel}`}
             description={
               task.status === "FAILED"
-                ? `任务失败原因：${task.status_reason || "未提供失败原因"}`
+                ? task.collection_status === "SUCCEEDED"
+                  ? `采集产物已成功保存，Analyzer 失败：${task.status_reason || "未提供失败原因"}。可重放分析任务，无需重新采集。`
+                  : `采集失败原因：${task.status_reason || "未提供失败原因"}`
                 : `${taskCollector.description}${task.status_reason ? ` 当前状态：${task.status_reason}` : ""}`
             }
             action={
-              task.status === "FAILED" ? (
+              task.status === "FAILED" && task.collection_status !== "SUCCEEDED" ? (
                 <Button size="small" icon={<RedoOutlined />} onClick={recreateTask}>
                   重新采集
                 </Button>
@@ -618,8 +671,15 @@ export default function TaskResult() {
         {suggestionArtifact && (
           <div style={{ marginTop: 12 }}>
             <Tag color="orange" icon={<BarChartOutlined />}>
-              建议已生成: {suggestionArtifact.filename || suggestionArtifact.local_path || suggestionArtifact.object_key}
+              建议已生成
             </Tag>
+            {suggestionContent ? (
+              <SafeMarkdown>
+                {typeof suggestionContent === "string"
+                  ? suggestionContent
+                  : suggestionContent?.text ?? ""}
+              </SafeMarkdown>
+            ) : null}
           </div>
         )}
 
@@ -799,16 +859,18 @@ export default function TaskResult() {
                 <Tag>{diagnosis.run?.model_name}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="校验">
-                <Tag color={diagnosis.run?.validated ? "green" : "orange"}>
-                  {diagnosis.run?.validated ? "通过" : "未通过"}
-                </Tag>
+                {trustTags}
               </Descriptions.Item>
             </Descriptions>
 
             {/* 摘要 */}
             <Alert
               type={report.not_enough_evidence ? "warning" : "info"}
-              message={report.summary || diagnosis.run?.summary || "诊断完成"}
+              message={
+                <SafeMarkdown>
+                  {report.summary || diagnosis.run?.summary || "诊断完成"}
+                </SafeMarkdown>
+              }
               showIcon
             />
 

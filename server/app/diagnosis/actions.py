@@ -99,6 +99,7 @@ def collect_action(
     risk_level: str,
     evidence_refs: list[str],
     confidence_level: str,
+    evidence_purpose: str = "VERIFY",
 ) -> dict[str, Any]:
     requires_approval = risk_level == "R2"
     policy = "single_execution" if requires_approval else "auto_low_risk"
@@ -120,6 +121,7 @@ def collect_action(
         approval_policy=policy,
         requires_approval=requires_approval,
         evidence_refs=list(dict.fromkeys(evidence_refs)),
+        evidence_purpose=evidence_purpose,
         confidence_level=confidence_level,
     ))
     return _with_legacy_fields(action)

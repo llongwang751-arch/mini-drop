@@ -7,6 +7,7 @@ LLM 只能调用 create_profiling_task 这个预定义 function，
 from __future__ import annotations
 
 import json
+import re
 
 from server.app.ai_provider import chat_completions, get_ai_settings, is_feature_enabled
 from server.app.nlp.tool_schemas import CREATE_PROFILING_TASK_SCHEMA, NLP_SYSTEM_PROMPT
@@ -24,6 +25,7 @@ class StructuredIntent:
     def __init__(
         self, process_name: str, collector_type: str, duration_sec: int,
         sample_rate: int, reasoning: str, raw_llm_output: dict | None = None,
+        target_pid: int | None = None,
     ):
         self.process_name = process_name
         self.collector_type = collector_type
@@ -31,6 +33,7 @@ class StructuredIntent:
         self.sample_rate = sample_rate
         self.reasoning = reasoning
         self.raw_llm_output = raw_llm_output or {}
+        self.target_pid = target_pid
 
     def to_dict(self) -> dict:
         return {
@@ -39,6 +42,7 @@ class StructuredIntent:
             "duration_sec": self.duration_sec,
             "sample_rate": self.sample_rate,
             "reasoning": self.reasoning,
+            "target_pid": self.target_pid,
         }
 
 
@@ -91,7 +95,10 @@ def parse_intent(user_input: str) -> StructuredIntent:
         args_str = tool_calls[0].get("function", {}).get("arguments", "{}")
         args = json.loads(args_str) if isinstance(args_str, str) else args_str
 
-        return _clamp_and_validate(args)
+        return _apply_explicit_overrides(
+            _clamp_and_validate(args),
+            user_input.strip(),
+        )
 
     except Exception:
         return _keyword_fallback(user_input.strip())
@@ -109,7 +116,10 @@ def _clamp_and_validate(args: dict) -> StructuredIntent:
     sample_rate = int(args.get("sample_rate", 99))
     sample_rate = max(CLAMP_SAMPLE_RATE[0], min(CLAMP_SAMPLE_RATE[1], sample_rate))
 
-    process = args.get("process_name", "unknown")
+    target_pid = _positive_int(args.get("target_pid"))
+    process = str(args.get("process_name", "unknown")).strip() or "unknown"
+    if target_pid and process.lower() in {"unknown", "pid"}:
+        process = f"PID {target_pid}"
     reasoning = args.get("reasoning", f"自然语言解析：{collector} 采集 {process}，{duration}s {sample_rate}Hz")
 
     return StructuredIntent(
@@ -119,6 +129,7 @@ def _clamp_and_validate(args: dict) -> StructuredIntent:
         sample_rate=sample_rate,
         reasoning=reasoning,
         raw_llm_output=args,
+        target_pid=target_pid,
     )
 
 
@@ -160,27 +171,73 @@ def _keyword_fallback(text: str) -> StructuredIntent:
         collector = "perf_cpu"
         reason = "未匹配到明确关键词，保守选择 perf_cpu"
 
-    # 尝试从文本中提取进程名
-    process = _extract_process_name(text)
+    target_pid = _extract_target_pid(text)
+    process = f"PID {target_pid}" if target_pid else _extract_process_name(text)
+    duration = _extract_duration(text) or 15
+    sample_rate = _extract_sample_rate(text) or 99
 
     return StructuredIntent(
         process_name=process,
         collector_type=collector,
-        duration_sec=15,
-        sample_rate=99,
+        duration_sec=max(CLAMP_DURATION[0], min(CLAMP_DURATION[1], duration)),
+        sample_rate=max(CLAMP_SAMPLE_RATE[0], min(CLAMP_SAMPLE_RATE[1], sample_rate)),
         reasoning=reason,
+        target_pid=target_pid,
     )
 
 
 def _extract_process_name(text: str) -> str:
     """从自然语言文本中提取可能的进程名。"""
-    import re
     # 常见进程名模式：字母、数字、下划线、点、短横
     candidates = re.findall(r'\b([a-zA-Z][\w.-]{1,30})\b', text)
     # 过滤掉明显不是进程名的词
-    skip = {"cpu", "io", "慢", "卡顿", "python", "帮我", "看看", "一下",
+    skip = {"cpu", "io", "pid", "hz", "慢", "卡顿", "python", "帮我", "看看", "一下",
             "the", "this", "and", "for", "with", "帮我看看", "怎么回事"}
     for c in candidates:
         if c.lower() not in skip:
             return c
     return "unknown"
+
+
+def _positive_int(value: object) -> int | None:
+    """把不可信输入转换为正整数，非法值返回 None。"""
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
+
+
+def _extract_target_pid(text: str) -> int | None:
+    """提取用户明确给出的 PID，避免把 PID 关键字误当进程名。"""
+    match = re.search(r"(?i)\bpid\s*[:：#]?\s*(\d+)\b", text)
+    return _positive_int(match.group(1)) if match else None
+
+
+def _extract_duration(text: str) -> int | None:
+    match = re.search(r"(\d+)\s*(?:秒|s(?:ec(?:ond)?s?)?)\b", text, re.IGNORECASE)
+    return _positive_int(match.group(1)) if match else None
+
+
+def _extract_sample_rate(text: str) -> int | None:
+    match = re.search(r"(\d+)\s*hz\b", text, re.IGNORECASE)
+    return _positive_int(match.group(1)) if match else None
+
+
+def _apply_explicit_overrides(intent: StructuredIntent, text: str) -> StructuredIntent:
+    """用户明确给出的 PID、时长和频率优先于模型推断。"""
+    target_pid = _extract_target_pid(text) or intent.target_pid
+    duration = _extract_duration(text) or intent.duration_sec
+    sample_rate = _extract_sample_rate(text) or intent.sample_rate
+    process_name = intent.process_name
+    if target_pid and process_name.lower() in {"unknown", "pid"}:
+        process_name = f"PID {target_pid}"
+    return StructuredIntent(
+        process_name=process_name,
+        collector_type=intent.collector_type,
+        duration_sec=max(CLAMP_DURATION[0], min(CLAMP_DURATION[1], duration)),
+        sample_rate=max(CLAMP_SAMPLE_RATE[0], min(CLAMP_SAMPLE_RATE[1], sample_rate)),
+        reasoning=intent.reasoning,
+        raw_llm_output=intent.raw_llm_output,
+        target_pid=target_pid,
+    )

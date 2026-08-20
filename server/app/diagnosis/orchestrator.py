@@ -24,6 +24,7 @@ from server.app.diagnosis.domain_analyzers import (
 )
 from server.app.diagnosis.knowledge import retrieve_knowledge
 from server.app.diagnosis.probe_registry import choose_probe_ids, get_probe, list_probes
+from server.app.diagnosis.next_probe_planner import propose_next_probe
 from server.app.diagnosis.report_verifier import evidence_integrity_hash, verify_report
 from server.app.diagnosis.schemas import (
     ApprovalRequest,
@@ -31,12 +32,18 @@ from server.app.diagnosis.schemas import (
     DiagnosisBudget,
     DiagnosisMode,
     DiagnosisStatus,
+    HUMAN_GATE_DIAGNOSIS_STATUSES,
     ProbePlan,
     TERMINAL_DIAGNOSIS_STATUSES,
 )
 from server.app.diagnosis.store import DiagnosisStore, utcnow
 from server.app.diagnosis.sys_metrics import normalize_sys_metrics
 from server.app.event_bus import BUS
+from server.app.prometheus_metrics import (
+    record_diagnosis_round,
+    record_diagnosis_stop_condition,
+)
+from server.app.diagnosis.source_mapper import map_hot_functions
 from server.app.rca.calibrator import calibrate
 from server.app.rca.candidates import generate_candidates
 from server.app.rca.evidence import collect_evidence
@@ -46,9 +53,20 @@ from server.app.schemas import CreateTaskRequest, MAX_SAMPLE_RATE, MAX_TASK_DURA
 PLANNER_VERSION = "diagnosis-orchestrator-v1"
 ACTIVE_TASK_STATUSES = {"PENDING", "RUNNING", "UPLOADING", "ANALYZING"}
 TERMINAL_TASK_STATUSES = {"DONE", "FAILED"}
+INITIALIZATION_STATUSES = {
+    DiagnosisStatus.CREATED.value,
+    DiagnosisStatus.UNDERSTANDING.value,
+    DiagnosisStatus.PLANNING.value,
+    DiagnosisStatus.ANALYZING_EXISTING_DATA.value,
+}
+INITIALIZATION_GRACE_SECONDS = 30
 STRUCTURED_ARTIFACT_TYPES = {
     "top_json", "ebpf_metrics", "sys_metrics", "memory_json",
     "network_metrics", "database_metrics", "runtime_metrics",
+}
+PROFILE_ARTIFACT_TYPES = {
+    "flamegraph_json", "flamegraph_svg", "continuous_flamegraph_svg",
+    "java_flamegraph_html", "pprof_raw",
 }
 ALLOWED_DIAGNOSIS_TRANSITIONS = {
     "CREATED": {"UNDERSTANDING", "USER_CANCELED", "FAILED"},
@@ -93,6 +111,8 @@ class DiagnosisOrchestrator:
         )
 
     def create(self, request: CreateDiagnosisRequest, creator_id: str = "demo_user") -> dict[str, Any]:
+        if request.baseline_task_ids and request.context.time_range is None:
+            raise ValueError("绑定基线任务时必须显式提供事故 time_range")
         intent = parse_diagnosis_intent(request)
         self._enforce_service_scope(intent.target_service)
         budget = self._effective_budget(request.budget_profile, request.budget)
@@ -101,6 +121,11 @@ class DiagnosisOrchestrator:
         self.store.create_topology_snapshot(snapshot)
 
         target_scope = self._build_target_scope(request, intent, budget)
+        baseline_tasks = self._resolve_baseline_tasks(
+            request.baseline_task_ids,
+            target_scope,
+            intent.time_range.start,
+        )
         hypotheses = self._build_hypotheses(intent.symptom, target_scope)
         budget_usage = self._empty_budget_usage()
         budget_usage["model_calls"] = 1 if is_feature_enabled("nlp") else 0
@@ -134,6 +159,12 @@ class DiagnosisOrchestrator:
             "planner_version": f"{PLANNER_VERSION}:{intent.analysis_strategy.value.lower()}",
             "deadline_at": utcnow() + timedelta(minutes=budget.max_duration_minutes),
         })
+        baseline_snapshot_ids = self._attach_baseline_tasks(diagnosis_id, baseline_tasks)
+        if baseline_snapshot_ids:
+            self.store.update_session(
+                diagnosis_id,
+                baseline_snapshot_id=baseline_snapshot_ids[0],
+            )
         self._complete_node(
             diagnosis_id, "understand_intent",
             output_refs=["normalized_intent"],
@@ -280,7 +311,9 @@ class DiagnosisOrchestrator:
         item = self.store.get_session(diagnosis_id)
         if item is None:
             return None
-        if advance and item["status"] not in TERMINAL_DIAGNOSIS_STATUSES:
+        if advance and item["status"] not in (
+            TERMINAL_DIAGNOSIS_STATUSES | HUMAN_GATE_DIAGNOSIS_STATUSES
+        ):
             self.advance(diagnosis_id)
         return self.store.get_detail(diagnosis_id)
 
@@ -300,7 +333,23 @@ class DiagnosisOrchestrator:
 
     def advance_active(self, limit: int = 100) -> None:
         """由后台扫描器调用，使恢复不依赖用户 GET 请求。"""
-        for item in self.store.list_active_sessions(TERMINAL_DIAGNOSIS_STATUSES, limit=limit):
+        paused_statuses = TERMINAL_DIAGNOSIS_STATUSES | HUMAN_GATE_DIAGNOSIS_STATUSES
+        for item in self.store.list_active_sessions(paused_statuses, limit=limit):
+            # create() persists several setup records before the session is
+            # runnable. A separate worker can otherwise observe that fresh row
+            # and race the HTTP request, producing a transition CAS conflict.
+            # After the grace period, genuinely abandoned initialization rows
+            # are still eligible for worker recovery.
+            updated_at = item.get("updated_at")
+            if updated_at is not None and updated_at.tzinfo is None:
+                updated_at = updated_at.replace(tzinfo=timezone.utc)
+            if (
+                item.get("status") in INITIALIZATION_STATUSES
+                and updated_at is not None
+                and (utcnow() - updated_at).total_seconds()
+                < INITIALIZATION_GRACE_SECONDS
+            ):
+                continue
             try:
                 self.advance(item["diagnosis_id"])
             except Exception as exc:
@@ -423,6 +472,13 @@ class DiagnosisOrchestrator:
         session = self.store.get_session(diagnosis_id)
         if session is None or session["status"] in TERMINAL_DIAGNOSIS_STATUSES:
             return
+
+        # These states are deliberate human gates, not runnable worker states.
+        # Re-entering the pipeline while the scope/approval is unresolved can
+        # produce an illegal transition on every worker poll and flood the event
+        # table. Only the explicit scope-confirm/approval APIs may release them.
+        if session["status"] in HUMAN_GATE_DIAGNOSIS_STATUSES:
+            return
         deadline = session.get("deadline_at")
         if deadline is not None:
             if deadline.tzinfo is None:
@@ -431,8 +487,26 @@ class DiagnosisOrchestrator:
                 for probe in self.store.list_probes(diagnosis_id):
                     if probe["status"] not in {"COMPLETED", "FAILED", "TIMED_OUT", "REJECTED", "UNAVAILABLE", "SKIPPED"}:
                         self.store.update_probe(probe["step_id"], status="TIMED_OUT", error_code="DIAGNOSIS_DEADLINE")
-                self._ensure_insufficient_conclusion(diagnosis_id, [])
-                self._transition(diagnosis_id, DiagnosisStatus.INSUFFICIENT_EVIDENCE, "diagnosis_deadline_reached")
+                # 提前态（CREATED/UNDERSTANDING/PLANNING）与 COLLECTING 都不允许
+                # 直接迁移到 INSUFFICIENT_EVIDENCE。若强行迁移会抛出非法状态迁移
+                # 异常，后台扫描器就会在每轮轮询上反复失败并写满 advance_failed
+                # 事件（row_version 持续自增），形成无休止热循环。只有能合法到达
+                # INSUFFICIENT_EVIDENCE 的状态才走该路径；否则统一落到普遍合法
+                # 的终态 FAILED，让扫描器停止推进该会话。
+                allowed = ALLOWED_DIAGNOSIS_TRANSITIONS.get(session["status"], set())
+                if DiagnosisStatus.INSUFFICIENT_EVIDENCE.value in allowed:
+                    self._ensure_insufficient_conclusion(diagnosis_id, [])
+                    self._transition(
+                        diagnosis_id,
+                        DiagnosisStatus.INSUFFICIENT_EVIDENCE,
+                        "diagnosis_deadline_reached",
+                    )
+                else:
+                    self._transition(
+                        diagnosis_id,
+                        DiagnosisStatus.FAILED,
+                        "diagnosis_deadline_reached",
+                    )
                 return
         probes = self.store.list_probes(diagnosis_id)
         child_ids = list(session.get("child_task_ids", []))
@@ -515,6 +589,26 @@ class DiagnosisOrchestrator:
             self._transition(diagnosis_id, DiagnosisStatus.ANALYZING, "evidence_analysis_started")
             informative = self._analyze_tasks(diagnosis_id, terminal_tasks)
             if informative:
+                if self._plan_conclusion_falsification(diagnosis_id):
+                    waiting = [
+                        probe for probe in self.store.list_probes(diagnosis_id)
+                        if probe["status"] == "WAITING_APPROVAL"
+                    ]
+                    self.store.update_pipeline_node(
+                        diagnosis_id, "run_probes", "WAITING",
+                        input_refs=[probe["step_id"] for probe in waiting],
+                        metrics={
+                            "approval_required_count": len(waiting),
+                            "falsification_round": True,
+                        },
+                    )
+                    self._transition(
+                        diagnosis_id,
+                        DiagnosisStatus.WAITING_APPROVAL,
+                        "falsification_approval_required",
+                        {"step_ids": [probe["step_id"] for probe in waiting]},
+                    )
+                    return
                 for probe in self.store.list_probes(diagnosis_id):
                     if probe["status"] == "WAITING_APPROVAL":
                         self.store.update_probe(probe["step_id"], status="SKIPPED")
@@ -574,23 +668,119 @@ class DiagnosisOrchestrator:
         if int(session.get("risk_budget", {}).get("max_medium_risk_probes", 0)) <= 0:
             return False
         probes = self.store.list_probes(diagnosis_id)
-        if any(item["risk_level"] == "R2" for item in probes):
-            return any(item["status"] == "WAITING_APPROVAL" for item in probes)
-        intent = session.get("normalized_intent", {})
-        r2_ids = [probe_id for probe_id in choose_probe_ids(intent.get("symptom", "")) if get_probe(probe_id).risk_level == "R2"]
-        if not r2_ids:
+        # 人工明确拒绝深度探针属于硬门禁；动态规划不能换一个探针绕过该决定。
+        if any(item["risk_level"] == "R2" and item["status"] == "REJECTED" for item in probes):
             return False
+        if any(item["risk_level"] == "R2" and item["status"] == "WAITING_APPROVAL" for item in probes):
+            return True
+        consumed_r2 = sum(
+            1 for item in probes
+            if item["risk_level"] == "R2"
+            and item["status"] in {"APPROVED", "SCHEDULED", "RUNNING", "COMPLETED"}
+        )
+        if consumed_r2 >= int(session.get("risk_budget", {}).get("max_medium_risk_probes", 0)):
+            return False
+        intent = session.get("normalized_intent", {})
+        target_runtime = "unknown"
+        if tasks:
+            target_runtime = self._target_for_task(diagnosis_id, tasks[0]).get(
+                "runtime", "unknown"
+            )
+        static_r2_ids = [
+            probe_id
+            for probe_id in choose_probe_ids(
+                intent.get("symptom", ""), target_runtime,
+            )
+            if get_probe(probe_id).risk_level == "R2"
+        ]
         scored: list[tuple[float, Any]] = []
+        evidence_summary: list[dict[str, Any]] = []
         for task in tasks:
             values = {kind: value for kind, value, _ in self._structured_artifacts(self.repo.artifacts.get(task.id, []))}
             summary = _sys_summary(values.get("sys_metrics"))
-            score = sum(1.0 for value in _pressure_flags(summary, values).values() if value)
+            flags = _pressure_flags(summary, values)
+            score = sum(1.0 for value in flags.values() if value)
             scored.append((score, task))
+            evidence_summary.append({
+                "task_id": task.id,
+                "instance_id": self._target_for_task(diagnosis_id, task).get("instance_id"),
+                "pressure_flags": flags,
+                "system_summary": summary,
+                "artifact_types": sorted(values),
+            })
         if not scored:
             return False
-        _, task = max(scored, key=lambda item: item[0])
-        target = self._target_for_task(diagnosis_id, task)
-        definition = get_probe(r2_ids[0])
+        ordered_tasks = [item[1] for item in sorted(scored, key=lambda item: item[0], reverse=True)]
+        allowed_targets = [self._target_for_task(diagnosis_id, task) for task in ordered_tasks]
+        attempted = {item["probe_id"] for item in probes}
+        eligible_definitions = [
+            definition for definition in list_probes()
+            if definition.risk_level == "R2"
+            and definition.probe_id not in attempted
+            and any(self._target_supports_probe(target, definition) for target in allowed_targets)
+        ]
+        if not eligible_definitions:
+            self.store.record_event(diagnosis_id, "adaptive_probe_unavailable", {
+                "reason": "no_registered_supported_r2_probe",
+                "attempted_probe_ids": sorted(attempted),
+            })
+            return False
+
+        round_index = int(session.get("budget_used", {}).get("analysis_rounds", 0)) + 1
+        usage = dict(session.get("budget_used", {}))
+        model_calls = int(usage.get("model_calls", 0))
+        max_model_calls = int(session.get("resource_budget", {}).get("max_model_calls", 0))
+        allow_model_planning = model_calls < max_model_calls
+        ai_plan = propose_next_probe(
+            query=session.get("raw_query", ""),
+            symptom=intent.get("symptom", ""),
+            hypotheses=session.get("hypothesis_graph", {}).get("hypotheses", []),
+            evidence_summary=evidence_summary,
+            missing_evidence=self._current_missing_evidence(diagnosis_id),
+            allowed_probes=[{
+                "probe_id": item.probe_id,
+                "name": item.name,
+                "purpose": item.purpose,
+                "applicable_hypotheses": item.applicable_hypotheses,
+                "risk_level": item.risk_level,
+            } for item in eligible_definitions],
+            allowed_targets=[{
+                "instance_id": item.get("instance_id"),
+                "service_id": item.get("service_id"),
+                "host_id": item.get("host_id"),
+                "runtime": item.get("runtime", "unknown"),
+            } for item in allowed_targets if item.get("instance_id")],
+            attempted_probe_ids=sorted(attempted),
+            route_priors=self._probe_route_priors(),
+            round_index=round_index,
+        ) if allow_model_planning else None
+        if allow_model_planning and is_feature_enabled("rca"):
+            usage["model_calls"] = model_calls + 1
+            self.store.update_session(diagnosis_id, budget_used=usage)
+        definition_by_id = {item.probe_id: item for item in eligible_definitions}
+        target_by_id = {item.get("instance_id"): item for item in allowed_targets}
+        planner_source = "ai_tool_call"
+        if ai_plan:
+            definition = definition_by_id[ai_plan["probe_id"]]
+            target = target_by_id[ai_plan["target_instance_id"]]
+            reason = ai_plan["reason"]
+            evidence_purpose = ai_plan["evidence_purpose"]
+            expectation = ai_plan["expected_observation"]
+            falsification = ai_plan["falsification_criterion"]
+        else:
+            planner_source = "deterministic_fallback"
+            preferred = next(
+                (definition_by_id[item] for item in static_r2_ids if item in definition_by_id),
+                max(eligible_definitions, key=lambda item: self._probe_route_priors().get(item.probe_id, 0.0)),
+            )
+            definition = preferred
+            target = next(
+                item for item in allowed_targets if self._target_supports_probe(item, definition)
+            )
+            reason = "R1 证据仍不能区分候选假设，按注册探针、目标能力和历史成功先验选择下一步。"
+            evidence_purpose = "FALSIFY"
+            expectation = definition.purpose
+            falsification = "若该探针未出现预期异常，则降低对应假设优先级并转向下一证据域。"
         key = f"{diagnosis_id}:{definition.probe_id}:{target.get('instance_id')}:adaptive"
         step_id = f"step_{hashlib.sha256(key.encode()).hexdigest()[:14]}"
         self.store.add_probe({
@@ -599,12 +789,206 @@ class DiagnosisOrchestrator:
             "probe_id": definition.probe_id,
             "target": target,
             "parameters": {"duration_sec": definition.default_duration_seconds, "sample_rate": definition.default_sample_rate},
-            "reason": "R1 全目标指标显示区分性证据缺口，仅在压力最显著节点请求 R2",
+            "reason": reason,
             "risk_level": definition.risk_level,
             "requires_approval": True,
+            "evidence_purpose": evidence_purpose,
+            "round_index": round_index,
             "status": "WAITING_APPROVAL",
         })
+        self.store.record_event(diagnosis_id, "adaptive_probe_planned", {
+            "round_index": round_index,
+            "step_id": step_id,
+            "probe_id": definition.probe_id,
+            "target": target.get("instance_id"),
+            "planner_source": planner_source,
+            "reason": reason,
+            "expected_observation": expectation,
+            "falsification_criterion": falsification,
+            "registered_probe_only": True,
+            "requires_approval": True,
+        })
         return True
+
+    def _target_supports_probe(self, target: dict[str, Any], definition) -> bool:
+        """在规划阶段排除离线或缺少能力的目标，避免制造必失败任务。"""
+        agent = self.repo.agents.get(target.get("agent_id"))
+        if agent is None or status_value(agent.status) != "ONLINE":
+            return False
+        capabilities = set(getattr(agent, "capabilities", []) or [])
+        return definition.runner_task_kind in capabilities
+
+    def _current_missing_evidence(self, diagnosis_id: str) -> list[str]:
+        session = self.store.get_session(diagnosis_id) or {}
+        conclusions = session.get("conclusion_versions", [])
+        if conclusions:
+            latest = conclusions[-1]
+            missing = list(latest.get("limitations", []))
+            for candidate in latest.get("root_cause_candidates", []):
+                missing.extend(candidate.get("missing_evidence", []))
+            return sorted({str(item) for item in missing if item})
+        return ["缺少能够支持或推翻当前候选假设的独立证据"]
+
+    def _probe_route_priors(self) -> dict[str, float]:
+        """从历史成功会话实时提取探针路线先验，不让模型凭空“学习工具”。"""
+        completed: dict[str, int] = {}
+        attempted: dict[str, int] = {}
+        for session in self.store.list_sessions(limit=100):
+            session_id = session.get("diagnosis_id")
+            if not session_id:
+                continue
+            for probe in self.store.list_probes(session_id):
+                probe_id = str(probe.get("probe_id", ""))
+                if not probe_id:
+                    continue
+                attempted[probe_id] = attempted.get(probe_id, 0) + 1
+                if probe.get("status") == "COMPLETED":
+                    completed[probe_id] = completed.get(probe_id, 0) + 1
+        return {
+            probe_id: round(completed.get(probe_id, 0) / count, 4)
+            for probe_id, count in attempted.items() if count > 0
+        }
+
+    def _plan_conclusion_falsification(self, diagnosis_id: str) -> bool:
+        """把报告里的 FALSIFY 动作转换为可审批、可恢复的真实 Probe。"""
+
+        session = self.store.get_session(diagnosis_id) or {}
+        usage = dict(session.get("budget_used", {}))
+        completed_rounds = int(usage.get("analysis_rounds", 0))
+        max_rounds = int(session.get("resource_budget", {}).get("max_diagnosis_rounds", 1))
+        if completed_rounds >= max_rounds:
+            record_diagnosis_stop_condition("max_diagnosis_rounds_reached")
+            self.store.record_event(
+                diagnosis_id,
+                "diagnosis_stop_condition_met",
+                {
+                    "reason": "max_diagnosis_rounds_reached",
+                    "analysis_rounds": completed_rounds,
+                    "max_diagnosis_rounds": max_rounds,
+                },
+            )
+            return False
+
+        probes = self.store.list_probes(diagnosis_id)
+        waiting = [
+            item for item in probes
+            if item["status"] == "WAITING_APPROVAL"
+            and item.get("evidence_purpose") == "FALSIFY"
+        ]
+        if waiting:
+            return True
+
+        approved_r2 = sum(
+            1 for item in probes
+            if item["risk_level"] == "R2"
+            and item["status"] in {"APPROVED", "SCHEDULED", "RUNNING", "COMPLETED"}
+        )
+        risk_limit = int(session.get("risk_budget", {}).get("max_medium_risk_probes", 0))
+        if approved_r2 >= risk_limit:
+            record_diagnosis_stop_condition("falsification_risk_budget_exhausted")
+            self.store.record_event(
+                diagnosis_id,
+                "diagnosis_stop_condition_met",
+                {"reason": "falsification_risk_budget_exhausted", "risk_limit": risk_limit},
+            )
+            return False
+
+        conclusions = session.get("conclusion_versions", [])
+        latest = conclusions[-1] if conclusions else {}
+        actions = [
+            item for item in latest.get("actions", [])
+            if item.get("action_type") == "collect"
+            and item.get("evidence_purpose") == "FALSIFY"
+        ]
+        registry_by_collector = {
+            item.runner_task_kind: item for item in list_probes()
+            if item.risk_level == "R2" and item.requires_approval
+        }
+        for action in actions:
+            definition = registry_by_collector.get(action.get("collector_type"))
+            target = action.get("target", {})
+            if definition is None or not target.get("instance_id"):
+                continue
+            if any(
+                item["probe_id"] == definition.probe_id
+                and item.get("target", {}).get("instance_id") == target.get("instance_id")
+                for item in probes
+            ):
+                continue
+            duration = int(action.get("parameters", {}).get(
+                "duration_sec", definition.default_duration_seconds,
+            ))
+            sample_rate = int(action.get("parameters", {}).get(
+                "sample_rate", definition.default_sample_rate,
+            ))
+            used_duration = int(usage.get("probe_duration_seconds", 0))
+            duration_limit = min(
+                int(session["resource_budget"].get("max_duration_minutes", 10)) * 60,
+                int(session["resource_budget"].get("max_total_probe_cpu_seconds", 120)),
+            )
+            if used_duration + duration > duration_limit:
+                continue
+            round_index = completed_rounds + 1
+            key = (
+                f"{diagnosis_id}:{definition.probe_id}:"
+                f"{target['instance_id']}:falsify:{round_index}"
+            )
+            step_id = f"step_{hashlib.sha256(key.encode()).hexdigest()[:14]}"
+            self.store.add_probe({
+                "step_id": step_id,
+                "diagnosis_id": diagnosis_id,
+                "probe_id": definition.probe_id,
+                "target": target,
+                "parameters": {
+                    "duration_sec": min(duration, definition.max_duration_seconds),
+                    "sample_rate": sample_rate,
+                },
+                "reason": (
+                    f"第 {round_index} 轮反证：{action.get('comment', definition.purpose)}"
+                ),
+                "risk_level": definition.risk_level,
+                "requires_approval": True,
+                "evidence_purpose": "FALSIFY",
+                "round_index": round_index,
+                "status": "WAITING_APPROVAL",
+            })
+            self.store.record_event(
+                diagnosis_id,
+                "falsification_round_planned",
+                {
+                    "round_index": round_index,
+                    "step_id": step_id,
+                    "probe_id": definition.probe_id,
+                    "target": target.get("instance_id"),
+                    "hypothesis_graph_updated_at": (
+                        session.get("hypothesis_graph", {}).get("updated_at")
+                    ),
+                },
+            )
+            return True
+
+        # 报告里的固定 FALSIFY 动作没有可执行探针时，再交给受约束 AI
+        # 从剩余注册探针中选择下一证据域；只有预算或能力确实耗尽才停止。
+        task_ids = session.get("child_task_ids", [])
+        terminal_tasks = [
+            self.repo.tasks[task_id] for task_id in task_ids
+            if task_id in self.repo.tasks
+            and status_value(self.repo.tasks[task_id].status) in TERMINAL_TASK_STATUSES
+        ]
+        if terminal_tasks and self._plan_adaptive_r2(diagnosis_id, terminal_tasks):
+            self.store.record_event(diagnosis_id, "falsification_route_replanned", {
+                "reason": "fixed_falsification_action_unavailable",
+                "planner": "bounded_ai_with_deterministic_fallback",
+            })
+            return True
+
+        record_diagnosis_stop_condition("no_eligible_falsification_probe")
+        self.store.record_event(
+            diagnosis_id,
+            "diagnosis_stop_condition_met",
+            {"reason": "no_eligible_falsification_probe", "analysis_rounds": completed_rounds},
+        )
+        return False
 
     def _plan_and_schedule(
         self,
@@ -618,15 +1002,15 @@ class DiagnosisOrchestrator:
         strategy = session.get("normalized_intent", {}).get(
             "analysis_strategy", "CONSTRAINED_HYBRID",
         )
-        probe_ids = (
-            [item.probe_id for item in list_probes()]
-            if strategy == "EXPLORATORY"
-            else choose_probe_ids(symptom)
-        )
         planned: list[ProbePlan] = []
         planned_duration = 0
         duration_limit = min(budget.max_duration_minutes * 60, budget.max_total_probe_cpu_seconds)
         for index, instance in enumerate(instances):
+            probe_ids = (
+                [item.probe_id for item in list_probes()]
+                if strategy == "EXPLORATORY"
+                else choose_probe_ids(symptom, instance.get("runtime", "unknown"))
+            )
             for probe_id in probe_ids:
                 definition = get_probe(probe_id)
                 if definition.risk_level == "R2" and (
@@ -651,6 +1035,8 @@ class DiagnosisOrchestrator:
                     ),
                     risk_level=definition.risk_level,
                     requires_approval=definition.requires_approval,
+                    evidence_purpose="FALSIFY" if definition.risk_level == "R2" else "VERIFY",
+                    round_index=1,
                 ))
 
         for plan in planned:
@@ -805,6 +1191,12 @@ class DiagnosisOrchestrator:
                 evidence_ids.append(self._add_artifact_evidence(
                     diagnosis_id, task, artifact_type, value, artifact,
                 ))
+            self._add_evidence_snapshot(
+                diagnosis_id,
+                task,
+                evidence_ids,
+                [artifact for _, _, artifact in structured],
+            )
             if status == "FAILED":
                 failed_targets.append(f"{task.agent_id}:{task.target_pid}")
             if not structured:
@@ -929,6 +1321,10 @@ class DiagnosisOrchestrator:
             output_refs=[item["action_id"] for item in diagnostic_actions],
             metrics={"action_count": len(diagnostic_actions)},
         )
+        source_context = map_hot_functions(
+            observation.get("top_function", {}).get("name", "")
+            for observation in task_observations
+        )
         conclusion = {
             "version": len((self.store.get_session(diagnosis_id) or {}).get("conclusion_versions", [])) + 1,
             "generated_at": utcnow().isoformat(),
@@ -943,6 +1339,7 @@ class DiagnosisOrchestrator:
             "ruled_out": cluster_assessment["ruled_out"],
             "knowledge_refs": knowledge_refs,
             "knowledge_context": knowledge_context,
+            "source_context": source_context,
             "actions": diagnostic_actions,
             "diagnostic_commands": diagnostic_actions,
             "recommendations": self._build_recommendations(cluster_assessment),
@@ -976,9 +1373,34 @@ class DiagnosisOrchestrator:
         )
         self._append_conclusion(diagnosis_id, conclusion)
         self._update_hypotheses(diagnosis_id, deduped, cluster_assessment)
+        self._record_analysis_round(diagnosis_id, conclusion["version"])
         return cluster_assessment["classification"] not in {
             "insufficient_evidence", "scope_unresolved",
         }
+
+    def _record_analysis_round(self, diagnosis_id: str, conclusion_version: int) -> None:
+        session = self.store.get_session(diagnosis_id) or {}
+        usage = dict(session.get("budget_used", {}))
+        usage["analysis_rounds"] = int(usage.get("analysis_rounds", 0)) + 1
+        usage["falsification_probes"] = sum(
+            1 for probe in self.store.list_probes(diagnosis_id)
+            if probe.get("evidence_purpose") == "FALSIFY"
+            and probe["status"] == "COMPLETED"
+        )
+        self.store.update_session(diagnosis_id, budget_used=usage)
+        record_diagnosis_round(
+            usage["analysis_rounds"],
+            usage["falsification_probes"],
+        )
+        self.store.record_event(
+            diagnosis_id,
+            "diagnosis_round_completed",
+            {
+                "round_index": usage["analysis_rounds"],
+                "conclusion_version": conclusion_version,
+                "falsification_probes": usage["falsification_probes"],
+            },
+        )
 
     def _build_task_observation(
         self,
@@ -992,6 +1414,7 @@ class DiagnosisOrchestrator:
         top_items = values.get("top_json") if isinstance(values.get("top_json"), list) else []
         top_name = str((top_items[0] or {}).get("name", "")) if top_items else ""
         top_percent = float((top_items[0] or {}).get("percent", 0.0) or 0.0) if top_items else 0.0
+        profile_artifacts = sorted(set(values).intersection(PROFILE_ARTIFACT_TYPES))
         pressure = _pressure_flags(summary, values)
         return {
             "task_id": task.id,
@@ -1001,6 +1424,8 @@ class DiagnosisOrchestrator:
             "facts": _normalized_facts(values, summary),
             "fact_domains": normalize_sys_metrics(values.get("sys_metrics")) if values.get("sys_metrics") else {},
             "top_function": {"name": top_name, "percent": top_percent},
+            "profile_available": bool(profile_artifacts),
+            "profile_artifacts": profile_artifacts,
             "pressure": pressure,
             "evidence_refs": evidence_refs,
         }
@@ -1029,7 +1454,8 @@ class DiagnosisOrchestrator:
     ) -> dict[str, Any]:
         session = self.store.get_session(diagnosis_id) or {}
         scope = session.get("target_scope", {})
-        return assess_cluster(scope, observations)
+        symptom = session.get("normalized_intent", {}).get("symptom")
+        return assess_cluster(scope, observations, symptom=symptom)
 
     def _build_reviewable_commands(
         self,
@@ -1047,17 +1473,24 @@ class DiagnosisOrchestrator:
                 comment="低开销采集 CPU、内存、线程、FD、网络与 I/O 等待趋势，适合复核当前判断。",
                 risk_level="R1", evidence_refs=target_obs.get("evidence_refs", []),
                 confidence_level="高",
+                evidence_purpose="VERIFY",
             ))
             if assessment.get("classification") in {
                 "self_code_or_process_pressure",
                 "insufficient_evidence",
             }:
+                profile_collector = {
+                    "java": "java_async",
+                    "python": "pyspy",
+                    "go": "go_pprof",
+                }.get(target.get("runtime"), "perf_cpu")
                 commands.append(collect_action(
                     action_id="act_cpu_profile", title="申请一次 CPU Profile",
-                    collector_type="perf_cpu", target=target, duration_sec=15, sample_rate=49,
+                    collector_type=profile_collector, target=target, duration_sec=15, sample_rate=49,
                     comment="中风险深度采样，可能带来额外开销；必须由人确认窗口和目标后再执行。",
                     risk_level="R2", evidence_refs=target_obs.get("evidence_refs", []),
                     confidence_level="中",
+                    evidence_purpose="FALSIFY",
                 ))
             if assessment.get("classification") in {
                 "same_host_noisy_neighbor",
@@ -1070,6 +1503,7 @@ class DiagnosisOrchestrator:
                     comment="中风险 eBPF 探针，用于确认块设备延迟和宿主机级 I/O 争抢；需要人工审批。",
                     risk_level="R2", evidence_refs=assessment.get("evidence_refs", []),
                     confidence_level="中",
+                    evidence_purpose="FALSIFY",
                 ))
         return commands
 
@@ -1247,6 +1681,7 @@ class DiagnosisOrchestrator:
                 collector_type="sys_metrics", target=target, duration_sec=15, sample_rate=11,
                 comment="当前结构化证据缺失，先以低风险指标确认数据链路和资源趋势。",
                 risk_level="R1", evidence_refs=evidence_refs, confidence_level="低",
+                evidence_purpose="VERIFY",
             ))
         pipeline = {item["node_name"]: item["status"] for item in self.store.list_pipeline_nodes(diagnosis_id)}
         self.store.update_pipeline_node(
@@ -1366,7 +1801,13 @@ class DiagnosisOrchestrator:
             "oracle_isolated": True,
         }
 
-    def _add_task_evidence(self, diagnosis_id: str, task) -> str:
+    def _add_task_evidence(
+        self,
+        diagnosis_id: str,
+        task,
+        *,
+        role_override: str | None = None,
+    ) -> str:
         payload = {
             "task_id": task.id,
             "status": status_value(task.status),
@@ -1378,7 +1819,11 @@ class DiagnosisOrchestrator:
         identity = hashlib.sha256(f"{diagnosis_id}:{task.id}:task".encode()).hexdigest()
         evidence_id = f"ev_{identity[:20]}"
         session = self.store.get_session(diagnosis_id) or {}
-        evidence_role = "reproduction" if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION" else "incident"
+        evidence_role = role_override or (
+            "reproduction"
+            if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION"
+            else "incident"
+        )
         evidence_record = {
             "evidence_id": evidence_id,
             "diagnosis_id": diagnosis_id,
@@ -1413,6 +1858,8 @@ class DiagnosisOrchestrator:
         artifact_type: str,
         value: Any,
         artifact: dict[str, Any],
+        *,
+        role_override: str | None = None,
     ) -> str:
         serialized = json.dumps(value, sort_keys=True, ensure_ascii=False, default=str).encode()
         digest = hashlib.sha256(serialized).hexdigest()
@@ -1421,12 +1868,21 @@ class DiagnosisOrchestrator:
         ).hexdigest()
         evidence_id = f"ev_{identity[:20]}"
         session = self.store.get_session(diagnosis_id) or {}
-        evidence_role = "reproduction" if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION" else "incident"
+        evidence_role = role_override or (
+            "reproduction"
+            if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION"
+            else "incident"
+        )
         domains = {
             "sys_metrics": ["host", "process", "container"], "top_json": ["process"],
             "ebpf_metrics": ["host", "process"], "memory_json": ["process"],
             "network_metrics": ["host", "dependency"], "database_metrics": ["dependency"],
             "runtime_metrics": ["process", "runtime"],
+            "flamegraph_json": ["process", "runtime"],
+            "flamegraph_svg": ["process", "runtime"],
+            "continuous_flamegraph_svg": ["process", "runtime"],
+            "java_flamegraph_html": ["process", "runtime"],
+            "pprof_raw": ["process", "runtime"],
         }.get(artifact_type, [])
         evidence_record = {
             "evidence_id": evidence_id,
@@ -1450,7 +1906,14 @@ class DiagnosisOrchestrator:
             "baseline_value": {},
             "anomaly_score": {},
             "claim_links": [],
-            "data_quality": {**_artifact_quality(value, len(serialized), task.duration_sec), "domains": domains},
+            "data_quality": {
+                **_artifact_quality(
+                    value,
+                    int(artifact.get("size_bytes") or len(serialized)),
+                    task.duration_sec,
+                ),
+                "domains": domains,
+            },
         }
         evidence_record["integrity_hash"] = evidence_integrity_hash(evidence_record)
         self.store.add_evidence(evidence_record)
@@ -1464,10 +1927,195 @@ class DiagnosisOrchestrator:
             self.store.update_session(diagnosis_id, budget_used=usage)
         return evidence_id
 
+    def _add_evidence_snapshot(
+        self,
+        diagnosis_id: str,
+        task: Any,
+        evidence_refs: list[str],
+        artifacts: list[dict[str, Any]],
+        *,
+        role_override: str | None = None,
+    ) -> str:
+        """Freeze the evidence context produced by one task.
+
+        The task/artifacts remain the source of truth.  The snapshot binds their
+        IDs to a target and time window so later rounds cannot silently reinterpret
+        evidence collected from another process, host or deployment.
+        """
+        session = self.store.get_session(diagnosis_id) or {}
+        probes = [
+            probe for probe in self.store.list_probes(diagnosis_id)
+            if probe.get("task_id") == task.id
+        ]
+        probe = probes[-1] if probes else {}
+        target = dict(probe.get("target", {}))
+        target.setdefault("agent_id", task.agent_id)
+        target.setdefault("pid", task.target_pid)
+        role = role_override or (
+            "verification"
+            if probe.get("evidence_purpose") == "FALSIFY"
+            else "reproduction"
+            if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION"
+            else "peer"
+            if target.get("instance_id") in set(
+                session.get("target_scope", {}).get("same_host_instance_ids", [])
+            )
+            else "incident"
+        )
+        round_index = int(
+            probe.get("round_index")
+            or session.get("budget_used", {}).get("analysis_rounds", 0)
+            or 1
+        )
+        artifact_refs = sorted({
+            str(item.get("object_key") or item.get("local_path") or "")
+            for item in artifacts
+            if item.get("object_key") or item.get("local_path")
+        })
+        snapshot_id = f"snap_{hashlib.sha256(f'{diagnosis_id}:{task.id}'.encode()).hexdigest()[:20]}"
+        quality = {
+            "evidence_count": len(evidence_refs),
+            "artifact_count": len(artifact_refs),
+            "complete": status_value(task.status) == "DONE" and bool(artifact_refs),
+            "clock_skew_estimate_ms": None,
+        }
+        snapshot = {
+            "snapshot_id": snapshot_id,
+            "diagnosis_id": diagnosis_id,
+            "round_index": round_index,
+            "evidence_role": role,
+            "captured_at": task.finished_at or utcnow(),
+            "time_range": {
+                "start": _iso(task.started_at or task.created_at),
+                "end": _iso(task.finished_at or utcnow()),
+                "sampling_period_seconds": task.duration_sec,
+            },
+            "target": target,
+            "workload_identity": {
+                "service_id": target.get("service_id"),
+                "instance_id": target.get("instance_id"),
+                "container_id": target.get("container_id"),
+                "process_start_time": target.get("process_start_time"),
+            },
+            "deployment_version": target.get("deployment_version"),
+            "host_fingerprint": {
+                "host_id": target.get("host_id"),
+                "agent_id": task.agent_id,
+                "boot_id": target.get("boot_id"),
+            },
+            "collector": task.collector_type,
+            "collector_version": getattr(task, "collector_version", None),
+            "task_id": task.id,
+            "attempt_id": getattr(task, "current_attempt_id", None),
+            "evidence_refs": sorted(set(evidence_refs)),
+            "artifact_refs": artifact_refs,
+            "baseline_ref": session.get("baseline_snapshot_id"),
+            "quality": quality,
+            "created_at": utcnow(),
+        }
+        snapshot["integrity_hash"] = evidence_integrity_hash(snapshot)
+        self.store.add_evidence_snapshot(snapshot)
+        return snapshot_id
+
+    def _resolve_baseline_tasks(
+        self,
+        task_ids: list[str],
+        target_scope: dict[str, Any],
+        incident_start: datetime,
+    ) -> list[Any]:
+        """Resolve explicitly supplied pre-incident baselines under strict guards.
+
+        A baseline is evidence, not a label supplied by the model.  It must be a
+        completed structured collection for the same Agent/PID and must finish
+        before the caller's explicit incident window starts.
+        """
+
+        if not task_ids:
+            return []
+        targets = {
+            (str(item.get("agent_id") or ""), int(item.get("pid") or 0))
+            for item in target_scope.get("instances", [])
+        }
+        if incident_start.tzinfo is None:
+            incident_start = incident_start.replace(tzinfo=timezone.utc)
+        try:
+            max_age = max(
+                60,
+                int(os.getenv("MINI_DROP_BASELINE_MAX_AGE_SECONDS", "86400")),
+            )
+        except ValueError:
+            max_age = 86400
+        oldest_allowed = incident_start - timedelta(seconds=max_age)
+        resolved: list[Any] = []
+        for task_id in task_ids:
+            task = self.repo.tasks.get(task_id)
+            if task is None:
+                raise ValueError(f"基线任务不存在: {task_id}")
+            if (str(task.agent_id), int(task.target_pid)) not in targets:
+                raise ValueError(f"基线任务目标与诊断范围不一致: {task_id}")
+            if status_value(task.status) != "DONE":
+                raise ValueError(f"基线任务尚未成功完成: {task_id}")
+            finished_at = task.finished_at or task.started_at or task.created_at
+            if finished_at.tzinfo is None:
+                finished_at = finished_at.replace(tzinfo=timezone.utc)
+            if finished_at > incident_start:
+                raise ValueError(f"基线任务不在事故时间窗之前: {task_id}")
+            if finished_at < oldest_allowed:
+                raise ValueError(f"基线任务超过允许的最大年龄: {task_id}")
+            artifacts = self.repo.artifacts.get(task_id, [])
+            structured = self._structured_artifacts(artifacts)
+            if not structured:
+                raise ValueError(f"基线任务缺少结构化采集产物: {task_id}")
+            if not any(
+                str(artifact.get("integrity_status") or "") == "VERIFIED"
+                for _, _, artifact in structured
+            ):
+                raise ValueError(f"基线任务产物尚未通过完整性校验: {task_id}")
+            resolved.append(task)
+        return resolved
+
+    def _attach_baseline_tasks(self, diagnosis_id: str, tasks: list[Any]) -> list[str]:
+        """Attach validated baseline collections without treating them as incident probes."""
+
+        snapshots: list[str] = []
+        for task in tasks:
+            artifacts = self.repo.artifacts.get(task.id, [])
+            evidence_ids = [
+                self._add_task_evidence(diagnosis_id, task, role_override="baseline")
+            ]
+            structured = self._structured_artifacts(artifacts)
+            for artifact_type, value, artifact in structured:
+                evidence_ids.append(self._add_artifact_evidence(
+                    diagnosis_id,
+                    task,
+                    artifact_type,
+                    value,
+                    artifact,
+                    role_override="baseline",
+                ))
+            snapshots.append(self._add_evidence_snapshot(
+                diagnosis_id,
+                task,
+                evidence_ids,
+                [artifact for _, _, artifact in structured],
+                role_override="baseline",
+            ))
+        return snapshots
+
     def _structured_artifacts(self, artifacts: list[dict[str, Any]]) -> list[tuple[str, Any, dict[str, Any]]]:
         results = []
         for artifact in artifacts:
             artifact_type = artifact.get("artifact_type", "")
+            if artifact_type in PROFILE_ARTIFACT_TYPES:
+                metadata = artifact.get("metadata") if isinstance(artifact.get("metadata"), dict) else {}
+                results.append((artifact_type, {
+                    "artifact_type": artifact_type,
+                    "content_type": artifact.get("content_type"),
+                    "size_bytes": int(artifact.get("size_bytes") or 0),
+                    "metadata": metadata,
+                    "benchmark_evidence_tags": ["profile_hot_function", "target_cpu_profile"],
+                }, artifact))
+                continue
             if artifact_type not in STRUCTURED_ARTIFACT_TYPES:
                 continue
             value = self._read_artifact_json(artifact)
@@ -1756,6 +2404,41 @@ class DiagnosisOrchestrator:
                         edges.append(edge)
         graph["hypotheses"] = hypotheses
         graph["edges"] = edges
+        all_evidence_refs = {
+            item["evidence_id"] for item in self.store.list_evidence(diagnosis_id)
+        }
+        explained_evidence_refs = {
+            ref
+            for hypothesis in hypotheses
+            for ref in (
+                hypothesis.get("supporting_evidence_refs", [])
+                + hypothesis.get("contradicting_evidence_refs", [])
+            )
+        }
+        unexplained = sorted(all_evidence_refs - explained_evidence_refs)
+        supported = [item for item in hypotheses if item.get("status") == "SUPPORTED"]
+        ruled_out_count = sum(
+            1 for item in hypotheses if item.get("status") == "RULED_OUT"
+        )
+        graph["unexplained_evidence_refs"] = unexplained
+        graph["open_world_state"] = (
+            "EXPLORING"
+            if unexplained or not supported
+            else "EXPLAINED"
+        )
+        graph["all_initial_hypotheses_ruled_out"] = bool(
+            hypotheses and ruled_out_count == len(hypotheses)
+        )
+        graph["new_hypothesis_request"] = {
+            "required": bool(unexplained and not supported),
+            "reason": (
+                "存在未被当前假设解释的真实证据，下一轮应由决策树开放探索，"
+                "而不是在已有候选中强行选择。"
+                if unexplained and not supported
+                else ""
+            ),
+            "evidence_refs": unexplained,
+        }
         graph["updated_at"] = recorded_at
         self.store.update_session(diagnosis_id, hypothesis_graph=graph)
 
@@ -1847,9 +2530,21 @@ class DiagnosisOrchestrator:
     @staticmethod
     def _budget_for_profile(profile: str) -> DiagnosisBudget:
         if profile == "development":
-            return DiagnosisBudget(max_hosts=10, max_service_instances=20, max_parallel_probes=5, max_medium_risk_probes=2)
+            return DiagnosisBudget(
+                max_hosts=10,
+                max_service_instances=20,
+                max_parallel_probes=5,
+                max_medium_risk_probes=2,
+                max_diagnosis_rounds=3,
+            )
         if profile == "staging":
-            return DiagnosisBudget(max_hosts=8, max_service_instances=15, max_parallel_probes=4, max_medium_risk_probes=2)
+            return DiagnosisBudget(
+                max_hosts=8,
+                max_service_instances=15,
+                max_parallel_probes=4,
+                max_medium_risk_probes=2,
+                max_diagnosis_rounds=2,
+            )
         return DiagnosisBudget()
 
     @classmethod
@@ -1874,6 +2569,8 @@ class DiagnosisOrchestrator:
             "probe_duration_seconds": 0,
             "model_calls": 0,
             "artifact_size_mb": 0,
+            "analysis_rounds": 0,
+            "falsification_probes": 0,
         }
 
     @staticmethod

@@ -165,6 +165,7 @@ class TestInitAgent:
         assert len(online_events) == 1
 
     def test_fetch_config_returns_minio_settings(self, grpc_fix: GrpcFixture, monkeypatch):
+        monkeypatch.delenv("MINIO_AGENT_ENDPOINT", raising=False)
         monkeypatch.setenv("MINIO_ENDPOINT", "minio.test:9000")
         monkeypatch.setenv("MINIO_BUCKET", "mini-drop-test")
         resp = grpc_fix.init_stub.FetchConfig(
@@ -172,6 +173,17 @@ class TestInitAgent:
         )
         assert resp.cos_config.endpoint == "minio.test:9000"
         assert resp.cos_config.bucket == "mini-drop-test"
+
+    def test_fetch_config_prefers_agent_reachable_endpoint(self, grpc_fix: GrpcFixture, monkeypatch):
+        monkeypatch.setenv("MINIO_ENDPOINT", "minio.internal:9000")
+        monkeypatch.setenv("MINIO_PUBLIC_ENDPOINT", "localhost:9000")
+        monkeypatch.setenv("MINIO_AGENT_ENDPOINT", "control.example:9000")
+
+        resp = grpc_fix.init_stub.FetchConfig(
+            init_pb2.FetchConfigRequest(agent_id=self.AGENT_ID)
+        )
+
+        assert resp.cos_config.endpoint == "control.example:9000"
 
     def test_fetch_config_withholds_credentials_by_default(self, grpc_fix: GrpcFixture, monkeypatch):
         monkeypatch.setenv("MINIO_ACCESS_KEY", "worker-access")
@@ -231,9 +243,58 @@ class TestHealthCheck:
         assert resp.pending is True
         assert resp.task_desc.task_id == task.id
         assert resp.task_desc.sample_argv.hz == 99
+        assert resp.task_desc.sample_argv.event == "cpu-cycles"
 
         refreshed = grpc_fix.repo.tasks[task.id]
         assert refreshed.status == TaskStatus.RUNNING
+
+    def test_java_async_heartbeat_uses_backend_compatible_default_event(
+        self, grpc_fix: GrpcFixture,
+    ):
+        self._register(grpc_fix)
+        grpc_fix.repo.create_task(
+            CreateTaskRequest(
+                name="java-profile",
+                agent_id=self.AGENT_ID,
+                target_pid=4321,
+                collector_type="java_async",
+            )
+        )
+
+        resp = grpc_fix.hc_stub.Do(
+            healthcheck_pb2.HealthCheckRequest(agent_id=self.AGENT_ID, ip_addr=self.IP)
+        )
+
+        assert resp.pending is True
+        assert resp.task_desc.profiler_type == 1
+        assert resp.task_desc.sample_argv.event == "cpu"
+
+    def test_heartbeat_forwards_namespace_and_timeout_hints(self, grpc_fix: GrpcFixture):
+        self._register(grpc_fix)
+        task = grpc_fix.repo.create_task(
+            CreateTaskRequest(
+                name="container-perf",
+                agent_id=self.AGENT_ID,
+                target_pid=4321,
+                collector_type="perf_cpu",
+                duration_sec=5,
+                options={
+                    "container_name": "cpp-hotspot",
+                    "container_type": 1,
+                    "timeout_sec": 45,
+                },
+            )
+        )
+
+        resp = grpc_fix.hc_stub.Do(
+            healthcheck_pb2.HealthCheckRequest(agent_id=self.AGENT_ID, ip_addr=self.IP)
+        )
+
+        assert resp.pending is True
+        assert resp.task_desc.task_id == task.id
+        assert resp.task_desc.container_name == "cpp-hotspot"
+        assert resp.task_desc.container_type == 1
+        assert resp.task_desc.timeout_sec == 45
 
     def test_busy_heartbeat_does_not_pull_task(self, grpc_fix: GrpcFixture):
         self._register(grpc_fix)
@@ -313,6 +374,24 @@ class TestHotmethodNotifyResult:
                 artifact_metadata_json='[{"artifact_type":"raw","bucket":"mini-drop","object_key":"tasks/test/perf.data"}]',
             )
         )
+        task = grpc_fix.repo.tasks[task_id]
+        assert task.status == TaskStatus.ANALYZING
+        assert len(grpc_fix.repo.artifacts.get(task_id, [])) == 1
+
+    def test_duplicate_notify_result_is_idempotent(self, grpc_fix: GrpcFixture):
+        # At-least-once Agent callbacks must not duplicate artifacts.
+        task_id = self._create_and_start_task(grpc_fix)
+        payload = hotmethod_pb2.TaskResult(
+            task_id=task_id,
+            error_message="",
+            cos_key="tasks/test/perf.data",
+            artifact_type="raw",
+            artifact_metadata_json=(
+                '[{"artifact_type":"raw","bucket":"mini-drop","object_key":"tasks/test/perf.data"}]'
+            ),
+        )
+        grpc_fix.hotmethod_stub.NotifyResult(payload)
+        grpc_fix.hotmethod_stub.NotifyResult(payload)
         task = grpc_fix.repo.tasks[task_id]
         assert task.status == TaskStatus.ANALYZING
         assert len(grpc_fix.repo.artifacts.get(task_id, [])) == 1
@@ -438,6 +517,27 @@ class TestControlService:
     AGENT_ID = "test_agent_ctl"
     IP = "10.0.0.30"
 
+    def test_create_task_is_idempotent_on_preassigned_task_id(self, grpc_fix: GrpcFixture):
+        grpc_fix.init_stub.RegisterAgent(
+            init_pb2.RegisterAgentRequest(
+                agent_id=self.AGENT_ID, hostname="c-host", ip_addr=self.IP,
+            )
+        )
+        desc = hotmethod_pb2.TaskDesc(
+            sample_argv=hotmethod_pb2.RecordArgv(hz=99, duration=15, pid=1234),
+        )
+        first = grpc_fix.control_stub.CreateTask(
+            control_pb2.CreateTaskRequest(
+                target_ip=self.IP, task_id="preassigned-001", task_desc=desc,
+            )
+        )
+        second = grpc_fix.control_stub.CreateTask(
+            control_pb2.CreateTaskRequest(
+                target_ip=self.IP, task_id="preassigned-001", task_desc=desc,
+            )
+        )
+        assert first.task_id == second.task_id
+
     def test_create_task_returns_pending(self, grpc_fix: GrpcFixture):
         grpc_fix.init_stub.RegisterAgent(
             init_pb2.RegisterAgentRequest(
@@ -459,6 +559,30 @@ class TestControlService:
         )
         assert pull_resp.pending is True
         assert pull_resp.task_desc.task_id == resp.task_id
+
+    def test_java_control_task_preserves_java_default_event(
+        self, grpc_fix: GrpcFixture,
+    ):
+        grpc_fix.init_stub.RegisterAgent(
+            init_pb2.RegisterAgentRequest(
+                agent_id=self.AGENT_ID, hostname="c-host", ip_addr=self.IP,
+            )
+        )
+        response = grpc_fix.control_stub.CreateTask(
+            control_pb2.CreateTaskRequest(
+                target_ip=self.IP,
+                task_desc=hotmethod_pb2.TaskDesc(
+                    profiler_type=1,
+                    sample_argv=hotmethod_pb2.RecordArgv(
+                        hz=99, duration=15, pid=1234,
+                    ),
+                ),
+            )
+        )
+
+        task = grpc_fix.repo.tasks[response.task_id]
+        assert task.collector_type == "java_async"
+        assert task.request_params["options"]["event"] == "cpu"
 
     def test_create_task_rejects_unknown_target_ip(self, grpc_fix: GrpcFixture):
         with pytest.raises(grpc.RpcError) as exc_info:
@@ -513,3 +637,39 @@ class TestOfflineDetection:
             if log.event_type == "AGENT_OFFLINE" and log.agent_id == self.AGENT_ID
         ]
         assert len(offline_logs) == 1
+
+
+class TestGrpcTaskCancellation:
+    def test_busy_heartbeat_delivers_cancellation_for_active_task(self, grpc_fix: GrpcFixture):
+        agent_id = "cancel_hc_agent"
+        ip_addr = "10.0.8.8"
+        grpc_fix.init_stub.RegisterAgent(
+            init_pb2.RegisterAgentRequest(
+                agent_id=agent_id,
+                hostname="cancel-host",
+                ip_addr=ip_addr,
+            )
+        )
+        task = grpc_fix.repo.create_task(
+            CreateTaskRequest(
+                name="cancel-running",
+                agent_id=agent_id,
+                target_pid=1234,
+                collector_type="perf_cpu",
+            )
+        )
+        grpc_fix.repo.heartbeat(agent_id, ip_addr)
+        grpc_fix.repo.cancel_task(task.id, "operator cancelled", Actor.WEB)
+
+        resp = grpc_fix.hc_stub.Do(
+            healthcheck_pb2.HealthCheckRequest(
+                agent_id=agent_id,
+                ip_addr=ip_addr,
+                busy=True,
+                active_task_id=task.id,
+            )
+        )
+
+        assert resp.pending is False
+        assert resp.cancel_task_id == task.id
+        assert resp.cancel_reason == "operator cancelled"

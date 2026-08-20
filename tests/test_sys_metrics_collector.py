@@ -49,6 +49,8 @@ class TestSysMetricsCollector:
         assert len(result.artifacts) == 1
         assert result.artifacts[0]["artifact_type"] == "sys_metrics"
         assert os.path.isfile(result.artifacts[0]["local_path"])
+        assert result.artifacts[0]["metadata"]["sample_count"] >= 1
+        assert result.artifacts[0]["metadata"]["schema_version"] == "sys_metrics.v2"
 
     def test_content_has_all_dimensions(self, tmp_path):
         collector = SysMetricsCollector()

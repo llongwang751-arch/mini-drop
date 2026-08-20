@@ -1,0 +1,314 @@
+name: mini-drop-cloud-control
+
+# 云端三机部署的控制节点：Web/Go API/Python Server/诊断 Worker/Analyzer/存储。
+# 远端 Agent 通过 TLS gRPC 连接 Python Server 的 50051 端口。
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mini_drop}
+      POSTGRES_USER: ${POSTGRES_USER:-mini_drop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mini_drop}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
+    ports:
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_MINIO_PORT:-9000}:9000"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/server.Dockerfile
+    image: mini-drop-cloud-server:local
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  server:
+    image: mini-drop-cloud-server:local
+    pull_policy: never
+    pid: host
+    environment: &server_environment
+      MINI_DROP_ENV: cloud
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8191
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:?set MINIO_AGENT_ENDPOINT}
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:?set MINIO_PUBLIC_ENDPOINT}
+      MINIO_PUBLIC_SECURE: ${MINIO_PUBLIC_SECURE:-0}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINIO_AUTO_CREATE_BUCKET: "1"
+      MINI_DROP_API_AUTH_ENABLED: "1"
+      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:?set MINI_DROP_API_KEY}
+      MINI_DROP_INTERNAL_GATEWAY_TOKEN: ${MINI_DROP_INTERNAL_GATEWAY_TOKEN:?set MINI_DROP_INTERNAL_GATEWAY_TOKEN}
+      MINI_DROP_GRPC_AUTH_ENABLED: "1"
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN}
+      MINI_DROP_GRPC_SECURE: "1"
+      MINI_DROP_GRPC_CERT_FILE: /certs/server.crt
+      MINI_DROP_GRPC_KEY_FILE: /certs/server.key
+      MINI_DROP_GRPC_DISTRIBUTE_MINIO_CREDENTIALS: "0"
+      MINI_DROP_EMBED_GRPC: "1"
+      MINI_DROP_EMBED_MAINTENANCE: "1"
+      MINI_DROP_SCHEMA_MANAGED: "1"
+      MINI_DROP_ALLOWED_SERVICES: ${MINI_DROP_ALLOWED_SERVICES:-}
+      MINI_DROP_AI_ENABLED: ${MINI_DROP_AI_ENABLED:-off}
+      MINI_DROP_AI_PROVIDER: ${MINI_DROP_AI_PROVIDER:-deepseek}
+      MINI_DROP_AI_BASE_URL: ${MINI_DROP_AI_BASE_URL:-https://api.deepseek.com}
+      MINI_DROP_AI_API_KEY: ${MINI_DROP_AI_API_KEY:-}
+      MINI_DROP_AI_MODEL: ${MINI_DROP_AI_MODEL:-deepseek-chat}
+      # The real-fault Campaign runs against allow-listed demo services on the
+      # same private Compose network.  These are deliberately not published to
+      # the Internet; only the control plane can operate their bounded switches.
+      MINI_DROP_CAMPAIGN_TARGET_URL: http://python-hotspot:8081
+      MINI_DROP_CAMPAIGN_JAVA_TARGET_URL: http://java-hotspot:7070
+      MINI_DROP_SOURCE_ROOTS: /workspace-otel/src/ad:/workspace-otel/src/email
+    ports:
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_GRPC_PORT:-50051}:50051"
+    volumes:
+      - ./deploy/certs:/certs:ro
+      - ./:/workspace-source:ro
+      - /opt/mini-drop-otel-3684411/src/ad:/workspace-otel/src/ad:ro
+      - /opt/mini-drop-otel-3684411/src/email:/workspace-otel/src/email:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8191/api/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  diagnosis-worker:
+    image: mini-drop-cloud-server:local
+    pull_policy: never
+    command: ["python", "-m", "server.app.diagnosis_worker"]
+    environment:
+      <<: *server_environment
+      MINI_DROP_EMBED_GRPC: "0"
+      MINI_DROP_EMBED_MAINTENANCE: "0"
+      MINI_DROP_DIAGNOSIS_POLL_SEC: ${MINI_DROP_DIAGNOSIS_POLL_SEC:-2}
+      MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS: ${MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS:-1}
+    volumes:
+      - ./deploy/certs:/certs:ro
+      - ./:/workspace-source:ro
+      - /opt/mini-drop-otel-3684411/src/ad:/workspace-otel/src/ad:ro
+      - /opt/mini-drop-otel-3684411/src/email:/workspace-otel/src/email:ro
+    depends_on:
+      server:
+        condition: service_healthy
+    restart: unless-stopped
+
+  analyzer:
+    image: mini-drop-cloud-server:local
+    pull_policy: never
+    command: ["python", "-m", "server.app.analysis_jobs"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_ANALYZER_POLL_SEC: ${MINI_DROP_ANALYZER_POLL_SEC:-1}
+      MINI_DROP_ANALYZER_LEASE_SEC: ${MINI_DROP_ANALYZER_LEASE_SEC:-120}
+      MINI_DROP_ANALYZER_MAX_RETRIES: ${MINI_DROP_ANALYZER_MAX_RETRIES:-3}
+      MINI_DROP_SCHEMA_MANAGED: "1"
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "server.app.analysis_jobs", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  apiserver:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/apiserver.Dockerfile
+    environment:
+      MINI_DROP_API_LISTEN_ADDR: ":8080"
+      MINI_DROP_LEGACY_API_URL: http://server:8191
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINI_DROP_API_AUTH_ENABLED: "1"
+      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY}
+      MINI_DROP_INTERNAL_GATEWAY_TOKEN: ${MINI_DROP_INTERNAL_GATEWAY_TOKEN}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINIO_SECURE: "0"
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mini-drop-apiserver", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  # Control-host collector used only for the bounded Campaign targets below.
+  # Worker Agents cannot sample a PID that exists on another Linux host, so a
+  # local Agent is required to keep the Campaign evidence chain truthful.
+  campaign-agent:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/agent.Dockerfile
+    hostname: control-campaign-agent
+    environment:
+      AGENT_ID: control-campaign-agent
+      AGENT_IP_ADDR: ${CONTROL_PUBLIC_IP:-47.112.10.137}
+      AGENT_GRPC_ADDR: server:50051
+      AGENT_HEARTBEAT_INTERVAL_SEC: 5
+      AGENT_GRPC_SECURE: "1"
+      AGENT_GRPC_CA_CERT: /certs/ca.crt
+      AGENT_GRPC_TLS_SERVER_NAME: ${CONTROL_PUBLIC_IP:-47.112.10.137}
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
+      AGENT_UPLOAD_ARTIFACTS: "1"
+      MINIO_ENDPOINT: minio:9000
+      AGENT_KEEP_LOCAL_MINIO_ENDPOINT: "1"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINIO_SECURE: "0"
+      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
+      AGENT_RESULT_OUTBOX_MAX_ENTRIES: 256
+    volumes:
+      - ./deploy/certs:/certs:ro
+      - /sys/kernel/tracing:/sys/kernel/tracing
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /lib/modules:/lib/modules:ro
+      - campaign_agent_outbox:/var/lib/mini-drop-agent/outbox
+    privileged: true
+    pid: host
+    cap_add:
+      - SYS_PTRACE
+      - PERFMON
+      - SYS_ADMIN
+      - BPF
+      - SYS_RESOURCE
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined
+    depends_on:
+      server:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Allow-listed real-fault lab.  No generic shell execution is exposed.
+  python-hotspot:
+    build:
+      context: demo/python-hotspot
+    pid: host
+    environment:
+      CPU_HOTSPOT_ACTIVE: "1"
+      DOWNSTREAM_URL: http://downstream-service:8082
+      NETWORK_PROXY_URL: http://network-proxy:8083
+    depends_on:
+      downstream-service:
+        condition: service_healthy
+      network-proxy:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  downstream-service:
+    build:
+      context: demo/downstream-service
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8082/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  network-proxy:
+    build:
+      context: demo/network-proxy
+    environment:
+      UPSTREAM_URL: http://downstream-service:8082
+    depends_on:
+      downstream-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8083/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  java-hotspot:
+    build:
+      context: demo/java-hotspot
+    pid: host
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/7070; printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/web.control.Dockerfile
+    ports:
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTP_PORT:-18080}:80"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/certs:/certs:ro
+    depends_on:
+      apiserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --no-check-certificate --spider https://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  miniodata:
+  campaign_agent_outbox:

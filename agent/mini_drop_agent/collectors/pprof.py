@@ -96,6 +96,10 @@ class PprofCollector:
             "local_path": pprof_raw,
             "content_type": "application/octet-stream",
             "size_bytes": raw_size,
+            "metadata": {
+                "schema_version": "go_pprof.v1",
+                "duration_sec": task.duration_sec,
+            },
         }]
 
         # 可选：用 go tool pprof 生成 SVG 火焰图
@@ -108,6 +112,10 @@ class PprofCollector:
                 "local_path": flamegraph_svg,
                 "content_type": "image/svg+xml",
                 "size_bytes": svg_size,
+                "metadata": {
+                    "schema_version": "go_pprof.v1",
+                    "duration_sec": task.duration_sec,
+                },
             })
 
         return CollectorResult(

@@ -6,10 +6,11 @@ import Dashboard from "./pages/Dashboard";
 
 const AuditLogs = lazy(() => import("./pages/AuditLogs"));
 const TaskResult = lazy(() => import("./pages/TaskResult"));
-const DiagnosisHistory = lazy(() => import("./pages/DiagnosisHistory"));
 const AIDiagnosis = lazy(() => import("./pages/AIDiagnosis"));
 const AgentDetail = lazy(() => import("./pages/AgentDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Schedules = lazy(() => import("./pages/Schedules"));
+const Composites = lazy(() => import("./pages/Composites"));
 
 const Lazy = ({ children }) => (
   <Suspense fallback={<Spin size="large" style={{ display: "block", margin: "40px auto" }} />}>
@@ -22,7 +23,9 @@ export default function Router() {
     <BrowserRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          {/* AI diagnosis is the default entry; collection tasks live at /tasks. */}
+          <Route path="/" element={<Navigate to="/ai-diagnosis" replace />} />
+          <Route path="/tasks" element={<Dashboard />} />
           <Route
             path="/audit"
             element={<Lazy><AuditLogs /></Lazy>}
@@ -36,10 +39,6 @@ export default function Router() {
             element={<Lazy><AIDiagnosis /></Lazy>}
           />
           <Route
-            path="/diagnoses"
-            element={<Lazy><DiagnosisHistory /></Lazy>}
-          />
-          <Route
             path="/agent/:agentId"
             element={<Lazy><AgentDetail /></Lazy>}
           />
@@ -47,7 +46,18 @@ export default function Router() {
             path="/settings"
             element={<Lazy><Settings /></Lazy>}
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/schedules"
+            element={<Lazy><Schedules /></Lazy>}
+          />
+          <Route
+            path="/composites"
+            element={<Lazy><Composites /></Lazy>}
+          />
+          {/* Redirect legacy diagnosis routes to the unified AI diagnosis page. */}
+          <Route path="/drop-insight" element={<Navigate to="/ai-diagnosis" replace />} />
+          <Route path="/diagnoses" element={<Navigate to="/ai-diagnosis" replace />} />
+          <Route path="*" element={<Navigate to="/ai-diagnosis" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

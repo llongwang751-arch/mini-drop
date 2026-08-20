@@ -1,4 +1,5 @@
 from unittest import mock
+import hashlib
 
 from agent.mini_drop_agent.artifact_upload import maybe_upload_artifacts
 from agent.mini_drop_agent.config import AgentConfig
@@ -38,4 +39,7 @@ def test_upload_adds_bucket_and_object_key(tmp_path):
     assert uploaded[0]["bucket"] == "mini-drop"
     assert uploaded[0]["object_key"] == "tasks/task1/perf.data"
     assert uploaded[0]["size_bytes"] == 4
+    assert uploaded[0]["sha256"] == hashlib.sha256(b"perf").hexdigest()
+    assert uploaded[0]["manifest"]["manifest_version"] == "mini-drop.artifact.v1"
+    assert uploaded[0]["manifest"]["task_id"] == "task1"
     mock_client.return_value.fput_object.assert_called_once()

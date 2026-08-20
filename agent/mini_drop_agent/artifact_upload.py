@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
+import time
 
 from agent.mini_drop_agent.config import AgentConfig
 
@@ -44,6 +46,34 @@ def _normalize_endpoint(endpoint: str) -> tuple[str, bool]:
     return endpoint, False
 
 
+def _upload_with_retry(
+    client,
+    bucket_name: str,
+    object_name: str,
+    file_path: str,
+    content_type: str,
+    max_attempts: int = 3,
+) -> None:
+    """Upload to MinIO with exponential backoff (0.5/1/2s), raising the last error."""
+    delays = (0.5, 1.0, 2.0)
+    last_error: Exception | None = None
+    for attempt in range(max_attempts):
+        try:
+            client.fput_object(
+                bucket_name=bucket_name,
+                object_name=object_name,
+                file_path=file_path,
+                content_type=content_type,
+            )
+            return
+        except Exception as exc:
+            last_error = exc
+            if attempt < max_attempts - 1:
+                time.sleep(delays[attempt])
+    if last_error is not None:
+        raise last_error
+
+
 def _upload_one(client, task_id: str, artifact: dict, config: AgentConfig) -> dict:
     item = dict(artifact)
     local_path = item.get("local_path")
@@ -53,13 +83,35 @@ def _upload_one(client, task_id: str, artifact: dict, config: AgentConfig) -> di
     filename = item.get("filename") or os.path.basename(local_path)
     object_key = item.get("object_key") or f"tasks/{task_id}/{filename}"
     content_type = item.get("content_type") or "application/octet-stream"
-    client.fput_object(
-        bucket_name=config.minio_bucket,
-        object_name=object_key,
-        file_path=local_path,
-        content_type=content_type,
-    )
+    sha256, size_bytes = _hash_file(local_path)
+    _upload_with_retry(client, config.minio_bucket, object_key, local_path, content_type)
     item["bucket"] = config.minio_bucket
     item["object_key"] = object_key
-    item["size_bytes"] = os.path.getsize(local_path)
+    item["size_bytes"] = size_bytes
+    item["sha256"] = sha256
+    item["manifest"] = {
+        "manifest_version": "mini-drop.artifact.v1",
+        "task_id": task_id,
+        "artifact_type": item.get("artifact_type", "raw"),
+        "bucket": config.minio_bucket,
+        "object_key": object_key,
+        "filename": filename,
+        "content_type": content_type,
+        "size_bytes": size_bytes,
+        "sha256": sha256,
+        "producer": "mini-drop-agent",
+    }
     return item
+
+
+def _hash_file(path: str, chunk_size: int = 1024 * 1024) -> tuple[str, int]:
+    digest = hashlib.sha256()
+    size = 0
+    with open(path, "rb") as handle:
+        while True:
+            chunk = handle.read(chunk_size)
+            if not chunk:
+                break
+            digest.update(chunk)
+            size += len(chunk)
+    return digest.hexdigest(), size

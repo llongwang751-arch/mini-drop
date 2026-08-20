@@ -5,6 +5,7 @@ from typing import Any
 
 from google.protobuf.empty_pb2 import Empty
 
+from server.app.analysis_jobs import enqueue_artifact_analysis
 from server.app.analyzer_runner import analyze_raw_perf_artifacts
 from server.app.generated import hotmethod_pb2_grpc
 from server.app.state_machine import Actor, TaskStatus
@@ -22,6 +23,21 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
 
     def NotifyResult(self, request, context) -> Empty:
         task_id = request.task_id
+        getter = getattr(self._repo, "get_task", None)
+        task = getter(task_id) if callable(getter) else self._repo.tasks.get(task_id)
+        if task is not None:
+            status = task.status.value if isinstance(task.status, TaskStatus) else task.status
+            # A late collector result must not resurrect a user-cancelled task.
+            if status == TaskStatus.CANCELLED.value:
+                return Empty()
+            # Agent callbacks are at-least-once. A repeated callback after the
+            # first one reached analysis or a terminal state is a no-op.
+            if status in {
+                TaskStatus.ANALYZING.value,
+                TaskStatus.DONE.value,
+                TaskStatus.FAILED.value,
+            }:
+                return Empty()
 
         if request.error_message:
             reason = _safe_text(request.error_message, max_length=MAX_ERROR_MESSAGE_LENGTH) or "Agent reported collection failure"
@@ -49,14 +65,29 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
             artifacts = [{"artifact_type": request.artifact_type or "raw", "cos_key": request.cos_key}]
         artifacts = _sanitize_artifacts(artifacts)
 
+        artifact_ids: list[int] = []
         if artifacts:
-            self._repo.add_artifacts(task_id, artifacts)
+            persisted = self._repo.add_artifacts(task_id, artifacts)
+            if isinstance(persisted, list):
+                artifact_ids = persisted
 
         # 产物写入后迁移到 ANALYZING；如果 Agent 已同步产出分析结果，MVP 闭环直接完成任务。
         self._repo.transition_task(
             task_id, TaskStatus.ANALYZING,
             "产物已记录，等待分析", Actor.SERVER,
         )
+        analysis_job = enqueue_artifact_analysis(
+            self._repo,
+            task_id,
+            artifacts,
+            artifact_ids,
+            collector_type=getattr(task, "collector_type", None),
+        )
+        if analysis_job is not None:
+            return Empty()
+
+        # In-memory repositories used by unit tests keep the legacy inline
+        # analyzer path. Production SQL repositories always use AnalysisJob.
         if not _has_analysis_result(artifacts):
             generated_artifacts = analyze_raw_perf_artifacts(task_id, artifacts)
             if generated_artifacts:
@@ -121,7 +152,7 @@ def _sanitize_artifacts(raw_artifacts) -> list[dict]:
             artifact_type = "raw"
         artifact: dict = {"artifact_type": artifact_type}
 
-        for key in ("bucket", "object_key", "cos_key", "filename", "local_path", "content_type"):
+        for key in ("bucket", "object_key", "cos_key", "filename", "local_path", "content_type", "sha256"):
             value = _safe_text(item.get(key))
             if value:
                 artifact[key] = value
@@ -136,6 +167,10 @@ def _sanitize_artifacts(raw_artifacts) -> list[dict]:
         if isinstance(metadata, dict):
             artifact["metadata"] = _sanitize_metadata(metadata)
 
+        manifest = item.get("manifest")
+        if isinstance(manifest, dict):
+            artifact["manifest"] = _sanitize_manifest(manifest)
+
         sanitized.append(artifact)
     return sanitized
 
@@ -148,6 +183,19 @@ def _sanitize_metadata(metadata: dict) -> dict:
             continue
         if isinstance(value, (str, int, float, bool)) or value is None:
             result[safe_key] = value if not isinstance(value, str) else _safe_text(value)
+    return result
+
+
+def _sanitize_manifest(manifest: dict) -> dict:
+    allowed = {
+        "manifest_version", "task_id", "artifact_type", "bucket", "object_key",
+        "filename", "content_type", "size_bytes", "sha256", "producer",
+    }
+    result: dict = {}
+    for key in allowed:
+        value = manifest.get(key)
+        if isinstance(value, (str, int)):
+            result[key] = value if isinstance(value, int) else _safe_text(value)
     return result
 
 

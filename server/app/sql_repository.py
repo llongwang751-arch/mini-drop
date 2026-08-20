@@ -18,28 +18,48 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_, func, or_, text
 from sqlalchemy.orm import Session as OrmSession
 
+from server.app.cron import next_schedule_fire
 from server.app.database import new_session
+from server.app.artifact_integrity import prepare_artifact
 from server.app.models import (
     AgentMetricSnapshotModel,
     AgentModel,
+    AnalysisJobModel,
     ArtifactModel,
     AuditLogModel,
     DiagnosisReportModel,
     DiagnosisRunModel,
     DiagnosisToolResultModel,
+    CompositeTaskItemModel,
+    CompositeTaskModel,
+    FixVerificationModel,
+    OutboxMessageModel,
     RCAFeedbackModel,
     RCAFeedbackWeightModel,
     RepairPlanModel,
+    ScheduleModel,
+    ScheduleRecordModel,
     StatusEventModel,
+    TaskAttemptModel,
     TaskModel,
 )
-from server.app.prometheus_metrics import record_task_transition
+from server.app.prometheus_metrics import (
+    observe_analysis_job_duration,
+    record_analysis_job,
+    record_composite_created,
+    record_composite_status,
+    record_task_transition,
+)
 from server.app.rca.models import FeedbackPrior
 from server.app.schemas import CreateTaskRequest
 from server.app.state_machine import (
+    AnalysisStatus,
     Actor,
+    CollectionStatus,
     StatusEvent,
     TaskStatus,
     build_status_event,
@@ -47,8 +67,32 @@ from server.app.state_machine import (
 )
 
 
-class SqlRepository:
-    """SQLAlchemy 持久化 Repository。"""
+def _same_task_request(a: dict, b: dict) -> bool:
+    """Canonical JSON equality (key order independent)."""
+    if a is None or b is None:
+        return a == b
+    return json.dumps(a, sort_keys=True, default=str) == json.dumps(
+        b, sort_keys=True, default=str
+    )
+
+
+# 领域 mixin 组合（按域拆分自本文件，方法签名不变）
+from server.app.repositories.agent_repo import AgentMixin
+from server.app.repositories.task_repo import TaskMixin
+from server.app.repositories.artifact_repo import ArtifactMixin
+from server.app.repositories.analysis_job_repo import AnalysisJobMixin
+from server.app.repositories.outbox_repo import OutboxMixin
+from server.app.repositories.schedule_repo import ScheduleMixin
+from server.app.repositories.composite_repo import CompositeMixin
+from server.app.repositories.diagnosis_repo import DiagnosisMixin
+from server.app.repositories.feedback_repo import FeedbackMixin
+
+
+class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, OutboxMixin, ScheduleMixin, CompositeMixin, DiagnosisMixin, FeedbackMixin):
+    """SQLAlchemy 持久化 Repository。
+
+    基类保留共享状态与跨域内部方法；各领域方法来自 repositories/ 下的 mixin。
+    """
 
     def __init__(self) -> None:
         self._lock = threading.RLock()
@@ -105,344 +149,21 @@ class SqlRepository:
         finally:
             session.close()
 
-    # ------------------------------------------------------------------
-    # Agent
-    # ------------------------------------------------------------------
-
-    def register_agent(
-        self, agent_id: str, hostname: str, ip_addr: str,
-        version: str = "0.1.0", os_info: str = "unknown",
-        capabilities: list[str] | None = None,
-    ) -> AgentModel:
-        caps = list(capabilities or [])
-        ts = now_utc()
-
-        with self._write_session() as session:
-            existing = session.get(AgentModel, agent_id)
-            if existing is not None and existing.status == "OFFLINE":
-                self._write_audit(
-                    session, "AGENT_ONLINE", agent_id,
-                    f"{agent_id} 恢复在线",
-                )
-
-            if existing is not None:
-                existing.hostname = hostname
-                existing.ip_addr = ip_addr
-                existing.version = version
-                existing.os_info = os_info
-                existing.capabilities = caps
-                existing.status = "ONLINE"
-                existing.last_heartbeat_at = ts
-                existing.updated_at = ts
-                agent = existing
-            else:
-                agent = AgentModel(
-                    id=agent_id, hostname=hostname, ip_addr=ip_addr,
-                    version=version, os_info=os_info, capabilities=caps,
-                    status="ONLINE", last_heartbeat_at=ts,
-                    created_at=ts, updated_at=ts,
-                )
-                session.add(agent)
-
-            # 保持与 InMemoryRepository 接口一致（SqlRepository.heartbeat 直接查 DB，不使用此队列）
-            if ip_addr not in self._task_queues:
-                self._task_queues[ip_addr] = deque()
-
-            notify_agent_status(agent_id, "ONLINE", ip_addr)
-            return agent
-
-    def heartbeat(self, agent_id: str, ip_addr: str) -> TaskModel | None:
-        with self._write_session() as session:
-            agent = session.get(AgentModel, agent_id)
-            if agent is None:
-                return None
-
-            agent.status = "ONLINE"
-            agent.last_heartbeat_at = now_utc()
-            agent.updated_at = now_utc()
-
-            task = (
-                session.query(TaskModel)
-                .filter(
-                    TaskModel.agent_id == agent_id,
-                    TaskModel.status == TaskStatus.PENDING.value,
-                )
-                .order_by(TaskModel.created_at.asc())
-                .first()
-            )
-            if task is None:
-                return None
-
-            self._transition_task_in_session(
-                session, task.id, TaskStatus.RUNNING,
-                "Agent 心跳拉取待执行任务", Actor.SERVER,
-            )
-            task.status = TaskStatus.RUNNING.value
-            return task
-
-    def heartbeat_only(self, agent_id: str, ip_addr: str) -> None:
-        """Update heartbeat timestamp without dispatching a new task."""
-        with self._write_session() as session:
-            agent = session.get(AgentModel, agent_id)
-            if agent is None:
-                return
-            agent.ip_addr = ip_addr or agent.ip_addr
-            agent.status = "ONLINE"
-            agent.last_heartbeat_at = now_utc()
-            agent.updated_at = now_utc()
-
-    def mark_offline_agents(self, timeout_sec: int = 30) -> list[AgentModel]:
-        with self._write_session() as session:
-            cutoff = now_utc() - timedelta(seconds=timeout_sec)
-            changed = (
-                session.query(AgentModel)
-                .filter(
-                    AgentModel.status == "ONLINE",
-                    AgentModel.last_heartbeat_at < cutoff,
-                )
-                .all()
-            )
-            for agent in changed:
-                agent.status = "OFFLINE"
-                agent.updated_at = now_utc()
-                self._write_audit(
-                    session, "AGENT_OFFLINE", agent.id,
-                    f"{agent.id} 心跳超时 {timeout_sec}s，标记为离线",
-                )
-                notify_agent_status(agent.id, "OFFLINE", agent.ip_addr)
-            return changed
-
-    @property
-    def agents(self) -> dict[str, AgentModel]:
-        """返回 {agent_id: AgentModel} 字典（兼容旧接口的 dict 访问）。
-
-        2 秒 TTL 缓存，避免高频场景下每请求查全表。
-        """
-        return self._cached("agents", 2.0, lambda: self._query_all_agents())
-
-    def _query_all_agents(self) -> dict[str, AgentModel]:
-        s = new_session()
-        try:
-            return {a.id: a for a in s.query(AgentModel).all()}
-        finally:
-            s.close()
-
-    def find_agent_by_ip(self, ip_addr: str) -> AgentModel | None:
-        with self._read_session() as session:
-            return session.query(AgentModel).filter(AgentModel.ip_addr == ip_addr).first()
-
-    def record_agent_metrics(self, agent_id: str, metrics: dict[str, Any]) -> None:
-        with self._lock:
-            self.agent_metrics[agent_id] = dict(metrics)
-
-    def persist_agent_metric_snapshots(self) -> int:
-        """将内存中的 agent metrics 批量写入数据库快照表。
-
-        每次调用对所有在线 agent 生成一条快照记录，用于趋势分析。
-        返回写入的快照数量。
-        """
-        with self._write_session() as session:
-            ts = now_utc()
-            count = 0
-            for agent_id, metrics in self.agent_metrics.items():
-                self_data = metrics.get("self", {})
-                session.add(AgentMetricSnapshotModel(
-                    agent_id=agent_id,
-                    cpu_percent=int(self_data.get("cpu_percent", 0) or 0),
-                    rss_mb=int(self_data.get("rss_mb", 0) or 0),
-                    read_kb_s=int(self_data.get("read_kb_s", 0) or 0),
-                    write_kb_s=int(self_data.get("write_kb_s", 0) or 0),
-                    children_count=int(self_data.get("children_count", 0) or 0),
-                    created_at=ts,
-                ))
-                count += 1
-            return count
-
-    def get_agent_metric_history(self, agent_id: str, limit: int = 100) -> list[dict[str, Any]]:
-        """查询指定 Agent 的历史指标快照。"""
-        with self._read_session() as session:
-            rows = (
-                session.query(AgentMetricSnapshotModel)
-                .filter(AgentMetricSnapshotModel.agent_id == agent_id)
-                .order_by(AgentMetricSnapshotModel.created_at.desc())
-                .limit(limit)
-                .all()
-            )
-            return [row.to_dict() for row in rows]
-
-    # ------------------------------------------------------------------
-    # Task
-    # ------------------------------------------------------------------
-
-    def delete_task(self, task_id: str) -> bool:
-        """删除任务及其关联数据（事件、产物、诊断结果）。返回是否实际删除。"""
-        with self._write_session() as session:
-            task = session.get(TaskModel, task_id)
-            if task is None:
-                return False
-            # 级联删除关联数据
-            session.query(StatusEventModel).filter(
-                StatusEventModel.task_id == task_id
-            ).delete()
-            session.query(ArtifactModel).filter(
-                ArtifactModel.task_id == task_id
-            ).delete()
-            session.query(DiagnosisRunModel).filter(
-                DiagnosisRunModel.task_id == task_id
-            ).delete()
-            session.delete(task)
-            # 插入审计日志
-            self._write_audit(
-                session,
-                event_type="task_deleted",
-                task_id=task_id,
-                message=f"任务 {task.name or task_id} 已删除",
-            )
-            # 清除缓存，下次读取时重新查询
-            self._cache.pop("tasks", None)
-            self._cache.pop("events", None)
-            return True
-
-    def create_task(self, payload: CreateTaskRequest) -> TaskModel:
-        with self._write_session() as session:
-            ts = now_utc()
-            hex_suffix = uuid4().hex[:6]
-            task_id = f"task_{ts.strftime('%Y%m%d_%H%M%S')}_{hex_suffix}"
-            agent = session.get(AgentModel, payload.agent_id)
-            if agent is None:
-                raise ValueError(f"Agent {payload.agent_id} 不存在")
-
-            task = TaskModel(
-                id=task_id,
-                name=payload.name,
-                agent_id=payload.agent_id,
-                target_pid=payload.target_pid,
-                collector_type=payload.collector_type,
-                sample_rate=payload.sample_rate,
-                duration_sec=payload.duration_sec,
-                status=TaskStatus.PENDING.value,
-                status_reason="Web 请求创建任务",
-                request_params=payload.model_dump(),
-                diagnosis_step_id=(payload.options or {}).get("diagnosis_step_id"),
-                created_at=ts,
-            )
-            session.add(task)
-            session.flush()
-
-            # 状态事件
-            self._write_event(session, task_id, None, TaskStatus.PENDING,
-                              "Web 请求创建任务", Actor.WEB, payload.model_dump())
-            record_task_transition("NONE", TaskStatus.PENDING.value)
-
-            # 审计日志
-            self._write_audit(session, "TASK_CREATED", task_id=task_id,
-                              message=f"任务 {task_id} 已创建",
-                              metadata=payload.model_dump())
-
-            return task
-
-    def get_task_by_diagnosis_step_id(self, step_id: str) -> TaskModel | None:
-        session = new_session()
-        try:
-            return session.query(TaskModel).filter(TaskModel.diagnosis_step_id == step_id).first()
-        finally:
-            session.close()
-
-    def transition_task(
-        self, task_id: str, to_status: TaskStatus,
-        reason: str, actor: Actor,
-        metadata: dict[str, Any] | None = None,
-    ) -> TaskModel:
-        with self._write_session() as session:
-            task = session.get(TaskModel, task_id)
-            if task is None:
-                raise ValueError(f"任务 {task_id} 不存在")
-
-            _ = build_status_event(
-                task_id, TaskStatus(task.status), to_status,
-                reason, actor, metadata or {},
-            )
-
-            self._transition_task_in_session(
-                session, task_id, to_status, reason, actor, metadata,
-            )
-            task.status = to_status.value
-            return task
-
-    @property
-    def tasks(self) -> dict[str, TaskModel]:
-        return self._cached("tasks", 2.0, self._query_all_tasks)
-
-    def _query_all_tasks(self) -> dict[str, TaskModel]:
-        s = new_session()
-        try:
-            return {t.id: t for t in s.query(TaskModel).all()}
-        finally:
-            s.close()
-
-    @property
-    def events(self) -> list[StatusEvent]:
-        """返回所有状态事件，兼容原有 list[StatusEvent] 接口。"""
-        return self._cached("events", 2.0, self._query_all_events)
-
-    def _query_all_events(self) -> list[StatusEvent]:
-        s = new_session()
-        try:
-            models = s.query(StatusEventModel).all()
-            result: list[StatusEvent] = []
-            for m in models:
-                result.append(StatusEvent(
-                    task_id=m.task_id if m.task_id else "",
-                    from_status=TaskStatus(m.from_status) if m.from_status else None,
-                    to_status=TaskStatus(m.to_status),
-                    reason=m.reason if m.reason else "",
-                    actor=Actor(m.actor) if m.actor else Actor.SERVER,
-                    metadata=m.meta_json if isinstance(m.meta_json, dict) else {},
-                    created_at=m.created_at if m.created_at else now_utc(),
-                ))
-            return result
-        finally:
-            s.close()
-
-    # ------------------------------------------------------------------
-    # Artifacts
-    # ------------------------------------------------------------------
-
-    def add_artifacts(self, task_id: str, artifacts: list[dict[str, Any]]) -> None:
-        with self._write_session() as session:
-            ts = now_utc()
-            for art in artifacts:
-                session.add(ArtifactModel(
-                    task_id=task_id,
-                    artifact_type=art.get("artifact_type", "raw"),
-                    bucket=art.get("bucket", "mini-drop"),
-                    object_key=art.get("object_key", ""),
-                    filename=art.get("filename"),
-                    local_path=art.get("local_path"),
-                    content_type=art.get("content_type", "application/octet-stream"),
-                    size_bytes=art.get("size_bytes", 0),
-                    meta_json=art.get("metadata", {}),
-                    created_at=ts,
-                ))
-
-    @property
-    def artifacts(self) -> dict[str, list[dict[str, Any]]]:
-        return self._cached("artifacts", 2.0, self._query_all_artifacts)
-
-    def _query_all_artifacts(self) -> dict[str, list[dict[str, Any]]]:
-        s = new_session()
-        try:
-            result: dict[str, list[dict[str, Any]]] = {}
-            for art in s.query(ArtifactModel).all():
-                tid = art.task_id if art.task_id else ""
-                result.setdefault(tid, []).append(art.to_dict())
-            return result
-        finally:
-            s.close()
-
-    # ------------------------------------------------------------------
-    # Audit
-    # ------------------------------------------------------------------
+    def as_dict(self, value: Any) -> dict[str, Any]:
+        if isinstance(value, StatusEvent):
+            data = asdict(value)
+            data["from_status"] = value.from_status.value if value.from_status else None
+            data["to_status"] = value.to_status.value
+            data["actor"] = value.actor.value
+            return data
+        if isinstance(value, (
+            AgentModel, TaskModel, TaskAttemptModel, StatusEventModel, AuditLogModel, ArtifactModel,
+            AnalysisJobModel,
+            DiagnosisRunModel, DiagnosisToolResultModel, DiagnosisReportModel,
+            RepairPlanModel,
+        )):
+            return value.to_dict()
+        return json.loads(json.dumps(value, default=str))
 
     def _write_audit(
         self, session: OrmSession, event_type: str, agent_id: str | None = None,
@@ -468,189 +189,6 @@ class SqlRepository:
             return s.query(AuditLogModel).all()
         finally:
             s.close()
-
-    # ------------------------------------------------------------------
-    # RCA
-    # ------------------------------------------------------------------
-
-    def create_diagnosis_run(self, task_id: str, model_name: str) -> str:
-        with self._write_session() as session:
-            ts = now_utc()
-            diagnosis_id = f"diag_{ts.strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
-            session.add(DiagnosisRunModel(
-                id=diagnosis_id,
-                task_id=task_id,
-                status="RUNNING",
-                model_name=model_name,
-                created_at=ts,
-            ))
-            return diagnosis_id
-
-    def finish_diagnosis_run(
-        self, diagnosis_id: str, status: str, summary: str,
-        validated: bool, retry_count: int,
-    ) -> None:
-        with self._write_session() as session:
-            run = session.get(DiagnosisRunModel, diagnosis_id)
-            if run is None:
-                raise ValueError(f"诊断 {diagnosis_id} 不存在")
-            run.status = status
-            run.summary = summary
-            run.validated = 1 if validated else 0
-            run.retry_count = retry_count
-            run.finished_at = now_utc()
-
-    def add_diagnosis_tool_result(
-        self, diagnosis_id: str, tool_name: str, status: str,
-        evidence_ref: str, input_json: dict[str, Any],
-        output_json: dict[str, Any], error_message: str | None = None,
-    ) -> None:
-        with self._write_session() as session:
-            session.add(DiagnosisToolResultModel(
-                diagnosis_id=diagnosis_id,
-                tool_name=tool_name,
-                status=status,
-                evidence_ref=evidence_ref,
-                input_json=_json_safe(input_json),
-                output_json=_json_safe(output_json),
-                error_message=error_message,
-                created_at=now_utc(),
-            ))
-
-    def add_diagnosis_report(
-        self, diagnosis_id: str, report_json: dict[str, Any],
-        ranked_causes: list[dict[str, Any]], confidence: float,
-        not_enough_evidence: bool,
-    ) -> str:
-        with self._write_session() as session:
-            report_id = f"report_{uuid4().hex[:10]}"
-            session.add(DiagnosisReportModel(
-                id=report_id,
-                diagnosis_id=diagnosis_id,
-                report_json=_json_safe(report_json),
-                ranked_causes_json=_json_safe(ranked_causes),
-                confidence=int(max(0.0, min(confidence, 1.0)) * 1000),
-                not_enough_evidence=1 if not_enough_evidence else 0,
-                created_at=now_utc(),
-            ))
-            return report_id
-
-    def add_repair_plan(
-        self, diagnosis_id: str, plan_id: str, cause_id: str,
-        risk_level: str, actions: list[dict[str, Any]],
-        executed_actions: list[dict[str, Any]],
-        requires_user_confirm: bool, status: str,
-    ) -> None:
-        with self._write_session() as session:
-            session.add(RepairPlanModel(
-                id=plan_id,
-                diagnosis_id=diagnosis_id,
-                cause_id=cause_id,
-                risk_level=risk_level,
-                actions_json=_json_safe(actions),
-                executed_actions_json=_json_safe(executed_actions),
-                requires_user_confirm=1 if requires_user_confirm else 0,
-                status=status,
-                created_at=now_utc(),
-            ))
-
-    def get_diagnosis(self, diagnosis_id: str) -> dict[str, Any] | None:
-        with self._read_session() as session:
-            run = session.get(DiagnosisRunModel, diagnosis_id)
-            if run is None:
-                return None
-            report = (
-                session.query(DiagnosisReportModel)
-                .filter(DiagnosisReportModel.diagnosis_id == diagnosis_id)
-                .order_by(DiagnosisReportModel.created_at.desc())
-                .first()
-            )
-            plan = (
-                session.query(RepairPlanModel)
-                .filter(RepairPlanModel.diagnosis_id == diagnosis_id)
-                .order_by(RepairPlanModel.created_at.desc())
-                .first()
-            )
-            tools = (
-                session.query(DiagnosisToolResultModel)
-                .filter(DiagnosisToolResultModel.diagnosis_id == diagnosis_id)
-                .order_by(DiagnosisToolResultModel.id.asc())
-                .all()
-            )
-            return {
-                "run": run.to_dict(),
-                "report": report.to_dict() if report else None,
-                "repair_plan": plan.to_dict() if plan else None,
-                "tool_results": [tool.to_dict() for tool in tools],
-            }
-
-    def list_diagnoses_for_task(self, task_id: str) -> list[dict[str, Any]]:
-        with self._read_session() as session:
-            runs = (
-                session.query(DiagnosisRunModel)
-                .filter(DiagnosisRunModel.task_id == task_id)
-                .order_by(DiagnosisRunModel.created_at.desc())
-                .all()
-            )
-            return [run.to_dict() for run in runs]
-
-    def get_feedback_priors(self) -> dict[str, FeedbackPrior]:
-        with self._read_session() as session:
-            priors: dict[str, FeedbackPrior] = {}
-            for row in session.query(RCAFeedbackWeightModel).all():
-                priors[row.candidate_id] = FeedbackPrior(
-                    candidate_id=row.candidate_id,
-                    positive_count=row.positive_count or 0,
-                    negative_count=row.negative_count or 0,
-                    weight_delta=(row.weight_delta or 0) / 1000,
-                )
-            return priors
-
-    def record_rca_feedback(
-        self, diagnosis_id: str, task_id: str, predicted_cause_id: str,
-        feedback_label: str, corrected_cause_id: str | None = None,
-        feedback_note: str | None = None,
-    ) -> None:
-        with self._write_session() as session:
-            ts = now_utc()
-            session.add(RCAFeedbackModel(
-                diagnosis_id=diagnosis_id,
-                task_id=task_id,
-                predicted_cause_id=predicted_cause_id,
-                feedback_label=feedback_label,
-                corrected_cause_id=corrected_cause_id,
-                feedback_note=feedback_note,
-                created_at=ts,
-            ))
-
-            candidate_id = corrected_cause_id if feedback_label == "wrong" and corrected_cause_id else predicted_cause_id
-            weight = session.get(RCAFeedbackWeightModel, candidate_id)
-            if weight is None:
-                weight = RCAFeedbackWeightModel(
-                    candidate_id=candidate_id,
-                    positive_count=0,
-                    negative_count=0,
-                    partial_count=0,
-                    weight_delta=0,
-                    updated_at=ts,
-                )
-                session.add(weight)
-
-            if feedback_label == "correct":
-                weight.positive_count += 1
-            elif feedback_label == "partial":
-                weight.partial_count += 1
-            elif feedback_label == "wrong":
-                weight.negative_count += 1
-
-            weight.weight_delta = _feedback_delta(
-                weight.positive_count, weight.partial_count, weight.negative_count,
-            )
-            weight.updated_at = ts
-
-    # ------------------------------------------------------------------
-    # 内部辅助
-    # ------------------------------------------------------------------
 
     def _write_event(
         self, session: OrmSession, task_id: str,
@@ -688,34 +226,191 @@ class SqlRepository:
         record_task_transition(from_status, to_status.value)
         task.status = to_status.value
         task.status_reason = reason
-        if to_status == TaskStatus.RUNNING and task.started_at is None:
-            task.started_at = now_utc()
-        if to_status in (TaskStatus.DONE, TaskStatus.FAILED):
+        self._update_execution_dimensions(task, to_status, actor)
+        if to_status == TaskStatus.RUNNING:
+            started_at = now_utc()
+            if task.started_at is None:
+                task.started_at = started_at
+            attempt_no = (
+                session.query(TaskAttemptModel)
+                .filter(TaskAttemptModel.task_id == task_id)
+                .count()
+                + 1
+            )
+            session.add(TaskAttemptModel(
+                id=f"attempt_{uuid4().hex}",
+                task_id=task_id,
+                attempt_no=attempt_no,
+                agent_id=task.agent_id,
+                status=TaskStatus.RUNNING.value,
+                reason=reason,
+                lease_expires_at=started_at + timedelta(seconds=task.duration_sec + 30),
+                metadata_json=metadata or {},
+                created_at=started_at,
+                started_at=started_at,
+            ))
+        elif to_status in {
+            TaskStatus.UPLOADING,
+            TaskStatus.ANALYZING,
+            TaskStatus.FAILED,
+            TaskStatus.CANCELLED,
+        }:
+            attempt = (
+                session.query(TaskAttemptModel)
+                .filter(TaskAttemptModel.task_id == task_id)
+                .order_by(TaskAttemptModel.attempt_no.desc())
+                .first()
+            )
+            if attempt is not None:
+                # TaskAttempt describes collection execution only. Analyzer
+                # retries and failures are tracked by AnalysisJobModel.
+                if to_status == TaskStatus.ANALYZING:
+                    attempt.status = CollectionStatus.SUCCEEDED.value
+                elif to_status == TaskStatus.FAILED and actor == Actor.ANALYZER:
+                    pass
+                else:
+                    attempt.status = to_status.value
+                attempt.reason = reason
+                attempt.metadata_json = {**(attempt.metadata_json or {}), **(metadata or {})}
+                if to_status == TaskStatus.ANALYZING or (
+                    to_status in (TaskStatus.FAILED, TaskStatus.CANCELLED)
+                    and actor != Actor.ANALYZER
+                ):
+                    attempt.finished_at = now_utc()
+        if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
             task.finished_at = now_utc()
 
         # 发布 SSE 事件
         notify_task_changed(task_id, from_status, to_status.value, reason)
 
-    def as_dict(self, value: Any) -> dict[str, Any]:
-        if isinstance(value, StatusEvent):
-            data = asdict(value)
-            data["from_status"] = value.from_status.value if value.from_status else None
-            data["to_status"] = value.to_status.value
-            data["actor"] = value.actor.value
-            return data
-        if isinstance(value, (
-            AgentModel, TaskModel, StatusEventModel, AuditLogModel, ArtifactModel,
-            DiagnosisRunModel, DiagnosisToolResultModel, DiagnosisReportModel,
-            RepairPlanModel,
-        )):
-            return value.to_dict()
-        return json.loads(json.dumps(value, default=str))
+    @staticmethod
+    def _update_execution_dimensions(
+        task: TaskModel,
+        to_status: TaskStatus,
+        actor: Actor,
+    ) -> None:
+        """Maintain collection/analysis states without breaking the legacy status API."""
 
+        if to_status == TaskStatus.PENDING:
+            task.collection_status = CollectionStatus.QUEUED.value
+            task.analysis_status = AnalysisStatus.NOT_STARTED.value
+        elif to_status == TaskStatus.RUNNING:
+            task.collection_status = CollectionStatus.COLLECTING.value
+        elif to_status == TaskStatus.UPLOADING:
+            task.collection_status = CollectionStatus.UPLOADING.value
+        elif to_status == TaskStatus.ANALYZING:
+            task.collection_status = CollectionStatus.SUCCEEDED.value
+            task.analysis_status = AnalysisStatus.QUEUED.value
+        elif to_status == TaskStatus.DONE:
+            task.collection_status = CollectionStatus.SUCCEEDED.value
+            task.analysis_status = AnalysisStatus.SUCCEEDED.value
+        elif to_status == TaskStatus.FAILED:
+            if actor == Actor.ANALYZER:
+                task.collection_status = CollectionStatus.SUCCEEDED.value
+                task.analysis_status = AnalysisStatus.FAILED.value
+            else:
+                task.collection_status = CollectionStatus.FAILED.value
+                task.analysis_status = AnalysisStatus.SKIPPED.value
+        elif to_status == TaskStatus.CANCELLED:
+            if task.collection_status == CollectionStatus.SUCCEEDED.value:
+                task.analysis_status = AnalysisStatus.CANCELLED.value
+            else:
+                task.collection_status = CollectionStatus.CANCELLED.value
+                task.analysis_status = AnalysisStatus.SKIPPED.value
 
-def _feedback_delta(positive: int, partial: int, negative: int) -> int:
-    raw = positive * 60 + partial * 25 - negative * 80
-    return max(-200, min(200, raw))
+    def create_task_in_session(
+        self,
+        session,
+        payload: CreateTaskRequest,
+        *,
+        reason: str = "AI tool call created task",
+        actor: Actor = Actor.AI,
+    ) -> TaskModel:
+        """Create Task, initial event and audit inside the caller transaction.
 
+        The caller owns commit/rollback.  This prevents an AI ToolCall from
+        losing its Task link after the Task row has already committed.
+        """
+        ts = now_utc()
+        task_id = f"task_{ts.strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
+        agent = session.get(AgentModel, payload.agent_id)
+        if agent is None:
+            raise ValueError(f"Agent {payload.agent_id} does not exist")
+        task = TaskModel(
+            id=task_id,
+            name=payload.name,
+            agent_id=payload.agent_id,
+            target_pid=payload.target_pid,
+            collector_type=payload.collector_type,
+            sample_rate=payload.sample_rate,
+            duration_sec=payload.duration_sec,
+            status=TaskStatus.PENDING.value,
+            status_reason=reason,
+            collection_status=CollectionStatus.QUEUED.value,
+            analysis_status=AnalysisStatus.NOT_STARTED.value,
+            request_params=payload.model_dump(),
+            diagnosis_step_id=(payload.options or {}).get("diagnosis_step_id"),
+            created_at=ts,
+        )
+        session.add(task)
+        session.flush()
+        self._write_event(
+            session,
+            task_id,
+            None,
+            TaskStatus.PENDING,
+            reason,
+            actor,
+            payload.model_dump(),
+        )
+        self._write_audit(
+            session,
+            "TASK_CREATED",
+            task_id=task_id,
+            message=f"Task {task_id} created by AI tool call",
+            metadata=payload.model_dump(),
+        )
+        record_task_transition("NONE", TaskStatus.PENDING.value)
+        # §9.6: every task-creation path publishes task.created through the
+        # transactional outbox, not just the Go/Web entrypoint.
+        self.enqueue_outbox(
+            "task", task_id, "task.created", payload.model_dump(),
+            session=session,
+        )
+        return task
 
-def _json_safe(value: Any):
-    return json.loads(json.dumps(value, default=str))
+    def enqueue_outbox(
+        self,
+        aggregate_type: str,
+        aggregate_id: str,
+        event_type: str,
+        payload: dict[str, Any],
+        *,
+        session: OrmSession | None = None,
+    ) -> OutboxMessageModel:
+        """Persist an outbox message.
+
+        Pass an open ``session`` to enqueue in the SAME transaction as the
+        domain write; otherwise a fresh write session is used.
+        """
+        ts = now_utc()
+        message = OutboxMessageModel(
+            id=f"outbox_{uuid4().hex}",
+            aggregate_type=aggregate_type,
+            aggregate_id=aggregate_id,
+            event_type=event_type,
+            payload_json=payload or {},
+            status="PENDING",
+            attempts=0,
+            next_attempt_at=ts,
+            created_at=ts,
+            updated_at=ts,
+        )
+        if session is not None:
+            session.add(message)
+            session.flush()
+            return message
+        with self._write_session() as write:
+            write.add(message)
+            write.flush()
+            return message

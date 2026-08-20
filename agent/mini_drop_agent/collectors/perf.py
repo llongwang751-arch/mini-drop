@@ -2,11 +2,10 @@
 
 执行流程：
   1. 检查 perf 命令是否可用
-  2. 检查 /proc/sys/kernel/perf_event_paranoid 权限水位
-  3. 验证目标 PID 存在
-  4. 在独立进程组中执行 perf record -F {hz} -g -p {pid} -- sleep {duration}
-  5. 超时时 kill 进程组，防止僵尸
-  6. 返回采样的 perf.data 产物元数据
+  2. 验证目标 PID 存在
+  3. 在独立进程组中执行 perf record -F {hz} -g -p {pid} -- sleep {duration}
+  4. 超时时 kill 进程组，防止僵尸
+  5. 验证并返回非空的 perf.data 产物元数据
 """
 
 from __future__ import annotations
@@ -32,13 +31,6 @@ class PerfCollector:
             return CollectorResult(
                 ok=False,
                 reason="perf 命令不可用，请确认已安装 linux-tools",
-            )
-
-        if not self._check_perf_paranoid():
-            return CollectorResult(
-                ok=False,
-                reason="perf_event_paranoid 权限不足。"
-                       "请执行 'echo 1 > /proc/sys/kernel/perf_event_paranoid' 或使用 root 运行 Agent",
             )
 
         if not self._pid_exists(task.target_pid):
@@ -97,7 +89,19 @@ class PerfCollector:
                     reason=f"目标 PID {task.target_pid} 在采集期间已退出",
                 )
 
-            size = os.path.getsize(perf_data) if os.path.isfile(perf_data) else 0
+            if not os.path.isfile(perf_data):
+                return CollectorResult(
+                    ok=False,
+                    reason="perf record 执行完成，但未生成 perf.data",
+                )
+
+            size = os.path.getsize(perf_data)
+            if size <= 0:
+                return CollectorResult(
+                    ok=False,
+                    reason="perf record 执行完成，但生成的 perf.data 为空",
+                )
+
             artifacts = [
                 {
                     "artifact_type": "raw",
@@ -157,25 +161,6 @@ class PerfCollector:
     @staticmethod
     def _pid_exists(pid: int) -> bool:
         return os.path.isdir(f"/proc/{pid}")
-
-    @staticmethod
-    def _read_paranoid() -> int | None:
-        try:
-            with open("/proc/sys/kernel/perf_event_paranoid", "r") as fh:
-                return int(fh.read().strip())
-        except (FileNotFoundError, ValueError):
-            return None
-
-    def _check_perf_paranoid(self) -> bool:
-        """检查 perf_event_paranoid 是否允许采样。
-
-        paranoid ≤ 1: 允许（-1 无限制, 0 允许 trace, 1 允许用户采样）
-        paranoid ≥ 2: 普通用户无法采样，返回 False
-        """
-        val = self._read_paranoid()
-        if val is None:
-            return True  # 无法读取时不阻断，让 perf 自身报错
-        return val <= 1
 
     @staticmethod
     def _analyze_perf_data(task_id: str, perf_data: str, output_root: str) -> tuple[list[dict], str]:

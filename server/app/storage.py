@@ -112,6 +112,22 @@ def stream_object(bucket: str, object_key: str, chunk_size: int = 1024 * 1024) -
         response.release_conn()
 
 
+def list_objects(bucket: str, prefix: str = "", recursive: bool = True) -> list[dict]:
+    """List object keys under a prefix (used by the lifecycle reconciler)."""
+    if not bucket:
+        raise ValueError("bucket must not be empty")
+    objects: list[dict] = []
+    for item in _client().list_objects(bucket, prefix=prefix, recursive=recursive):
+        if not item.object_name:
+            continue
+        objects.append({
+            "object_key": item.object_name,
+            "size": item.size or 0,
+            "last_modified": item.last_modified,
+        })
+    return objects
+
+
 def presigned_get_url(bucket: str, object_key: str, expires: int = 3600) -> str:
     if not bucket:
         raise ValueError("bucket must not be empty")

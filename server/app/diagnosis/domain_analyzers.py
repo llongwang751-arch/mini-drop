@@ -34,7 +34,11 @@ def analyze_observations(observations: list[dict[str, Any]]) -> list[dict[str, A
     return [item.model_dump(mode="json") for item in findings]
 
 
-def assess_cluster(scope: dict[str, Any], observations: list[dict[str, Any]]) -> dict[str, Any]:
+def assess_cluster(
+    scope: dict[str, Any],
+    observations: list[dict[str, Any]],
+    symptom: str | None = None,
+) -> dict[str, Any]:
     """区分目标自身、同宿主与一跳下游；不使用模型生成事实。"""
 
     target_service = scope.get("target_service")
@@ -135,7 +139,7 @@ def assess_cluster(scope: dict[str, Any], observations: list[dict[str, Any]]) ->
     target_ref = None
     if selected:
         target_ref = selected[0].get("target", {}).get("instance_id") or selected[0].get("target", {}).get("host_id")
-    domain_type, subtype = _domain_cause(selected)
+    domain_type, subtype = _domain_cause(selected, preferred_symptom=symptom)
     legacy_confidence = {"不可判断": 0.0, "低": 0.3, "中": 0.65, "高": 0.82}[confidence_level]
     return {
         "classification": classification,
@@ -228,6 +232,19 @@ def _analyze_cpu(obs: dict[str, Any]) -> list[DomainFinding]:
             confidence="高" if top >= 40 and process_cores >= 0.5 else "中",
             facts={"process_cpu_core_usage": process_cores, "top_function_pct": top, "scope": "process"},
             knowledge_ids=["linux.cpu.process_pressure"]))
+    elif process_cores >= 0.8 and obs.get("profile_available"):
+        result.append(_finding(
+            obs, "os_cpu_analyzer.v2", "cpu", "process_cpu_pressure_with_profile",
+            "目标进程持续占用 CPU，且已采集运行时 Profile；当前产物可供人工查看火焰图，但尚未提取结构化 TopN，暂不点名具体热点函数。",
+            confidence="中",
+            facts={
+                "process_cpu_core_usage": process_cores,
+                "scope": "process",
+                "profile_artifacts": obs.get("profile_artifacts", []),
+            },
+            knowledge_ids=["linux.cpu.process_pressure"],
+            missing=["结构化 Profile TopN"],
+        ))
     elif process_cores >= 0.8:
         result.append(_finding(obs, "os_cpu_analyzer.v2", "cpu", "process_cpu_pressure",
             "目标进程 CPU tick 增量显示其持续占用核心，但缺少 Profile，不能进一步断言具体代码热点。",
@@ -330,7 +347,10 @@ def _unique_refs(observations: list[dict[str, Any]]) -> list[str]:
     return result
 
 
-def _domain_cause(observations: list[dict[str, Any]]) -> tuple[str, str]:
+def _domain_cause(
+    observations: list[dict[str, Any]],
+    preferred_symptom: str | None = None,
+) -> tuple[str, str]:
     facts = [_facts(obs) for obs in observations]
     if any(_num(item.get("mysql_lock_wait_count")) > 0 or _num(item.get("mysql_lock_wait_seconds")) > 0 for item in facts):
         return "database", "mysql_lock_wait"
@@ -340,9 +360,23 @@ def _domain_cause(observations: list[dict[str, Any]]) -> tuple[str, str]:
         return "network", "packet_loss_or_retransmit"
     if any(obs.get("pressure", {}).get("block_latency_high") or obs.get("pressure", {}).get("io_wait") for obs in observations):
         return "io", "host_or_shared_io_pressure"
-    if any(obs.get("pressure", {}).get("memory") for obs in observations):
+    memory_pressure = any(obs.get("pressure", {}).get("memory") for obs in observations)
+    cpu_pressure = any(obs.get("pressure", {}).get("cpu") for obs in observations)
+
+    # CPU 与内存压力经常同时出现。例如 CPU 压测会伴随 RSS 波动，而内存泄漏场景
+    # 也可能短暂消耗 CPU。高特异性的数据库、运行时、网络和 I/O 证据仍然优先；
+    # 只有 CPU/内存这种通用资源信号冲突时，才使用已经规范化的用户症状作为加权项。
+    if preferred_symptom == "cpu_saturation" and cpu_pressure:
+        process_hot = any(
+            _has_self_hotspot(obs) or _num(_facts(obs).get("process_cpu_core_usage")) >= 0.8
+            for obs in observations
+        )
+        return "cpu", "process_cpu_pressure" if process_hot else "host_cpu_saturation"
+    if preferred_symptom == "memory_pressure" and memory_pressure:
         return "memory", "process_or_container_memory_pressure"
-    if any(obs.get("pressure", {}).get("cpu") for obs in observations):
+    if memory_pressure:
+        return "memory", "process_or_container_memory_pressure"
+    if cpu_pressure:
         process_hot = any(
             _has_self_hotspot(obs) or _num(_facts(obs).get("process_cpu_core_usage")) >= 0.8
             for obs in observations

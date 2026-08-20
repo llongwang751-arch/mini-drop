@@ -11,12 +11,39 @@ from server.app.diagnosis import orchestrator as orchestrator_module
 from server.app.diagnosis.orchestrator import _pressure_flags
 from server.app.diagnosis.actions import collect_action
 from server.app.diagnosis.domain_analyzers import analyze_observations, assess_cluster, cluster_finding
+from server.app.diagnosis.probe_registry import choose_probe_ids
 from server.app.diagnosis.report_verifier import evidence_integrity_hash, verify_report
 from server.app.diagnosis.schemas import ApprovalRequest
 from server.app.main import app, repo
 from server.app.main import diagnosis_orchestrator
 from server.app.models import Base
+from server.app.schemas import CreateTaskRequest
 from server.app.state_machine import Actor, TaskStatus
+
+
+def test_cpu_probe_selection_uses_target_runtime_profiler() -> None:
+    assert choose_probe_ids("cpu_saturation", "java")[-1] == "java_cpu_profile"
+    assert choose_probe_ids("cpu_saturation", "python")[-1] == "python_cpu_profile"
+    assert choose_probe_ids("cpu_saturation", "go")[-1] == "go_cpu_profile"
+    assert choose_probe_ids("cpu_saturation", "native")[-1] == "process_cpu_profile"
+
+
+def test_cpu_finding_distinguishes_captured_profile_from_missing_profile() -> None:
+    findings = analyze_observations([{
+        "task_id": "task-java",
+        "collector_type": "java_async",
+        "target": {"instance_id": "service-a-1"},
+        "facts": {"process_cpu_core_usage": 1.4},
+        "top_function": {"name": "", "percent": 0},
+        "profile_available": True,
+        "profile_artifacts": ["java_flamegraph_html"],
+        "evidence_refs": ["ev-java-profile"],
+    }])
+
+    cpu = next(item for item in findings if item["category"] == "cpu")
+    assert cpu["finding_type"] == "process_cpu_pressure_with_profile"
+    assert cpu["facts"]["profile_artifacts"] == ["java_flamegraph_html"]
+    assert cpu["missing_evidence"] == ["结构化 Profile TopN"]
 
 
 @pytest.fixture(autouse=True)
@@ -114,6 +141,41 @@ def test_missing_target_anchor_does_not_expand_to_other_service(client: TestClie
     assert data["child_task_ids"] == []
 
 
+def test_worker_does_not_advance_or_spam_human_gate_sessions(client: TestClient):
+    from sqlalchemy import func, select
+
+    from server.app.database import new_session
+    from server.app.models import DiagnosisEventModel, DiagnosisSessionModel
+
+    payload = _payload()
+    payload["context"]["instances"][0]["service_id"] = "service-b"
+    payload["context"]["instances"][0]["instance_id"] = "service-b-1"
+    data = client.post("/api/v1/diagnoses", json=payload).json()["data"]
+    diagnosis_id = data["diagnosis_id"]
+
+    with new_session() as session:
+        before = session.scalar(select(func.count()).select_from(DiagnosisEventModel))
+        before_session = session.get(DiagnosisSessionModel, diagnosis_id)
+        before_version = before_session.row_version
+        before_updated_at = before_session.updated_at
+    diagnosis_orchestrator.advance_active()
+    diagnosis_orchestrator.advance_active()
+    with new_session() as session:
+        after = session.scalar(select(func.count()).select_from(DiagnosisEventModel))
+        after_session = session.get(DiagnosisSessionModel, diagnosis_id)
+        failures = session.scalar(
+            select(func.count()).select_from(DiagnosisEventModel).where(
+                DiagnosisEventModel.diagnosis_id == diagnosis_id,
+                DiagnosisEventModel.event_type == "advance_failed",
+            )
+        )
+
+    assert after == before
+    assert after_session.row_version == before_version
+    assert after_session.updated_at == before_updated_at
+    assert failures == 0
+
+
 def test_zero_probe_budget_ends_explicitly(client: TestClient):
     payload = _payload()
     payload["budget"] = {"max_total_probe_cpu_seconds": 0}
@@ -189,6 +251,37 @@ def test_root_location_and_domain_cause_are_independent():
     assert result["root_location"]["type"] == "downstream"
     assert result["domain_cause"]["type"] == "network"
     assert "linux.cpu.process_pressure" not in cluster_finding(result)["knowledge_ids"]
+
+
+def test_cpu_intent_prevents_incidental_memory_pressure_from_stealing_domain():
+    scope = {"target_service": "a", "downstream_service_ids": [], "same_host_instance_ids": []}
+    observations = [{
+        "target": {"service_id": "a", "instance_id": "a1"},
+        "facts": {"process_cpu_core_usage": 1.4, "vmrss_mb": 2200},
+        "top_function": {"name": "compute_hotspot", "percent": 58},
+        "pressure": {"cpu": True, "memory": True},
+        "evidence_refs": ["ev-cpu", "ev-rss"],
+    }]
+
+    result = assess_cluster(scope, observations, symptom="cpu_saturation")
+
+    assert result["domain_cause"]["type"] == "cpu"
+    assert result["domain_cause"]["subtype"] == "process_cpu_pressure"
+
+
+def test_memory_intent_still_prefers_memory_when_cpu_is_also_busy():
+    scope = {"target_service": "a", "downstream_service_ids": [], "same_host_instance_ids": []}
+    observations = [{
+        "target": {"service_id": "a", "instance_id": "a1"},
+        "facts": {"process_cpu_core_usage": 1.1, "vmrss_mb": 2600, "vmrss_trend": "increasing"},
+        "top_function": {"name": "allocator", "percent": 45},
+        "pressure": {"cpu": True, "memory": True},
+        "evidence_refs": ["ev-cpu", "ev-memory"],
+    }]
+
+    result = assess_cluster(scope, observations, symptom="memory_pressure")
+
+    assert result["domain_cause"]["type"] == "memory"
 
 
 def test_verifier_detects_rendered_command_tampering():
@@ -308,6 +401,24 @@ def test_remote_artifact_falls_back_to_object_storage_when_agent_path_is_missing
     assert value == {"avg_cpu_user_pct": 88.0}
 
 
+def test_runtime_flamegraph_is_imported_as_semantic_profile_evidence():
+    artifacts = diagnosis_orchestrator._structured_artifacts([{
+        "artifact_type": "java_flamegraph_html",
+        "content_type": "text/html",
+        "object_key": "tasks/task-java/java_flamegraph.html",
+        "size_bytes": 57094,
+        "metadata": {"schema_version": "java_async.v1", "event": "cpu"},
+    }])
+
+    assert len(artifacts) == 1
+    artifact_type, value, _ = artifacts[0]
+    assert artifact_type == "java_flamegraph_html"
+    assert value["benchmark_evidence_tags"] == [
+        "profile_hot_function", "target_cpu_profile",
+    ]
+    assert value["metadata"]["schema_version"] == "java_async.v1"
+
+
 def test_existing_structured_evidence_uses_legal_transition_and_completes(client: TestClient):
     task_id = client.post("/api/tasks", json={
         "name": "reusable-sys-metrics",
@@ -412,7 +523,7 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
     repo.transition_task(task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
     repo.transition_task(task_id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
     repo.transition_task(task_id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
-    repo.add_artifacts(task_id, [{
+    artifact_ids = repo.add_artifacts(task_id, [{
         "artifact_type": "sys_metrics",
         "object_key": f"tasks/{task_id}/sys_metrics.json",
         "metadata": {
@@ -422,6 +533,8 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
             },
         },
     }])
+    for artifact_id in artifact_ids:
+        repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
     repo.transition_task(task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
 
 
@@ -442,6 +555,97 @@ def _normal_summary() -> dict:
         "net_rx_kbps": 10,
         "net_tx_kbps": 10,
     }
+
+
+def _completed_baseline_task(*, pid: int = 1234):
+    task = repo.create_task(CreateTaskRequest(
+        name="controlled pre-incident baseline",
+        agent_id="a1",
+        target_pid=pid,
+        collector_type="sys_metrics",
+        sample_rate=10,
+        duration_sec=5,
+    ))
+    _finish_sys_metrics_task(task.id, _normal_summary())
+    return repo.tasks[task.id]
+
+
+def _aware(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
+def test_explicit_baseline_task_is_bound_as_immutable_baseline_snapshot(client: TestClient):
+    baseline = _completed_baseline_task()
+    incident_start = _aware(baseline.finished_at) + timedelta(seconds=1)
+    payload = _payload()
+    payload["context"]["time_range"] = {
+        "start": incident_start.isoformat(),
+        "end": (incident_start + timedelta(minutes=5)).isoformat(),
+        "source": "request_context",
+    }
+    payload["baseline_task_ids"] = [baseline.id]
+
+    response = client.post("/api/v1/diagnoses", json=payload)
+    assert response.status_code == 200, response.json()
+    detail = response.json()["data"]
+    baseline_snapshots = [
+        item for item in detail["evidence_snapshots"]
+        if item["evidence_role"] == "baseline"
+    ]
+    assert len(baseline_snapshots) == 1
+    assert baseline_snapshots[0]["task_id"] == baseline.id
+    assert detail["baseline_snapshot_id"] == baseline_snapshots[0]["snapshot_id"]
+    assert all(
+        item["evidence_role"] == "baseline"
+        for item in detail["evidence"]
+        if item["derived_artifact_ref"] in {
+            f"task:{baseline.id}",
+            f"tasks/{baseline.id}/sys_metrics.json",
+        }
+    )
+
+
+def test_baseline_task_from_another_target_is_rejected(client: TestClient):
+    baseline = _completed_baseline_task(pid=9999)
+    incident_start = _aware(baseline.finished_at) + timedelta(seconds=1)
+    payload = _payload()
+    payload["context"]["time_range"] = {
+        "start": incident_start.isoformat(),
+        "end": (incident_start + timedelta(minutes=5)).isoformat(),
+        "source": "request_context",
+    }
+    payload["baseline_task_ids"] = [baseline.id]
+
+    response = client.post("/api/v1/diagnoses", json=payload)
+    assert response.status_code == 400, response.json()
+    assert "目标与诊断范围不一致" in response.json()["detail"]
+
+
+def test_task_inside_incident_window_cannot_be_claimed_as_baseline(client: TestClient):
+    baseline = _completed_baseline_task()
+    finished_at = _aware(baseline.finished_at)
+    incident_start = finished_at - timedelta(seconds=1)
+    payload = _payload()
+    payload["context"]["time_range"] = {
+        "start": incident_start.isoformat(),
+        "end": (finished_at + timedelta(minutes=5)).isoformat(),
+        "source": "request_context",
+    }
+    payload["baseline_task_ids"] = [baseline.id]
+
+    response = client.post("/api/v1/diagnoses", json=payload)
+    assert response.status_code == 400, response.json()
+    assert "不在事故时间窗之前" in response.json()["detail"]
+
+
+def test_baseline_binding_requires_explicit_incident_window(client: TestClient):
+    baseline = _completed_baseline_task()
+    payload = _payload()
+    payload["baseline_task_ids"] = [baseline.id]
+
+    response = client.post("/api/v1/diagnoses", json=payload)
+    assert response.status_code == 400, response.json()
+    assert "显式提供事故 time_range" in response.json()["detail"]
 
 
 def test_stable_rss_and_fd_near_observed_max_are_not_pressure():
@@ -576,6 +780,14 @@ class TestDiagnosisSessionAPI:
         evidence_ids = {item["evidence_id"] for item in detail["evidence"]}
         assert set(candidate["evidence_refs"]).issubset(evidence_ids)
         assert all(item["integrity_hash"].startswith("sha256:") for item in detail["evidence"])
+        assert len(detail["evidence_snapshots"]) == 1
+        snapshot = detail["evidence_snapshots"][0]
+        assert snapshot["evidence_role"] == "incident"
+        assert snapshot["task_id"] == task_id
+        assert set(snapshot["evidence_refs"]) == evidence_ids
+        assert snapshot["time_range"]["start"]
+        assert snapshot["time_range"]["end"]
+        assert snapshot["integrity_hash"].startswith("sha256:")
         assert all(item["status"] != "WAITING_APPROVAL" for item in detail["probes"])
         assert len(detail["pipeline_nodes"]) == 12
         assert detail["latest_conclusion"]["verification"]["status"] == "passed"
@@ -604,6 +816,9 @@ class TestDiagnosisSessionAPI:
         assert any(item["status"] == "SUPPORTED" for item in graph["hypotheses"])
         assert all(len(item["history"]) >= 2 for item in graph["hypotheses"])
         assert all("evidence_score" in item for item in graph["hypotheses"])
+        assert graph["open_world_state"] in {"EXPLORING", "EXPLAINED"}
+        assert set(graph["unexplained_evidence_refs"]).issubset(evidence_ids)
+        assert set(graph["new_hypothesis_request"]["evidence_refs"]).issubset(evidence_ids)
 
     def test_analysis_strategy_is_persisted_and_changes_probe_plan(self, client: TestClient):
         decision_tree = _payload()
@@ -647,6 +862,82 @@ class TestDiagnosisSessionAPI:
         assert detail["status"] == "INSUFFICIENT_EVIDENCE"
         assert detail["latest_conclusion"]["confidence_level"] == "不可判断"
 
+    def test_staging_falsification_round_requires_approval_and_recalculates(self, client: TestClient):
+        payload = _payload()
+        payload["budget_profile"] = "staging"
+        data = client.post("/api/v1/diagnoses", json=payload).json()["data"]
+
+        first_task_id = data["child_task_ids"][0]
+        cpu_hot = _normal_summary()
+        cpu_hot.update({
+            "avg_cpu_user_pct": 91.0,
+            "avg_cpu_sys_pct": 5.0,
+            "load1m": 10.0,
+        })
+        _finish_sys_metrics_task(first_task_id, cpu_hot)
+
+        waiting = client.get(f"/api/v1/diagnoses/{data['diagnosis_id']}").json()["data"]
+        assert waiting["status"] == "WAITING_APPROVAL"
+        assert waiting["budget_used"]["analysis_rounds"] == 1
+        assert len(waiting["conclusion_versions"]) == 1
+        falsification = next(
+            probe for probe in waiting["probes"]
+            if probe["evidence_purpose"] == "FALSIFY"
+        )
+        assert falsification["probe_id"] == "process_cpu_profile"
+        assert falsification["round_index"] == 2
+        assert falsification["task_id"] is None
+
+        approved = client.post(
+            f"/api/v1/diagnoses/{data['diagnosis_id']}/approvals",
+            json={
+                "step_id": falsification["step_id"],
+                "decision": "approve",
+                "approver_id": "operator-1",
+            },
+        ).json()["data"]
+        deep_task_id = next(
+            probe["task_id"] for probe in approved["probes"]
+            if probe["step_id"] == falsification["step_id"]
+        )
+        assert deep_task_id
+
+        repo.transition_task(deep_task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
+        repo.transition_task(deep_task_id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
+        repo.transition_task(deep_task_id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
+        repo.add_artifacts(deep_task_id, [{
+            "artifact_type": "top_json",
+            "object_key": f"tasks/{deep_task_id}/top.json",
+            "metadata": {
+                "data": [
+                    {"name": "service_a.hot_loop", "samples": 900, "percent": 90.0},
+                    {"name": "runtime.scheduler", "samples": 100, "percent": 10.0},
+                ],
+            },
+        }])
+        repo.transition_task(deep_task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
+
+        completed = client.get(
+            f"/api/v1/diagnoses/{data['diagnosis_id']}"
+        ).json()["data"]
+        assert completed["status"] == "COMPLETED"
+        assert completed["budget_used"]["analysis_rounds"] == 2
+        assert completed["budget_used"]["falsification_probes"] == 1
+        assert len(completed["conclusion_versions"]) == 2
+        assert completed["latest_conclusion"]["cluster_assessment"]["classification"] == (
+            "self_code_or_process_pressure"
+        )
+        event_types = [event["event_type"] for event in completed["events"]]
+        assert "falsification_round_planned" in event_types
+        assert event_types.count("diagnosis_round_completed") == 2
+        assert "diagnosis_stop_condition_met" in event_types
+        metrics = client.get("/api/metrics").text
+        assert "mini_drop_ai_diagnosis_rounds_total" in metrics
+        assert (
+            'mini_drop_ai_diagnosis_stop_conditions_total'
+            '{reason="max_diagnosis_rounds_reached"}'
+        ) in metrics
+
     def test_unknown_fields_are_rejected(self, client: TestClient):
         payload = _payload()
         payload["context"]["shell"] = "rm -rf /"
@@ -675,6 +966,7 @@ class TestDiagnosisSessionAPI:
         assert detail["resource_budget"]["max_hosts"] == 5
         assert detail["resource_budget"]["max_parallel_probes"] == 3
         assert detail["resource_budget"]["max_medium_risk_probes"] == 1
+        assert detail["resource_budget"]["max_diagnosis_rounds"] == 1
 
     def test_probe_registry_exposes_no_shell_command(self, client: TestClient):
         probes = client.get("/api/v1/probes").json()["data"]

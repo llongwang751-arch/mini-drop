@@ -9,8 +9,10 @@ from sqlalchemy import or_
 
 from server.app.database import new_session
 from server.app.models import (
+    ContinuousDiagnosisTriggerModel,
     DiagnosisEventModel,
     DiagnosisEvidenceModel,
+    DiagnosisEvidenceSnapshotModel,
     DiagnosisNodeRunModel,
     DiagnosisOutboxModel,
     DiagnosisSessionModel,
@@ -25,6 +27,32 @@ def utcnow() -> datetime:
 
 
 class DiagnosisStore:
+    def list_continuous_triggers(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        """Return profiler anomaly promotions, newest first."""
+        session = new_session()
+        try:
+            rows = (
+                session.query(ContinuousDiagnosisTriggerModel)
+                .order_by(ContinuousDiagnosisTriggerModel.created_at.desc())
+                .offset(max(offset, 0))
+                .limit(min(max(limit, 1), 1000))
+                .all()
+            )
+            return [row.to_dict() for row in rows]
+        finally:
+            session.close()
+
+    def count_continuous_triggers(self) -> int:
+        session = new_session()
+        try:
+            return session.query(ContinuousDiagnosisTriggerModel).count()
+        finally:
+            session.close()
+
     def create_topology_snapshot(self, snapshot: dict[str, Any]) -> None:
         session = new_session()
         try:
@@ -75,6 +103,9 @@ class DiagnosisStore:
                 updated_at=now,
             )
             session.add(model)
+            # PostgreSQL 会严格检查子表外键；先显式写入父会话，再在同一事务
+            # 中写事件和流水线节点。SQLite 默认外键关闭，测试环境曾掩盖此问题。
+            session.flush()
             session.add(DiagnosisEventModel(
                 diagnosis_id=model.id,
                 event_type="diagnosis_created",
@@ -243,6 +274,7 @@ class DiagnosisStore:
             "hypothesis_graph": "hypothesis_graph_json",
             "child_task_ids": "child_task_ids_json",
             "conclusion_versions": "conclusion_versions_json",
+            "baseline_snapshot_id": "baseline_snapshot_id",
             "status": "status",
             "lease_owner": "lease_owner",
             "lease_until": "lease_until",
@@ -415,6 +447,8 @@ class DiagnosisStore:
                 status=probe["status"],
                 task_id=probe.get("task_id"),
                 requires_approval=1 if probe.get("requires_approval") else 0,
+                evidence_purpose=probe.get("evidence_purpose", "VERIFY"),
+                round_index=int(probe.get("round_index", 1)),
                 created_at=now,
                 updated_at=now,
             )
@@ -568,6 +602,60 @@ class DiagnosisStore:
         finally:
             session.close()
 
+    def add_evidence_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        """Append one immutable snapshot; deterministic IDs make retries idempotent."""
+        session = new_session()
+        try:
+            existing = session.get(DiagnosisEvidenceSnapshotModel, snapshot["snapshot_id"])
+            if existing is not None:
+                return existing.to_dict()
+            model = DiagnosisEvidenceSnapshotModel(
+                id=snapshot["snapshot_id"],
+                diagnosis_id=snapshot["diagnosis_id"],
+                round_index=int(snapshot.get("round_index", 1)),
+                evidence_role=snapshot.get("evidence_role", "incident"),
+                captured_at=snapshot.get("captured_at", utcnow()),
+                time_range_json=snapshot.get("time_range", {}),
+                target_json=snapshot.get("target", {}),
+                workload_identity_json=snapshot.get("workload_identity", {}),
+                deployment_version=snapshot.get("deployment_version"),
+                host_fingerprint_json=snapshot.get("host_fingerprint", {}),
+                collector=snapshot["collector"],
+                collector_version=snapshot.get("collector_version"),
+                task_id=snapshot.get("task_id"),
+                attempt_id=snapshot.get("attempt_id"),
+                evidence_refs_json=snapshot.get("evidence_refs", []),
+                artifact_refs_json=snapshot.get("artifact_refs", []),
+                baseline_ref=snapshot.get("baseline_ref"),
+                quality_json=snapshot.get("quality", {}),
+                integrity_hash=snapshot["integrity_hash"],
+                created_at=snapshot.get("created_at", utcnow()),
+            )
+            session.add(model)
+            session.commit()
+            return model.to_dict()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def list_evidence_snapshots(self, diagnosis_id: str) -> list[dict[str, Any]]:
+        session = new_session()
+        try:
+            rows = (
+                session.query(DiagnosisEvidenceSnapshotModel)
+                .filter(DiagnosisEvidenceSnapshotModel.diagnosis_id == diagnosis_id)
+                .order_by(
+                    DiagnosisEvidenceSnapshotModel.round_index.asc(),
+                    DiagnosisEvidenceSnapshotModel.captured_at.asc(),
+                )
+                .all()
+            )
+            return [row.to_dict() for row in rows]
+        finally:
+            session.close()
+
     def get_topology(self, snapshot_id: str | None) -> dict[str, Any] | None:
         if not snapshot_id:
             return None
@@ -611,6 +699,7 @@ class DiagnosisStore:
             "error_code": probe.get("error_code"),
         } for probe in item["probes"]]
         item["evidence"] = self.list_evidence(diagnosis_id)
+        item["evidence_snapshots"] = self.list_evidence_snapshots(diagnosis_id)
         pipeline_nodes = self.list_pipeline_nodes(diagnosis_id)
         if not pipeline_nodes:
             # create_all 只会创建新表；为升级前的历史会话补一组明确标记的节点，

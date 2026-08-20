@@ -6,6 +6,11 @@
 # 生产环境应评估是否可使用 ambient capabilities 替代 root。
 FROM python:3.11-slim
 
+RUN sed -i \
+    -e 's|deb.debian.org/debian|mirrors.aliyun.com/debian|g' \
+    -e 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' \
+    /etc/apt/sources.list.d/debian.sources
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     bpftrace \
@@ -14,12 +19,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     perl \
     && rm -rf /var/lib/apt/lists/*
 
+COPY deploy/vendor/async-profiler-4.4-linux-x64.tar.gz /tmp/async-profiler.tar.gz
+RUN set -eux; \
+    echo "1233f26fc95753e75ce32733bbcaf8f0bedc2c098b0e798af87935b08a63b24e  /tmp/async-profiler.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/async-profiler; \
+    tar -xzf /tmp/async-profiler.tar.gz --strip-components=1 -C /opt/async-profiler; \
+    ln -s /opt/async-profiler/bin/asprof /usr/local/bin/asprof; \
+    rm /tmp/async-profiler.tar.gz; \
+    asprof --version
+
+ENV ASYNC_PROFILER_HOME=/opt/async-profiler
+
 WORKDIR /app
-COPY pyproject.toml README.md ./
+COPY pyproject.toml ./
+RUN python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies'],'grpcio-tools>=1.80,<1.81'])"
+
+COPY README.md ./
 COPY server/ ./server/
 COPY agent/ ./agent/
 COPY analyzer/ ./analyzer/
-RUN pip install --no-cache-dir -e . "grpcio-tools>=1.80,<1.81"
+RUN pip install --no-cache-dir --no-deps --no-build-isolation -e .
 
 COPY proto/ ./proto/
 RUN cd proto && bash compile.sh

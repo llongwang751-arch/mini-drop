@@ -24,7 +24,7 @@ service Hotmethod {
 message TaskDesc {
   string task_id         = 1;  // 全局唯一任务 ID
   uint32 task_type       = 2;  // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
-  uint32 profiler_type   = 3;  // 采集工具: 0=perf 1=async-profiler(Java) 2=pprof(Go) 3=py-spy 4=bpftrace
+  uint32 profiler_type   = 3;  // 采集工具: 0=perf 1=async-profiler 2=pprof 3=py-spy 4=bpftrace 5=smaps 6=sys-metrics 7=continuous-perf
   RecordArgv sample_argv = 4;  // 采集参数
   string container_name  = 5;  // 容器/Pod 名称（非容器场景为空）
   uint32 container_type  = 6;  // 容器运行时类型

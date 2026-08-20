@@ -96,6 +96,21 @@ def _labels_key(labels: dict[str, str] | None) -> str:
 REGISTRY = MetricsRegistry()
 
 
+def record_schedule_fire(status: str = "fired") -> None:
+    """Record a schedule firing attempt (counter)."""
+    REGISTRY.counter_inc("mini_drop_schedule_fires_total", {"status": status})
+
+
+def record_composite_created(strategy: str) -> None:
+    """Record a composite task creation by strategy (counter)."""
+    REGISTRY.counter_inc("mini_drop_composite_tasks_total", {"strategy": strategy})
+
+
+def record_composite_status(status: str) -> None:
+    """Record a composite status aggregation (counter)."""
+    REGISTRY.counter_inc("mini_drop_composite_status_total", {"status": status})
+
+
 def record_http_request(method: str, path: str, status_code: int, latency_ms: float) -> None:
     """记录一次 HTTP 请求指标。"""
     REGISTRY.counter_inc("mini_drop_http_requests_total", {"method": method, "status": str(status_code)})
@@ -126,3 +141,97 @@ def set_agent_count(online: int, offline: int) -> None:
 def set_task_count_by_status(status: str, count: int) -> None:
     """设置各状态任务数。"""
     REGISTRY.gauge_set("mini_drop_tasks_by_status", float(count), {"status": status})
+
+
+def record_analysis_job(status: str, analyzer_type: str) -> None:
+    """记录持久化 Analyzer Job 的生命周期。"""
+
+    REGISTRY.counter_inc(
+        "mini_drop_analysis_jobs_total",
+        {"status": status, "analyzer_type": analyzer_type},
+    )
+
+
+def observe_analysis_job_duration(duration_seconds: float) -> None:
+    REGISTRY.histogram_observe(
+        "mini_drop_analysis_job_duration_seconds",
+        max(0.0, duration_seconds),
+    )
+
+
+def record_evidence_decision(
+    decision: str,
+    collector_type: str,
+    artifact_type: str,
+) -> None:
+    """记录 AI 证据通过、受限或拒绝的原因分布。"""
+
+    REGISTRY.counter_inc(
+        "mini_drop_ai_evidence_decisions_total",
+        {
+            "decision": decision,
+            "collector_type": collector_type,
+            "artifact_type": artifact_type,
+        },
+    )
+
+
+def set_analysis_job_count(status: str, analyzer_type: str, count: int) -> None:
+    """Expose DB-backed job state so separate Worker processes stay visible."""
+
+    REGISTRY.gauge_set(
+        "mini_drop_analysis_jobs_by_status",
+        float(count),
+        {"status": status, "analyzer_type": analyzer_type},
+    )
+
+
+def record_golden_evaluation(report: dict[str, Any]) -> None:
+    """记录一次确定性的 Golden 诊断质量门禁结果。"""
+
+    dataset_version = str(report.get("dataset_version", "unknown"))
+    gate_status = str(report.get("gate_status", "UNKNOWN"))
+    metrics = report.get("metrics", {})
+    labels = {"dataset_version": dataset_version}
+    REGISTRY.counter_inc(
+        "mini_drop_ai_golden_evaluations_total",
+        {"dataset_version": dataset_version, "gate_status": gate_status},
+    )
+    REGISTRY.gauge_set(
+        "mini_drop_ai_golden_gate_passed",
+        1.0 if gate_status == "PASSED" else 0.0,
+        labels,
+    )
+    for metric_name in (
+        "scenario_pass_rate",
+        "classification_accuracy",
+        "evidence_reference_integrity",
+        "falsification_plan_rate",
+    ):
+        if metric_name in metrics:
+            REGISTRY.gauge_set(
+                f"mini_drop_ai_golden_{metric_name}",
+                float(metrics[metric_name]),
+                labels,
+            )
+
+
+def record_diagnosis_round(round_index: int, falsification_probes: int) -> None:
+    """记录一次完成的诊断分析轮次。"""
+
+    REGISTRY.counter_inc(
+        "mini_drop_ai_diagnosis_rounds_total",
+        {
+            "round_index": str(round_index),
+            "has_falsification": "true" if falsification_probes > 0 else "false",
+        },
+    )
+
+
+def record_diagnosis_stop_condition(reason: str) -> None:
+    """记录诊断循环停止原因，便于发现预算过紧或探针覆盖不足。"""
+
+    REGISTRY.counter_inc(
+        "mini_drop_ai_diagnosis_stop_conditions_total",
+        {"reason": reason},
+    )

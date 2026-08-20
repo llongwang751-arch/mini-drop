@@ -1,9 +1,10 @@
-"""
-Mini-Drop HTTP API 入口。
+"""Mini-Drop HTTP API 入口。
 
-启动 FastAPI 服务（端口 8191），同时在后台线程运行 gRPC server（端口 50051）。
-两者共享同一个 SqlRepository 实例——Agent 通过 gRPC 上报的数据，
-Web 通过 HTTP API 即时可见。
+生产部署中，本模块只承载 HTTP API。Agent gRPC 控制面和诊断推进循环分别由
+``server.app.grpc_main``、``server.app.diagnosis_worker`` 独立运行。
+
+为兼容单进程开发和现有测试，可通过 ``MINI_DROP_EMBED_GRPC=1`` 与
+``MINI_DROP_EMBED_MAINTENANCE=1`` 恢复旧的内嵌运行方式。
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ from __future__ import annotations
 import server.app._env  # noqa: F401 — 自动加载 .env
 
 import json as _json_mod
+import hashlib
 import os
 import secrets
 import time
@@ -25,6 +27,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 import asyncio
 import json as _json
 import queue as _queue
+import threading
 from typing import Optional
 
 from server.app.common_utils import status_value
@@ -32,48 +35,127 @@ from server.app.ai_provider import get_ai_settings
 from server.app.ai_validation import AIValidationBusy, run_ai_validation_suite
 from server.app.database import init_db, new_session
 from server.app.event_bus import BUS, notify_diagnosis_complete
-from server.app.prometheus_metrics import record_diagnosis, record_http_request, REGISTRY
+from server.app.prometheus_metrics import (
+    REGISTRY,
+    record_diagnosis,
+    record_golden_evaluation,
+    record_http_request,
+    set_analysis_job_count,
+)
 from server.app.grpc_server import serve_in_background
 from server.app.logging_utils import log_event
 from server.app.nlp.intent_parser import parse_intent
 from server.app.nlp.process_resolver import resolve_pid
 from server.app.nlp.summarizer import summarize, suggest_followup
 from server.app.diagnosis import DiagnosisOrchestrator
+from server.app.diagnosis.eval_harness import run_evaluation as run_golden_evaluation
+from server.app.diagnosis.evaluation_runs import create_evaluation_run, get_evaluation_run
+from server.app.diagnosis.campaign_runs import get_campaign_manager
+from server.app.diagnosis.benchmark_catalog import load_benchmark_catalog
+from server.app.diagnosis.benchmark_runner import build_run_plan
+from server.app.diagnosis.external_benchmark import (
+    ExternalBenchmarkUnavailable,
+    external_benchmark_case,
+    external_benchmark_summary,
+)
 from server.app.diagnosis.probe_registry import list_probes as list_registered_probes
 from server.app.diagnosis.schemas import ApprovalRequest, CreateDiagnosisRequest
 from server.app.rca.report import run_diagnosis_context
 from server.app.schemas import (
     APIResponse,
+    CancelTaskRequest,
+    CompositeTaskRequest,
     CreateTaskRequest,
     MAX_SAMPLE_RATE,
     MAX_TASK_DURATION_SEC,
     RCAFeedbackRequest,
+    ScheduleRequest,
     TaskView,
 )
 from server.app.sql_repository import SqlRepository
+from server.app.state_machine import Actor
 from server.app import storage as store
+from server.app.drop_insight.router import router as drop_insight_router
+from server.app.drop_insight.service import (
+    get_diagnosis as get_drop_insight_diagnosis,
+    list_diagnoses as list_drop_insight_diagnoses,
+)
+from server.app.diagnostic_case_adapter import (
+    adapt_cluster_diagnosis,
+    adapt_drop_insight,
+    adapt_legacy_rca,
+    merge_diagnostic_cases,
+)
 
 repo = SqlRepository()
 diagnosis_orchestrator = DiagnosisOrchestrator(repo)
 
 
+def _production_fail_closed_check() -> None:
+    """Refuse to start in production with insecure defaults (assessment §3.4)."""
+    if os.getenv("MINI_DROP_ENV", "development").lower() != "production":
+        return
+    cors = os.getenv("MINI_DROP_CORS_ORIGINS", "http://localhost:5173")
+    if "*" in [part.strip() for part in cors.split(",")]:
+        raise RuntimeError(
+            "生产模式禁止 CORS 通配符 (*)：请显式设置 MINI_DROP_CORS_ORIGINS"
+        )
+    if not _env_bool("MINI_DROP_API_AUTH_ENABLED", False):
+        raise RuntimeError(
+            "生产模式要求启用认证：MINI_DROP_API_AUTH_ENABLED=true"
+        )
+    gateway_token = os.getenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "").strip()
+    if gateway_token in {"", "mini-drop-internal-dev"}:
+        raise RuntimeError("生产模式要求配置非默认 MINI_DROP_INTERNAL_GATEWAY_TOKEN")
+
+
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
-    """应用生命周期：启动时拉起 gRPC，关闭时停止。"""
+    """应用生命周期：默认兼容旧单进程模式，生产由环境变量关闭内嵌组件。"""
+    _production_fail_closed_check()
     init_db()
+    # Probe the AI provider's structured-output capabilities once at startup
+    # (assessment §4.6). No-op when AI is disabled or no key is configured.
+    try:
+        from server.app.ai_provider import preflight_provider
+
+        preflight_provider()
+    except Exception:
+        pass
     if os.getenv("MINIO_AUTO_CREATE_BUCKET", "0") == "1":
         _ensure_minio_bucket_with_retry(os.getenv("MINIO_BUCKET", "mini-drop"))
-    _grpc = serve_in_background(repo)
-    _offline_task = asyncio.create_task(_offline_sweeper())
+    grpc_server = serve_in_background(repo) if _env_bool("MINI_DROP_EMBED_GRPC", True) else None
+    maintenance_task = (
+        asyncio.create_task(_offline_sweeper())
+        if _env_bool("MINI_DROP_EMBED_MAINTENANCE", True)
+        else None
+    )
+    outbox_thread = None
+    if _env_bool("MINI_DROP_OUTBOX_DISPATCH_ENABLED", False):
+        # Consume this server's own transactional outbox: task.created events
+        # are fanned out to SSE subscribers (guide §9.6 real downstream).
+        from server.app.outbox_dispatcher import event_bus_deliver, run_worker
+
+        outbox_thread = threading.Thread(
+            target=run_worker,
+            args=(repo,),
+            kwargs={"poll_seconds": 2.0},
+            daemon=True,
+        )
+        outbox_thread.start()
     try:
         yield
     finally:
-        _offline_task.cancel()
-        try:
-            await _offline_task
-        except asyncio.CancelledError:
-            pass
-        _grpc.stop(grace=None).wait(timeout=5)
+        if maintenance_task is not None:
+            maintenance_task.cancel()
+            try:
+                await maintenance_task
+            except asyncio.CancelledError:
+                pass
+        if outbox_thread is not None:
+            outbox_thread.join(timeout=5)
+        if grpc_server is not None:
+            grpc_server.stop(grace=None).wait(timeout=5)
 
 
 async def _offline_sweeper() -> None:
@@ -85,6 +167,10 @@ async def _offline_sweeper() -> None:
             repo.persist_agent_metric_snapshots()
         diagnosis_orchestrator.advance_active()
         await asyncio.sleep(interval_sec)
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    return os.getenv(name, str(int(default))).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _ensure_minio_bucket_with_retry(bucket: str) -> None:
@@ -115,6 +201,7 @@ def _ensure_minio_bucket_with_retry(bucket: str) -> None:
 
 
 app = FastAPI(title="Mini-Drop Server", version="0.1.0", lifespan=_lifespan)
+app.include_router(drop_insight_router)
 
 # CORS 中间件：允许前端跨域开发访问
 app.add_middleware(
@@ -169,9 +256,40 @@ async def _access_log(request: Request, call_next):
 
 @app.middleware("http")
 async def _api_key_auth(request: Request, call_next):
+    request.state.authenticated_principal = "local-anonymous"
     if _requires_api_auth(request):
+        gateway_token = os.getenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", "").strip()
+        provided_gateway_token = request.headers.get("x-mini-drop-gateway-token", "").strip()
+        trusted_gateway = bool(
+            gateway_token
+            and provided_gateway_token
+            and secrets.compare_digest(provided_gateway_token, gateway_token)
+        )
+        if trusted_gateway:
+            principal = request.headers.get("x-mini-drop-principal", "").strip()
+            if not principal:
+                return JSONResponse(status_code=401, content={"detail": "可信网关未提供 Principal"})
+            request.state.authenticated_principal = principal
+            request.state.authenticated_roles = _split_trusted_scope_header(
+                request.headers.get("x-mini-drop-roles", "")
+            )
+            request.state.authenticated_agent_scope = _split_trusted_scope_header(
+                request.headers.get("x-mini-drop-agent-scope", "")
+            )
+            request.state.authenticated_service_scope = _split_trusted_scope_header(
+                request.headers.get("x-mini-drop-service-scope", "")
+            )
+            request.state.authenticated_environment_scope = _split_trusted_scope_header(
+                request.headers.get("x-mini-drop-environment-scope", "")
+            )
+            return await call_next(request)
         expected = os.getenv("MINI_DROP_API_KEY", "")
         token = _extract_api_token(request)
+        if token:
+            fingerprint = hashlib.sha256(token.encode("utf-8")).hexdigest()[:16]
+            request.state.authenticated_principal = f"api-key:{fingerprint}"
+        if not expected and gateway_token:
+            return JSONResponse(status_code=401, content={"detail": "无效可信网关凭证"})
         if not expected:
             return JSONResponse(
                 status_code=500,
@@ -180,6 +298,10 @@ async def _api_key_auth(request: Request, call_next):
         if not token or not secrets.compare_digest(token, expected):
             return JSONResponse(status_code=401, content={"detail": "无效 API Key"})
     return await call_next(request)
+
+
+def _split_trusted_scope_header(value: str) -> tuple[str, ...]:
+    return tuple(part.strip() for part in value.split(",") if part.strip())
 
 
 def _task_view(record) -> TaskView:
@@ -194,6 +316,8 @@ def _task_view(record) -> TaskView:
         duration_sec=record.duration_sec,
         status=status_value(record.status),
         status_reason=record.status_reason,
+        collection_status=getattr(record, "collection_status", None) or "QUEUED",
+        analysis_status=getattr(record, "analysis_status", None) or "NOT_STARTED",
         request_params=record.request_params,
         created_at=record.created_at,
         started_at=record.started_at,
@@ -278,7 +402,17 @@ def prometheus_metrics() -> Any:
     无需鉴权（抓取时 Prometheus 通常不带自定义 header）。
     """
     from fastapi.responses import PlainTextResponse
+    for status, analyzer_type, count in repo.analysis_job_counts():
+        set_analysis_job_count(status, analyzer_type, count)
     return PlainTextResponse(content=REGISTRY.generate(), media_type="text/plain; charset=utf-8")
+
+
+@app.get("/api/top-processes")
+def top_processes_api(limit: int = 20) -> APIResponse:
+    """宿主顶层进程（供采集预设选忙 PID）。需要 server 容器 pid: host。"""
+    from server.app.process_discovery import top_processes
+
+    return APIResponse(data={"items": top_processes(limit)})
 
 
 @app.get("/api/healthz")
@@ -377,7 +511,10 @@ def auth_set_cookie(request: Request, body: dict) -> APIResponse:
         value=api_key,
         httponly=True,
         samesite="lax",
-        secure=False,  # 开发环境 HTTP；生产环境应设为 True 配合 HTTPS
+        secure=(
+            os.getenv("MINI_DROP_ENV", "development").strip().lower() == "production"
+            or _env_bool("MINI_DROP_COOKIE_SECURE", False)
+        ),
         max_age=7 * 24 * 3600,  # 7 天
         path="/api",
     )
@@ -436,7 +573,7 @@ def list_audit_logs(
 
 
 @app.post("/api/tasks")
-def create_task(payload: CreateTaskRequest) -> APIResponse:
+def create_task(payload: CreateTaskRequest, request: Request) -> APIResponse:
     if payload.target_pid <= 0:
         raise HTTPException(status_code=400, detail="target_pid 必须为正整数")
     if payload.target_pid > 4194304:  # Linux pid_max 上限
@@ -449,11 +586,30 @@ def create_task(payload: CreateTaskRequest) -> APIResponse:
         raise HTTPException(status_code=400, detail="sample_rate 必须为正整数")
     if payload.sample_rate > MAX_SAMPLE_RATE:
         raise HTTPException(status_code=400, detail=f"sample_rate 不能超过 {MAX_SAMPLE_RATE}")
+    idempotency_key = _read_idempotency_key(request)
+    creator_id = getattr(request.state, "authenticated_principal", None) or "python-api"
     try:
-        task = repo.create_task(payload)
+        task = repo.create_task(
+            payload,
+            idempotency_key=idempotency_key,
+            creator_id=creator_id,
+        )
     except ValueError as exc:
+        if "Idempotency-Key" in str(exc):
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    # A replayed request returns the SAME task_id; the replay is observable
+    # through the idempotent (creator_id, idempotency_key) lookup.
     return APIResponse(data={"task_id": task.id, "status": status_value(task.status)})
+
+
+def _read_idempotency_key(request: Request) -> str | None:
+    key = (request.headers.get("Idempotency-Key") or "").strip()
+    if not key:
+        return None
+    if len(key) < 8 or len(key) > 128 or any(ch.isspace() for ch in key):
+        raise HTTPException(status_code=400, detail="Idempotency-Key 格式不合法")
+    return key
 
 
 @app.get("/api/tasks")
@@ -489,6 +645,41 @@ def list_tasks(
     return APIResponse(data={"items": page, "total": total, "offset": offset, "limit": limit})
 
 
+@app.get("/api/analysis-jobs")
+def list_analysis_jobs(
+    task_id: str | None = None,
+    status: str | None = None,
+    limit: int = 100,
+) -> APIResponse:
+    """返回独立 Analyzer 执行记录，便于观察租约、重试和失败原因。"""
+
+    jobs = repo.list_analysis_jobs(task_id=task_id, status=status, limit=limit)
+    return APIResponse(data=[job.to_dict() for job in jobs])
+
+
+@app.get("/api/analysis-jobs/{job_id}")
+def get_analysis_job(job_id: str) -> APIResponse:
+    job = repo.get_analysis_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="分析任务不存在")
+    return APIResponse(data=job.to_dict())
+
+
+@app.post("/api/analysis-jobs/{job_id}/replay")
+def replay_analysis_job(job_id: str) -> APIResponse:
+    """人工重放死信或待重试分析任务。"""
+
+    try:
+        job = repo.replay_analysis_job(job_id)
+    except ValueError as exc:
+        message = str(exc)
+        raise HTTPException(
+            status_code=404 if "不存在" in message else 409,
+            detail=message,
+        ) from exc
+    return APIResponse(data=job.to_dict())
+
+
 @app.get("/api/tasks/{task_id}")
 def get_task(task_id: str) -> APIResponse:
     task = repo.tasks.get(task_id)
@@ -497,9 +688,28 @@ def get_task(task_id: str) -> APIResponse:
     return APIResponse(data=_task_view(task).model_dump())
 
 
+@app.post("/api/tasks/{task_id}/cancel")
+def cancel_task(task_id: str, payload: CancelTaskRequest) -> APIResponse:
+    """Cancel a queued or running task; a running Agent receives it via heartbeat."""
+    task = repo.tasks.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    try:
+        cancelled = repo.cancel_task(task_id, payload.reason.strip(), Actor.WEB)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return APIResponse(
+        data={
+            "task_id": task_id,
+            "status": status_value(cancelled.status),
+            "reason": cancelled.status_reason,
+        }
+    )
+
+
 @app.delete("/api/tasks/{task_id}")
 def delete_task(task_id: str) -> APIResponse:
-    """删除任务及其关联的事件、产物和诊断结果。"""
+    """归档终态任务；事件、产物和 AI 诊断证据继续保留。"""
     task = repo.tasks.get(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="任务不存在")
@@ -521,6 +731,14 @@ def get_task_events(task_id: str) -> APIResponse:
     if task_id not in repo.tasks:
         raise HTTPException(status_code=404, detail="任务不存在")
     items = [repo.as_dict(e) for e in repo.events if e.task_id == task_id]
+    return APIResponse(data=items)
+
+
+@app.get("/api/tasks/{task_id}/attempts")
+def get_task_attempts(task_id: str) -> APIResponse:
+    if task_id not in repo.tasks:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    items = [repo.as_dict(item) for item in repo.get_task_attempts(task_id)]
     return APIResponse(data=items)
 
 
@@ -589,15 +807,186 @@ def download_task_artifact(task_id: str, artifact_type: str, index: Optional[int
     raise HTTPException(status_code=404, detail="产物不存在")
 
 
-@app.get("/api/storage/presign")
-def presign_url(bucket: str = "mini-drop", key: str = "", expires: int = 3600) -> APIResponse:
-    """生成 MinIO 预签名下载 URL。"""
-    key = _validate_presign_request(bucket, key)
+# ── Schedule / Cron（指南 §3.9）─────────────────────────────────
+
+
+@app.post("/api/schedules")
+def create_schedule(payload: ScheduleRequest) -> APIResponse:
+    """Create a cron schedule over an immutable task template."""
     try:
-        url = store.presigned_get_url(bucket, key, expires)
+        model = repo.create_schedule(
+            name=payload.name,
+            cron_expression=payload.cron_expression,
+            timezone=payload.timezone,
+            task_template=payload.task_template,
+            enabled=payload.enabled,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return APIResponse(data={"url": url, "expires_sec": expires})
+    return APIResponse(data=_schedule_view(model))
+
+
+@app.get("/api/schedules")
+def list_schedules() -> APIResponse:
+    return APIResponse(data={"items": [_schedule_view(m) for m in repo.list_schedules()]})
+
+
+@app.put("/api/schedules/{schedule_id}")
+def update_schedule(schedule_id: str, payload: ScheduleRequest) -> APIResponse:
+    try:
+        model = repo.update_schedule(
+            schedule_id,
+            name=payload.name,
+            cron_expression=payload.cron_expression,
+            timezone=payload.timezone,
+            task_template=payload.task_template,
+            enabled=payload.enabled,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if model is None:
+        raise HTTPException(status_code=404, detail="计划不存在")
+    return APIResponse(data=_schedule_view(model))
+
+
+@app.delete("/api/schedules/{schedule_id}")
+def delete_schedule(schedule_id: str) -> APIResponse:
+    if not repo.delete_schedule(schedule_id):
+        raise HTTPException(status_code=404, detail="计划不存在")
+    return APIResponse(data={"deleted": True, "schedule_id": schedule_id})
+
+
+@app.post("/api/schedules/{schedule_id}/trigger")
+def trigger_schedule(schedule_id: str) -> APIResponse:
+    """Fire a schedule immediately (manual trigger), then advance it."""
+    schedule = repo.get_schedule(schedule_id)
+    if schedule is None:
+        raise HTTPException(status_code=404, detail="计划不存在")
+    from server.app.cron import next_schedule_fire
+
+    now = _now_utc()
+    next_run = next_schedule_fire(schedule.cron_expression, schedule.timezone, now)
+    try:
+        task = repo.fire_schedule(
+            schedule,
+            scheduled_at=now,
+            next_run_at=next_run,
+            payload=CreateTaskRequest(**schedule.task_template_json),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)[:300]) from exc
+    return APIResponse(data={"task_id": task.id, "next_run_at": next_run})
+
+
+@app.get("/api/schedules/{schedule_id}/records")
+def list_schedule_records(schedule_id: str) -> APIResponse:
+    records = repo.list_schedule_records(schedule_id)
+    return APIResponse(data={"items": [{
+        "id": r.id,
+        "schedule_id": r.schedule_id,
+        "scheduled_at": r.scheduled_at,
+        "task_id": r.task_id,
+        "status": r.status,
+        "error_message": r.error_message,
+        "created_at": r.created_at,
+    } for r in records]})
+
+
+def _schedule_view(model) -> dict:
+    return {
+        "id": model.id,
+        "name": model.name,
+        "cron_expression": model.cron_expression,
+        "timezone": model.timezone,
+        "task_template": model.task_template_json or {},
+        "enabled": bool(model.enabled),
+        "next_run_at": model.next_run_at,
+        "created_at": model.created_at,
+    }
+
+
+def _now_utc():
+    from server.app.state_machine import now_utc
+
+    return now_utc()
+
+
+# ── Composite Task / DAG（指南 §3.8）─────────────────────────────
+
+
+@app.post("/api/composite-tasks")
+def create_composite_task(payload: CompositeTaskRequest) -> APIResponse:
+    try:
+        model = repo.create_composite_task(
+            name=payload.name,
+            strategy=payload.strategy,
+            children=[
+                {
+                    "task_template": child.task_template,
+                    "role": child.role,
+                }
+                for child in payload.children
+            ],
+            required_success_count=payload.required_success_count,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)[:300]) from exc
+    status = repo.aggregate_composite(model.id)
+    return APIResponse(data=_composite_view(model, status=status))
+
+
+@app.get("/api/composite-tasks")
+def list_composite_tasks() -> APIResponse:
+    return APIResponse(data={"items": [
+        _composite_view(m) for m in repo.list_composite_tasks()
+    ]})
+
+
+@app.get("/api/composite-tasks/{composite_id}")
+def get_composite_task(composite_id: str) -> APIResponse:
+    model = repo.get_composite_task(composite_id)
+    if model is None:
+        raise HTTPException(status_code=404, detail="复合任务不存在")
+    items = repo.list_composite_items(composite_id)
+    return APIResponse(data=_composite_view(model, items=items))
+
+
+@app.post("/api/composite-tasks/{composite_id}/aggregate")
+def aggregate_composite_task(composite_id: str) -> APIResponse:
+    status = repo.aggregate_composite(composite_id)
+    if status is None:
+        raise HTTPException(status_code=404, detail="复合任务不存在")
+    return APIResponse(data={"composite_id": composite_id, "status": status})
+
+
+@app.post("/api/composite-tasks/{composite_id}/cancel")
+def cancel_composite_task(composite_id: str) -> APIResponse:
+    model = repo.cancel_composite_task(composite_id)
+    if model is None:
+        raise HTTPException(status_code=404, detail="复合任务不存在")
+    return APIResponse(data=_composite_view(model))
+
+
+def _composite_view(model, *, items: list | None = None, status: str | None = None) -> dict:
+    return {
+        "id": model.id,
+        "name": model.name,
+        "strategy": model.strategy,
+        "required_success_count": model.required_success_count,
+        "status": status or model.status,
+        "created_at": model.created_at,
+        "items": [
+            {
+                "id": item.id,
+                "task_id": item.task_id,
+                "role": item.role,
+                "sort_order": item.sort_order,
+                "status": item.status,
+                "error_message": item.error_message,
+            }
+            for item in (items or [])
+        ],
+    }
 
 
 @app.post("/api/tasks/{task_id}/diagnose")
@@ -644,9 +1033,20 @@ def diagnose_task(task_id: str) -> APIResponse:
             error_message=tool_result.error_message,
         )
 
+    report_doc = report.report.model_dump()
+    report_doc["verification"] = _verify_legacy_report(report, outcome.tool_results)
+    # Persist the trust layers alongside the report so the detail endpoint can
+    # show generation mode / validation level instead of a single `validated`.
+    report_doc["generation_mode"] = report.generation_mode
+    report_doc["schema_validated"] = report.schema_validated
+    report_doc["reference_validated"] = report.reference_validated
+    report_doc["semantic_validated"] = report.semantic_validated
+    report_doc["model_invoked"] = report.model_invoked
+    report_doc["fallback_reason"] = report.fallback_reason
+
     report_id = repo.add_diagnosis_report(
         diagnosis_id=diagnosis_id,
-        report_json=report.report.model_dump(),
+        report_json=report_doc,
         ranked_causes=ranked_causes,
         confidence=confidence,
         not_enough_evidence=report.report.not_enough_evidence,
@@ -669,12 +1069,22 @@ def diagnose_task(task_id: str) -> APIResponse:
             status=outcome.repair_plan.status,
         )
 
-    diag_status = "DONE" if report.validated else "FAILED"
+    report_generated = (
+        report.generation_mode != "MODEL_FAILED"
+        and report.schema_validated
+        and report.reference_validated
+    )
+    trusted = (
+        report_generated
+        and report.semantic_validated
+        and not report.report.not_enough_evidence
+    )
+    diag_status = "DONE" if report_generated else "FAILED"
     repo.finish_diagnosis_run(
         diagnosis_id=diagnosis_id,
         status=diag_status,
         summary=report.report.summary,
-        validated=report.validated,
+        validated=trusted,
         retry_count=report.retry_count,
     )
     record_diagnosis(diag_status)
@@ -686,14 +1096,50 @@ def diagnose_task(task_id: str) -> APIResponse:
         "report_id": report_id,
         "task_id": task_id,
         "model": report.model_name,
-        "validated": report.validated,
+        "validated": trusted,
+        # Trust transparency (assessment §4.2): expose the generation mode and
+        # each validation layer so the frontend never equates "format valid"
+        # with "semantically trustworthy".
+        "generation_mode": report.generation_mode,
+        "schema_validated": report.schema_validated,
+        "reference_validated": report.reference_validated,
+        "semantic_validated": report.semantic_validated,
+        "model_invoked": report.model_invoked,
+        "fallback_reason": report.fallback_reason,
+        "validation_issues": report.validation_issues,
         "summary": report.report.summary,
         "ranked_causes": ranked_causes,
         "facts": report.report.facts,
         "not_enough_evidence": report.report.not_enough_evidence,
         "tool_results": [item.model_dump() for item in outcome.tool_results],
         "repair_plan": repair_plan_data,
+        "verification": report_doc.get("verification"),
     })
+
+
+def _verify_legacy_report(report, tool_results) -> dict:
+    """Run deterministic Claim-Evidence verification over a legacy RCA report.
+
+    The legacy model may rank causes, but every accepted claim is re-checked
+    against the resolved evidence document. Failures are recorded per claim so
+    a report cannot claim numbers the evidence does not contain; any hard error
+    degrades to an explicit UNVERIFIED marker instead of crashing the endpoint.
+    """
+    from server.app.drop_insight.claim_verifier import verify_legacy_report_claims
+
+    evidence_document = {
+        "tool_results": [item.model_dump() for item in tool_results]
+    }
+    try:
+        return verify_legacy_report_claims(report.report, evidence_document)
+    except Exception:
+        return {
+            "status": "UNVERIFIED",
+            "claims": [],
+            "rejected_claims": [],
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": False,
+        }
 
 
 @app.get("/api/tasks/{task_id}/diagnoses")
@@ -756,6 +1202,23 @@ def list_diagnosis_sessions(limit: int = 100, offset: int = 0) -> APIResponse:
     })
 
 
+@app.get("/api/v1/continuous-diagnosis-triggers")
+def list_continuous_diagnosis_triggers(
+    limit: int = 100,
+    offset: int = 0,
+) -> APIResponse:
+    """Expose continuous-profile anomaly promotions for audit and UI."""
+    limit = min(max(limit, 1), 1000)
+    offset = max(offset, 0)
+    store = diagnosis_orchestrator.store
+    return APIResponse(data={
+        "items": store.list_continuous_triggers(limit=limit, offset=offset),
+        "total": store.count_continuous_triggers(),
+        "offset": offset,
+        "limit": limit,
+    })
+
+
 @app.get("/api/v1/diagnoses/{diagnosis_id}")
 def get_diagnosis_session(diagnosis_id: str) -> APIResponse:
     data = diagnosis_orchestrator.get(diagnosis_id, advance=True)
@@ -778,6 +1241,158 @@ def approve_diagnosis_probe(diagnosis_id: str, payload: ApprovalRequest) -> APIR
 @app.get("/api/v1/probes")
 def list_probe_definitions() -> APIResponse:
     return APIResponse(data=[probe.model_dump(mode="json") for probe in list_registered_probes()])
+
+
+@app.get("/api/v1/diagnosis-evaluations/golden")
+def evaluate_golden_diagnosis_suite() -> APIResponse:
+    """离线执行版本化 Golden 场景，作为 AI 诊断发布前质量门禁。"""
+
+    report = run_golden_evaluation()
+    record_golden_evaluation(report)
+    return APIResponse(data=report)
+
+
+@app.post("/api/v1/diagnosis-evaluations/golden-runs")
+def start_observable_golden_evaluation() -> APIResponse:
+    """启动可观察 Golden 评测，供页面逐场景展示诊断与核验过程。"""
+
+    return APIResponse(data=create_evaluation_run())
+
+
+@app.get("/api/v1/diagnosis-evaluations/golden-runs/{run_id}")
+def read_observable_golden_evaluation(run_id: str) -> APIResponse:
+    run = get_evaluation_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Golden evaluation run not found")
+    return APIResponse(data=run)
+
+
+@app.get("/api/v1/diagnosis-evaluations/catalog")
+def get_diagnosis_benchmark_catalog() -> APIResponse:
+    """返回所有诊断策略共享的版本化测试集目录。"""
+
+    return APIResponse(data=load_benchmark_catalog())
+
+
+@app.get("/api/v1/diagnosis-evaluations/external")
+def get_external_diagnosis_benchmark() -> APIResponse:
+    """Expose the installed shared benchmark and its completed run summaries.
+
+    Private Oracle data is not returned from this catalog endpoint.  It is
+    revealed only in the per-case evaluator view after a historical diagnosis
+    run is selected, preserving the public/private benchmark boundary.
+    """
+
+    try:
+        return APIResponse(data=external_benchmark_summary())
+    except ExternalBenchmarkUnavailable as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/diagnosis-evaluations/external/cases/{case_id}")
+def get_external_diagnosis_benchmark_case(case_id: str) -> APIResponse:
+    """Return one completed benchmark case with evaluator-only Oracle data."""
+
+    try:
+        return APIResponse(data=external_benchmark_case(case_id, reveal_oracle=True))
+    except ExternalBenchmarkUnavailable as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="external benchmark case not found") from exc
+
+
+@app.get("/api/v1/diagnosis-campaigns/scenarios")
+def list_diagnosis_campaign_scenarios() -> APIResponse:
+    """Return real, allow-listed fault scenarios available to the Web UI."""
+
+    return APIResponse(data={"items": get_campaign_manager(repo).scenarios()})
+
+
+@app.post("/api/v1/diagnosis-campaigns/runs")
+def start_diagnosis_campaign(payload: dict | None = None) -> APIResponse:
+    """Start a real fault campaign; execution continues in an observable worker."""
+
+    scenario_id = (payload or {}).get("scenario_id", "LIVE-CPU-001")
+    strategy = (payload or {}).get("strategy", "CONSTRAINED_HYBRID")
+    try:
+        run = get_campaign_manager(repo).create(str(scenario_id), str(strategy))
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return APIResponse(data=run)
+
+
+@app.get("/api/v1/diagnosis-campaigns/runs/{run_id}")
+def get_diagnosis_campaign(run_id: str) -> APIResponse:
+    """Read Campaign stages, snapshots, linked task, Oracle comparison and cleanup."""
+
+    run = get_campaign_manager(repo).get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Campaign 不存在")
+    return APIResponse(data=run)
+
+
+@app.get("/api/v1/diagnosis-evaluations/plan")
+def get_diagnosis_benchmark_plan(
+    repetitions: int | None = None,
+) -> APIResponse:
+    """生成三种 AI 路径共用同一测试集和 Oracle 的可复现实验计划。"""
+
+    try:
+        return APIResponse(data=build_run_plan(repetitions=repetitions))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/diagnostic-cases")
+def list_diagnostic_cases(limit: int = 100, offset: int = 0) -> APIResponse:
+    """统一读取 v1/v2 会话；旧接口和旧存储保持不变。"""
+
+    safe_limit = max(1, min(limit, 500))
+    safe_offset = max(0, offset)
+    cluster_items = diagnosis_orchestrator.list(limit=500, offset=0)
+    insight_items = [item.to_dict() for item in list_drop_insight_diagnoses()]
+    legacy_items = repo.list_diagnoses(limit=500, offset=0)
+    return APIResponse(
+        data=merge_diagnostic_cases(
+            cluster_items,
+            insight_items,
+            legacy_items=legacy_items,
+            limit=safe_limit,
+            offset=safe_offset,
+        )
+    )
+
+
+@app.get("/api/diagnostic-cases/{case_id}")
+def get_diagnostic_case(case_id: str) -> APIResponse:
+    """按来源读取统一案例详情，不触发旧会话迁移或状态推进。"""
+
+    if case_id.startswith("insight_"):
+        insight = get_drop_insight_diagnosis(case_id)
+        if insight is not None:
+            return APIResponse(
+                data=adapt_drop_insight(insight.to_dict(), include_native=True)
+            )
+        legacy = repo.get_diagnosis(case_id)
+        if legacy is None:
+            raise HTTPException(status_code=404, detail="diagnostic case not found")
+        return APIResponse(data=adapt_legacy_rca(legacy, include_native=True))
+
+    cluster = diagnosis_orchestrator.store.get_detail(case_id)
+    if cluster is None:
+        # 兼容未来不再使用 insight_ 前缀的 v2 会话。
+        insight = get_drop_insight_diagnosis(case_id)
+        if insight is not None:
+            return APIResponse(
+                data=adapt_drop_insight(insight.to_dict(), include_native=True)
+            )
+        legacy = repo.get_diagnosis(case_id)
+        if legacy is None:
+            raise HTTPException(status_code=404, detail="diagnostic case not found")
+        return APIResponse(data=adapt_legacy_rca(legacy, include_native=True))
+    return APIResponse(
+        data=adapt_cluster_diagnosis(cluster, include_native=True)
+    )
 
 
 def _extract_artifact_json(artifacts: list[dict], artifact_type: str) -> dict | None:
@@ -887,10 +1502,11 @@ def nlp_parse_intent(body: dict) -> APIResponse:
         raise HTTPException(status_code=400, detail="query 不能超过 500 字符")
 
     intent = parse_intent(query)
-    candidates = resolve_pid(intent.process_name)
+    candidates = [] if intent.target_pid else resolve_pid(intent.process_name)
 
     return APIResponse(data={
         "process_name": intent.process_name,
+        "selected_pid": intent.target_pid,
         "collector_type": intent.collector_type,
         "duration_sec": intent.duration_sec,
         "sample_rate": intent.sample_rate,

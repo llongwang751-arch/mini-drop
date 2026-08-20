@@ -15,6 +15,7 @@ from analyzer.mini_drop_analyzer.hotmethod_analyzer import (
     _load_output_dir,
     _match_rules,
     _parse_top,
+    _perf_script,
 )
 
 # 模拟折叠栈文本
@@ -59,6 +60,36 @@ class TestParseTop:
         top = _parse_top(collapsed)
         # func_a, func_b, func_c 共 3 个独立函数名
         assert len(top) == 3
+
+
+def test_perf_script_omits_event_period_so_sample_count_is_observation_count(
+    tmp_path, monkeypatch
+):
+    perf_data = tmp_path / "perf.data"
+    perf_data.write_bytes(b"perf")
+    output = tmp_path / "perf.script.txt"
+    captured = {}
+
+    monkeypatch.setattr(
+        "analyzer.mini_drop_analyzer.hotmethod_analyzer.shutil.which",
+        lambda name: "/usr/bin/perf",
+    )
+
+    def fake_run(command, **kwargs):
+        captured["command"] = command
+        return mock.Mock(returncode=0)
+
+    monkeypatch.setattr(
+        "analyzer.mini_drop_analyzer.hotmethod_analyzer.subprocess.run",
+        fake_run,
+    )
+
+    ok, error = _perf_script(perf_data, output)
+
+    assert ok is True
+    assert error == ""
+    fields = captured["command"][captured["command"].index("-F") + 1]
+    assert "period" not in fields
 
 
 class TestFlameTree:

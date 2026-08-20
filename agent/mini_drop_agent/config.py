@@ -36,6 +36,8 @@ class AgentConfig:
     minio_access_key: str = ""
     minio_secret_key: str = ""
     minio_bucket: str = "mini-drop"
+    result_outbox_dir: str = "/var/lib/mini-drop-agent/outbox"
+    result_outbox_max_entries: int = 256
 
 
 def load_config() -> AgentConfig:
@@ -51,6 +53,12 @@ def load_config() -> AgentConfig:
         minio_access_key=os.getenv("MINIO_ACCESS_KEY", ""),
         minio_secret_key=os.getenv("MINIO_SECRET_KEY", ""),
         minio_bucket=os.getenv("MINIO_BUCKET", "mini-drop"),
+        result_outbox_dir=os.getenv(
+            "AGENT_RESULT_OUTBOX_DIR", "/var/lib/mini-drop-agent/outbox"
+        ),
+        result_outbox_max_entries=_env_int(
+            "AGENT_RESULT_OUTBOX_MAX_ENTRIES", 256, min_val=1, max_val=10000
+        ),
     )
 
 

@@ -85,9 +85,13 @@ def run_diagnosis_context(
     task_events: list[dict] | None = None,
     agent_record=None,
     repo=None,
-    auto_execute_safe: bool = True,
+    auto_execute_safe: bool = False,
 ) -> DiagnosisOutcome:
-    """执行带工具证据和修复计划的完整诊断。"""
+    """执行带工具证据和修复计划的完整诊断。
+
+    Legacy RCA 默认只生成建议，不再自动创建采集任务。所有生产副作用
+    统一由 Drop Insight v2 的策略、审批和工具调用链负责。
+    """
     model = model_name or get_ai_settings().model
 
     tool_results = run_rca_tools(

@@ -53,6 +53,8 @@ class AnalysisStrategy(str, Enum):
 class EvidenceRole(str, Enum):
     INCIDENT = "incident"
     BASELINE = "baseline"
+    PEER = "peer"
+    VERIFICATION = "verification"
     REPRODUCTION = "reproduction"
     TOPOLOGY = "topology"
 
@@ -65,6 +67,15 @@ TERMINAL_DIAGNOSIS_STATUSES = {
     DiagnosisStatus.TOPOLOGY_UNAVAILABLE.value,
     DiagnosisStatus.USER_CANCELED.value,
     DiagnosisStatus.FAILED.value,
+}
+
+# These states intentionally wait for a person. Background workers and read
+# requests must not acquire/release a lease for them, otherwise every poll
+# increments row_version and rewrites updated_at even though no diagnosis work
+# happened.
+HUMAN_GATE_DIAGNOSIS_STATUSES = {
+    DiagnosisStatus.NEEDS_SCOPE_CONFIRMATION.value,
+    DiagnosisStatus.WAITING_APPROVAL.value,
 }
 
 
@@ -93,6 +104,7 @@ class ServiceInstance(StrictModel):
     process_start_time: Optional[int] = Field(default=None, ge=0)
     boot_id: Optional[str] = Field(default=None, max_length=128)
     environment: str = Field(default="unknown", min_length=1, max_length=64)
+    runtime: Literal["java", "python", "go", "native", "unknown"] = "unknown"
 
 
 class DependencyEdge(StrictModel):
@@ -132,6 +144,8 @@ class DiagnosisBudget(StrictModel):
     max_model_calls: int = Field(default=6, ge=0, le=30)
     max_medium_risk_probes: int = Field(default=1, ge=0, le=5)
     max_total_probe_cpu_seconds: int = Field(default=120, ge=0, le=3600)
+    # 1 表示首轮证据足够时即可结束；staging/development 可提高后进入反证轮。
+    max_diagnosis_rounds: int = Field(default=1, ge=1, le=5)
 
 
 class EvaluationOracle(StrictModel):
@@ -169,6 +183,7 @@ class CreateDiagnosisRequest(StrictModel):
     analysis_strategy: AnalysisStrategy = AnalysisStrategy.CONSTRAINED_HYBRID
     evidence_time_policy: EvidenceTimePolicy = Field(default_factory=EvidenceTimePolicy)
     evaluation_oracle: Optional[EvaluationOracle] = None
+    baseline_task_ids: list[str] = Field(default_factory=list, max_length=20)
 
 
 class ApprovalRequest(StrictModel):
@@ -231,6 +246,8 @@ class ProbePlan(StrictModel):
     reason: str
     risk_level: Literal["R0", "R1", "R2", "R3"]
     requires_approval: bool
+    evidence_purpose: Literal["VERIFY", "SUPPORT", "FALSIFY"] = "VERIFY"
+    round_index: int = Field(default=1, ge=1, le=5)
 
 
 class ActionTarget(StrictModel):
@@ -262,6 +279,7 @@ class DiagnosisAction(StrictModel):
     auto_execute: Literal[False] = False
     execution_policy: Literal["human_review_required"] = "human_review_required"
     evidence_refs: list[str] = Field(default_factory=list)
+    evidence_purpose: Literal["VERIFY", "SUPPORT", "FALSIFY"] = "VERIFY"
     confidence_level: Literal["高", "中", "低", "不可判断"] = "不可判断"
 
     @model_validator(mode="after")

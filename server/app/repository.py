@@ -7,6 +7,7 @@ gRPC 服务和 HTTP API 共享同一个 Repository 实例。
 
 from __future__ import annotations
 
+import json
 import threading
 from collections import deque
 from dataclasses import asdict, dataclass, field
@@ -15,6 +16,7 @@ from typing import Any
 from uuid import uuid4
 
 from server.app.schemas import AgentRegistration, CreateTaskRequest
+from server.app.artifact_integrity import prepare_artifact
 from server.app.prometheus_metrics import record_task_transition
 from server.app.state_machine import (
     Actor,
@@ -66,6 +68,21 @@ class TaskRecord:
 
 
 @dataclass
+class TaskAttemptRecord:
+    id: str
+    task_id: str
+    attempt_no: int
+    agent_id: str
+    status: TaskStatus
+    reason: str
+    created_at: datetime
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    lease_expires_at: datetime | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class AuditLog:
     """审计事件。Agent 上下线和任务创建/失败时写入。"""
 
@@ -82,12 +99,24 @@ class AuditLog:
 # ---------------------------------------------------------------------------
 
 
+def _same_task_request(a: dict, b: dict) -> bool:
+    """Canonical JSON equality (key order independent)."""
+    if a is None or b is None:
+        return a == b
+    return json.dumps(a, sort_keys=True, default=str) == json.dumps(
+        b, sort_keys=True, default=str
+    )
+
+
 class InMemoryRepository:
     """线程安全的内存存储实现。"""
 
     def __init__(self) -> None:
         self.agents: dict[str, AgentRecord] = {}
         self.tasks: dict[str, TaskRecord] = {}
+        # (creator_id, idempotency_key) -> {"task_id", "params"} replay guard.
+        self._idempotency: dict[tuple[str, str], dict] = {}
+        self.task_attempts: dict[str, list[TaskAttemptRecord]] = {}
         self.events: list[StatusEvent] = []
         self.audit_logs: list[AuditLog] = []
         self.artifacts: dict[str, list[dict[str, Any]]] = {}
@@ -213,8 +242,28 @@ class InMemoryRepository:
     # Task
     # ------------------------------------------------------------------
 
-    def create_task(self, payload: CreateTaskRequest) -> TaskRecord:
-        """创建任务，写入 PENDING 状态，加入对应 Agent IP 的队列。"""
+    def create_task(
+        self,
+        payload: CreateTaskRequest,
+        *,
+        idempotency_key: str | None = None,
+        creator_id: str | None = None,
+    ) -> TaskRecord:
+        """创建任务，写入 PENDING 状态，加入对应 Agent IP 的队列。
+
+        Honors (creator_id, idempotency_key) replay like the SQL repository so
+        the gRPC Control entry is idempotent (guide §6.12).
+        """
+        if idempotency_key and creator_id:
+            cached = self._idempotency.get((creator_id, idempotency_key))
+            if cached is not None:
+                existing = self.tasks.get(cached["task_id"])
+                if existing is not None:
+                    if _same_task_request(cached["params"], payload.model_dump()):
+                        return existing
+                    raise ValueError(
+                        f"Idempotency-Key 已用于不同参数的请求: {idempotency_key}"
+                    )
         with self._lock:
             timestamp = now_utc()
             hex_suffix = uuid4().hex[:6]
@@ -261,6 +310,12 @@ class InMemoryRepository:
                     self._task_queues[ip] = deque()
                 self._task_queues[ip].append(task_id)
 
+            if idempotency_key and creator_id:
+                self._idempotency[(creator_id, idempotency_key)] = {
+                    "task_id": task_id,
+                    "params": payload.model_dump(),
+                }
+
             return task
 
     def get_task_by_diagnosis_step_id(self, step_id: str) -> TaskRecord | None:
@@ -290,11 +345,73 @@ class InMemoryRepository:
             record_task_transition(task.status.value, to_status.value)
             task.status = to_status
             task.status_reason = reason
-            if to_status == TaskStatus.RUNNING and task.started_at is None:
-                task.started_at = now_utc()
-            if to_status in (TaskStatus.DONE, TaskStatus.FAILED):
+            if to_status == TaskStatus.RUNNING:
+                if task.started_at is None:
+                    task.started_at = now_utc()
+                attempts = self.task_attempts.setdefault(task_id, [])
+                started_at = now_utc()
+                attempts.append(TaskAttemptRecord(
+                    id=f"attempt_{uuid4().hex}",
+                    task_id=task_id,
+                    attempt_no=len(attempts) + 1,
+                    agent_id=task.agent_id,
+                    status=TaskStatus.RUNNING,
+                    reason=reason,
+                    created_at=started_at,
+                    started_at=started_at,
+                    lease_expires_at=started_at + timedelta(seconds=task.duration_sec + 30),
+                    metadata=metadata or {},
+                ))
+            elif self.task_attempts.get(task_id):
+                attempt = self.task_attempts[task_id][-1]
+                attempt.status = to_status
+                attempt.reason = reason
+                attempt.metadata.update(metadata or {})
+                if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
+                    attempt.finished_at = now_utc()
+            if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
                 task.finished_at = now_utc()
             return task
+
+    def cancel_task(
+        self,
+        task_id: str,
+        reason: str,
+        actor: Actor = Actor.WEB,
+    ) -> TaskRecord:
+        """Cancel an active task and record both status and audit evidence."""
+        with self._lock:
+            if task_id not in self.tasks:
+                raise ValueError(f"任务不存在: {task_id}")
+            task = self.tasks[task_id]
+            event = build_status_event(
+                task_id,
+                task.status,
+                TaskStatus.CANCELLED,
+                reason,
+                actor,
+                {"previous_status": task.status.value},
+            )
+            self.events.append(event)
+            record_task_transition(task.status.value, TaskStatus.CANCELLED.value)
+            task.status = TaskStatus.CANCELLED
+            task.status_reason = reason
+            task.finished_at = now_utc()
+            if self.task_attempts.get(task_id):
+                attempt = self.task_attempts[task_id][-1]
+                attempt.status = TaskStatus.CANCELLED
+                attempt.reason = reason
+                attempt.finished_at = now_utc()
+            self._append_audit(
+                event_type="TASK_CANCELLED",
+                task_id=task_id,
+                message=f"任务 {task_id} 已取消",
+                metadata={"reason": reason, "actor": actor.value},
+            )
+            return task
+
+    def get_task_attempts(self, task_id: str) -> list[TaskAttemptRecord]:
+        return list(self.task_attempts.get(task_id, []))
 
     def get_task(self, task_id: str) -> TaskRecord | None:
         """按 ID 查询任务。"""
@@ -319,7 +436,8 @@ class InMemoryRepository:
     def add_artifacts(self, task_id: str, artifacts: list[dict[str, Any]]) -> None:
         """追加采集产物元数据。"""
         with self._lock:
-            self.artifacts.setdefault(task_id, []).extend(artifacts)
+            prepared = [prepare_artifact(task_id, item) for item in artifacts]
+            self.artifacts.setdefault(task_id, []).extend(prepared)
 
     def get_artifacts(self, task_id: str) -> list[dict[str, Any]]:
         """查询产物列表。"""
@@ -355,6 +473,6 @@ class InMemoryRepository:
 
     def as_dict(self, value: Any) -> dict[str, Any]:
         """将数据类或枚举转换为纯 dict。"""
-        if isinstance(value, (AgentRecord, TaskRecord, AuditLog, StatusEvent)):
+        if isinstance(value, (AgentRecord, TaskRecord, TaskAttemptRecord, AuditLog, StatusEvent)):
             return asdict(value)
         return value

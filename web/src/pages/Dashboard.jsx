@@ -28,6 +28,7 @@ import {
   ClockCircleOutlined,
   ExperimentOutlined,
   DeleteOutlined,
+  StopOutlined,
   SearchOutlined,
   SortAscendingOutlined,
   ExclamationCircleOutlined,
@@ -37,7 +38,7 @@ import {
   HddOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { healthz, listAgents, listTasks, deleteTask } from "../api/client";
+import { healthz, listAgents, listTasks, deleteTask, cancelTask } from "../api/client";
 import NLPTaskInput from "../components/NLPTaskInput";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
@@ -157,34 +158,71 @@ export default function Dashboard() {
   // ── 删除任务 ──────────────────────────────────────────
 
   const [deleting, setDeleting] = useState("");
+  const [cancelling, setCancelling] = useState("");
 
-  const handleDeleteTask = useCallback((task) => {
+  const handleCancelTask = useCallback((task) => {
     Modal.confirm({
-      title: "确认删除任务？",
+      title: "停止采集任务？",
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
-          <p>将删除以下任务及其火焰图、事件、诊断结果：</p>
+          <p>系统会把任务标记为 CANCELLED，并通过心跳通知 Agent 终止采集进程。</p>
+          <p><strong>{task.name || task.id}</strong></p>
+        </div>
+      ),
+      okText: "确认停止",
+      okType: "danger",
+      cancelText: "继续运行",
+      onOk: async () => {
+        try {
+          setCancelling(task.id);
+          await cancelTask(task.id);
+          notification.success({
+            message: "已发送停止指令",
+            description: `任务 ${task.name || task.id} 已进入 CANCELLED`,
+            placement: "bottomRight",
+          });
+          refresh();
+        } catch (err) {
+          notification.error({
+            message: "停止任务失败",
+            description: err.message,
+            placement: "bottomRight",
+          });
+        } finally {
+          setCancelling("");
+        }
+      },
+    });
+  }, [refresh]);
+
+  const handleDeleteTask = useCallback((task) => {
+    Modal.confirm({
+      title: "确认归档任务？",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <div>
+          <p>任务将从默认列表隐藏，但火焰图、状态事件、审计日志和 AI 诊断证据继续保留：</p>
           <p><strong>{task.name || task.id}</strong></p>
           <p style={{ color: "#999", fontSize: 12 }}>
             PID: {task.target_pid} · {task.collector_type} · {new Date(task.created_at).toLocaleString()}
           </p>
-          <p style={{ color: "#ff4d4f", fontSize: 12 }}>
-            仅 DONE/FAILED 终态任务可删除，此操作不可撤销。
+          <p style={{ color: "#d48806", fontSize: 12 }}>
+            仅 DONE / FAILED / CANCELLED 终态任务可归档。
           </p>
         </div>
       ),
-      okText: "确认删除",
+      okText: "确认归档",
       okType: "danger",
       cancelText: "取消",
       onOk: async () => {
         try {
           setDeleting(task.id);
           await deleteTask(task.id);
-          notification.success({ message: "删除成功", description: `任务 ${task.name || task.id} 已删除`, placement: "bottomRight", duration: 3 });
+          notification.success({ message: "归档成功", description: `任务 ${task.name || task.id} 已归档，证据仍保留`, placement: "bottomRight", duration: 3 });
           refresh();
         } catch (err) {
-          notification.error({ message: "删除失败", description: err.message, placement: "bottomRight", duration: 5 });
+          notification.error({ message: "归档失败", description: err.message, placement: "bottomRight", duration: 5 });
         } finally {
           setDeleting("");
         }
@@ -288,10 +326,14 @@ export default function Dashboard() {
         },
       },
       {
-        title: "状态",
-        dataIndex: "status",
-        width: 110,
-        render: (value) => <StatusTag status={value} />,
+        title: "采集 / 分析",
+        width: 190,
+        render: (_, record) => (
+          <Space size={4} wrap>
+            <StatusTag status={record.collection_status || record.status} />
+            <StatusTag status={record.analysis_status || "NOT_STARTED"} />
+          </Space>
+        ),
       },
       {
         title: "创建时间",
@@ -323,6 +365,17 @@ export default function Dashboard() {
               >
                 {resultLabel}
               </Button>
+              {isActive && (
+                <Button
+                  type="link"
+                  danger
+                  size="small"
+                  icon={<StopOutlined />}
+                  loading={cancelling === record.id}
+                  onClick={() => handleCancelTask(record)}
+                  title="停止正在排队或执行的任务"
+                />
+              )}
               <Button
                 type="link"
                 danger
@@ -331,14 +384,14 @@ export default function Dashboard() {
                 loading={deleting === record.id}
                 disabled={isActive}
                 onClick={() => handleDeleteTask(record)}
-                title={isActive ? "仅终态任务（DONE/FAILED）可删除" : "删除此任务"}
+                title={isActive ? "运行中的任务请先取消或等待结束" : "归档任务并保留证据"}
               />
             </Space>
           );
         },
       },
     ],
-    [navigate, deleting, handleDeleteTask]
+    [navigate, deleting, cancelling, handleDeleteTask, handleCancelTask]
   );
 
   const agentColumns = useMemo(

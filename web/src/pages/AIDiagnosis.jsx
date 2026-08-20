@@ -1,1017 +1,553 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Alert,
   Button,
   Card,
-  Col,
-  Descriptions,
-  Empty,
-  Form,
   Input,
-  InputNumber,
-  List,
   Modal,
-  Row,
-  Select,
+  Segmented,
   Space,
   Spin,
   Steps,
-  Table,
-  Tabs,
-  Tag,
-  Timeline,
   Typography,
   message,
 } from "antd";
+import { SendOutlined, RobotOutlined, SyncOutlined, ProfileOutlined } from "@ant-design/icons";
+import ChatThread from "../components/ChatThread";
+import SessionList from "../components/SessionList";
+import HistoryList from "../components/HistoryList";
+import EvalPanel from "../components/EvalPanel";
+import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import {
-  CheckOutlined,
-  CloseOutlined,
-  ExperimentOutlined,
-  EyeOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  RobotOutlined,
-  SafetyCertificateOutlined,
-} from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import {
-  approveDiagnosisProbe,
-  createDiagnosisSession,
-  getDiagnosisSession,
-  listAgents,
-  listDiagnosisSessions,
-  runAIValidation,
+  advanceDropInsightOrchestrator,
+  clarifyDropInsightDiagnosis,
+  createDropInsightDiagnosis,
+  decideDropInsightToolCall,
+  deleteDropInsightDiagnosis,
+  getDropInsightBudget,
+  getDropInsightDiagnosis,
+  listDiagnosticCases,
+  listDropInsightDiagnoses,
+  listDropInsightEvidence,
+  listDropInsightFeedback,
+  listDropInsightEvents,
+  listDropInsightHypotheses,
+  listDropInsightReports,
+  listDropInsightToolCalls,
+  runDropInsightPlanner,
+  updateDropInsightToolCall,
+  submitDropInsightFeedback,
 } from "../api/client";
-import usePolling from "../hooks/usePolling";
-import DiagnosisWorkbench from "../components/DiagnosisWorkbench";
-import TaskVisualizationPreview from "../components/TaskVisualizationPreview";
+
+const { Text, Title, Paragraph } = Typography;
 
 const TERMINAL = new Set([
   "COMPLETED",
   "INSUFFICIENT_EVIDENCE",
-  "PARTIAL_COMPLETED",
-  "BUDGET_EXHAUSTED",
-  "TOPOLOGY_UNAVAILABLE",
-  "USER_CANCELED",
   "FAILED",
+  "CANCELLED",
 ]);
 
-const STATUS_COLORS = {
-  COMPLETED: "green",
-  PARTIAL_COMPLETED: "orange",
-  INSUFFICIENT_EVIDENCE: "gold",
-  FAILED: "red",
-  BUDGET_EXHAUSTED: "red",
-  WAITING_APPROVAL: "purple",
-  COLLECTING: "blue",
-  ANALYZING: "cyan",
-  NEEDS_SCOPE_CONFIRMATION: "orange",
-};
-
-const NODE_LABELS = {
-  understand_intent: "意图理解",
-  resolve_scope: "范围/拓扑",
-  build_hypotheses: "候选假设",
-  plan_evidence: "证据规划",
-  risk_gate: "风险门禁",
-  run_probes: "受控采集",
-  normalize_evidence: "证据归一化",
-  analyze_evidence: "领域分析",
-  assess_cluster: "跨节点归因",
-  retrieve_knowledge: "知识检索",
-  generate_actions: "动作生成",
-  verify_report: "报告校验",
-};
-
-const ANALYSIS_STRATEGY_OPTIONS = [
-  {
-    value: "CONSTRAINED_HYBRID",
-    label: "受约束混合路径（推荐）",
-    description: "全目标低风险采集后，只在最异常节点申请深度探针。",
-  },
-  {
-    value: "DECISION_TREE",
-    label: "固定决策树",
-    description: "按症状执行固定探针序列，便于建立稳定基线。",
-  },
-  {
-    value: "EXPLORATORY",
-    label: "广度探索路径",
-    description: "在预算内并行采集更多已注册低风险信号。",
-  },
-];
-
-function nodeStepStatus(value) {
-  if (value === "FAILED") return "error";
-  if (value === "COMPLETED" || value === "SKIPPED") return "finish";
-  if (value === "RUNNING" || value === "WAITING") return "process";
-  return "wait";
-}
-
-function Status({ value }) {
-  return <Tag color={STATUS_COLORS[value] || "default"}>{value || "UNKNOWN"}</Tag>;
-}
-
-function taskIdFromArtifactRef(value) {
-  const match = String(value || "").match(/^task:([^:]+)/);
-  return match?.[1] || "";
-}
-
-function TaskResultLink({ taskId, label = "查看结果" }) {
-  if (!taskId) return "-";
-  return (
-    <Link to={`/task/${taskId}`}>
-      <Button type="link" size="small" icon={<EyeOutlined />}>
-        {label}
-      </Button>
-    </Link>
-  );
-}
-
-function ArtifactReference({ value }) {
-  if (!value) return "-";
-  const taskId = taskIdFromArtifactRef(value);
-  return (
-    <Space size={4}>
-      <Typography.Text ellipsis style={{ maxWidth: 150 }} title={value}>
-        {value}
-      </Typography.Text>
-      {taskId && <TaskResultLink taskId={taskId} label="任务" />}
-    </Space>
-  );
-}
-
-function formatTimeRange(value) {
-  if (!value?.start && !value?.end) return "未指定";
-  return `${value.start || "?"} → ${value.end || "?"}`;
-}
-
+/**
+ * 统一 AI 诊断（Codex 式对话）：
+ * 左侧会话列表（+只读历史），中间对话线程，底部一个输入框。
+ * 用户描述问题 → AI 自动规划/采集/推进 → 结论；高危采集需人工审批。
+ */
 export default function AIDiagnosis() {
-  const [form] = Form.useForm();
-  const [agents, setAgents] = useState([]);
   const [sessions, setSessions] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [validationRunning, setValidationRunning] = useState(false);
-  const [error, setError] = useState("");
-  const watchedInstances = Form.useWatch("instances", form) || [];
+  const [cases, setCases] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [view, setView] = useState("诊断会话");
+  const [query, setQuery] = useState("");
+  const [sending, setSending] = useState(false);
 
-  async function refreshSessions() {
+  const [detail, setDetail] = useState(null);
+  const [hypotheses, setHypotheses] = useState([]);
+  const [toolCalls, setToolCalls] = useState([]);
+  const [evidence, setEvidence] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [clarifying, setClarifying] = useState(false);
+  // 简单/专家模式（方案 §4.3）：简单模式隐藏技术细节与事件时间线，持久化。
+  const [mode, setMode] = useState(() => {
     try {
-      setSessions(await listDiagnosisSessions({ limit: 50 }));
-    } catch (err) {
-      setError(err.message);
+      return window.localStorage.getItem("mini-drop-diagnosis-mode") === "expert" ? "expert" : "simple";
+    } catch {
+      return "simple";
     }
-  }
+  });
+  const isExpert = mode === "expert";
+  const advancing = useRef(false);
+  const [historyCase, setHistoryCase] = useState(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const refreshList = useCallback(async () => {
+    try {
+      setSessions(await listDropInsightDiagnoses());
+    } catch {
+      setSessions([]);
+    }
+  }, []);
+
+  const refreshDetail = useCallback(async (id) => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const values = await Promise.all([
+        getDropInsightDiagnosis(id),
+        listDropInsightEvents(id),
+        listDropInsightHypotheses(id),
+        listDropInsightEvidence(id),
+        listDropInsightReports(id),
+        listDropInsightToolCalls(id),
+        getDropInsightBudget(id),
+        listDropInsightFeedback(id),
+      ]);
+      setDetail(values[0]);
+      setEvents(values[1]);
+      setHypotheses(values[2]);
+      setEvidence(values[3]);
+      setReports(values[4]);
+      setToolCalls(values[5]);
+      setFeedback(values[7]);
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const rows = await listDiagnosticCases();
+      let hiddenIds = new Set();
+      try {
+        hiddenIds = new Set(JSON.parse(window.localStorage.getItem("mini-drop-hidden-history") || "[]"));
+      } catch {
+        hiddenIds = new Set();
+      }
+      setCases(rows.filter((item) => !hiddenIds.has(item.case_id || item.diagnosis_id || item.id)));
+    } catch {
+      setCases([]);
+    }
+  }, []);
 
   useEffect(() => {
-    Promise.all([listAgents(), listDiagnosisSessions({ limit: 50 })])
-      .then(([agentItems, sessionItems]) => {
-        setAgents(agentItems);
-        setSessions(sessionItems);
-        const first = agentItems.find((item) => item.status === "ONLINE") || agentItems[0];
-        if (first) {
-          const instances = form.getFieldValue("instances") || [{}];
-          if (!instances[0]?.agent_id) {
-            form.setFieldsValue({
-              instances: [{
-                ...instances[0],
-                agent_id: first.id,
-                host_id: first.hostname || first.id,
-              }, ...instances.slice(1)],
-            });
+    refreshList();
+    loadHistory();
+  }, [refreshList, loadHistory]);
+
+  // 自动推进循环：有完成但未生成报告的采集任务时，自动 advance 会话。
+  useEffect(() => {
+    if (!selectedId) return undefined;
+    const timer = setInterval(async () => {
+      if (advancing.current) return;
+      try {
+        const tools = await listDropInsightToolCalls(selectedId);
+        const reportRows = await listDropInsightReports(selectedId);
+        const session = await getDropInsightDiagnosis(selectedId);
+        if (TERMINAL.has(session.status)) {
+          clearInterval(timer);
+          return;
+        }
+        // 只要还有挂着任务的工具调用就持续推进：TASK_CREATED/RUNNING 都表示
+        // 采集任务在途，COMPLETED 表示任务已 DONE 但可能尚未生成报告。漏掉
+        // RUNNING 会让诊断在任务完成后永远停在本轮状态（界面一直显示采集执行中）。
+        const hasDoneTask = tools.some(
+          (t) =>
+            t.status === "COMPLETED" ||
+            (t.task_id && (t.status === "TASK_CREATED" || t.status === "RUNNING")),
+        );
+        if (hasDoneTask && reportRows.length === 0) {
+          advancing.current = true;
+          try {
+            await advanceDropInsightOrchestrator(selectedId);
+          } finally {
+            advancing.current = false;
           }
         }
-      })
-      .catch((err) => setError(err.message));
-  }, [form]);
+      } catch {
+        /* 轮询失败忽略 */
+      }
+      refreshDetail(selectedId);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [selectedId, refreshDetail]);
 
-  usePolling(async () => {
-    const detail = await getDiagnosisSession(selected.diagnosis_id);
-    setSelected(detail);
-    await refreshSessions();
-  }, {
-    interval: 3000,
-    enabled: Boolean(selected?.diagnosis_id && !TERMINAL.has(selected.status)),
-  });
-
-  async function submit(values) {
-    setLoading(true);
-    setError("");
-    try {
-      const instances = values.instances.map((item, index) => ({
-        service_id: item.service_id,
-        instance_id: item.instance_id || `${item.service_id}-${index + 1}`,
-        host_id: item.host_id,
-        agent_id: item.agent_id,
-        pid: item.pid,
-        environment: item.environment || values.environment,
-      }));
-      const detail = await createDiagnosisSession({
-        query: values.query,
-        context: {
-          service_id: values.target_service,
-          environment: values.environment,
-          instances,
-          dependencies: values.dependencies || [],
-        },
-        budget_profile: values.budget_profile,
-        analysis_strategy: values.analysis_strategy,
-        ...(values.evaluation_oracle?.case_id ? {
-          evaluation_oracle: Object.fromEntries(
-            Object.entries(values.evaluation_oracle).filter(([, value]) => value !== undefined && value !== ""),
-          ),
-        } : {}),
-      });
-      setSelected(detail);
-      await refreshSessions();
-      message.success("诊断会话已创建；系统将先复用已有证据并运行低风险探针");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  function selectSession(id) {
+    setSelectedId(id);
+    setHistoryCase(null);
+    refreshDetail(id);
   }
 
-  async function openSession(id) {
-    setLoading(true);
-    setError("");
-    try {
-      setSelected(await getDiagnosisSession(id));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function decideProbe(stepId, decision) {
-    if (!selected) return;
-    setLoading(true);
-    try {
-      const detail = await approveDiagnosisProbe(selected.diagnosis_id, {
-        step_id: stepId,
-        decision,
-        scope: "single_execution",
-        approver_id: "demo_user",
-      });
-      setSelected(detail);
-      message.success(decision === "approve" ? "已批准本次探针" : "已拒绝本次探针");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function executeAIValidation() {
-    setValidationRunning(true);
-    try {
-      const result = await runAIValidation();
-      const columns = [
-        { title: "层级", dataIndex: "layer", width: 130 },
-        { title: "验证项", dataIndex: "name", width: 210 },
-        {
-          title: "结果",
-          dataIndex: "status",
-          width: 90,
-          render: (value) => <Tag color={value === "PASS" ? "green" : "red"}>{value === "PASS" ? "通过" : "失败"}</Tag>,
-        },
-        { title: "耗时", dataIndex: "duration_ms", width: 100, render: (value) => `${value} ms` },
-        { title: "说明", dataIndex: "detail" },
-      ];
-      const open = result.status === "PASSED" ? Modal.success : Modal.warning;
-      open({
-        title: `Drop AI 服务检测：${result.passed_count}/${result.total_count} 通过`,
-        width: 1000,
-        content: (
-          <Space direction="vertical" style={{ width: "100%" }}>
-            <Alert
-              type={result.status === "PASSED" ? "success" : "warning"}
-              showIcon
-              message={`${result.provider} / ${result.model} · 总耗时 ${result.duration_ms} ms`}
-              description="结果不包含 AI Key、余额金额或原始思维链。"
-            />
-            <Table
-              rowKey="check_id"
-              columns={columns}
-              dataSource={result.checks || []}
-              pagination={false}
-              size="small"
-              scroll={{ x: 850 }}
-            />
-          </Space>
-        ),
-      });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setValidationRunning(false);
-    }
-  }
-
-  function requestAIValidation() {
+  async function handleDeleteSession(id, name) {
     Modal.confirm({
-      title: "运行 Drop AI 服务检测？",
-      content: "将真实调用 Provider、NLP、集群意图、总结和 RCA，产生少量 Token 费用。",
-      okText: "开始检测",
+      title: `删除会话「${name || id}」？`,
+      content: "删除后会从会话列表隐藏，但证据与审计仍保留可追溯。",
+      okButtonProps: { danger: true },
+      okText: "删除",
       cancelText: "取消",
-      onOk: executeAIValidation,
+      onOk: async () => {
+        try {
+          await deleteDropInsightDiagnosis(id);
+          message.success("会话已删除");
+          if (selectedId === id) {
+            setSelectedId("");
+            setHistoryCase(null);
+            setDetail(null);
+          }
+          await refreshList();
+        } catch (err) {
+          message.error(err.message);
+        }
+      },
     });
   }
 
-  const agentOptions = agents.map((agent) => ({
-    value: agent.id,
-    label: `${agent.hostname || agent.id} · ${agent.status}`,
-    disabled: agent.status !== "ONLINE",
-  }));
-  const serviceOptions = [...new Set(
-    watchedInstances.map((item) => item?.service_id?.trim()).filter(Boolean),
-  )].map((value) => ({ value, label: value }));
-
-  function selectAgent(instanceIndex, agentId) {
-    const agent = agents.find((item) => item.id === agentId);
-    if (agent) {
-      form.setFieldValue(["instances", instanceIndex, "host_id"], agent.hostname || agent.id);
-    }
+  async function handleDeleteHistory(item) {
+    const id = item.case_id || item.diagnosis_id || item.id;
+    const name = item.query || id;
+    Modal.confirm({
+      title: `删除历史「${name}」？`,
+      content: "该记录会从诊断历史中移除；原始采集证据和审计记录继续保留。",
+      okButtonProps: { danger: true },
+      okText: "删除",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          if (item.source === "drop_insight_v2" && item.diagnosis_id) {
+            await deleteDropInsightDiagnosis(item.diagnosis_id);
+            await refreshList();
+          } else {
+            let hiddenIds = [];
+            try {
+              hiddenIds = JSON.parse(window.localStorage.getItem("mini-drop-hidden-history") || "[]");
+            } catch {
+              hiddenIds = [];
+            }
+            window.localStorage.setItem(
+              "mini-drop-hidden-history",
+              JSON.stringify([...new Set([...hiddenIds, id])]),
+            );
+          }
+          if (historyCase && (historyCase.case_id || historyCase.diagnosis_id || historyCase.id) === id) {
+            setHistoryCase(null);
+          }
+          await loadHistory();
+          message.success("历史诊断已删除");
+        } catch (err) {
+          message.error(err.message);
+        }
+      },
+    });
   }
 
-  return (
-    <Space direction="vertical" size="large" style={{ width: "100%" }}>
-      <Space>
-        <RobotOutlined style={{ fontSize: 22, color: "#722ed1" }} />
-        <Typography.Title level={4} style={{ margin: 0 }}>AI 集群诊断</Typography.Title>
-        <Tag color="purple">证据驱动</Tag>
-        <Button
-          size="small"
-          icon={<ExperimentOutlined />}
-          loading={validationRunning}
-          onClick={requestAIValidation}
-        >
-          AI 服务检测
-        </Button>
-      </Space>
-
-      <Alert
-        type="info"
-        showIcon
-        message="诊断智能体只可选择已注册探针；R2 深度采样必须逐次审批，R3 变更仅生成建议。"
-      />
-      {error && <Alert type="error" showIcon closable message={error} onClose={() => setError("")} />}
-
-      <Row gutter={[16, 16]}>
-        <Col xs={24} xl={14}>
-          <Card title="发起诊断" extra={<SafetyCertificateOutlined style={{ color: "#52c41a" }} />}>
-            <Form
-              form={form}
-              layout="vertical"
-              initialValues={{
-                environment: "production",
-                budget_profile: "production_safe",
-                analysis_strategy: "CONSTRAINED_HYBRID",
-                target_service: "service-a",
-                instances: [{
-                  service_id: "service-a",
-                  instance_id: "service-a-1",
-                  environment: "production",
-                }],
-                dependencies: [],
-              }}
-              onFinish={submit}
-            >
-              <Form.Item name="query" label="问题描述" rules={[{ required: true, min: 3 }]}>
-                <Input.TextArea rows={3} maxLength={2000} showCount placeholder="例如：service-a 从十点开始变慢，检查自身、同机服务和一跳下游" />
-              </Form.Item>
-              <Row gutter={12}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="target_service" label="诊断入口服务" rules={[{ required: true }]}>
-                    <Select showSearch options={serviceOptions} placeholder="先在下方添加服务实例" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="environment" label="默认环境">
-                    <Select options={["production", "staging", "development"].map((value) => ({ value }))} />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="budget_profile" label="预算策略">
-                    <Select options={[
-                      { value: "production_safe", label: "生产安全" },
-                      { value: "staging", label: "预发布" },
-                      { value: "development", label: "开发" },
-                    ]} />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="analysis_strategy"
-                    label="分析路径"
-                    extra="三条路径均保留时间、目标、风险和唯一副作用等安全底线。"
-                  >
-                    <Select
-                      options={ANALYSIS_STRATEGY_OPTIONS.map((item) => ({
-                        value: item.value,
-                        label: item.label,
-                        title: item.description,
-                      }))}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Typography.Title level={5}>服务实例 / Worker</Typography.Title>
-              <Form.List name="instances">
-                {(fields, { add, remove }) => (
-                  <Space direction="vertical" style={{ width: "100%" }}>
-                    {fields.map((field, index) => (
-                      <Card
-                        key={field.key}
-                        size="small"
-                        title={`实例 ${index + 1}`}
-                        extra={fields.length > 1 ? (
-                          <Button danger type="text" icon={<MinusCircleOutlined />} onClick={() => remove(field.name)}>
-                            删除
-                          </Button>
-                        ) : null}
-                      >
-                        <Row gutter={12}>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "service_id"]} label="服务 ID" rules={[{ required: true }]}>
-                              <Input placeholder="service-a" />
-                            </Form.Item>
-                          </Col>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "instance_id"]} label="实例 ID" rules={[{ required: true }]}>
-                              <Input placeholder="service-a-1" />
-                            </Form.Item>
-                          </Col>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "agent_id"]} label="目标 Agent" rules={[{ required: true }]}>
-                              <Select
-                                options={agentOptions}
-                                placeholder="选择在线 Agent"
-                                onChange={(value) => selectAgent(field.name, value)}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "host_id"]} label="宿主机 ID" rules={[{ required: true }]}>
-                              <Input placeholder="worker-1" />
-                            </Form.Item>
-                          </Col>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "pid"]} label="目标 PID" rules={[{ required: true }]}>
-                              <InputNumber min={1} max={4194304} style={{ width: "100%" }} />
-                            </Form.Item>
-                          </Col>
-                          <Col xs={24} md={8}>
-                            <Form.Item name={[field.name, "environment"]} label="实例环境">
-                              <Select options={["production", "staging", "development"].map((value) => ({ value }))} />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Card>
-                    ))}
-                    <Button
-                      block
-                      type="dashed"
-                      icon={<PlusOutlined />}
-                      onClick={() => add({ environment: form.getFieldValue("environment") })}
-                    >
-                      添加 Worker 实例
-                    </Button>
-                  </Space>
-                )}
-              </Form.List>
-
-              <Typography.Title level={5} style={{ marginTop: 20 }}>服务依赖关系</Typography.Title>
-              <Form.List name="dependencies">
-                {(fields, { add, remove }) => (
-                  <Space direction="vertical" style={{ width: "100%", marginBottom: 20 }}>
-                    {fields.map((field, index) => (
-                      <Row key={field.key} gutter={8} align="middle">
-                        <Col xs={24} md={6}>
-                          <Form.Item name={[field.name, "source_service"]} label={index === 0 ? "上游服务" : ""} rules={[{ required: true }]}>
-                            <Select options={serviceOptions} placeholder="source" />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} md={6}>
-                          <Form.Item name={[field.name, "target_service"]} label={index === 0 ? "下游服务" : ""} rules={[{ required: true }]}>
-                            <Select options={serviceOptions} placeholder="target" />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={18} md={8}>
-                          <Form.Item name={[field.name, "relation"]} label={index === 0 ? "关系" : ""} rules={[{ required: true }]}>
-                            <Select options={[
-                              "CALLS", "READS_FROM", "WRITES_TO", "PUBLISHES_TO", "CONSUMES_FROM", "SHARES_DEPENDENCY",
-                            ].map((value) => ({ value }))} />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={6} md={4}>
-                          <Button danger type="text" icon={<MinusCircleOutlined />} onClick={() => remove(field.name)}>删除</Button>
-                        </Col>
-                      </Row>
-                    ))}
-                    <Button
-                      type="dashed"
-                      icon={<PlusOutlined />}
-                      disabled={serviceOptions.length < 2}
-                      onClick={() => add({ relation: "CALLS", confidence: "high", source: "request_context" })}
-                    >
-                      添加依赖边
-                    </Button>
-                  </Space>
-                )}
-              </Form.List>
-
-              <Card
-                size="small"
-                title="实验评测 Oracle（可选）"
-                style={{ marginBottom: 20, background: "#fafafa" }}
-                extra={<Tag color="cyan">不提供给 AI</Tag>}
-              >
-                <Alert
-                  type="info"
-                  showIcon
-                  message="用于客观比较不同分析路径"
-                  description="标准答案独立保存，只在报告生成后评分。正式未知故障请留空；教师演示案例建议填写。"
-                  style={{ marginBottom: 12 }}
-                />
-                <Row gutter={12}>
-                  <Col xs={24} md={8}>
-                    <Form.Item name={["evaluation_oracle", "case_id"]} label="案例 ID">
-                      <Input placeholder="cpu-hotspot-001" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Form.Item name={["evaluation_oracle", "expected_instance_id"]} label="期望根因实例">
-                      <Input placeholder="service-a-1" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Form.Item name={["evaluation_oracle", "expected_location_type"]} label="期望归因位置">
-                      <Select allowClear options={[
-                        { value: "self", label: "目标自身" },
-                        { value: "same_host", label: "同宿主实例" },
-                        { value: "downstream", label: "下游依赖" },
-                        { value: "shared_resource", label: "共享资源" },
-                        { value: "unknown", label: "未知" },
-                      ]} />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Form.Item name={["evaluation_oracle", "expected_domain_type"]} label="期望故障领域">
-                      <Select allowClear options={[
-                        "cpu", "io", "memory", "network", "database", "runtime", "unknown",
-                      ].map((value) => ({ value }))} />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={16}>
-                    <Form.Item name={["evaluation_oracle", "expected_classification"]} label="期望分类">
-                      <Input placeholder="self_code_or_process_pressure" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-
-              <Button type="primary" htmlType="submit" loading={loading} icon={<RobotOutlined />}>
-                创建诊断会话
-              </Button>
-            </Form>
-          </Card>
-        </Col>
-
-        <Col xs={24} xl={10}>
-          <Card
-            title="最近会话"
-            extra={<Button size="small" icon={<ReloadOutlined />} onClick={refreshSessions}>刷新</Button>}
-            bodyStyle={{ maxHeight: 470, overflow: "auto" }}
-          >
-            <List
-              dataSource={sessions}
-              locale={{ emptyText: "暂无 AI 诊断会话" }}
-              renderItem={(item) => (
-                <List.Item actions={[<Button key="open" type="link" onClick={() => openSession(item.diagnosis_id)}>查看</Button>]}>
-                  <List.Item.Meta
-                    title={(
-                      <Space wrap>
-                        <Typography.Text>{item.target_scope?.target_service || "未绑定服务"}</Typography.Text>
-                        <Status value={item.status} />
-                        <Tag color="purple">
-                          {ANALYSIS_STRATEGY_OPTIONS.find(
-                            (option) => option.value === item.normalized_intent?.analysis_strategy,
-                          )?.label || "受约束混合路径"}
-                        </Tag>
-                      </Space>
-                    )}
-                    description={<Typography.Text type="secondary" ellipsis>{item.raw_query}</Typography.Text>}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Spin spinning={loading}>
-        {selected ? (
-          <DiagnosisDetail detail={selected} sessions={sessions} onDecision={decideProbe} />
-        ) : (
-          <Card><Empty description="创建或打开一个诊断会话以查看假设、探针和证据" /></Card>
-        )}
-      </Spin>
-    </Space>
-  );
-}
-
-function DiagnosisDetail({ detail, sessions, onDecision }) {
-  const conclusion = detail.latest_conclusion;
-  const candidates = conclusion?.root_cause_candidates || [];
-  const assessment = conclusion?.cluster_assessment;
-  const commands = conclusion?.actions || conclusion?.diagnostic_commands || [];
-  const findings = conclusion?.findings || [];
-  const recommendations = conclusion?.recommendations || [];
-  const knowledge = conclusion?.knowledge_context || [];
-  const verification = conclusion?.verification;
-  const pipelineNodes = detail.pipeline_nodes || [];
-  const hypotheses = detail.hypothesis_graph?.hypotheses || [];
-  const probes = detail.probes || [];
-  const evidence = detail.evidence || [];
-  const coverage = detail.coverage || [];
-  const probeTasks = probes.filter((item) => item.task_id);
-  const evidenceMap = useMemo(() => new Map(evidence.map((item) => [item.evidence_id, item])), [evidence]);
-
-  function requestDecision(item, decision) {
-    if (decision === "reject") {
-      onDecision(item.step_id, decision);
+  async function startNew() {
+    const text = query.trim();
+    if (!text) {
+      message.info("请描述遇到的问题，例如：订单服务 CPU 飙高");
       return;
     }
-    Modal.confirm({
-      title: `单次批准 ${item.probe_id}？`,
-      width: 720,
-      okText: "仅批准本次执行",
-      cancelText: "取消",
-      content: (
-        <Descriptions size="small" bordered column={1} style={{ marginTop: 16 }}>
-          <Descriptions.Item label="目标">{JSON.stringify(item.target || {})}</Descriptions.Item>
-          <Descriptions.Item label="参数">{JSON.stringify(item.parameters || {})}</Descriptions.Item>
-          <Descriptions.Item label="风险"><Tag color="orange">{item.risk_level}</Tag> {item.reason}</Descriptions.Item>
-          <Descriptions.Item label="预计成本">{item.estimated_cost || `${item.parameters?.duration_sec || 0}s`}</Descriptions.Item>
-        </Descriptions>
-      ),
-      onOk: () => onDecision(item.step_id, decision),
-    });
+    setSending(true);
+    try {
+      const created = await createDropInsightDiagnosis({
+        query: text,
+        mode: "ASSISTED",
+      });
+      setQuery("");
+      setSelectedId(created.diagnosis_id);
+      setHistoryCase(null);
+      await runDropInsightPlanner(created.diagnosis_id).catch(() => undefined);
+      await Promise.all([refreshList(), refreshDetail(created.diagnosis_id)]);
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      setSending(false);
+    }
   }
 
+  async function decideTool(toolCallId, approved) {
+    if (!selectedId) return;
+    try {
+      await decideDropInsightToolCall(selectedId, toolCallId, {
+        approved,
+        reason: approved ? "用户在 AI 诊断对话中审批通过" : "用户在 AI 诊断对话中拒绝",
+      });
+      await refreshDetail(selectedId);
+    } catch (err) {
+      message.error(err?.message || String(err));
+    }
+  }
+
+  async function handleUpdateToolArgs(toolCallId, argumentsObj) {
+    if (!selectedId) return;
+    try {
+      await updateDropInsightToolCall(selectedId, toolCallId, argumentsObj);
+      await refreshDetail(selectedId);
+    } catch (err) {
+      message.error(err?.message || String(err));
+      throw err;
+    }
+  }
+
+  async function handleClarify(payload) {
+    if (!selectedId) return;
+    setClarifying(true);
+    try {
+      await clarifyDropInsightDiagnosis(selectedId, payload);
+      await runDropInsightPlanner(selectedId).catch(() => undefined);
+      await refreshDetail(selectedId);
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      setClarifying(false);
+    }
+  }
+
+  async function advanceNow() {
+    if (!selectedId || advancing.current) return;
+    advancing.current = true;
+    try {
+      await advanceDropInsightOrchestrator(selectedId);
+      await refreshDetail(selectedId);
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      advancing.current = false;
+    }
+  }
+
+  async function handleSubmitFeedback(payload) {
+    if (!selectedId) return;
+    setFeedbackSubmitting(true);
+    try {
+      const saved = await submitDropInsightFeedback(selectedId, payload);
+      message.success(
+        saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存",
+      );
+      await refreshDetail(selectedId);
+    } catch (err) {
+      message.error(err.message);
+      throw err;
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  }
+
+  function openHistory(item) {
+    setHistoryCase(item);
+    setSelectedId("");
+  }
+
+  const activeQuery = useMemo(() => detail?.query || historyCase?.query || "", [detail, historyCase]);
+  const diagnosisProcess = useMemo(() => {
+    const hasScope = Boolean(detail?.target?.agent_id || detail?.agent_id || detail?.target?.pid || detail?.pid);
+    const hasHypotheses = hypotheses.length > 0;
+    const hasPlannedTools = toolCalls.length > 0;
+    const hasEvidence = evidence.length > 0;
+    const hasReport = reports.length > 0;
+    let current = 0;
+    if (hasScope) current = 1;
+    if (hasHypotheses) current = 2;
+    if (hasPlannedTools) current = 3;
+    if (hasEvidence) current = 4;
+    if (hasReport || TERMINAL.has(detail?.status)) current = 5;
+    return {
+      current,
+      items: [
+        { title: "理解问题", description: "识别服务、现象和时间窗" },
+        { title: "确认范围", description: "Agent / PID / 上下游" },
+        { title: "生成假设", description: "支持条件与可推翻条件" },
+        { title: "决策树取证", description: "选采集器并经过权限门禁" },
+        { title: "证据裁决", description: "引用证据、反证与置信度" },
+        { title: "结论验证", description: "输出限制与修复后复测" },
+      ],
+    };
+  }, [detail, hypotheses, toolCalls, evidence, reports]);
+
   return (
-    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-      <Card title={<Space>诊断详情 <Status value={detail.status} /></Space>}>
-        <Descriptions size="small" column={{ xs: 1, md: 3 }}>
-          <Descriptions.Item label="诊断 ID"><Typography.Text copyable>{detail.diagnosis_id}</Typography.Text></Descriptions.Item>
-          <Descriptions.Item label="目标服务">{detail.target_scope?.target_service || "未解析"}</Descriptions.Item>
-          <Descriptions.Item label="拓扑快照">{detail.topology_snapshot_id}</Descriptions.Item>
-          <Descriptions.Item label="症状">{detail.normalized_intent?.symptom}</Descriptions.Item>
-          <Descriptions.Item label="诊断模式"><Tag>{detail.normalized_intent?.diagnosis_mode || "UNKNOWN"}</Tag></Descriptions.Item>
-          <Descriptions.Item label="分析路径">
-            <Tag color="purple">
-              {ANALYSIS_STRATEGY_OPTIONS.find(
-                (item) => item.value === detail.normalized_intent?.analysis_strategy,
-              )?.label || "受约束混合路径"}
-            </Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="请求时间窗" span={2}>{formatTimeRange(detail.requested_time_range)}</Descriptions.Item>
-          <Descriptions.Item label="有效时间窗" span={2}>{formatTimeRange(detail.effective_time_range)}</Descriptions.Item>
-          <Descriptions.Item label="模型">{detail.model_version}</Descriptions.Item>
-          <Descriptions.Item label="规划器">{detail.planner_version}</Descriptions.Item>
-        </Descriptions>
-      </Card>
-
-      <DiagnosisWorkbench detail={detail} sessions={sessions} />
-
-      <Card title="诊断流水线" extra={<Typography.Text type="secondary">状态、重试和节点输出均持久化</Typography.Text>}>
-        <Steps
-          size="small"
-          responsive
-          labelPlacement="vertical"
-          items={pipelineNodes.map((node) => ({
-            title: NODE_LABELS[node.node_name] || node.node_name,
-            status: nodeStepStatus(node.status),
-            description: (
-              <Space direction="vertical" size={0}>
-                <Tag color={node.status === "FAILED" ? "red" : node.status === "WAITING" ? "purple" : "default"}>{node.status}</Tag>
-                {node.attempt > 0 && <Typography.Text type="secondary">attempt {node.attempt}</Typography.Text>}
-              </Space>
-            ),
-          }))}
-        />
-      </Card>
-
-      {conclusion && (
-        <Card title="最新结论">
-          <Alert
-            showIcon
-            type={detail.status === "INSUFFICIENT_EVIDENCE" ? "warning" : "info"}
-            message={conclusion.summary}
-            description={`置信等级：${conclusion.confidence_level || "不可判断"}`}
-            style={{ marginBottom: 12 }}
+    <div style={{ display: "flex", gap: 20, minHeight: "calc(100vh - 140px)" }}>
+      {/* 左栏：会话 / 历史 */}
+      <Card size="small" style={{ width: 300, flexShrink: 0 }}>
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Space align="center" style={{ width: "100%" }}>
+            <RobotOutlined style={{ fontSize: 18, color: "#722ed1" }} />
+            <Title level={5} style={{ margin: 0 }}>AI 诊断</Title>
+          </Space>
+          <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 8 }}>
+            描述问题，AI 一步步定位异常并给出结论
+          </Paragraph>
+          <Segmented
+            block
+            options={["诊断会话", "诊断历史", "方法与测试集"]}
+            value={view}
+            onChange={(value) => {
+              setView(value);
+              if (value === "诊断历史") loadHistory();
+            }}
           />
-          {assessment && (
-            <Descriptions
-              size="small"
-              bordered
-              column={{ xs: 1, md: 3 }}
-              style={{ marginBottom: 12 }}
-            >
-              <Descriptions.Item label="跨节点判断">{assessment.classification}</Descriptions.Item>
-              <Descriptions.Item label="判断置信等级">{assessment.confidence_level || conclusion.confidence_level}</Descriptions.Item>
-              <Descriptions.Item label="对比目标">{assessment.compared_targets?.length || 0}</Descriptions.Item>
-              <Descriptions.Item label="根因位置">{conclusion.root_location?.type || "unknown"} / {conclusion.root_location?.target_ref || "-"}</Descriptions.Item>
-              <Descriptions.Item label="问题领域">{conclusion.domain_cause?.type || "unknown"} / {conclusion.domain_cause?.subtype || "unknown"}</Descriptions.Item>
-              <Descriptions.Item label="证据引用" span={3}>
-                <Space wrap>
-                  {(assessment.evidence_refs || []).map((ref) => (
-                    <Tag key={ref} color={evidenceMap.has(ref) ? "blue" : "red"}>{ref}</Tag>
-                  ))}
-                </Space>
-              </Descriptions.Item>
-            </Descriptions>
-          )}
-          <Table
-            rowKey="candidate_id"
-            size="small"
-            pagination={false}
-            dataSource={candidates}
-            columns={[
-              { title: "排名", dataIndex: "rank", width: 70 },
-              { title: "候选", dataIndex: "candidate_id", width: 220 },
-              { title: "置信等级", dataIndex: "confidence_level", width: 100, render: (value) => <Tag>{value}</Tag> },
-              { title: "说明", dataIndex: "description" },
-              {
-                title: "证据",
-                dataIndex: "evidence_refs",
-                render: (refs = []) => <Space wrap>{refs.map((ref) => <Tag key={ref} color={evidenceMap.has(ref) ? "blue" : "red"}>{ref}</Tag>)}</Space>,
-              },
-            ]}
-          />
-          {recommendations.length > 0 && (
-            <Card
-              size="small"
-              title="分层优化与验证建议"
-              style={{ marginTop: 12, background: "#fafafa" }}
-            >
-              <Row gutter={[12, 12]}>
-                {recommendations.map((item) => (
-                  <Col xs={24} lg={8} key={item.recommendation_id || item.title}>
-                    <Card
-                      size="small"
-                      title={item.title || item.action}
-                      extra={(
-                        <Space size={4}>
-                          {item.category && <Tag color="blue">{item.category}</Tag>}
-                          <Tag color={item.risk_level === "R3" ? "red" : item.risk_level === "R2" ? "orange" : "green"}>
-                            {item.risk_level}
-                          </Tag>
-                        </Space>
-                      )}
-                      style={{ height: "100%" }}
-                    >
-                      <Typography.Paragraph>
-                        {item.detail || item.action}
-                      </Typography.Paragraph>
-                      <Typography.Text type="secondary">
-                        执行策略：{item.execution}
-                      </Typography.Text>
-                      {(item.evidence_refs || []).length > 0 && (
-                        <Space wrap style={{ marginTop: 8 }}>
-                          {(item.evidence_refs || []).map((ref) => (
-                            <Tag key={ref} color={evidenceMap.has(ref) ? "green" : "red"}>
-                              {ref}
-                            </Tag>
-                          ))}
-                        </Space>
-                      )}
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </Card>
-          )}
-          {conclusion.limitations?.length > 0 && (
-            <Alert type="warning" message="限制与缺失证据" description={conclusion.limitations.join("；")} style={{ marginTop: 12 }} />
-          )}
-          {verification && (
-            <Alert
-              showIcon
-              type={verification.status === "passed" ? "success" : "error"}
-              message={`报告校验：${verification.status}`}
-              description={verification.issues?.length ? verification.issues.join("；") : `已检查 ${verification.checked_evidence_refs} 个证据引用、${verification.checked_knowledge_refs} 个知识引用和 ${verification.checked_actions} 个动作。`}
-              style={{ marginTop: 12 }}
-            />
-          )}
-        </Card>
-      )}
-
-      {probeTasks.length > 0 && (
-        <Card
-          title={`采集可视化证据 (${probeTasks.length})`}
-          extra={<Typography.Text type="secondary">火焰图、TopN 与原始任务状态保持一致</Typography.Text>}
-        >
-          <Tabs
-            items={probeTasks.map((probe) => ({
-              key: probe.task_id,
-              label: (
-                <Space size={4}>
-                  <Typography.Text>{probe.probe_id}</Typography.Text>
-                  <Status value={probe.status} />
-                </Space>
-              ),
-              children: <TaskVisualizationPreview taskId={probe.task_id} />,
-            }))}
-          />
-        </Card>
-      )}
-
-      {commands.length > 0 && (
-        <Card title="结构化诊断动作">
-          <Alert
-            showIcon
-            type="warning"
-            message="以下命令仅供人工审核，不会由 AI 自动执行；R2/R3 操作必须单次确认。"
-            style={{ marginBottom: 12 }}
-          />
-          <Table
-            rowKey="action_id"
-            size="small"
-            pagination={false}
-            dataSource={commands}
-            columns={[
-              { title: "类型", dataIndex: "action_type", width: 90, render: (value) => <Tag>{value}</Tag> },
-              { title: "用途", dataIndex: "title", width: 170 },
-              {
-                title: "风险",
-                dataIndex: "risk_level",
-                width: 90,
-                render: (value, record) => (
-                  <Space>
-                    <Tag color={value === "R2" || value === "R3" ? "orange" : "green"}>{value}</Tag>
-                    {record.requires_approval && <Tag color="purple">需审批</Tag>}
-                  </Space>
-                ),
-              },
-              {
-                title: "命令",
-                dataIndex: "rendered_command",
-                render: (value) => <Typography.Text copyable code>{value}</Typography.Text>,
-              },
-              { title: "审核注释", dataIndex: "comment" },
-            ]}
-          />
-        </Card>
-      )}
-
-      {findings.length > 0 && (
-        <Card title={`确定性领域发现 (${findings.length})`}>
-          <Table
-            rowKey="finding_id"
-            size="small"
-            pagination={false}
-            dataSource={findings}
-            columns={[
-              { title: "领域", dataIndex: "category", width: 90, render: (value) => <Tag>{value}</Tag> },
-              { title: "发现", dataIndex: "finding_type", width: 210 },
-              { title: "分析器", dataIndex: "analyzer_id", width: 190 },
-              { title: "置信等级", dataIndex: "confidence_level", width: 100 },
-              { title: "说明", dataIndex: "summary" },
-            ]}
-          />
-        </Card>
-      )}
-
-      {knowledge.length > 0 && (
-        <Card title="系统知识引用">
-          <List
-            dataSource={knowledge}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<Space><Typography.Text>{item.title}</Typography.Text><Tag color="geekblue">{item.knowledge_id}</Tag></Space>}
-                  description={<Space direction="vertical" size={2}><span>{item.summary}</span>{item.caveats?.length > 0 && <Typography.Text type="secondary">限制：{item.caveats.join("；")}</Typography.Text>}</Space>}
-                />
-              </List.Item>
-            )}
-          />
-        </Card>
-      )}
-
-      <Row gutter={[16, 16]}>
-        <Col xs={24} xl={12}>
-          <Card title="候选假设">
-            <List
-              dataSource={hypotheses}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={<Space><Typography.Text>{item.type}</Typography.Text><Tag color={item.status === "SUPPORTED" ? "green" : "default"}>{item.status}</Tag></Space>}
-                    description={item.description}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} xl={12}>
-          <Card title="受控探针与审批">
-            <List
-              dataSource={probes}
-              locale={{ emptyText: "尚未规划探针" }}
-              renderItem={(item) => {
-                const actions = [];
-                if (item.status === "WAITING_APPROVAL") {
-                  actions.push(
-                    <Button key="approve" size="small" type="primary" icon={<CheckOutlined />} onClick={() => requestDecision(item, "approve")}>单次批准</Button>,
-                    <Button key="reject" size="small" danger icon={<CloseOutlined />} onClick={() => requestDecision(item, "reject")}>拒绝</Button>,
-                  );
-                }
-                if (item.task_id) {
-                  actions.push(<TaskResultLink key="result" taskId={item.task_id} />);
-                }
-                return (
-                  <List.Item actions={actions}>
-                    <List.Item.Meta
-                      title={<Space><Typography.Text>{item.probe_id}</Typography.Text><Tag color={item.risk_level === "R2" ? "orange" : "green"}>{item.risk_level}</Tag><Status value={item.status} /></Space>}
-                      description={`${item.reason} · ${item.parameters?.duration_sec || 0}s`}
-                    />
-                  </List.Item>
-                );
+          {view === "诊断会话" ? (
+            <SessionList
+              sessions={sessions}
+              selectedId={selectedId}
+              onSelect={selectSession}
+              onDelete={handleDeleteSession}
+              onNew={() => {
+                setSelectedId("");
+                setHistoryCase(null);
+                setDetail(null);
               }}
             />
-          </Card>
-        </Col>
-      </Row>
-
-      <Card title={`覆盖矩阵 (${coverage.length})`}>
-        <Table
-          rowKey="step_id"
-          size="small"
-          pagination={false}
-          dataSource={coverage}
-          columns={[
-            { title: "目标", dataIndex: "target" },
-            { title: "证据需求", dataIndex: "requirement" },
-            { title: "状态", dataIndex: "status", render: (value) => <Status value={value} /> },
-            {
-              title: "任务结果",
-              dataIndex: "task_id",
-              render: (value) => <TaskResultLink taskId={value} />,
-            },
-            { title: "错误码", dataIndex: "error_code", render: (value) => value || "-" },
-          ]}
-        />
+          ) : view === "诊断历史" ? (
+            <HistoryList cases={cases} onOpen={openHistory} onDelete={handleDeleteHistory} />
+          ) : (
+            <Card size="small" style={{ background: "#f7f9fc" }}>
+              <Text strong>方法与测试集已在右侧展开</Text>
+              <Paragraph type="secondary" style={{ fontSize: 12, margin: "6px 0 0" }}>
+                左侧宽度保持不变；完整决策树、用例目录、来源和质量门禁在主工作区查看。
+              </Paragraph>
+            </Card>
+          )}
+        </Space>
       </Card>
 
-      <Card title={`证据血缘 (${evidence.length})`}>
-        <Table
-          rowKey="evidence_id"
-          size="small"
-          pagination={{ pageSize: 6 }}
-          scroll={{ x: 1600 }}
-          dataSource={evidence}
-          columns={[
-            { title: "Evidence ID", dataIndex: "evidence_id", width: 210, render: (value) => <Typography.Text copyable>{value}</Typography.Text> },
-            { title: "来源", dataIndex: "source_system", width: 170 },
-            { title: "类型", dataIndex: "source_type", width: 150 },
-            { title: "角色", dataIndex: "evidence_role", width: 110, render: (value) => <Tag>{value || "incident"}</Tag> },
-            { title: "事件时间窗", dataIndex: "event_time_range", width: 310, render: formatTimeRange },
-            { title: "目标", dataIndex: "target", width: 260, render: (value) => JSON.stringify(value || {}) },
-            { title: "探针/查询", dataIndex: "query_or_probe", width: 150 },
-            { title: "质量", dataIndex: "data_quality", width: 180, render: (value) => `${value?.completeness || "unknown"} / ${(value?.domains || []).join(",") || "-"}` },
-            {
-              title: "原始产物",
-              dataIndex: "raw_artifact_ref",
-              width: 240,
-              render: (value) => <ArtifactReference value={value} />,
-            },
-            {
-              title: "派生产物",
-              dataIndex: "derived_artifact_ref",
-              width: 240,
-              render: (value) => <ArtifactReference value={value} />,
-            },
-            { title: "派生版本", dataIndex: "derivation_version", width: 130 },
-            { title: "完整性 Hash", dataIndex: "integrity_hash", width: 260, ellipsis: true },
-          ]}
-        />
+      {/* 主区：对话线程 */}
+      <Card
+        size="small"
+        style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}
+        title={
+          <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
+            <Text strong ellipsis>
+              {view === "方法与测试集" ? "AI 诊断方法与统一测试集" : (activeQuery || "新对话")}
+            </Text>
+            {view !== "方法与测试集" && <Space wrap>
+              <Segmented
+                size="small"
+                value={mode}
+                onChange={(value) => {
+                  setMode(value);
+                  try {
+                    window.localStorage.setItem("mini-drop-diagnosis-mode", value);
+                  } catch {
+                    // ignore
+                  }
+                }}
+                options={[
+                  { label: "简单", value: "simple" },
+                  { label: "专家", value: "expert" },
+                ]}
+              />
+              {selectedId && (
+                <>
+                  {isExpert && (
+                    <Button size="small" icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>
+                      技术细节
+                    </Button>
+                  )}
+                  <Button size="small" icon={<SyncOutlined />} onClick={advanceNow}>
+                    继续推进
+                  </Button>
+                </>
+              )}
+            </Space>}
+          </Space>
+        }
+      >
+        {view === "方法与测试集" ? (
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 220px)", paddingRight: 8 }}>
+            <EvalPanel />
+          </div>
+        ) : <>
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              maxHeight: "calc(100vh - 300px)",
+              paddingRight: 8,
+            }}
+          >
+            {selectedId && detail && (
+              <Card
+                size="small"
+                title="AI 正在怎样诊断"
+                style={{ marginBottom: 12, background: "#fafcff" }}
+              >
+                <Steps
+                  size="small"
+                  responsive
+                  current={diagnosisProcess.current}
+                  status={detail.status === "FAILED" ? "error" : "process"}
+                  items={diagnosisProcess.items}
+                />
+              </Card>
+            )}
+            <Spin spinning={loading && Boolean(selectedId)}>
+              {historyCase ? (
+                <ChatThread
+                  detail={{ query: historyCase.query || historyCase.case_id, status: historyCase.canonical_status }}
+                  hypotheses={[]}
+                  toolCalls={[]}
+                  evidence={[]}
+                  reports={[]}
+                  events={[]}
+                  onApproveTool={() => undefined}
+                  onRejectTool={() => undefined}
+                />
+              ) : (
+                <ChatThread
+                  detail={detail}
+                  hypotheses={hypotheses}
+                  toolCalls={toolCalls}
+                  evidence={evidence}
+                  reports={reports}
+                  events={events}
+                  mode={mode}
+                  onApproveTool={(id) => decideTool(id, true)}
+                  onRejectTool={(id) => decideTool(id, false)}
+                  onUpdateToolArgs={handleUpdateToolArgs}
+                  onClarify={handleClarify}
+                  clarifying={clarifying}
+                  feedback={feedback}
+                  onSubmitFeedback={handleSubmitFeedback}
+                  feedbackSubmitting={feedbackSubmitting}
+                />
+              )}
+            </Spin>
+          </div>
+
+          <Space.Compact style={{ marginTop: 12, width: "100%" }}>
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onPressEnter={startNew}
+            placeholder="描述问题，例如：订单服务最近 5 分钟 CPU 飙高，请定位原因…"
+            disabled={sending}
+            size="large"
+          />
+          <Button
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={startNew}
+            loading={sending}
+            size="large"
+          >
+            发送
+          </Button>
+          </Space.Compact>
+        </>}
       </Card>
 
-      <Card title="状态事件">
-        <Timeline
-          items={(detail.events || []).map((event) => ({
-            color: event.to_status === "FAILED" ? "red" : "blue",
-            children: <Space><Typography.Text>{event.event_type}</Typography.Text><Status value={event.to_status} /></Space>,
-          }))}
-        />
-      </Card>
-    </Space>
+      <TechnicalDetailDrawer
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        detail={detail}
+        toolCalls={toolCalls}
+        evidence={evidence}
+        reports={reports}
+        events={events}
+      />
+    </div>
   );
 }

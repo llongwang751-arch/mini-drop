@@ -130,7 +130,18 @@ def _perf_script(perf_data: Path, output: Path) -> tuple[bool, str]:
         return False, "perf 命令不可用"
     try:
         subprocess.run(
-            [perf, "script", "-i", str(perf_data)],
+            [
+                perf,
+                "script",
+                # Do not emit the perf event period.  stackcollapse-perf treats
+                # that field as a weight; for sampled CPU profiles this turned
+                # a few hundred observations into billions of fake "samples"
+                # and incorrectly inflated AI evidence quality scores.
+                "-F",
+                "comm,pid,tid,time,event,ip,sym,dso",
+                "-i",
+                str(perf_data),
+            ],
             stdout=output.open("w"),
             stderr=subprocess.PIPE,
             check=True,

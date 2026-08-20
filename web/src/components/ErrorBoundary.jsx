@@ -24,7 +24,9 @@ export default class ErrorBoundary extends Component {
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
+    // 前端重新部署后，旧页面可能仍引用已被替换的懒加载 chunk。
+    // 单纯重渲染会继续使用同一个 rejected Promise，整页刷新才能取得新资源清单。
+    window.location.reload();
   };
 
   handleGoHome = () => {

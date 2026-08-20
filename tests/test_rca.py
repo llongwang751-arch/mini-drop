@@ -12,10 +12,17 @@ import pytest
 from server.app.rca.calibrator import calibrate, interpret_confidence
 from server.app.rca.candidates import generate_candidates, load_rules
 from server.app.rca.evidence import collect_evidence, evidence_to_json
-from server.app.rca.llm_client import _extract_json, _validate_and_parse, _ref_exists, _collect_evidence_paths
+from server.app.rca.llm_client import (
+    _apply_confidence_caps,
+    _collect_evidence_paths,
+    _extract_json,
+    _ref_exists,
+    _validate_and_parse,
+)
 from server.app.rca.models import CandidateCause, CauseEntry, DiagnosisReport, EvidenceInput, FeedbackPrior
 from server.app.rca.prompt import build_system_prompt, build_user_message
 from server.app.rca.report import run_diagnosis, run_diagnosis_context
+from server.app.rca.repair import build_repair_plan
 from server.app.rca.tools import run_rca_tools
 
 
@@ -281,6 +288,46 @@ class TestValidationAndParsing:
         assert len(issues) > 0
         assert "evidence_refs" in issues[0]
 
+    def test_unknown_model_cause_is_rejected_against_program_candidates(self):
+        evidence = EvidenceInput(top_functions=[{"name": "fib", "percent": 68.5}])
+        raw = json.dumps({
+            "summary": "invented cause",
+            "ranked_causes": [{
+                "cause_id": "model_invented_cause",
+                "confidence": 0.99,
+                "claim": "invented",
+                "evidence_refs": ["top_functions[0]"],
+                "uncertainties": [],
+                "verification_steps": [],
+            }],
+            "facts": [],
+            "not_enough_evidence": False,
+        })
+        report, issues = _validate_and_parse(
+            raw,
+            evidence,
+            {"cpu_hotspot_recursive": 0.62},
+        )
+        assert report is None
+        assert any("不在程序候选集合" in item for item in issues)
+
+    def test_program_calibration_caps_model_confidence(self):
+        report = DiagnosisReport(
+            summary="model overconfidence",
+            ranked_causes=[CauseEntry(
+                cause_id="cpu_hotspot_recursive",
+                confidence=0.99,
+                claim="fib is hot",
+                evidence_refs=["top_functions[0]"],
+            )],
+            facts=[],
+        )
+        capped = _apply_confidence_caps(
+            report,
+            {"cpu_hotspot_recursive": 0.61},
+        )
+        assert capped.ranked_causes[0].confidence == 0.61
+
     def test_missing_required_fields_rejected(self):
         evidence = EvidenceInput()
         raw = '{"summary":"x"}'
@@ -377,7 +424,7 @@ class TestToolAndRepairFlow:
         assert flame_tool.status == "success"
         assert flame_tool.evidence_ref == "tool_results.get_flamegraph_top"
 
-    def test_context_builds_and_executes_safe_followup(self):
+    def test_context_is_read_only_by_default(self):
         stub_repo = _StubRepo()
         with mock.patch.dict("os.environ", {}, clear=True):
             outcome = run_diagnosis_context(
@@ -388,8 +435,45 @@ class TestToolAndRepairFlow:
             )
         assert outcome.report.report.ranked_causes[0].cause_id == "cpu_hotspot_recursive"
         assert outcome.repair_plan is not None
-        assert outcome.repair_plan.status == "safe_actions_executed"
-        assert stub_repo.created_payloads[0].collector_type == "pyspy"
+        assert outcome.repair_plan.status == "planned"
+        assert stub_repo.created_payloads == []
+
+    def test_legacy_context_hands_followup_to_policy_control_plane(self):
+        stub_repo = _StubRepo()
+        with mock.patch.dict("os.environ", {}, clear=True):
+            outcome = run_diagnosis_context(
+                task_id="task_test",
+                task_record=_StubTask(),
+                top_functions=[{"name": "fib_hotspot", "samples": 100, "percent": 68.5}],
+                repo=stub_repo,
+                auto_execute_safe=True,
+            )
+        assert outcome.repair_plan.status == "policy_handoff_required"
+        assert stub_repo.created_payloads == []
+        followup = next(
+            item for item in outcome.repair_plan.actions
+            if item.action_type == "create_followup_task"
+        )
+        assert followup.status == "policy_handoff_required"
+
+    def test_io_followup_never_expands_missing_target_to_pid_one(self):
+        report = DiagnosisReport(
+            summary="io wait is high",
+            ranked_causes=[CauseEntry(
+                cause_id="io_wait_high",
+                confidence=0.8,
+                claim="block device latency is elevated",
+                evidence_refs=["system_metrics.io_wait_percent"],
+            )],
+            facts=[],
+        )
+        plan = build_repair_plan(
+            "task-io",
+            report,
+            EvidenceInput(task_metadata={"agent_id": "agent-a", "target_pid": None}),
+        )
+        assert not any(item.action_type == "create_followup_task" for item in plan.actions)
+        assert any("PID 1" in item.description for item in plan.actions)
 
 
 # ── 自修复重试 ──
@@ -475,6 +559,10 @@ class TestFallback:
             result = diagnose(task_id="t1", evidence=evidence, candidates_json="[]")
             assert result.model_name == "rule-engine-only"
             assert result.report.not_enough_evidence is True
+            assert result.generation_mode == "RULE_FALLBACK"
+            assert result.model_invoked is False
+            assert result.semantic_validated is False
+            assert result.fallback_reason
 
     def test_run_diagnosis_with_no_key(self):
         task = _StubTask()
@@ -512,3 +600,27 @@ class TestFallback:
                 sys_metrics=sys_metrics,
             )
         assert result.report.ranked_causes[0].cause_id == "cpu_userland_hotspot"
+
+
+def test_rca_tools_run_in_parallel(monkeypatch):
+    import time
+
+    from server.app.rca import tools as rca_tools
+
+    original = rca_tools._get_flamegraph_top
+
+    def slow_top(*args, **kwargs):
+        time.sleep(0.4)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(rca_tools, "_get_flamegraph_top", slow_top)
+    start = time.time()
+    results = rca_tools.run_rca_tools(
+        task_record=None,
+        top_functions=[{"name": "calculate_price", "percent": 50.0}],
+    )
+    elapsed = time.time() - start
+    assert len(results) == 5
+    # One tool sleeps 0.4s; with 5 workers the batch finishes near the single
+    # sleep duration rather than the serial sum (~2s).
+    assert elapsed < 1.2, f"tools were not parallel: {elapsed:.2f}s"

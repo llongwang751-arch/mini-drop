@@ -19,15 +19,23 @@ def run_rca_tools(
     task_events: list[dict] | None = None,
     agent_record: Any | None = None,
 ) -> list[ToolResult]:
-    """执行一组只读诊断工具，返回结构化证据。"""
-    tools = [
-        _get_flamegraph_top(top_functions or []),
-        _get_ebpf_latency_summary(ebpf_metrics or {}),
-        _compare_baseline(baseline_diff or {}),
-        _inspect_task_events(task_events or []),
-        _check_agent_health(agent_record, task_record),
+    """Execute the read-only diagnostic tools, collecting evidence in parallel.
+
+    The tools are independent in-memory computations today; running them on a
+    small worker pool keeps the pipeline flat when any tool later becomes
+    I/O-bound (DB / object storage reads). Results preserve the canonical order.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    workers = [
+        lambda: _get_flamegraph_top(top_functions or []),
+        lambda: _get_ebpf_latency_summary(ebpf_metrics or {}),
+        lambda: _compare_baseline(baseline_diff or {}),
+        lambda: _inspect_task_events(task_events or []),
+        lambda: _check_agent_health(agent_record, task_record),
     ]
-    return tools
+    with ThreadPoolExecutor(max_workers=len(workers)) as pool:
+        return list(pool.map(lambda fn: fn(), workers))
 
 
 def tool_results_to_evidence(tool_results: list[ToolResult]) -> list[dict]:

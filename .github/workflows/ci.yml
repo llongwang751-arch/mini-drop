@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  python:
+    name: Python (pytest)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Tests
+        run: python -m pytest tests -q
+      - name: Lint (compileall)
+        run: python -m compileall -q server agent analyzer
+
+  go:
+    name: Go (apiserver)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: apiserver
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: true
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...
+
+  web:
+    name: Web (React)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+
+  native:
+    name: Native (C++ ${{ matrix.component }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [control, agent]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake libgrpc++-dev libprotobuf-dev libpqxx-dev \
+            nlohmann-json3-dev pkg-config protobuf-compiler protobuf-compiler-grpc
+      - name: Configure
+        run: cmake -S native/${{ matrix.component }} -B /tmp/build-${{ matrix.component }} -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build /tmp/build-${{ matrix.component }} --parallel
+      - name: Test
+        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure

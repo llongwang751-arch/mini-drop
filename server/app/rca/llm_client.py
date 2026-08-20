@@ -9,7 +9,12 @@ import json
 import re
 import time
 
-from server.app.ai_provider import chat_completions, get_ai_settings, is_feature_enabled
+from server.app.ai_provider import (
+    chat_completions,
+    get_ai_settings,
+    get_provider_capabilities,
+    is_feature_enabled,
+)
 from server.app.rca.models import CauseEntry, DiagnosisReport, EvidenceInput, ValidatedReport
 from server.app.rca.prompt import build_system_prompt, build_user_message
 
@@ -36,6 +41,7 @@ def diagnose(
     """
     model_name = model_name or get_ai_settings().model
     evidence_json = _serialize_evidence(evidence)
+    candidate_caps = _candidate_confidence_caps(candidates_json)
     system_prompt = build_system_prompt(model_name)
     user_message = build_user_message(evidence_json, candidates_json)
 
@@ -51,14 +57,23 @@ def diagnose(
     for attempt in range(1 + MAX_RETRIES):
         try:
             raw = _call_deepseek(messages, model_name)
-            report, issues = _validate_and_parse(raw, evidence)
+            report, issues = _validate_and_parse(raw, evidence, candidate_caps)
             if not issues:
+                report = _apply_confidence_caps(report, candidate_caps)
                 return ValidatedReport(
                     task_id=task_id,
                     model_name=model_name,
                     evidence_snapshot=json.loads(evidence_json),
                     report=report,
                     validated=True,
+                    generation_mode="MODEL",
+                    schema_validated=True,
+                    reference_validated=True,
+                    # Claim/evidence semantic entailment is not yet proven by
+                    # the legacy validator.  Keep the field explicit instead
+                    # of overloading `validated`.
+                    semantic_validated=False,
+                    model_invoked=True,
                     retry_count=attempt,
                 )
 
@@ -89,6 +104,12 @@ def diagnose(
             not_enough_evidence=True,
         ),
         validated=False,
+        generation_mode="MODEL_FAILED",
+        schema_validated=False,
+        reference_validated=False,
+        semantic_validated=False,
+        model_invoked=True,
+        fallback_reason=last_error,
         validation_issues=[last_error],
         retry_count=MAX_RETRIES,
     )
@@ -116,17 +137,28 @@ def _call_deepseek(messages: list[dict], model: str) -> str:
     Raises:
         RuntimeError: API 返回非 200。
     """
-    resp = chat_completions(
-        {
-            "model": model,
-            "messages": messages,
-            "thinking": {"type": "disabled"},
-            "temperature": 0.1,  # 低温：归因需要确定性而非创意
-            "max_tokens": 2048,
-            "response_format": {"type": "json_object"},
-        },
-        timeout=60,
-    )
+    request = {
+        "model": model,
+        "messages": messages,
+        "thinking": {"type": "disabled"},
+        "temperature": 0.1,  # 低温：归因需要确定性而非创意
+        "max_tokens": 2048,
+    }
+    # Use structured output when the provider advertised JSON Schema support
+    # (assessment §4.6); otherwise fall back to JSON-object mode.
+    capabilities = get_provider_capabilities()
+    if capabilities.supports_json_schema:
+        request["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "diagnosis_report",
+                "strict": False,
+                "schema": {"type": "object"},
+            },
+        }
+    else:
+        request["response_format"] = {"type": "json_object"}
+    resp = chat_completions(request, timeout=60)
 
     if resp.status_code != 200:
         raise RuntimeError(f"DeepSeek API 返回 {resp.status_code}: {resp.text[:300]}")
@@ -137,7 +169,11 @@ def _call_deepseek(messages: list[dict], model: str) -> str:
 
 
 
-def _validate_and_parse(raw: str, evidence: EvidenceInput) -> tuple[DiagnosisReport | None, list[str]]:
+def _validate_and_parse(
+    raw: str,
+    evidence: EvidenceInput,
+    candidate_caps: dict[str, float] | None = None,
+) -> tuple[DiagnosisReport | None, list[str]]:
     """校验 LLM 输出并解析为 DiagnosisReport。
 
     校验规则：
@@ -168,6 +204,10 @@ def _validate_and_parse(raw: str, evidence: EvidenceInput) -> tuple[DiagnosisRep
     # 步骤 3：证据引用完整性——每条 cause 的 evidence_refs 必须在 evidence 中可找到
     valid_paths = _collect_evidence_paths(evidence)
     for i, cause in enumerate(report.ranked_causes):
+        if candidate_caps is not None and cause.cause_id not in candidate_caps:
+            issues.append(
+                f"ranked_causes[{i}].cause_id '{cause.cause_id}' 不在程序候选集合中"
+            )
         for ref in cause.evidence_refs:
             if not _ref_exists(ref, valid_paths):
                 issues.append(f"ranked_causes[{i}].evidence_refs 中的 '{ref}' 不在证据路径中")
@@ -182,6 +222,40 @@ def _validate_and_parse(raw: str, evidence: EvidenceInput) -> tuple[DiagnosisRep
         return None, issues
 
     return report, []
+
+
+def _candidate_confidence_caps(candidates_json: str) -> dict[str, float]:
+    try:
+        payload = json.loads(candidates_json)
+    except (json.JSONDecodeError, TypeError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+    caps: dict[str, float] = {}
+    for item in payload:
+        if not isinstance(item, dict) or not isinstance(item.get("candidate_id"), str):
+            continue
+        try:
+            cap = float(item.get("final_confidence", 0.0))
+        except (TypeError, ValueError):
+            cap = 0.0
+        caps[item["candidate_id"]] = max(0.0, min(1.0, cap))
+    return caps
+
+
+def _apply_confidence_caps(
+    report: DiagnosisReport,
+    candidate_caps: dict[str, float],
+) -> DiagnosisReport:
+    """The model may rank/explain candidates but cannot raise probability."""
+
+    for cause in report.ranked_causes:
+        cause.confidence = min(
+            cause.confidence,
+            candidate_caps.get(cause.cause_id, 0.0),
+        )
+    report.ranked_causes.sort(key=lambda item: item.confidence, reverse=True)
+    return report
 
 
 def _extract_json(raw: str) -> str | None:
@@ -340,4 +414,10 @@ def _fallback_report(task_id: str, evidence: EvidenceInput, candidates_json: str
             not_enough_evidence=not_enough,
         ),
         validated=True,
+        generation_mode="RULE_FALLBACK",
+        schema_validated=True,
+        reference_validated=True,
+        semantic_validated=False,
+        model_invoked=False,
+        fallback_reason="AI provider disabled or API key unavailable",
     )
