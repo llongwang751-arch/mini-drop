@@ -6,6 +6,8 @@
 # 生产环境应评估是否可使用 ambient capabilities 替代 root。
 FROM python:3.11-slim
 
+ARG PIP_INDEX_URL=""
+
 RUN sed -i \
     -e 's|deb.debian.org/debian|mirrors.aliyun.com/debian|g' \
     -e 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' \
@@ -32,7 +34,8 @@ ENV ASYNC_PROFILER_HOME=/opt/async-profiler
 
 WORKDIR /app
 COPY pyproject.toml ./
-RUN python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies'],'grpcio-tools>=1.80,<1.81'])"
+RUN if [ -n "$PIP_INDEX_URL" ]; then export PIP_INDEX_URL; fi; \
+    python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies'],'grpcio-tools>=1.80,<1.81'])"
 
 COPY README.md ./
 COPY server/ ./server/

@@ -191,6 +191,8 @@ services:
     build:
       context: .
       dockerfile: deploy/dockerfiles/agent.Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
     hostname: control-campaign-agent
     environment:
       AGENT_ID: control-campaign-agent
