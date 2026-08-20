@@ -67,6 +67,7 @@ export default function ChatThread({
             submitting={clarifying}
             initialTarget={detail.target || {}}
             initialTimeRange={detail.time_range || {}}
+            draftKey={detail.diagnosis_id || detail.id}
           />
         )}
         <PlannerBlock

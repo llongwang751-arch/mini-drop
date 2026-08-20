@@ -11,6 +11,7 @@ import * as api from "../api/client";
 
 describe("ScopeCard", () => {
   beforeEach(() => {
+    window.sessionStorage.clear();
     api.listAgents.mockResolvedValue([
       { id: "control-campaign-agent", hostname: "control", status: "ONLINE" },
     ]);
@@ -26,6 +27,7 @@ describe("ScopeCard", () => {
       submitting: false,
       initialTarget: {},
       initialTimeRange: {},
+      draftKey: "diag-1",
     };
     const { rerender } = render(<ScopeCard {...props} />);
     const serviceInput = screen.getByLabelText("服务");
@@ -41,5 +43,25 @@ describe("ScopeCard", () => {
     );
 
     await waitFor(() => expect(screen.getByLabelText("服务")).toHaveValue("mini-drop-control"));
+    expect(JSON.parse(window.sessionStorage.getItem("mini-drop-scope-draft:diag-1"))).toMatchObject({
+      service: "mini-drop-control",
+    });
+  });
+
+  it("restores a draft after the component is remounted", async () => {
+    const props = {
+      questions: [],
+      onClarify: vi.fn(),
+      submitting: false,
+      initialTarget: {},
+      initialTimeRange: {},
+      draftKey: "diag-remount",
+    };
+    const first = render(<ScopeCard {...props} />);
+    fireEvent.change(screen.getByLabelText("服务"), { target: { value: "order-service" } });
+    first.unmount();
+
+    render(<ScopeCard {...props} />);
+    await waitFor(() => expect(screen.getByLabelText("服务")).toHaveValue("order-service"));
   });
 });

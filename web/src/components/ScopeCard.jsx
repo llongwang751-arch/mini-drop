@@ -18,7 +18,14 @@ function defaultWindow() {
 }
 
 /** Bind a natural-language problem to a real Agent/PID/time range. */
-export default function ScopeCard({ questions, onClarify, submitting, initialTarget = {}, initialTimeRange = {} }) {
+export default function ScopeCard({
+  questions,
+  onClarify,
+  submitting,
+  initialTarget = {},
+  initialTimeRange = {},
+  draftKey = "new",
+}) {
   const [form] = Form.useForm();
   const [agents, setAgents] = useState([]);
   const [processes, setProcesses] = useState([]);
@@ -32,21 +39,40 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
   const initialPid = initialTarget.pid || undefined;
   const initialStart = initialTimeRange.start || "";
   const initialEnd = initialTimeRange.end || "";
+  const draftStorageKey = `mini-drop-scope-draft:${draftKey}`;
 
   useEffect(() => {
     // SSE/polling returns a fresh detail object on every refresh. Do not let
     // those object-identity changes overwrite values the user is typing.
     if (editingRef.current) return;
     const range = defaultWindow();
-    form.setFieldsValue({
+    let draft = {};
+    try {
+      draft = JSON.parse(window.sessionStorage.getItem(draftStorageKey) || "{}");
+    } catch {
+      draft = {};
+    }
+    const values = {
       service: initialService,
       environment: initialEnvironment,
       agent_id: initialAgentId,
       pid: initialPid,
       start: initialStart ? localDateTime(initialStart) : range.start,
       end: initialEnd ? localDateTime(initialEnd) : range.end,
-    });
-  }, [form, initialService, initialEnvironment, initialAgentId, initialPid, initialStart, initialEnd]);
+      ...draft,
+    };
+    editingRef.current = Object.keys(draft).length > 0;
+    form.setFieldsValue(values);
+  }, [
+    form,
+    draftStorageKey,
+    initialService,
+    initialEnvironment,
+    initialAgentId,
+    initialPid,
+    initialStart,
+    initialEnd,
+  ]);
 
   useEffect(() => {
     let active = true;
@@ -62,16 +88,34 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
     return () => { active = false; };
   }, []);
 
-  function useRecommendedTarget() {
+  async function useRecommendedTarget() {
+    let availableAgents = agents;
+    let availableProcesses = processes;
+    // The first discovery request can overlap with a page refresh. Retry from
+    // the button instead of leaving an empty Agent/PID selector forever.
+    if (availableAgents.length === 0 || availableProcesses.length === 0) {
+      setLoadingTargets(true);
+      try {
+        const [agentRows, processRows] = await Promise.all([listAgents(), listTopProcesses(30)]);
+        availableAgents = (agentRows || []).filter((item) => item.status === "ONLINE");
+        availableProcesses = processRows || [];
+        setAgents(availableAgents);
+        setProcesses(availableProcesses);
+      } catch {
+        message.error("在线 Agent 或候选进程加载失败，请确认 API Key 和网络连接后重试");
+      } finally {
+        setLoadingTargets(false);
+      }
+    }
     // /api/top-processes is discovered on the control host. Prefer the
     // control-host Agent so the suggested PID is guaranteed to be visible in
     // the same PID namespace; remote worker PIDs must be entered explicitly.
-    const agent = agents.find((item) => (
+    const agent = availableAgents.find((item) => (
       item.id === "control-campaign-agent"
       || item.hostname === "control-campaign-agent"
       || item.id === "agent_native_cpp"
-    )) || agents[0];
-    const process = processes[0];
+    )) || availableAgents[0];
+    const process = availableProcesses[0];
     const values = form.getFieldsValue();
     const range = defaultWindow();
     editingRef.current = true;
@@ -106,6 +150,11 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
       },
       time_range: { start: start.toISOString(), end: end.toISOString(), timezone: "Asia/Shanghai" },
     });
+    try {
+      window.sessionStorage.removeItem(draftStorageKey);
+    } catch {
+      // Browser storage may be disabled; successful submission still stands.
+    }
     message.success("范围已确认，AI 开始生成可证伪假设和取证计划");
   }
 
@@ -127,7 +176,14 @@ export default function ScopeCard({ questions, onClarify, submitting, initialTar
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
-          onValuesChange={() => { editingRef.current = true; }}
+          onValuesChange={(_, allValues) => {
+            editingRef.current = true;
+            try {
+              window.sessionStorage.setItem(draftStorageKey, JSON.stringify(allValues));
+            } catch {
+              // Keep the in-memory draft when browser storage is unavailable.
+            }
+          }}
           requiredMark
         >
           <Row gutter={12}>
