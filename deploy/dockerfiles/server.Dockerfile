@@ -1,7 +1,14 @@
 # Mini-Drop Server Dockerfile
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG DEBIAN_MIRROR=""
+
+# 海外环境默认使用 Debian 官方源；国内云主机可通过构建参数传入
+# https://mirrors.aliyun.com，避免首次安装 perf 等系统依赖耗时过长。
+RUN if [ -n "$DEBIAN_MIRROR" ]; then \
+      sed -i "s|http://deb.debian.org|${DEBIAN_MIRROR}|g" /etc/apt/sources.list.d/debian.sources; \
+    fi \
+    && apt-get update && apt-get install -y --no-install-recommends \
     bash \
     curl \
     gosu \

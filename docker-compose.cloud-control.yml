@@ -39,6 +39,8 @@ services:
     build:
       context: .
       dockerfile: deploy/dockerfiles/server.Dockerfile
+      args:
+        DEBIAN_MIRROR: ${DEBIAN_MIRROR:-}
     image: mini-drop-cloud-server:local
     command: ["python", "-m", "alembic", "upgrade", "head"]
     environment:
