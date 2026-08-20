@@ -41,6 +41,7 @@ services:
       dockerfile: deploy/dockerfiles/server.Dockerfile
       args:
         DEBIAN_MIRROR: ${DEBIAN_MIRROR:-}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
     image: mini-drop-cloud-server:local
     command: ["python", "-m", "alembic", "upgrade", "head"]
     environment:

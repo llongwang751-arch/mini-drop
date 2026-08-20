@@ -2,6 +2,7 @@
 FROM python:3.11-slim
 
 ARG DEBIAN_MIRROR=""
+ARG PIP_INDEX_URL=""
 
 # 海外环境默认使用 Debian 官方源；国内云主机可通过构建参数传入
 # https://mirrors.aliyun.com，避免首次安装 perf 等系统依赖耗时过长。
@@ -22,7 +23,8 @@ RUN useradd --create-home --shell /bin/bash mini-drop
 WORKDIR /app
 
 COPY pyproject.toml ./
-RUN python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies'],'grpcio-tools>=1.80,<1.81'])"
+RUN if [ -n "$PIP_INDEX_URL" ]; then export PIP_INDEX_URL; fi; \
+    python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies'],'grpcio-tools>=1.80,<1.81'])"
 
 COPY README.md ./
 COPY alembic.ini ./
