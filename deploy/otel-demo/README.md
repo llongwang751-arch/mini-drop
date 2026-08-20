@@ -7,11 +7,12 @@ or Docker socket mount.
 
 ## Preconditions
 
-- `external/opentelemetry-demo` is checked out at
-  `3684411da9a4dc3e77cddfef929a630d6f5af6c5`.
+- The OTel source tree is pinned at
+  `3684411da9a4dc3e77cddfef929a630d6f5af6c5`; cloud runs set
+  `MINI_DROP_OTEL_SOURCE_ROOT=/opt/mini-drop-otel-3684411`.
 - The selected flag fixture has been copied to a writable, per-run directory.
-- `MINI_DROP_OTEL_SCENARIO`, `MINI_DROP_OTEL_EXPIRES_AT`, and
-  `MINI_DROP_OTEL_FLAG_DIR` are set for that run.
+- `MINI_DROP_OTEL_SOURCE_ROOT`, `MINI_DROP_OTEL_SCENARIO`,
+  `MINI_DROP_OTEL_EXPIRES_AT`, and `MINI_DROP_OTEL_FLAG_DIR` are set for that run.
 - Every invocation supplies a unique Compose project name with `--project-name`.
 - CPU and memory fixtures run separately or strictly serially.
 
@@ -24,6 +25,7 @@ From the repository root, set the three required variables and merge the common
 file with exactly one case file:
 
 ```sh
+export MINI_DROP_OTEL_SOURCE_ROOT=/opt/mini-drop-otel-3684411
 export MINI_DROP_OTEL_SCENARIO=T1-CPU-001
 export MINI_DROP_OTEL_EXPIRES_AT=2026-08-20T00:00:00Z
 export MINI_DROP_OTEL_FLAG_DIR=/srv/mini-drop/otel-runs/cpu-smoke/flags

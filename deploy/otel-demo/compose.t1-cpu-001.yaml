@@ -1,7 +1,7 @@
 services:
   ad:
     build:
-      context: ../../external/opentelemetry-demo
+      context: ${MINI_DROP_OTEL_SOURCE_ROOT:?set MINI_DROP_OTEL_SOURCE_ROOT}
       dockerfile: src/ad/Dockerfile
       args:
         OTEL_JAVA_AGENT_VERSION: "2.30.0"

@@ -248,6 +248,7 @@ def execute_campaign_window(
     project_name: str | None = None,
     compose_files: list[Path] | None = None,
     environment_file: Path | None = None,
+    flag_config_path: Path | None = None,
     window_id: str | None = None,
 ) -> dict[str, Any]:
     if repetition not in {1, 2, 3}:
@@ -368,7 +369,8 @@ def execute_campaign_window(
         persist()
 
         manifest["fault_reset_before_baseline"] = set_otel_feature_flag(
-            "T1-MEM-001", otel_root=otel_root, enabled=False
+            "T1-MEM-001", otel_root=otel_root, enabled=False,
+            flag_config_path=flag_config_path
         )
         baseline_load = start_workload(workload, target, load_workers)
         manifest["baseline_load"] = {
@@ -433,7 +435,8 @@ def execute_campaign_window(
         time.sleep(4)
         check_active_fixture()
         manifest["fault_enable"] = set_otel_feature_flag(
-            "T1-MEM-001", otel_root=otel_root, enabled=True
+            "T1-MEM-001", otel_root=otel_root, enabled=True,
+            flag_config_path=flag_config_path
         )
         persist()
         time.sleep(4)
@@ -519,7 +522,10 @@ def execute_campaign_window(
         }
         try:
             cleanup["flag_reset"] = set_otel_feature_flag(
-                "T1-MEM-001", otel_root=otel_root, enabled=False
+                "T1-MEM-001",
+                otel_root=otel_root,
+                enabled=False,
+                flag_config_path=flag_config_path,
             )
         except Exception as exc:
             cleanup["errors"].append(f"flag_reset: {type(exc).__name__}: {exc}")
@@ -627,6 +633,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repetition", type=int, choices=(1, 2, 3), required=True)
     parser.add_argument("--otel-root", type=Path, default=DEFAULT_OTEL_ROOT)
+    parser.add_argument("--flag-config-path", type=Path, default=None)
     parser.add_argument("--base-url", default="http://localhost")
     parser.add_argument("--agent-id", default="agent_local_demo")
     parser.add_argument("--container", default="email")
@@ -668,6 +675,7 @@ def main() -> None:
             project_name=args.project_name,
             compose_files=args.compose_files,
             environment_file=args.environment_file,
+            flag_config_path=args.flag_config_path,
         )
     except ValueError as exc:
         parser.error(str(exc))

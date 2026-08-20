@@ -21,6 +21,8 @@ from grpc_tools import protoc
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OTEL_ROOT = ROOT / "external" / "opentelemetry-demo"
+PINNED_OTEL_REVISION = "3684411da9a4dc3e77cddfef929a630d6f5af6c5"
+OTEL_REVISION_MARKER = ".mini-drop-pinned-revision"
 
 
 def atomic_write_json(path: Path, payload: Any) -> None:
@@ -67,6 +69,34 @@ def run_command(*args: str) -> str:
         errors="replace",
     )
     return process.stdout.strip()
+
+
+def resolve_otel_revision(
+    otel_root: Path,
+    *,
+    expected_revision: str = PINNED_OTEL_REVISION,
+) -> str:
+    """Resolve and validate an OTel source revision from Git or its upload marker."""
+
+    root = otel_root.resolve()
+    try:
+        revision = run_command("git", "-C", str(root), "rev-parse", "HEAD")
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        marker = root / OTEL_REVISION_MARKER
+        try:
+            revision = marker.read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise RuntimeError(
+                f"cannot resolve OTel revision from Git or marker {marker}: {exc}"
+            ) from exc
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", revision):
+        raise RuntimeError(f"invalid OTel revision: {revision!r}")
+    revision = revision.lower()
+    if revision != expected_revision.lower():
+        raise RuntimeError(
+            f"OTel revision mismatch: expected {expected_revision}, got {revision}"
+        )
+    return revision
 
 
 def docker_host_port(container: str, port: int) -> int:

@@ -28,7 +28,7 @@ try:
         docker_stats,
         host_pid,
         restart_and_wait_healthy,
-        run_command,
+        resolve_otel_revision,
         summarize_samples,
     )
 except ModuleNotFoundError:
@@ -43,7 +43,7 @@ except ModuleNotFoundError:
         docker_stats,
         host_pid,
         restart_and_wait_healthy,
-        run_command,
+        resolve_otel_revision,
         summarize_samples,
     )
 from server.app.diagnosis.benchmark_adapters import set_otel_feature_flag
@@ -64,6 +64,7 @@ def run_phase(
     name: str,
     enabled: bool,
     otel_root: Path,
+    flag_config_path: Path | None = None,
     target: str,
     container: str,
     duration: float,
@@ -72,7 +73,12 @@ def run_phase(
     demo_pb2_grpc: Any,
     expected_pid: int,
 ) -> dict[str, Any]:
-    toggle = set_otel_feature_flag(case_id, otel_root=otel_root, enabled=enabled)
+    toggle = set_otel_feature_flag(
+        case_id,
+        otel_root=otel_root,
+        enabled=enabled,
+        flag_config_path=flag_config_path,
+    )
     time.sleep(2)
     started = datetime.now(timezone.utc)
     deadline = time.monotonic() + duration
@@ -212,6 +218,7 @@ def execute_experiment(
     workers: int,
     output: Path,
     container: str = "ad",
+    flag_config_path: Path | None = None,
     project_name: str | None = None,
     compose_files: list[Path] | None = None,
     environment_file: Path | None = None,
@@ -247,9 +254,7 @@ def execute_experiment(
     recovery_completed = False
     pending_error: BaseException | None = None
     try:
-        result["otel_commit"] = run_command(
-            "git", "-C", str(otel_root), "rev-parse", "HEAD"
-        )
+        result["otel_commit"] = resolve_otel_revision(otel_root)
         if provenance_enabled:
             result["provenance"]["compose"] = compose_config_provenance(
                 project_name=project_name,
@@ -257,7 +262,12 @@ def execute_experiment(
                 environment_file=environment_file,
             )
         if case_id == "T1-GC-001":
-            reset = set_otel_feature_flag(case_id, otel_root=otel_root, enabled=False)
+            reset = set_otel_feature_flag(
+                case_id,
+                otel_root=otel_root,
+                enabled=False,
+                flag_config_path=flag_config_path,
+            )
             result["flag_transitions"].append({"phase": "precondition", **reset})
             result["precondition"] = restart_and_wait_healthy(container)
 
@@ -282,6 +292,7 @@ def execute_experiment(
                 name=name,
                 enabled=enabled,
                 otel_root=otel_root,
+                flag_config_path=flag_config_path,
                 target=target,
                 container=container,
                 duration=duration,
@@ -296,7 +307,12 @@ def execute_experiment(
                 raise FixtureFailure(phase["fixture_failure"]["reason"])
 
         if case_id == "T1-GC-001":
-            reset = set_otel_feature_flag(case_id, otel_root=otel_root, enabled=False)
+            reset = set_otel_feature_flag(
+                case_id,
+                otel_root=otel_root,
+                enabled=False,
+                flag_config_path=flag_config_path,
+            )
             result["flag_transitions"].append({"phase": "recovery_intervention", **reset})
             result["recovery_intervention"] = restart_and_wait_healthy(container)
             current_pid = result["recovery_intervention"]["after_pid"]
@@ -316,6 +332,7 @@ def execute_experiment(
             name="recovery",
             enabled=False,
             otel_root=otel_root,
+            flag_config_path=flag_config_path,
             target=target,
             container=container,
             duration=duration,
@@ -338,7 +355,10 @@ def execute_experiment(
         cleanup: dict[str, Any] = {"flag_reset": None, "gc_restart": None, "errors": []}
         try:
             cleanup["flag_reset"] = set_otel_feature_flag(
-                case_id, otel_root=otel_root, enabled=False
+                case_id,
+                otel_root=otel_root,
+                enabled=False,
+                flag_config_path=flag_config_path,
             )
             result["flag_transitions"].append(
                 {"phase": "cleanup", **cleanup["flag_reset"]}
@@ -379,6 +399,7 @@ def main() -> None:
         description="Run OTel ad-service baseline/fault/recovery experiment"
     )
     parser.add_argument("--otel-root", type=Path, default=DEFAULT_OTEL_ROOT)
+    parser.add_argument("--flag-config-path", type=Path, default=None)
     parser.add_argument("--case-id", choices=AD_CASE_IDS, default=DEFAULT_CASE_ID)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--container", default="ad")
@@ -414,6 +435,7 @@ def main() -> None:
         workers=args.workers,
         output=output,
         container=args.container,
+        flag_config_path=args.flag_config_path,
         project_name=args.project_name,
         compose_files=args.compose_files,
         environment_file=args.environment_file,

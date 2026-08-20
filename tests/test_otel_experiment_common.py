@@ -235,6 +235,34 @@ def test_restart_requires_changed_host_pid(monkeypatch: pytest.MonkeyPatch) -> N
         common.restart_and_wait_healthy("email")
 
 
+def test_resolve_otel_revision_falls_back_to_upload_marker(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    marker = tmp_path / common.OTEL_REVISION_MARKER
+    marker.write_text(common.PINNED_OTEL_REVISION + "\n", encoding="utf-8")
+
+    def no_git(*args: str) -> str:
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(common, "run_command", no_git)
+
+    assert common.resolve_otel_revision(tmp_path) == common.PINNED_OTEL_REVISION
+
+
+def test_resolve_otel_revision_rejects_marker_mismatch(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    (tmp_path / common.OTEL_REVISION_MARKER).write_text("0" * 40, encoding="utf-8")
+    monkeypatch.setattr(
+        common,
+        "run_command",
+        lambda *args: (_ for _ in ()).throw(FileNotFoundError("git")),
+    )
+
+    with pytest.raises(RuntimeError, match="OTel revision mismatch"):
+        common.resolve_otel_revision(tmp_path)
+
+
 def test_atomic_write_json_replaces_destination(tmp_path: Path) -> None:
     destination = tmp_path / "result.json"
     destination.write_text('{"stale": true}\n', encoding="utf-8")

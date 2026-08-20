@@ -30,14 +30,16 @@ def _phase(
 
 
 def _prepare_execute(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(experiment, "run_command", lambda *args: "pinned-commit")
+    monkeypatch.setattr(
+        experiment, "resolve_otel_revision", lambda _root: "pinned-commit"
+    )
     monkeypatch.setattr(experiment, "host_pid", lambda _container: 123)
     monkeypatch.setattr(experiment, "docker_host_port", lambda *args: 9555)
     monkeypatch.setattr(experiment, "compile_proto", lambda *args: (object(), object()))
     monkeypatch.setattr(
         experiment,
         "set_otel_feature_flag",
-        lambda _case, *, otel_root, enabled: {"enabled": enabled},
+        lambda _case, *, otel_root, enabled, flag_config_path=None: {"enabled": enabled},
     )
 
 
@@ -171,7 +173,7 @@ def test_execute_experiment_persists_partial_manifest_after_phase_failure(
     monkeypatch.setattr(
         experiment,
         "set_otel_feature_flag",
-        lambda _case, *, otel_root, enabled: toggles.append(enabled) or {"enabled": enabled},
+        lambda _case, *, otel_root, enabled, flag_config_path=None: toggles.append(enabled) or {"enabled": enabled},
     )
     monkeypatch.setattr(
         experiment,

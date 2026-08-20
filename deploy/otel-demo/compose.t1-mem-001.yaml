@@ -1,7 +1,7 @@
 services:
   email:
     build:
-      context: ../../external/opentelemetry-demo
+      context: ${MINI_DROP_OTEL_SOURCE_ROOT:?set MINI_DROP_OTEL_SOURCE_ROOT}
       dockerfile: src/email/Dockerfile
     image: mini-drop/otel-demo-email:3684411
     environment:

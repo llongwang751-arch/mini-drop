@@ -498,6 +498,7 @@ def set_otel_feature_flag(
     *,
     otel_root: Path,
     enabled: bool,
+    flag_config_path: Path | None = None,
 ) -> dict[str, Any]:
     """Atomically toggle a pinned OTel Demo case in demo.flagd.json."""
 
@@ -510,7 +511,11 @@ def set_otel_feature_flag(
     ).get(scenario)
     if not values:
         raise KeyError(f"no pinned flag mapping for {scenario}")
-    config_path = otel_root / OTEL_FLAGD_PATH
+    config_path = (
+        flag_config_path
+        if flag_config_path is not None
+        else otel_root / OTEL_FLAGD_PATH
+    )
     payload = json.loads(config_path.read_text(encoding="utf-8"))
     flags = payload.get("flags", {})
     changes = []

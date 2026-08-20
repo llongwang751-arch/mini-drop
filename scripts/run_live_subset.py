@@ -262,8 +262,10 @@ def execute_live_subset(
     memory_container: str = "email",
     cpu_project_name: str | None = None,
     cpu_compose_files: list[Path] | None = None,
+    cpu_flag_config_path: Path | None = None,
     memory_project_name: str | None = None,
     memory_compose_files: list[Path] | None = None,
+    memory_flag_config_path: Path | None = None,
     environment_file: Path | None = None,
     cpu_executor: WindowExecutor = execute_cpu_window,
     memory_executor: WindowExecutor = execute_memory_window,
@@ -289,6 +291,7 @@ def execute_live_subset(
             "ad",
             cpu_project_name,
             cpu_compose_files,
+            cpu_flag_config_path,
         ),
         (
             "T1-MEM-001",
@@ -297,9 +300,10 @@ def execute_live_subset(
             "email",
             memory_project_name,
             memory_compose_files,
+            memory_flag_config_path,
         ),
     )
-    for case_id, executor, container, service, project_name, compose_files in case_configs:
+    for case_id, executor, container, service, project_name, compose_files, flag_config_path in case_configs:
         if (project_name is None) != (compose_files is None):
             raise ValueError(
                 f"{case_id} requires project_name and compose_files together"
@@ -342,6 +346,7 @@ def execute_live_subset(
                 project_name=project_name,
                 compose_files=compose_files,
                 environment_file=environment_file,
+                flag_config_path=flag_config_path,
                 window_id=window_id,
             )
             manifest_path = output_dir / "campaign-windows" / f"{window_id}-manifest.json"
@@ -436,8 +441,10 @@ def main() -> int:
     parser.add_argument("--memory-container", default="email")
     parser.add_argument("--cpu-project-name", default=None)
     parser.add_argument("--cpu-compose-file", type=Path, action="append")
+    parser.add_argument("--cpu-flag-config-path", type=Path, default=None)
     parser.add_argument("--memory-project-name", default=None)
     parser.add_argument("--memory-compose-file", type=Path, action="append")
+    parser.add_argument("--memory-flag-config-path", type=Path, default=None)
     parser.add_argument("--environment-file", type=Path, default=None)
     parser.add_argument(
         "--output-dir",
@@ -466,8 +473,10 @@ def main() -> int:
             memory_container=args.memory_container,
             cpu_project_name=args.cpu_project_name,
             cpu_compose_files=args.cpu_compose_file,
+            cpu_flag_config_path=args.cpu_flag_config_path,
             memory_project_name=args.memory_project_name,
             memory_compose_files=args.memory_compose_file,
+            memory_flag_config_path=args.memory_flag_config_path,
             environment_file=args.environment_file,
         )
     print(json.dumps(result, ensure_ascii=False, indent=2))

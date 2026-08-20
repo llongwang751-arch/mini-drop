@@ -412,3 +412,23 @@ def test_otel_flag_toggle_is_version_checked_and_reversible(tmp_path: Path) -> N
 
     set_otel_feature_flag("T1-CPU-001", otel_root=tmp_path, enabled=False)
     assert json.loads(path.read_text())["flags"]["adHighCpu"]["defaultVariant"] == "off"
+
+
+def test_otel_flag_toggle_uses_explicit_isolated_config_path(tmp_path: Path) -> None:
+    _write_otel_fixture(tmp_path)
+    shared_path = tmp_path / "src" / "flagd" / "demo.flagd.json"
+    shared_before = shared_path.read_bytes()
+    isolated_path = tmp_path / "run-flags" / "demo.flagd.json"
+    isolated_path.parent.mkdir()
+    isolated_path.write_bytes(shared_before)
+
+    result = set_otel_feature_flag(
+        "T1-CPU-001",
+        otel_root=tmp_path,
+        enabled=True,
+        flag_config_path=isolated_path,
+    )
+
+    assert result["config_path"] == str(isolated_path)
+    assert json.loads(isolated_path.read_text(encoding="utf-8"))["flags"]["adHighCpu"]["defaultVariant"] == "on"
+    assert shared_path.read_bytes() == shared_before

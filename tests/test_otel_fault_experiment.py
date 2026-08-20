@@ -116,11 +116,11 @@ def _prepare_memory_execute(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     monkeypatch.setattr(experiment, "request_factory", lambda *args: _workload())
     monkeypatch.setattr(experiment, "docker_host_port", lambda *args: 6060)
-    monkeypatch.setattr(experiment, "run_command", lambda *args: "pinned-commit")
+    monkeypatch.setattr(experiment, "resolve_otel_revision", lambda _root: "pinned-commit")
     monkeypatch.setattr(
         experiment,
         "set_otel_feature_flag",
-        lambda _case, *, otel_root, enabled: {"enabled": enabled},
+        lambda _case, *, otel_root, enabled, flag_config_path=None: {"enabled": enabled},
     )
 
 
@@ -187,7 +187,7 @@ def test_execute_experiment_restarts_memory_fixture_after_incident_failure(
     monkeypatch.setattr(
         experiment,
         "set_otel_feature_flag",
-        lambda _case, *, otel_root, enabled: toggles.append(enabled) or {"enabled": enabled},
+        lambda _case, *, otel_root, enabled, flag_config_path=None: toggles.append(enabled) or {"enabled": enabled},
     )
     monkeypatch.setattr(
         experiment,
@@ -401,8 +401,8 @@ def test_execute_experiment_does_not_require_docker_provenance_without_compose_i
 ) -> None:
     monkeypatch.setattr(
         experiment,
-        "run_command",
-        lambda *args: (_ for _ in ()).throw(RuntimeError("git unavailable")),
+        "resolve_otel_revision",
+        lambda _root: (_ for _ in ()).throw(RuntimeError("git unavailable")),
     )
     monkeypatch.setattr(
         experiment,
