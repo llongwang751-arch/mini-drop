@@ -161,7 +161,17 @@ def _call_deepseek(messages: list[dict], model: str) -> str:
     resp = chat_completions(request, timeout=60)
 
     if resp.status_code != 200:
-        raise RuntimeError(f"DeepSeek API 返回 {resp.status_code}: {resp.text[:300]}")
+        request_id = ""
+        headers = getattr(resp, "headers", {}) or {}
+        for key in ("x-request-id", "request-id", "x-correlation-id"):
+            value = headers.get(key) if hasattr(headers, "get") else None
+            if value:
+                request_id = str(value)[:128]
+                break
+        suffix = f" request_id={request_id}" if request_id else ""
+        raise RuntimeError(
+            f"DeepSeek API request failed: status={resp.status_code}{suffix}"
+        )
 
     body = resp.json()
     content = body["choices"][0]["message"]["content"]

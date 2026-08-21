@@ -444,6 +444,10 @@ export function listDiagnosticCases(params = {}) {
   return api.get("/diagnostic-cases", { params }).then(itemsOf);
 }
 
+export function listDiagnosticCasesPage(params = {}) {
+  return api.get("/diagnostic-cases", { params });
+}
+
 // ── 评测闭环（方案 §9）──────────────────────────────────────
 
 export function getDiagnosisEvalCatalog() {
@@ -456,6 +460,18 @@ export function getExternalDiagnosisBenchmark() {
 
 export function getExternalDiagnosisBenchmarkCase(caseId) {
   return api.get(`/v1/diagnosis-evaluations/external/cases/${encodeURIComponent(caseId)}`);
+}
+
+export function getRealWorldBenchmarkCatalog() {
+  return api.get("/v1/real-world-benchmarks/catalog");
+}
+
+export function startRealWorldBenchmark(caseId) {
+  return api.post("/v1/real-world-benchmarks/runs", { case_id: caseId });
+}
+
+export function getRealWorldBenchmarkRun(runId) {
+  return api.get(`/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}`);
 }
 
 export function listDropInsightFeedback(diagnosisId) {

@@ -538,6 +538,11 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
     repo.transition_task(task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
 
 
+def _fail_task(task_id: str, reason: str = "collector unavailable"):
+    repo.transition_task(task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
+    repo.transition_task(task_id, TaskStatus.FAILED, reason, Actor.AGENT)
+
+
 def _normal_summary() -> dict:
     return {
         "avg_cpu_user_pct": 18.0,
@@ -594,6 +599,8 @@ def test_explicit_baseline_task_is_bound_as_immutable_baseline_snapshot(client: 
     ]
     assert len(baseline_snapshots) == 1
     assert baseline_snapshots[0]["task_id"] == baseline.id
+    assert baseline_snapshots[0]["attempt_id"]
+    assert baseline_snapshots[0]["task_attempt_id"] == baseline_snapshots[0]["attempt_id"]
     assert detail["baseline_snapshot_id"] == baseline_snapshots[0]["snapshot_id"]
     assert all(
         item["evidence_role"] == "baseline"
@@ -726,16 +733,8 @@ class TestDiagnosisSessionAPI:
         assert repo.tasks[approved_probe["task_id"]].collector_type == "perf_cpu"
 
     def test_completed_probe_produces_evidence_linked_candidate(self, client: TestClient):
-        payload = _payload()
-        payload["evaluation_oracle"] = {
-            "case_id": "cpu-hotspot-001",
-            "expected_instance_id": "service-a-1",
-            "expected_location_type": "self",
-            "expected_domain_type": "cpu",
-            "expected_classification": "self_code_or_process_pressure",
-        }
-        data = client.post("/api/v1/diagnoses", json=payload).json()["data"]
-        assert data["evaluation_oracle"]["case_id"] == "cpu-hotspot-001"
+        data = client.post("/api/v1/diagnoses", json=_payload()).json()["data"]
+        assert "evaluation_oracle" not in data
         assert "evaluation_oracle" not in data["normalized_intent"]
         task_id = data["child_task_ids"][0]
         repo.transition_task(task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
@@ -784,6 +783,8 @@ class TestDiagnosisSessionAPI:
         snapshot = detail["evidence_snapshots"][0]
         assert snapshot["evidence_role"] == "incident"
         assert snapshot["task_id"] == task_id
+        assert snapshot["attempt_id"]
+        assert snapshot["task_attempt_id"] == snapshot["attempt_id"]
         assert set(snapshot["evidence_refs"]) == evidence_ids
         assert snapshot["time_range"]["start"]
         assert snapshot["time_range"]["end"]
@@ -793,12 +794,7 @@ class TestDiagnosisSessionAPI:
         assert detail["latest_conclusion"]["verification"]["status"] == "passed"
         assert detail["latest_conclusion"]["findings"]
         assert detail["latest_conclusion"]["knowledge_refs"]
-        evaluation = detail["latest_conclusion"]["evaluation"]
-        assert evaluation["case_id"] == "cpu-hotspot-001"
-        assert evaluation["oracle_isolated"] is True
-        assert evaluation["exact_match"] is True
-        assert evaluation["score_pct"] == 100.0
-        assert evaluation["matched_count"] == evaluation["specified_count"] == 4
+        assert "evaluation" not in detail["latest_conclusion"]
         actions = detail["latest_conclusion"]["actions"]
         assert actions
         assert all(action["action_type"] in {"inspect", "collect", "manual_remediation"} for action in actions)
@@ -819,6 +815,91 @@ class TestDiagnosisSessionAPI:
         assert graph["open_world_state"] in {"EXPLORING", "EXPLAINED"}
         assert set(graph["unexplained_evidence_refs"]).issubset(evidence_ids)
         assert set(graph["new_hypothesis_request"]["evidence_refs"]).issubset(evidence_ids)
+
+    def test_failed_probe_records_failure_without_success_snapshot(self, client: TestClient):
+        payload = _payload()
+        payload["budget"] = {"max_medium_risk_probes": 0}
+        created = client.post("/api/v1/diagnoses", json=payload).json()["data"]
+        task_id = created["child_task_ids"][0]
+
+        _fail_task(task_id)
+        detail = client.get(
+            f"/api/v1/diagnoses/{created['diagnosis_id']}"
+        ).json()["data"]
+
+        assert detail["status"] == "PARTIAL_COMPLETED"
+        assert detail["evidence_snapshots"] == []
+        assert len(detail["evidence"]) == 1
+        assert detail["evidence"][0]["observed_value"]["status"] == "FAILED"
+        assert not any(
+            attempt.status == TaskStatus.DONE
+            for attempt in repo.get_task_attempts(task_id)
+        )
+
+    def test_mixed_failed_and_successful_probes_keep_only_valid_snapshot(
+        self, client: TestClient,
+    ):
+        repo.register_agent(
+            "a2", "host-2", "10.0.0.2",
+            capabilities=["sys_metrics", "perf_cpu", "ebpf_io", "memory_smaps"],
+        )
+        payload = _payload()
+        payload["budget"] = {"max_medium_risk_probes": 0}
+        payload["context"]["instances"].append({
+            "service_id": "service-b",
+            "instance_id": "service-b-1",
+            "host_id": "host-2",
+            "agent_id": "a2",
+            "pid": 5678,
+            "environment": "production",
+        })
+        payload["context"]["dependencies"] = [{
+            "source_service": "service-a",
+            "target_service": "service-b",
+            "relation": "CALLS",
+        }]
+        created = client.post("/api/v1/diagnoses", json=payload).json()["data"]
+        task_ids = [
+            item["task_id"] for item in created["probes"]
+            if item["probe_id"] == "host_process_metrics"
+        ]
+
+        _fail_task(task_ids[0])
+        _finish_sys_metrics_task(task_ids[1], _normal_summary())
+        detail = client.get(
+            f"/api/v1/diagnoses/{created['diagnosis_id']}"
+        ).json()["data"]
+
+        assert detail["status"] == "PARTIAL_COMPLETED"
+        assert len(detail["evidence_snapshots"]) == 1
+        assert detail["evidence_snapshots"][0]["task_id"] == task_ids[1]
+        failed_evidence = [
+            item for item in detail["evidence"]
+            if item["observed_value"].get("status") == "FAILED"
+        ]
+        assert len(failed_evidence) == 1
+
+    def test_create_case_id_persists_into_frozen_artifact(self, client: TestClient):
+        payload = _payload()
+        payload["case_id"] = "case-e2e-freeze"
+
+        created = client.post("/api/v1/diagnoses", json=payload).json()["data"]
+        diagnosis_id = created["diagnosis_id"]
+
+        summary = _normal_summary()
+        summary.update({
+            "avg_cpu_user_pct": 92.0,
+            "avg_cpu_sys_pct": 5.0,
+            "load1m": 8.0,
+        })
+        _finish_sys_metrics_task(created["child_task_ids"][0], summary)
+
+        detail = client.get(f"/api/v1/diagnoses/{diagnosis_id}").json()["data"]
+        assert detail["status"] == "COMPLETED"
+        assert detail["case_id"] == "case-e2e-freeze"
+
+        frozen = diagnosis_orchestrator.store.freeze_diagnosis_artifact(diagnosis_id)
+        assert frozen["payload"]["case_id"] == "case-e2e-freeze"
 
     def test_analysis_strategy_is_persisted_and_changes_probe_plan(self, client: TestClient):
         decision_tree = _payload()

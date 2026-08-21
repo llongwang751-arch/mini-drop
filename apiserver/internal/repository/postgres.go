@@ -42,14 +42,14 @@ type Page struct {
 }
 
 type CreateTask struct {
-	Name          string
-	AgentID       string
-	TargetPID     int
-	CollectorType string
-	SampleRate    int
-	DurationSec   int
-	Options       map[string]any
-	CreatorID     string
+	Name           string
+	AgentID        string
+	TargetPID      int
+	CollectorType  string
+	SampleRate     int
+	DurationSec    int
+	Options        map[string]any
+	CreatorID      string
 	IdempotencyKey string
 }
 
@@ -166,11 +166,11 @@ func (p *Postgres) ListDiagnosisSessions(
 		return nil, 0, err
 	}
 	rows, err := p.pool.Query(ctx, `
-		SELECT id,creator_id,raw_query,normalized_intent_json,target_scope_json,
+		SELECT id,case_id,creator_id,raw_query,normalized_intent_json,target_scope_json,
 		       requested_time_range_json,effective_time_range_json,topology_snapshot_id,
 		       baseline_snapshot_id,status,policy_profile,risk_budget_json,
 		       resource_budget_json,budget_used_json,hypothesis_graph_json,
-		       evaluation_oracle_json,child_task_ids_json,conclusion_versions_json,
+		       child_task_ids_json,conclusion_versions_json,
 		       model_version,planner_version,lease_owner,lease_until,row_version,
 		       deadline_at,created_at,updated_at
 		FROM diagnosis_sessions ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
@@ -210,11 +210,11 @@ func (p *Postgres) GetDiagnosticCase(ctx context.Context, caseID string) (map[st
 
 func (p *Postgres) getDiagnosisSession(ctx context.Context, diagnosisID string) (map[string]any, error) {
 	row := p.pool.QueryRow(ctx, `
-		SELECT id,creator_id,raw_query,normalized_intent_json,target_scope_json,
+		SELECT id,case_id,creator_id,raw_query,normalized_intent_json,target_scope_json,
 		       requested_time_range_json,effective_time_range_json,topology_snapshot_id,
 		       baseline_snapshot_id,status,policy_profile,risk_budget_json,
 		       resource_budget_json,budget_used_json,hypothesis_graph_json,
-		       evaluation_oracle_json,child_task_ids_json,conclusion_versions_json,
+		       child_task_ids_json,conclusion_versions_json,
 		       model_version,planner_version,lease_owner,lease_until,row_version,
 		       deadline_at,created_at,updated_at
 		FROM diagnosis_sessions WHERE id=$1`, diagnosisID)
@@ -274,7 +274,7 @@ func (p *Postgres) getClusterDiagnosticCase(
 		  'workload_identity',COALESCE(workload_identity_json,'{}'::json),
 		  'deployment_version',deployment_version,'host_fingerprint',COALESCE(host_fingerprint_json,'{}'::json),
 		  'collector',collector,'collector_version',collector_version,'task_id',task_id,
-		  'attempt_id',attempt_id,'evidence_refs',COALESCE(evidence_refs_json,'[]'::json),
+		  'attempt_id',attempt_id,'task_attempt_id',attempt_id,'evidence_refs',COALESCE(evidence_refs_json,'[]'::json),
 		  'artifact_refs',COALESCE(artifact_refs_json,'[]'::json),'baseline_ref',baseline_ref,
 		  'quality',COALESCE(quality_json,'{}'::json),'integrity_hash',integrity_hash,'created_at',created_at)
 		FROM diagnosis_evidence_snapshots WHERE diagnosis_id=$1 ORDER BY captured_at ASC`, id)
@@ -1296,25 +1296,25 @@ type scanner func(dest ...any) error
 
 func scanDiagnosisSession(scan scanner) (map[string]any, error) {
 	var id, creatorID, rawQuery, status, policyProfile, modelVersion, plannerVersion string
-	var topologySnapshotID, baselineSnapshotID, leaseOwner *string
+	var caseID, topologySnapshotID, baselineSnapshotID, leaseOwner *string
 	var normalizedIntent, targetScope, requestedRange, effectiveRange []byte
 	var riskBudget, resourceBudget, budgetUsed, hypothesisGraph []byte
-	var evaluationOracle, childTaskIDs, conclusionVersions []byte
+	var childTaskIDs, conclusionVersions []byte
 	var leaseUntil *time.Time
 	var rowVersion int
 	var deadlineAt, createdAt, updatedAt time.Time
 	if err := scan(
-		&id, &creatorID, &rawQuery, &normalizedIntent, &targetScope,
+		&id, &caseID, &creatorID, &rawQuery, &normalizedIntent, &targetScope,
 		&requestedRange, &effectiveRange, &topologySnapshotID, &baselineSnapshotID,
 		&status, &policyProfile, &riskBudget, &resourceBudget, &budgetUsed,
-		&hypothesisGraph, &evaluationOracle, &childTaskIDs, &conclusionVersions,
+		&hypothesisGraph, &childTaskIDs, &conclusionVersions,
 		&modelVersion, &plannerVersion, &leaseOwner, &leaseUntil, &rowVersion,
 		&deadlineAt, &createdAt, &updatedAt,
 	); err != nil {
 		return nil, err
 	}
 	return map[string]any{
-		"diagnosis_id": id, "creator_id": creatorID, "raw_query": rawQuery,
+		"diagnosis_id": id, "case_id": caseID, "creator_id": creatorID, "raw_query": rawQuery,
 		"normalized_intent":    decodeJSON(normalizedIntent, map[string]any{}),
 		"target_scope":         decodeJSON(targetScope, map[string]any{}),
 		"requested_time_range": decodeJSON(requestedRange, map[string]any{}),
@@ -1325,7 +1325,6 @@ func scanDiagnosisSession(scan scanner) (map[string]any, error) {
 		"resource_budget":     decodeJSON(resourceBudget, map[string]any{}),
 		"budget_used":         decodeJSON(budgetUsed, map[string]any{}),
 		"hypothesis_graph":    decodeJSON(hypothesisGraph, map[string]any{}),
-		"evaluation_oracle":   decodeJSON(evaluationOracle, map[string]any{}),
 		"child_task_ids":      decodeJSON(childTaskIDs, []any{}),
 		"conclusion_versions": decodeJSON(conclusionVersions, []any{}),
 		"model_version":       modelVersion, "planner_version": plannerVersion,

@@ -39,7 +39,12 @@ def validate_benchmark_catalog(
     }
     if len(references) != len(payload["references"]):
         raise ValueError("benchmark references contain duplicate reference_id")
-    sources = {item["source_id"] for item in payload["sources"]}
+    source_ids = [item.get("source_id") for item in payload["sources"]]
+    if any(not isinstance(item, str) or not item for item in source_ids):
+        raise ValueError("benchmark sources require non-empty source_id")
+    if len(set(source_ids)) != len(source_ids):
+        raise ValueError("benchmark sources contain duplicate source_id")
+    sources = set(source_ids)
     for source in payload["sources"]:
         for ref in source.get("reference_ids", []):
             if ref not in references:

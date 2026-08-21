@@ -7,7 +7,9 @@ API key and model through environment variables.
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import threading
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -16,6 +18,47 @@ from server.app.common_utils import env_bool
 
 FeatureName = Literal["nlp", "rca", "summarize"]
 _HTTP_LOCAL = threading.local()
+
+
+class ModelBoundaryError(RuntimeError):
+    """Raised when evaluator-only data reaches an outbound model request."""
+
+
+_LEAK_KEY_RE = re.compile(
+    r"(?:evaluation[_-]?oracle|oracle[_-]?(?:root|match|answer)|"
+    r"ground[_-]?truth|expected[_-]?(?:answer|root[_-]?cause|location))",
+    re.IGNORECASE,
+)
+
+
+def _assert_model_boundary(value: Any, path: str = "$", depth: int = 0) -> None:
+    if depth > 32:
+        raise ModelBoundaryError(f"model request nesting exceeds limit at {path}")
+    if isinstance(value, dict):
+        for key, item in value.items():
+            key_text = str(key)
+            if _LEAK_KEY_RE.search(key_text):
+                raise ModelBoundaryError(f"forbidden model request field at {path}.{key_text}")
+            _assert_model_boundary(item, f"{path}.{key_text}", depth + 1)
+    elif isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            _assert_model_boundary(item, f"{path}[{index}]", depth + 1)
+    elif isinstance(value, str):
+        # Free-form prompts may legitimately discuss evaluator terminology. Only
+        # inspect strings when they carry structured data (for example a JSON
+        # fragment embedded in a message) or appear in a schema enum.
+        if path.endswith(".enum") or ".enum[" in path:
+            if _LEAK_KEY_RE.search(value):
+                raise ModelBoundaryError(f"forbidden model request enum at {path}")
+            return
+        stripped = value.strip()
+        if stripped.startswith(("{", "[")):
+            try:
+                structured = json.loads(stripped)
+            except (TypeError, ValueError):
+                return
+            if isinstance(structured, (dict, list)):
+                _assert_model_boundary(structured, f"{path}<json>", depth + 1)
 
 
 @dataclass(frozen=True)
@@ -64,6 +107,7 @@ def is_feature_enabled(feature: FeatureName) -> bool:
 
 def chat_completions(payload: dict[str, Any], timeout: int = 60):
     settings = get_ai_settings()
+    _assert_model_boundary(payload)
     return _post_json(
         _chat_url(settings.base_url),
         headers={

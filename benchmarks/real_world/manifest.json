@@ -1,0 +1,26 @@
+{
+  "dataset": "mini-drop-real-world-evidence-challenge",
+  "version": "0.1.0",
+  "status": "candidate",
+  "schema_version": "1.0",
+  "policy": {
+    "oracle_visibility": "evaluation_only",
+    "minimum_repetitions": 3,
+    "require_baseline_incident_verification": true,
+    "require_evidence_refs": true,
+    "allow_abstention": true,
+    "admission_rule": "Only locally replayed cases with stable symptoms enter the scored release. PR metadata alone is not runtime proof."
+  },
+  "public_cases": "public/cases.json",
+  "private_oracles": "private/oracles.json",
+  "comparators": "comparators.json",
+  "case_ids": [
+    "RW-GRAFANA-123359",
+    "RW-OTELPY-4224",
+    "RW-PROM-19412",
+    "RW-REDIS-15427",
+    "RW-K8S-138571",
+    "RW-K8S-140886",
+    "RW-ENVOY-42752"
+  ]
+}

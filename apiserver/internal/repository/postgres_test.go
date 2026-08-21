@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -93,6 +94,44 @@ func TestClusterCaseFromSessionPreservesUnifiedContract(t *testing.T) {
 	}
 	if diagnosticCaseMap(caseItem)["case_id"] != "diag-1" {
 		t.Fatal("unified detail map lost case_id")
+	}
+}
+
+func TestScanDiagnosisSessionPreservesOptionalBenchmarkCaseID(t *testing.T) {
+	now := time.Date(2026, 8, 21, 10, 0, 0, 0, time.UTC)
+	benchmarkCaseID := "rw-case-1"
+	for name, caseID := range map[string]*string{
+		"populated": &benchmarkCaseID,
+		"null":      nil,
+	} {
+		t.Run(name, func(t *testing.T) {
+			values := []any{
+				"diag-1", caseID, "creator-1", "检查 CPU 抖动",
+				[]byte(`{}`), []byte(`{}`), []byte(`{}`), []byte(`{}`),
+				(*string)(nil), (*string)(nil), "COMPLETED", "default",
+				[]byte(`{}`), []byte(`{}`), []byte(`{}`), []byte(`{}`),
+				[]byte(`[]`), []byte(`[]`), "model-1", "planner-1",
+				(*string)(nil), (*time.Time)(nil), 1, now, now, now,
+			}
+			session, err := scanDiagnosisSession(func(dest ...any) error {
+				if len(dest) != len(values) {
+					t.Fatalf("scan destination count=%d want=%d", len(dest), len(values))
+				}
+				for index := range dest {
+					reflect.ValueOf(dest[index]).Elem().Set(reflect.ValueOf(values[index]))
+				}
+				return nil
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := stringValue(session["case_id"]); got != stringValue(caseID) {
+				t.Fatalf("benchmark case_id=%q want=%q", got, stringValue(caseID))
+			}
+			if got := clusterCaseFromSession(session, 0).CaseID; got != "diag-1" {
+				t.Fatalf("resource case_id=%q want diagnosis identity", got)
+			}
+		})
 	}
 }
 

@@ -129,6 +129,52 @@ func TestProxyReplacesClientGatewayHeaderWithInternalCredential(t *testing.T) {
 	}
 }
 
+func TestRealWorldBenchmarkRoutesAreProxiedToPython(t *testing.T) {
+	var requests []struct {
+		method string
+		path   string
+		body   string
+	}
+	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		requests = append(requests, struct {
+			method string
+			path   string
+			body   string
+		}{r.Method, r.URL.Path, string(body)})
+		_, _ = io.WriteString(w, `{"code":0}`)
+	}))
+	defer legacy.Close()
+	upstream, _ := url.Parse(legacy.URL)
+	api := httptest.NewServer(New(config.Config{LegacyAPIURL: upstream}, slog.New(slog.NewTextHandler(io.Discard, nil))))
+	defer api.Close()
+
+	resp, err := http.Get(api.URL + "/api/v1/real-world-benchmarks/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	resp, err = http.Post(
+		api.URL+"/api/v1/real-world-benchmarks/runs",
+		"application/json",
+		strings.NewReader(`{"case_id":"case-public-1"}`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+
+	if len(requests) != 2 {
+		t.Fatalf("proxied requests=%d, want 2", len(requests))
+	}
+	if requests[0].method != http.MethodGet || requests[0].path != "/api/v1/real-world-benchmarks/catalog" {
+		t.Fatalf("unexpected catalog request: %#v", requests[0])
+	}
+	if requests[1].method != http.MethodPost || requests[1].path != "/api/v1/real-world-benchmarks/runs" || requests[1].body != `{"case_id":"case-public-1"}` {
+		t.Fatalf("unexpected run request: %#v", requests[1])
+	}
+}
+
 func TestUnknownAPIPathDoesNotCrossLegacyCatchAll(t *testing.T) {
 	api, legacy := testServer(t, false)
 	defer api.Close()
@@ -312,6 +358,8 @@ func TestDiagnosisWriteBoundaryValidatesAndForwards(t *testing.T) {
 		`{"query":"x"}`,
 		`{"query":"CPU is high","budget_profile":"unbounded"}`,
 		`{"query":"CPU is high","unknown":true}`,
+		`{"query":"CPU is high","evaluation_oracle":{"root":"secret"}}`,
+		`{"query":"CPU is high","case_id":"` + strings.Repeat("c", 129) + `"}`,
 		`{"query":"CPU is high","baseline_task_ids":["task-1","task-1"]}`,
 		`{"query":"CPU is high","baseline_task_ids":["../task-1"]}`,
 	}
@@ -326,7 +374,7 @@ func TestDiagnosisWriteBoundaryValidatesAndForwards(t *testing.T) {
 		_ = resp.Body.Close()
 	}
 
-	payload := `{"query":"order service CPU is high","budget_profile":"production_safe","baseline_task_ids":["task-baseline-1"]}`
+	payload := `{"query":"order service CPU is high","case_id":"  case-public-1  ","budget_profile":"production_safe","baseline_task_ids":["task-baseline-1"]}`
 	resp, err := http.Post(server.URL+"/api/v1/diagnoses", "application/json", bytes.NewBufferString(payload))
 	if err != nil {
 		t.Fatal(err)

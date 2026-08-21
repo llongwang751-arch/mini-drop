@@ -148,41 +148,15 @@ class DiagnosisBudget(StrictModel):
     max_diagnosis_rounds: int = Field(default=1, ge=1, le=5)
 
 
-class EvaluationOracle(StrictModel):
-    """Ground truth used only after analysis; it must never enter the model context."""
-
-    case_id: str = Field(min_length=1, max_length=128)
-    expected_instance_id: Optional[str] = Field(default=None, max_length=128)
-    expected_location_type: Optional[
-        Literal["self", "same_host", "downstream", "shared_resource", "unknown"]
-    ] = None
-    expected_domain_type: Optional[
-        Literal["cpu", "io", "memory", "network", "database", "runtime", "unknown"]
-    ] = None
-    expected_classification: Optional[str] = Field(default=None, max_length=128)
-
-    @model_validator(mode="after")
-    def require_expected_value(self):
-        expected = (
-            self.expected_instance_id,
-            self.expected_location_type,
-            self.expected_domain_type,
-            self.expected_classification,
-        )
-        if not any(value is not None for value in expected):
-            raise ValueError("evaluation_oracle 至少需要一个期望结果")
-        return self
-
-
 class CreateDiagnosisRequest(StrictModel):
     query: str = Field(min_length=3, max_length=2000)
+    case_id: Optional[str] = Field(default=None, min_length=1, max_length=128)
     context: DiagnosisContext = Field(default_factory=DiagnosisContext)
     budget_profile: Literal["production_safe", "staging", "development"] = "production_safe"
     budget: Optional[DiagnosisBudget] = None
     diagnosis_mode: DiagnosisMode = DiagnosisMode.AUTO
     analysis_strategy: AnalysisStrategy = AnalysisStrategy.CONSTRAINED_HYBRID
     evidence_time_policy: EvidenceTimePolicy = Field(default_factory=EvidenceTimePolicy)
-    evaluation_oracle: Optional[EvaluationOracle] = None
     baseline_task_ids: list[str] = Field(default_factory=list, max_length=20)
 
 

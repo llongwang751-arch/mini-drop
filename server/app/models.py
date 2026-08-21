@@ -915,6 +915,7 @@ class DiagnosisSessionModel(Base):
     __tablename__ = "diagnosis_sessions"
 
     id = Column(String(128), primary_key=True)
+    case_id = Column(String(128), nullable=True, index=True)
     creator_id = Column(String(128), nullable=False)
     raw_query = Column(Text, nullable=False)
     normalized_intent_json = Column(JSON, default=dict)
@@ -931,7 +932,6 @@ class DiagnosisSessionModel(Base):
     resource_budget_json = Column(JSON, default=dict)
     budget_used_json = Column(JSON, default=dict)
     hypothesis_graph_json = Column(JSON, default=dict)
-    evaluation_oracle_json = Column(JSON, default=dict)
     child_task_ids_json = Column(JSON, default=list)
     conclusion_versions_json = Column(JSON, default=list)
     model_version = Column(String(128), nullable=False)
@@ -946,6 +946,7 @@ class DiagnosisSessionModel(Base):
     def to_dict(self) -> dict:
         return {
             "diagnosis_id": self.id,
+            "case_id": self.case_id,
             "creator_id": self.creator_id,
             "raw_query": self.raw_query,
             "normalized_intent": self.normalized_intent_json or {},
@@ -960,7 +961,6 @@ class DiagnosisSessionModel(Base):
             "resource_budget": self.resource_budget_json or {},
             "budget_used": self.budget_used_json or {},
             "hypothesis_graph": self.hypothesis_graph_json or {},
-            "evaluation_oracle": self.evaluation_oracle_json or {},
             "child_task_ids": self.child_task_ids_json or [],
             "conclusion_versions": self.conclusion_versions_json or [],
             "model_version": self.model_version,
@@ -1139,7 +1139,9 @@ class DiagnosisEvidenceSnapshotModel(Base):
     collector = Column(String(64), nullable=False)
     collector_version = Column(String(64), nullable=True)
     task_id = Column(String(128), ForeignKey("tasks.id"), nullable=True, index=True)
-    attempt_id = Column(String(128), nullable=True)
+    attempt_id = Column(
+        String(128), ForeignKey("task_attempts.id"), nullable=True, index=True,
+    )
     evidence_refs_json = Column(JSON, default=list)
     artifact_refs_json = Column(JSON, default=list)
     baseline_ref = Column(String(128), nullable=True)
@@ -1163,12 +1165,107 @@ class DiagnosisEvidenceSnapshotModel(Base):
             "collector_version": self.collector_version,
             "task_id": self.task_id,
             "attempt_id": self.attempt_id,
+            "task_attempt_id": self.attempt_id,
             "evidence_refs": self.evidence_refs_json or [],
             "artifact_refs": self.artifact_refs_json or [],
             "baseline_ref": self.baseline_ref,
             "quality": self.quality_json or {},
             "integrity_hash": self.integrity_hash,
             "created_at": self.created_at,
+        }
+
+
+class FrozenDiagnosisArtifactModel(Base):
+    """Canonical terminal diagnosis output consumed by a separate evaluator."""
+
+    __tablename__ = "frozen_diagnosis_artifacts"
+    __table_args__ = (
+        UniqueConstraint("diagnosis_id", name="uq_frozen_diagnosis_artifact_diagnosis"),
+    )
+
+    id = Column(String(128), primary_key=True)
+    diagnosis_id = Column(
+        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
+    )
+    schema_version = Column(String(32), nullable=False)
+    terminal_status = Column(String(32), nullable=False)
+    canonical_json = Column(Text, nullable=False)
+    artifact_hash = Column(String(80), nullable=False, unique=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        import json
+
+        return {
+            "artifact_id": self.id,
+            "diagnosis_id": self.diagnosis_id,
+            "schema_version": self.schema_version,
+            "terminal_status": self.terminal_status,
+            "payload": json.loads(self.canonical_json),
+            "canonical_json": self.canonical_json,
+            "artifact_hash": self.artifact_hash,
+            "created_at": self.created_at,
+        }
+
+
+class DiagnosisArtifactOutboxModel(Base):
+    """Transactional notification that a frozen diagnosis artifact is ready."""
+
+    __tablename__ = "diagnosis_artifact_outbox"
+
+    id = Column(String(160), primary_key=True)
+    diagnosis_id = Column(
+        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
+    )
+    artifact_id = Column(
+        String(128), ForeignKey("frozen_diagnosis_artifacts.id"), nullable=False, unique=True,
+    )
+    artifact_hash = Column(String(80), nullable=False)
+    status = Column(String(32), nullable=False, default="PENDING", index=True)
+    attempts = Column(Integer, nullable=False, default=0)
+    next_attempt_at = Column(DateTime(timezone=True), nullable=False)
+    worker_lease_owner = Column(String(128), nullable=True)
+    worker_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
+    last_error = Column(Text, nullable=True)
+    published_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class DiagnosisEvaluationModel(Base):
+    """Evaluator-owned result; never folded back into diagnosis state."""
+
+    __tablename__ = "diagnosis_artifact_evaluations"
+    __table_args__ = (
+        UniqueConstraint(
+            "artifact_id", "artifact_hash", "evaluator_version",
+            name="uq_diagnosis_artifact_evaluation_identity",
+        ),
+    )
+
+    id = Column(String(160), primary_key=True)
+    artifact_id = Column(
+        String(128), ForeignKey("frozen_diagnosis_artifacts.id"), nullable=False, index=True,
+    )
+    artifact_hash = Column(String(80), nullable=False)
+    evaluator_version = Column(String(64), nullable=False)
+    status = Column(String(32), nullable=False)
+    failure_code = Column(String(64), nullable=True)
+    result_json = Column(JSON, default=dict)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "evaluation_id": self.id,
+            "artifact_id": self.artifact_id,
+            "artifact_hash": self.artifact_hash,
+            "evaluator_version": self.evaluator_version,
+            "status": self.status,
+            "failure_code": self.failure_code,
+            "result": self.result_json or {},
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
         }
 
 

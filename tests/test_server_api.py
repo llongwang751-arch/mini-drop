@@ -13,8 +13,10 @@ from unittest import mock
 import pytest
 from fastapi.testclient import TestClient
 
+from server.app import main as main_module
 from server.app import storage as store
 from server.app.database import init_db, reset_engine
+from server.app.evaluation.evaluator import ArtifactEvaluationError
 from server.app.main import _ensure_minio_bucket_with_retry, app, repo
 from server.app.models import Base
 from server.app.prometheus_metrics import REGISTRY
@@ -29,6 +31,9 @@ def _reset_repo(monkeypatch):
     monkeypatch.delenv("MINI_DROP_AI_API_KEY", raising=False)
     monkeypatch.delenv("MINI_DROP_API_AUTH_ENABLED", raising=False)
     monkeypatch.delenv("MINI_DROP_API_KEY", raising=False)
+    monkeypatch.delenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("MINI_DROP_EVALUATOR_ORACLE_PATH", raising=False)
+    monkeypatch.setenv("MINIO_AUTO_CREATE_BUCKET", "0")
     REGISTRY.clear()
     reset_engine()
     init_db()
@@ -184,6 +189,44 @@ class TestStartupMinio:
 
         with pytest.raises(RuntimeError, match="down"):
             _ensure_minio_bucket_with_retry("mini-drop")
+    def test_lifespan_stops_embedded_outbox_workers(self, monkeypatch):
+        task_started = main_module.threading.Event()
+        artifact_started = main_module.threading.Event()
+        task_stopped = main_module.threading.Event()
+        artifact_stopped = main_module.threading.Event()
+
+        def wait_for_stop(_target, _worker_id, *, stop_event, **kwargs):
+            if _worker_id.endswith(":task"):
+                task_started.set()
+                stopped = task_stopped
+            else:
+                artifact_started.set()
+                stopped = artifact_stopped
+            if stop_event.wait(60):
+                stopped.set()
+
+        monkeypatch.setenv("MINIO_AUTO_CREATE_BUCKET", "0")
+        monkeypatch.setenv("MINI_DROP_EMBED_GRPC", "0")
+        monkeypatch.setenv("MINI_DROP_EMBED_MAINTENANCE", "0")
+        monkeypatch.setenv("MINI_DROP_OUTBOX_DISPATCH_ENABLED", "1")
+        monkeypatch.setattr(
+            "server.app.outbox_dispatcher.run_worker",
+            wait_for_stop,
+        )
+        monkeypatch.setattr(
+            "server.app.outbox_dispatcher.run_artifact_worker",
+            wait_for_stop,
+        )
+
+        with TestClient(app) as started_client:
+            assert task_started.wait(1)
+            assert artifact_started.wait(1)
+            assert started_client.get("/api/healthz").status_code == 200
+            assert not task_stopped.is_set()
+            assert not artifact_stopped.is_set()
+
+        assert task_stopped.wait(1)
+        assert artifact_stopped.wait(1)
 
 
 class TestApiAuth:
@@ -249,6 +292,176 @@ class TestApiAuth:
         resp = client.get("/api/metrics")
         assert resp.status_code == 200
         assert "mini_drop" in resp.text or resp.text.strip() == ""
+
+
+class TestArtifactEvaluatorApi:
+    path = "/api/v1/diagnosis-evaluations/artifacts"
+    payload = {
+        "artifact_id": "artifact:diag-1",
+        "expected_artifact_hash": "sha256:" + "1" * 64,
+        "evaluator_version": "v1",
+    }
+
+    @staticmethod
+    def _gateway_headers(role: str = "evaluator") -> dict[str, str]:
+        return {
+            "X-Mini-Drop-Gateway-Token": "internal-secret",
+            "X-Mini-Drop-Principal": "evaluation-service",
+            "X-Mini-Drop-Roles": role,
+        }
+
+    @staticmethod
+    def _enable_auth(monkeypatch) -> None:
+        monkeypatch.setenv("MINI_DROP_API_AUTH_ENABLED", "1")
+        monkeypatch.setenv(
+            "MINI_DROP_INTERNAL_GATEWAY_TOKEN",
+            "internal-secret",
+        )
+
+    def test_missing_authentication_is_rejected(
+        self,
+        client: TestClient,
+        monkeypatch,
+    ):
+        self._enable_auth(monkeypatch)
+
+        response = client.post(self.path, json=self.payload)
+
+        assert response.status_code == 401
+
+    def test_role_is_required_even_when_global_auth_is_disabled(
+        self,
+        client: TestClient,
+    ):
+        response = client.post(self.path, json=self.payload)
+
+        assert response.status_code == 403
+
+    def test_ordinary_api_key_cannot_invoke_evaluator(
+        self,
+        client: TestClient,
+        monkeypatch,
+    ):
+        self._enable_auth(monkeypatch)
+        monkeypatch.setenv("MINI_DROP_API_KEY", "ordinary-key")
+
+        response = client.post(
+            self.path,
+            json=self.payload,
+            headers={"X-API-Key": "ordinary-key"},
+        )
+
+        assert response.status_code == 403
+
+    def test_operator_role_cannot_invoke_evaluator(
+        self,
+        client: TestClient,
+        monkeypatch,
+    ):
+        self._enable_auth(monkeypatch)
+
+        response = client.post(
+            self.path,
+            json=self.payload,
+            headers=self._gateway_headers("operator"),
+        )
+
+        assert response.status_code == 403
+
+    def test_missing_server_owned_oracle_configuration_fails_closed(
+        self,
+        client: TestClient,
+        monkeypatch,
+    ):
+        self._enable_auth(monkeypatch)
+
+        response = client.post(
+            self.path,
+            json=self.payload,
+            headers=self._gateway_headers(),
+        )
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == "EVALUATOR_UNAVAILABLE"
+
+    def test_evaluator_role_returns_only_public_boolean_result(
+        self,
+        client: TestClient,
+        monkeypatch,
+    ):
+        self._enable_auth(monkeypatch)
+        evaluator = mock.Mock()
+        evaluator.evaluate.return_value = {
+            "evaluation_id": "evaluation:public",
+            "artifact_id": "artifact:diag-1",
+            "artifact_hash": self.payload["expected_artifact_hash"],
+            "evaluator_version": "v1",
+            "status": "COMPLETED",
+            "failure_code": None,
+            "result": {
+                "passed": True,
+                "matches": {
+                    "instance_id": True,
+                    "location_type": True,
+                    "domain_type": True,
+                    "classification": True,
+                },
+            },
+        }
+        monkeypatch.setattr(
+            main_module,
+            "_artifact_evaluator",
+            lambda: evaluator,
+        )
+
+        response = client.post(
+            self.path,
+            json=self.payload,
+            headers=self._gateway_headers(),
+        )
+
+        assert response.status_code == 200
+        rendered = response.text.lower()
+        assert response.json()["data"]["result"]["passed"] is True
+        assert "expected_" not in rendered
+        assert "oracle" not in rendered
+        evaluator.evaluate.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "code,status_code",
+        [
+            ("ARTIFACT_NOT_FOUND", 404),
+            ("ARTIFACT_HASH_MISMATCH", 409),
+            ("ARTIFACT_HASH_INVALID", 409),
+            ("ARTIFACT_MALFORMED", 409),
+            ("ORACLE_UNAVAILABLE", 503),
+        ],
+    )
+    def test_failures_project_stable_non_sensitive_codes(
+        self,
+        client: TestClient,
+        monkeypatch,
+        code: str,
+        status_code: int,
+    ):
+        self._enable_auth(monkeypatch)
+        evaluator = mock.Mock()
+        evaluator.evaluate.side_effect = ArtifactEvaluationError(code)
+        monkeypatch.setattr(
+            main_module,
+            "_artifact_evaluator",
+            lambda: evaluator,
+        )
+
+        response = client.post(
+            self.path,
+            json=self.payload,
+            headers=self._gateway_headers(),
+        )
+
+        assert response.status_code == status_code
+        assert response.json() == {"detail": code}
+        assert "oracle.json" not in response.text.lower()
 
 
 class TestAgents:

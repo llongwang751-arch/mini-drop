@@ -130,13 +130,14 @@ export default function TechnicalDetailDrawer({ open, onClose, detail, toolCalls
             label: `事件 (${(events || []).length})`,
             children: (
               <Timeline
-                items={(events || []).map((e) => ({
+                items={(events || []).map((event, index) => ({
+                  key: event.event_id || `${event.event_type || "event"}:${event.occurred_at || index}:${index}`,
                   children: (
                     <div>
-                      <Text strong>{e.event_type}</Text>
+                      <Text strong>{event.event_type}</Text>
                       <div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                          {e.actor} · {e.occurred_at}
+                          {event.actor} · {event.occurred_at}
                         </Text>
                       </div>
                     </div>

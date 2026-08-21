@@ -19,6 +19,8 @@ def _alembic(tmp_path: Path, revision: str) -> None:
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
 
@@ -43,10 +45,97 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
     assert {"schedules", "schedule_records"} <= tables
     assert {"composite_tasks", "composite_task_items"} <= tables
     assert "fix_verifications" in tables
+    assert {
+        "frozen_diagnosis_artifacts",
+        "diagnosis_artifact_outbox",
+        "diagnosis_artifact_evaluations",
+    } <= tables
+    artifact_outbox_columns = {
+        item["name"]
+        for item in inspect(engine).get_columns("diagnosis_artifact_outbox")
+    }
+    assert {
+        "attempts",
+        "next_attempt_at",
+        "worker_lease_owner",
+        "worker_lease_expires_at",
+        "last_error",
+        "published_at",
+    } <= artifact_outbox_columns
+    artifact_outbox_indexes = {
+        item["name"]
+        for item in inspect(engine).get_indexes("diagnosis_artifact_outbox")
+    }
+    assert {
+        "ix_diagnosis_artifact_outbox_status",
+        "ix_diagnosis_artifact_outbox_due",
+        "ix_diagnosis_artifact_outbox_lease_expiry",
+    } <= artifact_outbox_indexes
+    diagnosis_session_columns = {
+        item["name"] for item in inspect(engine).get_columns("diagnosis_sessions")
+    }
+    assert "case_id" in diagnosis_session_columns
+    diagnosis_session_indexes = {
+        item["name"] for item in inspect(engine).get_indexes("diagnosis_sessions")
+    }
+    assert "ix_diagnosis_sessions_case_id" in diagnosis_session_indexes
     session_columns = {
         item["name"] for item in inspect(engine).get_columns("drop_insight_sessions")
     }
     assert {"deleted_at", "deleted_by", "delete_reason"} <= session_columns
+    snapshot_columns = {
+        item["name"] for item in inspect(engine).get_columns(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert "attempt_id" in snapshot_columns
+    snapshot_indexes = {
+        item["name"] for item in inspect(engine).get_indexes(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert "ix_diagnosis_evidence_snapshots_attempt_id" in snapshot_indexes
+    snapshot_foreign_keys = inspect(engine).get_foreign_keys(
+        "diagnosis_evidence_snapshots"
+    )
+    assert any(
+        item.get("referred_table") == "task_attempts"
+        and item.get("constrained_columns") == ["attempt_id"]
+        for item in snapshot_foreign_keys
+    )
+
+    # 20260821_0017 -> 20260821_0016 removes only the public case identity.
+    _alembic(tmp_path, "downgrade 20260821_0016")
+    diagnosis_session_columns = {
+        item["name"] for item in inspect(engine).get_columns("diagnosis_sessions")
+    }
+    assert "case_id" not in diagnosis_session_columns
+    assert "ix_diagnosis_sessions_case_id" not in {
+        item["name"] for item in inspect(engine).get_indexes("diagnosis_sessions")
+    }
+    _alembic(tmp_path, "upgrade 20260821_0017")
+
+    # 20260821_0013 -> 20260813_0012 removes the attempt foreign key/index/column.
+    _alembic(tmp_path, "downgrade 20260813_0012")
+    snapshot_columns = {
+        item["name"] for item in inspect(engine).get_columns(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert "attempt_id" not in snapshot_columns
+    snapshot_indexes = {
+        item["name"] for item in inspect(engine).get_indexes(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert "ix_diagnosis_evidence_snapshots_attempt_id" not in snapshot_indexes
+    assert not any(
+        item.get("referred_table") == "task_attempts"
+        and item.get("constrained_columns") == ["attempt_id"]
+        for item in inspect(engine).get_foreign_keys(
+            "diagnosis_evidence_snapshots"
+        )
+    )
 
     # 20260813_0012 -> 20260807_0011 drops feedback rounds only.
     _alembic(tmp_path, "downgrade -1")
@@ -142,4 +231,16 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
     assert {"schedules", "schedule_records"} <= set(inspect(engine).get_table_names())
     assert {"composite_tasks", "composite_task_items"} <= set(inspect(engine).get_table_names())
     assert "fix_verifications" in set(inspect(engine).get_table_names())
+    artifact_outbox_columns = {
+        item["name"]
+        for item in inspect(engine).get_columns("diagnosis_artifact_outbox")
+    }
+    assert {
+        "attempts",
+        "next_attempt_at",
+        "worker_lease_owner",
+        "worker_lease_expires_at",
+        "last_error",
+        "published_at",
+    } <= artifact_outbox_columns
     engine.dispose()

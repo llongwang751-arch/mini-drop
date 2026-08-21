@@ -28,6 +28,7 @@ import {
   startDiagnosisEvalGoldenRun,
 } from "../api/client";
 import CampaignPanel from "./CampaignPanel";
+import RealWorldBenchmarkPanel from "./RealWorldBenchmarkPanel";
 
 const { Text, Paragraph } = Typography;
 
@@ -309,6 +310,8 @@ export default function EvalPanel() {
       />
 
       <CampaignPanel />
+
+      <RealWorldBenchmarkPanel />
 
       <Card size="small" title="组内统一测试集 ai_ops_v2：30 个案例 / 90 次真实诊断">
         {externalError ? (

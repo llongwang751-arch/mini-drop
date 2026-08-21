@@ -33,6 +33,15 @@ def test_unified_benchmark_rejects_duplicate_case_ids():
         validate_benchmark_catalog(broken)
 
 
+def test_unified_benchmark_rejects_duplicate_source_ids():
+    catalog = load_benchmark_catalog()
+    broken = copy.deepcopy(catalog)
+    broken["sources"][1]["source_id"] = broken["sources"][0]["source_id"]
+
+    with pytest.raises(ValueError, match="duplicate source_id"):
+        validate_benchmark_catalog(broken)
+
+
 def test_unified_benchmark_rejects_missing_reference_and_oracle_leak():
     catalog = load_benchmark_catalog()
     missing_ref = copy.deepcopy(catalog)

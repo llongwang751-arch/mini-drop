@@ -17,4 +17,8 @@ if [ "${MINI_DROP_GRPC_SECURE:-0}" = "1" ]; then
   export MINI_DROP_GRPC_KEY_FILE=/tmp/mini-drop-tls/server.key
 fi
 
+if [ "${MINI_DROP_RUN_MIGRATIONS:-0}" = "1" ]; then
+  gosu mini-drop python -m alembic upgrade head
+fi
+
 exec gosu mini-drop "$@"

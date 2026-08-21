@@ -97,6 +97,7 @@ services:
       MINI_DROP_EMBED_GRPC: "0"
       MINI_DROP_EMBED_MAINTENANCE: "0"
       MINI_DROP_SCHEMA_MANAGED: "1"
+      MINI_DROP_OUTBOX_DISPATCH_ENABLED: "1"
       MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/demo:/workspace-source/native
       MINI_DROP_CAMPAIGN_TARGET_URL: ${MINI_DROP_CAMPAIGN_TARGET_URL:-http://python-hotspot:8081}
       MINI_DROP_CAMPAIGN_JAVA_TARGET_URL: ${MINI_DROP_CAMPAIGN_JAVA_TARGET_URL:-http://java-hotspot:7070}
@@ -216,6 +217,7 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINI_DROP_DIAGNOSIS_POLL_SEC: ${MINI_DROP_DIAGNOSIS_POLL_SEC:-2}
       MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS: ${MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS:-1}
+      MINI_DROP_OUTBOX_DISPATCH_ENABLED: "0"
       MINI_DROP_SCHEMA_MANAGED: "1"
       MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/demo:/workspace-source/native
     volumes:

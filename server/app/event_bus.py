@@ -119,3 +119,15 @@ def notify_diagnosis_complete(task_id: str, diagnosis_id: str, status: str) -> N
         "diagnosis_id": diagnosis_id,
         "status": status,
     })
+
+
+def notify_diagnosis_artifact_published(
+    diagnosis_id: str,
+    artifact_id: str,
+    artifact_hash: str,
+) -> None:
+    BUS.publish("diagnosis_artifact_published", {
+        "diagnosis_id": diagnosis_id,
+        "artifact_id": artifact_id,
+        "artifact_hash": artifact_hash,
+    })

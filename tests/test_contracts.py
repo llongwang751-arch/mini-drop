@@ -34,6 +34,21 @@ def test_openapi_covers_new_feature_endpoints():
     assert "/api/v2/diagnoses/{diagnosis_id}/fix/verify" in paths
 
 
+def test_openapi_create_diagnosis_exposes_public_case_id_only():
+    spec = _load_openapi()
+    schema = spec["components"]["schemas"]["CreateDiagnosisRequest"]
+    properties = schema["properties"]
+
+    assert "evaluation_oracle" not in properties
+    assert properties["case_id"] == {
+        "anyOf": [
+            {"type": "string", "maxLength": 128, "minLength": 1},
+            {"type": "null"},
+        ],
+        "title": "Case Id",
+    }
+
+
 def test_taskkind_schema_is_valid_json_schema():
     schema = _load_taskkind_schema()
     assert schema["$schema"].startswith("https://json-schema.org")

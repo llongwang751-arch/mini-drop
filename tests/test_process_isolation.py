@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+import yaml
+
 from server.app.diagnosis_worker import DiagnosisWorker
 from server.app.grpc_main import ControlPlaneMaintenance, _tcp_healthcheck
+from server.app import main as main_module
 
 
 class _ControlRepo:
@@ -54,6 +59,53 @@ def test_diagnosis_worker_also_advances_drop_insight_v2() -> None:
     assert worker.process_once() == 2
     assert orchestrator.calls == 1
     assert calls == ["v2"]
+
+
+def test_server_maintenance_reconciles_after_advance_failure(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(
+        main_module.repo,
+        "mark_offline_agents",
+        lambda timeout_sec: calls.append("offline"),
+    )
+    monkeypatch.setattr(
+        main_module.repo,
+        "persist_agent_metric_snapshots",
+        lambda: calls.append("metrics"),
+    )
+    monkeypatch.setattr(
+        main_module.diagnosis_orchestrator,
+        "advance_active",
+        lambda: (_ for _ in ()).throw(RuntimeError("advance failed")),
+    )
+    monkeypatch.setattr(
+        main_module.diagnosis_orchestrator,
+        "reconcile_terminal_artifacts",
+        lambda: calls.append("reconcile"),
+    )
+    monkeypatch.setattr(main_module, "log_event", lambda *args, **kwargs: None)
+
+    main_module._run_maintenance_once()
+
+    assert calls == ["offline", "metrics", "reconcile"]
+
+
+def _compose(path: str) -> dict:
+    return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+
+
+def test_primary_compose_activates_outbox_only_in_api_server() -> None:
+    services = _compose("docker-compose.yml")["services"]
+
+    assert services["server"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "1"
+    assert services["diagnosis-worker"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "0"
+
+
+def test_cloud_compose_worker_overrides_server_outbox_environment() -> None:
+    services = _compose("docker-compose.cloud-control.yml")["services"]
+
+    assert services["server"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "1"
+    assert services["diagnosis-worker"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "0"
 
 
 def test_grpc_tcp_healthcheck_fails_for_closed_port() -> None:

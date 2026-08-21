@@ -53,7 +53,7 @@ function humanReadableArgs(toolName, args) {
  * PENDING_APPROVAL 时显示通过/拒绝/修改参数；有任务时显示结果与内联可视化。
  * 原始参数 JSON 只在该卡的 expert 模式展示，简单模式只看人话说明。
  */
-export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, mode = "expert" }) {
+export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, mode = "expert", readOnly = false }) {
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editForm] = Form.useForm();
@@ -92,7 +92,7 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
             {meta.risk && <Tag color={RISK_COLORS[meta.risk] || "default"}>{meta.risk}</Tag>}
             {tool.policy_decision && <Tag>{tool.policy_decision}</Tag>}
           </Space>
-          {needsApproval && (
+          {needsApproval && !readOnly && (
             <Space>
               <Button size="small" icon={<EditOutlined />} onClick={() => setEditOpen(true)}>
                 修改参数

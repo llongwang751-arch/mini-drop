@@ -2,9 +2,16 @@
 
 import threading
 
+import pytest
 from sqlalchemy import inspect, text
 
-from server.app.database import _get_engine, init_db, new_session, reset_engine
+from server.app.database import (
+    _MANAGED_SCHEMA_REVISION,
+    _get_engine,
+    init_db,
+    new_session,
+    reset_engine,
+)
 
 
 def test_fresh_session_initialization_does_not_deadlock(monkeypatch, tmp_path):
@@ -82,4 +89,44 @@ def test_init_db_backfills_execution_dimensions_for_legacy_done_task(
         )).one()
     assert row.collection_status == "SUCCEEDED"
     assert row.analysis_status == "SUCCEEDED"
+    reset_engine()
+
+
+def test_managed_schema_requires_current_alembic_head(monkeypatch, tmp_path):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'managed.db'}")
+    monkeypatch.delenv("MINI_DROP_SCHEMA_MANAGED", raising=False)
+    reset_engine()
+    init_db()
+    engine = _get_engine()
+    with engine.begin() as connection:
+        connection.execute(text(
+            "CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"
+        ))
+        connection.execute(text(
+            "INSERT INTO alembic_version (version_num) VALUES ('outdated')"
+        ))
+
+    monkeypatch.setenv("MINI_DROP_SCHEMA_MANAGED", "1")
+    with pytest.raises(RuntimeError, match="schema revision mismatch"):
+        init_db()
+    reset_engine()
+
+
+def test_managed_schema_accepts_current_complete_schema(monkeypatch, tmp_path):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'managed-head.db'}")
+    monkeypatch.delenv("MINI_DROP_SCHEMA_MANAGED", raising=False)
+    reset_engine()
+    init_db()
+    engine = _get_engine()
+    with engine.begin() as connection:
+        connection.execute(text(
+            "CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"
+        ))
+        connection.execute(
+            text("INSERT INTO alembic_version (version_num) VALUES (:revision)"),
+            {"revision": _MANAGED_SCHEMA_REVISION},
+        )
+
+    monkeypatch.setenv("MINI_DROP_SCHEMA_MANAGED", "1")
+    init_db()
     reset_engine()

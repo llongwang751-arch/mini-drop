@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import threading
+from types import SimpleNamespace
 
 import pytest
 
 from server.app.database import new_session, init_db, reset_engine
 from server.app.models import OutboxMessageModel
-from server.app.outbox_dispatcher import dispatch_once
+from server.app.outbox_dispatcher import (
+    dispatch_artifact_once,
+    dispatch_once,
+    run_artifact_worker,
+    run_worker,
+)
 from server.app.schemas import CreateTaskRequest
 from server.app.sql_repository import SqlRepository
 from server.app.state_machine import now_utc
@@ -135,6 +142,190 @@ def test_dispatch_once_delivers_successes_and_fails_others(repo):
     assert [item.id for item in published] == [ok.id]
     assert [item.id for item in failed] == [bad.id]
     assert failed[0].attempts == 1
+
+
+def _message(message_id: str):
+    return SimpleNamespace(
+        id=message_id,
+        aggregate_type="task",
+        aggregate_id=f"task-{message_id}",
+        event_type="task.created",
+        attempts=0,
+    )
+
+
+def test_dispatch_once_claim_failure_isolated():
+    class Repo:
+        def claim_outbox_messages(self, worker_id, limit):
+            raise RuntimeError("database unavailable")
+
+    delivered = []
+    assert dispatch_once(Repo(), "worker", delivered.append) == 0
+    assert delivered == []
+
+
+def test_dispatch_once_failure_persistence_error_does_not_starve_batch():
+    first = _message("first")
+    second = _message("second")
+
+    class Repo:
+        def claim_outbox_messages(self, worker_id, limit):
+            return [first, second]
+
+        def fail_outbox_message(self, *args, **kwargs):
+            raise RuntimeError("write failed")
+
+        def mark_outbox_published(self, message_id):
+            assert message_id == second.id
+
+    delivered = []
+
+    def deliver(message):
+        if message.id == first.id:
+            raise RuntimeError("downstream failed")
+        delivered.append(message.id)
+
+    assert dispatch_once(Repo(), "worker", deliver) == 1
+    assert delivered == [second.id]
+
+
+def test_dispatch_once_ack_error_leaves_retryable_and_continues():
+    first = _message("first")
+    second = _message("second")
+    failed = []
+
+    class Repo:
+        def claim_outbox_messages(self, worker_id, limit):
+            return [first, second]
+
+        def fail_outbox_message(self, *args, **kwargs):
+            failed.append(args[0])
+
+        def mark_outbox_published(self, message_id):
+            if message_id == first.id:
+                raise RuntimeError("ack failed")
+
+    delivered = []
+    assert dispatch_once(Repo(), "worker", lambda item: delivered.append(item.id)) == 1
+    assert delivered == [first.id, second.id]
+    assert failed == []
+
+
+def _artifact_message(message_id: str):
+    return {
+        "outbox_id": message_id,
+        "diagnosis_id": f"diagnosis-{message_id}",
+        "artifact_id": f"artifact-{message_id}",
+        "artifact_hash": "sha256:" + "a" * 64,
+        "attempts": 0,
+    }
+
+
+def test_dispatch_artifact_once_claim_failure_isolated():
+    class Store:
+        def claim_artifact_outbox(self, worker_id, limit):
+            raise RuntimeError("database unavailable")
+
+    delivered = []
+    assert dispatch_artifact_once(Store(), "worker", delivered.append) == 0
+    assert delivered == []
+
+
+def test_dispatch_artifact_once_failure_persistence_error_does_not_starve_batch():
+    first = _artifact_message("first")
+    second = _artifact_message("second")
+
+    class Store:
+        def claim_artifact_outbox(self, worker_id, limit):
+            return [first, second]
+
+        def fail_artifact_outbox(self, *args, **kwargs):
+            raise RuntimeError("write failed")
+
+        def mark_artifact_outbox_published(self, message_id, worker_id):
+            assert message_id == second["outbox_id"]
+
+    delivered = []
+
+    def deliver(message):
+        if message is first:
+            raise RuntimeError("downstream failed")
+        delivered.append(message["outbox_id"])
+
+    assert dispatch_artifact_once(Store(), "worker", deliver) == 1
+    assert delivered == [second["outbox_id"]]
+
+
+def test_dispatch_artifact_once_ack_error_leaves_retryable_and_continues():
+    first = _artifact_message("first")
+    second = _artifact_message("second")
+    failed = []
+
+    class Store:
+        def claim_artifact_outbox(self, worker_id, limit):
+            return [first, second]
+
+        def fail_artifact_outbox(self, *args, **kwargs):
+            failed.append(args[0])
+
+        def mark_artifact_outbox_published(self, message_id, worker_id):
+            if message_id == first["outbox_id"]:
+                raise RuntimeError("ack failed")
+
+    delivered = []
+    assert dispatch_artifact_once(
+        Store(), "worker", lambda item: delivered.append(item["outbox_id"])
+    ) == 1
+    assert delivered == [first["outbox_id"], second["outbox_id"]]
+    assert failed == []
+
+
+def test_task_worker_stops_while_idle(monkeypatch):
+    stop_event = threading.Event()
+    calls = []
+
+    def idle_dispatch(*args, **kwargs):
+        calls.append("dispatch")
+        stop_event.set()
+        return 0
+
+    monkeypatch.setattr(
+        "server.app.outbox_dispatcher.dispatch_once",
+        idle_dispatch,
+    )
+
+    run_worker(
+        object(),
+        "worker-stop",
+        poll_seconds=60,
+        stop_event=stop_event,
+    )
+
+    assert calls == ["dispatch"]
+
+
+def test_artifact_worker_stops_while_idle(monkeypatch):
+    stop_event = threading.Event()
+    calls = []
+
+    def idle_dispatch(*args, **kwargs):
+        calls.append("dispatch")
+        stop_event.set()
+        return 0
+
+    monkeypatch.setattr(
+        "server.app.outbox_dispatcher.dispatch_artifact_once",
+        idle_dispatch,
+    )
+
+    run_artifact_worker(
+        object(),
+        "artifact-worker-stop",
+        poll_seconds=60,
+        stop_event=stop_event,
+    )
+
+    assert calls == ["dispatch"]
 
 
 def test_event_bus_deliver_fans_task_created_to_sse():

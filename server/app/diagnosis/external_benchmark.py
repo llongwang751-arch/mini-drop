@@ -204,16 +204,12 @@ def _load_cached(path_text: str, mtime_ns: int, size: int) -> dict[str, Any]:
         with ZipFile(path) as archive:
             manifest = _json_member(archive, "ai_ops_v2/manifest.json")
             public = _json_member(archive, "ai_ops_v2/public/cases.json")
-            private = _json_member(archive, "ai_ops_v2/private/oracles.json")
             evaluation = _json_member(archive, "evaluation.json")
             summary = _json_member(archive, "summary.json")
             audit_members = _audit_members(archive)
 
             public_cases = {
                 str(item["case_id"]): item for item in public.get("cases", [])
-            }
-            oracles = {
-                str(item["case_id"]): item for item in private.get("cases", [])
             }
             aggregate = evaluation.get("aggregate") or {}
             results = aggregate.get("results") or []
@@ -254,7 +250,6 @@ def _load_cached(path_text: str, mtime_ns: int, size: int) -> dict[str, Any]:
             "mean_score": round(
                 sum(float(item.get("score") or 0) for item in runs) / len(runs), 2
             ) if runs else None,
-            "oracle_available_after_evaluation": case_id in oracles,
         })
 
     return {
@@ -275,7 +270,6 @@ def _load_cached(path_text: str, mtime_ns: int, size: int) -> dict[str, Any]:
             key: value for key, value in aggregate.items() if key != "results"
         },
         "cases": catalog,
-        "_oracles": oracles,
         "_runs": dict(results_by_case),
     }
 
@@ -294,7 +288,6 @@ def external_benchmark_summary(path: str | Path | None = None) -> dict[str, Any]
 def external_benchmark_case(
     case_id: str,
     *,
-    reveal_oracle: bool = True,
     path: str | Path | None = None,
 ) -> dict[str, Any]:
     payload = load_external_benchmark(path)
@@ -306,8 +299,5 @@ def external_benchmark_case(
     response = {
         **catalog_case,
         "runs": payload["_runs"].get(case_id, []),
-        "oracle_revealed": reveal_oracle,
     }
-    if reveal_oracle:
-        response["oracle"] = payload["_oracles"].get(case_id)
     return response

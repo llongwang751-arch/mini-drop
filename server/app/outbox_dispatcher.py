@@ -10,12 +10,21 @@ from __future__ import annotations
 
 import argparse
 import logging
+import threading
 import time
 
-from server.app.event_bus import notify_task_changed
+from server.app.event_bus import notify_diagnosis_artifact_published, notify_task_changed
 from server.app.logging_utils import log_event
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_log(level: str, event: str, **fields) -> None:
+    """Keep telemetry failures from interrupting durable outbox progress."""
+    try:
+        log_event(level, event, **fields)
+    except Exception:
+        logger.exception("outbox telemetry failed: %s", event)
 
 
 def dispatch_once(
@@ -32,16 +41,26 @@ def dispatch_once(
     number of messages processed. Each delivery either acks the message or
     records a failure (backoff / dead-letter) — never drops it silently.
     """
-    messages = repo.claim_outbox_messages(worker_id, limit=limit)
+    try:
+        messages = repo.claim_outbox_messages(worker_id, limit=limit)
+    except Exception:
+        logger.exception("task outbox claim failed for worker %s", worker_id)
+        return 0
     processed = 0
     for message in messages:
         try:
             deliver(message)
         except Exception as exc:
-            outcome = repo.fail_outbox_message(
-                message.id, str(exc)[:500], max_attempts=max_attempts
-            )
-            log_event(
+            try:
+                outcome = repo.fail_outbox_message(
+                    message.id, str(exc)[:500], max_attempts=max_attempts
+                )
+            except Exception:
+                logger.exception(
+                    "task outbox failure persistence failed: %s", message.id
+                )
+                continue
+            _safe_log(
                 "warning",
                 "outbox_delivery_failed",
                 message_id=message.id,
@@ -53,8 +72,12 @@ def dispatch_once(
                 error=str(exc)[:200],
             )
         else:
-            repo.mark_outbox_published(message.id)
-            log_event(
+            try:
+                repo.mark_outbox_published(message.id)
+            except Exception:
+                logger.exception("task outbox acknowledgement failed: %s", message.id)
+                continue
+            _safe_log(
                 "info",
                 "outbox_delivered",
                 message_id=message.id,
@@ -98,13 +121,118 @@ def _default_deliver(message) -> None:
     event_bus_deliver(message)
 
 
-def run_worker(repo, worker_id: str, *, poll_seconds: float = 5.0, once: bool = False) -> None:
-    while True:
+def dispatch_artifact_once(
+    store,
+    worker_id: str,
+    deliver,
+    *,
+    limit: int = 10,
+    max_attempts: int = 5,
+) -> int:
+    """Deliver one batch of immutable diagnosis-artifact notifications."""
+    try:
+        messages = store.claim_artifact_outbox(worker_id, limit=limit)
+    except Exception:
+        logger.exception("artifact outbox claim failed for worker %s", worker_id)
+        return 0
+    processed = 0
+    for message in messages:
+        try:
+            deliver(message)
+        except Exception as exc:
+            try:
+                outcome = store.fail_artifact_outbox(
+                    message["outbox_id"],
+                    worker_id,
+                    str(exc)[:500],
+                    max_attempts=max_attempts,
+                )
+            except Exception:
+                logger.exception(
+                    "artifact outbox failure persistence failed: %s",
+                    message["outbox_id"],
+                )
+                continue
+            _safe_log(
+                "warning",
+                "diagnosis_artifact_delivery_failed",
+                outbox_id=message["outbox_id"],
+                diagnosis_id=message["diagnosis_id"],
+                artifact_id=message["artifact_id"],
+                attempts=message["attempts"],
+                outcome=outcome,
+                error=str(exc)[:200],
+            )
+        else:
+            try:
+                store.mark_artifact_outbox_published(
+                    message["outbox_id"], worker_id
+                )
+            except Exception:
+                logger.exception(
+                    "artifact outbox acknowledgement failed: %s",
+                    message["outbox_id"],
+                )
+                continue
+            _safe_log(
+                "info",
+                "diagnosis_artifact_delivered",
+                outbox_id=message["outbox_id"],
+                diagnosis_id=message["diagnosis_id"],
+                artifact_id=message["artifact_id"],
+                artifact_hash=message["artifact_hash"],
+            )
+        processed += 1
+    return processed
+
+
+def artifact_event_bus_deliver(message: dict) -> None:
+    """Publish artifact readiness without exposing its canonical payload."""
+    notify_diagnosis_artifact_published(
+        message["diagnosis_id"],
+        message["artifact_id"],
+        message["artifact_hash"],
+    )
+
+
+def run_artifact_worker(
+    store,
+    worker_id: str,
+    *,
+    poll_seconds: float = 5.0,
+    once: bool = False,
+    stop_event: threading.Event | None = None,
+) -> None:
+    while stop_event is None or not stop_event.is_set():
+        count = dispatch_artifact_once(
+            store, worker_id, artifact_event_bus_deliver
+        )
+        if once:
+            return
+        if count == 0:
+            if stop_event is not None:
+                stop_event.wait(poll_seconds)
+            else:
+                time.sleep(poll_seconds)
+
+
+def run_worker(
+    repo,
+    worker_id: str,
+    *,
+    poll_seconds: float = 5.0,
+    once: bool = False,
+    stop_event: threading.Event | None = None,
+) -> None:
+    while stop_event is None or not stop_event.is_set():
         count = dispatch_once(repo, worker_id, _default_deliver)
         if once:
             return
         if count == 0:
-            time.sleep(poll_seconds)
+            if stop_event is not None:
+                stop_event.wait(poll_seconds)
+            else:
+                time.sleep(poll_seconds)
 
 
 def main() -> None:
@@ -112,14 +240,29 @@ def main() -> None:
     parser.add_argument("--worker-id", default="outbox-worker-1")
     parser.add_argument("--poll-seconds", type=float, default=5.0)
     parser.add_argument("--once", action="store_true", help="dispatch one batch then exit")
+    parser.add_argument(
+        "--artifact-outbox",
+        action="store_true",
+        help="dispatch frozen diagnosis artifact notifications",
+    )
     args = parser.parse_args()
 
     from server.app.database import init_db
     from server.app.sql_repository import SqlRepository
 
     init_db()
-    repo = SqlRepository()
-    run_worker(repo, args.worker_id, poll_seconds=args.poll_seconds, once=args.once)
+    if args.artifact_outbox:
+        from server.app.diagnosis.store import DiagnosisStore
+
+        run_artifact_worker(
+            DiagnosisStore(),
+            args.worker_id,
+            poll_seconds=args.poll_seconds,
+            once=args.once,
+        )
+    else:
+        repo = SqlRepository()
+        run_worker(repo, args.worker_id, poll_seconds=args.poll_seconds, once=args.once)
 
 
 if __name__ == "__main__":

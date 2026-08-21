@@ -3160,6 +3160,19 @@
             "minLength": 3,
             "title": "Query"
           },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Id"
+          },
           "context": {
             "$ref": "#/components/schemas/DiagnosisContext"
           },
@@ -3193,16 +3206,6 @@
           },
           "evidence_time_policy": {
             "$ref": "#/components/schemas/EvidenceTimePolicy"
-          },
-          "evaluation_oracle": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EvaluationOracle"
-              },
-              {
-                "type": "null"
-              }
-            ]
           },
           "baseline_task_ids": {
             "items": {

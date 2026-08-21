@@ -630,6 +630,19 @@ mini-drop/
 └── docs/                 architecture/guides/ai/contracts/benchmarks
 ```
 
+### 真实业务诊断测试集（candidate）
+
+仓库同时保留一套与日常合成回归隔离的真实开源缺陷挑战集：
+
+- 公开题面：`benchmarks/real_world/public/cases.json`
+- 评测器私有 Oracle：`benchmarks/real_world/private/oracles.json`
+- 产品对照定义：`benchmarks/real_world/comparators.json`
+- 校验与评分：`scripts/real_world_benchmark.py`
+- 方法说明：`docs/benchmarks/真实业务测试集与成熟产品对照.md`
+- 云端页面操作：`docs/guides/云端页面真实业务测试全流程.md`
+
+该测试集当前为 `candidate`。只有完成固定 base/fix 版本的多次本地复现、三段快照和稳定症状验证后，案例才可进入正式 Golden；PR 描述本身不算运行证据。
+
 完整目录说明及迁移期保留边界见
 [`docs/architecture/repository-layout.md`](docs/architecture/repository-layout.md)。
 

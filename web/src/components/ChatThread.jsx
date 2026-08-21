@@ -33,6 +33,8 @@ export default function ChatThread({
   onSubmitFeedback,
   feedbackSubmitting,
   mode = "expert",
+  readOnly = false,
+  unavailableSections = [],
 }) {
   const isExpert = mode === "expert";
   if (!detail) {
@@ -40,7 +42,24 @@ export default function ChatThread({
   }
 
   const classification = detail.classification || detail.status || "分析中";
-  const latestReport = (reports || [])[0] || null;
+  const reportRows = [...(reports || [])];
+  const reportsHaveOrdering = reportRows.some(
+    (item) => item?.version != null || item?.created_at || item?.updated_at,
+  );
+  if (reportsHaveOrdering) {
+    reportRows.sort((a, b) => {
+      if (a?.version != null || b?.version != null) return Number(b?.version || 0) - Number(a?.version || 0);
+      return new Date(b?.updated_at || b?.created_at || 0) - new Date(a?.updated_at || a?.created_at || 0);
+    });
+  }
+  const latestReport = reportRows[0] || null;
+  const feedbackRows = [...(feedback || [])];
+  if (feedbackRows.some((item) => item?.created_at || item?.updated_at)) {
+    feedbackRows.sort(
+      (a, b) => new Date(b?.updated_at || b?.created_at || 0) - new Date(a?.updated_at || a?.created_at || 0),
+    );
+  }
+  const latestFeedback = feedbackRows[0] || null;
   const reportVerificationStatus = latestReport?.verification?.status;
   const hasVerifiedRootCause = reportVerificationStatus === "VERIFIED";
   const sortedTools = [...(toolCalls || [])].sort(
@@ -59,7 +78,7 @@ export default function ChatThread({
       </ChatMessage>
 
       <ChatMessage role="assistant">
-        {detail.status === "NEEDS_CLARIFICATION" && (
+        {detail.status === "NEEDS_CLARIFICATION" && !readOnly && (
           <ScopeCard
             key={detail.diagnosis_id || detail.id}
             questions={detail.clarification_questions || []}
@@ -82,6 +101,7 @@ export default function ChatThread({
             onApprove={onApproveTool}
             onReject={onRejectTool}
             onUpdateArgs={onUpdateToolArgs}
+            readOnly={readOnly}
           />
         ))}
         {acceptedEvidence.length > 0 && (
@@ -95,17 +115,24 @@ export default function ChatThread({
           <EvidenceCard key={item.evidence_id} evidence={item} />
         ))}
         {latestReport && <ConclusionCard report={latestReport} />}
-        {latestReport && onSubmitFeedback && (
+        {latestReport && !readOnly && onSubmitFeedback && (
           <DiagnosisFeedbackCard
             report={latestReport}
-            latestFeedback={(feedback || [])[0]}
+            latestFeedback={latestFeedback}
             onSubmit={onSubmitFeedback}
             submitting={feedbackSubmitting}
           />
         )}
         {/* 证据不足只是待验证假设；只有根因通过反证门禁后才能验证修复。 */}
-        {hasVerifiedRootCause && detail?.diagnosis_id && (
+        {hasVerifiedRootCause && detail?.diagnosis_id && !readOnly && (
           <FixVerificationPanel diagnosisId={detail.diagnosis_id} />
+        )}
+        {readOnly && unavailableSections.length > 0 && (
+          <Card size="small" style={{ marginBottom: 10, background: "#fafafa" }}>
+            <Text type="secondary">
+              该版本未记录此类数据：{unavailableSections.join("、")}。
+            </Text>
+          </Card>
         )}
       </ChatMessage>
 

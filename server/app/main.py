@@ -58,8 +58,18 @@ from server.app.diagnosis.external_benchmark import (
     external_benchmark_case,
     external_benchmark_summary,
 )
+from server.app.diagnosis.real_world_runs import (
+    get_real_world_run_manager,
+    real_world_catalog,
+)
 from server.app.diagnosis.probe_registry import list_probes as list_registered_probes
 from server.app.diagnosis.schemas import ApprovalRequest, CreateDiagnosisRequest
+from server.app.evaluation.evaluator import (
+    ArtifactEvaluationError,
+    DiagnosisArtifactEvaluator,
+)
+from server.app.evaluation.oracle_repository import EvaluationOracleRepository
+from server.app.evaluation.schemas import EvaluationRequest
 from server.app.rca.report import run_diagnosis_context
 from server.app.schemas import (
     APIResponse,
@@ -130,19 +140,40 @@ async def _lifespan(_app: FastAPI):
         if _env_bool("MINI_DROP_EMBED_MAINTENANCE", True)
         else None
     )
-    outbox_thread = None
+    outbox_threads: list[threading.Thread] = []
+    outbox_stop_event: threading.Event | None = None
     if _env_bool("MINI_DROP_OUTBOX_DISPATCH_ENABLED", False):
-        # Consume this server's own transactional outbox: task.created events
-        # are fanned out to SSE subscribers (guide §9.6 real downstream).
-        from server.app.outbox_dispatcher import event_bus_deliver, run_worker
+        # Consume both transactional outboxes in-process so SSE delivery shares
+        # this server's event bus. Each stream has an independent worker lease.
+        from server.app.diagnosis.store import DiagnosisStore
+        from server.app.outbox_dispatcher import run_artifact_worker, run_worker
 
-        outbox_thread = threading.Thread(
-            target=run_worker,
-            args=(repo,),
-            kwargs={"poll_seconds": 2.0},
-            daemon=True,
-        )
-        outbox_thread.start()
+        worker_prefix = os.getenv(
+            "MINI_DROP_OUTBOX_WORKER_ID", f"server-{os.getpid()}"
+        ).strip() or f"server-{os.getpid()}"
+        outbox_stop_event = threading.Event()
+        outbox_threads = [
+            threading.Thread(
+                target=run_worker,
+                args=(repo, f"{worker_prefix}:task"),
+                kwargs={
+                    "poll_seconds": 2.0,
+                    "stop_event": outbox_stop_event,
+                },
+                daemon=True,
+            ),
+            threading.Thread(
+                target=run_artifact_worker,
+                args=(DiagnosisStore(), f"{worker_prefix}:artifact"),
+                kwargs={
+                    "poll_seconds": 2.0,
+                    "stop_event": outbox_stop_event,
+                },
+                daemon=True,
+            ),
+        ]
+        for thread in outbox_threads:
+            thread.start()
     try:
         yield
     finally:
@@ -152,20 +183,47 @@ async def _lifespan(_app: FastAPI):
                 await maintenance_task
             except asyncio.CancelledError:
                 pass
-        if outbox_thread is not None:
-            outbox_thread.join(timeout=5)
+        if outbox_stop_event is not None:
+            outbox_stop_event.set()
+        for thread in outbox_threads:
+            thread.join(timeout=5)
         if grpc_server is not None:
             grpc_server.stop(grace=None).wait(timeout=5)
+
+
+def _run_maintenance_once() -> None:
+    timeout_sec = int(os.getenv("AGENT_OFFLINE_TIMEOUT_SEC", "30"))
+    maintenance_steps = (
+        ("mark_offline_agents", lambda: repo.mark_offline_agents(timeout_sec=timeout_sec)),
+        (
+            "persist_agent_metric_snapshots",
+            lambda: repo.persist_agent_metric_snapshots()
+            if hasattr(repo, "persist_agent_metric_snapshots")
+            else None,
+        ),
+        ("advance_active_diagnoses", diagnosis_orchestrator.advance_active),
+        (
+            "reconcile_terminal_artifacts",
+            diagnosis_orchestrator.reconcile_terminal_artifacts,
+        ),
+    )
+    for step_name, step in maintenance_steps:
+        try:
+            step()
+        except Exception as exc:
+            log_event(
+                "error",
+                "maintenance_step_failed",
+                step=step_name,
+                error=str(exc)[:1000],
+            )
 
 
 async def _offline_sweeper() -> None:
     timeout_sec = int(os.getenv("AGENT_OFFLINE_TIMEOUT_SEC", "30"))
     interval_sec = max(1, min(timeout_sec // 2, 15))
     while True:
-        repo.mark_offline_agents(timeout_sec=timeout_sec)
-        if hasattr(repo, "persist_agent_metric_snapshots"):
-            repo.persist_agent_metric_snapshots()
-        diagnosis_orchestrator.advance_active()
+        _run_maintenance_once()
         await asyncio.sleep(interval_sec)
 
 
@@ -302,6 +360,24 @@ async def _api_key_auth(request: Request, call_next):
 
 def _split_trusted_scope_header(value: str) -> tuple[str, ...]:
     return tuple(part.strip() for part in value.split(",") if part.strip())
+
+
+def _require_trusted_role(request: Request, role: str) -> None:
+    roles = getattr(request.state, "authenticated_roles", ())
+    if role not in roles:
+        raise HTTPException(status_code=403, detail="权限不足")
+
+
+def _artifact_evaluator() -> DiagnosisArtifactEvaluator:
+    oracle_path = os.getenv("MINI_DROP_EVALUATOR_ORACLE_PATH", "").strip()
+    if not oracle_path:
+        raise HTTPException(status_code=503, detail="EVALUATOR_UNAVAILABLE")
+    from server.app.diagnosis.store import DiagnosisStore
+
+    return DiagnosisArtifactEvaluator(
+        DiagnosisStore(),
+        EvaluationOracleRepository(oracle_path),
+    )
 
 
 def _task_view(record) -> TaskView:
@@ -1243,6 +1319,24 @@ def list_probe_definitions() -> APIResponse:
     return APIResponse(data=[probe.model_dump(mode="json") for probe in list_registered_probes()])
 
 
+@app.post("/api/v1/diagnosis-evaluations/artifacts")
+def evaluate_frozen_diagnosis_artifact(
+    payload: EvaluationRequest,
+    request: Request,
+) -> APIResponse:
+    """Evaluate an immutable artifact behind the evaluator-only trust boundary."""
+
+    _require_trusted_role(request, "evaluator")
+    try:
+        result = _artifact_evaluator().evaluate(payload)
+    except ArtifactEvaluationError as exc:
+        status_code = 404 if exc.code == "ARTIFACT_NOT_FOUND" else 409
+        if exc.code == "ORACLE_UNAVAILABLE":
+            status_code = 503
+        raise HTTPException(status_code=status_code, detail=exc.code) from None
+    return APIResponse(data=result)
+
+
 @app.get("/api/v1/diagnosis-evaluations/golden")
 def evaluate_golden_diagnosis_suite() -> APIResponse:
     """离线执行版本化 Golden 场景，作为 AI 诊断发布前质量门禁。"""
@@ -1291,10 +1385,10 @@ def get_external_diagnosis_benchmark() -> APIResponse:
 
 @app.get("/api/v1/diagnosis-evaluations/external/cases/{case_id}")
 def get_external_diagnosis_benchmark_case(case_id: str) -> APIResponse:
-    """Return one completed benchmark case with evaluator-only Oracle data."""
+    """Return one completed public benchmark case without evaluator data."""
 
     try:
-        return APIResponse(data=external_benchmark_case(case_id, reveal_oracle=True))
+        return APIResponse(data=external_benchmark_case(case_id))
     except ExternalBenchmarkUnavailable as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except KeyError as exc:
@@ -1306,6 +1400,30 @@ def list_diagnosis_campaign_scenarios() -> APIResponse:
     """Return real, allow-listed fault scenarios available to the Web UI."""
 
     return APIResponse(data={"items": get_campaign_manager(repo).scenarios()})
+
+
+@app.get("/api/v1/real-world-benchmarks/catalog")
+def get_real_world_benchmark_catalog() -> APIResponse:
+    """Return PR-derived cases and explicit cloud execution readiness."""
+
+    return APIResponse(data=real_world_catalog())
+
+
+@app.post("/api/v1/real-world-benchmarks/runs")
+def start_real_world_benchmark(payload: dict | None = None) -> APIResponse:
+    case_id = str((payload or {}).get("case_id") or "")
+    try:
+        return APIResponse(data=get_real_world_run_manager().create(case_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/real-world-benchmarks/runs/{run_id}")
+def get_real_world_benchmark_run(run_id: str) -> APIResponse:
+    run = get_real_world_run_manager().get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="真实业务测试运行不存在")
+    return APIResponse(data=run)
 
 
 @app.post("/api/v1/diagnosis-campaigns/runs")

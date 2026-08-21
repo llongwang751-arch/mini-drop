@@ -525,6 +525,20 @@ class TestSelfRepair:
                 assert result.retry_count == 1
                 assert result.report.summary == "after repair"
 
+    def test_provider_error_does_not_leak_response_body(self):
+        from server.app.rca.llm_client import _call_deepseek
+
+        response = mock.MagicMock(status_code=502)
+        response.text = "PRIVATE_PROVIDER_SENTINEL"
+        response.headers = {"x-request-id": "req-123"}
+        with mock.patch("server.app.rca.llm_client.chat_completions", return_value=response):
+            with pytest.raises(RuntimeError) as exc_info:
+                _call_deepseek([], "model")
+        message = str(exc_info.value)
+        assert "PRIVATE_PROVIDER_SENTINEL" not in message
+        assert "status=502" in message
+        assert "request_id=req-123" in message
+
     def test_max_retries_exceeded_returns_failure(self):
         evidence = EvidenceInput()
         bad_json = '{"summary":"x","ranked_causes":[],"facts":[],"not_enough_evidence":false}'

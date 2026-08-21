@@ -111,12 +111,12 @@ def test_external_catalog_hides_oracle_but_exposes_metrics(tmp_path):
     assert all(not key.startswith("_") for key in summary)
 
 
-def test_external_case_reveals_oracle_after_run_and_keeps_trace(tmp_path):
+def test_external_case_keeps_public_trace_without_oracle(tmp_path):
     archive = _fixture_archive(tmp_path / "ai_ops_v2.zip")
     detail = external_benchmark_case("OB-SINGLE-CPU-001", path=archive)
 
-    assert detail["oracle_revealed"] is True
-    assert detail["oracle"]["expected"]["domain_type"] == "cpu"
+    assert "oracle_revealed" not in detail
+    assert "oracle" not in detail
     assert detail["runs"][0]["exact_root_match"] is True
     assert detail["runs"][0]["trace"][0]["stage"] == "intent"
     assert detail["runs"][0]["evidence_count"] == 1

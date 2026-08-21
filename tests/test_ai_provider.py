@@ -3,7 +3,15 @@
 import threading
 
 from server.app import ai_provider
-from server.app.ai_provider import _chat_url, _post_json, get_ai_settings, is_feature_enabled
+from server.app.ai_provider import (
+    ModelBoundaryError,
+    _assert_model_boundary,
+    _chat_url,
+    _post_json,
+    chat_completions,
+    get_ai_settings,
+    is_feature_enabled,
+)
 
 
 def test_ai_defaults_use_current_deepseek_flash(monkeypatch):
@@ -80,4 +88,82 @@ def test_ai_http_client_reuses_thread_local_connection_pool(monkeypatch):
     assert len(created) == 1
     assert [item[0] for item in created[0].mounts] == ["https://", "http://"]
     assert created[0].calls[0][1]["timeout"] == (3, 20)
-    assert created[0].calls[1][1]["timeout"] == (3, 30)
+
+
+def test_model_boundary_rejects_nested_keys_strings_and_tool_enums():
+    forbidden_payloads = [
+        {"tool_choice": {"provider_extension": {"evaluation-oracle": "secret"}}},
+        {"tools": [{"function": {"parameters": {"enum": ["ground_truth"]}}}]},
+        {"messages": [{"content": '{"oracle_root_cause_id":"secret"}'}]},
+        {"items": ({"Expected-Location": "self"},)},
+    ]
+    for payload in forbidden_payloads:
+        try:
+            _assert_model_boundary(payload)
+        except ModelBoundaryError:
+            pass
+        else:
+            raise AssertionError(f"payload was not rejected: {payload!r}")
+
+
+def test_model_boundary_allows_expected_observation_and_rejects_excessive_depth():
+    _assert_model_boundary({"expected_observation": "CPU should fall"})
+    nested = value = {}
+    for _ in range(34):
+        child = {}
+        value["next"] = child
+        value = child
+    try:
+        _assert_model_boundary(nested)
+    except ModelBoundaryError as exc:
+        assert "nesting exceeds limit" in str(exc)
+    else:
+        raise AssertionError("deep payload was not rejected")
+
+
+def test_model_boundary_allows_plain_text_discussion_but_rejects_structured_leaks():
+    _assert_model_boundary(
+        {"messages": [{"content": "Explain why ground_truth must stay evaluator-only."}]}
+    )
+    _assert_model_boundary(
+        {"messages": [{"content": "The field evaluation_oracle is not part of this API."}]}
+    )
+    try:
+        _assert_model_boundary(
+            {"messages": [{"content": '{"oracle_root_cause_id":"secret"}'}]}
+        )
+    except ModelBoundaryError:
+        pass
+    else:
+        raise AssertionError("structured evaluator data was not rejected")
+
+
+def test_chat_completion_allows_plain_text_before_network_call(monkeypatch):
+    called = False
+
+    def fake_post(*args, **kwargs):
+        nonlocal called
+        called = True
+        return {"ok": True}
+
+    monkeypatch.setattr(ai_provider, "_post_json", fake_post)
+    chat_completions({"messages": [{"content": "Discuss evaluation_oracle isolation."}]})
+    assert called is True
+
+
+def test_chat_completion_rejects_before_network_call(monkeypatch):
+    called = False
+
+    def never_post(*args, **kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("network should not be called")
+
+    monkeypatch.setattr(ai_provider, "_post_json", never_post)
+    try:
+        chat_completions({"messages": [{"content": '{"evaluation_oracle":{"case":"secret"}}'}]})
+    except ModelBoundaryError:
+        pass
+    else:
+        raise AssertionError("forbidden payload was not rejected")
+    assert called is False

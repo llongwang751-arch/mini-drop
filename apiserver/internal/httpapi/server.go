@@ -133,6 +133,7 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 	mux.Handle("GET /api/v1/probes", proxy)
 	mux.Handle("/api/v1/diagnosis-evaluations/{rest...}", proxy)
 	mux.Handle("/api/v1/diagnosis-campaigns/{rest...}", proxy)
+	mux.Handle("/api/v1/real-world-benchmarks/{rest...}", proxy)
 	mux.Handle("/api/nlp/{rest...}", proxy)
 	mux.Handle("/api/v2/{rest...}", proxy)
 	// Schedules are now native Go handlers (registered in the repo block).
@@ -149,13 +150,13 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 // unknown commands are rejected here before they can reach the orchestrator.
 type diagnosisCreateCommand struct {
 	Query              string          `json:"query"`
+	CaseID             string          `json:"case_id,omitempty"`
 	Context            json.RawMessage `json:"context,omitempty"`
 	BudgetProfile      string          `json:"budget_profile,omitempty"`
 	Budget             json.RawMessage `json:"budget,omitempty"`
 	DiagnosisMode      string          `json:"diagnosis_mode,omitempty"`
 	AnalysisStrategy   string          `json:"analysis_strategy,omitempty"`
 	EvidenceTimePolicy json.RawMessage `json:"evidence_time_policy,omitempty"`
-	EvaluationOracle   json.RawMessage `json:"evaluation_oracle,omitempty"`
 	BaselineTaskIDs    []string        `json:"baseline_task_ids,omitempty"`
 }
 
@@ -216,6 +217,11 @@ func (s *Server) createDiagnosisSession(w http.ResponseWriter, r *http.Request) 
 	input.Query = strings.TrimSpace(input.Query)
 	if len(input.Query) < 3 || len(input.Query) > 2000 {
 		writeAPI(w, http.StatusBadRequest, 1400, "query length must be between 3 and 2000", nil)
+		return
+	}
+	input.CaseID = strings.TrimSpace(input.CaseID)
+	if len(input.CaseID) > 128 {
+		writeAPI(w, http.StatusBadRequest, 1400, "case_id exceeds 128 characters", nil)
 		return
 	}
 	if input.BudgetProfile == "" {

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "comparators": [
+    {
+      "id": "rcaeval",
+      "type": "public_benchmark_and_classical_baselines",
+      "url": "https://github.com/phamquiluan/RCAEval",
+      "best_for": ["offline_multi_service_rca", "top_k_accuracy", "metrics_logs_traces"],
+      "not_equivalent_to": ["live_profiling_agent", "human_approval_workflow"],
+      "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
+      "reason": "Requires a supported Python version and external datasets; official project recommends 8 CPU, 16 GB RAM and about 50 GB disk."
+    },
+    {
+      "id": "openrca",
+      "type": "llm_rca_benchmark_and_agent_baseline",
+      "url": "https://github.com/microsoft/OpenRCA",
+      "best_for": ["llm_tool_use", "large_telemetry_context", "root_element_localization"],
+      "not_equivalent_to": ["perf_ebpf_collection", "continuous_profiling"],
+      "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
+      "reason": "Official repository recommends at least 80 GB storage and 32 GB memory."
+    },
+    {
+      "id": "holmesgpt",
+      "type": "mature_open_source_sre_agent",
+      "url": "https://github.com/HolmesGPT/holmesgpt",
+      "best_for": ["iterative_investigation", "kubernetes_and_observability_tools", "read_only_governance"],
+      "not_equivalent_to": ["process_level_profiler_control_plane", "oracle_scored_benchmark"],
+      "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
+      "reason": "A fair live comparison needs Kubernetes, the same telemetry backends and the same LLM/budget."
+    },
+    {
+      "id": "grafana-pyroscope",
+      "type": "continuous_profiling_product",
+      "url": "https://grafana.com/docs/pyroscope/latest/get-started/",
+      "best_for": ["continuous_profiles", "time_window_query", "flamegraph_exploration"],
+      "not_equivalent_to": ["ai_root_cause_reasoning", "fault_injection_campaign"],
+      "execution_status": "NOT_EXECUTED_ON_CURRENT_CLOUD",
+      "reason": "A fair cloud comparison still needs Pyroscope ingestion, the same profile window and an agreed resource budget; no score is reported before that run."
+    }
+  ],
+  "fair_comparison_rule": "Use the same incident window, telemetry snapshot, LLM model, tool budget and hidden Oracle. Report unsupported capability instead of converting it to a zero-quality diagnosis."
+}

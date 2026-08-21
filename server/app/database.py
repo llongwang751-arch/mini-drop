@@ -25,6 +25,25 @@ _sessionmaker: sessionmaker | None = None
 # must be re-entrant in a fresh process where neither singleton exists yet.
 _lock = threading.RLock()
 
+_MANAGED_SCHEMA_REVISION = "20260821_0017"
+_MANAGED_SCHEMA_TABLES = {
+    "alembic_version",
+    "tasks",
+    "agents",
+    "diagnosis_sessions",
+    "frozen_diagnosis_artifacts",
+    "diagnosis_artifact_outbox",
+    "diagnosis_artifact_evaluations",
+}
+_MANAGED_ARTIFACT_OUTBOX_COLUMNS = {
+    "attempts",
+    "next_attempt_at",
+    "worker_lease_owner",
+    "worker_lease_expires_at",
+    "last_error",
+    "published_at",
+}
+
 
 def _build_url() -> str:
     url = os.getenv("DATABASE_URL", "")
@@ -78,12 +97,35 @@ def init_db() -> None:
     if os.getenv("MINI_DROP_SCHEMA_MANAGED", "0").strip().lower() in {
         "1", "true", "yes", "on",
     }:
-        tables = set(inspect(engine).get_table_names())
-        required = {"alembic_version", "tasks", "agents", "diagnosis_sessions"}
-        missing = sorted(required - tables)
+        inspector = inspect(engine)
+        tables = set(inspector.get_table_names())
+        missing = sorted(_MANAGED_SCHEMA_TABLES - tables)
         if missing:
             raise RuntimeError(
                 "database schema is not migrated; missing tables: " + ", ".join(missing)
+            )
+        with engine.connect() as connection:
+            revisions = {
+                str(row[0])
+                for row in connection.execute(text("SELECT version_num FROM alembic_version"))
+            }
+        if revisions != {_MANAGED_SCHEMA_REVISION}:
+            rendered = ", ".join(sorted(revisions)) or "<empty>"
+            raise RuntimeError(
+                "database schema revision mismatch; expected "
+                f"{_MANAGED_SCHEMA_REVISION}, found {rendered}"
+            )
+        artifact_outbox_columns = {
+            item["name"]
+            for item in inspector.get_columns("diagnosis_artifact_outbox")
+        }
+        missing_columns = sorted(
+            _MANAGED_ARTIFACT_OUTBOX_COLUMNS - artifact_outbox_columns
+        )
+        if missing_columns:
+            raise RuntimeError(
+                "database schema is not migrated; diagnosis_artifact_outbox "
+                "missing columns: " + ", ".join(missing_columns)
             )
         return
     Base.metadata.create_all(bind=engine)
@@ -104,7 +146,6 @@ _ADDITIVE_MIGRATIONS = {
         # Existing rows may not have a meaningful deadline. Keeping the added
         # column nullable is safer than inventing a historical deadline.
         "deadline_at": "TIMESTAMP",
-        "evaluation_oracle_json": "JSON",
     },
     "diagnosis_probe_executions": {
         "retry_count": "INTEGER NOT NULL DEFAULT 0",
@@ -115,6 +156,10 @@ _ADDITIVE_MIGRATIONS = {
     },
     "diagnosis_evidence": {
         "evidence_role": "VARCHAR(32) NOT NULL DEFAULT 'incident'",
+    },
+    "diagnosis_evidence_snapshots": {
+        # Unknown historical provenance remains NULL; never infer the latest attempt.
+        "attempt_id": "VARCHAR(128)",
     },
     "drop_insight_sessions": {
         "deleted_at": "TIMESTAMP",
@@ -201,6 +246,40 @@ def _upgrade_legacy_schema(engine: Engine) -> None:
             connection.execute(text(
                 "CREATE INDEX IF NOT EXISTS ix_tasks_deleted_at ON tasks (deleted_at)"
             ))
+        if "diagnosis_evidence_snapshots" in tables:
+            connection.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_diagnosis_evidence_snapshots_attempt_id "
+                "ON diagnosis_evidence_snapshots (attempt_id)"
+            ))
+            if engine.dialect.name == "postgresql":
+                invalid = connection.execute(text("""
+                    SELECT snapshot.id
+                    FROM diagnosis_evidence_snapshots AS snapshot
+                    LEFT JOIN task_attempts AS attempt ON attempt.id = snapshot.attempt_id
+                    WHERE snapshot.attempt_id IS NOT NULL
+                      AND (attempt.id IS NULL OR snapshot.task_id IS NULL
+                           OR attempt.task_id <> snapshot.task_id)
+                    LIMIT 1
+                """)).scalar()
+                if invalid is not None:
+                    raise RuntimeError(
+                        "invalid diagnosis evidence snapshot attempt lineage: "
+                        f"{invalid}"
+                    )
+                foreign_keys = inspect(connection).get_foreign_keys(
+                    "diagnosis_evidence_snapshots"
+                )
+                has_attempt_fk = any(
+                    item.get("referred_table") == "task_attempts"
+                    and item.get("constrained_columns") == ["attempt_id"]
+                    for item in foreign_keys
+                )
+                if not has_attempt_fk:
+                    connection.execute(text(
+                        "ALTER TABLE diagnosis_evidence_snapshots "
+                        "ADD CONSTRAINT fk_diagnosis_evidence_snapshots_attempt_id "
+                        "FOREIGN KEY (attempt_id) REFERENCES task_attempts (id)"
+                    ))
 
 
 def new_session() -> Session:

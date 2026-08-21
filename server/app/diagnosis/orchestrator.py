@@ -131,6 +131,7 @@ class DiagnosisOrchestrator:
         budget_usage["model_calls"] = 1 if is_feature_enabled("nlp") else 0
         self.store.create_session({
             "diagnosis_id": diagnosis_id,
+            "case_id": request.case_id,
             "creator_id": creator_id,
             "raw_query": request.query,
             "normalized_intent": intent.model_dump(mode="json"),
@@ -148,11 +149,6 @@ class DiagnosisOrchestrator:
             "resource_budget": budget.model_dump(mode="json"),
             "budget_used": budget_usage,
             "hypothesis_graph": {"hypotheses": hypotheses, "edges": []},
-            "evaluation_oracle": (
-                request.evaluation_oracle.model_dump(mode="json", exclude_none=True)
-                if request.evaluation_oracle
-                else {}
-            ),
             "child_task_ids": [],
             "conclusion_versions": [],
             "model_version": get_ai_settings().model,
@@ -358,6 +354,68 @@ class DiagnosisOrchestrator:
                     item["diagnosis_id"], "run_probes", "FAILED",
                     error_code="ADVANCE_FAILED", error_message=str(exc),
                 )
+
+    def reconcile_terminal_artifacts(self, limit: int = 100) -> dict[str, int]:
+        """Repair verified terminal diagnoses left unfrozen after a crash."""
+        outcome = {"scanned": 0, "frozen": 0, "skipped": 0, "failed": 0}
+        candidates = self.store.list_terminal_sessions_missing_artifact(
+            TERMINAL_DIAGNOSIS_STATUSES,
+            limit=limit,
+        )
+        for item in candidates:
+            outcome["scanned"] += 1
+            diagnosis_id = item["diagnosis_id"]
+            with self._operation_lock(diagnosis_id):
+                owner = (
+                    f"{self.owner_prefix}:artifact-reconcile:"
+                    f"{threading.get_ident()}:{uuid4().hex}"
+                )
+                if not self.store.acquire_lease(diagnosis_id, owner):
+                    outcome["skipped"] += 1
+                    continue
+                try:
+                    current = self.store.get_session(diagnosis_id)
+                    if (
+                        current is None
+                        or current["status"] not in TERMINAL_DIAGNOSIS_STATUSES
+                    ):
+                        outcome["skipped"] += 1
+                        continue
+                    conclusions = current.get("conclusion_versions", [])
+                    latest = conclusions[-1] if conclusions else None
+                    verification = (
+                        latest.get("verification")
+                        if isinstance(latest, dict)
+                        else None
+                    )
+                    if not (
+                        isinstance(verification, dict)
+                        and verification.get("status") == "passed"
+                    ):
+                        outcome["skipped"] += 1
+                        continue
+                    self.store.freeze_diagnosis_artifact(diagnosis_id)
+                    outcome["frozen"] += 1
+                except Exception as exc:
+                    outcome["failed"] += 1
+                    try:
+                        self.store.record_event(
+                            diagnosis_id,
+                            "artifact_reconciliation_failed",
+                            {"error": str(exc)[:1000]},
+                        )
+                    except Exception:
+                        # Event auditing must not let one damaged row starve the
+                        # remaining reconciliation candidates.
+                        pass
+                finally:
+                    try:
+                        self.store.release_lease(diagnosis_id, owner)
+                    except Exception:
+                        # The lease expires automatically; continue repairing
+                        # other diagnoses even when explicit release fails.
+                        pass
+        return outcome
 
     def approve(self, diagnosis_id: str, request: ApprovalRequest) -> dict[str, Any]:
         with self._operation_lock(diagnosis_id):
@@ -1184,6 +1242,14 @@ class DiagnosisOrchestrator:
         failed_targets: list[str] = []
         for task in tasks:
             status = status_value(task.status)
+            if status != "DONE":
+                self._add_task_evidence(diagnosis_id, task)
+                target = f"{task.agent_id}:{task.target_pid}"
+                if status == "FAILED":
+                    failed_targets.append(target)
+                missing.append(f"{task.id}:successful_collection")
+                continue
+
             artifacts = self.repo.artifacts.get(task.id, [])
             evidence_ids = [self._add_task_evidence(diagnosis_id, task)]
             structured = self._structured_artifacts(artifacts)
@@ -1197,8 +1263,6 @@ class DiagnosisOrchestrator:
                 evidence_ids,
                 [artifact for _, _, artifact in structured],
             )
-            if status == "FAILED":
-                failed_targets.append(f"{task.agent_id}:{task.target_pid}")
             if not structured:
                 missing.append(f"{task.id}:structured_artifact")
                 continue
@@ -1745,9 +1809,6 @@ class DiagnosisOrchestrator:
         session = self.store.get_session(diagnosis_id)
         if session is None:
             return
-        evaluation = self._evaluate_conclusion(session.get("evaluation_oracle", {}), conclusion)
-        if evaluation:
-            conclusion["evaluation"] = evaluation
         versions = list(session.get("conclusion_versions", []))
         fingerprint = hashlib.sha256(
             json.dumps(conclusion, sort_keys=True, ensure_ascii=False).encode()
@@ -1755,51 +1816,6 @@ class DiagnosisOrchestrator:
         conclusion["integrity_hash"] = f"sha256:{fingerprint}"
         versions.append(conclusion)
         self.store.update_session(diagnosis_id, conclusion_versions=versions)
-
-    @staticmethod
-    def _evaluate_conclusion(
-        oracle: dict[str, Any],
-        conclusion: dict[str, Any],
-    ) -> dict[str, Any] | None:
-        """Score a finished report against hidden ground truth without model involvement."""
-
-        if not oracle:
-            return None
-        actual = {
-            "instance_id": conclusion.get("root_location", {}).get("target_ref"),
-            "location_type": conclusion.get("root_location", {}).get("type"),
-            "domain_type": conclusion.get("domain_cause", {}).get("type"),
-            "classification": conclusion.get("cluster_assessment", {}).get("classification"),
-        }
-        pairs = (
-            ("instance_id", "expected_instance_id"),
-            ("location_type", "expected_location_type"),
-            ("domain_type", "expected_domain_type"),
-            ("classification", "expected_classification"),
-        )
-        checks = []
-        for dimension, expected_key in pairs:
-            expected = oracle.get(expected_key)
-            if expected is None:
-                continue
-            observed = actual[dimension]
-            checks.append({
-                "dimension": dimension,
-                "expected": expected,
-                "actual": observed,
-                "matched": observed == expected,
-            })
-        matched_count = sum(1 for item in checks if item["matched"])
-        specified_count = len(checks)
-        return {
-            "case_id": oracle.get("case_id"),
-            "specified_count": specified_count,
-            "matched_count": matched_count,
-            "score_pct": round(matched_count / specified_count * 100, 1) if specified_count else 0.0,
-            "exact_match": bool(specified_count and matched_count == specified_count),
-            "checks": checks,
-            "oracle_isolated": True,
-        }
 
     def _add_task_evidence(
         self,
@@ -1972,7 +1988,11 @@ class DiagnosisOrchestrator:
             for item in artifacts
             if item.get("object_key") or item.get("local_path")
         })
-        snapshot_id = f"snap_{hashlib.sha256(f'{diagnosis_id}:{task.id}'.encode()).hexdigest()[:20]}"
+        artifact_ids = sorted({
+            int(item["id"])
+            for item in artifacts
+            if item.get("id") is not None
+        })
         quality = {
             "evidence_count": len(evidence_refs),
             "artifact_count": len(artifact_refs),
@@ -1980,14 +2000,10 @@ class DiagnosisOrchestrator:
             "clock_skew_estimate_ms": None,
         }
         snapshot = {
-            "snapshot_id": snapshot_id,
             "diagnosis_id": diagnosis_id,
             "round_index": round_index,
             "evidence_role": role,
-            "captured_at": task.finished_at or utcnow(),
             "time_range": {
-                "start": _iso(task.started_at or task.created_at),
-                "end": _iso(task.finished_at or utcnow()),
                 "sampling_period_seconds": task.duration_sec,
             },
             "target": target,
@@ -2006,16 +2022,14 @@ class DiagnosisOrchestrator:
             "collector": task.collector_type,
             "collector_version": getattr(task, "collector_version", None),
             "task_id": task.id,
-            "attempt_id": getattr(task, "current_attempt_id", None),
             "evidence_refs": sorted(set(evidence_refs)),
             "artifact_refs": artifact_refs,
+            "artifact_ids": artifact_ids,
             "baseline_ref": session.get("baseline_snapshot_id"),
             "quality": quality,
-            "created_at": utcnow(),
         }
-        snapshot["integrity_hash"] = evidence_integrity_hash(snapshot)
-        self.store.add_evidence_snapshot(snapshot)
-        return snapshot_id
+        persisted = self.store.add_evidence_snapshot(snapshot)
+        return persisted["snapshot_id"]
 
     def _resolve_baseline_tasks(
         self,
@@ -2525,6 +2539,26 @@ class DiagnosisOrchestrator:
         if status.value not in allowed:
             raise ValueError(f"非法诊断状态迁移: {current['status']} -> {status.value}")
         self.store.transition(diagnosis_id, status.value, event_type, payload)
+        if status.value in TERMINAL_DIAGNOSIS_STATUSES:
+            detail = self.store.get_session(diagnosis_id)
+            conclusions = detail.get("conclusion_versions", []) if detail else []
+            latest = conclusions[-1] if conclusions else None
+            if isinstance(latest, dict) and isinstance(latest.get("verification"), dict):
+                if latest["verification"].get("status") == "passed":
+                    try:
+                        self.store.freeze_diagnosis_artifact(diagnosis_id)
+                    except Exception as exc:
+                        try:
+                            self.store.record_event(
+                                diagnosis_id,
+                                "artifact_freeze_deferred",
+                                {"error": str(exc)[:1000]},
+                            )
+                        except Exception:
+                            # The terminal transition is already committed. A
+                            # secondary audit failure must not change its result;
+                            # periodic reconciliation will retry the freeze.
+                            pass
         BUS.publish(event_type, {"diagnosis_id": diagnosis_id, "status": status.value, **(payload or {})})
 
     @staticmethod
