@@ -177,8 +177,12 @@ def _assert_unscored(tmp_path, run: dict, error: str) -> None:
 
 
 def test_evaluator_path_uses_versioned_oracle_and_allowlisted_projection(tmp_path, monkeypatch) -> None:
-    oracle_path = tmp_path / "synthetic-oracle.json"
+    suite = tmp_path / "suite"
+    private_dir = suite / "private"
+    private_dir.mkdir(parents=True)
+    oracle_path = private_dir / "synthetic-oracle.json"
     _write_oracle(oracle_path)
+    monkeypatch.setattr("scripts.real_world_benchmark.SUITE", suite)
     public_case = {
         "case_id": _SYNTHETIC_CASE_ID,
         "minimum_repetitions": 3,
@@ -193,7 +197,7 @@ def test_evaluator_path_uses_versioned_oracle_and_allowlisted_projection(tmp_pat
                 "dataset": "synthetic",
                 "version": "1",
                 "public_cases": "cases.json",
-                "private_oracles": "ignored.json",
+                "private_oracles": "private/synthetic-oracle.json",
             }
             if path.name == "manifest.json"
             else {"cases": [public_case]}
@@ -392,6 +396,24 @@ def test_unscored_case_does_not_dilute_scored_rates(tmp_path) -> None:
     assert report["evaluated_cases"] == 1
     assert report["top1_exact_rate"] == 1
     assert report["evidence_citation_rate"] == 1
+
+
+
+def test_malformed_result_payload_is_rejected_before_oracle_access(tmp_path) -> None:
+    path = tmp_path / "malformed-result.json"
+    path.write_text(json.dumps([]), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="payload must be an object"):
+        score_results(path, commitment_key=b"k" * 32)
+
+
+@pytest.mark.parametrize("runs", [{}, ["not-an-object"]])
+def test_malformed_runs_are_rejected_before_oracle_access(tmp_path, runs) -> None:
+    path = tmp_path / "malformed-runs.json"
+    path.write_text(json.dumps({"runs": runs}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="runs must be a list of objects"):
+        score_results(path, commitment_key=b"k" * 32)
 
 
 def test_duplicate_case_is_rejected_before_field_validation(tmp_path) -> None:

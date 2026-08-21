@@ -145,7 +145,7 @@ def validate_suite() -> dict[str, Any]:
         raise ValueError("duplicate case_id in real-world manifest")
     if set(declared) != set(public_by_id):
         raise ValueError("manifest and public cases are not aligned")
-    forbidden = {"root_cause_id", "expected_summary", "source_url", "fix_sha", "base_sha"}
+    forbidden = {"root_cause_id", "expected_summary", "fix_sha", "base_sha"}
     leaked = {
         case_id: sorted(forbidden & set(case))
         for case_id, case in public_by_id.items()
@@ -180,7 +180,10 @@ def public_plan() -> dict[str, Any]:
         "dataset": manifest["dataset"],
         "version": manifest["version"],
         "oracle_in_plan": False,
-        "cases": public["cases"],
+        "cases": [
+            {key: value for key, value in case.items() if key != "source_url"}
+            for case in public["cases"]
+        ],
     }
 
 
@@ -202,6 +205,34 @@ def _commitment_key(value: bytes | None) -> bytes:
     return configured.encode("utf-8")
 
 
+def _isolated_oracle_path(path: Path, *, manifest: dict[str, Any]) -> Path:
+    configured = Path(manifest["private_oracles"])
+    if (
+        configured.is_absolute()
+        or ".." in configured.parts
+        or "private" not in {part.lower() for part in configured.parts}
+    ):
+        raise ValueError("private Oracle path is not isolated")
+    configured_path = (SUITE / configured).resolve()
+    private_root = configured_path.parent
+    candidate = path.resolve()
+    public_path = (SUITE / Path(manifest["public_cases"])).resolve()
+    comparator_value = manifest.get("comparators")
+    comparator_path = (
+        (SUITE / Path(comparator_value)).resolve()
+        if isinstance(comparator_value, str)
+        else None
+    )
+    if (
+        candidate != configured_path
+        or candidate == public_path
+        or candidate == comparator_path
+        or candidate.parent != private_root
+    ):
+        raise ValueError("private Oracle path is not isolated")
+    return candidate
+
+
 def score_results(
     path: Path,
     *,
@@ -210,13 +241,34 @@ def score_results(
 ) -> dict[str, Any]:
     """Score frozen normalized outputs through the evaluator-only Oracle adapter."""
     payload = _load(path)
+    if not isinstance(payload, dict):
+        raise ValueError("comparison results payload must be an object")
     manifest = _load(SUITE / "manifest.json")
     public_by_id = {
         item["case_id"]: item
         for item in _load(SUITE / manifest["public_cases"])["cases"]
     }
+    runs = payload.get("runs", [])
+    if not isinstance(runs, list) or any(not isinstance(run, dict) for run in runs):
+        raise ValueError("comparison results runs must be a list of objects")
+    case_ids = []
+    for run in runs:
+        case_id = run.get("case_id")
+        if not isinstance(case_id, str) or not case_id.strip():
+            raise ValueError("comparison result case_id must be a non-empty string")
+        case_ids.append(case_id)
+    if len(case_ids) != len(set(case_ids)):
+        duplicate = next(case_id for case_id in case_ids if case_ids.count(case_id) > 1)
+        raise ValueError(f"duplicate case_id in one comparison result: {duplicate}")
+    for run in runs:
+        case_id = run.get("case_id")
+        if case_id not in public_by_id:
+            raise ValueError(f"unknown case_id: {case_id}")
+        _validate_run_metrics(run, case_id)
+
+    selected_oracle_path = oracle_path or (SUITE / manifest["private_oracles"])
     repository = RealWorldOracleRepositoryV1(
-        oracle_path or (SUITE / manifest["private_oracles"])
+        _isolated_oracle_path(selected_oracle_path, manifest=manifest)
     )
     scorer = RealWorldOracleScorerV1(repository, _commitment_key(commitment_key))
     oracle_case_ids = repository.case_ids()

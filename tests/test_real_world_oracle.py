@@ -198,3 +198,23 @@ def test_adapter_fails_closed_on_schema_drift(tmp_path, mutation):
 
     with pytest.raises(RealWorldOracleUnavailableError):
         RealWorldOracleRepositoryV1(path).load("synthetic-case")
+
+
+def test_legacy_adapter_rejects_unknown_case_fields(tmp_path):
+    path = tmp_path / "synthetic-legacy-oracle.json"
+    payload = {
+        "schema_version": "1.0",
+        "cases": [{
+            "case_id": "synthetic-case",
+            "root_cause_id": _PRIVATE_ROOT,
+            "expected_summary": _PRIVATE_SUMMARY,
+            "counterfactual": _PRIVATE_COUNTERFACTUAL,
+            "required_locations": [_PRIVATE_LOCATION],
+            "expected_terminal": "CONFIRMED",
+            "unexpected_answer": "must-not-be-ignored",
+        }],
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(RealWorldOracleUnavailableError):
+        RealWorldOracleRepositoryV1(path).load("synthetic-case")

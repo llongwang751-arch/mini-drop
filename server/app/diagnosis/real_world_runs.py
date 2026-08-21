@@ -7,6 +7,7 @@ until a fixed upstream base/fix replay is available.
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import datetime, timezone
 import gc
@@ -175,6 +176,7 @@ class RealWorldRunManager:
         self._runs: dict[str, dict[str, Any]] = {}
         self._lock = threading.Lock()
         self._start_workers = start_workers
+        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="real-world-run") if start_workers else None
         self._storage_dir.mkdir(parents=True, exist_ok=True)
         self._load_runs()
 
@@ -331,7 +333,7 @@ class RealWorldRunManager:
                 self._runs.pop(run_id, None)
                 raise
         if self._start_workers:
-            threading.Thread(target=self._execute, args=(run_id,), daemon=True).start()
+            self._executor.submit(self._execute, run_id)
         return self.get(run_id) or deepcopy(run)
 
     def get(self, run_id: str) -> dict[str, Any] | None:
@@ -493,7 +495,7 @@ class RealWorldRunManager:
         self._snapshot(run_id, "verification", verification)
         recovered = verification["alive_after_gc"] == 0
         time.sleep(0.25)
-        self._event(run_id, "ORACLE_COMPARISON", "诊断结束后读取 evaluator-only Oracle", 90)
+        self._event(run_id, "ORACLE_SKIPPED", "机制复现不读取 Oracle，保持 UNSCORED", 90)
         predicted = "strong_callback_references_retain_reader_exporter" if supported else "unknown"
         self._complete(
             run_id,
@@ -524,7 +526,7 @@ class RealWorldRunManager:
         stable_keys = {f"namespace/repository-{index % resource_count}" for index in range(event_count)}
         self._snapshot(run_id, "verification", {"resource_count": resource_count, "events": event_count, "queue_entries": len(stable_keys), "dedup_ratio": 1.0, "mechanism": "stable value key"})
         recovered = len(stable_keys) == resource_count
-        self._event(run_id, "ORACLE_COMPARISON", "诊断结束后读取 evaluator-only Oracle", 90)
+        self._event(run_id, "ORACLE_SKIPPED", "机制复现不读取 Oracle，保持 UNSCORED", 90)
         self._complete(run_id, predicted="workqueue_pointer_identity_breaks_deduplication" if supported else "unknown", supported=supported, recovered=recovered, summary="对象身份键使同值资源无法去重；稳定资源键把 600 次事件约束到 10 个队列项。", limitations=["这是 workqueue 去重根因的隔离机制复现，不是完整 Grafana 控制器与 OOM 压测。", "完整上游回放仍需构建指定 base/fix SHA 并采集真实 heap profile。"])
 
     def _execute_kubernetes_full_sync(self, run_id: str) -> None:
@@ -540,7 +542,7 @@ class RealWorldRunManager:
         verification_ops = endpoints // 10
         self._snapshot(run_id, "verification", {"endpoints": endpoints, "periodic_cycles": cycles, "full_sync_count": 0, "dataplane_operations": verification_ops, "mechanism": "event-driven delta sync"})
         recovered = verification_ops < incident_ops // 10
-        self._event(run_id, "ORACLE_COMPARISON", "诊断结束后读取 evaluator-only Oracle", 90)
+        self._event(run_id, "ORACLE_SKIPPED", "机制复现不读取 Oracle，保持 UNSCORED", 90)
         self._complete(run_id, predicted="periodic_full_sync_cost_in_large_cluster_mode" if supported else "unknown", supported=supported, recovered=recovered, summary="1500 endpoints 下 6 次周期 full sync 产生 9000 次数据面操作；保留事件驱动更新后周期全量成本消失。", limitations=["这是同步成本的确定性机制复现，不是完整 Kubernetes 集群 dataplane benchmark。", "完整回放需固定 endpoint 规模、iptables/IPVS 模式和请求负载。"])
 
     def _execute_envoy_debug_expression(self, run_id: str) -> None:
@@ -556,7 +558,7 @@ class RealWorldRunManager:
         verification_evaluations = 0
         self._snapshot(run_id, "verification", {"chunks": chunks, "debug_enabled": False, "expression_evaluations": verification_evaluations, "evaluations_per_chunk": 0.0, "mechanism": "debug-level guard"})
         recovered = verification_evaluations == 0
-        self._event(run_id, "ORACLE_COMPARISON", "诊断结束后读取 evaluator-only Oracle", 90)
+        self._event(run_id, "ORACLE_SKIPPED", "机制复现不读取 Oracle，保持 UNSCORED", 90)
         self._complete(run_id, predicted="per_chunk_debug_log_expression_evaluation" if supported else "unknown", supported=supported, recovered=recovered, summary="debug 关闭时仍发生 4000 次逐块表达式求值；加入日志级别守卫后同负载求值次数归零。", limitations=["这是逐 chunk 固定开销的机制复现，不是完整 Envoy 二进制 benchmark。", "上游证据较弱，完整回放前结论仍应标记为 provisional。"])
 
 

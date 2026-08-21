@@ -20,6 +20,7 @@ from server.app.evaluation.real_world_admission import validate_formal_admission
 
 
 ORACLE_SCHEMA_VERSION = "real-world-oracle-v1"
+_SUPPORTED_ORACLE_SCHEMA_VERSIONS = frozenset({ORACLE_SCHEMA_VERSION, "1.0"})
 SCORE_SCHEMA_VERSION = "real-world-score-v1"
 
 
@@ -62,7 +63,51 @@ _REQUIRED_CASE_FIELDS = {
     "required_locations",
     "expected_terminal",
 }
+_ORACLE_ENVELOPE_FIELDS = {"schema_version", "cases", "warning"}
+_ORACLE_CASE_OPTIONAL_FIELDS = {
+    "base_sha",
+    "fix_sha",
+    "source_url",
+    "title",
+    "project",
+    "language",
+    "execution_track",
+    "reproducibility",
+    "minimum_repetitions",
+    "business_scenario",
+    "query",
+    "observable_symptoms",
+    "required_evidence",
+    "workload_contract",
+    "web_execution",
+    "execution_note",
+    "expected_terminal_class",
+    "root_cause_category",
+    "root_cause_type",
+    "base_commit",
+    "fix_commit",
+    "source_revision",
+    "fix_revision",
+    "oracle_version",
+    "upstream_url",
+    "pr_url",
+    "repository",
+    "case_version",
+    "replay_status",
+    "notes",
+    "source",
+    "status",
+}
 _EXPECTED_TERMINALS = {"ROOT_CAUSE", "ABSTAIN_OR_PROVISIONAL"}
+_LEGACY_TERMINAL_ALIASES = {
+    "ROOT_CAUSE": "ROOT_CAUSE",
+    "ABSTAIN_OR_PROVISIONAL": "ABSTAIN_OR_PROVISIONAL",
+    "CONFIRMED": "ROOT_CAUSE",
+    "CANDIDATE_PENDING_UPSTREAM": "ABSTAIN_OR_PROVISIONAL",
+    "PROVISIONAL_UNTIL_REPLAYED": "ABSTAIN_OR_PROVISIONAL",
+    "ABSTAIN": "ABSTAIN_OR_PROVISIONAL",
+    "PROVISIONAL": "ABSTAIN_OR_PROVISIONAL",
+}
 
 
 def _canonical_bytes(value: Any) -> bytes:
@@ -114,16 +159,25 @@ class RealWorldOracleRepositoryV1:
 
     @staticmethod
     def _parse_envelope(payload: Any) -> dict[str, RealWorldOracleV1]:
-        if not isinstance(payload, dict) or set(payload) != {"schema_version", "cases"}:
+        if not isinstance(payload, dict) or not {"schema_version", "cases"}.issubset(payload):
             raise ValueError("private Oracle envelope invalid")
-        if payload["schema_version"] != ORACLE_SCHEMA_VERSION:
+        if set(payload) - _ORACLE_ENVELOPE_FIELDS:
+            raise ValueError("private Oracle envelope invalid")
+        if payload["schema_version"] not in _SUPPORTED_ORACLE_SCHEMA_VERSIONS:
             raise ValueError("private Oracle schema unsupported")
         if not isinstance(payload["cases"], list):
             raise ValueError("private Oracle cases invalid")
 
         parsed: dict[str, RealWorldOracleV1] = {}
+        # Both supported envelopes use the same explicit answer-bearing and
+        # metadata contract; legacy terminal aliases are normalized below.
+        allowed_case_fields = _REQUIRED_CASE_FIELDS | _ORACLE_CASE_OPTIONAL_FIELDS
         for value in payload["cases"]:
-            if not isinstance(value, dict) or set(value) != _REQUIRED_CASE_FIELDS:
+            if (
+                not isinstance(value, dict)
+                or not _REQUIRED_CASE_FIELDS.issubset(value)
+                or (allowed_case_fields is not None and set(value) - allowed_case_fields)
+            ):
                 raise ValueError("private Oracle case fields invalid")
             case_id = _required_text(value["case_id"], "case_id")
             if len(case_id) > 128 or case_id in parsed:
@@ -136,6 +190,11 @@ class RealWorldOracleRepositoryV1:
             ):
                 raise ValueError("private Oracle case has invalid required_locations")
             expected_terminal = value["expected_terminal"]
+            if payload["schema_version"] == "1.0":
+                if not isinstance(expected_terminal, str) or not expected_terminal.strip():
+                    raise ValueError("private Oracle case has invalid expected_terminal")
+                legacy_terminal = expected_terminal.strip().upper()
+                expected_terminal = _LEGACY_TERMINAL_ALIASES.get(legacy_terminal)
             if expected_terminal not in _EXPECTED_TERMINALS:
                 raise ValueError("private Oracle case has invalid expected_terminal")
             parsed[case_id] = RealWorldOracleV1(

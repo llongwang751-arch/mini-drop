@@ -137,7 +137,8 @@ def validate_formal_admission(
             raise ValueError(f"formal admission unstable repetition for {case_id}")
         if repetition.get("evidence_roles") != list(REQUIRED_EVIDENCE_ROLES):
             raise ValueError(f"formal admission repetition roles invalid for {case_id}")
-        if sorted(repetition.get("evidence_hashes", [])) != evidence_hashes:
+        repetition_hashes = repetition.get("evidence_hashes")
+        if not isinstance(repetition_hashes, list) or sorted(repetition_hashes) != evidence_hashes:
             raise ValueError(f"formal admission repetition evidence mismatch for {case_id}")
 
     expected_hash = admission.get("admission_hash")
