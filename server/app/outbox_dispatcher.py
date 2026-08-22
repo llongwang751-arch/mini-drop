@@ -53,7 +53,10 @@ def dispatch_once(
         except Exception as exc:
             try:
                 outcome = repo.fail_outbox_message(
-                    message.id, str(exc)[:500], max_attempts=max_attempts
+                    message.id,
+                    worker_id,
+                    str(exc)[:500],
+                    max_attempts=max_attempts,
                 )
             except Exception:
                 logger.exception(
@@ -73,7 +76,7 @@ def dispatch_once(
             )
         else:
             try:
-                repo.mark_outbox_published(message.id)
+                repo.mark_outbox_published(message.id, worker_id)
             except Exception:
                 logger.exception("task outbox acknowledgement failed: %s", message.id)
                 continue

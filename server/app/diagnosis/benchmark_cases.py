@@ -13,6 +13,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from server.app.evaluation.conclusion_projection import project_conclusion
+
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CASE_ROOT = ROOT / "benchmarks" / "cases"
@@ -228,10 +230,10 @@ def evidence_requirement_result(
 
 def score_diagnosis_detail(case: dict[str, Any], detail: dict[str, Any]) -> dict[str, Any]:
     """Score a finished diagnosis without exposing the oracle to the planner."""
-    conclusion = detail.get("latest_conclusion") or {}
-    assessment = conclusion.get("cluster_assessment") or {}
-    root_location = conclusion.get("root_location") or assessment.get("root_location") or {}
-    domain_cause = conclusion.get("domain_cause") or assessment.get("domain_cause") or {}
+    projection = project_conclusion(detail.get("latest_conclusion") or {})
+    assessment = projection.assessment
+    root_location = projection.root_location
+    domain_cause = projection.domain_cause
     oracle = case["oracle"]
     checks: list[dict[str, Any]] = []
 

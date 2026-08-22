@@ -4,6 +4,7 @@ from copy import deepcopy
 import hashlib
 import json
 import math
+from unittest.mock import patch
 
 import pytest
 
@@ -152,6 +153,74 @@ def _validate_admission(run: dict) -> dict:
     )
 
 
+def _write_synthetic_suite(suite, runs: list[dict]) -> None:
+    private_dir = suite / "private"
+    public_dir = suite / "public"
+    private_dir.mkdir(parents=True)
+    public_dir.mkdir(parents=True)
+
+    case_ids = {
+        run["case_id"]
+        for run in runs
+        if isinstance(run, dict)
+        and isinstance(run.get("case_id"), str)
+        and run["case_id"].strip()
+    }
+    public_cases = [
+        {
+            "case_id": case_id,
+            "minimum_repetitions": 5 if case_id == "RW-K8S-140886" else 3,
+            "required_evidence": ["baseline", "incident", "verification"],
+        }
+        for case_id in sorted(case_ids)
+    ]
+    oracle_cases = [
+        {
+            "case_id": case_id,
+            "root_cause_id": "workqueue_pointer_identity_breaks_deduplication",
+            "expected_summary": _PRIVATE_SUMMARY,
+            "counterfactual": _PRIVATE_COUNTERFACTUAL,
+            "required_locations": [
+                "pkg/registry/apis/provisioning/controller/repository.go",
+            ],
+            "expected_terminal": (
+                "ABSTAIN_OR_PROVISIONAL"
+                if case_id == "RW-K8S-140886"
+                else "ROOT_CAUSE"
+            ),
+            "title": "synthetic benchmark metadata",
+        }
+        for case_id in sorted(case_ids)
+    ]
+    (public_dir / "cases.json").write_text(
+        json.dumps({"cases": public_cases}),
+        encoding="utf-8",
+    )
+    (private_dir / "oracles.json").write_text(
+        json.dumps({
+            "schema_version": "real-world-oracle-v1",
+            "cases": oracle_cases,
+        }),
+        encoding="utf-8",
+    )
+    (suite / "comparators.json").write_text(
+        json.dumps({"comparators": []}),
+        encoding="utf-8",
+    )
+    (suite / "manifest.json").write_text(
+        json.dumps({
+            "dataset": "synthetic-real-world-suite",
+            "version": "test",
+            "status": "synthetic",
+            "public_cases": "public/cases.json",
+            "private_oracles": "private/oracles.json",
+            "comparators": "comparators.json",
+            "case_ids": sorted(case_ids),
+        }),
+        encoding="utf-8",
+    )
+
+
 def _score(
     tmp_path,
     runs: list[dict],
@@ -160,11 +229,20 @@ def _score(
 ) -> dict:
     path = tmp_path / "result.json"
     path.write_text(json.dumps({"product": "example", "runs": runs}), encoding="utf-8")
-    return score_results(
-        path,
-        oracle_path=oracle_path,
-        commitment_key=b"k" * 32,
-    )
+    if oracle_path is not None:
+        return score_results(
+            path,
+            oracle_path=oracle_path,
+            commitment_key=b"k" * 32,
+        )
+
+    suite = tmp_path / "synthetic-suite"
+    _write_synthetic_suite(suite, runs)
+    with patch("scripts.real_world_benchmark.SUITE", suite):
+        return score_results(
+            path,
+            commitment_key=b"k" * 32,
+        )
 
 
 def _assert_unscored(tmp_path, run: dict, error: str) -> None:

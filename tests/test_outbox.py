@@ -62,18 +62,76 @@ def test_enqueue_then_claim_marks_dispatching_with_lease(repo):
 def test_publish_acks_and_releases_lease(repo):
     message = repo.enqueue_outbox("task", "task-1", "task.created", {})
     claimed = repo.claim_outbox_messages("worker-1")[0]
-    repo.mark_outbox_published(claimed.id)
+    repo.mark_outbox_published(claimed.id, "worker-1")
     published = repo.list_outbox_messages(status="PUBLISHED")
     assert len(published) == 1
     assert published[0].published_at is not None
     assert published[0].worker_lease_owner is None
 
 
+def test_wrong_owner_cannot_ack_or_fail(repo):
+    message = repo.enqueue_outbox("task", "task-1", "task.created", {})
+    claimed = repo.claim_outbox_messages("worker-1")[0]
+
+    repo.mark_outbox_published(claimed.id, "worker-2")
+    assert repo.list_outbox_messages()[0].status == "DISPATCHING"
+    assert repo.fail_outbox_message(claimed.id, "worker-2", "stale") == "DISPATCHING"
+    current = repo.list_outbox_messages()[0]
+    assert current.attempts == 0
+    assert current.worker_lease_owner == "worker-1"
+
+
+def test_expired_owner_cannot_ack_or_fail(repo):
+    message = repo.enqueue_outbox("task", "task-1", "task.created", {})
+    repo.claim_outbox_messages("worker-1")
+    with new_session() as session:
+        row = session.get(OutboxMessageModel, message.id)
+        row.worker_lease_expires_at = now_utc() - timedelta(seconds=1)
+        session.commit()
+
+    repo.mark_outbox_published(message.id, "worker-1")
+    assert repo.fail_outbox_message(message.id, "worker-1", "expired") == "DISPATCHING"
+    current = repo.list_outbox_messages()[0]
+    assert current.status == "DISPATCHING"
+    assert current.attempts == 0
+
+
+def test_stale_worker_cannot_mutate_after_reclaim_and_publish(repo):
+    message = repo.enqueue_outbox("task", "task-1", "task.created", {})
+    repo.claim_outbox_messages("worker-1")
+    with new_session() as session:
+        row = session.get(OutboxMessageModel, message.id)
+        row.worker_lease_expires_at = now_utc() - timedelta(seconds=1)
+        session.commit()
+
+    repo.claim_outbox_messages("worker-2")
+    repo.mark_outbox_published(message.id, "worker-2")
+    assert repo.fail_outbox_message(message.id, "worker-1", "late failure") == "PUBLISHED"
+    current = repo.list_outbox_messages(status="PUBLISHED")[0]
+    assert current.attempts == 0
+    assert current.worker_lease_owner is None
+
+
+def test_published_outbox_operations_are_idempotent(repo):
+    message = repo.enqueue_outbox("task", "task-1", "task.created", {})
+    repo.claim_outbox_messages("worker-1")
+    repo.mark_outbox_published(message.id, "worker-1")
+    published = repo.list_outbox_messages(status="PUBLISHED")[0]
+
+    repo.mark_outbox_published(message.id, "worker-2")
+    assert repo.fail_outbox_message(message.id, "worker-2", "late") == "PUBLISHED"
+    current = repo.list_outbox_messages(status="PUBLISHED")[0]
+    assert current.published_at == published.published_at
+    assert current.attempts == published.attempts
+
+
 def test_failure_backoffs_then_dead_letters(repo):
     message = repo.enqueue_outbox("task", "task-1", "task.created", {})
     claimed = repo.claim_outbox_messages("worker-1")[0]
 
-    assert repo.fail_outbox_message(claimed.id, "boom", max_attempts=3) == "FAILED"
+    assert repo.fail_outbox_message(
+        claimed.id, "worker-1", "boom", max_attempts=3
+    ) == "FAILED"
     failed = repo.list_outbox_messages(status="FAILED")[0]
     assert failed.attempts == 1
     assert failed.next_attempt_at > _naive_now()
@@ -81,11 +139,15 @@ def test_failure_backoffs_then_dead_letters(repo):
 
     _reopen_retry_window(message.id)
     assert len(repo.claim_outbox_messages("worker-2")) == 1
-    assert repo.fail_outbox_message(message.id, "boom again", max_attempts=3) == "FAILED"
+    assert repo.fail_outbox_message(
+        message.id, "worker-2", "boom again", max_attempts=3
+    ) == "FAILED"
 
     _reopen_retry_window(message.id)
     assert len(repo.claim_outbox_messages("worker-3")) == 1
-    assert repo.fail_outbox_message(message.id, "boom x3", max_attempts=3) == "DEAD_LETTER"
+    assert repo.fail_outbox_message(
+        message.id, "worker-3", "boom x3", max_attempts=3
+    ) == "DEAD_LETTER"
 
     dead = repo.list_outbox_messages(status="DEAD_LETTER")
     assert len(dead) == 1 and dead[0].attempts == 3
@@ -175,8 +237,9 @@ def test_dispatch_once_failure_persistence_error_does_not_starve_batch():
         def fail_outbox_message(self, *args, **kwargs):
             raise RuntimeError("write failed")
 
-        def mark_outbox_published(self, message_id):
+        def mark_outbox_published(self, message_id, worker_id):
             assert message_id == second.id
+            assert worker_id == "worker"
 
     delivered = []
 
@@ -201,7 +264,8 @@ def test_dispatch_once_ack_error_leaves_retryable_and_continues():
         def fail_outbox_message(self, *args, **kwargs):
             failed.append(args[0])
 
-        def mark_outbox_published(self, message_id):
+        def mark_outbox_published(self, message_id, worker_id):
+            assert worker_id == "worker"
             if message_id == first.id:
                 raise RuntimeError("ack failed")
 
@@ -243,6 +307,7 @@ def test_dispatch_artifact_once_failure_persistence_error_does_not_starve_batch(
             raise RuntimeError("write failed")
 
         def mark_artifact_outbox_published(self, message_id, worker_id):
+            assert worker_id == "worker"
             assert message_id == second["outbox_id"]
 
     delivered = []

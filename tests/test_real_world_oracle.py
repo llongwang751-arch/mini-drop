@@ -200,7 +200,28 @@ def test_adapter_fails_closed_on_schema_drift(tmp_path, mutation):
         RealWorldOracleRepositoryV1(path).load("synthetic-case")
 
 
-def test_legacy_adapter_rejects_unknown_case_fields(tmp_path):
+def test_legacy_schema_version_normalizes_terminal_alias_and_metadata(tmp_path):
+    path = tmp_path / "synthetic-legacy-oracle.json"
+    payload = {
+        "schema_version": "1.0",
+        "cases": [{
+            "case_id": "synthetic-case",
+            "root_cause_id": _PRIVATE_ROOT,
+            "expected_summary": _PRIVATE_SUMMARY,
+            "counterfactual": _PRIVATE_COUNTERFACTUAL,
+            "required_locations": [_PRIVATE_LOCATION],
+            "expected_terminal": "CONFIRMED",
+            "title": "synthetic documented metadata",
+        }],
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    oracle = RealWorldOracleRepositoryV1(path).load("synthetic-case")
+
+    assert oracle.expected_terminal == "ROOT_CAUSE"
+    assert repr(oracle) == "RealWorldOracleV1(<redacted>)"
+
+
     path = tmp_path / "synthetic-legacy-oracle.json"
     payload = {
         "schema_version": "1.0",

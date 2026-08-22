@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 from server.app.diagnosis.store import DiagnosisStore, utcnow
 from server.app.evaluation.artifacts import artifact_hash, canonical_artifact_json
+from server.app.evaluation.conclusion_projection import ConclusionProjectionError, project_conclusion
 from server.app.evaluation.oracle_repository import EvaluationOracleRepository, OracleUnavailableError
 from server.app.evaluation.schemas import EvaluationRequest, FrozenDiagnosisArtifact
 from server.app.models import DiagnosisEvaluationModel
@@ -136,18 +137,13 @@ class DiagnosisArtifactEvaluator:
             oracle = self.oracle_repository.load(validated.case_id)
         except OracleUnavailableError as exc:
             self._fail(request, "ORACLE_UNAVAILABLE", exc)
-        conclusion = validated.conclusion
-        assessment = conclusion.get("cluster_assessment") or {}
-        root_location = (
-            conclusion.get("root_location")
-            or assessment.get("root_location")
-            or {}
-        )
-        domain_cause = (
-            conclusion.get("domain_cause")
-            or assessment.get("domain_cause")
-            or {}
-        )
+        try:
+            projection = project_conclusion(validated.conclusion)
+        except ConclusionProjectionError as exc:
+            self._fail(request, exc.code, exc)
+        assessment = projection.assessment
+        root_location = projection.root_location
+        domain_cause = projection.domain_cause
         matches = {
             "instance_id": (
                 oracle.expected_instance_id is None

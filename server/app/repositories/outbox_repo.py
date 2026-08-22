@@ -109,13 +109,32 @@ class OutboxMixin:
             session.flush()
             return due
 
+    @staticmethod
+    def _owned_outbox_claim(
+        message: OutboxMessageModel,
+        worker_id: str,
+        now: datetime,
+    ) -> bool:
+        lease_expires_at = message.worker_lease_expires_at
+        comparison_now = now
+        if lease_expires_at is not None and lease_expires_at.tzinfo is None:
+            comparison_now = now.replace(tzinfo=None)
+        return (
+            message.status == "DISPATCHING"
+            and message.worker_lease_owner == worker_id
+            and lease_expires_at is not None
+            and lease_expires_at >= comparison_now
+        )
+
     def mark_outbox_published(
-        self, message_id: str, *, now: datetime | None = None
+        self, message_id: str, worker_id: str, *, now: datetime | None = None
     ) -> None:
         now = now or now_utc()
         with self._write_session() as session:
             message = session.get(OutboxMessageModel, message_id)
-            if message is None:
+            if message is None or message.status == "PUBLISHED":
+                return
+            if not self._owned_outbox_claim(message, worker_id, now):
                 return
             message.status = "PUBLISHED"
             message.published_at = now
@@ -126,17 +145,22 @@ class OutboxMixin:
     def fail_outbox_message(
         self,
         message_id: str,
+        worker_id: str,
         error: str,
         *,
         max_attempts: int = 5,
         now: datetime | None = None,
     ) -> str:
-        """Record a delivery failure; back off or dead-letter past attempts."""
+        """Record a failure only while the caller still owns a live lease."""
         now = now or now_utc()
         with self._write_session() as session:
             message = session.get(OutboxMessageModel, message_id)
             if message is None:
                 return "UNKNOWN"
+            if message.status == "PUBLISHED":
+                return "PUBLISHED"
+            if not self._owned_outbox_claim(message, worker_id, now):
+                return message.status or "UNKNOWN"
             message.attempts = (message.attempts or 0) + 1
             message.last_error = (error or "")[:2000]
             message.updated_at = now
