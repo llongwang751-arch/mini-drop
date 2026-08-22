@@ -8,8 +8,9 @@ verifiable.
 
 from __future__ import annotations
 
-import hashlib
+import ctypes
 import gc
+import hashlib
 import json
 import os
 import queue
@@ -20,6 +21,24 @@ import time
 from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib import request as urllib_request
+
+
+def _trim_process_heap() -> bool:
+    """Best-effort return of freed glibc arenas to the operating system.
+
+    Clearing Python references alone does not guarantee that RSS falls: glibc
+    may retain freed arenas and the next memory Campaign would then use the
+    previous high-water mark as its baseline. Unsupported runtimes simply keep
+    the normal ``gc.collect`` behaviour.
+    """
+    try:
+        libc = ctypes.CDLL("libc.so.6")
+        trim = libc.malloc_trim
+        trim.argtypes = [ctypes.c_size_t]
+        trim.restype = ctypes.c_int
+        return bool(trim(0))
+    except (AttributeError, OSError):
+        return False
 
 
 class CpuFault:
@@ -240,6 +259,7 @@ class MemoryFault:
             self._target_bytes = 0
             self._buffers.clear()
         gc.collect()
+        _trim_process_heap()
 
     def snapshot(self) -> dict[str, object]:
         with self._lock:
