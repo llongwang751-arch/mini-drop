@@ -25,6 +25,7 @@ from server.app.diagnosis.domain_analyzers import (
 from server.app.diagnosis.knowledge import retrieve_knowledge
 from server.app.diagnosis.probe_registry import choose_probe_ids, get_probe, list_probes
 from server.app.diagnosis.next_probe_planner import propose_next_probe
+from server.app.diagnosis.route_memory import build_contextual_route_memory
 from server.app.diagnosis.report_verifier import evidence_integrity_hash, verify_report
 from server.app.diagnosis.schemas import (
     ApprovalRequest,
@@ -782,6 +783,21 @@ class DiagnosisOrchestrator:
                 "reason": "no_registered_supported_r2_probe",
                 "attempted_probe_ids": sorted(attempted),
             })
+            self.store.record_event(diagnosis_id, "diagnostic_capability_gap", {
+                "missing_evidence": self._current_missing_evidence(diagnosis_id),
+                "attempted_probe_ids": sorted(attempted),
+                "gap_reason": "当前在线 Agent 没有能够补齐证据的已注册能力",
+                "evolution_candidate": {
+                    "status": "REVIEW_REQUIRED",
+                    "proposal": "补充受控采集器或离线证据适配器，经统一测试集验证后再注册",
+                    "forbidden": "模型不得生成并直接执行任意命令，也不得绕过权限和审批",
+                },
+                "safe_next_steps": [
+                    "检查目标 Agent 能力声明和依赖是否完整",
+                    "导入同一时间窗的已有采集产物",
+                    "在隔离环境实现候选探针并通过统一测试集后注册",
+                ],
+            })
             return False
 
         round_index = int(session.get("budget_used", {}).get("analysis_rounds", 0)) + 1
@@ -789,6 +805,7 @@ class DiagnosisOrchestrator:
         model_calls = int(usage.get("model_calls", 0))
         max_model_calls = int(session.get("resource_budget", {}).get("max_model_calls", 0))
         allow_model_planning = model_calls < max_model_calls
+        route_memory = self._probe_route_memory(diagnosis_id, target_runtime)
         ai_plan = propose_next_probe(
             query=session.get("raw_query", ""),
             symptom=intent.get("symptom", ""),
@@ -809,7 +826,7 @@ class DiagnosisOrchestrator:
                 "runtime": item.get("runtime", "unknown"),
             } for item in allowed_targets if item.get("instance_id")],
             attempted_probe_ids=sorted(attempted),
-            route_priors=self._probe_route_priors(),
+            route_priors=route_memory["priors"],
             round_index=round_index,
         ) if allow_model_planning else None
         if allow_model_planning and is_feature_enabled("rca"):
@@ -829,7 +846,7 @@ class DiagnosisOrchestrator:
             planner_source = "deterministic_fallback"
             preferred = next(
                 (definition_by_id[item] for item in static_r2_ids if item in definition_by_id),
-                max(eligible_definitions, key=lambda item: self._probe_route_priors().get(item.probe_id, 0.0)),
+                max(eligible_definitions, key=lambda item: route_memory["priors"].get(item.probe_id, 0.0)),
             )
             definition = preferred
             target = next(
@@ -865,6 +882,13 @@ class DiagnosisOrchestrator:
             "falsification_criterion": falsification,
             "registered_probe_only": True,
             "requires_approval": True,
+            "route_memory": {
+                "matched_symptom": route_memory["symptom"],
+                "matched_runtime": route_memory["runtime"],
+                "selected_probe_prior": route_memory["priors"].get(definition.probe_id),
+                "top_routes": route_memory["ranked_routes"][:3],
+                "safety_boundary": route_memory["safety_boundary"],
+            },
         })
         return True
 
@@ -887,25 +911,17 @@ class DiagnosisOrchestrator:
             return sorted({str(item) for item in missing if item})
         return ["缺少能够支持或推翻当前候选假设的独立证据"]
 
-    def _probe_route_priors(self) -> dict[str, float]:
-        """从历史成功会话实时提取探针路线先验，不让模型凭空“学习工具”。"""
-        completed: dict[str, int] = {}
-        attempted: dict[str, int] = {}
-        for session in self.store.list_sessions(limit=100):
-            session_id = session.get("diagnosis_id")
-            if not session_id:
-                continue
-            for probe in self.store.list_probes(session_id):
-                probe_id = str(probe.get("probe_id", ""))
-                if not probe_id:
-                    continue
-                attempted[probe_id] = attempted.get(probe_id, 0) + 1
-                if probe.get("status") == "COMPLETED":
-                    completed[probe_id] = completed.get(probe_id, 0) + 1
-        return {
-            probe_id: round(completed.get(probe_id, 0) / count, 4)
-            for probe_id, count in attempted.items() if count > 0
-        }
+    def _probe_route_memory(self, diagnosis_id: str, runtime: str) -> dict[str, Any]:
+        """按症状与运行时提取历史路线；经验只能排序，不能扩权。"""
+        session = self.store.get_session(diagnosis_id) or {}
+        symptom = str((session.get("normalized_intent") or {}).get("symptom", ""))
+        return build_contextual_route_memory(
+            self.store.list_sessions(limit=100),
+            self.store.list_probes,
+            symptom=symptom,
+            runtime=runtime,
+            exclude_diagnosis_id=diagnosis_id,
+        )
 
     def _plan_conclusion_falsification(self, diagnosis_id: str) -> bool:
         """把报告里的 FALSIFY 动作转换为可审批、可恢复的真实 Probe。"""
@@ -1436,6 +1452,21 @@ class DiagnosisOrchestrator:
             output_refs=["verified_report"], metrics=verification,
         )
         self._append_conclusion(diagnosis_id, conclusion)
+        if cluster_assessment["classification"] not in {
+            "insufficient_evidence", "scope_unresolved",
+        }:
+            completed_route = [
+                probe["probe_id"] for probe in self.store.list_probes(diagnosis_id)
+                if probe.get("status") == "COMPLETED"
+            ]
+            self.store.record_event(diagnosis_id, "diagnosis.route_learned", {
+                "symptom": (session.get("normalized_intent") or {}).get("symptom", "unknown"),
+                "tool_route": completed_route,
+                "classification": cluster_assessment["classification"],
+                "evidence_count": len(self.store.list_evidence(diagnosis_id)),
+                "source_mapping_count": len((source_context or {}).get("mappings", [])),
+                "reuse_policy": "仅供相似症状的探针排序；仍需重新取证、审批和验证",
+            })
         self._update_hypotheses(diagnosis_id, deduped, cluster_assessment)
         self._record_analysis_round(diagnosis_id, conclusion["version"])
         return cluster_assessment["classification"] not in {

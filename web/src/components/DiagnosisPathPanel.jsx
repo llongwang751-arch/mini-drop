@@ -22,6 +22,7 @@ const EVENT_LABELS = {
   "falsification_round_planned": "规划反证取证",
   "falsification_route_replanned": "切换下一条取证路线",
   "adaptive_probe_unavailable": "检查可用探针",
+  "diagnostic_capability_gap": "发现诊断能力缺口",
   "diagnosis_stop_condition_met": "达到诊断停止条件",
   "planner.insufficient_replanned": "证据不足，AI 自动切换取证方向",
   "diagnosis.route_learned": "验证成功，沉淀诊断路线",
@@ -46,6 +47,7 @@ const EVENT_COLORS = {
   "falsification_round_planned": "purple",
   "falsification_route_replanned": "geekblue",
   "adaptive_probe_unavailable": "orange",
+  "diagnostic_capability_gap": "red",
   "diagnosis_stop_condition_met": "gray",
   "planner.insufficient_replanned": "purple",
   "diagnosis.route_learned": "green",
@@ -74,6 +76,8 @@ function describe(event) {
     extra = ` · 第 ${payload.round_index || "-"} 轮 · ${payload.tool_name || "-"}`;
   } else if (event.event_type === "diagnosis.route_learned") {
     extra = ` · ${(payload.tool_route || []).join(" → ")}`;
+  } else if (event.event_type === "diagnostic_capability_gap") {
+    extra = ` · ${payload.gap_reason || "缺少可用取证能力"}`;
   }
   return `${label}${extra}`;
 }
@@ -112,6 +116,17 @@ export default function DiagnosisPathPanel({ events = [] }) {
             {(event.payload_json || event.payload || {}).falsification_criterion && (
               <Text type="secondary" style={{ fontSize: 12 }}>
                 推翻条件：{(event.payload_json || event.payload || {}).falsification_criterion}
+              </Text>
+            )}
+            {(event.payload_json || event.payload || {}).route_memory?.selected_probe_prior != null && (
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                历史路线先验：{Math.round((event.payload_json || event.payload).route_memory.selected_probe_prior * 100)}%
+                （只参与排序，不绕过审批）
+              </Text>
+            )}
+            {(event.payload_json || event.payload || {}).evolution_candidate?.proposal && (
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                能力演进建议：{(event.payload_json || event.payload).evolution_candidate.proposal}
               </Text>
             )}
           </Space>
