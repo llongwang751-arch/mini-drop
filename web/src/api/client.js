@@ -474,6 +474,21 @@ export function getRealWorldBenchmarkRun(runId) {
   return api.get(`/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}`);
 }
 
+export function getRealWorldComparisonInput(runId) {
+  return api.get(`/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}/comparison-input`);
+}
+
+export function getRealWorldComparisons() {
+  return api.get("/v1/real-world-benchmarks/comparisons");
+}
+
+export function submitRealWorldComparison(comparatorId, results) {
+  return api.post("/v1/real-world-benchmarks/comparisons", {
+    comparator_id: comparatorId,
+    results,
+  });
+}
+
 export function listDropInsightFeedback(diagnosisId) {
   return api.get(`/v2/diagnoses/${diagnosisId}/feedback`).then(itemsOf);
 }

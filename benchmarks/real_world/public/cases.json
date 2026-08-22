@@ -9,8 +9,17 @@
       "language": "Go",
       "business_scenario": "仓库控制器在状态更新和失败重试并发出现时持续 reconcile",
       "query": "控制器进程 RSS、队列深度和 OOM 次数持续上升，请定位具体保留链路，并说明为什么简单降低流量不是根因修复。",
-      "observable_symptoms": ["rss_monotonic_growth", "queue_depth_growth", "oom_kill"],
-      "required_evidence": ["memory_growth", "queue_cardinality", "object_retention_path", "before_after_replay"],
+      "observable_symptoms": [
+        "rss_monotonic_growth",
+        "queue_depth_growth",
+        "oom_kill"
+      ],
+      "required_evidence": [
+        "memory_growth",
+        "queue_cardinality",
+        "object_retention_path",
+        "before_after_replay"
+      ],
       "workload_contract": "同一资源键重复更新，处理函数同时写状态并触发重试；基线、故障、修复版本使用相同事件率。",
       "execution_track": "isolated_regression_harness",
       "reproducibility": "SPECIFIED_NOT_REPLAYED",
@@ -24,12 +33,21 @@
       "language": "Python",
       "business_scenario": "服务反复创建并关闭指标 Provider、Reader 和 Exporter",
       "query": "服务每轮重建指标导出链路后 RSS 和存活对象数上升，请定位对象保留关系，并用 GC/weakref 证据验证。",
-      "observable_symptoms": ["rss_growth", "retained_object_count_growth"],
-      "required_evidence": ["memory_growth", "gc_object_retention", "reference_path", "before_after_replay"],
+      "observable_symptoms": [
+        "rss_growth",
+        "retained_object_count_growth"
+      ],
+      "required_evidence": [
+        "memory_growth",
+        "gc_object_retention",
+        "reference_path",
+        "before_after_replay"
+      ],
       "workload_contract": "循环创建、关闭并删除 Provider；每轮强制 GC，记录弱引用是否释放。",
       "execution_track": "upstream_test_plus_memory_probe",
-      "reproducibility": "SPECIFIED_NOT_REPLAYED",
-      "minimum_repetitions": 3
+      "reproducibility": "LOCALLY_REPLAYED_STABLE",
+      "minimum_repetitions": 3,
+      "replay_evidence": "reports/benchmark/real-world/RW-OTELPY-4224/report.json"
     },
     {
       "case_id": "RW-PROM-19412",
@@ -39,8 +57,16 @@
       "language": "Go",
       "business_scenario": "TSDB 查询先读取多 chunk series，再切换到零或单 chunk series",
       "query": "查询延迟未明显回归，但进程保留内存偏高。请区分真正泄漏、容量策略问题和无显著性能回归。",
-      "observable_symptoms": ["retained_capacity_after_series_switch", "latency_may_be_unchanged"],
-      "required_evidence": ["retained_capacity", "series_switch_sequence", "benchstat", "before_after_replay"],
+      "observable_symptoms": [
+        "retained_capacity_after_series_switch",
+        "latency_may_be_unchanged"
+      ],
+      "required_evidence": [
+        "retained_capacity",
+        "series_switch_sequence",
+        "benchstat",
+        "before_after_replay"
+      ],
       "workload_contract": "交错运行 base/head；覆盖 multi->single、multi->empty 和 same-series 三种路径。",
       "execution_track": "upstream_benchmark_challenge",
       "reproducibility": "UPSTREAM_OPEN_PR_NOT_REPLAYED",
@@ -54,8 +80,17 @@
       "language": "C",
       "business_scenario": "大量带 TTL 的键过期时，客户端持续 SCAN 相同键空间",
       "query": "Redis 主线程 CPU 仍较空闲，但逻辑过期键长期积压。请解释为何不能归因为 CPU 不足，并定位采样偏差。",
-      "observable_symptoms": ["expired_key_backlog", "main_thread_idle", "stale_percentage_bias"],
-      "required_evidence": ["expired_backlog", "cpu_idle", "cursor_locality", "before_after_replay"],
+      "observable_symptoms": [
+        "expired_key_backlog",
+        "main_thread_idle",
+        "stale_percentage_bias"
+      ],
+      "required_evidence": [
+        "expired_backlog",
+        "cpu_idle",
+        "cursor_locality",
+        "before_after_replay"
+      ],
       "workload_contract": "固定键数、TTL 分布与 SCAN 速率，记录过期积压、cursor 进度和时间上限触发次数。",
       "execution_track": "upstream_open_pr_challenge",
       "reproducibility": "UPSTREAM_OPEN_PR_NOT_REPLAYED",
@@ -69,8 +104,17 @@
       "language": "Go",
       "business_scenario": "超过 1000 endpoints 的 kube-proxy 周期性执行全量同步",
       "query": "大集群工作负载周期性出现延迟抖动，请区分网络故障与 dataplane 全量同步成本。",
-      "observable_symptoms": ["periodic_latency_spike", "full_sync_cost", "large_endpoint_count"],
-      "required_evidence": ["periodicity", "sync_duration", "endpoint_scale", "before_after_replay"],
+      "observable_symptoms": [
+        "periodic_latency_spike",
+        "full_sync_cost",
+        "large_endpoint_count"
+      ],
+      "required_evidence": [
+        "periodicity",
+        "sync_duration",
+        "endpoint_scale",
+        "before_after_replay"
+      ],
       "workload_contract": "固定 endpoint 规模和请求负载，对比 large-cluster 模式修复前后的周期峰值。",
       "execution_track": "upstream_unit_plus_scale_harness",
       "reproducibility": "SPECIFIED_NOT_REPLAYED",
@@ -84,8 +128,15 @@
       "language": "Go",
       "business_scenario": "ResourceClaim controller 增加 informer 事件处理后出现疑似性能影响",
       "query": "变更后性能似乎下降，但上游描述明确不确定。请给出证据边界和下一步实验，而不是编造确定根因。",
-      "observable_symptoms": ["suspected_regression", "uncertain_causality"],
-      "required_evidence": ["change_correlation", "controlled_replay", "uncertainty_statement"],
+      "observable_symptoms": [
+        "suspected_regression",
+        "uncertain_causality"
+      ],
+      "required_evidence": [
+        "change_correlation",
+        "controlled_replay",
+        "uncertainty_statement"
+      ],
       "workload_contract": "在相同对象规模和事件率下 A/B 运行被 revert 的提交；未达到稳定差异时必须 abstain。",
       "execution_track": "abstention_calibration_challenge",
       "reproducibility": "SPECIFIED_NOT_REPLAYED",
@@ -99,8 +150,15 @@
       "language": "C++",
       "business_scenario": "代理转发大响应体，router 对每个 data chunk 执行不必要的 debug 日志求值",
       "query": "代理吞吐下降且热点落在日志相关路径，请判断是否为逐 chunk 固定开销，并避免泛化为整个日志系统故障。",
-      "observable_symptoms": ["per_chunk_cpu_overhead", "throughput_drop"],
-      "required_evidence": ["cpu_hotspot", "chunk_rate_correlation", "before_after_replay"],
+      "observable_symptoms": [
+        "per_chunk_cpu_overhead",
+        "throughput_drop"
+      ],
+      "required_evidence": [
+        "cpu_hotspot",
+        "chunk_rate_correlation",
+        "before_after_replay"
+      ],
       "workload_contract": "固定响应总字节数，改变 chunk 数量；若 CPU 与 chunk 数近线性相关才支持该假设。",
       "execution_track": "microbenchmark_challenge",
       "reproducibility": "SPECIFIED_NOT_REPLAYED",

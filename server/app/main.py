@@ -62,6 +62,11 @@ from server.app.diagnosis.real_world_runs import (
     get_real_world_run_manager,
     real_world_catalog,
 )
+from server.app.diagnosis.comparator_runs import (
+    build_comparison_input_bundle,
+    get_comparison_input_store,
+    get_comparator_submission_store,
+)
 from server.app.diagnosis.probe_registry import list_probes as list_registered_probes
 from server.app.diagnosis.schemas import ApprovalRequest, CreateDiagnosisRequest
 from server.app.evaluation.evaluator import (
@@ -1424,6 +1429,40 @@ def get_real_world_benchmark_run(run_id: str) -> APIResponse:
     if run is None:
         raise HTTPException(status_code=404, detail="真实业务测试运行不存在")
     return APIResponse(data=run)
+
+
+@app.get("/api/v1/real-world-benchmarks/runs/{run_id}/comparison-input")
+def get_real_world_comparison_input(run_id: str) -> APIResponse:
+    """Export the same Oracle-free frozen input for every compared product."""
+
+    run = get_real_world_run_manager().get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="真实业务测试运行不存在")
+    try:
+        bundle = build_comparison_input_bundle(run)
+        return APIResponse(data=get_comparison_input_store().register(bundle))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/real-world-benchmarks/comparisons")
+def list_real_world_comparisons() -> APIResponse:
+    """List only actually submitted mature-product comparison outputs."""
+
+    return APIResponse(data=get_comparator_submission_store().list())
+
+
+@app.post("/api/v1/real-world-benchmarks/comparisons")
+def submit_real_world_comparison(payload: dict | None = None) -> APIResponse:
+    body = payload or {}
+    comparator_id = str(body.get("comparator_id") or "").strip()
+    results = body.get("results")
+    try:
+        return APIResponse(
+            data=get_comparator_submission_store().submit(comparator_id, results)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/diagnosis-campaigns/runs")

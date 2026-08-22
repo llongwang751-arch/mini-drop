@@ -34,7 +34,7 @@ def test_catalog_never_counts_specification_as_runtime_proof() -> None:
     catalog = real_world_catalog()
     assert len(catalog["cases"]) == 7
     assert catalog["runnable_count"] == 4
-    assert catalog["replayed_count"] == 0
+    assert catalog["replayed_count"] == 1
     runnable = [case for case in catalog["cases"] if case["web_execution"] == "MECHANISM_REPRO_AVAILABLE"]
     assert {case["case_id"] for case in runnable} == {
         "RW-GRAFANA-123359",

@@ -1,0 +1,103 @@
+{
+  "schema_version": "mini-drop-upstream-replay-v1",
+  "case_id": "RW-OTELPY-4224",
+  "source_url": "https://github.com/open-telemetry/opentelemetry-python/pull/4224",
+  "repository": "https://github.com/open-telemetry/opentelemetry-python",
+  "base_sha": "679297f5ebd37510b6c9e086fc27837935d57e81",
+  "fix_sha": "84c6b0a419226328b6884b43a61cfd7a8fa3b3bb",
+  "environment": {
+    "host": "cloud-control",
+    "os": "Ubuntu 24.04.4 LTS",
+    "kernel": "6.8.0",
+    "python": "3.12.3"
+  },
+  "harness": {
+    "iterations_per_run": 250,
+    "repetitions": 3,
+    "sha256": "9673b9c4f659e8a6a9b2fe2c170559c11f7af6b49278a441233494ba405c549d",
+    "oracle_visibility": "evaluator_only"
+  },
+  "baseline_fault": {
+    "runs": [
+      {
+        "alive": {
+          "exporter": 250,
+          "provider": 0,
+          "reader": 250
+        },
+        "all_collected": false,
+        "iterations": 250,
+        "rss_before_kb": 28092,
+        "rss_peak_kb": 30268
+      },
+      {
+        "alive": {
+          "exporter": 250,
+          "provider": 0,
+          "reader": 250
+        },
+        "all_collected": false,
+        "iterations": 250,
+        "rss_before_kb": 28000,
+        "rss_peak_kb": 30176
+      },
+      {
+        "alive": {
+          "exporter": 250,
+          "provider": 0,
+          "reader": 250
+        },
+        "all_collected": false,
+        "iterations": 250,
+        "rss_before_kb": 28144,
+        "rss_peak_kb": 30320
+      }
+    ],
+    "stable_failure": true,
+    "median_retained_readers": 250
+  },
+  "verification_fix": {
+    "runs": [
+      {
+        "alive": {
+          "exporter": 0,
+          "provider": 0,
+          "reader": 0
+        },
+        "all_collected": true,
+        "iterations": 250,
+        "rss_before_kb": 28148,
+        "rss_peak_kb": 29044
+      },
+      {
+        "alive": {
+          "exporter": 0,
+          "provider": 0,
+          "reader": 0
+        },
+        "all_collected": true,
+        "iterations": 250,
+        "rss_before_kb": 28116,
+        "rss_peak_kb": 28884
+      },
+      {
+        "alive": {
+          "exporter": 0,
+          "provider": 0,
+          "reader": 0
+        },
+        "all_collected": true,
+        "iterations": 250,
+        "rss_before_kb": 27888,
+        "rss_peak_kb": 28784
+      }
+    ],
+    "stable_success": true,
+    "median_retained_readers": 0
+  },
+  "artifacts": {
+    "base.ndjson": "a8d0d4ad9dc0c329acc31cba2702e8ecc93c2dcfd7a6bc93f9d80dcfe5870037",
+    "fix.ndjson": "fa31f0d99b7105d2764fca6846bc158c1c9085f18cd756fa1ffbac90e9ed8fdc"
+  },
+  "verdict": "STABLE_REPLAY_PASS"
+}

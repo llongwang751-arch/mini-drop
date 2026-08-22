@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -246,6 +247,11 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://localhost")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "reports" / "benchmark" / "official-90")
     parser.add_argument("--timeout", type=int, default=90)
+    parser.add_argument(
+        "--api-key-env",
+        default="MINI_DROP_API_KEY",
+        help="environment variable containing the API key used by the Web gateway",
+    )
     args = parser.parse_args()
     output = args.output_dir.resolve()
     raw_dir = output / "raw-campaigns"
@@ -258,6 +264,12 @@ def main() -> int:
     atomic_write_json(submissions_path, current)
     completed = {f"{item['case_id']}:{item['strategy']}:{item['repetition']}" for item in current}
     session = requests.Session()
+    api_key = os.environ.get(args.api_key_env, "").strip()
+    if api_key:
+        # The gateway accepts Bearer authentication.  Keeping the secret in an
+        # environment variable prevents it from appearing in argv, reports or
+        # process listings on the evaluation host.
+        session.headers.update({"Authorization": f"Bearer {api_key}"})
     total = len(plan["executions"])
     for number, execution in enumerate(plan["executions"], start=1):
         execution_id = execution["execution_id"]

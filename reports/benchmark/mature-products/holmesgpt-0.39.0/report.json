@@ -1,0 +1,30 @@
+{
+  "schema_version": "mini-drop-mature-product-run-v1",
+  "product": "HolmesGPT",
+  "version": "0.39.0",
+  "environment": {
+    "os": "Ubuntu 24.04.4",
+    "kernel": "6.8.0",
+    "python": "3.12.3"
+  },
+  "input": {
+    "case": "RW-OTELPY-4224",
+    "same_input_file": "input.md",
+    "model": "openai/deepseek-v4-flash",
+    "max_steps": 6
+  },
+  "result": {
+    "installation_verified": true,
+    "cli_version": "0.39.0",
+    "diagnosis_completed": false,
+    "provider_preflight_http_status": 401,
+    "output_bytes": 0
+  },
+  "scope": "live_sre_agent_comparison_lane",
+  "limitations": [
+    "The exact same frozen diagnostic bundle was supplied to HolmesGPT.",
+    "The configured OpenAI-compatible provider rejected authentication, so no product diagnosis was produced.",
+    "This run is retained as an execution failure and is not converted into a quality score for HolmesGPT."
+  ],
+  "verdict": "EXECUTED_PROVIDER_AUTH_BLOCKED"
+}

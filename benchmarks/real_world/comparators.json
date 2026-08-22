@@ -5,8 +5,21 @@
       "id": "rcaeval",
       "type": "public_benchmark_and_classical_baselines",
       "url": "https://github.com/phamquiluan/RCAEval",
-      "best_for": ["offline_multi_service_rca", "top_k_accuracy", "metrics_logs_traces"],
-      "not_equivalent_to": ["live_profiling_agent", "human_approval_workflow"],
+      "comparison_track": "offline_service_rca",
+      "required_export": [
+        "top_k_root_elements",
+        "duration_seconds",
+        "input_dataset_version"
+      ],
+      "best_for": [
+        "offline_multi_service_rca",
+        "top_k_accuracy",
+        "metrics_logs_traces"
+      ],
+      "not_equivalent_to": [
+        "live_profiling_agent",
+        "human_approval_workflow"
+      ],
       "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
       "reason": "Requires a supported Python version and external datasets; official project recommends 8 CPU, 16 GB RAM and about 50 GB disk."
     },
@@ -14,8 +27,22 @@
       "id": "openrca",
       "type": "llm_rca_benchmark_and_agent_baseline",
       "url": "https://github.com/microsoft/OpenRCA",
-      "best_for": ["llm_tool_use", "large_telemetry_context", "root_element_localization"],
-      "not_equivalent_to": ["perf_ebpf_collection", "continuous_profiling"],
+      "comparison_track": "offline_llm_tool_rca",
+      "required_export": [
+        "predicted_root_element",
+        "tool_trace",
+        "evidence_refs",
+        "duration_seconds"
+      ],
+      "best_for": [
+        "llm_tool_use",
+        "large_telemetry_context",
+        "root_element_localization"
+      ],
+      "not_equivalent_to": [
+        "perf_ebpf_collection",
+        "continuous_profiling"
+      ],
       "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
       "reason": "Official repository recommends at least 80 GB storage and 32 GB memory."
     },
@@ -23,20 +50,48 @@
       "id": "holmesgpt",
       "type": "mature_open_source_sre_agent",
       "url": "https://github.com/HolmesGPT/holmesgpt",
-      "best_for": ["iterative_investigation", "kubernetes_and_observability_tools", "read_only_governance"],
-      "not_equivalent_to": ["process_level_profiler_control_plane", "oracle_scored_benchmark"],
-      "execution_status": "NOT_EXECUTED_IN_THIS_WORKSPACE",
-      "reason": "A fair live comparison needs Kubernetes, the same telemetry backends and the same LLM/budget."
+      "comparison_track": "live_agent_investigation",
+      "required_export": [
+        "investigation_trace",
+        "tool_results",
+        "root_cause",
+        "duration_seconds"
+      ],
+      "best_for": [
+        "iterative_investigation",
+        "kubernetes_and_observability_tools",
+        "read_only_governance"
+      ],
+      "not_equivalent_to": [
+        "process_level_profiler_control_plane",
+        "oracle_scored_benchmark"
+      ],
+      "execution_status": "EXECUTED_PROVIDER_AUTH_BLOCKED",
+      "reason": "HolmesGPT 0.39.0 was installed and invoked with the same frozen RW-OTELPY-4224 bundle and a six-step budget. The configured OpenAI-compatible provider returned HTTP 401, so no diagnosis was produced and no quality score is claimed. Evidence is archived under reports/benchmark/mature-products/holmesgpt-0.39.0."
     },
     {
       "id": "grafana-pyroscope",
       "type": "continuous_profiling_product",
       "url": "https://grafana.com/docs/pyroscope/latest/get-started/",
-      "best_for": ["continuous_profiles", "time_window_query", "flamegraph_exploration"],
-      "not_equivalent_to": ["ai_root_cause_reasoning", "fault_injection_campaign"],
-      "execution_status": "NOT_EXECUTED_ON_CURRENT_CLOUD",
-      "reason": "A fair cloud comparison still needs Pyroscope ingestion, the same profile window and an agreed resource budget; no score is reported before that run."
+      "comparison_track": "continuous_profiling_experience",
+      "required_export": [
+        "profile_window",
+        "flamegraph",
+        "query_latency",
+        "function_drilldown"
+      ],
+      "best_for": [
+        "continuous_profiles",
+        "time_window_query",
+        "flamegraph_exploration"
+      ],
+      "not_equivalent_to": [
+        "ai_root_cause_reasoning",
+        "fault_injection_campaign"
+      ],
+      "execution_status": "EXECUTED_CAPABILITY_PASS",
+      "reason": "Official Pyroscope 2.2.1 ingested the same CPU_HOTSPOT workload and returned a flamegraph containing order_compute; evidence is archived under reports/benchmark/mature-products/pyroscope-2.2.1. This lane is not an AI RCA score."
     }
   ],
-  "fair_comparison_rule": "Use the same incident window, telemetry snapshot, LLM model, tool budget and hidden Oracle. Report unsupported capability instead of converting it to a zero-quality diagnosis."
+  "fair_comparison_rule": "Use the same incident window, telemetry snapshot, LLM model, tool budget and hidden Oracle. Freeze every product output before opening the Oracle. Report unsupported capability instead of converting it to a zero-quality diagnosis."
 }

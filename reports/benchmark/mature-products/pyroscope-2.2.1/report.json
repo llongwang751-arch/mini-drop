@@ -1,0 +1,32 @@
+{
+  "schema_version": "mini-drop-mature-product-run-v1",
+  "product": "Grafana Pyroscope",
+  "version": "2.2.1",
+  "image_digest": "sha256:70cf34fcb09d286080df909c33a95432df2a78ed4f6613b5e998ac17f90e4c3d",
+  "environment": {
+    "os": "Ubuntu 24.04.4",
+    "kernel": "6.8.0",
+    "limits": {
+      "cpu": 0.75,
+      "memory_mib": 384
+    }
+  },
+  "input": {
+    "application": "mini-drop.same-input.cpu",
+    "case": "CPU_HOTSPOT",
+    "duration_seconds": 20,
+    "iterations": 17410
+  },
+  "result": {
+    "profile_ingested": true,
+    "hot_function_found": true,
+    "query_repetitions": 3,
+    "median_query_seconds": 0.004242
+  },
+  "scope": "continuous_profiling_product_lane",
+  "limitations": [
+    "This run validates ingestion, time-window query and function drilldown; Pyroscope is not an AI root-cause agent.",
+    "This is not scored against the hidden RCA Oracle."
+  ],
+  "verdict": "EXECUTED_CAPABILITY_PASS"
+}

@@ -4,8 +4,11 @@ import RealWorldBenchmarkPanel from "./RealWorldBenchmarkPanel";
 
 vi.mock("../api/client", () => ({
   getRealWorldBenchmarkCatalog: vi.fn(),
+  getRealWorldComparisons: vi.fn(),
   getRealWorldBenchmarkRun: vi.fn(),
+  getRealWorldComparisonInput: vi.fn(),
   startRealWorldBenchmark: vi.fn(),
+  submitRealWorldComparison: vi.fn(),
 }));
 
 import * as api from "../api/client";
@@ -68,6 +71,13 @@ async function startAndReturn(run) {
 describe("RealWorldBenchmarkPanel", () => {
   beforeEach(() => {
     api.getRealWorldBenchmarkCatalog.mockResolvedValue(catalog);
+    api.getRealWorldComparisons.mockResolvedValue({
+      items: [],
+      latest_by_comparator: {},
+      actual_submission_count: 0,
+      scored_submission_count: 0,
+      evaluator_ready: false,
+    });
   });
 
   afterEach(() => {
@@ -87,6 +97,7 @@ describe("RealWorldBenchmarkPanel", () => {
     expect(screen.getAllByText("是").length).toBeGreaterThan(0);
     expect(screen.getAllByText("否").length).toBeGreaterThan(0);
     expect(screen.queryByText(/根因机制命中|Oracle 门禁/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /下载同条件对照输入/ })).toBeInTheDocument();
   });
 
   it.each([

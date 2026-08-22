@@ -141,6 +141,7 @@ def real_world_catalog() -> dict[str, Any]:
     comparators = _read_json(SUITE / manifest["comparators"])
     cases = []
     for item in public["cases"]:
+        locally_replayed = item.get("reproducibility") == "LOCALLY_REPLAYED_STABLE"
         cases.append({
             **item,
             "web_execution": (
@@ -149,7 +150,9 @@ def real_world_catalog() -> dict[str, Any]:
                 else "SPECIFIED_NOT_REPLAYED"
             ),
             "execution_note": (
-                "可在当前 2C/4G 云控制节点执行低资源机制复现；不是完整上游仓库构建。"
+                "已在固定 base/fix 提交上各重复 3 次真实回放；原始输出、环境和哈希均已归档。"
+                if locally_replayed
+                else "可在当前 2C/4G 云控制节点执行低资源机制复现；不是完整上游仓库构建。"
                 if item["case_id"] in RUNNABLE_CASES
                 else "完整上游复现需要独立资源预算；当前只展示契约，不计入通过率。"
             ),
@@ -163,7 +166,9 @@ def real_world_catalog() -> dict[str, Any]:
         "comparators": comparators["comparators"],
         "fair_comparison_rule": comparators["fair_comparison_rule"],
         "runnable_count": sum(case["case_id"] in RUNNABLE_CASES for case in cases),
-        "replayed_count": 0,
+        "replayed_count": sum(
+            case.get("reproducibility") == "LOCALLY_REPLAYED_STABLE" for case in cases
+        ),
     }
 
 

@@ -5,6 +5,8 @@ import {
   Card,
   Col,
   Descriptions,
+  Input,
+  Modal,
   Progress,
   Row,
   Space,
@@ -16,11 +18,14 @@ import {
   Typography,
   message,
 } from "antd";
-import { CloudServerOutlined, ExperimentOutlined } from "@ant-design/icons";
+import { CloudServerOutlined, ExperimentOutlined, UploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import {
   getRealWorldBenchmarkCatalog,
+  getRealWorldComparisons,
   getRealWorldBenchmarkRun,
+  getRealWorldComparisonInput,
   startRealWorldBenchmark,
+  submitRealWorldComparison,
 } from "../api/client";
 
 const { Link, Paragraph, Text } = Typography;
@@ -85,11 +90,18 @@ export default function RealWorldBenchmarkPanel() {
   const [catalog, setCatalog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [run, setRun] = useState(null);
+  const [comparisons, setComparisons] = useState(null);
+  const [comparisonTarget, setComparisonTarget] = useState(null);
+  const [comparisonJson, setComparisonJson] = useState("");
+  const [submittingComparison, setSubmittingComparison] = useState(false);
   const pollRef = useRef(null);
 
   useEffect(() => {
-    getRealWorldBenchmarkCatalog()
-      .then(setCatalog)
+    Promise.all([getRealWorldBenchmarkCatalog(), getRealWorldComparisons()])
+      .then(([nextCatalog, nextComparisons]) => {
+        setCatalog(nextCatalog);
+        setComparisons(nextComparisons);
+      })
       .catch((error) => message.error(error.message))
       .finally(() => setLoading(false));
     return () => window.clearTimeout(pollRef.current);
@@ -124,6 +136,67 @@ export default function RealWorldBenchmarkPanel() {
       poll(created.run_id);
     } catch (error) {
       message.error(error.message);
+    }
+  }
+
+  function downloadJson(payload, filename) {
+    const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function downloadComparisonInput() {
+    if (!run?.run_id) return;
+    try {
+      const payload = await getRealWorldComparisonInput(run.run_id);
+      downloadJson(payload, `mini-drop-comparison-input-${run.case_id}.json`);
+      message.success("同条件对照输入已导出；该文件不含 Mini-Drop 结论和隐藏 Oracle");
+    } catch (error) {
+      message.error(error.message);
+    }
+  }
+
+  function downloadComparisonTemplate() {
+    const payload = {
+      product: "holmesgpt",
+      runs: [{
+        run_id: "PRODUCT_RUN_ID",
+        case_id: "RW-GRAFANA-123359",
+        source_run_id: "MINI_DROP_SOURCE_RUN_ID",
+        comparison_input_hash: "sha256:COPY_FROM_EXPORTED_INPUT",
+        execution_fidelity: "FULL_UPSTREAM_REPLAY",
+        predicted_root_cause_id: "PREDICTED_ID_OR_NULL",
+        predicted_locations: ["PATH_OR_SYMBOL"],
+        evidence: [], evidence_refs: [], counter_evidence_refs: [],
+        abstained: true, confidence: 0, duration_seconds: null, tool_calls: null,
+      }],
+    };
+    downloadJson(payload, "mini-drop-comparison-result-template.json");
+  }
+
+  async function submitComparison() {
+    let parsed;
+    try {
+      parsed = JSON.parse(comparisonJson);
+    } catch {
+      message.error("结果不是有效 JSON，请按模板填写");
+      return;
+    }
+    setSubmittingComparison(true);
+    try {
+      const result = await submitRealWorldComparison(comparisonTarget.id, parsed);
+      setComparisons(await getRealWorldComparisons());
+      setComparisonTarget(null);
+      setComparisonJson("");
+      message.success(result.status === "SCORED" ? "对照结果已评分" : "对照结果已冻结，等待评测器评分");
+    } catch (error) {
+      message.error(error.message);
+    } finally {
+      setSubmittingComparison(false);
     }
   }
 
@@ -205,6 +278,19 @@ export default function RealWorldBenchmarkPanel() {
                 <Descriptions.Item label="执行保真度"><Tag>{run.execution_fidelity || "未提供"}</Tag></Descriptions.Item>
                 <Descriptions.Item label="评分状态"><Tag color={scoreStatus === "SCORED" ? "blue" : "warning"}>{scoreStatus}</Tag></Descriptions.Item>
               </Descriptions>
+              {run.status === "COMPLETED" && (
+                <Alert
+                  showIcon
+                  type="info"
+                  message="可将本次冻结证据交给成熟产品做同条件诊断"
+                  description={(
+                    <Space wrap>
+                      <Text>导出内容只有公开故障契约、基线/故障/修复快照和统一预算，不包含 Mini-Drop 的预测或隐藏 Oracle。</Text>
+                      <Button icon={<DownloadOutlined />} onClick={downloadComparisonInput}>下载同条件对照输入</Button>
+                    </Space>
+                  )}
+                />
+              )}
               <Progress percent={run.progress || 0} status={run.status === "FAILED" ? "exception" : run.status === "RUNNING" ? "active" : "normal"} />
               <Steps current={stageIndex(run.stage)} responsive size="small" items={STAGE_ITEMS.map(([, title]) => ({ title }))} />
               <Row gutter={[16, 16]}>
@@ -244,8 +330,15 @@ export default function RealWorldBenchmarkPanel() {
           </Card>
         )}
 
-        <Card size="small" type="inner" title="成熟产品 / 公开基准对照状态">
+        <Card size="small" type="inner" title="成熟产品 / 公开基准同条件对照">
           <Alert showIcon type="info" message="公平比较要求同一故障窗口、同一遥测快照、同一模型和工具预算" description={catalog?.fair_comparison_rule} style={{ marginBottom: 12 }} />
+          <Space wrap style={{ marginBottom: 12 }}>
+            <Button icon={<DownloadOutlined />} onClick={downloadComparisonTemplate}>下载统一结果模板</Button>
+            <Tag color={comparisons?.evaluator_ready ? "success" : "warning"}>
+              {comparisons?.evaluator_ready ? "隐藏 Oracle 评测器已就绪" : "评测器密钥未配置：只冻结结果，不出分"}
+            </Tag>
+            <Text>实际提交 {comparisons?.actual_submission_count || 0} 次；正式评分 {comparisons?.scored_submission_count || 0} 次</Text>
+          </Space>
           <Table
             rowKey="id"
             size="small"
@@ -254,17 +347,80 @@ export default function RealWorldBenchmarkPanel() {
             columns={[
               { title: "项目", dataIndex: "id", render: (value, item) => <Link href={item.url} target="_blank" rel="noreferrer">{value}</Link> },
               { title: "适合比较", dataIndex: "best_for", render: (value = []) => value.map((item) => <Tag key={item}>{item}</Tag>) },
+              {
+                title: "对照赛道",
+                dataIndex: "comparison_track",
+                width: 190,
+                render: (value) => value ? <Tag color="blue">{value}</Tag> : "-",
+              },
               { title: "不能等价比较", dataIndex: "not_equivalent_to", render: (value = []) => value.join("、") },
-              { title: "当前状态", dataIndex: "execution_status", render: (value) => <Tag color={value === "EXECUTED" ? "success" : "warning"}>{value}</Tag> },
-              { title: "原因 / 下一步", dataIndex: "reason" },
+              {
+                title: "实际对照状态",
+                render: (_, item) => {
+                  const latest = comparisons?.latest_by_comparator?.[item.id];
+                  return latest
+                    ? <Space direction="vertical" size={0}><Tag color={latest.status === "SCORED" ? "success" : "processing"}>{latest.status}</Tag><Text type="secondary">{latest.submitted_cases} 个案例 · {latest.input_hash?.slice(0, 18)}…</Text></Space>
+                    : <Tag color="warning">尚无实际结果</Tag>;
+                },
+              },
+              {
+                title: "证据优先得分",
+                width: 130,
+                render: (_, item) => {
+                  const report = comparisons?.latest_by_comparator?.[item.id]?.report;
+                  return report ? `${report.evidence_first_score}%` : "-";
+                },
+              },
+              {
+                title: "核心指标",
+                width: 240,
+                render: (_, item) => {
+                  const report = comparisons?.latest_by_comparator?.[item.id]?.report;
+                  if (!report) return <Text type="secondary">等待实际同条件运行</Text>;
+                  return <Space direction="vertical" size={0}>
+                    <Text>Top1 {(100 * report.top1_exact_rate).toFixed(1)}% · 定位 {(100 * report.source_location_rate).toFixed(1)}%</Text>
+                    <Text>证据 {(100 * report.evidence_citation_rate).toFixed(1)}% · 三阶段 {(100 * report.three_phase_snapshot_rate).toFixed(1)}%</Text>
+                  </Space>;
+                },
+              },
+              { title: "边界 / 下一步", dataIndex: "reason" },
+              {
+                title: "结果导入",
+                fixed: "right",
+                width: 130,
+                render: (_, item) => <Button icon={<UploadOutlined />} onClick={() => { setComparisonTarget(item); setComparisonJson(""); }}>导入实测 JSON</Button>,
+              },
             ]}
-            scroll={{ x: 1100 }}
+            scroll={{ x: 2010 }}
           />
           <Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
             当前控制节点资源只适合低资源机制复现。RCAEval、OpenRCA、HolmesGPT 或 Pyroscope 只有在同一输入和同一预算下实际运行后，才会出现比较分数。
           </Paragraph>
         </Card>
       </Space>
+      <Modal
+        title={`导入成熟产品实测结果：${comparisonTarget?.id || ""}`}
+        open={Boolean(comparisonTarget)}
+        onCancel={() => setComparisonTarget(null)}
+        onOk={submitComparison}
+        okText="校验、冻结并提交"
+        confirmLoading={submittingComparison}
+        width={760}
+      >
+        <Alert
+          showIcon
+          type="warning"
+          message="这里只接收成熟产品真实运行后的冻结输出"
+          description="product 必须与所选产品一致；每条结果还必须填写导出包中的 source_run_id 和 comparison_input_hash。服务端会绑定原始三阶段证据、校验工具/时间预算并拒绝 Oracle 字段。未配置评测器密钥时只冻结结果，不显示虚假分数。"
+          style={{ marginBottom: 12 }}
+        />
+        <Input.TextArea
+          rows={16}
+          value={comparisonJson}
+          onChange={(event) => setComparisonJson(event.target.value)}
+          placeholder='粘贴统一格式 JSON，例如 {"product":"holmesgpt","runs":[...]}'
+        />
+      </Modal>
     </Card>
   );
 }
