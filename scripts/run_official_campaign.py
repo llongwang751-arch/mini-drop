@@ -86,10 +86,18 @@ def api_data(response: requests.Response) -> dict[str, Any]:
     return data
 
 
-def wait_campaign(base_url: str, run_id: str, timeout: int) -> dict[str, Any]:
+def wait_campaign(
+    session: requests.Session,
+    base_url: str,
+    run_id: str,
+    timeout: int,
+) -> dict[str, Any]:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        run = api_data(requests.get(
+        # Reuse the authenticated Session used to create the run.  Calling the
+        # module-level requests.get here silently drops the Bearer token and
+        # makes protected deployments fail with 401 after creation succeeds.
+        run = api_data(session.get(
             f"{base_url}/api/v1/diagnosis-campaigns/runs/{run_id}", timeout=10
         ))
         if run.get("status") in {"COMPLETED", "FAILED"}:
@@ -286,7 +294,12 @@ def main() -> int:
             json={"scenario_id": scenario_id, "strategy": execution["strategy"]},
             timeout=15,
         ))
-        run = wait_campaign(args.base_url.rstrip('/'), created["run_id"], args.timeout)
+        run = wait_campaign(
+            session,
+            args.base_url.rstrip('/'),
+            created["run_id"],
+            args.timeout,
+        )
         raw_path = raw_dir / f"{execution_id.replace(':', '__')}.json"
         raw_path.write_text(json.dumps(run, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         detail = scoring_detail(execution, run)
