@@ -31,6 +31,10 @@ COPY alembic.ini ./
 COPY server/ ./server/
 COPY agent/ ./agent/
 COPY analyzer/ ./analyzer/
+# 成熟产品对照与真实业务回放复用 scripts.real_world_benchmark 中的
+# 统一计分器。该目录必须进入生产镜像，否则 comparator API 在启动导入
+# 阶段会因找不到 scripts 包而使整个 Server 健康检查失败。
+COPY scripts/ ./scripts/
 
 RUN pip install --no-cache-dir --no-deps --no-build-isolation -e .
 
