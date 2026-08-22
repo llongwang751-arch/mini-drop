@@ -33,6 +33,8 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
     tables = set(inspect(engine).get_table_names())
     assert {"alembic_version", "tasks", "diagnosis_sessions"} <= tables
     assert "platform_schema_metadata" in tables
+    agent_columns = {item["name"]: item for item in inspect(engine).get_columns("agents")}
+    assert agent_columns["os_info"]["type"].__class__.__name__.upper() == "TEXT"
     artifact_columns = {item["name"] for item in inspect(engine).get_columns("artifacts")}
     assert {"sha256", "manifest_json", "integrity_status", "integrity_reason"} <= artifact_columns
     report_columns = {

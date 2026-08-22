@@ -25,7 +25,7 @@ _sessionmaker: sessionmaker | None = None
 # must be re-entrant in a fresh process where neither singleton exists yet.
 _lock = threading.RLock()
 
-_MANAGED_SCHEMA_REVISION = "20260821_0017"
+_MANAGED_SCHEMA_REVISION = "20260822_0018"
 _MANAGED_SCHEMA_TABLES = {
     "alembic_version",
     "tasks",
