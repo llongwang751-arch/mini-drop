@@ -26,7 +26,11 @@ class AgentModel(Base):
     hostname = Column(String(256), nullable=False)
     ip_addr = Column(String(64), nullable=False)
     version = Column(String(32), default="0.1.0")
-    os_info = Column(String(256), default="unknown")
+    # Host compatibility reports include distribution, kernel features and
+    # collector availability.  TLinux capability reports legitimately exceed
+    # the old 256-byte limit, so keep the payload as text instead of silently
+    # truncating it or rejecting Agent registration.
+    os_info = Column(Text, default="unknown")
     capabilities = Column(JSON, default=list)
     status = Column(String(16), default="ONLINE")
     last_heartbeat_at = Column(DateTime(timezone=True), nullable=False)
