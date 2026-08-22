@@ -39,6 +39,10 @@ from agent.mini_drop_agent.connection import GrpcConnection
 from agent.mini_drop_agent.config import AgentConfig, load_config
 from agent.mini_drop_agent.logging_utils import log_event
 from agent.mini_drop_agent.metrics import ProcessStatsSampler
+from agent.mini_drop_agent.platform_compat import (
+    build_compatibility_report,
+    compact_os_info,
+)
 from agent.mini_drop_agent.result_outbox import OutboxEntry, ResultOutbox
 from server.app.generated import (
     healthcheck_pb2,
@@ -62,7 +66,8 @@ COLLECTORS = {
     "sys_metrics": SysMetricsCollector(),
 }
 
-CAPABILITIES = sorted(COLLECTORS.keys())
+COMPATIBILITY_REPORT = build_compatibility_report(COLLECTORS.keys())
+CAPABILITIES = list(COMPATIBILITY_REPORT["available_collectors"])
 
 
 # ── 任务执行 ───────────────────────────────────────────────────────
@@ -495,11 +500,7 @@ def _fill_pid_stats(message, stats: dict[str, Any]) -> None:
 
 
 def _os_info() -> str:
-    try:
-        with open("/proc/version", "r") as fh:
-            return fh.readline().strip()
-    except FileNotFoundError:
-        return "unknown"
+    return compact_os_info(COMPATIBILITY_REPORT)
 
 
 if __name__ == "__main__":

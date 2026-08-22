@@ -110,10 +110,12 @@ class TestAgentConfig:
 class TestAgentCollectorDispatch:
     """Agent 任务执行入口。"""
 
-    def test_capabilities_match_registered_collectors(self):
-        assert CAPABILITIES == sorted(COLLECTORS.keys())
-        assert CAPABILITIES == sorted(COLLECTORS.keys())  # capacity list auto-expands with registered collectors
-        assert set(CAPABILITIES) >= {"continuous_perf", "ebpf_io", "go_pprof", "java_async", "memory_smaps", "perf_cpu", "pyspy"}
+    def test_capabilities_are_runtime_available_registered_collectors(self):
+        assert CAPABILITIES == sorted(CAPABILITIES)
+        assert set(CAPABILITIES) <= set(COLLECTORS)
+        # HTTP pprof acquisition is implemented in Python and has no required
+        # host binary; it must be schedulable on every supported Agent host.
+        assert "go_pprof" in CAPABILITIES
 
     def test_unregistered_collector_reports_failure_without_artifact(self):
         ok, reason, artifacts = _run_collector({

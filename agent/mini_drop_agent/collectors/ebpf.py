@@ -29,7 +29,10 @@ class EBPFCollector:
         if bpftrace is None:
             return CollectorResult(
                 ok=False,
-                reason="bpftrace 命令不可用，请通过 apt install bpftrace 安装",
+                reason=(
+                    "bpftrace 命令不可用；Debian/Ubuntu 使用 apt，"
+                    "TLinux 2 使用 yum，TLinux 3/4 使用 dnf 安装并运行兼容预检"
+                ),
             )
 
         tracefs_error = self._ensure_tracefs()
