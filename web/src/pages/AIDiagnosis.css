@@ -85,6 +85,42 @@
   margin-bottom: 0.75rem;
 }
 
+.causal-replay-panel {
+  margin: 1rem 0 0 2.5rem;
+  border-color: rgba(114, 46, 209, 0.24);
+}
+
+.causal-replay-panel > .ant-card-head {
+  background: rgba(114, 46, 209, 0.04);
+}
+
+.causal-replay-panel .ant-alert {
+  margin-bottom: 1rem;
+}
+
+.causal-replay-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(8rem, 0.6fr);
+  gap: 0.75rem;
+}
+
+.causal-replay-targets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.causal-replay-current {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.causal-replay-current .ant-table-cell {
+  vertical-align: top;
+}
+
 @media (max-width: 900px) {
   .ai-diagnosis-workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -93,5 +129,14 @@
   .ai-diagnosis-thread {
     max-height: none;
     overflow-y: visible;
+  }
+
+  .causal-replay-panel {
+    margin-left: 0;
+  }
+
+  .causal-replay-form-grid,
+  .causal-replay-targets {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

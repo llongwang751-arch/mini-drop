@@ -22,6 +22,11 @@ vi.mock("../api/client", () => ({
   runDropInsightPlanner: vi.fn(),
   decideDropInsightToolCall: vi.fn(),
   advanceDropInsightOrchestrator: vi.fn(),
+  listCausalReplayCases: vi.fn(),
+  listCausalExperiments: vi.fn(),
+  createCausalExperiment: vi.fn(),
+  decideCausalExperiment: vi.fn(),
+  evaluateCausalExperiment: vi.fn(),
 }));
 
 import * as api from "../api/client";
@@ -78,6 +83,8 @@ describe("AIDiagnosis conversation page", () => {
     api.listDropInsightToolCalls.mockResolvedValue([]);
     api.listDropInsightFeedback.mockResolvedValue([]);
     api.getDropInsightBudget.mockResolvedValue(null);
+    api.listCausalReplayCases.mockResolvedValue({ cases: [] });
+    api.listCausalExperiments.mockResolvedValue([]);
   });
 
   afterEach(() => cleanup());

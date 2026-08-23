@@ -14,18 +14,24 @@ import {
 } from "antd";
 import { ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
+import CausalReplayPanel from "../components/CausalReplayPanel";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import {
   advanceDropInsightOrchestrator,
   clarifyDropInsightDiagnosis,
+  createCausalExperiment,
   createDropInsightDiagnosis,
+  decideCausalExperiment,
   decideDropInsightToolCall,
   deleteDropInsightDiagnosis,
   getDiagnosticCase,
   getDropInsightBudget,
   getDropInsightDiagnosis,
+  evaluateCausalExperiment,
+  listCausalExperiments,
+  listCausalReplayCases,
   listDiagnosticCasesPage,
   listDropInsightDiagnoses,
   listDropInsightEvidence,
@@ -51,6 +57,7 @@ const EMPTY_RESOURCES = {
   reports: [],
   events: [],
   feedback: [],
+  causalExperiments: [],
   budget: null,
 };
 
@@ -201,6 +208,7 @@ export default function AIDiagnosis() {
   const [loading, setLoading] = useState(false);
   const [clarifying, setClarifying] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [causalCases, setCausalCases] = useState([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [mode, setMode] = useState(() => {
     try {
@@ -261,6 +269,7 @@ export default function AIDiagnosis() {
       ["工具调用", listDropInsightToolCalls(id)],
       ["预算", getDropInsightBudget(id)],
       ["反馈", listDropInsightFeedback(id)],
+      ["反事实实验", listCausalExperiments(id)],
     ];
     const settled = await Promise.allSettled(requests.map(([, request]) => request));
     if (version !== requestVersion.current) return;
@@ -277,11 +286,18 @@ export default function AIDiagnosis() {
       toolCalls: value(5, []),
       budget: value(6, null),
       feedback: value(7, []),
+      causalExperiments: value(8, []),
     });
     setResourceErrors(settled.flatMap((result, index) =>
       index > 0 && result.status === "rejected" ? [requests[index][0]] : [],
     ));
     setUnavailableSections([]);
+  }, []);
+
+  useEffect(() => {
+    listCausalReplayCases()
+      .then((payload) => setCausalCases(Array.isArray(payload) ? payload : (payload?.cases || [])))
+      .catch(() => setCausalCases([]));
   }, []);
 
   const loadSelectedDetail = useCallback(async (caseItem) => {
@@ -473,6 +489,24 @@ export default function AIDiagnosis() {
     } finally { setFeedbackSubmitting(false); }
   }
 
+  async function handleCreateCausalExperiment(payload) {
+    if (!selectedId || readOnly) return;
+    await createCausalExperiment(selectedId, payload);
+    await loadSelectedDetail(selectedCase);
+  }
+
+  async function handleCausalDecision(experimentId, payload) {
+    if (!selectedId || readOnly) return;
+    await decideCausalExperiment(selectedId, experimentId, payload);
+    await loadSelectedDetail(selectedCase);
+  }
+
+  async function handleCausalEvaluation(experimentId, payload) {
+    if (!selectedId || readOnly) return;
+    await evaluateCausalExperiment(selectedId, experimentId, payload);
+    await loadSelectedDetail(selectedCase);
+  }
+
   const diagnosisProcess = useMemo(() => {
     const hasScope = Boolean(detail?.target?.agent_id || detail?.agent_id || detail?.target?.pid || detail?.pid);
     let current = 0;
@@ -591,6 +625,18 @@ export default function AIDiagnosis() {
                   onSubmitFeedback={handleSubmitFeedback}
                   feedbackSubmitting={feedbackSubmitting}
                 />
+                {detail && resources.hypotheses.length > 0 && (
+                  <CausalReplayPanel
+                    diagnosis={detail}
+                    hypotheses={resources.hypotheses}
+                    experiments={resources.causalExperiments}
+                    cases={causalCases}
+                    readOnly={readOnly}
+                    onCreate={handleCreateCausalExperiment}
+                    onDecision={handleCausalDecision}
+                    onEvaluate={handleCausalEvaluation}
+                  />
+                )}
               </Spin>
             </div>
             <Space.Compact style={{ marginTop: 12, width: "100%" }}>

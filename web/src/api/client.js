@@ -380,6 +380,30 @@ export function advanceDropInsightOrchestrator(diagnosisId) {
   return api.post(`/v2/diagnoses/${diagnosisId}/orchestrator/advance`);
 }
 
+export function listCausalReplayCases() {
+  return api.get("/v2/causal-replay/cases");
+}
+
+export function previewCausalExperiment(diagnosisId, payload) {
+  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/preview`, payload);
+}
+
+export function createCausalExperiment(diagnosisId, payload) {
+  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments`, payload);
+}
+
+export function listCausalExperiments(diagnosisId) {
+  return api.get(`/v2/diagnoses/${diagnosisId}/causal-experiments`).then(itemsOf);
+}
+
+export function decideCausalExperiment(diagnosisId, experimentId, payload) {
+  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/${experimentId}/decision`, payload);
+}
+
+export function evaluateCausalExperiment(diagnosisId, experimentId, payload) {
+  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/${experimentId}/evaluate`, payload);
+}
+
 // ── Schedule / Cron ────────────────────────────────────────────
 
 export function listSchedules() {

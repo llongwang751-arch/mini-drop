@@ -16,6 +16,10 @@ from .schemas import (
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
     VerifyFixRequest,
+    CreateCausalExperimentRequest,
+    DecideCausalExperimentRequest,
+    EvaluateCausalExperimentRequest,
+    PreviewCausalExperimentRequest,
 )
 from .service import (
     add_evidence,
@@ -43,6 +47,12 @@ from .service import (
     update_tool_call_arguments,
     verify_diagnosis_fix,
     list_fix_verifications,
+    create_causal_experiment,
+    decide_causal_experiment,
+    evaluate_causal_experiment,
+    list_causal_experiments,
+    list_causal_replay_cases,
+    preview_causal_experiment,
 )
 from .tools import TOOLS
 
@@ -91,6 +101,82 @@ def events(diagnosis_id: str) -> APIResponse:
 @router.get("/diagnostic-tools")
 def tools() -> APIResponse:
     return APIResponse(data={"items": TOOLS})
+
+
+@router.get("/causal-replay/cases")
+def causal_replay_cases() -> APIResponse:
+    return APIResponse(data=list_causal_replay_cases())
+
+
+@router.post("/diagnoses/{diagnosis_id}/causal-experiments/preview")
+def causal_experiment_preview(
+    diagnosis_id: str, payload: PreviewCausalExperimentRequest
+) -> APIResponse:
+    try:
+        result = preview_causal_experiment(diagnosis_id, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data=result)
+
+
+@router.post("/diagnoses/{diagnosis_id}/causal-experiments")
+def causal_experiment_create(
+    diagnosis_id: str,
+    payload: CreateCausalExperimentRequest,
+    request: Request,
+) -> APIResponse:
+    try:
+        result = create_causal_experiment(
+            diagnosis_id, payload, requested_by=_principal(request)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data=result)
+
+
+@router.get("/diagnoses/{diagnosis_id}/causal-experiments")
+def causal_experiment_list(diagnosis_id: str) -> APIResponse:
+    result = list_causal_experiments(diagnosis_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data={"items": result})
+
+
+@router.post("/diagnoses/{diagnosis_id}/causal-experiments/{experiment_id}/decision")
+def causal_experiment_decide(
+    diagnosis_id: str,
+    experiment_id: str,
+    payload: DecideCausalExperimentRequest,
+    request: Request,
+) -> APIResponse:
+    try:
+        result = decide_causal_experiment(
+            diagnosis_id, experiment_id, payload, decided_by=_principal(request)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="causal experiment not found")
+    return APIResponse(data=result)
+
+
+@router.post("/diagnoses/{diagnosis_id}/causal-experiments/{experiment_id}/evaluate")
+def causal_experiment_evaluate(
+    diagnosis_id: str,
+    experiment_id: str,
+    payload: EvaluateCausalExperimentRequest,
+) -> APIResponse:
+    try:
+        result = evaluate_causal_experiment(diagnosis_id, experiment_id, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="causal experiment not found")
+    return APIResponse(data=result)
 
 
 @router.post("/diagnoses/{diagnosis_id}/hypotheses")

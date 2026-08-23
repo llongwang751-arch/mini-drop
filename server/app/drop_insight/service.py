@@ -41,7 +41,12 @@ from .schemas import (
     PreviewToolCallRequest,
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
+    CreateCausalExperimentRequest,
+    DecideCausalExperimentRequest,
+    EvaluateCausalExperimentRequest,
+    PreviewCausalExperimentRequest,
 )
+from server.app.diagnosis.causal_replay import build_plan, evaluate_plan, get_case, load_catalog
 from server.app.schemas import CreateTaskRequest
 from server.app.sql_repository import SqlRepository
 from server.app.prometheus_metrics import record_evidence_decision
@@ -170,6 +175,156 @@ def list_events(diagnosis_id: str) -> list[DropInsightEventModel]:
             .order_by(DropInsightEventModel.sequence.asc())
             .all()
         )
+    finally:
+        session.close()
+
+
+def list_causal_replay_cases() -> dict:
+    return load_catalog()
+
+
+def preview_causal_experiment(
+    diagnosis_id: str, payload: PreviewCausalExperimentRequest
+) -> dict | None:
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if diagnosis is None:
+            return None
+        hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
+        if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
+            raise ValueError("hypothesis does not belong to diagnosis")
+        return build_plan(get_case(payload.case_id), payload.model_dump(mode="json"))
+    finally:
+        session.close()
+
+
+def create_causal_experiment(
+    diagnosis_id: str,
+    payload: CreateCausalExperimentRequest,
+    *,
+    requested_by: str,
+) -> dict | None:
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id, payload.expected_version)
+        if diagnosis is None:
+            return None
+        hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
+        if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
+            raise ValueError("hypothesis does not belong to diagnosis")
+        plan = build_plan(get_case(payload.case_id), payload.model_dump(mode="json"))
+        timestamp = now_utc()
+        experiment = {
+            "experiment_id": f"causal_{uuid4().hex}",
+            "diagnosis_id": diagnosis_id,
+            "status": "WAITING_APPROVAL",
+            "requested_by": requested_by,
+            "created_at": timestamp.isoformat(),
+            "plan": plan,
+        }
+        _append_event(
+            session,
+            diagnosis_id,
+            "causal_experiment.planned",
+            "AI",
+            experiment,
+            timestamp,
+        )
+        session.commit()
+        return experiment
+    finally:
+        session.close()
+
+
+def list_causal_experiments(diagnosis_id: str) -> list[dict] | None:
+    session = new_session()
+    try:
+        if session.get(DropInsightSessionModel, diagnosis_id) is None:
+            return None
+        events = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type.like("causal_experiment.%"),
+            )
+            .order_by(DropInsightEventModel.sequence.asc())
+            .all()
+        )
+        experiments: dict[str, dict] = {}
+        for event in events:
+            payload = dict(event.payload_json or {})
+            experiment_id = payload.get("experiment_id")
+            if not experiment_id:
+                continue
+            if event.event_type == "causal_experiment.planned":
+                experiments[experiment_id] = payload
+            elif experiment_id in experiments:
+                experiments[experiment_id].update(payload)
+        return list(reversed(list(experiments.values())))
+    finally:
+        session.close()
+
+
+def decide_causal_experiment(
+    diagnosis_id: str,
+    experiment_id: str,
+    payload: DecideCausalExperimentRequest,
+    *,
+    decided_by: str,
+) -> dict | None:
+    experiments = list_causal_experiments(diagnosis_id)
+    if experiments is None:
+        return None
+    experiment = next((item for item in experiments if item["experiment_id"] == experiment_id), None)
+    if experiment is None:
+        return None
+    if experiment.get("status") != "WAITING_APPROVAL":
+        raise ValueError("causal experiment is not waiting for approval")
+    decision = {
+        "experiment_id": experiment_id,
+        "status": "APPROVED" if payload.approved else "REJECTED",
+        "approved": payload.approved,
+        "decision_reason": payload.reason,
+        "decided_by": decided_by,
+        "decided_at": now_utc().isoformat(),
+    }
+    session = new_session()
+    try:
+        _append_event(session, diagnosis_id, "causal_experiment.decision", "USER", decision, now_utc())
+        session.commit()
+        return {**experiment, **decision}
+    finally:
+        session.close()
+
+
+def evaluate_causal_experiment(
+    diagnosis_id: str,
+    experiment_id: str,
+    payload: EvaluateCausalExperimentRequest,
+) -> dict | None:
+    experiments = list_causal_experiments(diagnosis_id)
+    if experiments is None:
+        return None
+    experiment = next((item for item in experiments if item["experiment_id"] == experiment_id), None)
+    if experiment is None:
+        return None
+    if experiment.get("status") != "APPROVED":
+        raise ValueError("causal experiment must be approved before evaluation")
+    measurements = payload.model_dump(mode="json")
+    judgement = evaluate_plan(experiment["plan"], measurements)
+    result = {
+        "experiment_id": experiment_id,
+        "status": "EVALUATED",
+        "measurements": measurements,
+        "judgement": judgement,
+        "evaluated_at": now_utc().isoformat(),
+    }
+    session = new_session()
+    try:
+        _append_event(session, diagnosis_id, "causal_experiment.evaluated", "SYSTEM", result, now_utc())
+        session.commit()
+        return {**experiment, **result}
     finally:
         session.close()
 
