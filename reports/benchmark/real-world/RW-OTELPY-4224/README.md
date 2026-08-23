@@ -9,6 +9,8 @@
 
 ## 结果
 
-基线三轮均残留 250 个 Reader 和 250 个 Exporter；修复后三轮 Reader、Exporter、Provider 均为 0。该案例满足“故障可复现、修复可验证、重复三次稳定”的入库条件。
+基线三轮均残留 250 个 Reader 和 250 个 Exporter；修复后三轮 Reader、Exporter、Provider 均为 0。该案例满足“故障可复现、修复可验证、重复三次稳定”的稳定回放归档条件。
 
 `report.json` 是机器可读摘要，`base.ndjson` 与 `fix.ndjson` 是逐轮原始输出，`otel_gc_harness.py` 是两侧完全相同的中立测试程序。
+
+该目录是历史稳定上游 A/B 回放归档，不是 `real-world-admission-v1` 正式准入记录，也不是已评分结果。它不补写归档时未保存的可信运行信封、不可变环境、三角色证据或 Oracle 前冻结诊断。

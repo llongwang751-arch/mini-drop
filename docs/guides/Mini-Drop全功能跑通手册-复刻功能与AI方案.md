@@ -2,12 +2,39 @@
 
 > 仓库：`D:\tx\mini-drop`  
 > 云端部署目录：`/opt/mini-drop-li-mingyuan`  
-> 更新日期：2026-08-19  
+> 更新日期：2026-08-22
+> 当前云端基线：`10b4a81 feat: unify AI diagnosis and real-world evaluation`
 > 目标：让第一次接触项目的人知道“在哪个终端输入什么、点哪个按钮、系统内部经历了什么、看到什么才算通过”。
 
 ---
 
 ## 0. 先说结论：导师提出的重点做到哪里了
+
+### 0.1 本次云端部署实测结果
+
+2026-08-21 已把提交 `10b4a81` 部署到 control 节点 `/opt/mini-drop-li-mingyuan`。这次只部署**已提交代码**，本机尚未提交的实验改动没有混入云端。部署前的云端工作区完整保存在：
+
+```text
+/opt/mini-drop-backups/deploy-20260821-230548/worktree
+```
+
+实际检查结果：
+
+| 检查项 | 实测结果 |
+|---|---|
+| Git 版本 | `10b4a81` |
+| 数据库迁移 | `20260813_0012 → 20260821_0017` 全部成功 |
+| Web / API / Server / Analyzer | 运行且健康 |
+| PostgreSQL / MinIO | 运行且健康，原有数据卷保留 |
+| Campaign 目标 | Python、Java、下游服务、网络代理均运行 |
+| 首页 | 外网 HTTP 状态 `200` |
+| `/ai-diagnosis` | 外网 HTTP 状态 `200` |
+| `/api/healthz` | 云端 HTTP 状态 `200` |
+| 认证接口 `/api/me` | 携带平台 API Key 后 HTTP 状态 `200` |
+| 新界面标识 | 已确认包含“一键制造故障并评测”“真实开源缺陷”“方法与评测” |
+| 启动日志 | 未发现 `panic`、`fatal`、`traceback` 或启动期 `error` |
+
+浏览器仍显示旧页面时，先按 `Ctrl+F5` 强制刷新；实验环境使用自签名证书，浏览器出现证书提示不代表应用启动失败。
 
 | 导师关注点 | 当前落地 | 页面如何看见 |
 |---|---|---|
@@ -160,7 +187,7 @@ docker compose logs -f --tail=100 web apiserver server control-plane native-agen
 
 ### 5.1 浏览器使用
 
-1. 打开 <https://47.112.10.137/>。
+1. 打开 <https://47.112.10.137/>；AI 页面可直接打开 <https://47.112.10.137/ai-diagnosis>。
 2. 实验环境使用自签名证书，确认地址后选择继续访问。
 3. SSH 登录 control 节点，在服务器终端执行：
 
@@ -193,6 +220,17 @@ docker compose \
   ps
 ```
 
+若代码或依赖发生变化，需要重新构建：
+
+```bash
+docker compose \
+  --env-file deploy/env/cloud-control.env \
+  -f docker-compose.cloud-control.yml \
+  up -d --build
+```
+
+第一次完整构建会下载 Go、Python、Node 和系统依赖，耗时数分钟属于正常；后续命中镜像缓存会明显更快。不要在构建过程中反复重启 Docker。
+
 ### 5.3 worker 节点启动
 
 分别 SSH 登录 worker1、worker2：
@@ -219,6 +257,57 @@ docker compose --env-file deploy/env/cloud-control.env \
   -f docker-compose.cloud-control.yml \
   logs -f --tail=100 web apiserver server diagnosis-worker analyzer campaign-agent
 ```
+
+### 5.5 云端部署后的只读验收
+
+在 control 节点执行：
+
+```bash
+cd /opt/mini-drop-li-mingyuan
+COMPOSE="docker compose --env-file deploy/env/cloud-control.env -f docker-compose.cloud-control.yml"
+
+git rev-parse --short HEAD
+$COMPOSE ps
+curl -sk -o /dev/null -w 'HOME=%{http_code}\n' https://127.0.0.1/
+curl -sk -o /dev/null -w 'HEALTH=%{http_code}\n' https://127.0.0.1/api/healthz
+$COMPOSE logs --tail=30 migrate
+```
+
+通过标准：
+
+1. Git 输出当前发布提交；
+2. 核心服务为 `Up`，带健康检查的服务为 `healthy`；
+3. 首页和健康接口均为 `200`；
+4. `migrate` 显示迁移完成后退出，不能出现回滚或异常栈。
+
+本机 PowerShell 再验证公网入口：
+
+```powershell
+curl.exe -k -s -o NUL -w "首页：%{http_code}`n" https://47.112.10.137/
+curl.exe -k -s -o NUL -w "AI页面：%{http_code}`n" https://47.112.10.137/ai-diagnosis
+```
+
+两项均应返回 `200`。
+
+### 5.6 云端完整演示的推荐顺序
+
+不要一上来同时点击多个任务。按下面顺序演示，最容易判断问题出在哪一层：
+
+1. 浏览器打开 `https://47.112.10.137/ai-diagnosis`，通过证书提示后按一次 `Ctrl+F5`。
+2. 在右上角填写 **Mini-Drop API Key** 并点击 **保存**；看到保存成功提示后再继续。
+3. 先进入 **AI 诊断 → 方法与测试集**，确认页面能看到 Golden 用例、真实故障 Campaign 和测试集来源说明。
+4. 选择 **Python 进程 CPU 热点**，点击 **一键制造故障并评测**。只执行一个 Campaign，观察安全预检、基线、注入、异常确认、取证、诊断、Oracle 对比、恢复八个阶段。
+5. Campaign 完成后打开 **任务 → 任务面板**，确认它创建的真实采集任务存在，并查看 TaskAttempt、Artifact 和 Analyzer 状态。
+6. 回到 **AI 诊断 → 诊断会话**，点击 **新对话**，输入 `订单服务最近 5 分钟 CPU 飙高，请定位原因`。
+7. 在范围卡点击 **使用在线演示目标**；检查服务、环境、Agent、PID、时间窗后点击 **确认范围并开始取证**。
+8. 专家模式下查看候选假设、决策树和工具调用。需要审批时先核对 Agent/PID/时长，再批准执行。
+9. 工具任务完成后点 **继续推进**，直到出现证据裁决。若证据不足，按页面建议开启下一轮，而不是把 0% 当作根因结论。
+10. 最终结论必须显示具体根因、非零置信度、`evidence_refs`、反证/限制；随后用同口径任务做修复前后比较。
+11. 最后打开 **系统 → 审计日志**，展示创建任务、人工审批、证据导入、结论和清理动作均可追溯。
+
+这条顺序同时覆盖导师关心的“真实故障、过程可见、性能决策树、循证裁决、统一测试集、人工审批和恢复验证”。
+
+> 注意：第 0.1 节证明的是“指定版本已经部署且服务健康”，不是自动证明所有采集器、Campaign 和 AI 场景都已在当前环境逐项通过。最终结论以本节实际操作和第 12 节勾选结果为准。
 
 ---
 
@@ -503,6 +592,37 @@ Windows Docker Desktop 环境常见。改到原生 Linux，挂载 `/sys/kernel/t
 
 实时推送断开不等于后端停止。页面仍可刷新/轮询；检查 Nginx、API、认证和浏览器 Network。
 
+### 11.9 API Key 或范围表单刷新后消失
+
+- API Key 必须点击右上角 **保存**。前端会优先写入 HttpOnly Cookie，同时把兼容值保存在浏览器 `localStorage`。
+- 保存后仍丢失：不要使用无痕窗口；确认浏览器没有禁用该站点 Cookie/本地存储；打开开发者工具 Network，检查 `/api/auth/set-cookie` 是否成功。
+- 范围确认表单使用会话草稿保存。选完一个字段就立刻消失通常不是正常刷新，而是页面轮询覆盖了草稿；先按 `Ctrl+F5` 使用最新前端，再重新选择。
+- 若表单已提交但页面仍停在 `NEEDS_CLARIFICATION`，检查 `/api/v2/diagnoses/{id}/clarify` 返回值和 Server 日志，不要连续重复点击。
+
+### 11.10 Campaign 为什么看起来很久
+
+真实 Campaign 不是立即返回预填答案，它会依次完成基线采样、故障注入、异常确认、真实任务取证、分析、AI 裁决、Oracle 对比和恢复验证。采样时长、Analyzer 排队和大模型响应都会计入总时间。
+
+排查顺序：
+
+```bash
+cd /opt/mini-drop-li-mingyuan
+COMPOSE="docker compose --env-file deploy/env/cloud-control.env -f docker-compose.cloud-control.yml"
+$COMPOSE ps
+$COMPOSE logs --tail=150 campaign-agent diagnosis-worker server analyzer
+```
+
+页面应持续更新当前阶段；若长时间停在同一阶段，先查对应服务日志和关联 Task，而不是重新点击按钮制造第二个并发故障。首次部署构建慢和页面里的采集慢是两件事：前者受镜像下载影响，后者受任务时长和处理队列影响。
+
+### 11.11 “服务健康”与“链路跑通”的区别
+
+- HTTP `200`、容器 `healthy`：说明页面/API/依赖已启动。
+- Task `DONE` + TaskAttempt `SUCCEEDED` + Artifact `VERIFIED`：说明一次采集分析链路跑通。
+- Campaign 八阶段完成且恢复指标回落：说明一次真实故障评测跑通。
+- AI 给出带证据引用的非零置信度结论：说明循证诊断链路跑通。
+
+前三项不能互相替代。汇报时应展示任务 ID、证据 ID、快照或报告，而不是只展示首页能打开。
+
 ---
 
 ## 12. 最终验收清单
@@ -537,6 +657,24 @@ Windows Docker Desktop 环境常见。改到原生 Linux，挂载 `/sys/kernel/t
 
 当前 OTel live subset 仅完成实现和本地聚焦回归；本项必须以云端原生 Linux 的正式运行产物勾选，不能用本地单测或旧 `LIVE-CPU-001` 替代。
 
+### 12.3 本次云端验收记录怎么填
+
+每跑一条链路，记录以下信息，避免只说“我点过了”：
+
+| 项目 | 记录内容 |
+|---|---|
+| 执行时间 | 北京时间，精确到分钟 |
+| 发布版本 | `git rev-parse --short HEAD` |
+| 场景/预设 | 例如 Python CPU 热点 Campaign / perf CPU 火焰图 |
+| Agent 与 PID | 实际 `agent_id` 和目标 PID |
+| Task | Task ID、最终状态、失败 reason（如有） |
+| 采集证据 | TaskAttempt ID、Artifact ID、SHA-256/VERIFIED 状态 |
+| AI 结果 | 诊断 ID、根因、置信度、evidence_refs、限制 |
+| 修复验证 | 基线/故障/恢复或修复前后指标 |
+| 结论 | 通过 / 失败 / 环境不支持，并附截图或日志位置 |
+
+推荐至少保存四组证据：一条基础系统指标任务、一条 perf/eBPF 任务、一条完整 Campaign、一条从模糊自然语言到可信结论的 AI 会话。
+
 ---
 
 ## 13. 停止项目
@@ -557,4 +695,3 @@ docker compose --env-file deploy/env/cloud-control.env \
 ```
 
 不要加 `-v`，否则会删除数据库和 MinIO 数据卷；共享服务器上不要停止其他同学的 Compose 项目。
-

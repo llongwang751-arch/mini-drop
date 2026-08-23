@@ -1,10 +1,12 @@
 # Mini-Drop 新会话交接文档
 
-> 更新时间：2026-08-19  
+> 更新时间：2026-08-20
 > 本地仓库：`D:\tx\mini-drop`  
 > 云端部署目录：`/opt/mini-drop-li-mingyuan`  
 > 云端入口：<https://47.112.10.137/>  
 > 本文不包含 API Key、SSH 密码、数据库密码、MinIO 密钥或 TLS 私钥。
+
+> **最新交接结论**：本文件前 25 节保留项目全貌；第 26 节之后是 2026-08-20 的最新增量、工作现场、下一位 AI 的任务边界以及监督验收协议。新接手者必须优先阅读第 26 节及后续内容，不能只按 8 月 19 日的旧状态工作。
 
 ---
 
@@ -638,12 +640,432 @@ Oracle 在诊断阶段不可见，只有诊断冻结后 Evaluator 才能读取�
 | no completed TaskAttempt | Task 尚未完整成功 | 查 Task/Attempt/Analyzer/Artifact |
 | 一直需确认范围 | scope 不完整或 payload 错 | 检查六项范围和接口响应 |
 | 一直证据不足 | 未导入证据或质量门禁失败 | 看证据卡并开启下一轮 |
+
+---
+
+## 26. 2026-08-20 最新增量：真实开源缺陷页面化验证
+
+### 26.1 用户最新要求
+
+用户明确要求：
+
+1. 验收者不在本机操作 Docker；
+2. 可以使用云服务器；
+3. 测试必须从 Web 页面发起并在页面展示过程；
+4. 不接受只在 AI 沙箱或隐藏 CLI 中跑测试；
+5. 测试集应来自真实开源缺陷，并与成熟产品建立公平比较协议；
+6. 未实际运行的结果不得显示为通过或 100%。
+
+云端服务底层仍可使用现有容器编排，但这属于运维实现，验收者只通过浏览器操作。
+
+### 26.2 新增真实业务候选集
+
+目录：
+
+```text
+benchmarks/real_world/
+├── manifest.json
+├── comparators.json
+├── public/cases.json
+├── private/oracles.json
+└── examples/normalized-result-template.json
+```
+
+目前收录 7 个真实开源 PR：
+
+| Case | 来源 | 当前页面能力 |
+|---|---|---|
+| RW-GRAFANA-123359 | Grafana PR #123359 | 云端机制级复现 |
+| RW-OTELPY-4224 | OpenTelemetry Python PR #4224 | 云端机制级复现 |
+| RW-PROM-19412 | Prometheus PR #19412 | 题面/Oracle，未接执行器 |
+| RW-REDIS-15427 | Redis PR #15427 | 题面/Oracle，未接执行器 |
+| RW-K8S-138571 | Kubernetes PR #138571 | 云端机制级复现 |
+| RW-K8S-140886 | Kubernetes PR #140886 | Abstention 题，未接执行器 |
+| RW-ENVOY-42752 | Envoy PR #42752 | 云端机制级复现 |
+
+三个必须分开的数字：
+
+```text
+候选案例：7
+云端页面可运行的机制级复现：4
+完整上游仓库 base/fix A/B：0
+```
+
+禁止把 4 个机制级复现描述成“4 个完整开源项目已经复现”。
+
+### 26.3 新增后端入口
+
+实现文件：
+
+- `D:\tx\mini-drop\server\app\diagnosis\real_world_runs.py`
+- `D:\tx\mini-drop\server\app\main.py`
+
+接口：
+
+```text
+GET  /api/v1/real-world-benchmarks/catalog
+POST /api/v1/real-world-benchmarks/runs
+GET  /api/v1/real-world-benchmarks/runs/{run_id}
+```
+
+可执行案例按以下阶段运行：
+
+```text
+PREFLIGHT
+→ BASELINE
+→ INCIDENT
+→ DIAGNOSIS
+→ VERIFICATION
+→ ORACLE_COMPARISON
+→ COMPLETED / FAILED / INTERRUPTED
+```
+
+执行状态与评分资格分开记录：`COMPLETED` 只表示 worker 正常结束；当前 `MECHANISM_REPRO` 固定为 `scoring_status=UNSCORED`、`passed=null`。重启时发现遗留 `RUNNING` 会转为 `INTERRUPTED`，不自动重放非幂等脚本。Oracle 必须在 `DIAGNOSIS` 完成后读取。运行结果必须包含 run ID、阶段时间线、服务端证据对象及引用、反证引用、置信度和局限。
+
+### 26.4 新增前端入口
+
+实现文件：
+
+- `D:\tx\mini-drop\web\src\components\RealWorldBenchmarkPanel.jsx`
+- `D:\tx\mini-drop\web\src\components\EvalPanel.jsx`
+- `D:\tx\mini-drop\web\src\api\client.js`
+
+页面位置：
+
+```text
+AI 诊断 → 方法与测试集 → 真实开源缺陷：页面化云端复现与成熟产品对照
+```
+
+页面职责：
+
+- 展示 7 个案例、真实 PR 来源和复现级别；
+- 只允许 4 个有执行适配器的案例点击“在云端运行”；
+- 展示运行进度、服务端时间线和 baseline/incident/verification；
+- 诊断冻结后展示 Oracle 对比；
+- 展示 RCAEval、OpenRCA、HolmesGPT、Pyroscope 的比较维度；
+- 成熟产品未同题运行前不显示虚构分数。
+
+### 26.5 四个页面可运行机制
+
+| Case | baseline | incident | verification | 预期根因 |
+|---|---:|---:|---:|---|
+| Grafana queue dedup | 10 个稳定键 | 600 个队列项 | 10 | `workqueue_pointer_identity_breaks_deduplication` |
+| OTel Python weakref | 0 个存活对象 | 600 | 0 | `strong_callback_references_retain_reader_exporter` |
+| K8s full sync | 150 次操作 | 9000 | 150 | `periodic_full_sync_cost_in_large_cluster_mode` |
+| Envoy debug eval | 0 次求值 | 4000 | 0 | `per_chunk_debug_log_expression_evaluation` |
+
+这些数字用于验证机制和反事实恢复，不等同于上游完整项目的性能 Benchmark。
+
+---
+
+## 27. 最新验证记录
+
+### 27.1 自动测试
+
+执行：
+
+```powershell
+cd D:\tx\mini-drop
+python -m pytest -q tests/test_real_world_benchmark.py tests/test_real_world_runs.py
+```
+
+最近确认结果（本地机械回归，不替代云端验收）：
+
+```text
+Python 全量：883 passed, 116 warnings
+Go 全量：全部通过
+Web Vitest：11 个测试文件、29 个测试全部通过
+Web 生产构建：4624 modules transformed，构建成功
+RealWorld admission/hash 聚焦：58 passed, 1 warning
+Evaluator/outbox/API 聚焦：104 passed, 116 warnings
+```
+
+warning 主要来自 FastAPI、`pytest_asyncio` 的弃用提示，不是业务失败。评分器只认可当前 run/case 所属且哈希有效的结构化证据；任意字符串引用和自报快照角色不再得分，`UNSCORED` 不进入正式分母。`git diff --check` 已无 whitespace error；Windows 工作区仍提示部分文件下次由 Git 触碰时会从 LF 转为 CRLF。
+
+### 27.2 前端
+
+最近确认：Web Vitest 11 个测试文件、29 个测试全部通过；Vite 生产构建成功，共转换 4624 个模块。这些结果仅是本地机械回归。
+
+### 27.3 云端 API 实跑
+
+最近确认结果：
+
+```text
+catalog=7
+runnable=4
+full_upstream_replays=0
+
+RW-GRAFANA-123359  COMPLETED
+RW-OTELPY-4224     COMPLETED
+RW-K8S-138571      COMPLETED
+RW-ENVOY-42752     COMPLETED
+```
+
+以上 4 条 `COMPLETED` 仅表示机制适配器执行结束，均应解释为 `MECHANISM_REPRO + UNSCORED`，不能表述为正式基准通过；完整上游 base/fix replay 仍为 0。本切片只完成持久化、证据完整性和前端口径的本地机械回归，没有重新执行云端验收，也没有启动正式 OTel 18-run。
+
+2026-08-21 的新鲜安全预检未建立云端可用性：对 `47.112.10.137:443` 的标准证书校验因缺少可信签发链失败；本机未配置 `mini-drop-control` SSH alias，也没有该公网 IP 的已锁定 host-key 条目。仓库内能找到的是 Hyper-V `.10/.11/.12` 实验拓扑、历史验证报告和 Paramiko `RejectPolicy`/known-host lockfile 机制，不能据此推导当前公网三节点已就绪。未使用 `curl -k`、`StrictHostKeyChecking=no` 或自动接受未知主机密钥；因此当前云端三节点 authenticated readiness 与 acceptance 仍未证明。
+
+云端页面运行说明：
+
+`D:\tx\mini-drop\docs\guides\云端页面真实业务测试全流程.md`
+
+真实测试集与产品对照说明：
+
+`D:\tx\mini-drop\docs\benchmarks\真实业务测试集与成熟产品对照.md`
+
+---
+
+## 28. 当前工作区保护清单
+
+当前新增/修改的核心文件尚未统一提交。接手者先执行：
+
+```powershell
+cd D:\tx\mini-drop
+git status --short
+git diff -- README.md docs/benchmarks/sources.md server/app/main.py web/src/api/client.js web/src/components/EvalPanel.jsx
+```
+
+本轮有效修改至少包括：
+
+```text
+M  README.md
+M  docs/benchmarks/sources.md
+M  server/app/main.py
+M  web/src/api/client.js
+M  web/src/components/EvalPanel.jsx
+?? benchmarks/real_world/
+?? docs/benchmarks/真实业务测试集与成熟产品对照.md
+?? docs/guides/云端页面真实业务测试全流程.md
+?? reports/benchmark/real-world/
+?? scripts/real_world_benchmark.py
+?? server/app/diagnosis/real_world_runs.py
+?? tests/test_real_world_benchmark.py
+?? tests/test_real_world_runs.py
+?? web/src/components/RealWorldBenchmarkPanel.jsx
+```
+
+还存在 `.tmp-real-world-*.tar`、`.tmp-web-dist.tar`、`.tmp-cloud-verify.py` 等部署临时文件。它们不属于项目成果，提交前应在确认路径后删除，并检查 `.gitignore`；不要把临时包提交到 Git。
+
+仓库中还存在历史 bundle、JVM crash/replay log。是否删除必须先核对用途和 Git 跟踪状态，禁止批量 `git clean -fdx`。
+
+---
+
+## 29. 云端现场与部署边界
+
+### 29.1 当前入口
+
+```text
+Web：https://47.112.10.137/
+Control 代码：/opt/mini-drop-li-mingyuan
+Compose project：mini-drop-cloud-control
+```
+
+云端认证、SSH、数据库和模型密钥不写入本文。凭据从用户本地私有环境文件或云环境说明中获取，禁止打印、复制到聊天或提交到 Git。
+
+### 29.2 本轮部署方式
+
+- 云端 Control 资源较小，直接在云端构建 Web 曾超过 12 分钟并造成 SSH 迟缓，因此已中止；
+- 前端在本地完成生产构建后，将已验证的 `web/dist` 同步到云端运行容器；
+- Server 新模块同步到云端 Server 容器并重启；
+- 云端 API 的 4 个案例均完成过机制适配器执行，但属于 `MECHANISM_REPRO + UNSCORED`，不是正式基准通过；
+- 云端页面 bundle 已确认包含真实业务测试面板。
+
+这代表当前运行实例已更新，但下一位 AI 仍需保证云端源码目录与运行实例一致，不能只修改容器而不保留可复现部署方式。
+
+### 29.3 不得破坏的云端现场
+
+云端源码中可能存在其他成员的独立修改，例如 demo、OTel 脚本、benchmark adapter、环境文件。同步前先：
+
+1. 只读查看 `git status`；
+2. 对目标文件做哈希；
+3. 备份将要覆盖的文件；
+4. 只同步本任务涉及的文件；
+5. 不执行 reset、clean、全目录覆盖或删除数据卷。
+
+---
+
+## 30. 下一位 AI 的优先任务
+
+### P0：把本轮成果整理成可提交状态
+
+1. 删除本轮 `.tmp-*` 部署文件；
+2. 复查所有新增 JSON 不含密钥、私有路径和 Oracle 泄漏；
+3. 跑 Python、Web 构建和相关回归；
+4. 检查 `git diff`，按功能拆分有意义的中文 commit；
+5. 提交前由监督者复查，不直接强推。
+
+### P0：保持页面真实运行
+
+1. 浏览器进入“方法与测试集”；
+2. 逐一运行 4 个机制级案例；
+3. 验证每个 run 有服务端时间线和三段快照；
+4. 失败时页面显示失败阶段和原因，禁止自动写成成功；
+5. 确认 Oracle 在诊断冻结后才出现。
+
+### P1：完成至少 1 个 FULL_UPSTREAM_REPLAY
+
+建议优先 `RW-OTELPY-4224`，原因是 Python 依赖和资源成本相对低。
+
+完成条件：
+
+1. 固定 upstream base/fix commit；
+2. 在独立 runner 拉取代码并校验 commit；
+3. 运行相同 harness、相同负载、至少 3 次；
+4. 记录环境、命令、耗时、RSS/GC/weakref 等数据；
+5. base 稳定出现问题，fix 稳定消失；
+6. 生成 baseline/incident/verification；
+7. `execution_fidelity` 才能标为 `FULL_UPSTREAM_REPLAY`；
+8. 从 Web 页面发起并查看过程，不只提供 CLI 脚本。
+
+### P1：成熟产品公平同题对照
+
+优先顺序：
+
+1. Pyroscope：比较 CPU hotspot 火焰图和时间窗口查询；
+2. RCAEval 小样本：比较根因 Top-K；
+3. HolmesGPT：比较多轮工具调查和证据引用；
+4. OpenRCA：用于研究大遥测工具选择。
+
+比较时必须固定事故窗口、可见遥测、模型、温度、Token、工具调用和时间预算。能力不同的产品只比较重叠部分。
+
+### P1：补充页面证据
+
+- 真实开源来源链接；
+- 环境指纹、runner ID、commit SHA；
+- 命令摘要但不显示密钥；
+- 每阶段原始指标；
+- 诊断耗时、工具调用、成本；
+- evidence refs 与 counter-evidence refs；
+- 限制和不确定性。
+
+### P2：资源允许后扩展
+
+- Prometheus backing array retention；
+- Redis SCAN/expiration starvation；
+- Kubernetes uncertain revert 的 abstention 测试；
+- OTel Demo 的 CPU、内存、GC、队列、下游和网络业务故障；
+- 完整多节点长稳与容量测试。
+
+---
+
+## 31. 新 AI 禁止事项
+
+1. 不得把候选 PR 数量当成运行通过数量；
+2. 不得把机制级复现冒充完整上游 A/B；
+3. 不得因为有 Oracle 就生成预填答案；
+4. 不得在诊断前把 `private/oracles.json` 传给模型或页面；
+5. 不得伪造成熟产品分数；
+6. 不得只在本地/AI 沙箱跑完后声称页面已验收；
+7. 不得使用任意 shell 故障注入，必须白名单、超时和 finally 清理；
+8. 不得把 DeepSeek Key 填入页面右上角；
+9. 不得输出 SSH、数据库、MinIO、Mini-Drop 或模型密钥；
+10. 不得覆盖其他成员的云端修改；
+11. 不得跳过测试、构建、云端 API 或页面验证；
+12. 不得在失败时自动降级成模拟成功。
+
+---
+
+## 32. 交付报告格式
+
+下一位 AI 每完成一个阶段，必须给监督者提交以下内容：
+
+```markdown
+## 本轮目标
+
+## 修改文件
+- 绝对路径：改了什么、为什么
+
+## 实际执行
+- 命令/页面操作
+- 运行环境
+- run ID / task ID
+
+## 验证结果
+- 测试数量与结果
+- Web 构建结果
+- 云端 API/页面结果
+- 截图或日志位置
+
+## 没有完成的部分
+- 原因
+- 下一步
+
+## 风险
+- 数据兼容
+- 权限/资源
+- Oracle 泄漏
+- 回滚方式
+```
+
+“代码写完”“理论上可行”“应该通过”均不算完成证据。
+
+---
+
+## 33. 监督协议
+
+用户将让另一位 AI 实施，我作为监督者按以下门禁验收：
+
+### 33.1 提交修改前
+
+另一位 AI 应先提供：目标、文件清单、数据迁移影响、测试计划和回滚方案。没有理解现有状态前不得大规模重构。
+
+### 33.2 代码完成后
+
+监督检查：
+
+1. diff 是否只包含计划范围；
+2. 是否保留组长基底和原有复刻功能；
+3. 是否新增测试；
+4. 是否泄漏 Oracle 或密钥；
+5. 是否真实调用基础采集链路；
+6. 是否能从 Web 发起并看到过程；
+7. 是否诚实标注执行保真度；
+8. 是否有失败路径、恢复和审计。
+
+### 33.3 合并门禁
+
+满足以下条件后才建议提交或部署：
+
+- 相关 Python 测试全部通过；
+- Web 测试和生产构建通过；
+- API 契约无破坏或已有迁移；
+- 页面运行至少一个成功案例和一个失败/证据不足案例；
+- 云端运行结束后目标恢复；
+- 文档与页面状态一致；
+- Git 不含临时包、密钥和生成缓存。
+
+---
+
+## 34. 可直接交给下一位 AI 的完整提示词
+
+```text
+接手 D:\tx\mini-drop 项目。你的任务是在现有组长基底和多语言复刻链路上继续完善，不是另建简化 Demo。
+
+首先完整阅读：
+1. D:\tx\mini-drop\docs\Mini-Drop新会话交接文档.md，尤其第 26～34 节；
+2. D:\tx\mini-drop\docs\guides\Mini-Drop全功能跑通手册-复刻功能与AI方案.md；
+3. D:\tx\mini-drop\docs\guides\云端页面真实业务测试全流程.md；
+4. D:\tx\mini-drop\docs\benchmarks\真实业务测试集与成熟产品对照.md。
+
+先运行 git status、相关回归和前端构建。不得 reset、clean、重新初始化、覆盖其他人的云端修改或删除数据卷。
+
+当前真实状态：7 个真实 PR 候选，4 个云端页面机制级复现，完整上游 base/fix A/B 为 0。必须保留这个区分。测试必须从云端 Web 页面发起并展示服务端 run ID、阶段时间线、baseline/incident/verification、诊断、Oracle 对比与恢复，不能只在 AI 沙箱或隐藏 CLI 中运行。
+
+优先任务：
+1. 整理本轮改动、清理临时部署包、跑全量相关测试；
+2. 从页面重验 4 个机制级案例；
+3. 为 RW-OTELPY-4224 实现第一个完整上游 base/fix A/B runner，并接入页面；
+4. 设计 Pyroscope/RCAEval/HolmesGPT 的公平同题对照，未实际运行前不填分数；
+5. 所有结论必须含 evidence_refs、反证、置信度、局限和修复后验证；证据不足必须明确 abstain。
+
+每轮修改后按照本文件第 32 节格式汇报，不要只说“已完成”。提交、推送或云端覆盖前先交给监督者复查。
+```
 | Campaign 预检失败 | 目标健康/DNS/开关错误 | 先独立请求目标 `/health` |
 | Docker API 500 | Engine 更新或卡死 | 重启 Docker Desktop，查 `docker version` |
 
 ---
 
-## 26. 回归矩阵
+## 35. 回归矩阵
 
 核心回归：
 
@@ -674,7 +1096,7 @@ python -m pytest tests/test_migrations.py tests/test_sql_repository.py -q
 
 ---
 
-## 27. 工程规则与提交要求
+## 36. 工程规则与提交要求
 
 1. 先确定唯一数据源，避免 Python/Go/前端各维护一套枚举。
 2. API 变化同步 schema、实现、前端、契约和测试。
@@ -691,7 +1113,7 @@ python -m pytest tests/test_migrations.py tests/test_sql_repository.py -q
 
 ---
 
-## 28. 剩余工作优先级
+## 37. 剩余工作优先级
 
 ### P0
 
@@ -720,14 +1142,14 @@ python -m pytest tests/test_migrations.py tests/test_sql_repository.py -q
 
 ---
 
-## 29. 完成定义与新会话首轮行动
+## 38. 完成定义与新会话首轮行动
 
 功能只有在代码、测试、契约、UI 成功/失败路径、日志审计、操作文档、真实环境验证和安全门禁都具备时才算完成；只有按钮或 HTTP 200 不算。
 
 新会话建议依次执行：
 
 ```text
-1. 阅读本文件第 14、25、26、28 节。
+1. 阅读本文件第 14、25、26、30、35、37 节。
 2. git status --short，保护当前现场。
 3. 跑 Python 核心、Go 全量、Web 测试和构建。
 4. docker compose config --quiet。
