@@ -13,7 +13,11 @@ import logging
 import threading
 import time
 
-from server.app.event_bus import notify_diagnosis_artifact_published, notify_task_changed
+from server.app.event_bus import (
+    notify_diagnosis_artifact_published,
+    notify_diagnosis_artifact_revoked,
+    notify_task_changed,
+)
 from server.app.logging_utils import log_event
 
 logger = logging.getLogger(__name__)
@@ -198,6 +202,80 @@ def artifact_event_bus_deliver(message: dict) -> None:
     )
 
 
+def dispatch_artifact_revocation_once(
+    store,
+    worker_id: str,
+    deliver,
+    *,
+    limit: int = 10,
+    max_attempts: int = 5,
+) -> int:
+    """Deliver one batch of immutable artifact revocations."""
+    try:
+        messages = store.claim_artifact_revocation_outbox(worker_id, limit=limit)
+    except Exception:
+        logger.exception("artifact revocation outbox claim failed for worker %s", worker_id)
+        return 0
+    processed = 0
+    for message in messages:
+        try:
+            deliver(message)
+        except Exception as exc:
+            try:
+                outcome = store.fail_artifact_revocation_outbox(
+                    message["outbox_id"], worker_id, str(exc)[:500],
+                    max_attempts=max_attempts,
+                )
+            except Exception:
+                logger.exception("artifact revocation failure persistence failed: %s", message["outbox_id"])
+                continue
+            _safe_log(
+                "warning", "diagnosis_artifact_revocation_delivery_failed",
+                outbox_id=message["outbox_id"], revocation_id=message["revocation_id"],
+                attempts=message["attempts"], outcome=outcome, error=str(exc)[:200],
+            )
+        else:
+            try:
+                store.mark_artifact_revocation_published(message["outbox_id"], worker_id)
+            except Exception:
+                logger.exception("artifact revocation acknowledgement failed: %s", message["outbox_id"])
+                continue
+            _safe_log(
+                "info", "diagnosis_artifact_revocation_delivered",
+                outbox_id=message["outbox_id"], revocation_id=message["revocation_id"],
+                diagnosis_id=message["diagnosis_id"], artifact_id=message["artifact_id"],
+            )
+        processed += 1
+    return processed
+
+
+def revocation_event_bus_deliver(message: dict) -> None:
+    notify_diagnosis_artifact_revoked(
+        message["revocation_id"], message["diagnosis_id"], message["artifact_id"],
+        message["artifact_hash"], message["conclusion_hash"], message["evidence_id"],
+        message["review_revision"], message["reason"],
+    )
+
+
+def run_artifact_revocation_worker(
+    store,
+    worker_id: str,
+    *,
+    poll_seconds: float = 5.0,
+    once: bool = False,
+    stop_event: threading.Event | None = None,
+) -> None:
+    while stop_event is None or not stop_event.is_set():
+        count = dispatch_artifact_revocation_once(store, worker_id, revocation_event_bus_deliver)
+        if once:
+            return
+        if count == 0:
+            if stop_event is not None:
+                stop_event.wait(poll_seconds)
+            else:
+                time.sleep(poll_seconds)
+
+
 def run_artifact_worker(
     store,
     worker_id: str,
@@ -248,13 +326,27 @@ def main() -> None:
         action="store_true",
         help="dispatch frozen diagnosis artifact notifications",
     )
+    parser.add_argument(
+        "--artifact-revocation-outbox",
+        action="store_true",
+        help="dispatch frozen diagnosis artifact revocations",
+    )
     args = parser.parse_args()
 
     from server.app.database import init_db
     from server.app.sql_repository import SqlRepository
 
     init_db()
-    if args.artifact_outbox:
+    if args.artifact_revocation_outbox:
+        from server.app.diagnosis.store import DiagnosisStore
+
+        run_artifact_revocation_worker(
+            DiagnosisStore(),
+            args.worker_id,
+            poll_seconds=args.poll_seconds,
+            once=args.once,
+        )
+    elif args.artifact_outbox:
         from server.app.diagnosis.store import DiagnosisStore
 
         run_artifact_worker(

@@ -25,15 +25,25 @@ _sessionmaker: sessionmaker | None = None
 # must be re-entrant in a fresh process where neither singleton exists yet.
 _lock = threading.RLock()
 
-_MANAGED_SCHEMA_REVISION = "20260822_0018"
+_MANAGED_SCHEMA_REVISION = "20260823_0022"
 _MANAGED_SCHEMA_TABLES = {
     "alembic_version",
     "tasks",
     "agents",
     "diagnosis_sessions",
+    "diagnosis_evidence",
+    "diagnosis_evidence_reviews",
+    "diagnosis_conclusion_invalidations",
+    "diagnosis_revalidation_requests",
     "frozen_diagnosis_artifacts",
+    "diagnosis_artifact_revocations",
+    "diagnosis_artifact_revocation_outbox",
+    "diagnosis_evidence_snapshots",
     "diagnosis_artifact_outbox",
     "diagnosis_artifact_evaluations",
+    "agent_runtime_bindings",
+    "agent_runtime_turns",
+    "agent_runtime_events",
 }
 _MANAGED_ARTIFACT_OUTBOX_COLUMNS = {
     "attempts",
@@ -42,6 +52,10 @@ _MANAGED_ARTIFACT_OUTBOX_COLUMNS = {
     "worker_lease_expires_at",
     "last_error",
     "published_at",
+}
+_MANAGED_SNAPSHOT_PROVENANCE_COLUMNS = {
+    "artifact_provenance_json",
+    "analysis_provenance_json",
 }
 
 
@@ -127,6 +141,18 @@ def init_db() -> None:
                 "database schema is not migrated; diagnosis_artifact_outbox "
                 "missing columns: " + ", ".join(missing_columns)
             )
+        snapshot_columns = {
+            item["name"]
+            for item in inspector.get_columns("diagnosis_evidence_snapshots")
+        }
+        missing_snapshot_columns = sorted(
+            _MANAGED_SNAPSHOT_PROVENANCE_COLUMNS - snapshot_columns
+        )
+        if missing_snapshot_columns:
+            raise RuntimeError(
+                "database schema is not migrated; diagnosis_evidence_snapshots "
+                "missing columns: " + ", ".join(missing_snapshot_columns)
+            )
         return
     Base.metadata.create_all(bind=engine)
     _upgrade_legacy_schema(engine)
@@ -156,10 +182,18 @@ _ADDITIVE_MIGRATIONS = {
     },
     "diagnosis_evidence": {
         "evidence_role": "VARCHAR(32) NOT NULL DEFAULT 'incident'",
+        "lifecycle_status": "VARCHAR(32) NOT NULL DEFAULT 'ACTIVE'",
+        "trust_status": "VARCHAR(32) NOT NULL DEFAULT 'UNREVIEWED'",
+        "superseded_by": "VARCHAR(128)",
+        "review_revision": "INTEGER NOT NULL DEFAULT 0",
+        "reviewed_at": "TIMESTAMP",
+        "reviewer_id": "VARCHAR(128)",
     },
     "diagnosis_evidence_snapshots": {
         # Unknown historical provenance remains NULL; never infer the latest attempt.
         "attempt_id": "VARCHAR(128)",
+        "artifact_provenance_json": "JSON",
+        "analysis_provenance_json": "JSON",
     },
     "drop_insight_sessions": {
         "deleted_at": "TIMESTAMP",

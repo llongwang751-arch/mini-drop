@@ -86,9 +86,10 @@ from server.app.repositories.schedule_repo import ScheduleMixin
 from server.app.repositories.composite_repo import CompositeMixin
 from server.app.repositories.diagnosis_repo import DiagnosisMixin
 from server.app.repositories.feedback_repo import FeedbackMixin
+from server.app.repositories.runtime_repo import RuntimeMixin
 
 
-class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, OutboxMixin, ScheduleMixin, CompositeMixin, DiagnosisMixin, FeedbackMixin):
+class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, OutboxMixin, ScheduleMixin, CompositeMixin, DiagnosisMixin, FeedbackMixin, RuntimeMixin):
     """SQLAlchemy 持久化 Repository。
 
     基类保留共享状态与跨域内部方法；各领域方法来自 repositories/ 下的 mixin。

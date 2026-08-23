@@ -131,3 +131,25 @@ def notify_diagnosis_artifact_published(
         "artifact_id": artifact_id,
         "artifact_hash": artifact_hash,
     })
+
+
+def notify_diagnosis_artifact_revoked(
+    revocation_id: str,
+    diagnosis_id: str,
+    artifact_id: str,
+    artifact_hash: str,
+    conclusion_hash: str,
+    evidence_id: str,
+    review_revision: int,
+    reason: str,
+) -> None:
+    BUS.publish("diagnosis_artifact_revoked", {
+        "revocation_id": revocation_id,
+        "diagnosis_id": diagnosis_id,
+        "artifact_id": artifact_id,
+        "artifact_hash": artifact_hash,
+        "conclusion_hash": conclusion_hash,
+        "evidence_id": evidence_id,
+        "review_revision": review_revision,
+        "reason": reason,
+    })

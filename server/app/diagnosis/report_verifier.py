@@ -22,6 +22,14 @@ from server.app.diagnosis.schemas import (
 LEGACY_ACTION_FIELDS = {"command_id", "command", "confidence"}
 
 
+def _is_ai_eligible(item: dict[str, Any]) -> bool:
+    return (
+        item.get("lifecycle_status") == "ACTIVE"
+        and item.get("trust_status") == "TRUSTED"
+        and item.get("superseded_by") is None
+    )
+
+
 def verify_report(
     conclusion: dict[str, Any],
     evidence: list[dict[str, Any]],
@@ -30,7 +38,19 @@ def verify_report(
 ) -> dict[str, Any]:
     issues: list[str] = []
     evidence_by_id = {item["evidence_id"]: item for item in evidence}
-    valid_evidence = set(evidence_by_id)
+    valid_evidence = {
+        evidence_id
+        for evidence_id, item in evidence_by_id.items()
+        if _is_ai_eligible(item)
+    }
+    ineligible_evidence = sorted(set(evidence_by_id) - valid_evidence)
+    evidence_by_id = {
+        evidence_id: item
+        for evidence_id, item in evidence_by_id.items()
+        if evidence_id in valid_evidence
+    }
+    if ineligible_evidence:
+        issues.append(f"不可用于 AI 结论的 Evidence: {ineligible_evidence}")
     valid_knowledge = knowledge_ids()
     evidence_refs = _all_evidence_refs(conclusion)
     unknown_evidence = sorted(evidence_refs - valid_evidence)

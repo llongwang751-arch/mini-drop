@@ -127,6 +127,7 @@ def _insert_freeze_session(
     now = utcnow()
     conclusions = [{
         "classification": "hotspot",
+        "integrity_hash": "sha256:" + "a" * 64,
         "verification": {"status": "passed" if verified else "failed"},
     }]
     with new_session() as session:
@@ -348,43 +349,29 @@ def test_concurrent_same_payload_freeze_has_single_artifact_and_outbox(
         assert outbox.artifact_hash == artifact.artifact_hash
 
 
-def test_concurrent_conflicting_freeze_keeps_immutable_winner(
-    tmp_path, monkeypatch,
+def test_freeze_rejects_changed_persisted_conclusion_after_immutable_winner(
+    monkeypatch,
 ):
-    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'conflict.db'}")
-    reset_engine()
-    init_db()
     diagnosis_id = "diag-conflict"
     _insert_freeze_session(diagnosis_id)
-    barrier = Barrier(2)
+    first = DiagnosisStore().freeze_diagnosis_artifact(diagnosis_id)
 
-    def freeze_variant(classification: str):
-        detail = _freeze_detail(diagnosis_id)
-        detail["latest_conclusion"]["classification"] = classification
-        store = DiagnosisStore()
-        store.get_detail = lambda _: detail
-        barrier.wait()
-        try:
-            return "success", store.freeze_diagnosis_artifact(diagnosis_id)
-        except ValueError as exc:
-            return "failure", str(exc)
+    with new_session() as session:
+        diagnosis = session.get(DiagnosisSessionModel, diagnosis_id)
+        diagnosis.conclusion_versions_json = [{
+            "classification": "leak",
+            "integrity_hash": "sha256:" + "a" * 64,
+            "verification": {"status": "passed"},
+        }]
+        session.commit()
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = [
-            executor.submit(freeze_variant, classification)
-            for classification in ("hotspot", "leak")
-        ]
-        results = [future.result() for future in futures]
+    with pytest.raises(ValueError, match="冻结产物完整性冲突"):
+        DiagnosisStore().freeze_diagnosis_artifact(diagnosis_id)
 
-    successes = [value for status, value in results if status == "success"]
-    failures = [value for status, value in results if status == "failure"]
-    assert len(successes) == 1
-    assert len(failures) == 1
-    assert "冻结产物完整性冲突" in failures[0]
     with new_session() as session:
         artifact = session.query(FrozenDiagnosisArtifactModel).one()
         outbox = session.query(DiagnosisArtifactOutboxModel).one()
-        assert artifact.artifact_hash == successes[0]["artifact_hash"]
+        assert artifact.artifact_hash == first["artifact_hash"]
         assert outbox.artifact_id == artifact.id
         assert outbox.artifact_hash == artifact.artifact_hash
 

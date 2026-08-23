@@ -52,6 +52,132 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
         "diagnosis_artifact_outbox",
         "diagnosis_artifact_evaluations",
     } <= tables
+    assert {
+        "agent_runtime_bindings",
+        "agent_runtime_turns",
+        "agent_runtime_events",
+    } <= tables
+    assert {
+        "diagnosis_conclusion_invalidations",
+        "diagnosis_revalidation_requests",
+        "diagnosis_artifact_revocations",
+        "diagnosis_artifact_revocation_outbox",
+    } <= tables
+    lifecycle_unique_constraints = {
+        "diagnosis_conclusion_invalidations":
+            "uq_diagnosis_conclusion_invalidation_identity",
+        "diagnosis_revalidation_requests":
+            "uq_diagnosis_revalidation_request_identity",
+        "diagnosis_artifact_revocations":
+            "uq_diagnosis_artifact_revocation_identity",
+    }
+    for table_name, constraint_name in lifecycle_unique_constraints.items():
+        assert constraint_name in {
+            item["name"]
+            for item in inspect(engine).get_unique_constraints(table_name)
+        }
+    assert any(
+        set(item.get("column_names") or []) == {"revocation_id"}
+        for item in inspect(engine).get_unique_constraints(
+            "diagnosis_artifact_revocation_outbox"
+        )
+    )
+    lifecycle_foreign_keys = {
+        "diagnosis_conclusion_invalidations": {
+            (("diagnosis_id",), "diagnosis_sessions"),
+            (("evidence_id",), "diagnosis_evidence"),
+        },
+        "diagnosis_revalidation_requests": {
+            (("diagnosis_id",), "diagnosis_sessions"),
+            (("evidence_id",), "diagnosis_evidence"),
+        },
+        "diagnosis_artifact_revocations": {
+            (("diagnosis_id",), "diagnosis_sessions"),
+            (("artifact_id",), "frozen_diagnosis_artifacts"),
+            (("evidence_id",), "diagnosis_evidence"),
+        },
+        "diagnosis_artifact_revocation_outbox": {
+            (("revocation_id",), "diagnosis_artifact_revocations"),
+        },
+    }
+    for table_name, expected in lifecycle_foreign_keys.items():
+        actual = {
+            (tuple(item.get("constrained_columns") or []), item.get("referred_table"))
+            for item in inspect(engine).get_foreign_keys(table_name)
+        }
+        assert expected <= actual
+    assert "diagnosis_evidence_reviews" in tables
+    evidence_columns = {
+        item["name"] for item in inspect(engine).get_columns("diagnosis_evidence")
+    }
+    assert {
+        "lifecycle_status",
+        "trust_status",
+        "superseded_by",
+        "review_revision",
+        "reviewed_at",
+        "reviewer_id",
+    } <= evidence_columns
+    evidence_review_uniques = {
+        item["name"] for item in inspect(engine).get_unique_constraints(
+            "diagnosis_evidence_reviews"
+        )
+    }
+    assert "uq_diagnosis_evidence_review_revision" in evidence_review_uniques
+    for constrained_columns, referred_table in (
+        (["diagnosis_id"], "diagnosis_sessions"),
+        (["evidence_id"], "diagnosis_evidence"),
+        (["superseded_by"], "diagnosis_evidence"),
+    ):
+        assert any(
+            item.get("referred_table") == referred_table
+            and item.get("constrained_columns") == constrained_columns
+            for item in inspect(engine).get_foreign_keys(
+                "diagnosis_evidence_reviews"
+            )
+        )
+    runtime_turn_indexes = {
+        item["name"] for item in inspect(engine).get_indexes("agent_runtime_turns")
+    }
+    runtime_event_indexes = {
+        item["name"] for item in inspect(engine).get_indexes("agent_runtime_events")
+    }
+    assert "ix_agent_runtime_turns_diagnosis_id" in runtime_turn_indexes
+    assert "ix_agent_runtime_events_diagnosis_id" in runtime_event_indexes
+    runtime_turn_uniques = {
+        item["name"] for item in inspect(engine).get_unique_constraints(
+            "agent_runtime_turns"
+        )
+    }
+    runtime_event_uniques = {
+        item["name"] for item in inspect(engine).get_unique_constraints(
+            "agent_runtime_events"
+        )
+    }
+    assert {
+        "uq_agent_runtime_turn_command",
+        "uq_agent_runtime_turn_identity",
+    } <= runtime_turn_uniques
+    assert {
+        "uq_agent_runtime_event_sequence",
+        "uq_agent_runtime_event_identity",
+    } <= runtime_event_uniques
+    for table in (
+        "agent_runtime_bindings",
+        "agent_runtime_turns",
+        "agent_runtime_events",
+    ):
+        assert any(
+            item.get("referred_table") == "diagnosis_sessions"
+            and item.get("constrained_columns") == ["diagnosis_id"]
+            for item in inspect(engine).get_foreign_keys(table)
+        )
+    assert any(
+        item.get("referred_table") == "agent_runtime_turns"
+        and item.get("constrained_columns") == ["diagnosis_id", "turn_id"]
+        and item.get("referred_columns") == ["diagnosis_id", "turn_id"]
+        for item in inspect(engine).get_foreign_keys("agent_runtime_events")
+    )
     artifact_outbox_columns = {
         item["name"]
         for item in inspect(engine).get_columns("diagnosis_artifact_outbox")
@@ -90,7 +216,11 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
             "diagnosis_evidence_snapshots"
         )
     }
-    assert "attempt_id" in snapshot_columns
+    assert {
+        "attempt_id",
+        "artifact_provenance_json",
+        "analysis_provenance_json",
+    } <= snapshot_columns
     snapshot_indexes = {
         item["name"] for item in inspect(engine).get_indexes(
             "diagnosis_evidence_snapshots"
@@ -105,6 +235,83 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
         and item.get("constrained_columns") == ["attempt_id"]
         for item in snapshot_foreign_keys
     )
+
+    # 20260823_0022 -> 20260823_0021 removes only lifecycle propagation tables.
+    _alembic(tmp_path, "downgrade 20260823_0021")
+    tables = set(inspect(engine).get_table_names())
+    assert not {
+        "diagnosis_conclusion_invalidations",
+        "diagnosis_revalidation_requests",
+        "diagnosis_artifact_revocations",
+        "diagnosis_artifact_revocation_outbox",
+    } & tables
+    snapshot_columns = {
+        item["name"]
+        for item in inspect(engine).get_columns("diagnosis_evidence_snapshots")
+    }
+    assert {
+        "attempt_id",
+        "artifact_provenance_json",
+        "analysis_provenance_json",
+    } <= snapshot_columns
+    _alembic(tmp_path, "upgrade head")
+
+    # 20260823_0021 -> 20260823_0020 removes only Snapshot provenance.
+    _alembic(tmp_path, "downgrade 20260823_0020")
+    snapshot_columns = {
+        item["name"] for item in inspect(engine).get_columns(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert "attempt_id" in snapshot_columns
+    assert not {
+        "artifact_provenance_json",
+        "analysis_provenance_json",
+    } & snapshot_columns
+    assert "ix_diagnosis_evidence_snapshots_attempt_id" in {
+        item["name"] for item in inspect(engine).get_indexes(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert any(
+        item.get("referred_table") == "task_attempts"
+        and item.get("constrained_columns") == ["attempt_id"]
+        for item in inspect(engine).get_foreign_keys(
+            "diagnosis_evidence_snapshots"
+        )
+    )
+    _alembic(tmp_path, "upgrade head")
+    snapshot_columns = {
+        item["name"] for item in inspect(engine).get_columns(
+            "diagnosis_evidence_snapshots"
+        )
+    }
+    assert {
+        "attempt_id",
+        "artifact_provenance_json",
+        "analysis_provenance_json",
+    } <= snapshot_columns
+
+    # 20260823_0019 -> 20260822_0018 removes only Runtime persistence.
+    _alembic(tmp_path, "downgrade 20260822_0018")
+    tables = set(inspect(engine).get_table_names())
+    assert not {
+        "agent_runtime_bindings",
+        "agent_runtime_turns",
+        "agent_runtime_events",
+    } & tables
+    assert {
+        "diagnosis_sessions",
+        "frozen_diagnosis_artifacts",
+        "diagnosis_artifact_outbox",
+        "diagnosis_artifact_evaluations",
+    } <= tables
+    _alembic(tmp_path, "upgrade head")
+    assert {
+        "agent_runtime_bindings",
+        "agent_runtime_turns",
+        "agent_runtime_events",
+    } <= set(inspect(engine).get_table_names())
 
     # 20260821_0017 -> 20260821_0016 removes only the public case identity.
     _alembic(tmp_path, "downgrade 20260821_0016")
@@ -245,4 +452,9 @@ def test_migrations_upgrade_rollback_and_reapply(tmp_path: Path) -> None:
         "last_error",
         "published_at",
     } <= artifact_outbox_columns
+    assert {
+        "agent_runtime_bindings",
+        "agent_runtime_turns",
+        "agent_runtime_events",
+    } <= set(inspect(engine).get_table_names())
     engine.dispose()

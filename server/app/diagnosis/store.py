@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
 
+from server.app.artifact_integrity import normalize_sha256
 from server.app.database import new_session
 from server.app.models import (
     AnalysisJobModel,
@@ -17,7 +18,12 @@ from server.app.models import (
     ContinuousDiagnosisTriggerModel,
     DiagnosisEventModel,
     DiagnosisEvidenceModel,
+    DiagnosisEvidenceReviewModel,
     DiagnosisEvidenceSnapshotModel,
+    DiagnosisConclusionInvalidationModel,
+    DiagnosisRevalidationRequestModel,
+    DiagnosisArtifactRevocationModel,
+    DiagnosisArtifactRevocationOutboxModel,
     DiagnosisNodeRunModel,
     DiagnosisOutboxModel,
     DiagnosisArtifactOutboxModel,
@@ -77,6 +83,46 @@ def _snapshot_integrity_hash(snapshot: dict[str, Any]) -> str:
     return f"sha256:{hashlib.sha256(payload).hexdigest()}"
 
 
+def _all_evidence_refs(value: Any) -> set[str]:
+    refs: set[str] = set()
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key in {"evidence_refs", "counter_evidence_refs"} and isinstance(item, list):
+                refs.update(
+                    str(ref).strip()
+                    for ref in item
+                    if str(ref).strip()
+                )
+            else:
+                refs.update(_all_evidence_refs(item))
+    elif isinstance(value, list):
+        for item in value:
+            refs.update(_all_evidence_refs(item))
+    return refs
+
+
+def _evidence_is_ai_eligible(row: DiagnosisEvidenceModel) -> bool:
+    return (
+        row.lifecycle_status == "ACTIVE"
+        and row.trust_status == "TRUSTED"
+        and row.superseded_by is None
+    )
+
+
+def _conclusion_hash(conclusion: Any) -> str | None:
+    if not isinstance(conclusion, dict):
+        return None
+    value = str(conclusion.get("integrity_hash") or "").strip()
+    return value or None
+
+
+def _validated_conclusion_hash(conclusion: Any) -> str | None:
+    value = _conclusion_hash(conclusion)
+    if value is None or normalize_sha256(value) is None:
+        return None
+    return value
+
+
 def _same_snapshot(left: dict[str, Any], right: dict[str, Any]) -> bool:
     ignored = {"task_attempt_id"}
     return _canonicalize_snapshot({
@@ -84,6 +130,48 @@ def _same_snapshot(left: dict[str, Any], right: dict[str, Any]) -> bool:
     }) == _canonicalize_snapshot({
         key: value for key, value in right.items() if key not in ignored
     })
+
+
+def _promote_evidence_for_snapshot(
+    session,
+    *,
+    diagnosis_id: str,
+    evidence_rows: list[DiagnosisEvidenceModel],
+    snapshot_id: str,
+) -> None:
+    reviewed_at = utcnow()
+    for row in evidence_rows:
+        if (
+            row.lifecycle_status == "ACTIVE"
+            and row.trust_status == "TRUSTED"
+            and row.superseded_by is None
+        ):
+            continue
+        if row.lifecycle_status != "ACTIVE" or row.superseded_by is not None:
+            raise ValueError(
+                f"Evidence {row.id} is not eligible for snapshot trust promotion"
+            )
+        if row.trust_status != "UNREVIEWED":
+            raise ValueError(
+                f"Evidence {row.id} cannot be promoted from {row.trust_status}"
+            )
+        revision = row.review_revision + 1
+        row.trust_status = "TRUSTED"
+        row.review_revision = revision
+        row.reviewed_at = reviewed_at
+        row.reviewer_id = "verified-task-snapshot"
+        session.add(DiagnosisEvidenceReviewModel(
+            id=f"evidence-review:{row.id}:{revision}",
+            diagnosis_id=diagnosis_id,
+            evidence_id=row.id,
+            revision=revision,
+            lifecycle_status="ACTIVE",
+            trust_status="TRUSTED",
+            superseded_by=None,
+            reviewer_id="verified-task-snapshot",
+            reason=f"promoted by verified snapshot {snapshot_id}",
+            reviewed_at=reviewed_at,
+        ))
 
 
 class DiagnosisStore:
@@ -648,6 +736,8 @@ class DiagnosisStore:
         try:
             existing = session.get(DiagnosisEvidenceModel, evidence["evidence_id"])
             if existing is not None:
+                if existing.diagnosis_id != evidence["diagnosis_id"]:
+                    raise ValueError("Evidence identity belongs to another diagnosis")
                 return existing.to_dict()
             model = DiagnosisEvidenceModel(
                 id=evidence["evidence_id"],
@@ -668,6 +758,9 @@ class DiagnosisStore:
                 data_quality_json=evidence.get("data_quality", {}),
                 integrity_hash=evidence["integrity_hash"],
                 claim_links_json=evidence.get("claim_links", []),
+                lifecycle_status="ACTIVE",
+                trust_status="UNREVIEWED",
+                review_revision=0,
             )
             session.add(model)
             session.commit()
@@ -678,16 +771,251 @@ class DiagnosisStore:
         finally:
             session.close()
 
-    def list_evidence(self, diagnosis_id: str) -> list[dict[str, Any]]:
+    def list_evidence(
+        self,
+        diagnosis_id: str,
+        *,
+        eligible_only: bool = False,
+    ) -> list[dict[str, Any]]:
+        session = new_session()
+        try:
+            query = session.query(DiagnosisEvidenceModel).filter(
+                DiagnosisEvidenceModel.diagnosis_id == diagnosis_id
+            )
+            if eligible_only:
+                query = query.filter(
+                    DiagnosisEvidenceModel.lifecycle_status == "ACTIVE",
+                    DiagnosisEvidenceModel.trust_status == "TRUSTED",
+                    DiagnosisEvidenceModel.superseded_by.is_(None),
+                )
+            rows = query.order_by(
+                DiagnosisEvidenceModel.ingestion_time.asc(),
+                DiagnosisEvidenceModel.id.asc(),
+            ).all()
+            return [row.to_dict() for row in rows]
+        finally:
+            session.close()
+
+    def get_evidence(
+        self,
+        diagnosis_id: str,
+        evidence_id: str,
+    ) -> dict[str, Any] | None:
+        session = new_session()
+        try:
+            row = session.get(DiagnosisEvidenceModel, evidence_id)
+            if row is None or row.diagnosis_id != diagnosis_id:
+                return None
+            return row.to_dict()
+        finally:
+            session.close()
+
+    def review_evidence(
+        self,
+        *,
+        diagnosis_id: str,
+        evidence_id: str,
+        lifecycle_status: str,
+        trust_status: str,
+        reviewer_id: str,
+        reason: str = "",
+        superseded_by: str | None = None,
+        expected_revision: int | None = None,
+    ) -> dict[str, Any]:
+        lifecycle_status = lifecycle_status.strip().upper()
+        trust_status = trust_status.strip().upper()
+        reviewer_id = reviewer_id.strip()
+        reason = reason.strip()
+        if not reviewer_id:
+            raise ValueError("Evidence review requires a reviewer")
+        if len(reviewer_id) > 128:
+            raise ValueError("Evidence reviewer identity is too long")
+        if lifecycle_status not in {"ACTIVE", "EXCLUDED", "INVALID", "SUPERSEDED"}:
+            raise ValueError("invalid Evidence lifecycle status")
+        if trust_status not in {"UNREVIEWED", "TRUSTED", "LOW_TRUST"}:
+            raise ValueError("invalid Evidence trust status")
+        if lifecycle_status == "SUPERSEDED" and not superseded_by:
+            raise ValueError("superseded Evidence requires a replacement")
+        if lifecycle_status != "SUPERSEDED" and superseded_by is not None:
+            raise ValueError("only superseded Evidence may reference a replacement")
+
+        session = new_session()
+        try:
+            row = (
+                session.query(DiagnosisEvidenceModel)
+                .filter(
+                    DiagnosisEvidenceModel.id == evidence_id,
+                    DiagnosisEvidenceModel.diagnosis_id == diagnosis_id,
+                )
+                .with_for_update()
+                .one_or_none()
+            )
+            if row is None:
+                raise ValueError("diagnosis Evidence does not exist")
+            if expected_revision is not None and row.review_revision != expected_revision:
+                raise ValueError("Evidence review revision conflict")
+            if superseded_by is not None:
+                replacement = session.get(DiagnosisEvidenceModel, superseded_by)
+                if replacement is None or replacement.diagnosis_id != diagnosis_id:
+                    raise ValueError("replacement Evidence does not belong to diagnosis")
+                if replacement.id == row.id:
+                    raise ValueError("Evidence cannot supersede itself")
+
+            revision = row.review_revision + 1
+            reviewed_at = utcnow()
+            row.lifecycle_status = lifecycle_status
+            row.trust_status = trust_status
+            row.superseded_by = superseded_by
+            row.review_revision = revision
+            row.reviewed_at = reviewed_at
+            row.reviewer_id = reviewer_id
+            review = DiagnosisEvidenceReviewModel(
+                id=f"evidence-review:{evidence_id}:{revision}",
+                diagnosis_id=diagnosis_id,
+                evidence_id=evidence_id,
+                revision=revision,
+                lifecycle_status=lifecycle_status,
+                trust_status=trust_status,
+                superseded_by=superseded_by,
+                reviewer_id=reviewer_id,
+                reason=reason,
+                reviewed_at=reviewed_at,
+            )
+            session.add(review)
+
+            if not _evidence_is_ai_eligible(row):
+                diagnosis = (
+                    session.query(DiagnosisSessionModel)
+                    .filter(DiagnosisSessionModel.id == diagnosis_id)
+                    .with_for_update()
+                    .one_or_none()
+                )
+                if diagnosis is None:
+                    raise ValueError("diagnosis does not exist")
+
+                affected_hashes: set[str] = set()
+                for conclusion in diagnosis.conclusion_versions_json or []:
+                    conclusion_hash = _validated_conclusion_hash(conclusion)
+                    if (
+                        conclusion_hash
+                        and evidence_id in _all_evidence_refs(conclusion)
+                    ):
+                        affected_hashes.add(conclusion_hash)
+                        identity = (
+                            f"{diagnosis_id}:{conclusion_hash}:"
+                            f"{evidence_id}:{revision}"
+                        )
+                        identity_digest = hashlib.sha256(
+                            identity.encode("utf-8")
+                        ).hexdigest()
+                        invalidation_id = (
+                            f"conclusion-invalidation:{identity_digest}"
+                        )
+                        request_id = f"revalidation-request:{identity_digest}"
+                        if session.get(
+                            DiagnosisConclusionInvalidationModel, invalidation_id
+                        ) is None:
+                            session.add(DiagnosisConclusionInvalidationModel(
+                                id=invalidation_id,
+                                diagnosis_id=diagnosis_id,
+                                conclusion_hash=conclusion_hash,
+                                evidence_id=evidence_id,
+                                review_revision=revision,
+                                reason=reason,
+                                created_at=reviewed_at,
+                            ))
+                        if session.get(
+                            DiagnosisRevalidationRequestModel, request_id
+                        ) is None:
+                            session.add(DiagnosisRevalidationRequestModel(
+                                id=request_id,
+                                diagnosis_id=diagnosis_id,
+                                conclusion_hash=conclusion_hash,
+                                evidence_id=evidence_id,
+                                review_revision=revision,
+                                status="PENDING",
+                                created_at=reviewed_at,
+                                updated_at=reviewed_at,
+                            ))
+
+                frozen_artifacts = (
+                    session.query(FrozenDiagnosisArtifactModel)
+                    .filter(FrozenDiagnosisArtifactModel.diagnosis_id == diagnosis_id)
+                    .with_for_update()
+                    .all()
+                )
+                for frozen in frozen_artifacts:
+                    try:
+                        frozen_payload = json.loads(frozen.canonical_json)
+                    except (TypeError, ValueError):
+                        continue
+                    artifact_conclusion = frozen_payload.get("conclusion")
+                    conclusion_hash = _validated_conclusion_hash(artifact_conclusion)
+                    if (
+                        conclusion_hash is None
+                        or evidence_id not in _all_evidence_refs(artifact_conclusion)
+                    ):
+                        continue
+                    revocation_identity = (
+                        f"{frozen.id}:{evidence_id}:{revision}"
+                    )
+                    revocation_digest = hashlib.sha256(
+                        revocation_identity.encode("utf-8")
+                    ).hexdigest()
+                    revocation_id = f"artifact-revocation:{revocation_digest}"
+                    revocation = session.get(
+                        DiagnosisArtifactRevocationModel, revocation_id
+                    )
+                    if revocation is None:
+                        revocation = DiagnosisArtifactRevocationModel(
+                            id=revocation_id,
+                            diagnosis_id=diagnosis_id,
+                            artifact_id=frozen.id,
+                            artifact_hash=frozen.artifact_hash,
+                            conclusion_hash=conclusion_hash,
+                            evidence_id=evidence_id,
+                            review_revision=revision,
+                            reason=reason,
+                            created_at=reviewed_at,
+                        )
+                        session.add(revocation)
+                        session.flush()
+                    outbox_id = f"artifact-revocation-outbox:{revocation_id}"
+                    if session.get(
+                        DiagnosisArtifactRevocationOutboxModel, outbox_id
+                    ) is None:
+                        session.add(DiagnosisArtifactRevocationOutboxModel(
+                            id=outbox_id,
+                            revocation_id=revocation_id,
+                            status="PENDING",
+                            attempts=0,
+                            next_attempt_at=reviewed_at,
+                            created_at=reviewed_at,
+                            updated_at=reviewed_at,
+                        ))
+
+            session.commit()
+            return row.to_dict()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def list_evidence_reviews(
+        self,
+        diagnosis_id: str,
+        evidence_id: str,
+    ) -> list[dict[str, Any]]:
         session = new_session()
         try:
             rows = (
-                session.query(DiagnosisEvidenceModel)
-                .filter(DiagnosisEvidenceModel.diagnosis_id == diagnosis_id)
-                .order_by(
-                    DiagnosisEvidenceModel.ingestion_time.asc(),
-                    DiagnosisEvidenceModel.id.asc(),
+                session.query(DiagnosisEvidenceReviewModel)
+                .filter(
+                    DiagnosisEvidenceReviewModel.diagnosis_id == diagnosis_id,
+                    DiagnosisEvidenceReviewModel.evidence_id == evidence_id,
                 )
+                .order_by(DiagnosisEvidenceReviewModel.revision.asc())
                 .all()
             )
             return [row.to_dict() for row in rows]
@@ -699,30 +1027,92 @@ class DiagnosisStore:
         session = new_session()
         try:
             finalized = dict(snapshot)
+            finalized.pop("artifact_provenance", None)
+            finalized.pop("analysis_provenance", None)
+            diagnosis_id = str(finalized.get("diagnosis_id") or "").strip()
+            if not diagnosis_id:
+                raise ValueError("snapshot requires a diagnosis")
+            diagnosis = (
+                session.query(DiagnosisSessionModel)
+                .filter(DiagnosisSessionModel.id == diagnosis_id)
+                .with_for_update()
+                .one_or_none()
+            )
+            if diagnosis is None:
+                raise ValueError("snapshot diagnosis does not exist")
+            finalized["diagnosis_id"] = diagnosis_id
             task_id = finalized.get("task_id")
+            evidence_rows: list[DiagnosisEvidenceModel] = []
             if task_id:
                 artifact_ids = {
                     int(value)
                     for value in finalized.pop("artifact_ids", [])
                     if value is not None and str(value).strip()
                 }
-                if artifact_ids:
-                    owned_ids = {
-                        row.id
-                        for row in session.query(ArtifactModel).filter(
-                            ArtifactModel.id.in_(artifact_ids),
-                            ArtifactModel.task_id == task_id,
-                        ).all()
+                if not artifact_ids:
+                    raise ValueError("task-backed snapshot requires verified artifacts")
+                artifact_rows = (
+                    session.query(ArtifactModel)
+                    .filter(ArtifactModel.id.in_(artifact_ids))
+                    .with_for_update()
+                    .all()
+                )
+                if (
+                    {row.id for row in artifact_rows} != artifact_ids
+                    or any(row.task_id != task_id for row in artifact_rows)
+                ):
+                    raise ValueError(
+                        f"snapshot artifacts do not belong to task {task_id}"
+                    )
+                if any(row.integrity_status != "VERIFIED" for row in artifact_rows):
+                    raise ValueError("snapshot artifacts must be VERIFIED")
+                if any(normalize_sha256(row.sha256) is None for row in artifact_rows):
+                    raise ValueError("snapshot artifacts require valid SHA-256")
+                artifact_rows.sort(key=lambda row: row.id)
+                finalized["artifact_provenance"] = [
+                    {
+                        "artifact_id": row.id,
+                        "task_id": row.task_id,
+                        "object_key": row.object_key,
+                        "sha256": normalize_sha256(row.sha256),
+                        "size_bytes": row.size_bytes,
+                        "integrity_status": row.integrity_status,
                     }
-                    if owned_ids != artifact_ids:
-                        raise ValueError(
-                            f"snapshot artifacts do not belong to task {task_id}"
-                        )
+                    for row in artifact_rows
+                ]
+                finalized["artifact_refs"] = sorted({
+                    row.object_key for row in artifact_rows
+                })
 
-                successful_jobs = session.query(AnalysisJobModel).filter(
-                    AnalysisJobModel.task_id == task_id,
-                    AnalysisJobModel.status.in_(("SUCCEEDED", "DONE")),
-                ).all()
+                evidence_refs = sorted({
+                    str(value).strip()
+                    for value in finalized.get("evidence_refs", [])
+                    if str(value).strip()
+                })
+                if not evidence_refs:
+                    raise ValueError("task-backed snapshot requires Evidence references")
+                evidence_rows = (
+                    session.query(DiagnosisEvidenceModel)
+                    .filter(DiagnosisEvidenceModel.id.in_(evidence_refs))
+                    .with_for_update()
+                    .all()
+                )
+                if (
+                    {row.id for row in evidence_rows} != set(evidence_refs)
+                    or any(row.diagnosis_id != diagnosis_id for row in evidence_rows)
+                ):
+                    raise ValueError("snapshot Evidence does not belong to diagnosis")
+                finalized["evidence_refs"] = evidence_refs
+
+                successful_jobs = (
+                    session.query(AnalysisJobModel)
+                    .filter(
+                        AnalysisJobModel.task_id == task_id,
+                        AnalysisJobModel.status.in_(("SUCCEEDED", "DONE")),
+                    )
+                    .with_for_update()
+                    .all()
+                )
                 relevant_jobs = []
                 for job in successful_jobs:
                     job_artifact_ids = {
@@ -735,6 +1125,27 @@ class DiagnosisStore:
                     }
                     if artifact_ids.intersection(job_artifact_ids):
                         relevant_jobs.append(job)
+                relevant_jobs.sort(key=lambda job: job.id)
+                finalized["analysis_provenance"] = [
+                    {
+                        "analysis_job_id": job.id,
+                        "task_id": job.task_id,
+                        "task_attempt_id": job.task_attempt_id,
+                        "analyzer_type": job.analyzer_type,
+                        "analyzer_version": job.analyzer_version,
+                        "input_artifact_ids": sorted({
+                            int(value)
+                            for value in (job.input_artifact_ids_json or [])
+                            if value is not None and str(value).strip()
+                        }),
+                        "output_artifact_ids": sorted({
+                            int(value)
+                            for value in (job.output_artifact_ids_json or [])
+                            if value is not None and str(value).strip()
+                        }),
+                    }
+                    for job in relevant_jobs
+                ]
 
                 job_attempt_ids = {
                     job.task_attempt_id
@@ -773,6 +1184,8 @@ class DiagnosisStore:
                     raise ValueError(
                         f"analysis job attempt lineage is missing for task {task_id}"
                     )
+                for provenance in finalized["artifact_provenance"]:
+                    provenance["producing_task_attempt_id"] = attempt.id
 
                 started_at = attempt.started_at or attempt.created_at
                 if started_at is None or attempt.finished_at is None:
@@ -797,6 +1210,8 @@ class DiagnosisStore:
                 finalized["created_at"] = attempt.finished_at
             else:
                 finalized.pop("artifact_ids", None)
+                finalized["artifact_provenance"] = []
+                finalized["analysis_provenance"] = []
                 finalized.setdefault("snapshot_id", snapshot["snapshot_id"])
                 finalized.setdefault("captured_at", utcnow())
                 finalized.setdefault("created_at", utcnow())
@@ -817,6 +1232,14 @@ class DiagnosisStore:
                     )
                 return existing_data
 
+            if task_id:
+                _promote_evidence_for_snapshot(
+                    session,
+                    diagnosis_id=diagnosis_id,
+                    evidence_rows=evidence_rows,
+                    snapshot_id=finalized["snapshot_id"],
+                )
+
             model = DiagnosisEvidenceSnapshotModel(
                 id=finalized["snapshot_id"],
                 diagnosis_id=finalized["diagnosis_id"],
@@ -834,6 +1257,8 @@ class DiagnosisStore:
                 attempt_id=finalized.get("attempt_id"),
                 evidence_refs_json=finalized.get("evidence_refs", []),
                 artifact_refs_json=finalized.get("artifact_refs", []),
+                artifact_provenance_json=finalized.get("artifact_provenance", []),
+                analysis_provenance_json=finalized.get("analysis_provenance", []),
                 baseline_ref=finalized.get("baseline_ref"),
                 quality_json=finalized.get("quality", {}),
                 integrity_hash=finalized["integrity_hash"],
@@ -876,123 +1301,165 @@ class DiagnosisStore:
             session.close()
 
     def freeze_diagnosis_artifact(self, diagnosis_id: str) -> dict[str, Any]:
-        """Freeze diagnosis-owned terminal output for evaluator consumption.
-
-        The artifact is rebuilt from an explicit allowlist and is immutable once
-        persisted. Evaluator state and arbitrary session metadata never enter it.
-        """
-        detail = self.get_detail(diagnosis_id)
-        if detail is None:
-            raise ValueError(f"诊断 {diagnosis_id} 不存在")
-        terminal_status = detail.get("status")
+        """Freeze a diagnosis from one authoritative database transaction."""
         supported_statuses = {
             "COMPLETED", "INSUFFICIENT_EVIDENCE", "PARTIAL_COMPLETED",
             "BUDGET_EXHAUSTED", "TOPOLOGY_UNAVAILABLE", "USER_CANCELED", "FAILED",
         }
-        if terminal_status not in supported_statuses:
-            raise ValueError(f"诊断尚未进入可冻结终态: {terminal_status}")
-        conclusion = detail.get("latest_conclusion")
-        if not isinstance(conclusion, dict):
-            raise ValueError("诊断缺少最终结论")
-        verification = conclusion.get("verification")
-        if not isinstance(verification, dict) or verification.get("status") != "passed":
-            raise ValueError("最终结论尚未通过验证")
-
-        artifact = FrozenDiagnosisArtifact.model_validate({
-            "schema_version": "diagnosis-artifact-v1",
-            "diagnosis_id": diagnosis_id,
-            "case_id": detail.get("case_id"),
-            "terminal_status": terminal_status,
-            "normalized_intent": detail.get("normalized_intent", {}),
-            "target_scope": detail.get("target_scope", {}),
-            "requested_time_range": detail.get("requested_time_range", {}),
-            "effective_time_range": detail.get("effective_time_range", {}),
-            "topology": detail.get("topology_snapshot"),
-            "conclusion": conclusion,
-            "evidence": detail.get("evidence", []),
-            "evidence_snapshots": detail.get("evidence_snapshots", []),
-            "probes": detail.get("probes", []),
-            "budget": {
-                "risk": detail.get("risk_budget", {}),
-                "resource": detail.get("resource_budget", {}),
-                "used": detail.get("budget_used", {}),
-            },
-            "model_version": detail.get("model_version") or "unknown",
-            "planner_version": detail.get("planner_version") or "unknown",
-        })
-        canonical_json = canonical_artifact_json(artifact)
-        digest = artifact_hash(canonical_json)
-        artifact_id = f"artifact:{diagnosis_id}"
         now = utcnow()
         session = new_session()
         try:
-            def ensure_outbox(
-                winner: FrozenDiagnosisArtifactModel,
-                cause: Exception | None = None,
-            ) -> dict[str, Any]:
+            diagnosis = (
+                session.query(DiagnosisSessionModel)
+                .filter(DiagnosisSessionModel.id == diagnosis_id)
+                .with_for_update()
+                .one_or_none()
+            )
+            if diagnosis is None:
+                raise ValueError(f"诊断 {diagnosis_id} 不存在")
+            terminal_status = diagnosis.status
+            if terminal_status not in supported_statuses:
+                raise ValueError(f"诊断尚未进入可冻结终态: {terminal_status}")
+
+            conclusions = diagnosis.conclusion_versions_json or []
+            conclusion = conclusions[-1] if conclusions else None
+            conclusion_hash = _validated_conclusion_hash(conclusion)
+            if conclusion_hash is None:
+                raise ValueError("诊断最终结论缺少有效完整性哈希")
+            if not isinstance(conclusion, dict):
+                raise ValueError("诊断缺少最终结论")
+            verification = conclusion.get("verification")
+            if not isinstance(verification, dict) or verification.get("status") != "passed":
+                raise ValueError("最终结论尚未通过验证")
+
+            evidence_refs = _all_evidence_refs(conclusion)
+            evidence_rows = []
+            if evidence_refs:
+                evidence_rows = (
+                    session.query(DiagnosisEvidenceModel)
+                    .filter(DiagnosisEvidenceModel.id.in_(evidence_refs))
+                    .with_for_update()
+                    .all()
+                )
+            evidence_by_id = {row.id: row for row in evidence_rows}
+            missing = sorted(evidence_refs - set(evidence_by_id))
+            if missing:
+                raise ValueError(f"最终结论引用了不存在的 Evidence: {missing}")
+            wrong_owner = sorted(
+                row.id for row in evidence_rows
+                if row.diagnosis_id != diagnosis_id
+            )
+            if wrong_owner:
+                raise ValueError(f"最终结论引用了其他诊断的 Evidence: {wrong_owner}")
+            ineligible = sorted(
+                row.id for row in evidence_rows
+                if not _evidence_is_ai_eligible(row)
+            )
+            if ineligible:
+                raise ValueError(f"最终结论引用了不可用 Evidence: {ineligible}")
+
+            invalidated = session.query(DiagnosisConclusionInvalidationModel).filter(
+                DiagnosisConclusionInvalidationModel.diagnosis_id == diagnosis_id,
+                DiagnosisConclusionInvalidationModel.conclusion_hash == conclusion_hash,
+            ).first()
+            if invalidated is not None:
+                raise ValueError("最终结论已被 Evidence review 失效")
+
+            topology = None
+            if diagnosis.topology_snapshot_id:
+                topology_row = session.get(
+                    TopologySnapshotModel, diagnosis.topology_snapshot_id
+                )
+                topology = topology_row.to_dict() if topology_row else None
+            probes = [
+                row.to_dict() for row in session.query(ProbeExecutionModel).filter(
+                    ProbeExecutionModel.diagnosis_id == diagnosis_id
+                ).order_by(
+                    ProbeExecutionModel.created_at.asc(), ProbeExecutionModel.id.asc()
+                ).all()
+            ]
+            evidence = [
+                row.to_dict() for row in session.query(DiagnosisEvidenceModel).filter(
+                    DiagnosisEvidenceModel.diagnosis_id == diagnosis_id
+                ).order_by(
+                    DiagnosisEvidenceModel.ingestion_time.asc(), DiagnosisEvidenceModel.id.asc()
+                ).all()
+            ]
+            snapshots = [
+                row.to_dict() for row in session.query(DiagnosisEvidenceSnapshotModel).filter(
+                    DiagnosisEvidenceSnapshotModel.diagnosis_id == diagnosis_id
+                ).order_by(
+                    DiagnosisEvidenceSnapshotModel.round_index.asc(),
+                    DiagnosisEvidenceSnapshotModel.captured_at.asc(),
+                    DiagnosisEvidenceSnapshotModel.id.asc(),
+                ).all()
+            ]
+            artifact = FrozenDiagnosisArtifact.model_validate({
+                "schema_version": "diagnosis-artifact-v1",
+                "diagnosis_id": diagnosis_id,
+                "case_id": diagnosis.case_id,
+                "terminal_status": terminal_status,
+                "normalized_intent": diagnosis.normalized_intent_json or {},
+                "target_scope": diagnosis.target_scope_json or {},
+                "requested_time_range": diagnosis.requested_time_range_json or {},
+                "effective_time_range": diagnosis.effective_time_range_json or {},
+                "topology": topology,
+                "conclusion": conclusion,
+                "evidence": evidence,
+                "evidence_snapshots": snapshots,
+                "probes": probes,
+                "budget": {
+                    "risk": diagnosis.risk_budget_json or {},
+                    "resource": diagnosis.resource_budget_json or {},
+                    "used": diagnosis.budget_used_json or {},
+                },
+                "model_version": diagnosis.model_version or "unknown",
+                "planner_version": diagnosis.planner_version or "unknown",
+            })
+            canonical_json = canonical_artifact_json(artifact)
+            digest = artifact_hash(canonical_json)
+            artifact_id = f"artifact:{diagnosis_id}"
+
+            def ensure_outbox(winner: FrozenDiagnosisArtifactModel) -> dict[str, Any]:
                 outbox = session.query(DiagnosisArtifactOutboxModel).filter(
                     DiagnosisArtifactOutboxModel.artifact_id == winner.id
                 ).first()
-                if outbox is not None:
-                    if (
-                        outbox.diagnosis_id != diagnosis_id
-                        or outbox.artifact_hash != digest
-                    ):
-                        error = ValueError(
-                            f"冻结产物通知完整性冲突: {diagnosis_id}"
-                        )
-                        if cause is not None:
-                            raise error from cause
-                        raise error
-                    return winner.to_dict()
-
-                recovery_now = utcnow()
-                session.add(DiagnosisArtifactOutboxModel(
-                    id=f"artifact-outbox:{winner.id}",
-                    diagnosis_id=diagnosis_id,
-                    artifact_id=winner.id,
-                    artifact_hash=digest,
-                    status="PENDING",
-                    attempts=0,
-                    next_attempt_at=recovery_now,
-                    created_at=recovery_now,
-                    updated_at=recovery_now,
-                ))
-                try:
-                    session.commit()
-                except IntegrityError:
-                    session.rollback()
-                    recovered = session.query(DiagnosisArtifactOutboxModel).filter(
-                        DiagnosisArtifactOutboxModel.artifact_id == winner.id
-                    ).first()
-                    if recovered is None:
-                        raise
-                    if (
-                        recovered.diagnosis_id != diagnosis_id
-                        or recovered.artifact_hash != digest
-                    ):
-                        error = ValueError(
-                            f"冻结产物通知完整性冲突: {diagnosis_id}"
-                        )
-                        if cause is not None:
-                            raise error from cause
-                        raise error
+                if outbox is None:
+                    session.add(DiagnosisArtifactOutboxModel(
+                        id=f"artifact-outbox:{winner.id}",
+                        diagnosis_id=diagnosis_id,
+                        artifact_id=winner.id,
+                        artifact_hash=winner.artifact_hash,
+                        status="PENDING",
+                        attempts=0,
+                        next_attempt_at=now,
+                        created_at=now,
+                        updated_at=now,
+                    ))
+                    session.flush()
+                elif (
+                    outbox.diagnosis_id != diagnosis_id
+                    or outbox.artifact_hash != winner.artifact_hash
+                ):
+                    raise ValueError(f"冻结产物通知完整性冲突: {diagnosis_id}")
                 return winner.to_dict()
 
             existing = session.get(FrozenDiagnosisArtifactModel, artifact_id)
             if existing is not None:
                 if existing.artifact_hash != digest or existing.canonical_json != canonical_json:
                     raise ValueError(f"冻结产物完整性冲突: {diagnosis_id}")
-                return ensure_outbox(existing)
-            by_diagnosis = (
-                session.query(FrozenDiagnosisArtifactModel)
-                .filter(FrozenDiagnosisArtifactModel.diagnosis_id == diagnosis_id)
-                .first()
-            )
+                result = ensure_outbox(existing)
+                session.commit()
+                return result
+            by_diagnosis = session.query(FrozenDiagnosisArtifactModel).filter(
+                FrozenDiagnosisArtifactModel.diagnosis_id == diagnosis_id
+            ).first()
             if by_diagnosis is not None:
                 if by_diagnosis.artifact_hash != digest or by_diagnosis.canonical_json != canonical_json:
                     raise ValueError(f"冻结产物完整性冲突: {diagnosis_id}")
-                return ensure_outbox(by_diagnosis)
+                result = ensure_outbox(by_diagnosis)
+                session.commit()
+                return result
             row = FrozenDiagnosisArtifactModel(
                 id=artifact_id,
                 diagnosis_id=diagnosis_id,
@@ -1003,35 +1470,36 @@ class DiagnosisStore:
                 created_at=now,
             )
             session.add(row)
-            session.flush()
-            session.add(DiagnosisArtifactOutboxModel(
-                id=f"artifact-outbox:{artifact_id}",
-                diagnosis_id=diagnosis_id,
-                artifact_id=artifact_id,
-                artifact_hash=digest,
-                status="PENDING",
-                attempts=0,
-                next_attempt_at=now,
-                created_at=now,
-                updated_at=now,
-            ))
-            session.commit()
-            return row.to_dict()
-        except IntegrityError as exc:
-            session.rollback()
-            winner = session.get(FrozenDiagnosisArtifactModel, artifact_id)
-            if winner is None:
-                winner = (
-                    session.query(FrozenDiagnosisArtifactModel)
-                    .filter(FrozenDiagnosisArtifactModel.diagnosis_id == diagnosis_id)
-                    .first()
-                )
-            if winner is None:
-                raise
-            if winner.artifact_hash != digest or winner.canonical_json != canonical_json:
-                raise ValueError(f"冻结产物完整性冲突: {diagnosis_id}") from exc
-
-            return ensure_outbox(winner, exc)
+            try:
+                session.flush()
+                session.add(DiagnosisArtifactOutboxModel(
+                    id=f"artifact-outbox:{artifact_id}",
+                    diagnosis_id=diagnosis_id,
+                    artifact_id=artifact_id,
+                    artifact_hash=digest,
+                    status="PENDING",
+                    attempts=0,
+                    next_attempt_at=now,
+                    created_at=now,
+                    updated_at=now,
+                ))
+                session.commit()
+                return row.to_dict()
+            except IntegrityError:
+                session.rollback()
+                winner = session.query(FrozenDiagnosisArtifactModel).filter(
+                    FrozenDiagnosisArtifactModel.diagnosis_id == diagnosis_id
+                ).first()
+                if winner is None:
+                    raise
+                if (
+                    winner.artifact_hash != digest
+                    or winner.canonical_json != canonical_json
+                ):
+                    raise ValueError(f"冻结产物完整性冲突: {diagnosis_id}")
+                result = ensure_outbox(winner)
+                session.commit()
+                return result
         except Exception:
             session.rollback()
             raise
@@ -1282,6 +1750,155 @@ class DiagnosisStore:
                 row.next_attempt_at = now + timedelta(
                     seconds=min(3600, (2 ** row.attempts) * 5)
                 )
+            session.commit()
+            return row.status
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    @staticmethod
+    def _revocation_outbox_dict(
+        row: DiagnosisArtifactRevocationOutboxModel,
+        revocation: DiagnosisArtifactRevocationModel | None,
+    ) -> dict[str, Any]:
+        payload = revocation.to_dict() if revocation is not None else {}
+        payload.update({
+            "outbox_id": row.id,
+            "status": row.status,
+            "attempts": row.attempts or 0,
+            "next_attempt_at": row.next_attempt_at,
+            "worker_lease_owner": row.worker_lease_owner,
+            "worker_lease_expires_at": row.worker_lease_expires_at,
+            "last_error": row.last_error,
+            "published_at": row.published_at,
+            "created_at": row.created_at,
+            "updated_at": row.updated_at,
+        })
+        return payload
+
+    def list_pending_artifact_revocation_outbox(self, limit: int = 100) -> list[dict[str, Any]]:
+        session = new_session()
+        try:
+            rows = (
+                session.query(DiagnosisArtifactRevocationOutboxModel)
+                .filter(DiagnosisArtifactRevocationOutboxModel.status == "PENDING")
+                .order_by(
+                    DiagnosisArtifactRevocationOutboxModel.created_at.asc(),
+                    DiagnosisArtifactRevocationOutboxModel.id.asc(),
+                )
+                .limit(max(1, int(limit))).all()
+            )
+            return [self._revocation_outbox_dict(
+                row, session.get(DiagnosisArtifactRevocationModel, row.revocation_id)
+            ) for row in rows]
+        finally:
+            session.close()
+
+    def claim_artifact_revocation_outbox(
+        self, worker_id: str, limit: int = 10, *, lease_seconds: int = 60,
+        now: datetime | None = None,
+    ) -> list[dict[str, Any]]:
+        if not worker_id.strip():
+            raise ValueError("revocation outbox worker_id is required")
+        now = now or utcnow()
+        session = new_session()
+        try:
+            eligibility = or_(
+                and_(
+                    DiagnosisArtifactRevocationOutboxModel.status.in_(["PENDING", "FAILED"]),
+                    DiagnosisArtifactRevocationOutboxModel.next_attempt_at <= now,
+                ),
+                and_(
+                    DiagnosisArtifactRevocationOutboxModel.status == "DISPATCHING",
+                    DiagnosisArtifactRevocationOutboxModel.worker_lease_expires_at < now,
+                ),
+            )
+            rows = (session.query(DiagnosisArtifactRevocationOutboxModel)
+                .filter(eligibility)
+                .order_by(DiagnosisArtifactRevocationOutboxModel.created_at.asc(),
+                          DiagnosisArtifactRevocationOutboxModel.id.asc())
+                .limit(max(1, int(limit))).with_for_update(skip_locked=True).all())
+            expires = now + timedelta(seconds=max(1, int(lease_seconds)))
+            claimed_ids = []
+            for row in rows:
+                changed = session.query(DiagnosisArtifactRevocationOutboxModel).filter(
+                    DiagnosisArtifactRevocationOutboxModel.id == row.id, eligibility,
+                ).update({
+                    "status": "DISPATCHING", "worker_lease_owner": worker_id,
+                    "worker_lease_expires_at": expires, "updated_at": now,
+                }, synchronize_session=False)
+                if changed == 1:
+                    claimed_ids.append(row.id)
+            session.commit()
+            result = []
+            for outbox_id in claimed_ids:
+                row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
+                revocation = session.get(DiagnosisArtifactRevocationModel, row.revocation_id)
+                result.append(self._revocation_outbox_dict(row, revocation))
+            return result
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def mark_artifact_revocation_published(
+        self, outbox_id: str, worker_id: str, *, now: datetime | None = None,
+    ) -> dict[str, Any] | None:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
+            if row is None:
+                return None
+            revocation = session.get(DiagnosisArtifactRevocationModel, row.revocation_id)
+            if row.status == "PUBLISHED":
+                return self._revocation_outbox_dict(row, revocation)
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"revocation outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(row.worker_lease_expires_at, now):
+                raise ValueError(f"revocation outbox lease expired: {outbox_id}")
+            row.status = "PUBLISHED"
+            row.published_at = now
+            row.updated_at = now
+            row.worker_lease_owner = None
+            row.worker_lease_expires_at = None
+            session.commit()
+            return self._revocation_outbox_dict(row, revocation)
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def fail_artifact_revocation_outbox(
+        self, outbox_id: str, worker_id: str, error: str, *, max_attempts: int = 5,
+        now: datetime | None = None,
+    ) -> str:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
+            if row is None:
+                return "UNKNOWN"
+            if row.status == "PUBLISHED":
+                return "PUBLISHED"
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"revocation outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(row.worker_lease_expires_at, now):
+                raise ValueError(f"revocation outbox lease expired: {outbox_id}")
+            row.attempts = (row.attempts or 0) + 1
+            row.last_error = (error or "")[:2000]
+            row.updated_at = now
+            row.worker_lease_owner = None
+            row.worker_lease_expires_at = None
+            if row.attempts >= max(1, int(max_attempts)):
+                row.status = "DEAD_LETTER"
+            else:
+                row.status = "FAILED"
+                row.next_attempt_at = now + timedelta(seconds=min(3600, (2 ** row.attempts) * 5))
             session.commit()
             return row.status
         except Exception:

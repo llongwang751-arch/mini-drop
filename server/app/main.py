@@ -88,6 +88,8 @@ from server.app.schemas import (
     TaskView,
 )
 from server.app.sql_repository import SqlRepository
+from server.app.agent_runtime.router import router as agent_runtime_router
+from server.app.agent_runtime.tool_router import router as agent_tool_router
 from server.app.state_machine import Actor
 from server.app import storage as store
 from server.app.drop_insight.router import router as drop_insight_router
@@ -151,7 +153,11 @@ async def _lifespan(_app: FastAPI):
         # Consume both transactional outboxes in-process so SSE delivery shares
         # this server's event bus. Each stream has an independent worker lease.
         from server.app.diagnosis.store import DiagnosisStore
-        from server.app.outbox_dispatcher import run_artifact_worker, run_worker
+        from server.app.outbox_dispatcher import (
+            run_artifact_revocation_worker,
+            run_artifact_worker,
+            run_worker,
+        )
 
         worker_prefix = os.getenv(
             "MINI_DROP_OUTBOX_WORKER_ID", f"server-{os.getpid()}"
@@ -170,6 +176,15 @@ async def _lifespan(_app: FastAPI):
             threading.Thread(
                 target=run_artifact_worker,
                 args=(DiagnosisStore(), f"{worker_prefix}:artifact"),
+                kwargs={
+                    "poll_seconds": 2.0,
+                    "stop_event": outbox_stop_event,
+                },
+                daemon=True,
+            ),
+            threading.Thread(
+                target=run_artifact_revocation_worker,
+                args=(DiagnosisStore(), f"{worker_prefix}:revocation"),
                 kwargs={
                     "poll_seconds": 2.0,
                     "stop_event": outbox_stop_event,
@@ -265,6 +280,8 @@ def _ensure_minio_bucket_with_retry(bucket: str) -> None:
 
 app = FastAPI(title="Mini-Drop Server", version="0.1.0", lifespan=_lifespan)
 app.include_router(drop_insight_router)
+app.include_router(agent_runtime_router)
+app.include_router(agent_tool_router)
 
 # CORS 中间件：允许前端跨域开发访问
 app.add_middleware(

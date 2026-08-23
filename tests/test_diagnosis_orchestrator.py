@@ -2,6 +2,8 @@
 
 from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
+import json
 
 import pytest
 from fastapi.testclient import TestClient
@@ -304,6 +306,7 @@ def test_verifier_recomputes_full_evidence_hash():
         "query_or_probe": "sys_metrics", "raw_artifact_ref": None, "derived_artifact_ref": "x",
         "derivation_version": "v2", "observed_value": {"cpu": 1}, "baseline_value": {},
         "anomaly_score": {}, "data_quality": {"domains": ["host"]}, "claim_links": [],
+        "lifecycle_status": "ACTIVE", "trust_status": "TRUSTED", "superseded_by": None,
     }
     evidence["integrity_hash"] = evidence_integrity_hash(evidence)
     evidence["observed_value"]["cpu"] = 2
@@ -523,9 +526,16 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
     repo.transition_task(task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
     repo.transition_task(task_id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
     repo.transition_task(task_id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
+    artifact_bytes = json.dumps(
+        {"sample_count": 10, "summary": summary},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
     artifact_ids = repo.add_artifacts(task_id, [{
         "artifact_type": "sys_metrics",
         "object_key": f"tasks/{task_id}/sys_metrics.json",
+        "size_bytes": len(artifact_bytes),
+        "sha256": hashlib.sha256(artifact_bytes).hexdigest(),
         "metadata": {
             "data": {
                 "sample_count": 10,
@@ -737,35 +747,22 @@ class TestDiagnosisSessionAPI:
         assert "evaluation_oracle" not in data
         assert "evaluation_oracle" not in data["normalized_intent"]
         task_id = data["child_task_ids"][0]
-        repo.transition_task(task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
-        repo.transition_task(task_id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
-        repo.transition_task(task_id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
-        repo.add_artifacts(task_id, [{
-            "artifact_type": "sys_metrics",
-            "object_key": f"tasks/{task_id}/sys_metrics.json",
-            "metadata": {
-                "data": {
-                    "sample_count": 10,
-                    "summary": {
-                        "avg_cpu_user_pct": 92.0,
-                        "avg_cpu_sys_pct": 5.0,
-                        "avg_cpu_iowait_pct": 1.0,
-                        "load1m": 8.0,
-                        "thread_count": 20,
-                        "thread_trend": "stable",
-                        "fd_count": 20,
-                        "fd_trend": "stable",
-                        "fd_max": 25,
-                        "vmrss_mb": 200,
-                        "vmrss_mb_max": 210,
-                        "ctx_nonvoluntary_rate": 10,
-                        "net_rx_kbps": 10,
-                        "net_tx_kbps": 10,
-                    },
-                },
-            },
-        }])
-        repo.transition_task(task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
+        _finish_sys_metrics_task(task_id, {
+            "avg_cpu_user_pct": 92.0,
+            "avg_cpu_sys_pct": 5.0,
+            "avg_cpu_iowait_pct": 1.0,
+            "load1m": 8.0,
+            "thread_count": 20,
+            "thread_trend": "stable",
+            "fd_count": 20,
+            "fd_trend": "stable",
+            "fd_max": 25,
+            "vmrss_mb": 200,
+            "vmrss_mb_max": 210,
+            "ctx_nonvoluntary_rate": 10,
+            "net_rx_kbps": 10,
+            "net_tx_kbps": 10,
+        })
 
         detail = client.get(f"/api/v1/diagnoses/{data['diagnosis_id']}").json()["data"]
         assert detail["status"] == "COMPLETED"
@@ -986,16 +983,24 @@ class TestDiagnosisSessionAPI:
         repo.transition_task(deep_task_id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
         repo.transition_task(deep_task_id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
         repo.transition_task(deep_task_id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
-        repo.add_artifacts(deep_task_id, [{
+        top_data = [
+            {"name": "service_a.hot_loop", "samples": 900, "percent": 90.0},
+            {"name": "runtime.scheduler", "samples": 100, "percent": 10.0},
+        ]
+        artifact_bytes = json.dumps(
+            top_data,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        artifact_ids = repo.add_artifacts(deep_task_id, [{
             "artifact_type": "top_json",
             "object_key": f"tasks/{deep_task_id}/top.json",
-            "metadata": {
-                "data": [
-                    {"name": "service_a.hot_loop", "samples": 900, "percent": 90.0},
-                    {"name": "runtime.scheduler", "samples": 100, "percent": 10.0},
-                ],
-            },
+            "size_bytes": len(artifact_bytes),
+            "sha256": hashlib.sha256(artifact_bytes).hexdigest(),
+            "metadata": {"data": top_data},
         }])
+        for artifact_id in artifact_ids:
+            repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
         repo.transition_task(deep_task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
 
         completed = client.get(

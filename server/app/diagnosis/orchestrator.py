@@ -1273,15 +1273,15 @@ class DiagnosisOrchestrator:
                 evidence_ids.append(self._add_artifact_evidence(
                     diagnosis_id, task, artifact_type, value, artifact,
                 ))
+            if not structured:
+                missing.append(f"{task.id}:structured_artifact")
+                continue
             self._add_evidence_snapshot(
                 diagnosis_id,
                 task,
                 evidence_ids,
                 [artifact for _, _, artifact in structured],
             )
-            if not structured:
-                missing.append(f"{task.id}:structured_artifact")
-                continue
 
             values = {kind: value for kind, value, _ in structured}
             task_observations.append(
@@ -1316,7 +1316,7 @@ class DiagnosisOrchestrator:
                     "sort_score": candidate.final_confidence,
                 })
 
-        evidence_items = self.store.list_evidence(diagnosis_id)
+        evidence_items = self.store.list_evidence(diagnosis_id, eligible_only=True)
         evidence_ids = [item["evidence_id"] for item in evidence_items]
         self.store.update_pipeline_node(
             diagnosis_id, "normalize_evidence", "COMPLETED",
@@ -1427,7 +1427,7 @@ class DiagnosisOrchestrator:
             "coverage": {
                 "task_count": len(tasks),
                 "failed_targets": failed_targets,
-                "evidence_count": len(self.store.list_evidence(diagnosis_id)),
+                "evidence_count": len(evidence_items),
             },
         }
         self.store.update_pipeline_node(
@@ -1463,7 +1463,7 @@ class DiagnosisOrchestrator:
                 "symptom": (session.get("normalized_intent") or {}).get("symptom", "unknown"),
                 "tool_route": completed_route,
                 "classification": cluster_assessment["classification"],
-                "evidence_count": len(self.store.list_evidence(diagnosis_id)),
+                "evidence_count": len(evidence_items),
                 "source_mapping_count": len((source_context or {}).get("mappings", [])),
                 "reuse_policy": "仅供相似症状的探针排序；仍需重新取证、审批和验证",
             })
@@ -1761,7 +1761,7 @@ class DiagnosisOrchestrator:
             missing.append("目标 Agent 未注册所需采集能力或当前离线")
         if any(probe["status"] == "REJECTED" for probe in probes):
             missing.append("需要审批的深度探针被拒绝")
-        stored_evidence = self.store.list_evidence(diagnosis_id)
+        stored_evidence = self.store.list_evidence(diagnosis_id, eligible_only=True)
         if tasks and not any(item["source_type"] == "derived_artifact" for item in stored_evidence):
             missing.append("任务缺少结构化分析产物")
         scope = session.get("target_scope", {})
@@ -2450,7 +2450,8 @@ class DiagnosisOrchestrator:
         graph["hypotheses"] = hypotheses
         graph["edges"] = edges
         all_evidence_refs = {
-            item["evidence_id"] for item in self.store.list_evidence(diagnosis_id)
+            item["evidence_id"]
+            for item in self.store.list_evidence(diagnosis_id, eligible_only=True)
         }
         explained_evidence_refs = {
             ref
