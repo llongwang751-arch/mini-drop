@@ -4464,12 +4464,20 @@ def _compute_hypothesis_predicate(
     if str(metadata.get("schema_version") or "").startswith("database_lock."):
         lock_wait_count = max(0, int(metadata.get("lock_wait_count") or 0))
         blocker_count = max(0, int(metadata.get("blocker_count") or 0))
+        blocking_edge_count = max(
+            0,
+            int(
+                metadata.get("blocking_edge_count")
+                or min(lock_wait_count, blocker_count)
+            ),
+        )
         max_wait_ms = max(0.0, float(metadata.get("max_wait_ms") or 0.0))
         database_hypothesis = any(token in statement for token in (
             "数据库", "锁等待", "阻塞", "deadlock", "database lock", "db lock",
         ))
         if database_hypothesis and lock_wait_count > 0 and blocker_count > 0:
-            covered = list(range(min(2, len(expected)))) or [0]
+            covered_count = 3 if blocking_edge_count > 0 else 2
+            covered = list(range(min(covered_count, len(expected)))) or [0]
             return {
                 "outcome": "SUPPORT",
                 "version": "hypothesis-predicate-v2",
@@ -4481,6 +4489,7 @@ def _compute_hypothesis_predicate(
                 "metrics": {
                     "lock_wait_count": lock_wait_count,
                     "blocker_count": blocker_count,
+                    "blocking_edge_count": blocking_edge_count,
                     "lock_wait_ms": max_wait_ms,
                 },
             }

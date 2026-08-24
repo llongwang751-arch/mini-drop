@@ -97,6 +97,7 @@ def test_collects_read_only_redacted_lock_evidence(monkeypatch, tmp_path):
     payload = json.loads((tmp_path / "db-lock-001" / "database_locks.json").read_text())
     assert payload["lock_wait_count"] == 1
     assert payload["blocker_count"] == 1
+    assert payload["blocking_edge_count"] == 1
     assert payload["waiting_sessions"][0]["blocking_pids"] == [654]
     serialized = json.dumps(payload)
     assert "secret" not in serialized

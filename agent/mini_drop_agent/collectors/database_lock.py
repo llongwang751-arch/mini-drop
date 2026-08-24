@@ -57,6 +57,7 @@ class DatabaseLockCollector:
         duration = max(3, min(int(task.duration_sec), 60))
         snapshots: list[dict[str, Any]] = []
         unique_blockers: set[int] = set()
+        blocking_edges: set[tuple[int, int]] = set()
         max_wait_ms = 0.0
         max_waiting = 0
         server_fingerprint = ""
@@ -92,6 +93,9 @@ class DatabaseLockCollector:
                             {int(value) for value in (row[4] or []) if int(value) > 0}
                         )
                         unique_blockers.update(blockers)
+                        blocking_edges.update(
+                            (int(row[0]), blocker) for blocker in blockers
+                        )
                         wait_ms = max(0.0, float(row[1] or 0.0))
                         max_wait_ms = max(max_wait_ms, wait_ms)
                         waiting.append({
@@ -121,6 +125,7 @@ class DatabaseLockCollector:
             "sample_count": len(snapshots),
             "lock_wait_count": max_waiting,
             "blocker_count": len(unique_blockers),
+            "blocking_edge_count": len(blocking_edges),
             "max_wait_ms": round(max_wait_ms, 3),
             "lock_wait_ms": round(max_wait_ms, 3),
             "server_fingerprint": server_fingerprint,

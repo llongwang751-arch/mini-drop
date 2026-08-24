@@ -206,6 +206,7 @@ def test_predicate_supports_redacted_database_lock_evidence():
             "sample_count": 5,
             "lock_wait_count": 2,
             "blocker_count": 1,
+            "blocking_edge_count": 2,
             "lock_wait_ms": 1840.5,
         },
     )
@@ -213,6 +214,8 @@ def test_predicate_supports_redacted_database_lock_evidence():
     assert result["outcome"] == "SUPPORT"
     assert result["metrics"]["lock_wait_count"] == 2
     assert result["metrics"]["blocker_count"] == 1
+    assert result["metrics"]["blocking_edge_count"] == 2
+    assert result["criterion_indexes"] == [0, 1, 2]
 
 
 def test_predicate_counters_database_lock_hypothesis_without_waiters():
