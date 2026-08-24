@@ -193,6 +193,9 @@ def _heartbeat(
             collector_type = _profiler_to_collector(resp.task_desc.profiler_type)
         return {
             "id": resp.task_desc.task_id,
+            "task_attempt_authority": getattr(
+                resp.task_desc, "task_attempt_authority", ""
+            ),
             "collector_type": collector_type,
             "target_pid": resp.task_desc.sample_argv.pid,
             "sample_rate": resp.task_desc.sample_argv.hz,
@@ -222,6 +225,7 @@ def _notify_result(
     ok: bool,
     reason: str,
     artifacts: list[dict],
+    task_attempt_authority: str = "",
 ) -> None:
     """通过 gRPC Hotmethod.NotifyResult 上报采集结果。"""
     if ok:
@@ -231,6 +235,7 @@ def _notify_result(
                 error_message="",
                 artifact_type="raw",
                 artifact_metadata_json=json.dumps(artifacts),
+                task_attempt_authority=task_attempt_authority,
             ),
             timeout=10,
         )
@@ -239,6 +244,7 @@ def _notify_result(
             hotmethod_pb2.TaskResult(
                 task_id=task_id,
                 error_message=reason,
+                task_attempt_authority=task_attempt_authority,
             ),
             timeout=10,
         )
@@ -258,6 +264,7 @@ def _deliver_outbox_entry(
                 bool(payload.get("ok")),
                 str(payload.get("reason") or ""),
                 list(payload.get("artifacts") or []),
+                str(payload.get("task_attempt_authority") or ""),
             )
         )
     except grpc.RpcError as exc:
@@ -366,7 +373,13 @@ def main() -> None:
         except queue.Empty:
             pass
         else:
-            entry = outbox.enqueue(finished_task["id"], ok, reason, artifacts)
+            entry = outbox.enqueue(
+                finished_task["id"],
+                ok,
+                reason,
+                artifacts,
+                finished_task.get("task_attempt_authority", ""),
+            )
             try:
                 delivered = _deliver_outbox_entry(conn, outbox, entry)
                 if not delivered:

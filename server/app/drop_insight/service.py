@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import os
 import re
-from datetime import timedelta
+from contextvars import ContextVar
+from datetime import datetime, timedelta, timezone
+from typing import NoReturn
 from uuid import uuid4
 
-from sqlalchemy import func, select, update
+from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 
 from server.app.database import new_session
 from server.app.models import (
@@ -17,8 +22,12 @@ from server.app.models import (
     DropInsightHypothesisModel,
     DropInsightReportModel,
     DropInsightSessionModel,
+    DropInsightTargetBindingModel,
+    DropInsightTargetDiscoveryModel,
     DropInsightToolCallModel,
     FixVerificationModel,
+    ProcessCandidateModel,
+    ProcessCandidateSnapshotModel,
     TaskAttemptModel,
     TaskModel,
 )
@@ -41,29 +50,48 @@ from .schemas import (
     PreviewToolCallRequest,
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
-    CreateCausalExperimentRequest,
-    DecideCausalExperimentRequest,
-    EvaluateCausalExperimentRequest,
-    PreviewCausalExperimentRequest,
 )
-from server.app.diagnosis.causal_replay import build_plan, evaluate_plan, get_case, load_catalog
-from server.app.schemas import CreateTaskRequest
+from server.app.schemas import CreateTaskRequest, ProcessIdentityBindingRequest
+from server.app.process_attestation import (
+    PROCESS_SNAPSHOT_MAX_AGE,
+    ProcessIdentityBinding,
+)
 from server.app.sql_repository import SqlRepository
 from server.app.prometheus_metrics import record_evidence_decision
 from server.app.diagnosis.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
 
 
+_REPORT_EFFECT_LEASE = timedelta(minutes=5)
+_REPORT_EFFECT_RECONCILIATION = ContextVar(
+    "drop_insight_report_effect_reconciliation",
+    default=False,
+)
+
+
+class _StaleReportEffectAuthority(RuntimeError):
+    pass
+
+
+_TARGET_DISCOVERY_TTL = timedelta(seconds=60)
+_AGENT_HEARTBEAT_MAX_AGE = timedelta(
+    seconds=max(1, int(os.getenv("AGENT_OFFLINE_TIMEOUT_SEC", "30")))
+)
+
+
 def _scope_questions(target: dict | None, time_range: dict | None) -> list[dict]:
-    """Return the concrete scope gaps that would block a real collection."""
+    """Return scope gaps without accepting raw client process authority."""
 
     target = target or {}
     questions = []
     fields = (
         ("target.service", "service", "要诊断哪个服务？"),
         ("target.environment", "environment", "目标属于哪个环境？"),
-        ("target.agent_id", "agent_id", "由哪个在线 Agent 采集？"),
-        ("target.pid", "pid", "要诊断该 Agent 上的哪个进程 PID？"),
+        (
+            "target.binding",
+            "process_binding",
+            "请从服务端发现的进程候选中安全绑定诊断目标。",
+        ),
     )
     for question_id, key, prompt in fields:
         if not target.get(key):
@@ -71,6 +99,391 @@ def _scope_questions(target: dict | None, time_range: dict | None) -> list[dict]
     if not (time_range or {}).get("start") or not (time_range or {}).get("end"):
         questions.append({"question_id": "time_range", "prompt": "故障发生在哪个时间范围？"})
     return questions
+
+
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def _candidate_matches_filter(candidate, service: str | None, environment: str | None) -> bool:
+    service_text = " ".join(
+        str(value or "")
+        for value in (
+            candidate.service_hint,
+            candidate.comm,
+            candidate.executable_identity,
+            candidate.cgroup,
+        )
+    ).casefold()
+    environment_text = " ".join(
+        str(value or "")
+        for value in (
+            candidate.instance_hint,
+            candidate.cgroup,
+            candidate.service_hint,
+        )
+    ).casefold()
+    return (
+        not service or service.casefold() in service_text
+    ) and (
+        not environment or environment.casefold() in environment_text
+    )
+
+
+def _invalidate_discovery(discovery, *, timestamp: datetime) -> None:
+    discovery.status = "INVALIDATED"
+    discovery.invalidated_at = timestamp
+
+
+class _DiscoveryInvalidationError(ValueError):
+    """Selection failure whose discovery must remain durably invalidated."""
+
+    def __init__(self, message: str, *, discovery_id: str) -> None:
+        super().__init__(message)
+        self.discovery_id = discovery_id
+
+
+def _raise_discovery_invalidation(discovery, message: str) -> NoReturn:
+    raise _DiscoveryInvalidationError(message, discovery_id=discovery.id)
+
+
+def _persist_discovery_invalidation(
+    discovery_id: str,
+    diagnosis_id: str,
+    *,
+    timestamp: datetime,
+) -> None:
+    """Persist fail-closed invalidation after the selecting transaction rolls back."""
+
+    session = new_session()
+    try:
+        discovery = (
+            session.query(DropInsightTargetDiscoveryModel)
+            .filter(
+                DropInsightTargetDiscoveryModel.id == discovery_id,
+                DropInsightTargetDiscoveryModel.diagnosis_id == diagnosis_id,
+            )
+            .with_for_update()
+            .first()
+        )
+        if discovery is None:
+            return
+        _invalidate_discovery(discovery, timestamp=timestamp)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def _invalidate_diagnosis_discoveries(
+    session,
+    diagnosis_id: str,
+    *,
+    timestamp: datetime,
+) -> None:
+    discoveries = (
+        session.query(DropInsightTargetDiscoveryModel)
+        .filter(
+            DropInsightTargetDiscoveryModel.diagnosis_id == diagnosis_id,
+            DropInsightTargetDiscoveryModel.status.in_(["READY", "AMBIGUOUS"]),
+        )
+        .with_for_update()
+        .all()
+    )
+    for discovery in discoveries:
+        _invalidate_discovery(discovery, timestamp=timestamp)
+
+
+def _selected_discovery_binding(
+    session,
+    diagnosis,
+    *,
+    discovery_id: str,
+    binding_id: str,
+    timestamp: datetime,
+) -> ProcessIdentityBinding:
+    discovery = (
+        session.query(DropInsightTargetDiscoveryModel)
+        .filter(DropInsightTargetDiscoveryModel.id == discovery_id)
+        .with_for_update()
+        .first()
+    )
+    if discovery is None:
+        raise ValueError("target discovery not found")
+    if discovery.diagnosis_id != diagnosis.id:
+        raise ValueError("target discovery does not belong to diagnosis")
+    if discovery.diagnosis_version != diagnosis.version:
+        _raise_discovery_invalidation(
+            discovery,
+            "target discovery belongs to a stale diagnosis version",
+        )
+    if discovery.status not in {"READY", "AMBIGUOUS"}:
+        raise ValueError(f"target discovery is not selectable: {discovery.status}")
+    if discovery.invalidated_at is not None:
+        raise ValueError("target discovery is invalidated")
+    if _as_utc(discovery.expires_at) <= timestamp:
+        _raise_discovery_invalidation(discovery, "target discovery has expired")
+    member = (
+        session.query(DropInsightTargetBindingModel)
+        .filter(
+            DropInsightTargetBindingModel.id == binding_id,
+            DropInsightTargetBindingModel.discovery_id == discovery.id,
+        )
+        .with_for_update()
+        .first()
+    )
+    if member is None:
+        raise ValueError("binding is not a member of target discovery")
+    try:
+        binding = ProcessIdentityBinding.from_mapping(member.process_binding_json)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise _DiscoveryInvalidationError(
+            "persisted target binding is invalid",
+            discovery_id=discovery.id,
+        ) from exc
+    if (
+        member.agent_id != binding.agent_id
+        or member.pid != binding.pid
+        or member.process_snapshot_id != binding.process_snapshot_id
+    ):
+        _raise_discovery_invalidation(
+            discovery,
+            "persisted target binding metadata disagrees with authority",
+        )
+    if not SqlRepository()._validate_process_binding_in_session(
+        session,
+        binding,
+        agent_id=binding.agent_id,
+        target_pid=binding.pid,
+        now=timestamp,
+    ):
+        _raise_discovery_invalidation(
+            discovery,
+            "target discovery authority is absent, stale, or mismatched",
+        )
+    return binding
+
+
+def _discovery_authority_is_current(session, discovery, *, timestamp: datetime) -> bool:
+    if discovery.status not in {"READY", "AMBIGUOUS"}:
+        return False
+    if discovery.invalidated_at is not None or _as_utc(discovery.expires_at) <= timestamp:
+        return False
+    bindings = (
+        session.query(DropInsightTargetBindingModel)
+        .filter(DropInsightTargetBindingModel.discovery_id == discovery.id)
+        .all()
+    )
+    if not bindings:
+        return False
+    repository = SqlRepository()
+    return all(
+        repository._validate_process_binding_in_session(
+            session,
+            item.process_binding_json,
+            agent_id=item.agent_id,
+            target_pid=item.pid,
+            now=timestamp,
+        )
+        for item in bindings
+    )
+
+
+def _render_target_discovery(session, discovery_id: str) -> dict:
+    discovery = session.get(DropInsightTargetDiscoveryModel, discovery_id)
+    if discovery is None:
+        raise ValueError("target discovery not found")
+    timestamp = now_utc()
+    if discovery.status in {"READY", "AMBIGUOUS"} and not _discovery_authority_is_current(
+        session, discovery, timestamp=timestamp
+    ):
+        _invalidate_discovery(discovery, timestamp=timestamp)
+        session.commit()
+    candidates = (
+        session.query(DropInsightTargetBindingModel)
+        .filter(DropInsightTargetBindingModel.discovery_id == discovery.id)
+        .order_by(DropInsightTargetBindingModel.id.asc())
+        .all()
+        if discovery.status in {"READY", "AMBIGUOUS"}
+        else []
+    )
+    return {
+        "diagnosis_id": discovery.diagnosis_id,
+        "diagnosis_version": discovery.diagnosis_version,
+        "discovery_id": discovery.id,
+        "status": discovery.status,
+        "created_at": discovery.created_at,
+        "expires_at": discovery.expires_at,
+        "filters": {
+            "service": discovery.service_filter,
+            "environment": discovery.environment_filter,
+        },
+        "candidates": [
+            {"binding_id": item.id, **(item.display_json or {})}
+            for item in candidates
+        ],
+    }
+
+
+def discover_target_candidates(
+    diagnosis_id: str,
+    *,
+    service: str | None = None,
+    environment: str | None = None,
+) -> dict | None:
+    """Persist one opaque, diagnosis-scoped view of latest Agent snapshots."""
+
+    service = (service or "").strip() or None
+    environment = (environment or "").strip() or None
+    if service and len(service) > 128:
+        raise ValueError("service filter is too long")
+    if environment and len(environment) > 64:
+        raise ValueError("environment filter is too long")
+
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if diagnosis is None or diagnosis.deleted_at is not None:
+            return None
+        target = diagnosis.target_json or {}
+        service = service or target.get("service")
+        environment = environment or target.get("environment")
+        timestamp = now_utc()
+        discovery = DropInsightTargetDiscoveryModel(
+            id=f"discovery_{uuid4().hex}",
+            diagnosis_id=diagnosis.id,
+            diagnosis_version=diagnosis.version,
+            status="UNAVAILABLE",
+            service_filter=service,
+            environment_filter=environment,
+            snapshot_state_json=[],
+            created_at=timestamp,
+            expires_at=timestamp + _TARGET_DISCOVERY_TTL,
+        )
+        session.add(discovery)
+
+        heartbeat_cutoff = timestamp - _AGENT_HEARTBEAT_MAX_AGE
+        agents = (
+            session.query(AgentModel)
+            .filter(
+                AgentModel.status == "ONLINE",
+                AgentModel.last_heartbeat_at >= heartbeat_cutoff,
+            )
+            .order_by(AgentModel.id.asc())
+            .all()
+        )
+        snapshot_states: list[dict] = []
+        matched: list[tuple[ProcessCandidateSnapshotModel, ProcessCandidateModel]] = []
+        fail_statuses: list[str] = []
+        authoritative_seen = False
+        for agent in agents:
+            snapshot = (
+                session.query(ProcessCandidateSnapshotModel)
+                .filter(ProcessCandidateSnapshotModel.agent_id == agent.id)
+                .order_by(
+                    ProcessCandidateSnapshotModel.received_at.desc(),
+                    ProcessCandidateSnapshotModel.id.desc(),
+                )
+                .first()
+            )
+            if snapshot is None:
+                snapshot_states.append({
+                    "agent_id": agent.id,
+                    "snapshot_id": None,
+                    "state": "absent",
+                    "authoritative": False,
+                    "received_at": None,
+                    "generation": None,
+                })
+                fail_statuses.append("UNAVAILABLE")
+                continue
+            fresh = timedelta(0) <= timestamp - _as_utc(snapshot.received_at) <= PROCESS_SNAPSHOT_MAX_AGE
+            snapshot_states.append({
+                "agent_id": agent.id,
+                "snapshot_id": snapshot.id,
+                "state": snapshot.state,
+                "authoritative": bool(snapshot.authoritative),
+                "fresh": fresh,
+                "received_at": _as_utc(snapshot.received_at).isoformat(),
+                "generation": snapshot.generation,
+                "boot_id": snapshot.boot_id,
+            })
+            if snapshot.state == "truncated":
+                fail_statuses.append("TRUNCATED")
+                continue
+            if not fresh:
+                fail_statuses.append("STALE")
+                continue
+            if not snapshot.authoritative:
+                fail_statuses.append("UNAVAILABLE")
+                continue
+            authoritative_seen = True
+            rows = (
+                session.query(ProcessCandidateModel)
+                .filter(ProcessCandidateModel.snapshot_id == snapshot.id)
+                .order_by(ProcessCandidateModel.id.asc())
+                .all()
+            )
+            matched.extend(
+                (snapshot, candidate)
+                for candidate in rows
+                if _candidate_matches_filter(candidate, service, environment)
+            )
+
+        discovery.snapshot_state_json = snapshot_states
+        if not agents:
+            discovery.status = "UNAVAILABLE"
+        elif "TRUNCATED" in fail_statuses:
+            discovery.status = "TRUNCATED"
+        elif "STALE" in fail_statuses:
+            discovery.status = "STALE"
+        elif fail_statuses:
+            discovery.status = "UNAVAILABLE"
+        elif len(matched) == 1:
+            discovery.status = "READY"
+        elif len(matched) > 1:
+            discovery.status = "AMBIGUOUS"
+        elif authoritative_seen:
+            discovery.status = "EMPTY"
+        else:
+            discovery.status = "UNAVAILABLE"
+
+        if discovery.status in {"READY", "AMBIGUOUS"}:
+            for snapshot, candidate in matched:
+                binding = ProcessIdentityBinding(
+                    agent_id=candidate.agent_id,
+                    pid=candidate.pid,
+                    boot_id=snapshot.boot_id,
+                    process_start_ticks=candidate.process_start_ticks,
+                    pid_namespace_inode=candidate.pid_namespace_inode,
+                    namespace_pid=candidate.namespace_pid,
+                    executable_identity=candidate.executable_identity,
+                    process_snapshot_id=snapshot.id,
+                    snapshot_generation=snapshot.generation,
+                    snapshot_received_at=_as_utc(snapshot.received_at),
+                )
+                session.add(DropInsightTargetBindingModel(
+                    id=f"binding_{uuid4().hex}",
+                    discovery_id=discovery.id,
+                    agent_id=candidate.agent_id,
+                    process_snapshot_id=snapshot.id,
+                    pid=candidate.pid,
+                    process_binding_json=binding.to_dict(),
+                    display_json={
+                        "service": candidate.service_hint or None,
+                        "instance": candidate.instance_hint or None,
+                        "process": candidate.comm or None,
+                        "collector_capabilities": candidate.collector_capabilities or [],
+                    },
+                ))
+        session.commit()
+        return _render_target_discovery(session, discovery.id)
+    finally:
+        session.close()
 
 
 def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionModel:
@@ -86,6 +499,8 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         query=payload.query,
         target_json=target_json,
         time_range_json=time_range_json,
+        requested_time_range_json=time_range_json,
+        effective_time_range_json={},
         mode=payload.mode,
         budget_json=payload.budget.model_dump(mode="json"),
         status=status,
@@ -111,6 +526,136 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         session.commit()
         session.refresh(model)
         return model
+    finally:
+        session.close()
+
+
+def _utc_iso(value: datetime) -> str:
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def open_effective_time_range(
+    diagnosis_id: str,
+    *,
+    opened_at: datetime | None = None,
+) -> dict | None:
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return None
+        if diagnosis.mode != "REPRODUCTION":
+            raise ValueError(
+                "effective live time range is only available for controlled reproduction"
+            )
+        timestamp = opened_at or now_utc()
+        opened_at_json = _utc_iso(timestamp)
+        existing = diagnosis.effective_time_range_json or {}
+        if existing:
+            if (
+                existing.get("state") == "OPEN"
+                and existing.get("opened_at") == opened_at_json
+            ):
+                return diagnosis.to_dict()
+            raise ValueError("effective live time range has already been opened")
+        requested = (
+            diagnosis.requested_time_range_json
+            or diagnosis.time_range_json
+            or {}
+        )
+        diagnosis.effective_time_range_json = {
+            "state": "OPEN",
+            "source": "controlled_live_collection",
+            "opened_at": opened_at_json,
+            "timezone": requested.get("timezone", "Asia/Shanghai"),
+        }
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.effective_time_range_opened",
+            "SYSTEM",
+            {"effective_time_range": diagnosis.effective_time_range_json},
+            timestamp,
+        )
+        _cas_session_update(
+            session,
+            diagnosis,
+            status=diagnosis.status,
+            timestamp=timestamp,
+        )
+        session.commit()
+        session.refresh(diagnosis)
+        return diagnosis.to_dict()
+    finally:
+        session.close()
+
+
+def finalize_effective_time_range(
+    diagnosis_id: str,
+    *,
+    observed_start: datetime,
+    observed_end: datetime,
+) -> dict | None:
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return None
+        if diagnosis.mode != "REPRODUCTION":
+            raise ValueError(
+                "effective live time range is only available for controlled reproduction"
+            )
+        existing = diagnosis.effective_time_range_json or {}
+        start_json = _utc_iso(observed_start)
+        end_json = _utc_iso(observed_end)
+        finalized = {
+            "state": "FINALIZED",
+            "source": "controlled_live_collection",
+            "opened_at": existing.get("opened_at"),
+            "start": start_json,
+            "end": end_json,
+            "timezone": existing.get("timezone", "Asia/Shanghai"),
+        }
+        if existing.get("state") == "FINALIZED":
+            if existing == finalized:
+                return diagnosis.to_dict()
+            raise ValueError("effective live time range is already finalized")
+        if (
+            existing.get("state") != "OPEN"
+            or existing.get("source") != "controlled_live_collection"
+            or not existing.get("opened_at")
+        ):
+            raise ValueError("effective live time range must be opened before finalization")
+        opened_at = _parse_datetime(existing["opened_at"])
+        start = _parse_datetime(start_json)
+        end = _parse_datetime(end_json)
+        if opened_at is None or start is None or end is None:
+            raise ValueError("effective live time range contains invalid timestamps")
+        if start < opened_at:
+            raise ValueError("observed live range cannot start before it was opened")
+        if end <= start:
+            raise ValueError("effective live time range end must be later than start")
+        timestamp = now_utc()
+        diagnosis.effective_time_range_json = finalized
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.effective_time_range_finalized",
+            "SYSTEM",
+            {"effective_time_range": finalized},
+            timestamp,
+        )
+        _cas_session_update(
+            session,
+            diagnosis,
+            status=diagnosis.status,
+            timestamp=timestamp,
+        )
+        session.commit()
+        session.refresh(diagnosis)
+        return diagnosis.to_dict()
     finally:
         session.close()
 
@@ -179,156 +724,6 @@ def list_events(diagnosis_id: str) -> list[DropInsightEventModel]:
         session.close()
 
 
-def list_causal_replay_cases() -> dict:
-    return load_catalog()
-
-
-def preview_causal_experiment(
-    diagnosis_id: str, payload: PreviewCausalExperimentRequest
-) -> dict | None:
-    session = new_session()
-    try:
-        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
-        if diagnosis is None:
-            return None
-        hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
-        if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
-            raise ValueError("hypothesis does not belong to diagnosis")
-        return build_plan(get_case(payload.case_id), payload.model_dump(mode="json"))
-    finally:
-        session.close()
-
-
-def create_causal_experiment(
-    diagnosis_id: str,
-    payload: CreateCausalExperimentRequest,
-    *,
-    requested_by: str,
-) -> dict | None:
-    session = new_session()
-    try:
-        diagnosis = _lock_diagnosis(session, diagnosis_id, payload.expected_version)
-        if diagnosis is None:
-            return None
-        hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
-        if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
-            raise ValueError("hypothesis does not belong to diagnosis")
-        plan = build_plan(get_case(payload.case_id), payload.model_dump(mode="json"))
-        timestamp = now_utc()
-        experiment = {
-            "experiment_id": f"causal_{uuid4().hex}",
-            "diagnosis_id": diagnosis_id,
-            "status": "WAITING_APPROVAL",
-            "requested_by": requested_by,
-            "created_at": timestamp.isoformat(),
-            "plan": plan,
-        }
-        _append_event(
-            session,
-            diagnosis_id,
-            "causal_experiment.planned",
-            "AI",
-            experiment,
-            timestamp,
-        )
-        session.commit()
-        return experiment
-    finally:
-        session.close()
-
-
-def list_causal_experiments(diagnosis_id: str) -> list[dict] | None:
-    session = new_session()
-    try:
-        if session.get(DropInsightSessionModel, diagnosis_id) is None:
-            return None
-        events = (
-            session.query(DropInsightEventModel)
-            .filter(
-                DropInsightEventModel.diagnosis_id == diagnosis_id,
-                DropInsightEventModel.event_type.like("causal_experiment.%"),
-            )
-            .order_by(DropInsightEventModel.sequence.asc())
-            .all()
-        )
-        experiments: dict[str, dict] = {}
-        for event in events:
-            payload = dict(event.payload_json or {})
-            experiment_id = payload.get("experiment_id")
-            if not experiment_id:
-                continue
-            if event.event_type == "causal_experiment.planned":
-                experiments[experiment_id] = payload
-            elif experiment_id in experiments:
-                experiments[experiment_id].update(payload)
-        return list(reversed(list(experiments.values())))
-    finally:
-        session.close()
-
-
-def decide_causal_experiment(
-    diagnosis_id: str,
-    experiment_id: str,
-    payload: DecideCausalExperimentRequest,
-    *,
-    decided_by: str,
-) -> dict | None:
-    experiments = list_causal_experiments(diagnosis_id)
-    if experiments is None:
-        return None
-    experiment = next((item for item in experiments if item["experiment_id"] == experiment_id), None)
-    if experiment is None:
-        return None
-    if experiment.get("status") != "WAITING_APPROVAL":
-        raise ValueError("causal experiment is not waiting for approval")
-    decision = {
-        "experiment_id": experiment_id,
-        "status": "APPROVED" if payload.approved else "REJECTED",
-        "approved": payload.approved,
-        "decision_reason": payload.reason,
-        "decided_by": decided_by,
-        "decided_at": now_utc().isoformat(),
-    }
-    session = new_session()
-    try:
-        _append_event(session, diagnosis_id, "causal_experiment.decision", "USER", decision, now_utc())
-        session.commit()
-        return {**experiment, **decision}
-    finally:
-        session.close()
-
-
-def evaluate_causal_experiment(
-    diagnosis_id: str,
-    experiment_id: str,
-    payload: EvaluateCausalExperimentRequest,
-) -> dict | None:
-    experiments = list_causal_experiments(diagnosis_id)
-    if experiments is None:
-        return None
-    experiment = next((item for item in experiments if item["experiment_id"] == experiment_id), None)
-    if experiment is None:
-        return None
-    if experiment.get("status") != "APPROVED":
-        raise ValueError("causal experiment must be approved before evaluation")
-    measurements = payload.model_dump(mode="json")
-    judgement = evaluate_plan(experiment["plan"], measurements)
-    result = {
-        "experiment_id": experiment_id,
-        "status": "EVALUATED",
-        "measurements": measurements,
-        "judgement": judgement,
-        "evaluated_at": now_utc().isoformat(),
-    }
-    session = new_session()
-    try:
-        _append_event(session, diagnosis_id, "causal_experiment.evaluated", "SYSTEM", result, now_utc())
-        session.commit()
-        return {**experiment, **result}
-    finally:
-        session.close()
-
-
 def create_hypothesis(
     diagnosis_id: str,
     payload: CreateHypothesisRequest,
@@ -337,14 +732,37 @@ def create_hypothesis(
     round_index: int = 1,
     parent_hypothesis_id: str | None = None,
     generation_reason: str = "",
+    effect_key: str | None = None,
 ) -> DropInsightHypothesisModel | None:
     session = new_session()
     try:
+        if effect_key:
+            existing = (
+                session.query(DropInsightHypothesisModel)
+                .filter(
+                    DropInsightHypothesisModel.diagnosis_id == diagnosis_id,
+                    DropInsightHypothesisModel.effect_key == effect_key,
+                )
+                .first()
+            )
+            if existing is not None:
+                return existing
         diagnosis = _lock_diagnosis(
             session, diagnosis_id, payload.expected_version
         )
         if diagnosis is None:
             return None
+        if effect_key:
+            existing = (
+                session.query(DropInsightHypothesisModel)
+                .filter(
+                    DropInsightHypothesisModel.diagnosis_id == diagnosis_id,
+                    DropInsightHypothesisModel.effect_key == effect_key,
+                )
+                .first()
+            )
+            if existing is not None:
+                return existing
         timestamp = now_utc()
         model = DropInsightHypothesisModel(
             id=f"hyp_{uuid4().hex}",
@@ -357,6 +775,7 @@ def create_hypothesis(
             round_index=round_index,
             parent_hypothesis_id=parent_hypothesis_id,
             generation_reason=generation_reason,
+            effect_key=effect_key,
             created_at=timestamp,
             updated_at=timestamp,
         )
@@ -375,7 +794,23 @@ def create_hypothesis(
         )
         _cas_session_update(session, diagnosis, status="HYPOTHESIZING", timestamp=timestamp)
         session.add(model)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            if not effect_key:
+                raise
+            existing = (
+                session.query(DropInsightHypothesisModel)
+                .filter(
+                    DropInsightHypothesisModel.diagnosis_id == diagnosis_id,
+                    DropInsightHypothesisModel.effect_key == effect_key,
+                )
+                .first()
+            )
+            if existing is None:
+                raise
+            return existing
         session.refresh(model)
         return model
     finally:
@@ -521,14 +956,34 @@ def generate_report(
 ) -> DropInsightReportModel | None:
     session = new_session()
     try:
-        diagnosis = _lock_diagnosis(
-            session, diagnosis_id, payload.expected_version
-        )
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
         if diagnosis is None:
             return None
         hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
         if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
             raise ValueError("hypothesis does not belong to diagnosis")
+        existing_report = (
+            session.query(DropInsightReportModel)
+            .filter(
+                DropInsightReportModel.diagnosis_id == diagnosis_id,
+                DropInsightReportModel.hypothesis_id == payload.hypothesis_id,
+            )
+            .first()
+        )
+        if existing_report is not None:
+            report_id = existing_report.id
+            session.expunge(existing_report)
+            session.close()
+            return _apply_report_effects(report_id)
+        if (
+            payload.expected_version is not None
+            and diagnosis.version != payload.expected_version
+        ):
+            raise ValueError(
+                "diagnosis version conflict: "
+                f"expected={payload.expected_version}, "
+                f"actual={diagnosis.version}"
+            )
 
         rows = (
             session.query(DropInsightEvidenceModel)
@@ -582,11 +1037,6 @@ def generate_report(
                 "缺少独立反证或对照证据；报告可作为阶段性判断，但诊断不会进入最终完成态。"
             )
 
-        if support_refs and verification["has_independent_counter_or_control"]:
-            verification["status"] = "VERIFIED"
-        elif support_refs:
-            verification["status"] = "PARTIAL_WITHOUT_COUNTER"
-
         source_symbols = _extract_source_symbols(supporting + counter)
         verification["source_context"] = map_hot_functions(source_symbols)
 
@@ -602,8 +1052,11 @@ def generate_report(
         )
 
         timestamp = now_utc()
+        report_identity = hashlib.sha256(
+            f"{diagnosis_id}\0{payload.hypothesis_id}".encode("utf-8")
+        ).hexdigest()[:32]
         report = DropInsightReportModel(
-            id=f"report_{uuid4().hex}",
+            id=f"report_{report_identity}",
             diagnosis_id=diagnosis_id,
             hypothesis_id=payload.hypothesis_id,
             conclusion=conclusion,
@@ -615,6 +1068,12 @@ def generate_report(
             next_actions_json=next_actions,
             claims_json=verification["claims"],
             verification_json=verification,
+            effects_status="PENDING",
+            effects_phase=None,
+            effects_owner=None,
+            effects_lease_expires_at=None,
+            effects_fencing_token=0,
+            effects_applied_at=None,
             created_at=timestamp,
         )
         if counter_refs and not support_refs:
@@ -649,17 +1108,283 @@ def generate_report(
             timestamp,
         )
         session.add(report)
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            existing_report = (
+                session.query(DropInsightReportModel)
+                .filter(
+                    DropInsightReportModel.diagnosis_id == diagnosis_id,
+                    DropInsightReportModel.hypothesis_id == payload.hypothesis_id,
+                )
+                .first()
+            )
+            if existing_report is None:
+                raise
+            report_id = existing_report.id
+        else:
+            report_id = report.id
+        session.close()
+        return _apply_report_effects(report_id)
+    finally:
+        session.close()
+
+
+def mark_evidence_collection_started(
+    diagnosis_id: str,
+    *,
+    reason: str,
+) -> DropInsightSessionModel:
+    """Move a diagnosis into evidence collection through the normal CAS path.
+
+    Importers that persist trusted evidence outside ``import-task`` use this
+    small public boundary instead of mutating the session status directly.
+    """
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            raise ValueError("diagnosis not found")
+        timestamp = now_utc()
+        _cas_session_update(
+            session,
+            diagnosis,
+            status="COLLECTING_EVIDENCE",
+            timestamp=timestamp,
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "evidence.collection_started",
+            "SYSTEM",
+            {"reason": reason},
+            timestamp,
+        )
         session.commit()
-        session.refresh(report)
-        if hypothesis.status == "COUNTER":
-            _replan_from_counter_evidence(diagnosis_id, hypothesis.id)
-        elif next_status == "INSUFFICIENT_EVIDENCE":
-            _replan_after_insufficient_evidence(diagnosis_id, hypothesis.id)
-        elif next_status == "COMPLETED":
-            _record_successful_route(diagnosis_id, report.id)
+        session.refresh(diagnosis)
+        return diagnosis
+    finally:
+        session.close()
+
+
+def _claim_report_effects(
+    report_id: str,
+    owner: str,
+) -> tuple[DropInsightReportModel | None, bool]:
+    session = new_session()
+    try:
+        claimed_at = now_utc()
+        updated = session.execute(
+            update(DropInsightReportModel)
+            .where(
+                DropInsightReportModel.id == report_id,
+                or_(
+                    DropInsightReportModel.effects_status == "PENDING",
+                    and_(
+                        DropInsightReportModel.effects_status == "APPLYING",
+                        or_(
+                            DropInsightReportModel.effects_lease_expires_at.is_(None),
+                            DropInsightReportModel.effects_lease_expires_at <= claimed_at,
+                        ),
+                    ),
+                ),
+            )
+            .values(
+                effects_status="APPLYING",
+                effects_owner=owner,
+                effects_lease_expires_at=claimed_at + _REPORT_EFFECT_LEASE,
+                effects_fencing_token=(
+                    DropInsightReportModel.effects_fencing_token + 1
+                ),
+            )
+        ).rowcount
+        session.commit()
+        report = session.get(DropInsightReportModel, report_id)
+        return report, bool(
+            updated == 1
+            and report is not None
+            and report.effects_owner == owner
+        )
+    finally:
+        session.close()
+
+
+def _renew_report_effect_lease(
+    report_id: str,
+    owner: str,
+    fencing_token: int,
+) -> None:
+    session = new_session()
+    try:
+        renewed_at = now_utc()
+        updated = session.execute(
+            update(DropInsightReportModel)
+            .where(
+                DropInsightReportModel.id == report_id,
+                DropInsightReportModel.effects_status == "APPLYING",
+                DropInsightReportModel.effects_owner == owner,
+                DropInsightReportModel.effects_fencing_token == fencing_token,
+                DropInsightReportModel.effects_lease_expires_at > renewed_at,
+            )
+            .values(
+                effects_lease_expires_at=renewed_at + _REPORT_EFFECT_LEASE,
+            )
+        ).rowcount
+        session.commit()
+        if updated != 1:
+            raise _StaleReportEffectAuthority(
+                "stale Drop Insight report-effect authority"
+            )
+    finally:
+        session.close()
+
+
+def _start_report_effect_execution(
+    report_id: str,
+    owner: str,
+    fencing_token: int,
+) -> None:
+    session = new_session()
+    try:
+        started_at = now_utc()
+        updated = session.execute(
+            update(DropInsightReportModel)
+            .where(
+                DropInsightReportModel.id == report_id,
+                DropInsightReportModel.effects_status == "APPLYING",
+                DropInsightReportModel.effects_owner == owner,
+                DropInsightReportModel.effects_fencing_token == fencing_token,
+                DropInsightReportModel.effects_lease_expires_at > started_at,
+            )
+            .values(
+                effects_phase="EXECUTION_STARTED",
+                effects_lease_expires_at=started_at + _REPORT_EFFECT_LEASE,
+            )
+        ).rowcount
+        session.commit()
+        if updated != 1:
+            raise _StaleReportEffectAuthority(
+                "stale Drop Insight report-effect authority"
+            )
+    finally:
+        session.close()
+
+
+def _complete_report_effects(
+    report_id: str,
+    owner: str,
+    fencing_token: int,
+) -> DropInsightReportModel:
+    session = new_session()
+    try:
+        completed_at = now_utc()
+        updated = session.execute(
+            update(DropInsightReportModel)
+            .where(
+                DropInsightReportModel.id == report_id,
+                DropInsightReportModel.effects_status == "APPLYING",
+                DropInsightReportModel.effects_owner == owner,
+                DropInsightReportModel.effects_fencing_token == fencing_token,
+                DropInsightReportModel.effects_lease_expires_at > completed_at,
+            )
+            .values(
+                effects_status="APPLIED",
+                effects_phase="EFFECTS_COMPLETED",
+                effects_owner=None,
+                effects_lease_expires_at=None,
+                effects_applied_at=func.coalesce(
+                    DropInsightReportModel.effects_applied_at,
+                    completed_at,
+                ),
+            )
+        ).rowcount
+        session.commit()
+        if updated != 1:
+            raise _StaleReportEffectAuthority(
+                "stale Drop Insight report-effect authority"
+            )
+        report = session.get(DropInsightReportModel, report_id)
+        if report is None:
+            raise ValueError("Drop Insight report does not exist")
         return report
     finally:
         session.close()
+
+
+def _release_report_effects(
+    report_id: str,
+    owner: str,
+    fencing_token: int,
+) -> None:
+    session = new_session()
+    try:
+        session.execute(
+            update(DropInsightReportModel)
+            .where(
+                DropInsightReportModel.id == report_id,
+                DropInsightReportModel.effects_status == "APPLYING",
+                DropInsightReportModel.effects_owner == owner,
+                DropInsightReportModel.effects_fencing_token == fencing_token,
+            )
+            .values(
+                effects_status="PENDING",
+                effects_owner=None,
+                effects_lease_expires_at=None,
+            )
+        )
+        session.commit()
+    finally:
+        session.close()
+
+
+def _apply_report_effects(
+    report_id: str,
+) -> DropInsightReportModel | None:
+    owner = f"report-effects-{uuid4().hex}"
+    report, claimed = _claim_report_effects(report_id, owner)
+    if report is None or report.effects_status == "APPLIED":
+        return report
+    if not claimed:
+        return report
+
+    fencing_token = report.effects_fencing_token
+    reconcile_only = report.effects_phase in {
+        "EXECUTION_STARTED",
+        "EFFECTS_COMPLETED",
+    }
+    try:
+        if report.effects_phase != "EFFECTS_COMPLETED":
+            _start_report_effect_execution(report_id, owner, fencing_token)
+            token = _REPORT_EFFECT_RECONCILIATION.set(reconcile_only)
+            try:
+                diagnosis_id = report.diagnosis_id
+                hypothesis_id = report.hypothesis_id
+                verification_status = (report.verification_json or {}).get("status")
+                has_support = bool(report.evidence_refs_json)
+                has_counter = bool(report.counter_evidence_refs_json)
+
+                if has_counter and not has_support and hypothesis_id:
+                    _replan_from_counter_evidence(
+                        diagnosis_id,
+                        hypothesis_id,
+                        report_id,
+                    )
+                elif not has_support and hypothesis_id:
+                    _replan_after_insufficient_evidence(
+                        diagnosis_id,
+                        hypothesis_id,
+                        report_id,
+                    )
+                elif verification_status == "VERIFIED":
+                    _record_successful_route(diagnosis_id, report_id)
+            finally:
+                _REPORT_EFFECT_RECONCILIATION.reset(token)
+            _renew_report_effect_lease(report_id, owner, fencing_token)
+        return _complete_report_effects(report_id, owner, fencing_token)
+    except Exception:
+        _release_report_effects(report_id, owner, fencing_token)
+        raise
 
 
 def list_reports(diagnosis_id: str) -> list[DropInsightReportModel]:
@@ -810,6 +1535,11 @@ def submit_diagnosis_feedback(
                 feedback = persisted
         finally:
             session.close()
+    # 已发布技能的真实效果由人工反馈闭环监控。连续错误会触发自动隔离，
+    # 但不会删除原始诊断、证据或旧版本。
+    from .skill_evolution import record_activation_outcome
+
+    record_activation_outcome(diagnosis_id, feedback.feedback_label)
     return feedback
 
 
@@ -862,8 +1592,9 @@ def _replan_from_feedback(
         parent_hypothesis_id=parent.id if parent else None,
         generation_reason=reason,
     )
-    if revision is None or not target.get("agent_id") or not target.get("pid"):
+    if revision is None:
         return revision
+    _current_target_binding(diagnosis)
     tool_name = (proposal or {}).get("tool_name") or baseline["tool_name"]
     request_tool_call(
         diagnosis_id,
@@ -890,10 +1621,48 @@ def _feedback_tool(correction: str, parent: DropInsightHypothesisModel | None) -
     return "collect_sys_metrics"
 
 
+def _validated_target_binding(session, diagnosis, *, now: datetime | None = None) -> ProcessIdentityBinding:
+    target = diagnosis.target_json or {}
+    raw_binding = target.get("process_binding")
+    try:
+        binding = ProcessIdentityBinding.from_mapping(raw_binding)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("diagnosis has no complete process binding authority") from exc
+    if target.get("agent_id") != binding.agent_id or target.get("pid") != binding.pid:
+        raise ValueError("diagnosis target compatibility fields disagree with process binding")
+    if not SqlRepository()._validate_process_binding_in_session(
+        session,
+        binding,
+        agent_id=binding.agent_id,
+        target_pid=binding.pid,
+        now=now or now_utc(),
+    ):
+        raise ValueError("diagnosis process binding is absent, stale, or mismatched")
+    return binding
+
+
+def _current_target_binding(diagnosis) -> ProcessIdentityBinding:
+    session = new_session()
+    try:
+        persisted = session.get(DropInsightSessionModel, diagnosis.id)
+        if persisted is None:
+            raise ValueError("diagnosis not found")
+        return _validated_target_binding(session, persisted)
+    finally:
+        session.close()
+
+
 def _planner_tool_arguments(tool_name: str, target: dict) -> dict:
+    raw_binding = target.get("process_binding")
+    try:
+        binding = ProcessIdentityBinding.from_mapping(raw_binding)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("planner requires a complete process binding") from exc
+    if target.get("agent_id") != binding.agent_id or target.get("pid") != binding.pid:
+        raise ValueError("planner target disagrees with process binding")
     arguments = {
-        "agent_id": target["agent_id"],
-        "pid": target["pid"],
+        "agent_id": binding.agent_id,
+        "pid": binding.pid,
         "duration_seconds": 15,
     }
     if tool_name in {"start_perf_profile", "start_pyspy_profile"}:
@@ -904,6 +1673,7 @@ def _planner_tool_arguments(tool_name: str, target: dict) -> dict:
 def _replan_from_counter_evidence(
     diagnosis_id: str,
     parent_hypothesis_id: str,
+    report_id: str,
 ) -> DropInsightHypothesisModel | None:
     """Open a bounded new round when trusted evidence falsifies the primary hypothesis."""
     diagnosis = get_diagnosis(diagnosis_id)
@@ -911,14 +1681,16 @@ def _replan_from_counter_evidence(
         return None
     previous = list_hypotheses(diagnosis_id)
     parent = next((item for item in previous if item.id == parent_hypothesis_id), None)
-    round_index = max([item.round_index or 1 for item in previous] or [1]) + 1
-    if parent is None or round_index > 3:
+    if parent is None:
         return None
-    # Avoid opening the same round twice when orchestration is retried.
-    if any(item.parent_hypothesis_id == parent.id for item in previous):
+    round_index = (parent.round_index or 1) + 1
+    if round_index > 3:
         return None
     target = diagnosis.target_json or {}
-    statement = f"上一轮“{parent.statement}”已被反证，需验证同一时间窗内的替代资源或依赖原因"
+    statement = (
+        f"第 {round_index} 轮：可信反证已推翻上一轮主假设，"
+        "需验证同一时间窗内的替代资源或依赖原因"
+    )
     tool_name = "collect_sys_metrics" if any(
         token in parent.statement.lower() for token in ("cpu", "热点", "python", "io")
     ) else "start_perf_profile"
@@ -928,16 +1700,18 @@ def _replan_from_counter_evidence(
         "falsification": ["补充指标平稳且不能解释故障现象"],
         "tool_name": tool_name,
     }
-    proposal = propose_hypothesis_plan(
-        query=diagnosis.query,
-        target=target,
-        category="COUNTER_EVIDENCE_REPLAN",
-        rule_plan=baseline,
-        prior_hypotheses=[item.to_dict() for item in previous],
-        user_correction="可信反证已推翻上一轮主假设",
-        allowed_tools=["collect_sys_metrics", "start_perf_profile"],
-        route_priors=_successful_tool_route_priors(),
-    )
+    proposal = None
+    if not _REPORT_EFFECT_RECONCILIATION.get():
+        proposal = propose_hypothesis_plan(
+            query=diagnosis.query,
+            target=target,
+            category="COUNTER_EVIDENCE_REPLAN",
+            rule_plan=baseline,
+            prior_hypotheses=[item.to_dict() for item in previous],
+            user_correction="可信反证已推翻上一轮主假设",
+            allowed_tools=["collect_sys_metrics", "start_perf_profile"],
+            route_priors=_successful_tool_route_priors(),
+        )
     candidate = (proposal or {}).get("hypotheses", [{}])[0]
     revision = create_hypothesis(
         diagnosis_id,
@@ -951,10 +1725,20 @@ def _replan_from_counter_evidence(
         parent_hypothesis_id=parent.id,
         generation_reason=(proposal or {}).get("reasoning_summary")
         or "可信反证推翻上一轮主假设，自动进入下一轮互补取证。",
+        effect_key=f"report:{report_id}:counter:hypothesis",
     )
-    if revision is not None and target.get("agent_id") and target.get("pid"):
-        selected_tool = (proposal or {}).get("tool_name") or tool_name
-        request_tool_call(
+    if revision is not None:
+        _current_target_binding(diagnosis)
+        existing_call = _tool_call_by_effect_key(
+            diagnosis_id,
+            f"report:{report_id}:counter:tool_call",
+        )
+        selected_tool = (
+            existing_call.tool_name
+            if existing_call is not None
+            else (proposal or {}).get("tool_name") or tool_name
+        )
+        call = request_tool_call(
             diagnosis_id,
             CreateToolCallRequest(
                 hypothesis_id=revision.id,
@@ -962,7 +1746,54 @@ def _replan_from_counter_evidence(
                 arguments=_planner_tool_arguments(selected_tool, target),
             ),
             requested_by="system:counter-evidence-replanner",
+            effect_key=f"report:{report_id}:counter:tool_call",
         )
+        if call is not None:
+            session = new_session()
+            try:
+                timestamp = now_utc()
+                created = _append_event(
+                    session,
+                    diagnosis_id,
+                    "planner.counter_replanned",
+                    "SYSTEM",
+                    {
+                        "round_index": revision.round_index,
+                        "previous_hypothesis_id": parent.id,
+                        "hypothesis_id": revision.id,
+                        "tool_name": call.tool_name,
+                        "planner_kind": (
+                            "MODEL_ASSISTED"
+                            if proposal
+                            else "DETERMINISTIC_FALLBACK"
+                        ),
+                        "reason": revision.generation_reason,
+                        "requires_approval": (
+                            call.policy_decision == "REQUIRE_APPROVAL"
+                        ),
+                    },
+                    timestamp,
+                    effect_key=f"report:{report_id}:counter:event",
+                )
+                if created:
+                    persisted = _lock_diagnosis(session, diagnosis_id)
+                    if persisted is not None:
+                        _cas_session_update(
+                            session,
+                            persisted,
+                            status="HYPOTHESIZING",
+                            timestamp=timestamp,
+                        )
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+                if not _event_effect_exists(
+                    diagnosis_id,
+                    f"report:{report_id}:counter:event",
+                ):
+                    raise
+            finally:
+                session.close()
     return revision
 
 
@@ -998,14 +1829,14 @@ def _successful_tool_route_priors(limit: int = 20) -> list[dict]:
 def _replan_after_insufficient_evidence(
     diagnosis_id: str,
     parent_hypothesis_id: str,
+    report_id: str,
 ) -> DropInsightHypothesisModel | None:
     """证据不足时自动换证据域，而不是立即把诊断交还给用户。"""
     diagnosis = get_diagnosis(diagnosis_id)
     if diagnosis is None:
         return None
     target = diagnosis.target_json or {}
-    if not target.get("agent_id") or not target.get("pid"):
-        return None
+    binding = _current_target_binding(diagnosis)
     capability_by_tool = {
         "collect_sys_metrics": "sys_metrics",
         "start_perf_profile": "perf_cpu",
@@ -1014,7 +1845,7 @@ def _replan_after_insufficient_evidence(
     }
     session = new_session()
     try:
-        agent = session.get(AgentModel, target["agent_id"])
+        agent = session.get(AgentModel, binding.agent_id)
         if agent is None or agent.status != "ONLINE":
             return None
         capabilities = set(agent.capabilities or [])
@@ -1022,38 +1853,56 @@ def _replan_after_insufficient_evidence(
         session.close()
     previous = list_hypotheses(diagnosis_id)
     parent = next((item for item in previous if item.id == parent_hypothesis_id), None)
-    round_index = max([item.round_index or 1 for item in previous] or [1]) + 1
-    if parent is None or round_index > 3:
+    if parent is None:
         return None
-    if any(item.parent_hypothesis_id == parent.id for item in previous):
+    round_index = (parent.round_index or 1) + 1
+    if round_index > 3:
         return None
     attempted = {item.tool_name for item in list_tool_calls(diagnosis_id)}
     all_tools = [
         "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile", "start_pyspy_profile",
     ]
+    existing_call = _tool_call_by_effect_key(
+        diagnosis_id,
+        f"report:{report_id}:insufficient:tool_call",
+    )
     remaining = [
         item for item in all_tools
-        if item not in attempted and capability_by_tool[item] in capabilities
+        if (
+            item not in attempted
+            or (existing_call is not None and item == existing_call.tool_name)
+        )
+        and capability_by_tool[item] in capabilities
     ]
     if not remaining:
         return None
-    fallback_tool = remaining[0]
+    fallback_tool = (
+        existing_call.tool_name if existing_call is not None else remaining[0]
+    )
     baseline = {
-        "statement": f"上一轮“{parent.statement}”证据不足，需切换证据域继续定位",
+        "statement": (
+            f"第 {round_index} 轮：上一证据域不足以建立结论，"
+            "需切换证据域继续定位"
+        ),
         "expected": ["新的独立采集结果能够支持或推翻至少一个候选假设"],
         "falsification": ["补充证据仍无区分力，或目标能力不支持该采集器"],
         "tool_name": fallback_tool,
     }
-    proposal = propose_hypothesis_plan(
-        query=diagnosis.query,
-        target=target,
-        category="INSUFFICIENT_EVIDENCE_REPLAN",
-        rule_plan=baseline,
-        prior_hypotheses=[item.to_dict() for item in previous],
-        evidence_summary=[{"result": "insufficient_evidence", "attempted_tools": sorted(attempted)}],
-        allowed_tools=remaining,
-        route_priors=_successful_tool_route_priors(),
-    )
+    proposal = None
+    if not _REPORT_EFFECT_RECONCILIATION.get():
+        proposal = propose_hypothesis_plan(
+            query=diagnosis.query,
+            target=target,
+            category="INSUFFICIENT_EVIDENCE_REPLAN",
+            rule_plan=baseline,
+            prior_hypotheses=[item.to_dict() for item in previous],
+            evidence_summary=[{
+                "result": "insufficient_evidence",
+                "attempted_tools": sorted(attempted),
+            }],
+            allowed_tools=remaining,
+            route_priors=_successful_tool_route_priors(),
+        )
     candidate = (proposal or {}).get("hypotheses", [{}])[0]
     reason = (proposal or {}).get("reasoning_summary") or (
         "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。"
@@ -1069,8 +1918,15 @@ def _replan_after_insufficient_evidence(
         round_index=round_index,
         parent_hypothesis_id=parent.id,
         generation_reason=reason,
+        effect_key=f"report:{report_id}:insufficient:hypothesis",
     )
-    selected_tool = (proposal or {}).get("tool_name") or fallback_tool
+    if revision is None:
+        return None
+    selected_tool = (
+        existing_call.tool_name
+        if existing_call is not None
+        else (proposal or {}).get("tool_name") or fallback_tool
+    )
     call = request_tool_call(
         diagnosis_id,
         CreateToolCallRequest(
@@ -1079,31 +1935,93 @@ def _replan_after_insufficient_evidence(
             arguments=_planner_tool_arguments(selected_tool, target),
         ),
         requested_by="system:insufficient-evidence-replanner",
+        effect_key=f"report:{report_id}:insufficient:tool_call",
     )
+    if call is None:
+        return revision
     session = new_session()
     try:
         timestamp = now_utc()
-        _append_event(session, diagnosis_id, "planner.insufficient_replanned", "SYSTEM", {
-            "round_index": round_index,
-            "previous_hypothesis_id": parent.id,
-            "hypothesis_id": revision.id,
-            "tool_name": selected_tool,
-            "planner_kind": "MODEL_ASSISTED" if proposal else "DETERMINISTIC_FALLBACK",
-            "reason": reason,
-            "requires_approval": call.policy_decision == "REQUIRE_APPROVAL",
-        }, timestamp)
-        persisted = _lock_diagnosis(session, diagnosis_id)
-        if persisted is not None:
-            _cas_session_update(session, persisted, status="HYPOTHESIZING", timestamp=timestamp)
+        created = _append_event(
+            session,
+            diagnosis_id,
+            "planner.insufficient_replanned",
+            "SYSTEM",
+            {
+                "round_index": revision.round_index,
+                "previous_hypothesis_id": parent.id,
+                "hypothesis_id": revision.id,
+                "tool_name": call.tool_name,
+                "planner_kind": "MODEL_ASSISTED" if proposal else "DETERMINISTIC_FALLBACK",
+                "reason": revision.generation_reason,
+                "requires_approval": call.policy_decision == "REQUIRE_APPROVAL",
+            },
+            timestamp,
+            effect_key=f"report:{report_id}:insufficient:event",
+        )
+        if created:
+            persisted = _lock_diagnosis(session, diagnosis_id)
+            if persisted is not None:
+                _cas_session_update(
+                    session,
+                    persisted,
+                    status="HYPOTHESIZING",
+                    timestamp=timestamp,
+                )
         session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(
+            diagnosis_id,
+            f"report:{report_id}:insufficient:event",
+        ):
+            raise
     finally:
         session.close()
     return revision
 
 
-def _record_successful_route(diagnosis_id: str, report_id: str) -> None:
+def _tool_call_by_effect_key(
+    diagnosis_id: str,
+    effect_key: str,
+) -> DropInsightToolCallModel | None:
     session = new_session()
     try:
+        return (
+            session.query(DropInsightToolCallModel)
+            .filter(
+                DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                DropInsightToolCallModel.effect_key == effect_key,
+            )
+            .first()
+        )
+    finally:
+        session.close()
+
+
+def _event_effect_exists(diagnosis_id: str, effect_key: str) -> bool:
+    session = new_session()
+    try:
+        return (
+            session.query(DropInsightEventModel.id)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.effect_key == effect_key,
+            )
+            .first()
+            is not None
+        )
+    finally:
+        session.close()
+
+
+def _record_successful_route(diagnosis_id: str, report_id: str) -> None:
+    effect_key = f"report:{report_id}:route:event"
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return
         calls = (
             session.query(DropInsightToolCallModel)
             .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
@@ -1111,14 +2029,27 @@ def _record_successful_route(diagnosis_id: str, report_id: str) -> None:
             .all()
         )
         route = [item.tool_name for item in calls if item.status == "COMPLETED"]
-        if route:
-            _append_event(session, diagnosis_id, "diagnosis.route_learned", "SYSTEM", {
+        if not route:
+            return
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.route_learned",
+            "SYSTEM",
+            {
                 "report_id": report_id,
                 "tool_route": route,
                 "learning_scope": "verified_route_prior",
                 "note": "仅提升后续路线排序，不自动新增工具或绕过策略。",
-            }, now_utc())
-            session.commit()
+            },
+            now_utc(),
+            effect_key=effect_key,
+        )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(diagnosis_id, effect_key):
+            raise
     finally:
         session.close()
 
@@ -1132,12 +2063,13 @@ def preview_tool_call(
         diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
         if diagnosis is None:
             return None
-        target = diagnosis.target_json or {}
-        allowed_agent_ids = {
-            value
-            for value in [target.get("agent_id")]
-            if isinstance(value, str) and value
-        }
+        try:
+            binding = _validated_target_binding(session, diagnosis)
+            binding_authoritative = True
+        except ValueError:
+            binding = None
+            binding_authoritative = False
+        allowed_agent_ids = frozenset({binding.agent_id}) if binding else frozenset()
         agent_id = payload.arguments.get("agent_id")
         agent = session.get(AgentModel, agent_id) if isinstance(agent_id, str) else None
         capabilities = frozenset(agent.capabilities or []) if agent is not None else frozenset()
@@ -1148,11 +2080,13 @@ def preview_tool_call(
             .count()
         )
         context = PolicyContext(
-            allowed_agent_ids=frozenset(allowed_agent_ids),
+            allowed_agent_ids=allowed_agent_ids,
             agent_capabilities=capabilities,
             max_risk_level=budget.get("max_risk_level", "R0"),
             used_tool_calls=used_tool_calls,
             max_tool_calls=budget.get("max_tool_calls", 12),
+            allowed_pid=binding.pid if binding else None,
+            binding_authoritative=binding_authoritative,
         )
         decision = evaluate_tool_call(payload.tool_name, payload.arguments, context)
         _append_event(
@@ -1178,69 +2112,130 @@ def request_tool_call(
     payload: CreateToolCallRequest,
     *,
     requested_by: str = "system:internal",
+    effect_key: str | None = None,
 ) -> DropInsightToolCallModel | None:
     session = new_session()
+    model = None
     try:
-        diagnosis = _lock_diagnosis(
-            session, diagnosis_id, payload.expected_version
-        )
-        if diagnosis is None:
-            return None
-        if payload.hypothesis_id:
-            hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
-            if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
-                raise ValueError("hypothesis does not belong to diagnosis")
+        if effect_key:
+            existing = (
+                session.query(DropInsightToolCallModel)
+                .filter(
+                    DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                    DropInsightToolCallModel.effect_key == effect_key,
+                )
+                .first()
+            )
+            if existing is not None:
+                model = existing
+            else:
+                diagnosis = _lock_diagnosis(
+                    session, diagnosis_id, payload.expected_version
+                )
+                if diagnosis is None:
+                    return None
+                existing = (
+                    session.query(DropInsightToolCallModel)
+                    .filter(
+                        DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                        DropInsightToolCallModel.effect_key == effect_key,
+                    )
+                    .first()
+                )
+                if existing is not None:
+                    model = existing
+        else:
+            diagnosis = _lock_diagnosis(
+                session, diagnosis_id, payload.expected_version
+            )
+            if diagnosis is None:
+                return None
 
-        decision = _evaluate_persisted_tool_policy(session, diagnosis, payload.tool_name, payload.arguments)
-        reservation = decision.pop("reservation", None)
-        status_by_decision = {
-            "DENY": "DENIED",
-            "REQUIRE_APPROVAL": "PENDING_APPROVAL",
-            "ALLOW": "APPROVED",
-        }
-        timestamp = now_utc()
-        model = DropInsightToolCallModel(
-            id=f"toolcall_{uuid4().hex}",
-            diagnosis_id=diagnosis_id,
-            hypothesis_id=payload.hypothesis_id,
-            tool_name=payload.tool_name,
-            arguments_json=payload.arguments,
-            policy_decision=decision["decision"],
-            policy_checks_json=decision["checks"],
-            policy_reason=decision["reason"],
-            status=status_by_decision[decision["decision"]],
-            budget_reservation_json=reservation or {},
-            budget_reservation_status="RESERVED" if reservation else "NONE",
-            requested_by=requested_by,
-            created_at=timestamp,
-            decided_at=timestamp if decision["decision"] == "DENY" else None,
-        )
-        session.add(model)
-        _append_event(
-            session,
-            diagnosis_id,
-            "tool_call.requested",
-            "PLANNER",
-            {
-                "tool_call_id": model.id,
-                "tool_name": model.tool_name,
-                "policy_decision": model.policy_decision,
-                "status": model.status,
-            },
-            timestamp,
-        )
-        _cas_session_update(
-            session,
-            diagnosis,
-            status="PLANNING" if diagnosis.status == "UNDERSTANDING" else diagnosis.status,
-            timestamp=timestamp,
-        )
-        session.commit()
-        session.refresh(model)
+        if model is None:
+            if payload.hypothesis_id:
+                hypothesis = session.get(
+                    DropInsightHypothesisModel,
+                    payload.hypothesis_id,
+                )
+                if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
+                    raise ValueError("hypothesis does not belong to diagnosis")
+
+            decision = _evaluate_persisted_tool_policy(
+                session,
+                diagnosis,
+                payload.tool_name,
+                payload.arguments,
+            )
+            reservation = decision.pop("reservation", None)
+            status_by_decision = {
+                "DENY": "DENIED",
+                "REQUIRE_APPROVAL": "PENDING_APPROVAL",
+                "ALLOW": "APPROVED",
+            }
+            timestamp = now_utc()
+            model = DropInsightToolCallModel(
+                id=f"toolcall_{uuid4().hex}",
+                diagnosis_id=diagnosis_id,
+                hypothesis_id=payload.hypothesis_id,
+                tool_name=payload.tool_name,
+                arguments_json=payload.arguments,
+                policy_decision=decision["decision"],
+                policy_checks_json=decision["checks"],
+                policy_reason=decision["reason"],
+                status=status_by_decision[decision["decision"]],
+                budget_reservation_json=reservation or {},
+                budget_reservation_status="RESERVED" if reservation else "NONE",
+                effect_key=effect_key,
+                requested_by=requested_by,
+                created_at=timestamp,
+                decided_at=timestamp if decision["decision"] == "DENY" else None,
+            )
+            session.add(model)
+            _append_event(
+                session,
+                diagnosis_id,
+                "tool_call.requested",
+                "PLANNER",
+                {
+                    "tool_call_id": model.id,
+                    "tool_name": model.tool_name,
+                    "policy_decision": model.policy_decision,
+                    "status": model.status,
+                },
+                timestamp,
+            )
+            _cas_session_update(
+                session,
+                diagnosis,
+                status=(
+                    "PLANNING"
+                    if diagnosis.status == "UNDERSTANDING"
+                    else diagnosis.status
+                ),
+                timestamp=timestamp,
+            )
+            try:
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+                if not effect_key:
+                    raise
+                model = (
+                    session.query(DropInsightToolCallModel)
+                    .filter(
+                        DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                        DropInsightToolCallModel.effect_key == effect_key,
+                    )
+                    .first()
+                )
+                if model is None:
+                    raise
+            else:
+                session.refresh(model)
     finally:
         session.close()
 
-    if model.status == "APPROVED":
+    if model is not None and model.status == "APPROVED":
         return _execute_approved_tool_call(model.id)
     return model
 
@@ -1260,6 +2255,21 @@ def decide_tool_call(
         if model.status != "PENDING_APPROVAL":
             raise ValueError(f"tool call is not awaiting approval: {model.status}")
         timestamp = now_utc()
+        if payload.approved:
+            diagnosis = (
+                session.query(DropInsightSessionModel)
+                .filter(DropInsightSessionModel.id == diagnosis_id)
+                .with_for_update()
+                .first()
+            )
+            if diagnosis is None:
+                return None
+            binding = _validated_target_binding(session, diagnosis, now=timestamp)
+            arguments = model.arguments_json or {}
+            if arguments.get("agent_id") != binding.agent_id:
+                raise ValueError("tool call Agent disagrees with process binding")
+            if arguments.get("pid") is not None and arguments.get("pid") != binding.pid:
+                raise ValueError("tool call PID disagrees with process binding")
         model.approved_by = decided_by
         model.approval_reason = payload.reason
         model.decided_at = timestamp
@@ -1458,7 +2468,6 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
             {
                 "tool_call_id": item.id,
                 "hypothesis_id": item.hypothesis_id,
-                "status": item.status,
                 "task_id": item.task_id,
             }
             for item in calls
@@ -1470,12 +2479,26 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
     for snapshot in snapshots:
         if not snapshot["task_id"]:
             continue
+
+        task_status = None
         session = new_session()
         try:
+            diagnosis = _lock_diagnosis(session, diagnosis_id)
+            tool_call = (
+                session.query(DropInsightToolCallModel)
+                .filter(
+                    DropInsightToolCallModel.id == snapshot["tool_call_id"],
+                    DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                )
+                .with_for_update()
+                .first()
+            )
             task = session.get(TaskModel, snapshot["task_id"])
-            tool_call = session.get(DropInsightToolCallModel, snapshot["tool_call_id"])
-            if task is None or tool_call is None:
+            if diagnosis is None or task is None or tool_call is None:
                 continue
+            if tool_call.terminal_processing_status == "REPORT_EFFECTS_DONE":
+                continue
+
             task_status = task.status
             if task_status in {"PENDING", "RUNNING", "UPLOADING", "ANALYZING"}:
                 next_status = "RUNNING" if task_status != "PENDING" else "TASK_CREATED"
@@ -1489,13 +2512,14 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                     "task_status": task_status,
                 })
                 continue
+
             if task_status in {"FAILED", "CANCELLED"}:
+                timestamp = now_utc()
                 tool_call.status = task_status
                 tool_call.result_json = {
                     "task_status": task_status,
                     "reason": task.status_reason,
                 }
-                timestamp = now_utc()
                 _release_budget_reservation(
                     tool_call,
                     timestamp=timestamp,
@@ -1513,13 +2537,14 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                     },
                     timestamp,
                 )
-                diagnosis = _lock_diagnosis(session, diagnosis_id)
                 _cas_session_update(
                     session,
                     diagnosis,
                     status="INSUFFICIENT_EVIDENCE",
                     timestamp=timestamp,
                 )
+                tool_call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+                tool_call.terminal_processed_at = timestamp
                 session.commit()
                 actions.append({
                     "tool_call_id": tool_call.id,
@@ -1527,69 +2552,132 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                     "action": task_status,
                 })
                 continue
+
             if task_status != "DONE":
                 continue
-            tool_call.status = "COMPLETED"
-            tool_call.result_json = {"task_status": "DONE", "task_id": task.id}
-            timestamp = now_utc()
-            _settle_budget_reservation(session, tool_call, task, timestamp=timestamp)
-            _append_event(
-                session,
-                diagnosis_id,
-                "tool_call.task_terminal",
-                "SYSTEM",
-                {
-                    "tool_call_id": tool_call.id,
-                    "task_id": task.id,
+            if tool_call.terminal_processing_status == "NONE":
+                timestamp = now_utc()
+                tool_call.status = "COMPLETED"
+                tool_call.result_json = {
                     "task_status": "DONE",
-                },
-                timestamp,
-            )
-            session.commit()
+                    "task_id": task.id,
+                }
+                _settle_budget_reservation(
+                    session,
+                    tool_call,
+                    task,
+                    timestamp=timestamp,
+                )
+                _append_event(
+                    session,
+                    diagnosis_id,
+                    "tool_call.task_terminal",
+                    "SYSTEM",
+                    {
+                        "tool_call_id": tool_call.id,
+                        "task_id": task.id,
+                        "task_status": "DONE",
+                    },
+                    timestamp,
+                )
+                tool_call.terminal_processing_status = "TERMINAL_RECORDED"
+                session.commit()
         finally:
             session.close()
 
-        if snapshot["hypothesis_id"]:
-            imported = import_task_evidence(
-                diagnosis_id,
-                ImportTaskEvidenceRequest(
-                    task_id=snapshot["task_id"],
-                    hypothesis_id=snapshot["hypothesis_id"],
-                ),
-            )
+        if task_status != "DONE" or not snapshot["hypothesis_id"]:
+            continue
+
+        imported = import_task_evidence(
+            diagnosis_id,
+            ImportTaskEvidenceRequest(
+                task_id=snapshot["task_id"],
+                hypothesis_id=snapshot["hypothesis_id"],
+            ),
+            terminal_tool_call_id=snapshot["tool_call_id"],
+        )
+        session = new_session()
+        try:
+            hypothesis_exists = session.get(
+                DropInsightHypothesisModel,
+                snapshot["hypothesis_id"],
+            ) is not None
+        finally:
+            session.close()
+        report = None
+        if hypothesis_exists:
+            # A diagnosis round may dispatch more than one independent probe.
+            # Do not freeze an immutable report until every sibling probe has
+            # imported its Analyzer-validated evidence. A sibling task can be
+            # DONE while its evidence is still waiting for this orchestrator
+            # loop, so checking only Task.status is not sufficient.
             session = new_session()
             try:
-                existing_report = (
-                    session.query(DropInsightReportModel)
+                sibling_calls = (
+                    session.query(DropInsightToolCallModel)
                     .filter(
-                        DropInsightReportModel.diagnosis_id == diagnosis_id,
-                        DropInsightReportModel.hypothesis_id == snapshot["hypothesis_id"],
+                        DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                        DropInsightToolCallModel.hypothesis_id == snapshot["hypothesis_id"],
+                        DropInsightToolCallModel.task_id.is_not(None),
                     )
-                    .first()
+                    .all()
                 )
-                hypothesis = session.get(
-                    DropInsightHypothesisModel,
-                    snapshot["hypothesis_id"],
-                )
+                pending_siblings = [
+                    item
+                    for item in sibling_calls
+                    if item.terminal_processing_status
+                    not in {"EVIDENCE_IMPORTED", "REPORT_EFFECTS_DONE"}
+                ]
             finally:
                 session.close()
-            if existing_report is None and hypothesis is not None:
+            if not pending_siblings:
                 report = generate_report(
                     diagnosis_id,
-                    GenerateReportRequest(hypothesis_id=hypothesis.id),
+                    GenerateReportRequest(
+                        hypothesis_id=snapshot["hypothesis_id"],
+                    ),
                 )
             else:
-                report = existing_report
-            actions.append({
-                "tool_call_id": snapshot["tool_call_id"],
-                "task_id": snapshot["task_id"],
-                "action": "EVIDENCE_IMPORTED",
-                "evidence_refs": [item.id for item in imported or []],
-                "report_id": report.id if report is not None else None,
-            })
+                actions.append({
+                    "tool_call_id": snapshot["tool_call_id"],
+                    "task_id": snapshot["task_id"],
+                    "action": "WAIT_FOR_ROUND_EVIDENCE",
+                    "pending_task_count": len(pending_siblings),
+                })
+
+        session = new_session()
+        try:
+            _lock_diagnosis(session, diagnosis_id)
+            tool_call = (
+                session.query(DropInsightToolCallModel)
+                .filter(
+                    DropInsightToolCallModel.id == snapshot["tool_call_id"],
+                    DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                )
+                .with_for_update()
+                .first()
+            )
+            if (
+                tool_call is not None
+                and tool_call.terminal_processing_status == "EVIDENCE_IMPORTED"
+                and report is not None
+                and report.effects_status == "APPLIED"
+            ):
+                timestamp = now_utc()
+                tool_call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+                tool_call.terminal_processed_at = timestamp
+                session.commit()
+                actions.append({
+                    "tool_call_id": snapshot["tool_call_id"],
+                    "task_id": snapshot["task_id"],
+                    "action": "EVIDENCE_IMPORTED",
+                    "evidence_refs": [item.id for item in imported or []],
+                    "report_id": report.id if report is not None else None,
+                })
+        finally:
+            session.close()
 
     if snapshots:
-        # 方案 §5.2：证据到位后给备选假设与 OTHER/UNKNOWN 打分。
         _score_candidate_hypotheses(diagnosis_id)
 
     return {
@@ -1600,11 +2688,13 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
 
 
 def _evaluate_persisted_tool_policy(session, diagnosis, tool_name: str, arguments: dict) -> dict:
-    target = diagnosis.target_json or {}
-    allowed_agent_ids = {
-        value for value in [target.get("agent_id")]
-        if isinstance(value, str) and value
-    }
+    try:
+        binding = _validated_target_binding(session, diagnosis)
+        binding_authoritative = True
+    except ValueError:
+        binding = None
+        binding_authoritative = False
+    allowed_agent_ids = frozenset({binding.agent_id}) if binding else frozenset()
     agent_id = arguments.get("agent_id")
     agent = session.get(AgentModel, agent_id) if isinstance(agent_id, str) else None
     capabilities = frozenset(agent.capabilities or []) if agent is not None else frozenset()
@@ -1618,11 +2708,13 @@ def _evaluate_persisted_tool_policy(session, diagnosis, tool_name: str, argument
         tool_name,
         arguments,
         PolicyContext(
-            allowed_agent_ids=frozenset(allowed_agent_ids),
+            allowed_agent_ids=allowed_agent_ids,
             agent_capabilities=capabilities,
             max_risk_level=budget.get("max_risk_level", "R0"),
             used_tool_calls=used_tool_calls,
             max_tool_calls=budget.get("max_tool_calls", 12),
+            allowed_pid=binding.pid if binding else None,
+            binding_authoritative=binding_authoritative,
         ),
     )
     if decision["decision"] == "DENY":
@@ -1767,6 +2859,71 @@ def _settle_budget_reservation(session, model, task, *, timestamp) -> None:
     model.budget_reservation_status = "SETTLED"
 
 
+def _is_task_identity_conflict(error: IntegrityError) -> bool:
+    constraint_name = getattr(
+        getattr(error.orig, "diag", None),
+        "constraint_name",
+        None,
+    )
+    if constraint_name:
+        return constraint_name in {
+            "ix_tasks_diagnosis_step_id",
+            "tasks_diagnosis_step_id_key",
+            "uq_tasks_diagnosis_step_id",
+        }
+    return (
+        "unique constraint failed: tasks.diagnosis_step_id"
+        in str(error.orig).lower()
+    )
+
+
+def _binding_request(binding: ProcessIdentityBinding) -> ProcessIdentityBindingRequest:
+    return ProcessIdentityBindingRequest(**binding.to_dict())
+
+
+def _canonical_binding(value) -> dict | None:
+    try:
+        return ProcessIdentityBinding.from_mapping(value).to_dict()
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _task_matches_request(
+    session,
+    task: TaskModel,
+    request: CreateTaskRequest,
+    *,
+    now: datetime | None = None,
+) -> bool:
+    expected = request.model_dump(mode="json")
+    requested_binding = _canonical_binding(expected.get("process_binding"))
+    task_request = task.request_params or {}
+    persisted_request_binding = _canonical_binding(task_request.get("process_binding"))
+    persisted_binding = _canonical_binding(task.process_binding_json)
+    if requested_binding is None:
+        return False
+    binding = ProcessIdentityBinding.from_mapping(requested_binding)
+    return (
+        task.diagnosis_step_id == expected["options"]["diagnosis_step_id"]
+        and task.agent_id == expected["agent_id"] == binding.agent_id
+        and task.target_pid == expected["target_pid"] == binding.pid
+        and task.collector_type == expected["collector_type"]
+        and task.sample_rate == expected["sample_rate"]
+        and task.duration_sec == expected["duration_sec"]
+        and task_request == expected
+        and persisted_request_binding == requested_binding
+        and persisted_binding == requested_binding
+        and task.process_snapshot_id == binding.process_snapshot_id
+        and SqlRepository()._validate_process_binding_in_session(
+            session,
+            binding,
+            agent_id=task.agent_id,
+            target_pid=task.target_pid,
+            now=now or now_utc(),
+        )
+    )
+
+
 def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
     session = new_session()
     try:
@@ -1784,6 +2941,19 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             return model
         arguments = model.arguments_json or {}
         timestamp = now_utc()
+        diagnosis = (
+            session.query(DropInsightSessionModel)
+            .filter(DropInsightSessionModel.id == model.diagnosis_id)
+            .with_for_update()
+            .first()
+        )
+        if diagnosis is None:
+            raise ValueError("diagnosis not found")
+        binding = _validated_target_binding(session, diagnosis, now=timestamp)
+        if arguments.get("agent_id") != binding.agent_id:
+            raise ValueError("tool call Agent disagrees with process binding")
+        if arguments.get("pid") is not None and arguments.get("pid") != binding.pid:
+            raise ValueError("tool call PID disagrees with process binding")
         if model.tool_name == "get_agent_status":
             agent = session.get(AgentModel, arguments["agent_id"])
             model.result_json = agent.to_dict() if agent is not None else {"found": False}
@@ -1822,21 +2992,23 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             session.commit()
             session.refresh(model)
             return model
+        task_request = CreateTaskRequest(
+            name=f"Drop Insight: {model.tool_name}",
+            agent_id=arguments["agent_id"],
+            target_pid=arguments["pid"],
+            collector_type=collector_type,
+            sample_rate=arguments.get("sample_rate", 99),
+            duration_sec=arguments["duration_seconds"],
+            options={
+                "diagnosis_step_id": tool_call_id,
+                "drop_insight_diagnosis_id": model.diagnosis_id,
+                "drop_insight_tool_call_id": tool_call_id,
+            },
+            process_binding=_binding_request(binding),
+        )
         task = SqlRepository().create_task_in_session(
             session,
-            CreateTaskRequest(
-                name=f"Drop Insight: {model.tool_name}",
-                agent_id=arguments["agent_id"],
-                target_pid=arguments["pid"],
-                collector_type=collector_type,
-                sample_rate=arguments.get("sample_rate", 99),
-                duration_sec=arguments["duration_seconds"],
-                options={
-                    "diagnosis_step_id": tool_call_id,
-                    "drop_insight_diagnosis_id": model.diagnosis_id,
-                    "drop_insight_tool_call_id": tool_call_id,
-                },
-            ),
+            task_request,
         )
         model.task_id = task.id
         model.status = "TASK_CREATED"
@@ -1848,9 +3020,92 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             "SYSTEM",
             {"tool_call_id": model.id, "task_id": task.id},
             model.executed_at,
+            effect_key=f"tool_call:{model.id}:task_created",
         )
         session.commit()
         session.refresh(model)
+        return model
+    except IntegrityError as error:
+        session.rollback()
+        if not _is_task_identity_conflict(error):
+            raise
+        task = (
+            session.query(TaskModel)
+            .filter(TaskModel.diagnosis_step_id == tool_call_id)
+            .first()
+        )
+        if task is None:
+            raise
+        model = (
+            session.query(DropInsightToolCallModel)
+            .filter(DropInsightToolCallModel.id == tool_call_id)
+            .with_for_update()
+            .first()
+        )
+        if model is None:
+            raise ValueError("tool call not found")
+        arguments = model.arguments_json or {}
+        replay_timestamp = now_utc()
+        diagnosis = (
+            session.query(DropInsightSessionModel)
+            .filter(DropInsightSessionModel.id == model.diagnosis_id)
+            .with_for_update()
+            .first()
+        )
+        if diagnosis is None:
+            raise ValueError("diagnosis not found")
+        binding = _validated_target_binding(session, diagnosis, now=replay_timestamp)
+        if (
+            arguments.get("agent_id") != binding.agent_id
+            or arguments.get("pid") != binding.pid
+        ):
+            raise ValueError("replayed tool call disagrees with process binding")
+        collector_type = {
+            "collect_sys_metrics": "sys_metrics",
+            "start_perf_profile": "perf_cpu",
+            "start_ebpf_io_profile": "ebpf_io",
+            "start_pyspy_profile": "pyspy",
+        }.get(model.tool_name)
+        if collector_type is None:
+            raise
+        task_request = CreateTaskRequest(
+            name=f"Drop Insight: {model.tool_name}",
+            agent_id=arguments["agent_id"],
+            target_pid=arguments["pid"],
+            collector_type=collector_type,
+            sample_rate=arguments.get("sample_rate", 99),
+            duration_sec=arguments["duration_seconds"],
+            options={
+                "diagnosis_step_id": tool_call_id,
+                "drop_insight_diagnosis_id": model.diagnosis_id,
+                "drop_insight_tool_call_id": tool_call_id,
+            },
+            process_binding=_binding_request(binding),
+        )
+        if not _task_matches_request(
+            session,
+            task,
+            task_request,
+            now=replay_timestamp,
+        ):
+            raise ValueError("existing task does not match immutable request authority")
+        if model.task_id and model.task_id != task.id:
+            raise ValueError("tool call is linked to a different task")
+        if model.status == "APPROVED":
+            model.task_id = task.id
+            model.status = "TASK_CREATED"
+            model.executed_at = model.executed_at or now_utc()
+            _append_event(
+                session,
+                model.diagnosis_id,
+                "tool_call.task_created",
+                "SYSTEM",
+                {"tool_call_id": model.id, "task_id": task.id},
+                model.executed_at,
+                effect_key=f"tool_call:{model.id}:task_created",
+            )
+            session.commit()
+            session.refresh(model)
         return model
     except Exception:
         session.rollback()
@@ -2083,12 +3338,13 @@ def run_diagnosis_planner(
     diagnosis = get_diagnosis(diagnosis_id)
     if diagnosis is None:
         return None
+    validation_session = new_session()
+    try:
+        binding = _validated_target_binding(validation_session, diagnosis)
+    finally:
+        validation_session.close()
     target = diagnosis.target_json or {}
-    if not target.get("agent_id") or not target.get("pid"):
-        raise ValueError("planner requires target.agent_id and target.pid")
-
-    # 初始规划是幂等操作。刷新或重复点击必须返回同一假设/工具调用，
-    # 只有反证、证据不足或人工纠正入口才会显式创建下一轮。
+    # Only counter-evidence, insufficient evidence, or user correction opens a new round.
     existing_calls = list_tool_calls(diagnosis_id)
     existing_hypotheses = list_hypotheses(diagnosis_id)
     if existing_calls and existing_hypotheses:
@@ -2108,11 +3364,7 @@ def run_diagnosis_planner(
         }
 
     query = (diagnosis.query or "").lower()
-    triage_arguments = {
-        "agent_id": target["agent_id"],
-        "pid": target["pid"],
-        "duration_seconds": 15,
-    }
+    triage_arguments = _planner_tool_arguments("collect_sys_metrics", target)
     if any(token in query for token in ("数据库锁", "锁等待", "deadlock", "mysql lock", "db lock")):
         plan = {
             "planner_version": "rules-v2",
@@ -2191,11 +3443,7 @@ def run_diagnosis_planner(
             "expected": ["eBPF IO 延迟分布出现长尾或高延迟桶"],
             "falsification": ["IO 延迟分布与基线一致且没有长尾"],
             "tool_name": "start_ebpf_io_profile",
-            "arguments": {
-                "agent_id": target["agent_id"],
-                "pid": target["pid"],
-                "duration_seconds": 15,
-            },
+            "arguments": _planner_tool_arguments("start_ebpf_io_profile", target),
         }
     elif any(token in query for token in ("python", "py-spy", "gil", "协程")):
         plan = {
@@ -2205,12 +3453,7 @@ def run_diagnosis_planner(
             "expected": ["py-spy 样本集中在少数 Python 函数或线程"],
             "falsification": ["Python 栈样本均匀且无明显热点"],
             "tool_name": "start_pyspy_profile",
-            "arguments": {
-                "agent_id": target["agent_id"],
-                "pid": target["pid"],
-                "duration_seconds": 15,
-                "sample_rate": 99,
-            },
+            "arguments": _planner_tool_arguments("start_pyspy_profile", target),
         }
     elif any(token in query for token in ("内存", "memory", "rss", "oom")):
         plan = {
@@ -2220,11 +3463,7 @@ def run_diagnosis_planner(
             "expected": ["系统指标显示 RSS 或内存压力持续异常"],
             "falsification": ["RSS、换页和内存压力均处于正常范围"],
             "tool_name": "collect_sys_metrics",
-            "arguments": {
-                "agent_id": target["agent_id"],
-                "pid": target["pid"],
-                "duration_seconds": 15,
-            },
+            "arguments": _planner_tool_arguments("collect_sys_metrics", target),
         }
     elif any(
         token in query
@@ -2238,12 +3477,7 @@ def run_diagnosis_planner(
             "expected": ["perf 样本集中在少数热点函数或内核调用链"],
             "falsification": ["CPU 样本均匀且没有显著热点"],
             "tool_name": "start_perf_profile",
-            "arguments": {
-                "agent_id": target["agent_id"],
-                "pid": target["pid"],
-                "duration_seconds": 15,
-                "sample_rate": 99,
-            },
+            "arguments": _planner_tool_arguments("start_perf_profile", target),
         }
     else:
         questions = [
@@ -2296,6 +3530,16 @@ def run_diagnosis_planner(
             "hypothesis": None,
             "tool_call": None,
         }
+
+    # 已发布技能只提供经过门禁验证的探针顺序先验。环境漂移或类别不匹配
+    # 时不会命中，规则规划器仍是可复现的安全兜底。
+    from .skill_evolution import apply_active_skill
+
+    skill_activation = apply_active_skill(
+        diagnosis_id, plan["category"], plan, target
+    )
+    if skill_activation:
+        plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
 
     # 规则负责范围/工具白名单，模型只在边界内提出和排序可证伪假设。
     # 模型不可用时保留确定性规则结果，且把来源显式展示给用户。
@@ -2392,14 +3636,39 @@ def run_diagnosis_planner(
         "category": plan["category"],
         "decision_source": source,
         "reasoning_summary": generation_reason,
+        "skill_activation": skill_activation,
         "hypothesis": hypothesis.to_dict(),
         "tool_call": tool_call.to_dict(),
     }
 
 
+def _evidence_time_scope(diagnosis: DropInsightSessionModel) -> dict:
+    if diagnosis.mode == "REPRODUCTION":
+        selected = diagnosis.effective_time_range_json or {}
+        scope_name = "effective live"
+        if selected.get("state") != "FINALIZED":
+            raise ValueError(
+                "effective live diagnosis time range must be finalized before evidence import"
+            )
+    else:
+        selected = (
+            diagnosis.requested_time_range_json
+            or diagnosis.time_range_json
+            or {}
+        )
+        scope_name = "requested"
+    if not selected.get("start") or not selected.get("end"):
+        raise ValueError(
+            f"{scope_name} diagnosis time range must be finalized before evidence import"
+        )
+    return selected
+
+
 def import_task_evidence(
     diagnosis_id: str,
     payload: ImportTaskEvidenceRequest,
+    *,
+    terminal_tool_call_id: str | None = None,
 ) -> list[DropInsightEvidenceModel] | None:
     session = new_session()
     try:
@@ -2408,6 +3677,32 @@ def import_task_evidence(
         )
         if diagnosis is None:
             return None
+        terminal_tool_call = None
+        terminal_evidence_already_imported = False
+        if terminal_tool_call_id is not None:
+            terminal_tool_call = (
+                session.query(DropInsightToolCallModel)
+                .filter(
+                    DropInsightToolCallModel.id == terminal_tool_call_id,
+                    DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                )
+                .with_for_update()
+                .first()
+            )
+            if terminal_tool_call is None:
+                raise ValueError("terminal tool call not found")
+            if terminal_tool_call.task_id != payload.task_id:
+                raise ValueError("task does not belong to terminal tool call")
+            if terminal_tool_call.terminal_processing_status in {
+                "EVIDENCE_IMPORTED",
+                "REPORT_EFFECTS_DONE",
+            }:
+                terminal_evidence_already_imported = True
+            elif (
+                terminal_tool_call.terminal_processing_status
+                != "TERMINAL_RECORDED"
+            ):
+                raise ValueError("task terminal state has not been recorded")
         hypothesis = session.get(DropInsightHypothesisModel, payload.hypothesis_id)
         if hypothesis is None or hypothesis.diagnosis_id != diagnosis_id:
             raise ValueError("hypothesis does not belong to diagnosis")
@@ -2417,13 +3712,22 @@ def import_task_evidence(
         if task.status != "DONE":
             raise ValueError("only DONE tasks can be imported as evidence")
 
+        binding = _validated_target_binding(session, diagnosis)
         target = diagnosis.target_json or {}
-        allowed_agent_id = target.get("agent_id")
-        if allowed_agent_id and task.agent_id != allowed_agent_id:
-            raise ValueError("task agent is outside diagnosis target scope")
-        target_pid = target.get("pid")
-        if target_pid and task.target_pid != target_pid:
-            raise ValueError("task PID does not match diagnosis target")
+        evidence_time_scope = _evidence_time_scope(diagnosis)
+        task_binding = _canonical_binding(task.process_binding_json)
+        request_binding = _canonical_binding(
+            (task.request_params or {}).get("process_binding")
+        )
+        canonical_binding = binding.to_dict()
+        if (
+            task.agent_id != binding.agent_id
+            or task.target_pid != binding.pid
+            or task.process_snapshot_id != binding.process_snapshot_id
+            or task_binding != canonical_binding
+            or request_binding != canonical_binding
+        ):
+            raise ValueError("task does not match diagnosis immutable process binding")
 
         attempt = (
             session.query(TaskAttemptModel)
@@ -2447,6 +3751,16 @@ def import_task_evidence(
         )
         if not artifacts:
             raise ValueError("task has no artifacts")
+        if terminal_evidence_already_imported:
+            evidence_ids = [
+                f"ev_task_{task.id}_{artifact.id}" for artifact in artifacts
+            ]
+            return (
+                session.query(DropInsightEvidenceModel)
+                .filter(DropInsightEvidenceModel.id.in_(evidence_ids))
+                .order_by(DropInsightEvidenceModel.id.asc())
+                .all()
+            )
         successful_jobs = (
             session.query(AnalysisJobModel)
             .filter(
@@ -2467,6 +3781,7 @@ def import_task_evidence(
         }
 
         imported: list[DropInsightEvidenceModel] = []
+        created_evidence = False
         timestamp = now_utc()
         for artifact in artifacts:
             evidence_id = f"ev_task_{task.id}_{artifact.id}"
@@ -2541,7 +3856,7 @@ def import_task_evidence(
                 time_range={
                     "start": event_start,
                     "end": event_end,
-                    "timezone": (diagnosis.time_range_json or {}).get(
+                    "timezone": evidence_time_scope.get(
                         "timezone",
                         "Asia/Shanghai",
                     ),
@@ -2562,7 +3877,7 @@ def import_task_evidence(
                     "time_overlap": _time_ranges_overlap(
                         event_start,
                         event_end,
-                        diagnosis.time_range_json or {},
+                        evidence_time_scope,
                     ),
                     "schema_valid": assessment.schema_valid,
                     "analyzer_validated": assessment.analyzer_validated,
@@ -2604,22 +3919,29 @@ def import_task_evidence(
             )
             session.add(model)
             imported.append(model)
+            created_evidence = True
 
-        _append_event(
-            session,
-            diagnosis_id,
-            "task_evidence.imported",
-            "SYSTEM",
-            {
-                "task_id": task.id,
-                "task_attempt_id": attempt.id,
-                "evidence_refs": [item.id for item in imported],
-            },
-            timestamp,
-        )
-        _cas_session_update(
-            session, diagnosis, status="COLLECTING_EVIDENCE", timestamp=timestamp
-        )
+        if created_evidence:
+            _append_event(
+                session,
+                diagnosis_id,
+                "task_evidence.imported",
+                "SYSTEM",
+                {
+                    "task_id": task.id,
+                    "task_attempt_id": attempt.id,
+                    "evidence_refs": [item.id for item in imported],
+                },
+                timestamp,
+            )
+            _cas_session_update(
+                session,
+                diagnosis,
+                status="COLLECTING_EVIDENCE",
+                timestamp=timestamp,
+            )
+        if terminal_tool_call is not None:
+            terminal_tool_call.terminal_processing_status = "EVIDENCE_IMPORTED"
         session.commit()
         for item in imported:
             session.refresh(item)
@@ -2635,15 +3957,23 @@ def _append_event(
     actor: str,
     payload: dict,
     timestamp,
-) -> None:
-    # Serialize event writers on the aggregate root.  count()+1 races when
-    # two requests append concurrently and can violate the unique
-    # (diagnosis_id, sequence) constraint.
+    *,
+    effect_key: str | None = None,
+) -> bool:
     session.execute(
         select(DropInsightSessionModel.id)
         .where(DropInsightSessionModel.id == diagnosis_id)
         .with_for_update()
     ).scalar_one()
+    if effect_key:
+        existing = session.execute(
+            select(DropInsightEventModel.id).where(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.effect_key == effect_key,
+            )
+        ).scalar_one_or_none()
+        if existing is not None:
+            return False
     current = session.execute(
         select(func.max(DropInsightEventModel.sequence)).where(
             DropInsightEventModel.diagnosis_id == diagnosis_id
@@ -2658,9 +3988,11 @@ def _append_event(
             event_type=event_type,
             actor=actor,
             payload_json=payload,
+            effect_key=effect_key,
             occurred_at=timestamp,
         )
     )
+    return True
 
 
 def _lock_diagnosis(session, diagnosis_id: str, expected_version: int | None = None):
@@ -3001,16 +4333,16 @@ def _time_ranges_overlap(start, end, requested: dict) -> bool:
             requested_start = datetime.fromisoformat(requested_start.replace("Z", "+00:00"))
         if isinstance(requested_end, str):
             requested_end = datetime.fromisoformat(requested_end.replace("Z", "+00:00"))
-        start = _as_utc(start, timezone)
-        end = _as_utc(end, timezone)
-        requested_start = _as_utc(requested_start, timezone)
-        requested_end = _as_utc(requested_end, timezone)
+        start = _as_utc_with_timezone(start, timezone)
+        end = _as_utc_with_timezone(end, timezone)
+        requested_start = _as_utc_with_timezone(requested_start, timezone)
+        requested_end = _as_utc_with_timezone(requested_end, timezone)
         return start < requested_end and end > requested_start
     except (TypeError, ValueError):
         return False
 
 
-def _as_utc(value, timezone):
+def _as_utc_with_timezone(value, timezone):
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc)
@@ -3170,32 +4502,83 @@ def clarify_diagnosis(
     diagnosis_id: str,
     payload: ClarifyDiagnosisRequest,
 ) -> dict | None:
-    """Fill missing scope on a NEEDS_CLARIFICATION session, then resume planning.
+    """Resolve clarification scope from opaque, persisted process authority."""
 
-    Updates target / time range under the session CAS and transitions
-    NEEDS_CLARIFICATION -> UNDERSTANDING so the planner can resume.
-    """
     session = new_session()
     try:
         diagnosis = _lock_diagnosis(session, diagnosis_id, payload.expected_version)
         if diagnosis is None:
             return None
-        ts = now_utc()
-        if payload.target is not None:
-            diagnosis.target_json = {
-                **(diagnosis.target_json or {}),
-                **{
-                    key: value
-                    for key, value in payload.target.model_dump(mode="json").items()
-                    if value is not None
-                },
-            }
-        if payload.time_range is not None:
-            diagnosis.time_range_json = payload.time_range.model_dump(mode="json")
-        remaining_questions = _scope_questions(
-            diagnosis.target_json,
-            diagnosis.time_range_json,
+        timestamp = now_utc()
+        previous_target = diagnosis.target_json or {}
+        submitted_target = payload.target.model_dump() if payload.target is not None else {}
+        discovery_id = submitted_target.get("discovery_id")
+        binding_id = submitted_target.get("binding_id")
+        if bool(discovery_id) != bool(binding_id):
+            raise ValueError("discovery_id and binding_id must be supplied together")
+
+        service = submitted_target.get("service") or previous_target.get("service")
+        environment = (
+            submitted_target.get("environment") or previous_target.get("environment")
         )
+        binding = None
+        if discovery_id and binding_id:
+            binding = _selected_discovery_binding(
+                session,
+                diagnosis,
+                discovery_id=discovery_id,
+                binding_id=binding_id,
+                timestamp=timestamp,
+            )
+            discovery = session.get(DropInsightTargetDiscoveryModel, discovery_id)
+            service = service or discovery.service_filter
+            environment = environment or discovery.environment_filter
+        elif previous_target.get("process_binding"):
+            binding = _validated_target_binding(session, diagnosis, now=timestamp)
+
+        replacement_target = {
+            key: value
+            for key, value in {
+                "service": service,
+                "environment": environment,
+            }.items()
+            if value is not None
+        }
+        if binding is not None:
+            replacement_target.update(
+                {
+                    "agent_id": binding.agent_id,
+                    "pid": binding.pid,
+                    "process_binding": binding.to_dict(),
+                }
+            )
+        diagnosis.target_json = replacement_target
+
+        submitted_range = (
+            payload.time_range.model_dump(mode="json")
+            if payload.time_range is not None
+            else None
+        )
+        requested_range = diagnosis.requested_time_range_json or {}
+        if not requested_range and diagnosis.time_range_json:
+            requested_range = diagnosis.time_range_json or {}
+        if submitted_range is not None:
+            if requested_range and submitted_range != requested_range:
+                raise ValueError(
+                    "requested diagnosis time range is immutable once established"
+                )
+            if not requested_range:
+                requested_range = submitted_range
+                diagnosis.requested_time_range_json = submitted_range
+                diagnosis.time_range_json = submitted_range
+            else:
+                diagnosis.requested_time_range_json = requested_range
+                diagnosis.time_range_json = requested_range
+        elif requested_range:
+            diagnosis.requested_time_range_json = requested_range
+            diagnosis.time_range_json = requested_range
+
+        remaining_questions = _scope_questions(replacement_target, requested_range)
         diagnosis.clarification_questions_json = remaining_questions
         _append_event(
             session,
@@ -3203,15 +4586,33 @@ def clarify_diagnosis(
             "diagnosis.clarified",
             "USER",
             {
-                "target": diagnosis.target_json,
-                "time_range": diagnosis.time_range_json,
+                "target": replacement_target,
+                "time_range": diagnosis.time_range_json or {},
+                "requested_time_range": requested_range,
+                "effective_time_range": diagnosis.effective_time_range_json or {},
             },
-            ts,
+            timestamp,
         )
         next_status = "NEEDS_CLARIFICATION" if remaining_questions else "UNDERSTANDING"
-        _cas_session_update(session, diagnosis, status=next_status, timestamp=ts)
+        _cas_session_update(session, diagnosis, status=next_status, timestamp=timestamp)
+        _invalidate_diagnosis_discoveries(
+            session,
+            diagnosis_id,
+            timestamp=timestamp,
+        )
         session.commit()
         session.refresh(diagnosis)
         return diagnosis.to_dict()
+    except _DiscoveryInvalidationError as exc:
+        session.rollback()
+        _persist_discovery_invalidation(
+            exc.discovery_id,
+            diagnosis_id,
+            timestamp=timestamp,
+        )
+        raise
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()

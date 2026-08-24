@@ -545,7 +545,21 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
     }])
     for artifact_id in artifact_ids:
         repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
-    repo.transition_task(task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
+    job = repo.enqueue_analysis_job(
+        task_id,
+        analyzer_type="collector.sys_metrics",
+        analyzer_version="test",
+        input_checksum=hashlib.sha256(artifact_bytes).hexdigest(),
+        input_artifact_ids=artifact_ids,
+    )
+    claimed = repo.claim_analysis_job("test-analyzer")
+    assert claimed is not None and claimed.id == job.id
+    repo.complete_analysis_job(
+        job.id,
+        "test-analyzer",
+        output_artifact_ids=artifact_ids,
+        reason="analysis complete",
+    )
 
 
 def _fail_task(task_id: str, reason: str = "collector unavailable"):
@@ -1001,7 +1015,21 @@ class TestDiagnosisSessionAPI:
         }])
         for artifact_id in artifact_ids:
             repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
-        repo.transition_task(deep_task_id, TaskStatus.DONE, "analysis complete", Actor.ANALYZER)
+        job = repo.enqueue_analysis_job(
+            deep_task_id,
+            analyzer_type="collector.perf_cpu",
+            analyzer_version="test",
+            input_checksum=hashlib.sha256(artifact_bytes).hexdigest(),
+            input_artifact_ids=artifact_ids,
+        )
+        claimed = repo.claim_analysis_job("test-analyzer")
+        assert claimed is not None and claimed.id == job.id
+        repo.complete_analysis_job(
+            job.id,
+            "test-analyzer",
+            output_artifact_ids=artifact_ids,
+            reason="analysis complete",
+        )
 
         completed = client.get(
             f"/api/v1/diagnoses/{data['diagnosis_id']}"

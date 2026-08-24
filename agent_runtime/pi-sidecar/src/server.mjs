@@ -4,6 +4,7 @@ import { RuntimeConflict, RuntimeManager } from "./runtime.mjs";
 
 const PORT = Number(process.env.MINI_DROP_PI_SIDECAR_PORT || 8899);
 const INTERNAL_BASE = process.env.MINI_DROP_PI_INTERNAL_BASE || "http://127.0.0.1:8191";
+const serverRuntimes = new WeakMap();
 
 async function readBody(req) {
   const chunks = [];
@@ -47,16 +48,20 @@ export async function createServer({ manager } = {}) {
   const runtime = manager || new RuntimeManager({
     modelRuntime: null,
     internalBase: INTERNAL_BASE,
+    statePath: process.env.MINI_DROP_PI_STATE_PATH,
   });
-  return http.createServer(async (req, res) => {
+  runtime.start();
+  const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
       if (req.method === "GET" && url.pathname === "/internal/runtime/v1/health") {
-        json(res, 200, { ok: true, data: {
-          status: "ready",
+        const stateReady = runtime.health();
+        json(res, stateReady ? 200 : 503, { ok: stateReady, data: {
+          status: stateReady ? "ready" : "not_ready",
           runtime_type: "pi",
           runtime_version: "pi-0.83.0",
           model_ready: Boolean(runtime.modelRuntime),
+          state_ready: stateReady,
         }});
         return;
       }
@@ -70,6 +75,21 @@ export async function createServer({ manager } = {}) {
       json(res, status, { ok: false, error: String(error?.message || error) });
     }
   });
+  serverRuntimes.set(server, runtime);
+  return server;
+}
+
+export async function closeServer(server) {
+  const runtime = serverRuntimes.get(server);
+  await new Promise((resolve, reject) => {
+    if (!server.listening) {
+      resolve();
+      return;
+    }
+    server.close((error) => error ? reject(error) : resolve());
+  });
+  if (runtime) await runtime.stop();
+  serverRuntimes.delete(server);
 }
 
 async function route(runtime, req, res, path) {
@@ -125,4 +145,18 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   server.listen(PORT, "127.0.0.1", () => {
     console.log(`[sidecar] listening on 127.0.0.1:${PORT}`);
   });
+  let shutdownPromise = null;
+  const shutdown = () => {
+    if (!shutdownPromise) {
+      shutdownPromise = closeServer(server).then(
+        () => process.exit(0),
+        (error) => {
+          console.error(`[sidecar] shutdown failed: ${String(error)}`);
+          process.exit(1);
+        },
+      );
+    }
+  };
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 }

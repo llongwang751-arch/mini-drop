@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Literal, Optional, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -30,6 +30,8 @@ class AgentTurnInput(StrictModel):
 
 class AcceptedTurn(StrictModel):
     turn_id: str
+    runtime_session_id: str = Field(min_length=1, max_length=128)
+    runtime_generation: int = Field(ge=1)
     accepted: bool
     mode: str = "deterministic"
     detail: str = ""
@@ -60,8 +62,16 @@ class RuntimeEventInput(StrictModel):
 
 
 class RuntimeEventBatch(StrictModel):
+    runtime_session_id: str = Field(min_length=1, max_length=128)
     runtime_generation: int = Field(ge=1)
     events: list[RuntimeEventInput] = Field(min_length=1, max_length=128)
+
+
+class RuntimeTerminalOutcome(StrictModel):
+    runtime_session_id: str = Field(min_length=1, max_length=128)
+    runtime_generation: int = Field(ge=1)
+    terminal_status: Literal["COMPLETED", "FAILED", "CANCELLED"]
+    final_message: dict = Field(default_factory=dict)
 
 
 class AgentRuntimePort(Protocol):

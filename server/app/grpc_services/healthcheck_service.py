@@ -3,7 +3,7 @@
 from typing import Any
 
 from server.app.generated import healthcheck_pb2, healthcheck_pb2_grpc, hotmethod_pb2
-from server.app.state_machine import TaskStatus
+from server.app.state_machine import TaskStatus, now_utc
 
 
 class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
@@ -14,14 +14,28 @@ class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
 
     def Do(self, request: healthcheck_pb2.HealthCheckRequest, context) -> healthcheck_pb2.HealthCheckResponse:
         # 记录心跳，检查有无待执行任务
+        received_at = now_utc()
         if hasattr(self._repo, "record_agent_metrics"):
             self._repo.record_agent_metrics(request.agent_id, _metrics_from_request(request))
+        if (
+            hasattr(self._repo, "record_process_candidate_snapshot")
+            and request.HasField("process_candidate_snapshot")
+        ):
+            self._repo.record_process_candidate_snapshot(
+                request.agent_id,
+                request.process_candidate_snapshot,
+                received_at=received_at,
+            )
         response = healthcheck_pb2.HealthCheckResponse()
         response.status = healthcheck_pb2.HealthCheckResponse.SERVING
 
         if getattr(request, "busy", False):
             if hasattr(self._repo, "heartbeat_only"):
-                self._repo.heartbeat_only(request.agent_id, request.ip_addr)
+                self._repo.heartbeat_only(
+                    request.agent_id,
+                    request.ip_addr,
+                    received_at=received_at,
+                )
             active_task_id = getattr(request, "active_task_id", "")
             if active_task_id:
                 getter = getattr(self._repo, "get_task", None)
@@ -34,16 +48,22 @@ class HealthCheckService(healthcheck_pb2_grpc.HealthCheckServicer):
             response.pending = False
             return response
 
-        task = self._repo.heartbeat(request.agent_id, request.ip_addr)
+        dispatch = self._repo.heartbeat(
+            request.agent_id,
+            request.ip_addr,
+            received_at=received_at,
+        )
 
-        if task is None:
+        if dispatch is None:
             response.pending = False
             return response
 
+        task = dispatch.task
         # 构造 TaskDesc 并嵌入响应
         response.pending = True
         task_desc = response.task_desc
         task_desc.task_id = task.id
+        task_desc.task_attempt_authority = dispatch.task_attempt_authority
         task_desc.task_type = 0  # 通用任务
         task_desc.profiler_type = self._profiler_type(task.collector_type)
         task_desc.timeout_sec = task.duration_sec + 30  # 留 30 秒余量

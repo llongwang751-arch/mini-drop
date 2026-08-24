@@ -4,6 +4,7 @@ import {
   SessionManager,
 } from "@earendil-works/pi-coding-agent";
 import { buildToolCatalog } from "./tools.mjs";
+import { SidecarStateStore } from "./state-store.mjs";
 
 const RUNTIME_VERSION = "pi-0.83.0";
 const SYSTEM_PROMPT =
@@ -11,6 +12,9 @@ const SYSTEM_PROMPT =
   "Never use shell or file access. Never fabricate Evidence. If Evidence is insufficient, state the " +
   "precise Evidence Gap and abstain. Cite evidence_id and projection_hash for every factual claim.";
 const EMPTY_DIAGNOSTICS = { diagnostics: [] };
+const CALLBACK_LEASE_MS = 30_000;
+const CALLBACK_RETRY_BASE_MS = 100;
+const CALLBACK_RETRY_MAX_MS = 30_000;
 
 class LockedResourceLoader {
   constructor() {
@@ -93,12 +97,34 @@ export class RuntimeConflict extends Error {
 }
 
 export class RuntimeManager {
-  constructor({ modelRuntime, internalBase, sessionFactory } = {}) {
+  constructor({ modelRuntime, internalBase, sessionFactory, stateStore, statePath } = {}) {
     this.modelRuntime = modelRuntime;
     this.internalBase = internalBase || "http://127.0.0.1:8191";
     this.sessionFactory = sessionFactory || null;
+    this.stateStore = stateStore || new SidecarStateStore(statePath);
     this.sessions = new Map();
     this.acceptedCommands = new Map();
+    this.deliveryPromise = null;
+    this.deliveryTimer = null;
+    this.stopped = true;
+  }
+
+  start() {
+    if (!this.stopped) return;
+    this.stopped = false;
+    this.stateStore.recoverOrphanedTurns();
+    this._scheduleDelivery(0);
+  }
+
+  async stop() {
+    this.stopped = true;
+    if (this.deliveryTimer) clearTimeout(this.deliveryTimer);
+    this.deliveryTimer = null;
+    if (this.deliveryPromise) await this.deliveryPromise;
+  }
+
+  health() {
+    return this.stateStore.health();
   }
 
   async ensureModelRuntime() {
@@ -152,6 +178,13 @@ export class RuntimeManager {
     if (!diagnosisId || !Number.isInteger(generation) || generation < 1) {
       throw new RuntimeConflict("invalid diagnosis runtime context", 400);
     }
+    const persisted = this.stateStore.bind(context);
+    if (persisted.outcome === "stale") {
+      throw new RuntimeConflict("stale runtime generation");
+    }
+    if (persisted.outcome === "conflict") {
+      throw new RuntimeConflict("runtime binding identity mismatch");
+    }
     const existing = this.sessions.get(diagnosisId);
     if (existing) {
       if (generation < existing.generation) {
@@ -177,14 +210,17 @@ export class RuntimeManager {
       }
     }
     const session = await this._createSession(context);
+    const liveTurn = this.stateStore.liveTurn(diagnosisId, generation);
     const entry = {
       session,
       generation,
       context,
       turns: new Map(),
-      activeTurnId: null,
+      activeTurnId: liveTurn?.turnId || null,
       lastEventSeq: 0,
-      lastError: "",
+      lastError: liveTurn?.lifecycleStatus === "RECOVERY_BLOCKED"
+        ? "callback delivery is blocked"
+        : "",
     };
     this.sessions.set(diagnosisId, entry);
     return this._binding(diagnosisId, entry);
@@ -214,6 +250,8 @@ export class RuntimeManager {
   }
 
   getAcceptedTurn(diagnosisId, commandId) {
+    const persisted = this.stateStore.getAccepted(diagnosisId, commandId);
+    if (persisted) return persisted.accepted;
     return this.acceptedCommands.get(this._commandKey(diagnosisId, commandId))?.accepted || null;
   }
 
@@ -224,9 +262,13 @@ export class RuntimeManager {
     }
     const entry = this._entry(diagnosisId, turn.runtime_generation);
     const commandKey = this._commandKey(diagnosisId, turn.client_command_id);
-    const existing = this.acceptedCommands.get(commandKey);
+    const requestIdentity = immutableTurnRequest(turn);
+    const existing = this.stateStore.getAccepted(
+      diagnosisId,
+      turn.client_command_id,
+    ) || this.acceptedCommands.get(commandKey);
     if (existing) {
-      if (existing.request !== immutableTurnRequest(turn)) {
+      if (existing.request !== requestIdentity) {
         throw new RuntimeConflict("client_command_id already used for a different request");
       }
       return existing.accepted;
@@ -242,7 +284,13 @@ export class RuntimeManager {
       diagnosisId,
       turnId: turn.turn_id,
       generation: entry.generation,
+      commandId: turn.client_command_id,
       eventSeq: 0,
+      eventTail: Promise.resolve(),
+      eventDeliveryError: null,
+      completion: null,
+      finishPromise: null,
+      terminalDelivered: false,
       sealed: false,
       cancelled: false,
       abort: typeof entry.session.abort === "function"
@@ -253,21 +301,45 @@ export class RuntimeManager {
     entry.turns.set(turn.turn_id, turnContext);
     const accepted = {
       turn_id: turn.turn_id,
+      runtime_session_id: `pi:${diagnosisId}:${entry.generation}`,
+      runtime_generation: entry.generation,
       accepted: true,
       mode: envelope.shadow === true ? "pi_shadow" : "pi",
       detail: envelope.shadow === true
         ? "accepted without model execution"
         : "accepted by Pi Runtime",
     };
-    this.acceptedCommands.set(commandKey, {
-      request: immutableTurnRequest(turn),
+    const committed = this.stateStore.accept({
+      diagnosisId,
+      commandId: turn.client_command_id,
+      generation: entry.generation,
+      turnId: turn.turn_id,
+      request: requestIdentity,
       accepted,
+      lifecycleStatus: envelope.shadow === true ? "DELIVERED" : "RUNNING",
     });
+    if (committed.outcome === "stale") {
+      entry.turns.delete(turn.turn_id);
+      throw new RuntimeConflict("stale runtime generation");
+    }
+    if (committed.outcome === "existing") {
+      entry.turns.delete(turn.turn_id);
+      if (committed.record.request !== requestIdentity) {
+        throw new RuntimeConflict("client_command_id already used for a different request");
+      }
+      return committed.record.accepted;
+    }
+    this.acceptedCommands.set(commandKey, committed.record);
 
     if (envelope.shadow !== true) {
       entry.activeTurnId = turn.turn_id;
       const observe = (event) => {
-        void this._forwardEvent(entry, turnContext, event);
+        turnContext.eventTail = turnContext.eventTail
+          .then(() => this._forwardEvent(entry, turnContext, event))
+          .catch((error) => {
+            turnContext.eventDeliveryError = error;
+            entry.lastError = `event journal failed: ${String(error)}`;
+          });
       };
       const unsubscribe = entry.session.subscribe(observe);
       turnContext.unsubscribe = typeof unsubscribe === "function" ? unsubscribe : null;
@@ -285,17 +357,49 @@ export class RuntimeManager {
           `[DiagnosisContext]\n${contextBlock}\n\n[User]\n${turn.message}`,
           { expandPromptTemplates: false, source: "rpc" },
         );
-        Promise.resolve(promptRun).catch((error) => {
-          entry.lastError = `prompt failed: ${String(error)}`;
-        }).finally(() => {
-          this._releaseActiveTurn(entry, turnContext);
-        });
+        turnContext.completion = Promise.resolve(promptRun)
+          .then(() => "COMPLETED")
+          .catch((error) => {
+            entry.lastError = `prompt failed: ${String(error)}`;
+            return "FAILED";
+          })
+          .then((status) => this._finishTurn(entry, turnContext, status || "COMPLETED"));
       } catch (error) {
         entry.lastError = `prompt failed: ${String(error)}`;
-        this._releaseActiveTurn(entry, turnContext);
+        turnContext.completion = this._finishTurn(entry, turnContext, "FAILED");
       }
     }
     return accepted;
+  }
+
+  async _finishTurn(entry, turnContext, terminalStatus) {
+    if (turnContext.finishPromise) return turnContext.finishPromise;
+    turnContext.finishPromise = (async () => {
+      await turnContext.eventTail;
+      if (turnContext.sealed || turnContext.cancelled) {
+        this._releaseActiveTurn(entry, turnContext);
+        return;
+      }
+      if (turnContext.eventDeliveryError) {
+        entry.lastError = `event journal failed: ${String(turnContext.eventDeliveryError)}`;
+        return;
+      }
+      const terminal = this.stateStore.enqueueTerminal({
+        diagnosisId: turnContext.diagnosisId,
+        turnId: turnContext.turnId,
+        generation: turnContext.generation,
+        terminalStatus,
+        finalMessage: {
+          text: terminalStatus === "COMPLETED" ? "Pi Runtime completed" : entry.lastError,
+        },
+      });
+      if (terminal.outcome === "created" || terminal.outcome === "existing") {
+        this._scheduleDelivery(0);
+        return;
+      }
+      entry.lastError = `terminal journal rejected: ${terminal.outcome}`;
+    })();
+    return turnContext.finishPromise;
   }
 
   _releaseActiveTurn(entry, turnContext) {
@@ -334,6 +438,7 @@ export class RuntimeManager {
     const turn = entry.turns.get(turnId);
     if (!turn) throw new RuntimeConflict("runtime turn does not exist", 404);
     turn.sealed = true;
+    this.stateStore.markTurnSealed(diagnosisId, turnId, "SEALED");
     this._releaseActiveTurn(entry, turn);
     return { sealed: true };
   }
@@ -345,6 +450,7 @@ export class RuntimeManager {
     if (!turn) throw new RuntimeConflict("runtime turn does not exist", 404);
     turn.cancelled = true;
     turn.sealed = true;
+    this.stateStore.markTurnSealed(diagnosisId, turnId, "CANCELLED");
     this._releaseActiveTurn(entry, turn);
     await this._abortTurn(entry, turn);
     return { sealed: true, cancelled: true };
@@ -380,38 +486,114 @@ export class RuntimeManager {
     if (!PERSISTED_EVENT_TYPES.has(event.type)) return;
     const live = this.sessions.get(turnContext.diagnosisId);
     if (live !== entry || live.generation !== turnContext.generation) return;
-    const token = process.env.MINI_DROP_PI_INTERNAL_TOKEN || "";
-    if (!token) {
-      entry.lastError = "event forward disabled: internal token is required";
-      return;
+    const journaled = this.stateStore.enqueueEvent({
+      diagnosisId: turnContext.diagnosisId,
+      turnId: turnContext.turnId,
+      generation: turnContext.generation,
+      eventType: event.type,
+      payload: this._auditProjection(event),
+    });
+    if (journaled.outcome !== "created") {
+      throw new Error(`event journal rejected: ${journaled.outcome}`);
     }
-    turnContext.eventSeq += 1;
-    const eventSeq = turnContext.eventSeq;
-    const pathDiagnosis = encodeURIComponent(turnContext.diagnosisId);
-    const pathTurn = encodeURIComponent(turnContext.turnId);
-    try {
-      const response = await fetch(
-        `${this.internalBase}/internal/runtime/v1/diagnoses/${pathDiagnosis}/turns/${pathTurn}/events`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Internal-Token": token,
-          },
-          body: JSON.stringify({
-            runtime_generation: turnContext.generation,
-            events: [{
-              event_id: `evt:${turnContext.diagnosisId}:${turnContext.turnId}:${turnContext.generation}:${eventSeq}`,
-              event_seq: eventSeq,
-              event_type: event.type,
-              payload: this._auditProjection(event),
-            }],
-          }),
-        },
-      );
-      if (!response.ok) entry.lastError = `event forward failed: ${response.status}`;
-    } catch (error) {
-      entry.lastError = `event forward failed: ${String(error)}`;
+    turnContext.eventSeq = journaled.eventSeq;
+    this._scheduleDelivery(0);
+  }
+
+  _scheduleDelivery(delayMilliseconds) {
+    if (this.stopped || this.deliveryTimer) return;
+    this.deliveryTimer = setTimeout(() => {
+      this.deliveryTimer = null;
+      void this._drainCallbacks();
+    }, Math.max(0, delayMilliseconds));
+  }
+
+  async _drainCallbacks() {
+    if (this.deliveryPromise) return this.deliveryPromise;
+    this.deliveryPromise = (async () => {
+      while (!this.stopped) {
+        const now = Date.now();
+        const callback = this.stateStore.claimNextCallback(now, CALLBACK_LEASE_MS);
+        if (!callback) break;
+        const token = process.env.MINI_DROP_PI_INTERNAL_TOKEN || "";
+        if (!token) {
+          const nextAttemptAt = now + CALLBACK_RETRY_BASE_MS;
+          this.stateStore.retryCallback(
+            callback.callbackId,
+            nextAttemptAt,
+            "internal token is required",
+          );
+          break;
+        }
+        try {
+          const response = await fetch(`${this.internalBase}${callback.path}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Internal-Token": token,
+            },
+            body: JSON.stringify(callback.body),
+          });
+          if (response.ok) {
+            const acknowledged = this.stateStore.acknowledgeCallback(callback.callbackId);
+            if (acknowledged?.terminal) {
+              this._settleDeliveredTurn(acknowledged.diagnosisId, acknowledged.turnId);
+            }
+            continue;
+          }
+          const failure = `${callback.kind.toLowerCase()} callback rejected: ${response.status}`;
+          if (response.status >= 400 && response.status < 500) {
+            this.stateStore.blockCallback(callback.callbackId, failure);
+            this._markBlockedTurn(callback.diagnosisId, callback.turnId, failure);
+            continue;
+          }
+          this._retryClaimedCallback(callback, failure, now);
+        } catch (error) {
+          this._retryClaimedCallback(callback, String(error), now);
+        }
+      }
+    })().finally(() => {
+      this.deliveryPromise = null;
+      if (this.stopped) return;
+      const dueAt = this.stateStore.nextCallbackDueAt();
+      if (dueAt !== null) this._scheduleDelivery(Math.max(0, dueAt - Date.now()));
+    });
+    return this.deliveryPromise;
+  }
+
+  _retryClaimedCallback(callback, error, now) {
+    const exponent = Math.min(callback.attemptCount - 1, 8);
+    const delay = Math.min(
+      CALLBACK_RETRY_MAX_MS,
+      CALLBACK_RETRY_BASE_MS * (2 ** exponent),
+    );
+    this.stateStore.retryCallback(callback.callbackId, now + delay, error);
+    const entry = this.sessions.get(callback.diagnosisId);
+    if (entry?.generation === callback.generation) {
+      entry.lastError = `callback delivery pending: ${error}`;
     }
+  }
+
+  _settleDeliveredTurn(diagnosisId, turnId) {
+    const entry = this.sessions.get(diagnosisId);
+    if (!entry) return;
+    const turn = entry.turns.get(turnId);
+    if (turn) {
+      turn.terminalDelivered = true;
+      turn.sealed = true;
+      this._releaseActiveTurn(entry, turn);
+    } else if (entry.activeTurnId === turnId) {
+      entry.activeTurnId = null;
+    }
+    if (entry.lastError.startsWith("callback delivery pending:")) {
+      entry.lastError = "";
+    }
+  }
+
+  _markBlockedTurn(diagnosisId, turnId, error) {
+    const entry = this.sessions.get(diagnosisId);
+    if (!entry) return;
+    if (entry.activeTurnId === null) entry.activeTurnId = turnId;
+    entry.lastError = `callback delivery blocked: ${error}`;
   }
 }

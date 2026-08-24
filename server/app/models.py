@@ -10,11 +10,15 @@ from datetime import datetime
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
+    Float,
     ForeignKey,
     ForeignKeyConstraint,
+    Index,
     Integer,
     String,
     Text,
@@ -62,6 +66,90 @@ class AgentModel(Base):
             "updated_at": self.updated_at,
         }
 
+class ProcessCandidateSnapshotModel(Base):
+    """Append-only server receipt of one present process snapshot payload."""
+
+    __tablename__ = "process_candidate_snapshots"
+    __table_args__ = (
+        CheckConstraint(
+            "state IN ('complete-empty', 'complete-populated', 'partial', "
+            "'failed', 'truncated')",
+            name="ck_process_snapshot_state",
+        ),
+        CheckConstraint(
+            "generation >= 0", name="ck_process_snapshot_generation"
+        ),
+        Index(
+            "ix_process_snapshots_agent_received",
+            "agent_id",
+            "received_at",
+            "id",
+        ),
+        UniqueConstraint(
+            "agent_id", "id", name="uq_process_snapshot_agent_id"
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    agent_id = Column(
+        String(128), ForeignKey("agents.id"), nullable=False
+    )
+    generation = Column(BigInteger, nullable=False)
+    boot_id = Column(String(1024), nullable=False, default="")
+    observed_at_unix_ms = Column(BigInteger, nullable=False, default=0)
+    complete = Column(Boolean, nullable=False, default=False)
+    truncated = Column(Boolean, nullable=False, default=False)
+    error = Column(String(1024), nullable=False, default="")
+    state = Column(String(32), nullable=False)
+    authoritative = Column(Boolean, nullable=False, default=False)
+    received_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class ProcessCandidateModel(Base):
+    """Bounded candidate identity belonging to one immutable snapshot."""
+
+    __tablename__ = "process_candidates"
+    __table_args__ = (
+        CheckConstraint("pid > 0", name="ck_process_candidate_pid"),
+        CheckConstraint(
+            "process_start_ticks > 0", name="ck_process_candidate_start_ticks"
+        ),
+        CheckConstraint(
+            "pid_namespace_inode > 0", name="ck_process_candidate_namespace_inode"
+        ),
+        CheckConstraint(
+            "namespace_pid > 0", name="ck_process_candidate_namespace_pid"
+        ),
+        UniqueConstraint(
+            "snapshot_id",
+            "pid",
+            "process_start_ticks",
+            "pid_namespace_inode",
+            "namespace_pid",
+            "executable_identity",
+            name="uq_process_candidate_identity",
+        ),
+        Index("ix_process_candidates_snapshot_pid", "snapshot_id", "pid"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    snapshot_id = Column(
+        String(128),
+        ForeignKey("process_candidate_snapshots.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    agent_id = Column(String(128), ForeignKey("agents.id"), nullable=False)
+    pid = Column(Integer, nullable=False)
+    process_start_ticks = Column(BigInteger, nullable=False)
+    pid_namespace_inode = Column(BigInteger, nullable=False)
+    namespace_pid = Column(Integer, nullable=False)
+    executable_identity = Column(String(1024), nullable=False)
+    comm = Column(String(1024), nullable=False, default="")
+    cgroup = Column(String(1024), nullable=False, default="")
+    service_hint = Column(String(1024), nullable=False, default="")
+    instance_hint = Column(String(1024), nullable=False, default="")
+    collector_capabilities = Column(JSON, nullable=False, default=list)
+
 
 # ── Task ────────────────────────────────────────────────────────
 
@@ -81,6 +169,13 @@ class TaskModel(Base):
     collection_status = Column(String(16), nullable=False, default="QUEUED")
     analysis_status = Column(String(16), nullable=False, default="NOT_STARTED")
     request_params = Column(JSON, default=dict)
+    process_snapshot_id = Column(
+        String(128),
+        ForeignKey("process_candidate_snapshots.id"),
+        nullable=True,
+        index=True,
+    )
+    process_binding_json = Column(JSON, nullable=True)
     diagnosis_step_id = Column(String(128), nullable=True, unique=True, index=True)
     idempotency_key = Column(String(128), nullable=True)
     creator_id = Column(String(128), nullable=True)
@@ -107,6 +202,8 @@ class TaskModel(Base):
             "collection_status": self.collection_status or "QUEUED",
             "analysis_status": self.analysis_status or "NOT_STARTED",
             "request_params": self.request_params or {},
+            "process_snapshot_id": self.process_snapshot_id,
+            "process_binding": self.process_binding_json,
             "created_at": self.created_at,
             "started_at": self.started_at,
             "finished_at": self.finished_at,
@@ -123,11 +220,13 @@ class TaskAttemptModel(Base):
     __tablename__ = "task_attempts"
     __table_args__ = (
         UniqueConstraint("task_id", "attempt_no", name="uq_task_attempt_no"),
+        UniqueConstraint("id", "task_id", name="uq_task_attempt_identity"),
     )
 
     id = Column(String(128), primary_key=True)
     task_id = Column(String(128), ForeignKey("tasks.id"), nullable=False, index=True)
     attempt_no = Column(Integer, nullable=False)
+    task_attempt_authority_sha256 = Column(String(64), nullable=True, unique=True)
     agent_id = Column(String(128), ForeignKey("agents.id"), nullable=False)
     status = Column(String(16), nullable=False)
     reason = Column(Text, default="")
@@ -212,6 +311,8 @@ class DropInsightSessionModel(Base):
     query = Column(Text, nullable=False)
     target_json = Column(JSON, default=dict)
     time_range_json = Column(JSON, default=dict)
+    requested_time_range_json = Column(JSON, default=dict)
+    effective_time_range_json = Column(JSON, default=dict)
     mode = Column(String(32), nullable=False)
     budget_json = Column(JSON, default=dict)
     status = Column(String(32), nullable=False)
@@ -230,6 +331,10 @@ class DropInsightSessionModel(Base):
             "query": self.query,
             "target": self.target_json or {},
             "time_range": self.time_range_json or {},
+            "requested_time_range": (
+                self.requested_time_range_json or self.time_range_json or {}
+            ),
+            "effective_time_range": self.effective_time_range_json or {},
             "mode": self.mode,
             "budget": self.budget_json or {},
             "status": self.status,
@@ -242,10 +347,79 @@ class DropInsightSessionModel(Base):
         }
 
 
+class DropInsightTargetDiscoveryModel(Base):
+    """Durable, diagnosis-version-scoped process discovery authority."""
+
+    __tablename__ = "drop_insight_target_discoveries"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('READY', 'AMBIGUOUS', 'EMPTY', 'STALE', "
+            "'UNAVAILABLE', 'TRUNCATED', 'INVALIDATED')",
+            name="ck_drop_insight_target_discovery_status",
+        ),
+        Index(
+            "ix_drop_insight_target_discovery_scope",
+            "diagnosis_id",
+            "diagnosis_version",
+            "created_at",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    diagnosis_id = Column(
+        String(128),
+        ForeignKey("drop_insight_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    diagnosis_version = Column(Integer, nullable=False)
+    status = Column(String(32), nullable=False)
+    service_filter = Column(String(128), nullable=True)
+    environment_filter = Column(String(64), nullable=True)
+    snapshot_state_json = Column(JSON, nullable=False, default=list)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    invalidated_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class DropInsightTargetBindingModel(Base):
+    """Opaque member of one persisted target-discovery result."""
+
+    __tablename__ = "drop_insight_target_bindings"
+    __table_args__ = (
+        UniqueConstraint(
+            "discovery_id", "id", name="uq_drop_insight_target_binding_membership"
+        ),
+        Index(
+            "ix_drop_insight_target_bindings_discovery",
+            "discovery_id",
+            "id",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    discovery_id = Column(
+        String(128),
+        ForeignKey("drop_insight_target_discoveries.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    agent_id = Column(String(128), ForeignKey("agents.id"), nullable=False)
+    process_snapshot_id = Column(
+        String(128), ForeignKey("process_candidate_snapshots.id"), nullable=False
+    )
+    pid = Column(Integer, nullable=False)
+    process_binding_json = Column(JSON, nullable=False)
+    display_json = Column(JSON, nullable=False, default=dict)
+
+
 class DropInsightEventModel(Base):
     __tablename__ = "drop_insight_events"
     __table_args__ = (
         UniqueConstraint("diagnosis_id", "sequence", name="uq_drop_insight_event_sequence"),
+        UniqueConstraint(
+            "diagnosis_id",
+            "effect_key",
+            name="uq_drop_insight_event_effect",
+        ),
     )
 
     id = Column(String(128), primary_key=True)
@@ -259,6 +433,7 @@ class DropInsightEventModel(Base):
     event_type = Column(String(64), nullable=False)
     actor = Column(String(32), nullable=False)
     payload_json = Column(JSON, default=dict)
+    effect_key = Column(String(160), nullable=True)
     occurred_at = Column(DateTime(timezone=True), nullable=False)
 
     def to_dict(self) -> dict:
@@ -275,6 +450,13 @@ class DropInsightEventModel(Base):
 
 class DropInsightHypothesisModel(Base):
     __tablename__ = "drop_insight_hypotheses"
+    __table_args__ = (
+        UniqueConstraint(
+            "diagnosis_id",
+            "effect_key",
+            name="uq_drop_insight_hypothesis_effect",
+        ),
+    )
 
     id = Column(String(128), primary_key=True)
     diagnosis_id = Column(
@@ -291,6 +473,7 @@ class DropInsightHypothesisModel(Base):
     round_index = Column(Integer, nullable=False, default=1)
     parent_hypothesis_id = Column(String(128), nullable=True, index=True)
     generation_reason = Column(Text, nullable=False, default="")
+    effect_key = Column(String(160), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False)
 
@@ -391,6 +574,27 @@ class DropInsightEvidenceModel(Base):
 
 class DropInsightReportModel(Base):
     __tablename__ = "drop_insight_reports"
+    __table_args__ = (
+        UniqueConstraint(
+            "diagnosis_id",
+            "hypothesis_id",
+            name="uq_drop_insight_report_identity",
+        ),
+        CheckConstraint(
+            "effects_status IN ('PENDING', 'APPLYING', 'APPLIED')",
+            name="ck_drop_insight_report_effects_status",
+        ),
+        CheckConstraint(
+            "effects_phase IS NULL OR effects_phase IN "
+            "('EXECUTION_STARTED', 'EFFECTS_COMPLETED')",
+            name="ck_drop_insight_report_effects_phase",
+        ),
+        Index(
+            "ix_drop_insight_reports_effects_lease",
+            "effects_status",
+            "effects_lease_expires_at",
+        ),
+    )
 
     id = Column(String(128), primary_key=True)
     diagnosis_id = Column(
@@ -414,6 +618,12 @@ class DropInsightReportModel(Base):
     next_actions_json = Column(JSON, default=list)
     claims_json = Column(JSON, default=list)
     verification_json = Column(JSON, default=dict)
+    effects_status = Column(String(32), nullable=False, default="PENDING")
+    effects_phase = Column(String(32), nullable=True)
+    effects_owner = Column(String(128), nullable=True)
+    effects_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
+    effects_fencing_token = Column(Integer, nullable=False, default=0)
+    effects_applied_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False)
 
     def to_dict(self) -> dict:
@@ -430,12 +640,25 @@ class DropInsightReportModel(Base):
             "next_actions": self.next_actions_json or [],
             "claims": self.claims_json or [],
             "verification": self.verification_json or {},
+            "effects_status": self.effects_status,
+            "effects_phase": self.effects_phase,
+            "effects_owner": self.effects_owner,
+            "effects_lease_expires_at": self.effects_lease_expires_at,
+            "effects_fencing_token": self.effects_fencing_token,
+            "effects_applied_at": self.effects_applied_at,
             "created_at": self.created_at,
         }
 
 
 class DropInsightToolCallModel(Base):
     __tablename__ = "drop_insight_tool_calls"
+    __table_args__ = (
+        UniqueConstraint(
+            "diagnosis_id",
+            "effect_key",
+            name="uq_drop_insight_tool_call_effect",
+        ),
+    )
 
     id = Column(String(128), primary_key=True)
     diagnosis_id = Column(
@@ -461,6 +684,9 @@ class DropInsightToolCallModel(Base):
     budget_reservation_json = Column(JSON, default=dict)
     budget_settlement_json = Column(JSON, default=dict)
     budget_reservation_status = Column(String(32), nullable=False, default="NONE")
+    terminal_processing_status = Column(String(32), nullable=False, default="NONE")
+    terminal_processed_at = Column(DateTime(timezone=True), nullable=True)
+    effect_key = Column(String(160), nullable=True)
     requested_by = Column(String(128), nullable=False)
     approved_by = Column(String(128), nullable=True)
     approval_reason = Column(Text, nullable=True)
@@ -484,12 +710,123 @@ class DropInsightToolCallModel(Base):
             "budget_reservation": self.budget_reservation_json or {},
             "budget_settlement": self.budget_settlement_json or {},
             "budget_reservation_status": self.budget_reservation_status,
+            "terminal_processing_status": self.terminal_processing_status,
+            "terminal_processed_at": self.terminal_processed_at,
             "requested_by": self.requested_by,
             "approved_by": self.approved_by,
             "approval_reason": self.approval_reason,
             "created_at": self.created_at,
             "decided_at": self.decided_at,
             "executed_at": self.executed_at,
+        }
+
+
+class DiagnosticSkillModel(Base):
+    """A versioned, evidence-gated diagnostic strategy learned from incidents."""
+
+    __tablename__ = "diagnostic_skills"
+    __table_args__ = (
+        UniqueConstraint("family_key", "version", name="uq_diagnostic_skill_version"),
+        CheckConstraint(
+            "status IN ('CANDIDATE', 'ACTIVE', 'QUARANTINED', 'RETIRED')",
+            name="ck_diagnostic_skill_status",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    family_key = Column(String(256), nullable=False, index=True)
+    category = Column(String(64), nullable=False, index=True)
+    version = Column(Integer, nullable=False)
+    status = Column(String(32), nullable=False, default="CANDIDATE", index=True)
+    source_diagnosis_ids_json = Column(JSON, default=list)
+    trigger_json = Column(JSON, default=dict)
+    strategy_json = Column(JSON, default=dict)
+    gate_metrics_json = Column(JSON, default=dict)
+    parent_skill_id = Column(String(128), nullable=True, index=True)
+    created_by = Column(String(128), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+    published_at = Column(DateTime(timezone=True), nullable=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "skill_id": self.id,
+            "family_key": self.family_key,
+            "category": self.category,
+            "version": self.version,
+            "status": self.status,
+            "source_diagnosis_ids": self.source_diagnosis_ids_json or [],
+            "trigger": self.trigger_json or {},
+            "strategy": self.strategy_json or {},
+            "gate_metrics": self.gate_metrics_json or {},
+            "parent_skill_id": self.parent_skill_id,
+            "created_by": self.created_by,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "published_at": self.published_at,
+        }
+
+
+class DiagnosticSkillEvaluationModel(Base):
+    __tablename__ = "diagnostic_skill_evaluations"
+
+    id = Column(String(128), primary_key=True)
+    skill_id = Column(
+        String(128), ForeignKey("diagnostic_skills.id"), nullable=False, index=True
+    )
+    case_kind = Column(String(32), nullable=False)
+    diagnosis_id = Column(String(128), nullable=True, index=True)
+    passed = Column(Boolean, nullable=False)
+    score = Column(Integer, nullable=False)
+    details_json = Column(JSON, default=dict)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "evaluation_id": self.id,
+            "skill_id": self.skill_id,
+            "case_kind": self.case_kind,
+            "diagnosis_id": self.diagnosis_id,
+            "passed": self.passed,
+            "score": self.score / 1000,
+            "details": self.details_json or {},
+            "created_at": self.created_at,
+        }
+
+
+class DiagnosticSkillActivationModel(Base):
+    __tablename__ = "diagnostic_skill_activations"
+    __table_args__ = (
+        UniqueConstraint("diagnosis_id", name="uq_diagnostic_skill_activation_diagnosis"),
+    )
+
+    id = Column(String(128), primary_key=True)
+    skill_id = Column(
+        String(128), ForeignKey("diagnostic_skills.id"), nullable=False, index=True
+    )
+    diagnosis_id = Column(
+        String(128), ForeignKey("drop_insight_sessions.id"), nullable=False, index=True
+    )
+    match_score = Column(Integer, nullable=False)
+    match_reason_json = Column(JSON, default=dict)
+    baseline_tool = Column(String(128), nullable=False)
+    selected_tool = Column(String(128), nullable=False)
+    outcome = Column(String(32), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "activation_id": self.id,
+            "skill_id": self.skill_id,
+            "diagnosis_id": self.diagnosis_id,
+            "match_score": self.match_score / 1000,
+            "match_reason": self.match_reason_json or {},
+            "baseline_tool": self.baseline_tool,
+            "selected_tool": self.selected_tool,
+            "outcome": self.outcome,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
         }
 
 
@@ -1030,6 +1367,16 @@ class AgentRuntimeTurnModel(Base):
         UniqueConstraint(
             "diagnosis_id", "turn_id", name="uq_agent_runtime_turn_identity",
         ),
+        CheckConstraint(
+            "recovery_phase IS NULL OR recovery_phase IN "
+            "('NEEDS_BINDING', 'SUBMIT_INTENT')",
+            name="ck_agent_runtime_turn_recovery_phase",
+        ),
+        Index(
+            "ix_agent_runtime_turns_recovery_lease",
+            "status",
+            "recovery_lease_expires_at",
+        ),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -1045,6 +1392,10 @@ class AgentRuntimeTurnModel(Base):
     actor_id = Column(String(128), nullable=True)
     client_command_id = Column(String(128), nullable=False)
     status = Column(String(32), nullable=False, default="SUBMITTING")
+    recovery_phase = Column(String(32), nullable=True)
+    recovery_owner = Column(String(128), nullable=True)
+    recovery_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
+    recovery_fencing_token = Column(Integer, nullable=False, default=0)
     accepted_mode = Column(String(32), nullable=True)
     detail = Column(Text, nullable=True)
     final_message_json = Column(JSON, nullable=True)
@@ -1065,6 +1416,10 @@ class AgentRuntimeTurnModel(Base):
             "actor_id": self.actor_id,
             "client_command_id": self.client_command_id,
             "status": self.status,
+            "recovery_phase": self.recovery_phase,
+            "recovery_owner": self.recovery_owner,
+            "recovery_lease_expires_at": self.recovery_lease_expires_at,
+            "recovery_fencing_token": self.recovery_fencing_token,
             "accepted_mode": self.accepted_mode,
             "detail": self.detail,
             "final_message": self.final_message_json,
@@ -1468,6 +1823,16 @@ class DiagnosisArtifactRevocationModel(Base):
 
 class DiagnosisArtifactRevocationOutboxModel(Base):
     __tablename__ = "diagnosis_artifact_revocation_outbox"
+    __table_args__ = (
+        Index(
+            "ix_diagnosis_artifact_revocation_outbox_due",
+            "status", "next_attempt_at",
+        ),
+        Index(
+            "ix_diagnosis_artifact_revocation_outbox_lease_recovery",
+            "status", "worker_lease_expires_at",
+        ),
+    )
 
     id = Column(String(160), primary_key=True)
     revocation_id = Column(

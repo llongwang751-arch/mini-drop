@@ -20,6 +20,7 @@ import { ExperimentOutlined, ReloadOutlined } from "@ant-design/icons";
 import {
   getDiagnosisCampaign,
   listDiagnosisCampaignScenarios,
+  promoteDiagnosisCampaign,
   startDiagnosisCampaign,
 } from "../api/client";
 
@@ -165,6 +166,16 @@ export default function CampaignPanel() {
     }
   }
 
+  async function openVerifiedDiagnosis() {
+    if (!run?.run_id) return;
+    try {
+      const promoted = await promoteDiagnosisCampaign(run.run_id);
+      window.location.href = `/ai-diagnosis?case=drop_insight_v2:${encodeURIComponent(promoted.diagnosis_id)}`;
+    } catch (error) {
+      message.error(error.message);
+    }
+  }
+
   const timeline = useMemo(() => [...(run?.events || [])].reverse(), [run?.events]);
   const diagnosis = run?.diagnosis;
   const comparison = run?.comparison;
@@ -176,11 +187,16 @@ export default function CampaignPanel() {
   return (
     <Card
       title={<Space><ExperimentOutlined />真实故障 Campaign（先制造故障，再评测）</Space>}
-      extra={(
-        <Button type="primary" icon={run ? <ReloadOutlined /> : <ExperimentOutlined />} loading={starting || run?.status === "RUNNING"} onClick={start}>
-          {run ? "重新执行实验" : "一键制造故障并评测"}
-        </Button>
-      )}
+        extra={(
+          <Space>
+            {run?.status === "COMPLETED" ? (
+              <Button onClick={openVerifiedDiagnosis}>在 AI 诊断中查看可信结论</Button>
+            ) : null}
+            <Button type="primary" icon={run ? <ReloadOutlined /> : <ExperimentOutlined />} loading={starting || run?.status === "RUNNING"} onClick={start}>
+              {run ? "重新执行实验" : "一键制造故障并评测"}
+            </Button>
+          </Space>
+        )}
     >
       <Alert
         showIcon

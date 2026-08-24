@@ -1,5 +1,11 @@
 # Python
 __pycache__/
+__MACOSX/
+.pytest-*/
+.tmp-*
+hs_err_pid*.log
+replay_pid*.log
+*.bundle
 *.py[cod]
 *.pyo
 *.egg-info/
@@ -82,6 +88,12 @@ deploy/certs/*
 
 # Local AI assistant worktrees
 .claude/
+
+# Rejected parallel RACV experiment (not part of the final evidence-first design)
+/server/app/diagnosis/racv/
+/server/app/drop_insight/racv_*.py
+/server/migrations/versions/*racv*.py
+/tests/test_racv_*.py
 
 # Temporary Git transfer bundles
 *.bundle

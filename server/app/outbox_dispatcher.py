@@ -144,6 +144,108 @@ def dispatch_artifact_once(
         return 0
     processed = 0
     for message in messages:
+        if message["status"] == "DELIVERING":
+            try:
+                deliver(message)
+            except Exception as exc:
+                try:
+                    outcome = store.fail_artifact_outbox(
+                        message["outbox_id"],
+                        worker_id,
+                        str(exc)[:500],
+                        max_attempts=max_attempts,
+                    )
+                except Exception:
+                    logger.exception(
+                        "artifact outbox failure persistence failed: %s",
+                        message["outbox_id"],
+                    )
+                    continue
+                _safe_log(
+                    "warning",
+                    "diagnosis_artifact_delivery_failed",
+                    outbox_id=message["outbox_id"],
+                    diagnosis_id=message["diagnosis_id"],
+                    artifact_id=message["artifact_id"],
+                    attempts=message["attempts"],
+                    outcome=outcome,
+                    error=str(exc)[:200],
+                )
+            else:
+                try:
+                    store.mark_artifact_outbox_published(
+                        message["outbox_id"], worker_id
+                    )
+                except Exception:
+                    logger.exception(
+                        "artifact outbox acknowledgement failed: %s",
+                        message["outbox_id"],
+                    )
+                    continue
+                _safe_log(
+                    "info",
+                    "diagnosis_artifact_delivered",
+                    outbox_id=message["outbox_id"],
+                    diagnosis_id=message["diagnosis_id"],
+                    artifact_id=message["artifact_id"],
+                    artifact_hash=message["artifact_hash"],
+                )
+            processed += 1
+            continue
+        try:
+            gate_code = store.validate_artifact_delivery(
+                message["outbox_id"], worker_id
+            )
+        except Exception:
+            logger.exception(
+                "artifact outbox pre-delivery validation failed: %s",
+                message["outbox_id"],
+            )
+            continue
+        if gate_code is not None:
+            try:
+                outcome = store.finalize_artifact_gate(
+                    message["outbox_id"], worker_id
+                )
+            except Exception:
+                logger.exception(
+                    "artifact outbox gate persistence failed: %s",
+                    message["outbox_id"],
+                )
+                continue
+            _safe_log(
+                "warning",
+                "diagnosis_artifact_gate_closed",
+                outbox_id=message["outbox_id"],
+                diagnosis_id=message["diagnosis_id"],
+                artifact_id=message["artifact_id"],
+                outcome=outcome,
+                reason=gate_code,
+            )
+            processed += 1
+            continue
+        try:
+            delivery_state = store.mark_artifact_outbox_delivering(
+                message["outbox_id"], worker_id
+            )
+        except Exception:
+            logger.exception(
+                "artifact outbox delivery boundary persistence failed: %s",
+                message["outbox_id"],
+            )
+            continue
+        if delivery_state["status"] != "DELIVERING":
+            _safe_log(
+                "warning",
+                "diagnosis_artifact_gate_closed",
+                outbox_id=message["outbox_id"],
+                diagnosis_id=message["diagnosis_id"],
+                artifact_id=message["artifact_id"],
+                outcome=delivery_state["status"],
+                reason=delivery_state["last_error"],
+            )
+            processed += 1
+            continue
         try:
             deliver(message)
         except Exception as exc:
@@ -219,6 +321,37 @@ def dispatch_artifact_revocation_once(
     processed = 0
     for message in messages:
         try:
+            gate_code = store.validate_artifact_revocation_delivery(
+                message["outbox_id"], worker_id
+            )
+        except Exception:
+            logger.exception(
+                "artifact revocation pre-delivery validation failed: %s",
+                message["outbox_id"],
+            )
+            continue
+        if gate_code is not None:
+            try:
+                outcome = store.finalize_artifact_revocation_gate(
+                    message["outbox_id"], worker_id
+                )
+            except Exception:
+                logger.exception(
+                    "artifact revocation gate persistence failed: %s",
+                    message["outbox_id"],
+                )
+                continue
+            _safe_log(
+                "warning",
+                "diagnosis_artifact_revocation_gate_closed",
+                outbox_id=message["outbox_id"],
+                revocation_id=message["revocation_id"],
+                outcome=outcome,
+                reason=gate_code,
+            )
+            processed += 1
+            continue
+        try:
             deliver(message)
         except Exception as exc:
             try:
@@ -227,7 +360,10 @@ def dispatch_artifact_revocation_once(
                     max_attempts=max_attempts,
                 )
             except Exception:
-                logger.exception("artifact revocation failure persistence failed: %s", message["outbox_id"])
+                logger.exception(
+                    "artifact revocation failure persistence failed: %s",
+                    message["outbox_id"],
+                )
                 continue
             _safe_log(
                 "warning", "diagnosis_artifact_revocation_delivery_failed",
@@ -236,14 +372,22 @@ def dispatch_artifact_revocation_once(
             )
         else:
             try:
-                store.mark_artifact_revocation_published(message["outbox_id"], worker_id)
+                acknowledged = store.mark_artifact_revocation_published(
+                    message["outbox_id"], worker_id
+                )
             except Exception:
-                logger.exception("artifact revocation acknowledgement failed: %s", message["outbox_id"])
+                logger.exception(
+                    "artifact revocation acknowledgement failed: %s",
+                    message["outbox_id"],
+                )
                 continue
             _safe_log(
-                "info", "diagnosis_artifact_revocation_delivered",
-                outbox_id=message["outbox_id"], revocation_id=message["revocation_id"],
-                diagnosis_id=message["diagnosis_id"], artifact_id=message["artifact_id"],
+                "info",
+                "diagnosis_artifact_revocation_delivered",
+                outbox_id=message["outbox_id"],
+                revocation_id=message["revocation_id"],
+                diagnosis_id=message["diagnosis_id"],
+                artifact_id=message["artifact_id"],
             )
         processed += 1
     return processed

@@ -46,6 +46,7 @@ add_executable(mini-drop-native-agent
   src/main.cpp
   src/config.cpp
   src/process_runner.cpp
+  src/process_snapshot.cpp
   src/artifact_uploader.cpp
   src/collector_registry.cpp
   src/perf_collector.cpp
@@ -89,3 +90,15 @@ target_compile_options(result-outbox-test PRIVATE
   -Wall -Wextra -Wpedantic
 )
 add_test(NAME result-outbox-test COMMAND result-outbox-test)
+
+add_executable(process-snapshot-test
+  tests/process_snapshot_test.cpp
+  src/process_snapshot.cpp
+)
+target_include_directories(process-snapshot-test PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+target_compile_options(process-snapshot-test PRIVATE
+  -Wall -Wextra -Wpedantic
+)
+add_test(NAME process-snapshot-test COMMAND process-snapshot-test)

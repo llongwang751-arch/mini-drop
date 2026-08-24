@@ -8,6 +8,7 @@
 #include "process_runner.h"
 #include "artifact_uploader.h"
 #include "collector_registry.h"
+#include "process_snapshot.h"
 #include "result_outbox.h"
 
 #include <atomic>
@@ -40,6 +41,8 @@ using mini_drop_native::ProcessGroupRunner;
 using mini_drop_native::CommandResult;
 using mini_drop_native::upload_artifact;
 using mini_drop_native::CollectorRegistry;
+using mini_drop_native::ProcessSnapshot;
+using mini_drop_native::collect_process_snapshot;
 using mini_drop_native::make_default_collector_registry;
 
 namespace {
@@ -104,11 +107,15 @@ TaskResult execute_task(
   if (collector == nullptr) {
     TaskResult result;
     result.task_id = task.id;
+    result.task_attempt_authority = task.task_attempt_authority;
     result.error = "native C++ Agent has no collector plugin for profiler_type=" +
         std::to_string(task.profiler_type);
     return result;
   }
-  return collector->collect(config, task, g_stop, cancel_requested);
+  TaskResult result = collector->collect(config, task, g_stop, cancel_requested);
+  result.task_id = task.id;
+  result.task_attempt_authority = task.task_attempt_authority;
+  return result;
 }
 
 void add_auth(grpc::ClientContext& context, const Config& config) {
@@ -170,7 +177,8 @@ std::optional<mini_drop::HealthCheckResponse> heartbeat(
     mini_drop::HealthCheck::Stub& stub,
     const Config& config,
     bool busy,
-    const std::string& active_task_id) {
+    const std::string& active_task_id,
+    const std::vector<std::string>& collector_capabilities) {
   mini_drop::HealthCheckRequest request;
   request.set_agent_id(config.agent_id);
   request.set_hostname(hostname());
@@ -178,6 +186,30 @@ std::optional<mini_drop::HealthCheckResponse> heartbeat(
   request.set_agent_version("0.3.0-native-cpp");
   request.set_busy(busy);
   request.set_active_task_id(active_task_id);
+
+  const ProcessSnapshot snapshot = collect_process_snapshot(collector_capabilities);
+  auto* wire_snapshot = request.mutable_process_candidate_snapshot();
+  wire_snapshot->set_generation(snapshot.generation);
+  wire_snapshot->set_boot_id(snapshot.boot_id);
+  wire_snapshot->set_observed_at_unix_ms(snapshot.observed_at_unix_ms);
+  wire_snapshot->set_complete(snapshot.complete);
+  wire_snapshot->set_truncated(snapshot.truncated);
+  wire_snapshot->set_error(snapshot.error);
+  for (const auto& candidate : snapshot.candidates) {
+    auto* wire_candidate = wire_snapshot->add_candidates();
+    wire_candidate->set_pid(candidate.pid);
+    wire_candidate->set_process_start_ticks(candidate.process_start_ticks);
+    wire_candidate->set_pid_namespace_inode(candidate.pid_namespace_inode);
+    wire_candidate->set_namespace_pid(candidate.namespace_pid);
+    wire_candidate->set_comm(candidate.comm);
+    wire_candidate->set_executable_identity(candidate.executable_identity);
+    wire_candidate->set_cgroup(candidate.cgroup);
+    wire_candidate->set_service_hint(candidate.service_hint);
+    wire_candidate->set_instance_hint(candidate.instance_hint);
+    for (const auto& capability : candidate.collector_capabilities) {
+      wire_candidate->add_collector_capabilities(capability);
+    }
+  }
 
   mini_drop::HealthCheckResponse response;
   grpc::ClientContext context;
@@ -198,6 +230,7 @@ bool notify_result(
     const TaskResult& result) {
   mini_drop::TaskResult request;
   request.set_task_id(result.task_id);
+  request.set_task_attempt_authority(result.task_attempt_authority);
   if (result.ok) {
     request.set_artifact_type("raw");
     request.set_artifact_metadata_json(result.artifact_json);
@@ -231,6 +264,7 @@ Task task_from_proto(const mini_drop::TaskDesc& desc) {
   task.callgraph = desc.sample_argv().callgraph();
   task.event = desc.sample_argv().event();
   task.container_name = desc.container_name();
+  task.task_attempt_authority = desc.task_attempt_authority();
   return task;
 }
 
@@ -266,6 +300,10 @@ int main() {
   std::atomic<bool> worker_running{false};
   std::string active_task_id;
 
+  const CollectorRegistry collector_registry = make_default_collector_registry();
+  const std::vector<std::string> collector_capabilities =
+      collector_registry.capabilities();
+
   while (!g_stop.load()) {
     {
       std::lock_guard<std::mutex> lock(result_mutex);
@@ -294,7 +332,8 @@ int main() {
     result_outbox.replay(deliver_pending);
 
     const auto response = heartbeat(
-        *health_stub, config, worker_running.load(), active_task_id);
+        *health_stub, config, worker_running.load(), active_task_id,
+        collector_capabilities);
     if (response.has_value()) {
       if (!response->cancel_task_id().empty() &&
           response->cancel_task_id() == active_task_id) {

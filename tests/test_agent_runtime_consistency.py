@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
+from threading import Barrier
 
 import pytest
 
@@ -54,16 +56,106 @@ def _turn(**overrides) -> dict:
 
 
 def _accept(repo: SqlRepository, *, runtime_generation: int = 1) -> dict:
+    binding = repo.get_agent_runtime_binding(diagnosis_id="diag-runtime")
+    runtime_session_id = f"runtime-session-{runtime_generation}"
+    if binding is None:
+        repo.upsert_agent_runtime_binding(
+            diagnosis_id="diag-runtime",
+            runtime_type="pi",
+            runtime_version="0.83.0",
+            runtime_session_id=runtime_session_id,
+            runtime_generation=runtime_generation,
+        )
     return repo.mark_agent_runtime_turn_accepted(
         diagnosis_id="diag-runtime",
         turn_id="turn-1",
-        runtime_session_id=f"runtime-session-{runtime_generation}",
+        runtime_session_id=runtime_session_id,
         runtime_generation=runtime_generation,
         accepted_mode="pi",
     )
 
 
-def test_deterministic_runtime_preserves_authoritative_turn_identity():
+def _seal_runtime(
+    repo: SqlRepository,
+    *,
+    terminal_status: str,
+    final_message: dict,
+    runtime_generation: int = 1,
+    runtime_session_id: str | None = None,
+) -> dict:
+    return repo.seal_agent_runtime_turn(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+        runtime_session_id=(
+            runtime_session_id or f"runtime-session-{runtime_generation}"
+        ),
+        runtime_generation=runtime_generation,
+        terminal_status=terminal_status,
+        final_message=final_message,
+    )
+
+
+def test_concurrent_duplicate_command_returns_committed_winner(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'runtime.db'}")
+    reset_engine()
+    init_db()
+    _create_diagnosis("diag-runtime")
+    barrier = Barrier(2)
+
+    def record_once(turn_id: str):
+        repo = SqlRepository()
+        barrier.wait()
+        return repo.record_agent_runtime_turn(**_turn(turn_id=turn_id))
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(record_once, ["turn-race-a", "turn-race-b"]))
+
+    assert results[0]["turn_id"] == results[1]["turn_id"]
+    assert results[0]["client_command_id"] == "command-1"
+    assert SqlRepository().get_agent_runtime_turn_by_command(
+        diagnosis_id="diag-runtime", client_command_id="command-1",
+    )["turn_id"] == results[0]["turn_id"]
+
+
+def test_concurrent_duplicate_command_with_changed_payload_is_rejected(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'runtime.db'}")
+    reset_engine()
+    init_db()
+    _create_diagnosis("diag-runtime")
+    barrier = Barrier(2)
+
+    def record_once(message: str):
+        repo = SqlRepository()
+        barrier.wait()
+        try:
+            return repo.record_agent_runtime_turn(**_turn(user_message=message))
+        except ValueError as exc:
+            return exc
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(record_once, ["same request", "different request"]))
+
+    assert sum(isinstance(result, ValueError) for result in results) == 1
+    assert sum(isinstance(result, dict) for result in results) == 1
+    assert SqlRepository().get_agent_runtime_turn_by_command(
+        diagnosis_id="diag-runtime", client_command_id="command-1",
+    ) is not None
+
+
+def test_turn_identity_collision_without_command_collision_is_rejected(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'runtime.db'}")
+    reset_engine()
+    init_db()
+    _create_diagnosis("diag-runtime")
+    repo = SqlRepository()
+    repo.record_agent_runtime_turn(**_turn())
+
+    with pytest.raises(ValueError, match="turn identity already exists"):
+        repo.record_agent_runtime_turn(
+            **_turn(turn_id="turn-1", client_command_id="command-2")
+        )
+
+
     runtime = DeterministicAgentRuntime()
     runtime.start_or_resume(CaseContextSnapshot(
         diagnosis_id="diag-runtime",
@@ -86,6 +178,8 @@ def test_deterministic_runtime_preserves_authoritative_turn_identity():
     ))
 
     assert accepted.turn_id == "turn-authoritative"
+    assert accepted.runtime_session_id == "deterministic:diag-runtime"
+    assert accepted.runtime_generation == 1
     assert replay == accepted
 
 
@@ -106,8 +200,120 @@ def test_turn_idempotency_is_scoped_and_payload_is_immutable():
     assert other["turn_id"] == "turn-other"
 
 
+def test_concurrent_recovery_claim_has_one_live_lease_winner(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'runtime.db'}")
+    reset_engine()
+    init_db()
+    _create_diagnosis("diag-runtime")
+    SqlRepository().record_agent_runtime_turn(**_turn())
+    barrier = Barrier(2)
+
+    def claim(owner: str):
+        barrier.wait()
+        return SqlRepository().claim_agent_runtime_turn_recovery(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            recovery_owner=owner,
+            lease_expires_at=datetime.now(timezone.utc) + timedelta(minutes=5),
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(claim, ["owner-a", "owner-b"]))
+
+    winners = [result for result in results if result["recovery_claimed"]]
+    losers = [result for result in results if not result["recovery_claimed"]]
+    assert len(winners) == 1
+    assert len(losers) == 1
+    assert winners[0]["recovery_owner"] in {"owner-a", "owner-b"}
+    assert losers[0]["recovery_owner"] == winners[0]["recovery_owner"]
+    assert winners[0]["recovery_fencing_token"] == 1
+    assert losers[0]["recovery_fencing_token"] == 1
+
+
+def test_expired_recovery_lease_fences_stale_owner_operations():
+    repo = SqlRepository()
+    repo.record_agent_runtime_turn(**_turn())
+    first = repo.claim_agent_runtime_turn_recovery(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+        recovery_owner="owner-old",
+        lease_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+    )
+    second = repo.claim_agent_runtime_turn_recovery(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+        recovery_owner="owner-new",
+        lease_expires_at=datetime.now(timezone.utc) + timedelta(minutes=5),
+    )
+
+    assert first["recovery_claimed"] is True
+    assert first["recovery_fencing_token"] == 1
+    assert second["recovery_claimed"] is True
+    assert second["recovery_owner"] == "owner-new"
+    assert second["recovery_fencing_token"] == 2
+
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+    )
+    stale_authority = {
+        "recovery_owner": "owner-old",
+        "recovery_fencing_token": first["recovery_fencing_token"],
+    }
+    with pytest.raises(ValueError, match="stale runtime recovery authority"):
+        repo.attach_agent_runtime_turn_authority(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            runtime_session_id="runtime-session-1",
+            runtime_generation=1,
+            **stale_authority,
+        )
+    with pytest.raises(ValueError, match="stale runtime recovery authority"):
+        repo.mark_agent_runtime_turn_acceptance_unknown(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            detail="stale submit result",
+            **stale_authority,
+        )
+    with pytest.raises(ValueError, match="stale runtime recovery authority"):
+        repo.release_agent_runtime_turn_recovery(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            **stale_authority,
+        )
+
+    current = repo.get_agent_runtime_turn(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+    )
+    assert current["status"] == "SUBMITTING"
+    assert current["runtime_session_id"] is None
+    assert current["recovery_owner"] == "owner-new"
+    assert current["recovery_fencing_token"] == 2
+
+    attached = repo.attach_agent_runtime_turn_authority(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+        recovery_owner="owner-new",
+        recovery_fencing_token=second["recovery_fencing_token"],
+    )
+    assert attached["recovery_phase"] == "SUBMIT_INTENT"
+
+
 def test_unknown_acceptance_can_be_recovered_by_command_identity():
     repo = SqlRepository()
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+    )
     repo.record_agent_runtime_turn(**_turn(status="SUBMITTING"))
     repo.mark_agent_runtime_turn_acceptance_unknown(
         diagnosis_id="diag-runtime",
@@ -137,7 +343,7 @@ def test_stale_generation_and_sealed_turn_events_are_rejected():
         diagnosis_id="diag-runtime",
         runtime_type="pi",
         runtime_version="0.83.0",
-        runtime_session_id="runtime-session-1",
+        runtime_session_id="runtime-session-2",
         runtime_generation=2,
     )
     repo.record_agent_runtime_turn(**_turn(runtime_generation=2))
@@ -147,6 +353,7 @@ def test_stale_generation_and_sealed_turn_events_are_rejected():
         repo.record_agent_runtime_event(
             diagnosis_id="diag-runtime",
             turn_id="turn-1",
+            runtime_session_id="runtime-session-2",
             runtime_generation=1,
             event_seq=1,
             event_type="assistant.delta",
@@ -154,9 +361,9 @@ def test_stale_generation_and_sealed_turn_events_are_rejected():
             event_id="event-stale",
         )
 
-    repo.seal_agent_runtime_turn(
-        diagnosis_id="diag-runtime",
-        turn_id="turn-1",
+    _seal_runtime(
+        repo,
+        runtime_generation=2,
         terminal_status="COMPLETED",
         final_message={"text": "final"},
     )
@@ -164,6 +371,7 @@ def test_stale_generation_and_sealed_turn_events_are_rejected():
         repo.record_agent_runtime_event(
             diagnosis_id="diag-runtime",
             turn_id="turn-1",
+            runtime_session_id="runtime-session-2",
             runtime_generation=2,
             event_seq=2,
             event_type="assistant.delta",
@@ -175,20 +383,20 @@ def test_stale_generation_and_sealed_turn_events_are_rejected():
 def test_finalization_uses_next_sequence_after_sparse_events():
     repo = SqlRepository()
     repo.record_agent_runtime_turn(**_turn())
+    _accept(repo)
     repo.record_agent_runtime_event(
         diagnosis_id="diag-runtime",
         turn_id="turn-1",
+        runtime_session_id="runtime-session-1",
         runtime_generation=1,
         event_seq=7,
         event_type="assistant.delta",
         payload={"text": "partial"},
         event_id="event-sparse",
     )
-    _accept(repo)
 
-    repo.seal_agent_runtime_turn(
-        diagnosis_id="diag-runtime",
-        turn_id="turn-1",
+    _seal_runtime(
+        repo,
         terminal_status="COMPLETED",
         final_message={"text": "final"},
     )
@@ -204,15 +412,13 @@ def test_finalization_is_exactly_once_and_replay_must_match():
     repo = SqlRepository()
     repo.record_agent_runtime_turn(**_turn())
     _accept(repo)
-    first = repo.seal_agent_runtime_turn(
-        diagnosis_id="diag-runtime",
-        turn_id="turn-1",
+    first = _seal_runtime(
+        repo,
         terminal_status="COMPLETED",
         final_message={"text": "final answer", "evidence_ids": ["e-1"]},
     )
-    replay = repo.seal_agent_runtime_turn(
-        diagnosis_id="diag-runtime",
-        turn_id="turn-1",
+    replay = _seal_runtime(
+        repo,
         terminal_status="COMPLETED",
         final_message={"text": "final answer", "evidence_ids": ["e-1"]},
     )
@@ -223,9 +429,8 @@ def test_finalization_is_exactly_once_and_replay_must_match():
     )) == 1
 
     with pytest.raises(ValueError, match="different finalization"):
-        repo.seal_agent_runtime_turn(
-            diagnosis_id="diag-runtime",
-            turn_id="turn-1",
+        _seal_runtime(
+            repo,
             terminal_status="COMPLETED",
             final_message={"text": "changed answer"},
         )
@@ -243,7 +448,7 @@ def test_completion_requires_confirmed_acceptance(status: str):
         )
 
     with pytest.raises(ValueError, match=f"{status} -> COMPLETED"):
-        repo.seal_agent_runtime_turn(
+        repo.finalize_agent_runtime_turn_locally(
             diagnosis_id="diag-runtime",
             turn_id="turn-1",
             terminal_status="COMPLETED",
@@ -276,12 +481,19 @@ def test_failure_and_cancellation_allow_defined_source_states(
     elif source_status == "ACCEPTED":
         _accept(repo)
 
-    sealed = repo.seal_agent_runtime_turn(
-        diagnosis_id="diag-runtime",
-        turn_id="turn-1",
-        terminal_status=terminal_status,
-        final_message={"reason": terminal_status.lower()},
-    )
+    if source_status == "ACCEPTED":
+        sealed = _seal_runtime(
+            repo,
+            terminal_status=terminal_status,
+            final_message={"reason": terminal_status.lower()},
+        )
+    else:
+        sealed = repo.finalize_agent_runtime_turn_locally(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            terminal_status=terminal_status,
+            final_message={"reason": terminal_status.lower()},
+        )
 
     assert sealed["status"] == terminal_status
     assert sealed["sealed_at"] is not None
@@ -299,7 +511,7 @@ def test_repeated_acceptance_must_match_runtime_metadata():
     repo.record_agent_runtime_turn(**_turn())
     _accept(repo)
 
-    with pytest.raises(ValueError, match="different runtime turn transition"):
+    with pytest.raises(ValueError, match="stale runtime session"):
         repo.mark_agent_runtime_turn_accepted(
             diagnosis_id="diag-runtime",
             turn_id="turn-1",
@@ -340,6 +552,8 @@ def test_stale_binding_generation_rejects_finalization():
         repo.seal_agent_runtime_turn(
             diagnosis_id="diag-runtime",
             turn_id="turn-1",
+            runtime_session_id="runtime-session-1",
+            runtime_generation=1,
             terminal_status="COMPLETED",
             final_message={"text": "late generation"},
         )
@@ -348,9 +562,11 @@ def test_stale_binding_generation_rejects_finalization():
 def test_runtime_event_identity_and_sequence_are_immutable():
     repo = SqlRepository()
     repo.record_agent_runtime_turn(**_turn())
+    _accept(repo)
     event = {
         "diagnosis_id": "diag-runtime",
         "turn_id": "turn-1",
+        "runtime_session_id": "runtime-session-1",
         "runtime_generation": 1,
         "event_seq": 1,
         "event_type": "assistant.delta",
@@ -367,6 +583,133 @@ def test_runtime_event_identity_and_sequence_are_immutable():
         repo.record_agent_runtime_event(**{**event, "event_id": "event-2"})
 
 
+def test_same_generation_cannot_replace_runtime_binding_identity():
+    repo = SqlRepository()
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+    )
+
+    with pytest.raises(ValueError, match="different runtime binding replay"):
+        repo.upsert_agent_runtime_binding(
+            diagnosis_id="diag-runtime",
+            runtime_type="pi",
+            runtime_version="0.83.0",
+            runtime_session_id="runtime-session-other",
+            runtime_generation=1,
+        )
+
+
+@pytest.mark.parametrize("status", ["SUBMITTING", "ACCEPTANCE_UNKNOWN"])
+def test_runtime_events_require_confirmed_acceptance(status: str):
+    repo = SqlRepository()
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+    )
+    repo.record_agent_runtime_turn(**_turn(runtime_session_id="runtime-session-1"))
+    if status == "ACCEPTANCE_UNKNOWN":
+        repo.mark_agent_runtime_turn_acceptance_unknown(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            detail="sidecar timeout",
+        )
+
+    with pytest.raises(ValueError, match="runtime turn is not accepted"):
+        repo.record_agent_runtime_event(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            runtime_session_id="runtime-session-1",
+            runtime_generation=1,
+            event_seq=1,
+            event_type="assistant.delta",
+            payload={"text": "premature"},
+            event_id=f"event-{status.lower()}",
+        )
+
+
+def test_wrong_session_callbacks_are_rejected():
+    repo = SqlRepository()
+    repo.record_agent_runtime_turn(**_turn())
+    _accept(repo)
+
+    with pytest.raises(ValueError, match="stale runtime session"):
+        repo.record_agent_runtime_event(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            runtime_session_id="runtime-session-other",
+            runtime_generation=1,
+            event_seq=1,
+            event_type="assistant.delta",
+            payload={"text": "stale"},
+            event_id="event-wrong-session",
+        )
+    with pytest.raises(ValueError, match="stale runtime session"):
+        _seal_runtime(
+            repo,
+            runtime_session_id="runtime-session-other",
+            terminal_status="COMPLETED",
+            final_message={"text": "stale"},
+        )
+
+
+def test_rotated_binding_rejects_old_session_callbacks():
+    repo = SqlRepository()
+    repo.record_agent_runtime_turn(**_turn())
+    _accept(repo)
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-2",
+        runtime_generation=2,
+    )
+
+    with pytest.raises(ValueError, match="stale runtime generation"):
+        repo.record_agent_runtime_event(
+            diagnosis_id="diag-runtime",
+            turn_id="turn-1",
+            runtime_session_id="runtime-session-1",
+            runtime_generation=1,
+            event_seq=1,
+            event_type="assistant.delta",
+            payload={"text": "stale"},
+            event_id="event-rotated-session",
+        )
+
+
+def test_runtime_callback_cannot_fail_an_unaccepted_turn():
+    repo = SqlRepository()
+    repo.upsert_agent_runtime_binding(
+        diagnosis_id="diag-runtime",
+        runtime_type="pi",
+        runtime_version="0.83.0",
+        runtime_session_id="runtime-session-1",
+        runtime_generation=1,
+    )
+    repo.record_agent_runtime_turn(**_turn(runtime_session_id="runtime-session-1"))
+
+    with pytest.raises(ValueError, match="SUBMITTING -> FAILED"):
+        _seal_runtime(
+            repo,
+            terminal_status="FAILED",
+            final_message={"reason": "untrusted callback"},
+        )
+
+    failed = repo.fail_agent_runtime_turn_locally(
+        diagnosis_id="diag-runtime",
+        turn_id="turn-1",
+        final_message={"reason": "definitive local rejection"},
+    )
+    assert failed["status"] == "FAILED"
+
+
 def test_runtime_event_cannot_claim_a_turn_from_another_diagnosis():
     repo = SqlRepository()
     repo.record_agent_runtime_turn(**_turn())
@@ -376,6 +719,7 @@ def test_runtime_event_cannot_claim_a_turn_from_another_diagnosis():
         repo.record_agent_runtime_event(
             diagnosis_id="diag-runtime-other",
             turn_id="turn-1",
+            runtime_session_id="runtime-session-1",
             runtime_generation=1,
             event_seq=1,
             event_type="assistant.delta",

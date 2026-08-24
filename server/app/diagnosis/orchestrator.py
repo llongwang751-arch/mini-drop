@@ -1257,9 +1257,15 @@ class DiagnosisOrchestrator:
         missing: list[str] = []
         failed_targets: list[str] = []
         for task in tasks:
+            # Polling callers may hold a pre-terminal task object. Evidence windows
+            # must use the persisted terminal timestamps from the successful run.
+            task = self.repo.get_task(task.id) or task
+            evidence_role = self._task_evidence_role(diagnosis_id, task)
             status = status_value(task.status)
             if status != "DONE":
-                self._add_task_evidence(diagnosis_id, task)
+                self._add_task_evidence(
+                    diagnosis_id, task, role_override=evidence_role,
+                )
                 target = f"{task.agent_id}:{task.target_pid}"
                 if status == "FAILED":
                     failed_targets.append(target)
@@ -1267,11 +1273,14 @@ class DiagnosisOrchestrator:
                 continue
 
             artifacts = self.repo.artifacts.get(task.id, [])
-            evidence_ids = [self._add_task_evidence(diagnosis_id, task)]
+            evidence_ids = [self._add_task_evidence(
+                diagnosis_id, task, role_override=evidence_role,
+            )]
             structured = self._structured_artifacts(artifacts)
             for artifact_type, value, artifact in structured:
                 evidence_ids.append(self._add_artifact_evidence(
                     diagnosis_id, task, artifact_type, value, artifact,
+                    role_override=evidence_role,
                 ))
             if not structured:
                 missing.append(f"{task.id}:structured_artifact")
@@ -1281,6 +1290,7 @@ class DiagnosisOrchestrator:
                 task,
                 evidence_ids,
                 [artifact for _, _, artifact in structured],
+                role_override=evidence_role,
             )
 
             values = {kind: value for kind, value, _ in structured}
@@ -1871,6 +1881,7 @@ class DiagnosisOrchestrator:
             if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION"
             else "incident"
         )
+        collection_started_at, collection_finished_at = self._collection_window(task)
         evidence_record = {
             "evidence_id": evidence_id,
             "diagnosis_id": diagnosis_id,
@@ -1879,8 +1890,8 @@ class DiagnosisOrchestrator:
             "evidence_role": evidence_role,
             "target": {"agent_id": task.agent_id, "pid": task.target_pid},
             "event_time_range": {
-                "start": _iso(task.started_at or task.created_at),
-                "end": _iso(task.finished_at or utcnow()),
+                "start": _iso(collection_started_at),
+                "end": _iso(collection_finished_at),
                 "clock_skew_estimate_ms": None,
             },
             "ingestion_time": utcnow(),
@@ -1931,6 +1942,7 @@ class DiagnosisOrchestrator:
             "java_flamegraph_html": ["process", "runtime"],
             "pprof_raw": ["process", "runtime"],
         }.get(artifact_type, [])
+        collection_started_at, collection_finished_at = self._collection_window(task)
         evidence_record = {
             "evidence_id": evidence_id,
             "diagnosis_id": diagnosis_id,
@@ -1939,8 +1951,8 @@ class DiagnosisOrchestrator:
             "evidence_role": evidence_role,
             "target": {"agent_id": task.agent_id, "pid": task.target_pid},
             "event_time_range": {
-                "start": _iso(task.started_at or task.created_at),
-                "end": _iso(task.finished_at or utcnow()),
+                "start": _iso(collection_started_at),
+                "end": _iso(collection_finished_at),
                 "sampling_period_seconds": task.duration_sec,
                 "clock_skew_estimate_ms": None,
             },
@@ -1973,6 +1985,40 @@ class DiagnosisOrchestrator:
             ) / (1024 * 1024), 3)
             self.store.update_session(diagnosis_id, budget_used=usage)
         return evidence_id
+
+    def _collection_window(self, task) -> tuple[datetime, datetime]:
+        """Return the successful collection window, excluding Analyzer latency."""
+        attempts = [
+            attempt
+            for attempt in self.repo.get_task_attempts(task.id)
+            if status_value(attempt.status) in {"DONE", "SUCCEEDED"}
+        ]
+        if len(attempts) == 1:
+            attempt = attempts[0]
+            start = attempt.started_at or attempt.created_at
+            end = attempt.finished_at or start
+            if start is not None and end is not None:
+                return start, end
+        start = task.started_at or task.created_at or utcnow()
+        return start, task.finished_at or start
+
+    def _task_evidence_role(self, diagnosis_id: str, task) -> str:
+        session = self.store.get_session(diagnosis_id) or {}
+        probes = [
+            probe for probe in self.store.list_probes(diagnosis_id)
+            if probe.get("task_id") == task.id
+        ]
+        probe = probes[-1] if probes else {}
+        target = dict(probe.get("target", {}))
+        if probe.get("evidence_purpose") == "FALSIFY":
+            return "verification"
+        if session.get("normalized_intent", {}).get("diagnosis_mode") == "REPRODUCTION":
+            return "reproduction"
+        if target.get("instance_id") in set(
+            session.get("target_scope", {}).get("same_host_instance_ids", [])
+        ):
+            return "peer"
+        return "incident"
 
     def _add_evidence_snapshot(
         self,

@@ -6,6 +6,8 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
+from pydantic import ValidationError
+
 from server.app.agent_runtime.config import (
     AgentRuntimeMode,
     pi_internal_token,
@@ -86,9 +88,14 @@ class PiAgentRuntimeAdapter:
             detail = exc.read().decode("utf-8", "replace")[:500]
             if not_found_none and exc.code == 404:
                 return None
-            raise PiDefinitiveRejection(
-                f"sidecar {method} {path}: HTTP {exc.code}: {detail}"
-            ) from exc
+            message = f"sidecar {method} {path}: HTTP {exc.code}: {detail}"
+            if submit and 500 <= exc.code < 600:
+                raise PiAcceptanceUnknown(
+                    f"{message}; turn acceptance unknown"
+                ) from exc
+            if 500 <= exc.code < 600:
+                raise PiSidecarError(message) from exc
+            raise PiDefinitiveRejection(message) from exc
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             message = f"sidecar {method} {path} transport failure: {exc}"
             if submit:
@@ -109,9 +116,14 @@ class PiAgentRuntimeAdapter:
                 ) from exc
             raise error from exc
         if not isinstance(payload, dict) or "ok" not in payload:
-            raise PiProtocolError(
+            error = PiProtocolError(
                 f"sidecar {method} {path} returned an invalid envelope"
             )
+            if submit:
+                raise PiAcceptanceUnknown(
+                    f"{error}; turn acceptance unknown"
+                )
+            raise error
         if payload["ok"] is not True:
             raise PiDefinitiveRejection(
                 f"sidecar {method} {path}: {payload.get('error', 'rejected')}"
@@ -145,9 +157,19 @@ class PiAgentRuntimeAdapter:
             {"turn": turn.model_dump(mode="json"), "shadow": self._shadow},
             submit=True,
         )
-        accepted = AcceptedTurn.model_validate(data)
-        if accepted.turn_id != turn.turn_id:
-            raise PiProtocolError("sidecar replaced the authoritative turn identity")
+        try:
+            accepted = AcceptedTurn.model_validate(data)
+            if accepted.turn_id != turn.turn_id:
+                raise PiProtocolError("sidecar replaced the authoritative turn identity")
+            if accepted.runtime_generation != turn.runtime_generation:
+                raise PiProtocolError("sidecar returned a different runtime generation")
+            expected_session = f"pi:{turn.diagnosis_id}:{turn.runtime_generation}"
+            if accepted.runtime_session_id != expected_session:
+                raise PiProtocolError("sidecar returned a different runtime session")
+        except (ValidationError, PiProtocolError) as exc:
+            raise PiAcceptanceUnknown(
+                f"{exc}; turn acceptance unknown"
+            ) from exc
         if not accepted.accepted:
             raise PiDefinitiveRejection("sidecar definitively rejected the turn")
         return accepted

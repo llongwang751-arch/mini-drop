@@ -54,6 +54,7 @@ from server.app.prometheus_metrics import (
     record_task_transition,
 )
 from server.app.rca.models import FeedbackPrior
+from server.app.process_attestation import ProcessIdentityBinding
 from server.app.schemas import CreateTaskRequest
 from server.app.state_machine import (
     AnalysisStatus,
@@ -113,53 +114,82 @@ class TaskMixin:
             existing = self._find_idempotent_task(creator_id, idempotency_key, payload)
             if existing is not None:
                 return existing
-        with self._write_session() as session:
-            ts = now_utc()
-            hex_suffix = uuid4().hex[:6]
-            task_id = f"task_{ts.strftime('%Y%m%d_%H%M%S')}_{hex_suffix}"
-            agent = session.get(AgentModel, payload.agent_id)
-            if agent is None:
-                raise ValueError(f"Agent {payload.agent_id} 不存在")
+        try:
+            with self._write_session() as session:
+                ts = now_utc()
+                hex_suffix = uuid4().hex[:6]
+                task_id = f"task_{ts.strftime('%Y%m%d_%H%M%S')}_{hex_suffix}"
+                agent = session.get(AgentModel, payload.agent_id)
+                if agent is None:
+                    raise ValueError(f"Agent {payload.agent_id} 不存在")
 
-            task = TaskModel(
-                id=task_id,
-                name=payload.name,
-                agent_id=payload.agent_id,
-                target_pid=payload.target_pid,
-                collector_type=payload.collector_type,
-                sample_rate=payload.sample_rate,
-                duration_sec=payload.duration_sec,
-                status=TaskStatus.PENDING.value,
-                status_reason="Web 请求创建任务",
-                collection_status=CollectionStatus.QUEUED.value,
-                analysis_status=AnalysisStatus.NOT_STARTED.value,
-                request_params=payload.model_dump(),
-                diagnosis_step_id=(payload.options or {}).get("diagnosis_step_id"),
-                idempotency_key=idempotency_key,
-                creator_id=creator_id,
-                created_at=ts,
-            )
-            session.add(task)
-            session.flush()
+                request_payload = payload.model_dump(mode="json")
+                process_binding_json = None
+                process_snapshot_id = None
+                if payload.process_binding is not None:
+                    binding = ProcessIdentityBinding.from_mapping(
+                        payload.process_binding.model_dump()
+                    )
+                    if not self._validate_process_binding_in_session(
+                        session,
+                        binding,
+                        agent_id=payload.agent_id,
+                        target_pid=payload.target_pid,
+                        now=ts,
+                    ):
+                        raise ValueError(
+                            "进程身份绑定与 Agent 最新快照不匹配或已过期"
+                        )
+                    process_binding_json = binding.to_dict()
+                    process_snapshot_id = binding.process_snapshot_id
 
-            # 状态事件
-            self._write_event(session, task_id, None, TaskStatus.PENDING,
-                              "Web 请求创建任务", Actor.WEB, payload.model_dump())
-            record_task_transition("NONE", TaskStatus.PENDING.value)
+                task = TaskModel(
+                    id=task_id,
+                    name=payload.name,
+                    agent_id=payload.agent_id,
+                    target_pid=payload.target_pid,
+                    collector_type=payload.collector_type,
+                    sample_rate=payload.sample_rate,
+                    duration_sec=payload.duration_sec,
+                    status=TaskStatus.PENDING.value,
+                    status_reason="Web 请求创建任务",
+                    collection_status=CollectionStatus.QUEUED.value,
+                    analysis_status=AnalysisStatus.NOT_STARTED.value,
+                    request_params=request_payload,
+                    process_snapshot_id=process_snapshot_id,
+                    process_binding_json=process_binding_json,
+                    diagnosis_step_id=(payload.options or {}).get("diagnosis_step_id"),
+                    idempotency_key=idempotency_key,
+                    creator_id=creator_id,
+                    created_at=ts,
+                )
+                session.add(task)
+                session.flush()
 
-            # 审计日志
-            self._write_audit(session, "TASK_CREATED", task_id=task_id,
-                              message=f"任务 {task_id} 已创建",
-                              metadata=payload.model_dump())
+                # 状态事件
+                self._write_event(session, task_id, None, TaskStatus.PENDING,
+                                  "Web 请求创建任务", Actor.WEB, request_payload)
+                record_task_transition("NONE", TaskStatus.PENDING.value)
 
-            # 通用 Transactional Outbox：与 Task + Event + Audit 同一事务提交，
-            # Dispatcher 领取后幂等发布（指南 §9.6）。
-            self.enqueue_outbox(
-                "task", task_id, "task.created", payload.model_dump(),
-                session=session,
-            )
+                # 审计日志
+                self._write_audit(session, "TASK_CREATED", task_id=task_id,
+                                  message=f"任务 {task_id} 已创建",
+                                  metadata=request_payload)
 
-            return task
+                # 通用 Transactional Outbox：与 Task + Event + Audit 同一事务提交，
+                # Dispatcher 领取后幂等发布（指南 §9.6）。
+                self.enqueue_outbox(
+                    "task", task_id, "task.created", request_payload,
+                    session=session,
+                )
+
+                return task
+        except IntegrityError:
+            if idempotency_key and creator_id:
+                existing = self._find_idempotent_task(creator_id, idempotency_key, payload)
+                if existing is not None:
+                    return existing
+            raise
 
     def _find_idempotent_task(
         self,
@@ -182,7 +212,7 @@ class TaskMixin:
             )
             if existing is None:
                 return None
-            if not _same_task_request(existing.request_params or {}, payload.model_dump()):
+            if not _same_task_request(existing.request_params or {}, payload.model_dump(mode="json")):
                 raise ValueError(
                     f"Idempotency-Key 已用于不同参数的请求: {idempotency_key}"
                 )

@@ -326,6 +326,69 @@ class TestHealthCheck:
         after = grpc_fix.repo.agents[self.AGENT_ID].last_heartbeat_at
         assert after > before
 
+    def test_heartbeat_records_present_snapshot_on_busy_and_idle_paths(
+        self, grpc_fix: GrpcFixture,
+    ):
+        self._register(grpc_fix)
+
+        def snapshot(generation):
+            return healthcheck_pb2.ProcessCandidateSnapshot(
+                generation=generation,
+                boot_id="boot-grpc",
+                observed_at_unix_ms=9_999_999_999,
+                complete=True,
+                candidates=[healthcheck_pb2.ProcessCandidate(
+                    pid=4321,
+                    process_start_ticks=11,
+                    pid_namespace_inode=22,
+                    namespace_pid=4321,
+                    executable_identity="sha256:grpc",
+                )],
+            )
+
+        grpc_fix.hc_stub.Do(healthcheck_pb2.HealthCheckRequest(
+            agent_id=self.AGENT_ID,
+            ip_addr=self.IP,
+            busy=True,
+            process_candidate_snapshot=snapshot(1),
+        ))
+        busy_snapshot = grpc_fix.repo.get_process_candidate_snapshot(self.AGENT_ID)
+        assert busy_snapshot.generation == 1
+        assert busy_snapshot.received_at == grpc_fix.repo.agents[
+            self.AGENT_ID
+        ].last_heartbeat_at
+
+        grpc_fix.hc_stub.Do(healthcheck_pb2.HealthCheckRequest(
+            agent_id=self.AGENT_ID,
+            ip_addr=self.IP,
+            process_candidate_snapshot=snapshot(2),
+        ))
+        assert grpc_fix.repo.get_process_candidate_snapshot(self.AGENT_ID).generation == 2
+
+    def test_absent_heartbeat_does_not_refresh_process_snapshot(
+        self, grpc_fix: GrpcFixture,
+    ):
+        self._register(grpc_fix)
+        grpc_fix.hc_stub.Do(healthcheck_pb2.HealthCheckRequest(
+            agent_id=self.AGENT_ID,
+            ip_addr=self.IP,
+            process_candidate_snapshot=healthcheck_pb2.ProcessCandidateSnapshot(
+                generation=1,
+                boot_id="boot-grpc",
+                complete=True,
+            ),
+        ))
+        before = grpc_fix.repo.get_process_candidate_snapshot(self.AGENT_ID)
+        time.sleep(0.01)
+        grpc_fix.hc_stub.Do(healthcheck_pb2.HealthCheckRequest(
+            agent_id=self.AGENT_ID,
+            ip_addr=self.IP,
+        ))
+        after = grpc_fix.repo.get_process_candidate_snapshot(self.AGENT_ID)
+        assert after.snapshot_id == before.snapshot_id
+        assert after.received_at == before.received_at
+        assert grpc_fix.repo.agents[self.AGENT_ID].last_heartbeat_at > before.received_at
+
     def test_heartbeat_records_agent_metrics(self, grpc_fix: GrpcFixture):
         self._register(grpc_fix)
         grpc_fix.hc_stub.Do(

@@ -12,6 +12,7 @@ from unittest import mock
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from server.app import main as main_module
 from server.app import storage as store
@@ -118,6 +119,38 @@ class TestHealthz:
         assert 'dataset_version="2.0.0"' in metrics
 
 
+class TestTaskRequestBoundary:
+    def test_create_task_request_rejects_unknown_fields(self):
+        from server.app.schemas import CreateTaskRequest
+
+        with pytest.raises(ValidationError, match="extra_forbidden"):
+            CreateTaskRequest(
+                name="strict-task",
+                agent_id="a1",
+                target_pid=101,
+                collector_type="sys_metrics",
+                untrusted_authority="agent-other:999",
+            )
+
+    def test_process_binding_rejects_unknown_fields(self):
+        from server.app.schemas import ProcessIdentityBindingRequest
+
+        with pytest.raises(ValidationError, match="extra_forbidden"):
+            ProcessIdentityBindingRequest(
+                agent_id="a1",
+                pid=101,
+                boot_id="boot-a",
+                process_start_ticks=123,
+                pid_namespace_inode=456,
+                namespace_pid=101,
+                executable_identity="sha256:executable",
+                process_snapshot_id="psnap_a",
+                snapshot_generation=1,
+                snapshot_received_at="2026-08-24T00:00:00Z",
+                expected_root_cause="cpu_hog",
+            )
+
+
 class TestAnalysisJobsApi:
     def _create_job(self):
         from server.app.schemas import CreateTaskRequest
@@ -190,20 +223,20 @@ class TestStartupMinio:
         with pytest.raises(RuntimeError, match="down"):
             _ensure_minio_bucket_with_retry("mini-drop")
     def test_lifespan_stops_embedded_outbox_workers(self, monkeypatch):
-        task_started = main_module.threading.Event()
-        artifact_started = main_module.threading.Event()
-        task_stopped = main_module.threading.Event()
-        artifact_stopped = main_module.threading.Event()
+        started = {
+            name: main_module.threading.Event()
+            for name in ("task", "artifact", "revocation")
+        }
+        stopped = {
+            name: main_module.threading.Event()
+            for name in ("task", "artifact", "revocation")
+        }
 
-        def wait_for_stop(_target, _worker_id, *, stop_event, **kwargs):
-            if _worker_id.endswith(":task"):
-                task_started.set()
-                stopped = task_stopped
-            else:
-                artifact_started.set()
-                stopped = artifact_stopped
+        def wait_for_stop(_target, worker_id, *, stop_event, **kwargs):
+            worker_kind = worker_id.rsplit(":", 1)[-1]
+            started[worker_kind].set()
             if stop_event.wait(60):
-                stopped.set()
+                stopped[worker_kind].set()
 
         monkeypatch.setenv("MINIO_AUTO_CREATE_BUCKET", "0")
         monkeypatch.setenv("MINI_DROP_EMBED_GRPC", "0")
@@ -217,16 +250,17 @@ class TestStartupMinio:
             "server.app.outbox_dispatcher.run_artifact_worker",
             wait_for_stop,
         )
+        monkeypatch.setattr(
+            "server.app.outbox_dispatcher.run_artifact_revocation_worker",
+            wait_for_stop,
+        )
 
         with TestClient(app) as started_client:
-            assert task_started.wait(1)
-            assert artifact_started.wait(1)
+            assert all(event.wait(1) for event in started.values())
             assert started_client.get("/api/healthz").status_code == 200
-            assert not task_stopped.is_set()
-            assert not artifact_stopped.is_set()
+            assert not any(event.is_set() for event in stopped.values())
 
-        assert task_stopped.wait(1)
-        assert artifact_stopped.wait(1)
+        assert all(event.wait(1) for event in stopped.values())
 
 
 class TestApiAuth:

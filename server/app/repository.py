@@ -18,6 +18,24 @@ from uuid import uuid4
 from server.app.schemas import AgentRegistration, CreateTaskRequest
 from server.app.artifact_integrity import prepare_artifact
 from server.app.prometheus_metrics import record_task_transition
+from server.app.task_attempt_authority import (
+    AuthorizedTaskAttempt,
+    TaskDispatch,
+    generate_task_attempt_authority,
+    task_attempt_authority_sha256,
+    verify_task_attempt_authority,
+)
+from server.app.process_attestation import (
+    PROCESS_SNAPSHOT_MAX_AGE,
+    ProcessCandidateInput,
+    ProcessIdentityBinding,
+    ProcessSnapshotState,
+    ResolvedProcessCandidate,
+    ResolvedProcessSnapshot,
+    binding_matches_candidate,
+    candidate_identity_complete,
+    normalize_process_candidate_snapshot,
+)
 from server.app.state_machine import (
     Actor,
     StatusEvent,
@@ -63,6 +81,8 @@ class TaskRecord:
     status_reason: str
     request_params: dict[str, Any]
     created_at: datetime
+    process_snapshot_id: str | None = None
+    process_binding_json: dict[str, Any] | None = None
     started_at: datetime | None = None
     finished_at: datetime | None = None
 
@@ -80,6 +100,7 @@ class TaskAttemptRecord:
     finished_at: datetime | None = None
     lease_expires_at: datetime | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    task_attempt_authority_sha256: str | None = field(default=None, repr=False)
 
 
 @dataclass
@@ -108,6 +129,14 @@ def _same_task_request(a: dict, b: dict) -> bool:
     )
 
 
+def _coerce_process_binding(value: Any) -> ProcessIdentityBinding:
+    if isinstance(value, ProcessIdentityBinding):
+        return value
+    if hasattr(value, "model_dump"):
+        value = value.model_dump()
+    return ProcessIdentityBinding.from_mapping(value)
+
+
 class InMemoryRepository:
     """线程安全的内存存储实现。"""
 
@@ -121,8 +150,9 @@ class InMemoryRepository:
         self.audit_logs: list[AuditLog] = []
         self.artifacts: dict[str, list[dict[str, Any]]] = {}
         self.agent_metrics: dict[str, dict[str, Any]] = {}
+        self._process_snapshots: dict[str, list[ResolvedProcessSnapshot]] = {}
 
-        # 每个 Agent IP 维护一个任务队列。
+        # Compatibility queue retained for Control.CreateTask callers. Dispatch
         # key = agent.ip_addr, value = deque of task_id
         self._task_queues: dict[str, deque[str]] = {}
         self._lock = threading.RLock()
@@ -169,49 +199,195 @@ class InMemoryRepository:
 
             return record
 
-    def heartbeat(self, agent_id: str, ip_addr: str) -> TaskRecord | None:
-        """记录心跳并返回该 Agent IP 队列中的下一个待执行任务。
-
-        如果队列中有 PENDING 任务，将其迁移到 RUNNING 后返回。
-        """
+    def heartbeat(
+        self,
+        agent_id: str,
+        ip_addr: str,
+        *,
+        received_at: datetime | None = None,
+    ) -> TaskDispatch | None:
+        """Record a heartbeat and dispatch this exact Agent's oldest valid task."""
         with self._lock:
             agent = self.agents.get(agent_id)
             if agent is None:
                 return None
 
+            timestamp = received_at or now_utc()
+            agent.ip_addr = ip_addr or agent.ip_addr
             agent.status = "ONLINE"
-            agent.last_heartbeat_at = now_utc()
-            agent.updated_at = now_utc()
+            agent.last_heartbeat_at = timestamp
+            agent.updated_at = timestamp
 
-            # 从该 IP 的任务队列取下一个 PENDING 任务
-            queue = self._task_queues.get(ip_addr)
-            if not queue:
-                return None
-
-            while queue:
-                task_id = queue[0]
-                task = self.tasks.get(task_id)
-                if task is not None and task.status == TaskStatus.PENDING:
-                    queue.popleft()
-                    self.transition_task(
-                        task_id, TaskStatus.RUNNING,
-                        "Agent 心跳拉取待执行任务", Actor.SERVER,
-                    )
-                    return task
-                # 任务已被删除或状态不一致，跳过
-                queue.popleft()
-
+            pending = sorted(
+                (
+                    task for task in self.tasks.values()
+                    if task.agent_id == agent_id
+                    and task.status == TaskStatus.PENDING
+                ),
+                key=lambda task: (task.created_at, task.id),
+            )
+            for task in pending:
+                if task.process_binding_json is not None and not self.validate_process_binding(
+                    task.process_binding_json,
+                    agent_id=agent_id,
+                    target_pid=task.target_pid,
+                    now=timestamp,
+                ):
+                    continue
+                authority = generate_task_attempt_authority()
+                task, attempt = self._transition_task_in_lock(
+                    task.id,
+                    TaskStatus.RUNNING,
+                    "Agent 心跳拉取待执行任务",
+                    Actor.SERVER,
+                    task_attempt_authority_sha256=task_attempt_authority_sha256(authority),
+                )
+                assert attempt is not None
+                return TaskDispatch(
+                    task=task,
+                    task_attempt_id=attempt.id,
+                    task_attempt_authority=authority,
+                )
             return None
 
-    def heartbeat_only(self, agent_id: str, ip_addr: str) -> None:
+    def heartbeat_only(
+        self,
+        agent_id: str,
+        ip_addr: str,
+        *,
+        received_at: datetime | None = None,
+    ) -> None:
         """只记录心跳，不派发任务。用于 Agent 忙碌时保持在线。"""
         with self._lock:
             agent = self.agents.get(agent_id)
             if agent is None:
                 return
+            timestamp = received_at or now_utc()
+            agent.ip_addr = ip_addr or agent.ip_addr
             agent.status = "ONLINE"
-            agent.last_heartbeat_at = now_utc()
-            agent.updated_at = now_utc()
+            agent.last_heartbeat_at = timestamp
+            agent.updated_at = timestamp
+
+    def record_process_candidate_snapshot(
+        self,
+        agent_id: str,
+        snapshot: Any | None,
+        *,
+        received_at: datetime | None = None,
+    ) -> ResolvedProcessSnapshot:
+        """Atomically append one bounded present snapshot; absence is not persisted."""
+        with self._lock:
+            normalized = normalize_process_candidate_snapshot(snapshot)
+            if normalized.state == ProcessSnapshotState.ABSENT:
+                return ResolvedProcessSnapshot(
+                    agent_id=agent_id,
+                    snapshot_id=None,
+                    generation=None,
+                    received_at=None,
+                    observed_at_unix_ms=None,
+                    boot_id="",
+                    state=ProcessSnapshotState.ABSENT,
+                    authoritative=False,
+                )
+            if agent_id not in self.agents:
+                raise ValueError(f"Agent {agent_id} 不存在")
+            payload = normalized.snapshot
+            assert payload is not None
+            timestamp = received_at or now_utc()
+            snapshot_id = f"psnap_{uuid4().hex}"
+            candidates = tuple(
+                ResolvedProcessCandidate(
+                    agent_id=agent_id,
+                    snapshot_id=snapshot_id,
+                    snapshot_generation=payload.generation,
+                    snapshot_received_at=timestamp,
+                    boot_id=payload.boot_id,
+                    candidate=candidate,
+                )
+                for candidate in payload.candidates
+                if candidate_identity_complete(candidate)
+            )
+            resolved = ResolvedProcessSnapshot(
+                agent_id=agent_id,
+                snapshot_id=snapshot_id,
+                generation=payload.generation,
+                received_at=timestamp,
+                observed_at_unix_ms=payload.observed_at_unix_ms,
+                boot_id=payload.boot_id,
+                state=normalized.state,
+                authoritative=normalized.authoritative,
+                candidates=candidates,
+                error=payload.error,
+            )
+            self._process_snapshots.setdefault(agent_id, []).append(resolved)
+            return resolved
+
+    def get_process_candidate_snapshot(
+        self, agent_id: str
+    ) -> ResolvedProcessSnapshot:
+        with self._lock:
+            snapshots = self._process_snapshots.get(agent_id, ())
+            if not snapshots:
+                return ResolvedProcessSnapshot(
+                    agent_id=agent_id,
+                    snapshot_id=None,
+                    generation=None,
+                    received_at=None,
+                    observed_at_unix_ms=None,
+                    boot_id="",
+                    state=ProcessSnapshotState.ABSENT,
+                    authoritative=False,
+                )
+            return max(
+                snapshots,
+                key=lambda item: (
+                    (item.received_at or datetime.min.replace(tzinfo=now_utc().tzinfo)).timestamp(),
+                    item.snapshot_id or "",
+                ),
+            )
+
+    def resolve_process_candidates(
+        self, agent_id: str, *, pid: int | None = None
+    ) -> tuple[ResolvedProcessCandidate, ...]:
+        snapshot = self.get_process_candidate_snapshot(agent_id)
+        if not snapshot.authoritative:
+            return ()
+        return tuple(
+            candidate for candidate in snapshot.candidates
+            if pid is None or candidate.candidate.pid == pid
+        )
+
+    def resolve_process_candidate(
+        self, agent_id: str, pid: int
+    ) -> ResolvedProcessCandidate | None:
+        matches = self.resolve_process_candidates(agent_id, pid=pid)
+        return matches[0] if len(matches) == 1 else None
+
+    def validate_process_binding(
+        self,
+        binding: ProcessIdentityBinding | dict[str, Any] | Any,
+        *,
+        agent_id: str | None = None,
+        target_pid: int | None = None,
+        now: datetime | None = None,
+    ) -> bool:
+        try:
+            value = _coerce_process_binding(binding)
+        except (KeyError, TypeError, ValueError):
+            return False
+        if agent_id is not None and value.agent_id != agent_id:
+            return False
+        if target_pid is not None and value.pid != target_pid:
+            return False
+        snapshot = self.get_process_candidate_snapshot(value.agent_id)
+        if not snapshot.authoritative or not snapshot.is_fresh(
+            now=now, max_age=PROCESS_SNAPSHOT_MAX_AGE
+        ):
+            return False
+        return any(
+            binding_matches_candidate(value, candidate)
+            for candidate in snapshot.candidates
+        )
 
     def mark_offline_agents(self, timeout_sec: int = 30) -> list[AgentRecord]:
         """将超时未心跳的 Agent 标记为 OFFLINE。"""
@@ -259,7 +435,7 @@ class InMemoryRepository:
             if cached is not None:
                 existing = self.tasks.get(cached["task_id"])
                 if existing is not None:
-                    if _same_task_request(cached["params"], payload.model_dump()):
+                    if _same_task_request(cached["params"], payload.model_dump(mode="json")):
                         return existing
                     raise ValueError(
                         f"Idempotency-Key 已用于不同参数的请求: {idempotency_key}"
@@ -268,6 +444,22 @@ class InMemoryRepository:
             timestamp = now_utc()
             hex_suffix = uuid4().hex[:6]
             task_id = f"task_{timestamp.strftime('%Y%m%d_%H%M%S')}_{hex_suffix}"
+            agent = self.agents.get(payload.agent_id)
+            if agent is None:
+                raise ValueError(f"Agent {payload.agent_id} 不存在")
+            binding_json = None
+            process_snapshot_id = None
+            if payload.process_binding is not None:
+                binding = _coerce_process_binding(payload.process_binding)
+                if not self.validate_process_binding(
+                    binding,
+                    agent_id=payload.agent_id,
+                    target_pid=payload.target_pid,
+                    now=timestamp,
+                ):
+                    raise ValueError("进程身份绑定与 Agent 最新快照不匹配或已过期")
+                binding_json = binding.to_dict()
+                process_snapshot_id = binding.process_snapshot_id
 
             task = TaskRecord(
                 id=task_id,
@@ -279,8 +471,10 @@ class InMemoryRepository:
                 duration_sec=payload.duration_sec,
                 status=TaskStatus.PENDING,
                 status_reason="Web 请求创建任务",
-                request_params=payload.model_dump(),
+                request_params=payload.model_dump(mode="json"),
                 created_at=timestamp,
+                process_snapshot_id=process_snapshot_id,
+                process_binding_json=binding_json,
             )
             self.tasks[task_id] = task
 
@@ -289,7 +483,7 @@ class InMemoryRepository:
                 build_status_event(
                     task_id, None, TaskStatus.PENDING,
                     "Web 请求创建任务", Actor.WEB,
-                    payload.model_dump(),
+                    payload.model_dump(mode="json"),
                 )
             )
             record_task_transition("NONE", TaskStatus.PENDING.value)
@@ -299,7 +493,7 @@ class InMemoryRepository:
                 event_type="TASK_CREATED",
                 task_id=task_id,
                 message=f"任务 {task_id} 已创建",
-                metadata=payload.model_dump(),
+                metadata=payload.model_dump(mode="json"),
             )
 
             # 加入目标 Agent IP 的任务队列
@@ -313,7 +507,7 @@ class InMemoryRepository:
             if idempotency_key and creator_id:
                 self._idempotency[(creator_id, idempotency_key)] = {
                     "task_id": task_id,
-                    "params": payload.model_dump(),
+                    "params": payload.model_dump(mode="json"),
                 }
 
             return task
@@ -330,48 +524,63 @@ class InMemoryRepository:
         reason: str, actor: Actor,
         metadata: dict[str, Any] | None = None,
     ) -> TaskRecord:
-        """对指定任务执行一次状态迁移。
-
-        校验由 build_status_event 内部完成，不合法时抛出 ValueError。
-        """
+        """对指定任务执行一次状态迁移。"""
         with self._lock:
-            if task_id not in self.tasks:
-                raise ValueError(f"任务不存在: {task_id}")
-            task = self.tasks[task_id]
-            event = build_status_event(
-                task_id, task.status, to_status, reason, actor, metadata,
+            task, _ = self._transition_task_in_lock(
+                task_id, to_status, reason, actor, metadata,
             )
-            self.events.append(event)
-            record_task_transition(task.status.value, to_status.value)
-            task.status = to_status
-            task.status_reason = reason
-            if to_status == TaskStatus.RUNNING:
-                if task.started_at is None:
-                    task.started_at = now_utc()
-                attempts = self.task_attempts.setdefault(task_id, [])
-                started_at = now_utc()
-                attempts.append(TaskAttemptRecord(
-                    id=f"attempt_{uuid4().hex}",
-                    task_id=task_id,
-                    attempt_no=len(attempts) + 1,
-                    agent_id=task.agent_id,
-                    status=TaskStatus.RUNNING,
-                    reason=reason,
-                    created_at=started_at,
-                    started_at=started_at,
-                    lease_expires_at=started_at + timedelta(seconds=task.duration_sec + 30),
-                    metadata=metadata or {},
-                ))
-            elif self.task_attempts.get(task_id):
-                attempt = self.task_attempts[task_id][-1]
-                attempt.status = to_status
-                attempt.reason = reason
-                attempt.metadata.update(metadata or {})
-                if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
-                    attempt.finished_at = now_utc()
-            if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
-                task.finished_at = now_utc()
             return task
+
+    def _transition_task_in_lock(
+        self,
+        task_id: str,
+        to_status: TaskStatus,
+        reason: str,
+        actor: Actor,
+        metadata: dict[str, Any] | None = None,
+        *,
+        task_attempt_authority_sha256: str | None = None,
+    ) -> tuple[TaskRecord, TaskAttemptRecord | None]:
+        if task_id not in self.tasks:
+            raise ValueError(f"任务不存在: {task_id}")
+        task = self.tasks[task_id]
+        event = build_status_event(
+            task_id, task.status, to_status, reason, actor, metadata,
+        )
+        self.events.append(event)
+        record_task_transition(task.status.value, to_status.value)
+        task.status = to_status
+        task.status_reason = reason
+        attempt: TaskAttemptRecord | None = None
+        if to_status == TaskStatus.RUNNING:
+            if task.started_at is None:
+                task.started_at = now_utc()
+            attempts = self.task_attempts.setdefault(task_id, [])
+            started_at = now_utc()
+            attempt = TaskAttemptRecord(
+                id=f"attempt_{uuid4().hex}",
+                task_id=task_id,
+                attempt_no=len(attempts) + 1,
+                agent_id=task.agent_id,
+                status=TaskStatus.RUNNING,
+                reason=reason,
+                created_at=started_at,
+                started_at=started_at,
+                lease_expires_at=started_at + timedelta(seconds=task.duration_sec + 30),
+                metadata=metadata or {},
+                task_attempt_authority_sha256=task_attempt_authority_sha256,
+            )
+            attempts.append(attempt)
+        elif self.task_attempts.get(task_id):
+            attempt = self.task_attempts[task_id][-1]
+            attempt.status = to_status
+            attempt.reason = reason
+            attempt.metadata.update(metadata or {})
+            if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
+                attempt.finished_at = now_utc()
+        if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
+            task.finished_at = now_utc()
+        return task, attempt
 
     def cancel_task(
         self,
@@ -473,6 +682,20 @@ class InMemoryRepository:
 
     def as_dict(self, value: Any) -> dict[str, Any]:
         """将数据类或枚举转换为纯 dict。"""
-        if isinstance(value, (AgentRecord, TaskRecord, TaskAttemptRecord, AuditLog, StatusEvent)):
+        if isinstance(value, TaskAttemptRecord):
+            return {
+                "id": value.id,
+                "task_id": value.task_id,
+                "attempt_no": value.attempt_no,
+                "agent_id": value.agent_id,
+                "status": value.status,
+                "reason": value.reason,
+                "created_at": value.created_at,
+                "started_at": value.started_at,
+                "finished_at": value.finished_at,
+                "lease_expires_at": value.lease_expires_at,
+                "metadata": dict(value.metadata),
+            }
+        if isinstance(value, (AgentRecord, TaskRecord, AuditLog, StatusEvent)):
             return asdict(value)
         return value

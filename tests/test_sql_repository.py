@@ -3,11 +3,18 @@
 使用 SQLite :memory: 后端，验证与 InMemoryRepository 的接口一致性。
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from server.app.database import init_db, reset_engine
+from server.app.process_attestation import (
+    MAX_PROCESS_CANDIDATES,
+    MAX_PROCESS_CAPABILITIES,
+    MAX_PROCESS_TEXT_LENGTH,
+    ProcessSnapshotState,
+)
+from server.app.repository import InMemoryRepository
 from server.app.schemas import CreateTaskRequest
 from server.app.sql_repository import SqlRepository
 from server.app.state_machine import (
@@ -268,6 +275,300 @@ class TestTaskPersistence:
         assert pulled is not None
         assert pulled.id == task.id
         assert pulled.status == TaskStatus.RUNNING.value
+
+
+def _process_candidate(pid: int = 4242, **overrides):
+    value = {
+        "pid": pid,
+        "process_start_ticks": 101,
+        "pid_namespace_inode": 202,
+        "namespace_pid": pid,
+        "executable_identity": "sha256:executable",
+        "comm": "worker",
+        "cgroup": "/service/worker",
+        "service_hint": "worker.service",
+        "instance_hint": "instance-a",
+        "collector_capabilities": ["perf_cpu", "ebpf_io"],
+    }
+    value.update(overrides)
+    return value
+
+
+def _process_snapshot(*, candidates=None, **overrides):
+    value = {
+        "generation": 1,
+        "boot_id": "boot-a",
+        "observed_at_unix_ms": 1,
+        "complete": True,
+        "truncated": False,
+        "candidates": [_process_candidate()] if candidates is None else candidates,
+        "error": "",
+    }
+    value.update(overrides)
+    return value
+
+
+def _register_process_agent(repo, agent_id="process-agent", ip="10.0.20.1"):
+    repo.register_agent(agent_id, "process-host", ip)
+    return agent_id, ip
+
+
+class TestProcessAttestation:
+    @pytest.mark.parametrize(
+        ("snapshot", "state", "authoritative"),
+        [
+            (_process_snapshot(candidates=[]), ProcessSnapshotState.COMPLETE_EMPTY, True),
+            (_process_snapshot(), ProcessSnapshotState.COMPLETE_POPULATED, True),
+            (_process_snapshot(complete=False), ProcessSnapshotState.PARTIAL, False),
+            (_process_snapshot(error="collector failed"), ProcessSnapshotState.FAILED, False),
+            (_process_snapshot(truncated=True), ProcessSnapshotState.TRUNCATED, False),
+            (
+                _process_snapshot(
+                    candidates=[_process_candidate(), _process_candidate()]
+                ),
+                ProcessSnapshotState.PARTIAL,
+                False,
+            ),
+        ],
+    )
+    def test_sql_preserves_snapshot_states(
+        self, repo: SqlRepository, snapshot, state, authoritative
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        resolved = repo.record_process_candidate_snapshot(agent_id, snapshot)
+        assert resolved.state == state
+        assert resolved.authoritative is authoritative
+
+    def test_absent_snapshot_is_not_persisted_or_refreshed(
+        self, repo: SqlRepository
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        received_at = datetime(2026, 8, 24, tzinfo=timezone.utc)
+        stored = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(), received_at=received_at
+        )
+        absent = repo.record_process_candidate_snapshot(
+            agent_id, None, received_at=received_at + timedelta(seconds=10)
+        )
+        assert absent.state == ProcessSnapshotState.ABSENT
+        latest = repo.get_process_candidate_snapshot(agent_id)
+        assert latest.snapshot_id == stored.snapshot_id
+        assert latest.received_at == received_at
+
+    def test_newest_server_receipt_wins_not_client_time_or_generation(
+        self, repo: SqlRepository
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        base = datetime(2026, 8, 24, tzinfo=timezone.utc)
+        older = repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(generation=99, observed_at_unix_ms=9_999_999),
+            received_at=base,
+        )
+        newer = repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(generation=1, observed_at_unix_ms=1),
+            received_at=base + timedelta(seconds=1),
+        )
+        assert older.snapshot_id != newer.snapshot_id
+        assert repo.get_process_candidate_snapshot(agent_id).snapshot_id == newer.snapshot_id
+
+    def test_binding_freshness_uses_server_receipt_with_exact_boundary(
+        self, repo: SqlRepository
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        received_at = datetime(2026, 8, 24, tzinfo=timezone.utc)
+        snapshot = repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(observed_at_unix_ms=0),
+            received_at=received_at,
+        )
+        binding = snapshot.candidates[0].binding()
+        assert repo.validate_process_binding(
+            binding, now=received_at + timedelta(seconds=15)
+        )
+        assert not repo.validate_process_binding(
+            binding, now=received_at + timedelta(seconds=15, microseconds=1)
+        )
+        assert not repo.validate_process_binding(
+            binding, now=received_at - timedelta(microseconds=1)
+        )
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("agent_id", "other-agent"),
+            ("pid", 9999),
+            ("boot_id", "boot-b"),
+            ("process_start_ticks", 999),
+            ("pid_namespace_inode", 999),
+            ("namespace_pid", 999),
+            ("executable_identity", "sha256:changed"),
+        ],
+    )
+    def test_binding_rejects_every_changed_identity_field(
+        self, repo: SqlRepository, field, value
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        now = now_utc()
+        snapshot = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(), received_at=now
+        )
+        binding = snapshot.candidates[0].binding().to_dict()
+        binding[field] = value
+        assert not repo.validate_process_binding(
+            binding, agent_id=agent_id, target_pid=4242, now=now
+        )
+
+    def test_bound_task_persists_binding_and_dispatch_gate(
+        self, repo: SqlRepository
+    ):
+        agent_id, ip = _register_process_agent(repo)
+        now = now_utc()
+        snapshot = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(), received_at=now
+        )
+        binding = snapshot.candidates[0].binding().to_dict()
+        task = repo.create_task(CreateTaskRequest(
+            name="bound-task",
+            agent_id=agent_id,
+            target_pid=4242,
+            collector_type="perf_cpu",
+            process_binding=binding,
+        ))
+        assert task.process_snapshot_id == snapshot.snapshot_id
+        assert task.process_binding_json == binding
+        persisted_request_binding = task.request_params["process_binding"]
+        assert {
+            key: value for key, value in persisted_request_binding.items()
+            if key != "snapshot_received_at"
+        } == {
+            key: value for key, value in binding.items()
+            if key != "snapshot_received_at"
+        }
+        assert datetime.fromisoformat(
+            persisted_request_binding["snapshot_received_at"].replace("Z", "+00:00")
+        ) == datetime.fromisoformat(binding["snapshot_received_at"])
+        assert repo.heartbeat(
+            agent_id, ip, received_at=now + timedelta(seconds=15)
+        ).id == task.id
+
+    def test_stale_or_rebooted_binding_leaves_task_pending_without_running_event(
+        self, repo: SqlRepository
+    ):
+        from server.app.database import new_session
+        from server.app.models import StatusEventModel, TaskAttemptModel, TaskModel
+
+        agent_id, ip = _register_process_agent(repo)
+        now = now_utc()
+        snapshot = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(), received_at=now
+        )
+        binding = snapshot.candidates[0].binding().to_dict()
+        task = repo.create_task(CreateTaskRequest(
+            name="gated-task",
+            agent_id=agent_id,
+            target_pid=4242,
+            collector_type="perf_cpu",
+            process_binding=binding,
+        ))
+        repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(generation=2, boot_id="boot-after-reboot"),
+            received_at=now + timedelta(seconds=1),
+        )
+        assert repo.heartbeat(
+            agent_id, ip, received_at=now + timedelta(seconds=2)
+        ) is None
+        session = new_session()
+        try:
+            assert session.get(TaskModel, task.id).status == TaskStatus.PENDING.value
+            assert session.query(StatusEventModel).filter_by(
+                task_id=task.id, to_status=TaskStatus.RUNNING.value
+            ).count() == 0
+            assert session.query(TaskAttemptModel).filter_by(task_id=task.id).count() == 0
+        finally:
+            session.close()
+
+    def test_task_creation_rejects_stale_binding(self, repo: SqlRepository):
+        agent_id, _ = _register_process_agent(repo)
+        received_at = now_utc() - timedelta(seconds=16)
+        snapshot = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(), received_at=received_at
+        )
+        with pytest.raises(ValueError, match="最新快照"):
+            repo.create_task(CreateTaskRequest(
+                name="stale-bound-task",
+                agent_id=agent_id,
+                target_pid=4242,
+                collector_type="perf_cpu",
+                process_binding=snapshot.candidates[0].binding().to_dict(),
+            ))
+
+    def test_same_ip_dispatch_is_agent_scoped(self, repo: SqlRepository):
+        shared_ip = "10.0.20.99"
+        repo.register_agent("agent-a", "a", shared_ip)
+        repo.register_agent("agent-b", "b", shared_ip)
+        task_a = repo.create_task(CreateTaskRequest(
+            name="a", agent_id="agent-a", target_pid=1, collector_type="perf_cpu"
+        ))
+        task_b = repo.create_task(CreateTaskRequest(
+            name="b", agent_id="agent-b", target_pid=1, collector_type="perf_cpu"
+        ))
+        assert repo.heartbeat("agent-b", shared_ip).id == task_b.id
+        assert repo.get_task(task_a.id).status == TaskStatus.PENDING.value
+
+    def test_wire_metadata_is_sanitized_and_bounded_fail_closed(
+        self, repo: SqlRepository
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        candidates = [
+            _process_candidate(
+                pid=5000 + index,
+                process_start_ticks=9000 + index,
+                namespace_pid=5000 + index,
+                comm="worker\x00\n" + ("x" * MAX_PROCESS_TEXT_LENGTH),
+                collector_capabilities=[
+                    f"capability-{capability_index}"
+                    for capability_index in range(MAX_PROCESS_CAPABILITIES + 1)
+                ],
+            )
+            for index in range(MAX_PROCESS_CANDIDATES + 1)
+        ]
+
+        resolved = repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(boot_id="boot\x7f-a", candidates=candidates),
+        )
+
+        assert resolved.state == ProcessSnapshotState.TRUNCATED
+        assert resolved.authoritative is False
+        assert len(resolved.candidates) == MAX_PROCESS_CANDIDATES
+        assert resolved.boot_id == "boot-a"
+        candidate = resolved.candidates[0].candidate
+        assert "\x00" not in candidate.comm
+        assert "\n" not in candidate.comm
+        assert len(candidate.comm) == MAX_PROCESS_TEXT_LENGTH
+        assert len(candidate.collector_capabilities) == MAX_PROCESS_CAPABILITIES
+
+    def test_sql_and_memory_snapshot_resolution_match(self, repo: SqlRepository):
+        memory = InMemoryRepository()
+        agent_id = "parity-agent"
+        received_at = datetime(2026, 8, 24, tzinfo=timezone.utc)
+        for target in (repo, memory):
+            target.register_agent(agent_id, "host", "10.0.20.2")
+        snapshot = _process_snapshot(
+            candidates=[_process_candidate(comm="x" * 2000)],
+        )
+        sql_value = repo.record_process_candidate_snapshot(
+            agent_id, snapshot, received_at=received_at
+        )
+        memory_value = memory.record_process_candidate_snapshot(
+            agent_id, snapshot, received_at=received_at
+        )
+        assert sql_value.state == memory_value.state == ProcessSnapshotState.TRUNCATED
+        assert sql_value.authoritative == memory_value.authoritative is False
+        assert sql_value.candidates[0].candidate == memory_value.candidates[0].candidate
 
 
 class TestArtifactPersistence:

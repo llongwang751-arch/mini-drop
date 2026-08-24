@@ -380,30 +380,6 @@ export function advanceDropInsightOrchestrator(diagnosisId) {
   return api.post(`/v2/diagnoses/${diagnosisId}/orchestrator/advance`);
 }
 
-export function listCausalReplayCases() {
-  return api.get("/v2/causal-replay/cases");
-}
-
-export function previewCausalExperiment(diagnosisId, payload) {
-  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/preview`, payload);
-}
-
-export function createCausalExperiment(diagnosisId, payload) {
-  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments`, payload);
-}
-
-export function listCausalExperiments(diagnosisId) {
-  return api.get(`/v2/diagnoses/${diagnosisId}/causal-experiments`).then(itemsOf);
-}
-
-export function decideCausalExperiment(diagnosisId, experimentId, payload) {
-  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/${experimentId}/decision`, payload);
-}
-
-export function evaluateCausalExperiment(diagnosisId, experimentId, payload) {
-  return api.post(`/v2/diagnoses/${diagnosisId}/causal-experiments/${experimentId}/evaluate`, payload);
-}
-
 // ── Schedule / Cron ────────────────────────────────────────────
 
 export function listSchedules() {
@@ -521,6 +497,40 @@ export function submitDropInsightFeedback(diagnosisId, payload) {
   return api.post(`/v2/diagnoses/${diagnosisId}/feedback`, payload);
 }
 
+export function listDiagnosticSkills() {
+  return api.get("/v2/diagnostic-skills").then(itemsOf);
+}
+
+export function getDiagnosticSkill(skillId) {
+  return api.get(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}`);
+}
+
+export function createDiagnosticSkillCandidate(diagnosisId) {
+  return api.post(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skills/candidate`);
+}
+
+export function listDiagnosticSkillActivations(diagnosisId) {
+  return api.get(
+    `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skill-activations`,
+  ).then(itemsOf);
+}
+
+export function evaluateDiagnosticSkill(skillId) {
+  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/evaluate`);
+}
+
+export function publishDiagnosticSkill(skillId) {
+  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/publish`);
+}
+
+export function quarantineDiagnosticSkill(skillId, reason) {
+  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/quarantine`, { reason });
+}
+
+export function rollbackDiagnosticSkill(skillId) {
+  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/rollback`);
+}
+
 export function getDiagnosisEvalPlan() {
   return api.get("/v1/diagnosis-evaluations/plan");
 }
@@ -549,8 +559,16 @@ export function getDiagnosisCampaign(runId) {
   return api.get(`/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}`);
 }
 
+export function promoteDiagnosisCampaign(runId) {
+  return api.post(`/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}/promote`);
+}
+
 export function getDiagnosticCase(caseId) {
   return api.get(`/diagnostic-cases/${encodeURIComponent(caseId)}`);
+}
+
+export function getDropInsightTargetCandidates(diagnosisId) {
+  return api.get(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/target-candidates`);
 }
 
 export function clarifyDropInsightDiagnosis(diagnosisId, payload) {

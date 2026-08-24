@@ -7,6 +7,7 @@ vi.mock("../api/client", () => ({
   listDiagnosticCasesPage: vi.fn(),
   getDiagnosticCase: vi.fn(),
   getDropInsightDiagnosis: vi.fn(),
+  getDropInsightTargetCandidates: vi.fn(),
   listDropInsightEvents: vi.fn(),
   listDropInsightHypotheses: vi.fn(),
   listDropInsightEvidence: vi.fn(),
@@ -17,16 +18,12 @@ vi.mock("../api/client", () => ({
   clarifyDropInsightDiagnosis: vi.fn(),
   deleteDropInsightDiagnosis: vi.fn(),
   listDropInsightFeedback: vi.fn(),
+  listDiagnosticSkillActivations: vi.fn(),
   submitDropInsightFeedback: vi.fn(),
   createDropInsightDiagnosis: vi.fn(),
   runDropInsightPlanner: vi.fn(),
   decideDropInsightToolCall: vi.fn(),
   advanceDropInsightOrchestrator: vi.fn(),
-  listCausalReplayCases: vi.fn(),
-  listCausalExperiments: vi.fn(),
-  createCausalExperiment: vi.fn(),
-  decideCausalExperiment: vi.fn(),
-  evaluateCausalExperiment: vi.fn(),
 }));
 
 import * as api from "../api/client";
@@ -76,18 +73,28 @@ describe("AIDiagnosis conversation page", () => {
     api.listDiagnosticCasesPage.mockResolvedValue({ items: [], total: 0, limit: 100, offset: 0 });
     api.getDiagnosticCase.mockResolvedValue({ native_payload: {} });
     api.getDropInsightDiagnosis.mockResolvedValue(null);
+    api.getDropInsightTargetCandidates.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      diagnosis_version: 1,
+      discovery_id: "discovery-1",
+      status: "EMPTY",
+      reason: null,
+      candidates: [],
+    });
     api.listDropInsightEvents.mockResolvedValue([]);
     api.listDropInsightHypotheses.mockResolvedValue([]);
     api.listDropInsightEvidence.mockResolvedValue([]);
     api.listDropInsightReports.mockResolvedValue([]);
     api.listDropInsightToolCalls.mockResolvedValue([]);
     api.listDropInsightFeedback.mockResolvedValue([]);
+    api.listDiagnosticSkillActivations.mockResolvedValue([]);
     api.getDropInsightBudget.mockResolvedValue(null);
-    api.listCausalReplayCases.mockResolvedValue({ cases: [] });
-    api.listCausalExperiments.mockResolvedValue([]);
   });
 
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
 
   it("renders the unified case list and composer", async () => {
     api.listDropInsightDiagnoses.mockResolvedValue([
@@ -99,6 +106,37 @@ describe("AIDiagnosis conversation page", () => {
     expect(await screen.findByText("订单服务 CPU 高")).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/描述问题/)).toBeInTheDocument();
     expect(screen.getByText("诊断工作台")).toBeInTheDocument();
+  });
+
+  it("shows when a verified diagnostic strategy changes the probe route", async () => {
+    const item = diagnosticCase();
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "COMPLETED",
+    });
+    api.listDiagnosticSkillActivations.mockResolvedValue([{
+      activation_id: "activation-1",
+      skill_id: "skill-1",
+      match_score: 0.91,
+      baseline_tool: "collect_sys_metrics",
+      selected_tool: "start_perf_profile",
+      match_reason: {
+        skill_version: 2,
+        route: ["start_perf_profile", "collect_sys_metrics"],
+      },
+      updated_at: "2026-08-24T09:00:00Z",
+    }]);
+
+    render(<AIDiagnosis />);
+    await screen.findByText("订单服务 CPU 高");
+    clickCase("订单服务 CPU 高");
+
+    expect(await screen.findByText("已复用经过验证的诊断经验")).toBeInTheDocument();
+    expect(screen.getByText("技能 v2")).toBeInTheDocument();
+    expect(screen.getByText("匹配度 91%")).toBeInTheDocument();
+    expect(screen.getAllByText("start_perf_profile").length).toBeGreaterThan(0);
   });
 
   it("starts a new conversation on send", async () => {
@@ -120,6 +158,57 @@ describe("AIDiagnosis conversation page", () => {
       }),
     );
     await waitFor(() => expect(window.location.search).toContain("case=drop_insight_v2%3Adiag-new"));
+  });
+
+  it("passes diagnosis identity and version into secure target discovery and clarify", async () => {
+    const item = diagnosticCase({ status: "NEEDS_CLARIFICATION", canonical_status: "NEEDS_CLARIFICATION" });
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "NEEDS_CLARIFICATION",
+      version: 12,
+      clarification_questions: [],
+    });
+    api.getDropInsightTargetCandidates.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      diagnosis_version: 12,
+      discovery_id: "discovery-12",
+      status: "READY",
+      reason: null,
+      candidates: [{
+        binding_id: "binding-12",
+        service: "order-service",
+        instance: "order-service-7c9d",
+        process: "order-service",
+        collector_capabilities: ["perf_cpu"],
+        eligible: true,
+      }],
+    });
+    api.clarifyDropInsightDiagnosis.mockResolvedValue({});
+    api.runDropInsightPlanner.mockResolvedValue({});
+
+    render(<AIDiagnosis />);
+    await screen.findByText("订单服务 CPU 高");
+    clickCase("订单服务 CPU 高");
+    expect(await screen.findByText("已选安全目标：binding-12")).toBeInTheDocument();
+    expect(api.getDropInsightTargetCandidates).toHaveBeenCalledWith("diag-1");
+
+    fireEvent.change(screen.getByLabelText("服务"), { target: { value: "order-service" } });
+    fireEvent.mouseDown(screen.getByLabelText("环境"));
+    fireEvent.click(await screen.findByText("production"));
+    fireEvent.click(screen.getByRole("button", { name: "确认范围并开始取证" }));
+
+    await waitFor(() => expect(api.clarifyDropInsightDiagnosis).toHaveBeenCalledTimes(1));
+    expect(api.clarifyDropInsightDiagnosis).toHaveBeenCalledWith("diag-1", expect.objectContaining({
+      expected_version: 12,
+      target: {
+        service: "order-service",
+        environment: "production",
+        binding_id: "binding-12",
+        discovery_id: "discovery-12",
+      },
+    }));
   });
 
   it("de-duplicates the same v2 diagnosis from active and archive APIs", async () => {
@@ -316,6 +405,71 @@ describe("AIDiagnosis conversation page", () => {
     });
     await waitFor(() => expect(screen.queryByText("过期的第一个详情")).not.toBeInTheDocument());
     expect(screen.getAllByText("第二个详情").length).toBeGreaterThan(0);
+  });
+
+  it("polls active diagnoses with GET requests only", async () => {
+    vi.useFakeTimers();
+    const item = diagnosticCase({ status: "RUNNING", canonical_status: "COLLECTING" });
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "RUNNING",
+    });
+
+    render(<AIDiagnosis />);
+    await act(async () => { await Promise.resolve(); });
+    clickCase("订单服务 CPU 高");
+    await act(async () => { await Promise.resolve(); });
+    const diagnosisReadsBeforePoll = api.getDropInsightDiagnosis.mock.calls.length;
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+
+    expect(api.getDropInsightDiagnosis.mock.calls.length).toBeGreaterThan(diagnosisReadsBeforePoll);
+    expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
+  });
+
+  it("does not poll terminal diagnoses", async () => {
+    vi.useFakeTimers();
+    const item = diagnosticCase();
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "COMPLETED",
+    });
+
+    render(<AIDiagnosis />);
+    await act(async () => { await Promise.resolve(); });
+    clickCase("订单服务 CPU 高");
+    await act(async () => { await Promise.resolve(); });
+    const diagnosisReadsBeforeWait = api.getDropInsightDiagnosis.mock.calls.length;
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(7500); });
+
+    expect(api.getDropInsightDiagnosis).toHaveBeenCalledTimes(diagnosisReadsBeforeWait);
+    expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
+  });
+
+  it("advances only after an explicit user click", async () => {
+    const item = diagnosticCase({ status: "RUNNING", canonical_status: "COLLECTING" });
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "RUNNING",
+    });
+    api.advanceDropInsightOrchestrator.mockResolvedValue({});
+
+    render(<AIDiagnosis />);
+    await screen.findByText("订单服务 CPU 高");
+    clickCase("订单服务 CPU 高");
+    const button = await screen.findByRole("button", { name: /继续推进/ });
+
+    expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
+    fireEvent.click(button);
+
+    await waitFor(() => expect(api.advanceDropInsightOrchestrator).toHaveBeenCalledWith("diag-1"));
   });
 
   it("selects a case from the query parameter", async () => {

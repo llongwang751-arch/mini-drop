@@ -415,6 +415,13 @@ class CampaignManager:
             run = self._runs.get(run_id)
             return deepcopy(run) if run else None
 
+    def attach_drop_insight_diagnosis(self, run_id: str, diagnosis_id: str) -> None:
+        """Remember the immutable diagnosis created from this Campaign."""
+        with self._lock:
+            if run_id not in self._runs:
+                raise ValueError("Campaign 不存在")
+            self._runs[run_id]["drop_insight_diagnosis_id"] = diagnosis_id
+
     def _execute(self, run_id: str) -> None:
         settle = float(os.getenv("MINI_DROP_CAMPAIGN_SETTLE_SEC", "0.8"))
         fault_window = float(os.getenv("MINI_DROP_CAMPAIGN_FAULT_SEC", "8"))

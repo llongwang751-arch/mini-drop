@@ -51,6 +51,7 @@ from server.app.diagnosis import DiagnosisOrchestrator
 from server.app.diagnosis.eval_harness import run_evaluation as run_golden_evaluation
 from server.app.diagnosis.evaluation_runs import create_evaluation_run, get_evaluation_run
 from server.app.diagnosis.campaign_runs import get_campaign_manager
+from server.app.drop_insight.campaign_bridge import promote_campaign
 from server.app.diagnosis.benchmark_catalog import load_benchmark_catalog
 from server.app.diagnosis.benchmark_runner import build_run_plan
 from server.app.diagnosis.external_benchmark import (
@@ -89,6 +90,7 @@ from server.app.schemas import (
 )
 from server.app.sql_repository import SqlRepository
 from server.app.agent_runtime.router import router as agent_runtime_router
+from server.app.agent_runtime.public_router import router as agent_runtime_public_router
 from server.app.agent_runtime.tool_router import router as agent_tool_router
 from server.app.state_machine import Actor
 from server.app import storage as store
@@ -281,6 +283,7 @@ def _ensure_minio_bucket_with_retry(bucket: str) -> None:
 app = FastAPI(title="Mini-Drop Server", version="0.1.0", lifespan=_lifespan)
 app.include_router(drop_insight_router)
 app.include_router(agent_runtime_router)
+app.include_router(agent_runtime_public_router)
 app.include_router(agent_tool_router)
 
 # CORS 中间件：允许前端跨域开发访问
@@ -1276,10 +1279,16 @@ def submit_diagnosis_feedback(diagnosis_id: str, payload: RCAFeedbackRequest) ->
 
 
 @app.post("/api/v1/diagnoses")
-def create_diagnosis_session(payload: CreateDiagnosisRequest) -> APIResponse:
+def create_diagnosis_session(
+    payload: CreateDiagnosisRequest,
+    request: Request,
+) -> APIResponse:
     """创建独立诊断会话，并只编排注册表中的受控探针。"""
     try:
-        data = diagnosis_orchestrator.create(payload, creator_id="demo_user")
+        data = diagnosis_orchestrator.create(
+            payload,
+            creator_id=request.state.authenticated_principal,
+        )
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     except ValueError as exc:
@@ -1503,6 +1512,22 @@ def get_diagnosis_campaign(run_id: str) -> APIResponse:
     if run is None:
         raise HTTPException(status_code=404, detail="Campaign 不存在")
     return APIResponse(data=run)
+
+
+@app.post("/api/v1/diagnosis-campaigns/runs/{run_id}/promote")
+def promote_diagnosis_campaign(run_id: str) -> APIResponse:
+    """Promote a completed Campaign into an evidence-backed AI diagnosis."""
+
+    manager = get_campaign_manager(repo)
+    run = manager.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Campaign 不存在")
+    try:
+        result = promote_campaign(run)
+        manager.attach_drop_insight_diagnosis(run_id, result["diagnosis_id"])
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return APIResponse(data=result)
 
 
 @app.get("/api/v1/diagnosis-evaluations/plan")

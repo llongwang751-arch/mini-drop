@@ -112,6 +112,10 @@ class RunPlannerRequest(StrictModel):
     pass
 
 
+class QuarantineDiagnosticSkillRequest(StrictModel):
+    reason: str = Field(min_length=3, max_length=1000)
+
+
 class VerifyFixRequest(StrictModel):
     """Apply-fix verification: compare a before and after profile task."""
 
@@ -120,11 +124,20 @@ class VerifyFixRequest(StrictModel):
     fix_summary: str | None = Field(default=None, max_length=2000)
 
 
+class ClarificationTarget(StrictModel):
+    """Client-supplied scope hints plus opaque server discovery selection."""
+
+    service: str | None = Field(default=None, min_length=1, max_length=128)
+    environment: str | None = Field(default=None, min_length=1, max_length=64)
+    discovery_id: str | None = Field(default=None, min_length=16, max_length=128)
+    binding_id: str | None = Field(default=None, min_length=16, max_length=128)
+
+
 class ClarifyDiagnosisRequest(StrictModel):
     """Fill in missing scope for a NEEDS_CLARIFICATION session."""
 
     expected_version: int | None = Field(default=None, ge=1)
-    target: DiagnosticTarget | None = None
+    target: ClarificationTarget | None = None
     time_range: DiagnosticTimeRange | None = None
 
 
@@ -143,45 +156,3 @@ class SubmitDiagnosisFeedbackRequest(StrictModel):
         ):
             raise ValueError("partial/wrong feedback requires a corrected cause or note")
         return self
-
-
-class CausalExperimentTarget(StrictModel):
-    """One side of a controlled counterfactual experiment."""
-
-    agent_id: str = Field(min_length=2, max_length=128)
-    pid: int = Field(ge=1)
-    service: str | None = Field(default=None, min_length=1, max_length=128)
-
-
-class PreviewCausalExperimentRequest(StrictModel):
-    hypothesis_id: str = Field(min_length=3, max_length=128)
-    case_id: str = Field(min_length=3, max_length=64)
-    design_mode: Literal["SINGLE_NODE_CROSSOVER", "DUAL_NODE_CONTROL"] = "SINGLE_NODE_CROSSOVER"
-    treatment_target: CausalExperimentTarget
-    control_target: CausalExperimentTarget | None = None
-    duration_seconds: int = Field(default=60, ge=15, le=600)
-
-
-class CreateCausalExperimentRequest(PreviewCausalExperimentRequest):
-    expected_version: int | None = Field(default=None, ge=1)
-
-
-class DecideCausalExperimentRequest(StrictModel):
-    approved: bool
-    reason: str = Field(min_length=2, max_length=1000)
-
-
-class CausalWindowMeasurement(StrictModel):
-    treatment: float
-    control: float | None = None
-    task_ids: list[str] = Field(default_factory=list, max_length=20)
-    evidence_refs: list[str] = Field(default_factory=list, max_length=50)
-
-
-class EvaluateCausalExperimentRequest(StrictModel):
-    """Verified four-window measurements produced by completed collection tasks."""
-
-    baseline: CausalWindowMeasurement
-    incident: CausalWindowMeasurement
-    intervention: CausalWindowMeasurement
-    recovery: CausalWindowMeasurement

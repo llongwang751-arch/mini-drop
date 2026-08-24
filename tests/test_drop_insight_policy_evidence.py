@@ -16,6 +16,7 @@ def policy_context(**overrides):
         "max_risk_level": "R2",
         "used_tool_calls": 0,
         "max_tool_calls": 12,
+        "allowed_pid": 123,
     }
     values.update(overrides)
     return PolicyContext(**values)

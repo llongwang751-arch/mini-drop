@@ -14,25 +14,22 @@ import {
 } from "antd";
 import { ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
-import CausalReplayPanel from "../components/CausalReplayPanel";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
+import usePolling from "../hooks/usePolling";
 import {
   advanceDropInsightOrchestrator,
   clarifyDropInsightDiagnosis,
-  createCausalExperiment,
   createDropInsightDiagnosis,
-  decideCausalExperiment,
+  createDiagnosticSkillCandidate,
   decideDropInsightToolCall,
   deleteDropInsightDiagnosis,
   getDiagnosticCase,
   getDropInsightBudget,
   getDropInsightDiagnosis,
-  evaluateCausalExperiment,
-  listCausalExperiments,
-  listCausalReplayCases,
   listDiagnosticCasesPage,
+  listDiagnosticSkillActivations,
   listDropInsightDiagnoses,
   listDropInsightEvidence,
   listDropInsightFeedback,
@@ -57,8 +54,8 @@ const EMPTY_RESOURCES = {
   reports: [],
   events: [],
   feedback: [],
-  causalExperiments: [],
   budget: null,
+  skillActivations: [],
 };
 
 function canonicalStatus(status) {
@@ -208,7 +205,6 @@ export default function AIDiagnosis() {
   const [loading, setLoading] = useState(false);
   const [clarifying, setClarifying] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
-  const [causalCases, setCausalCases] = useState([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [mode, setMode] = useState(() => {
     try {
@@ -219,10 +215,12 @@ export default function AIDiagnosis() {
   });
   const requestVersion = useRef(0);
   const advancing = useRef(false);
+  const selectedIdRef = useRef("");
   const initialCaseKey = useRef(new URLSearchParams(window.location.search).get("case") || "");
 
   const isExpert = mode === "expert";
   const selectedId = selectedCase?.source === "drop_insight_v2" ? selectedCase.diagnosis_id : "";
+  selectedIdRef.current = selectedId;
   const readOnly = !selectedCase?.active || TERMINAL_CANONICAL.has(selectedCase?.canonical_status);
 
   const loadCases = useCallback(async () => {
@@ -269,7 +267,7 @@ export default function AIDiagnosis() {
       ["工具调用", listDropInsightToolCalls(id)],
       ["预算", getDropInsightBudget(id)],
       ["反馈", listDropInsightFeedback(id)],
-      ["反事实实验", listCausalExperiments(id)],
+      ["诊断策略复用", listDiagnosticSkillActivations(id)],
     ];
     const settled = await Promise.allSettled(requests.map(([, request]) => request));
     if (version !== requestVersion.current) return;
@@ -286,18 +284,12 @@ export default function AIDiagnosis() {
       toolCalls: value(5, []),
       budget: value(6, null),
       feedback: value(7, []),
-      causalExperiments: value(8, []),
+      skillActivations: value(8, []),
     });
-    setResourceErrors(settled.flatMap((result, index) =>
-      index > 0 && result.status === "rejected" ? [requests[index][0]] : [],
-    ));
+    setResourceErrors([
+      ...settled.flatMap((result, index) => index > 0 && result.status === "rejected" ? [requests[index][0]] : []),
+    ]);
     setUnavailableSections([]);
-  }, []);
-
-  useEffect(() => {
-    listCausalReplayCases()
-      .then((payload) => setCausalCases(Array.isArray(payload) ? payload : (payload?.cases || [])))
-      .catch(() => setCausalCases([]));
   }, []);
 
   const loadSelectedDetail = useCallback(async (caseItem) => {
@@ -352,34 +344,22 @@ export default function AIDiagnosis() {
 
   useEffect(() => { loadSelectedDetail(selectedCase); }, [selectedCase, loadSelectedDetail]);
 
-  useEffect(() => {
-    if (!selectedId || readOnly) return undefined;
-    const timer = setInterval(async () => {
-      if (advancing.current) return;
-      try {
-        const [tools, reportRows, session] = await Promise.all([
-          listDropInsightToolCalls(selectedId),
-          listDropInsightReports(selectedId),
-          getDropInsightDiagnosis(selectedId),
-        ]);
-        if (TERMINAL.has(session.status)) {
-          await loadCases();
-          return;
-        }
-        const hasDoneTask = tools.some((tool) =>
-          tool.status === "COMPLETED" || (tool.task_id && ["TASK_CREATED", "RUNNING"].includes(tool.status)),
-        );
-        if (hasDoneTask && reportRows.length === 0) {
-          advancing.current = true;
-          try { await advanceDropInsightOrchestrator(selectedId); } finally { advancing.current = false; }
-        }
-      } catch {
-        // Polling is best effort; the next interval retries.
-      }
-      loadSelectedDetail(selectedCase);
-    }, 2500);
-    return () => clearInterval(timer);
+  const pollSelectedDetail = useCallback(async () => {
+    if (!selectedId || readOnly) return;
+    const diagnosisId = selectedId;
+    const session = await getDropInsightDiagnosis(diagnosisId);
+    if (diagnosisId !== selectedIdRef.current) return;
+    if (TERMINAL.has(session.status)) {
+      await loadCases();
+      return;
+    }
+    await loadSelectedDetail(selectedCase);
   }, [loadCases, loadSelectedDetail, readOnly, selectedCase, selectedId]);
+
+  usePolling(pollSelectedDetail, {
+    interval: 2500,
+    enabled: Boolean(selectedId) && !readOnly,
+  });
 
   function selectCase(item) {
     setSelectedCase(item);
@@ -483,28 +463,18 @@ export default function AIDiagnosis() {
     try {
       const saved = await submitDropInsightFeedback(selectedId, payload);
       message.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
+      if (payload.feedback_label === "correct") {
+        try {
+          await createDiagnosticSkillCandidate(selectedId);
+          message.success("已从这次验证轨迹生成候选诊断技能，请到“方法与测试集”运行门禁");
+        } catch (skillError) {
+          message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
+        }
+      }
       await loadSelectedDetail(selectedCase);
     } catch (error) {
       message.error(error?.message || "反馈提交失败");
     } finally { setFeedbackSubmitting(false); }
-  }
-
-  async function handleCreateCausalExperiment(payload) {
-    if (!selectedId || readOnly) return;
-    await createCausalExperiment(selectedId, payload);
-    await loadSelectedDetail(selectedCase);
-  }
-
-  async function handleCausalDecision(experimentId, payload) {
-    if (!selectedId || readOnly) return;
-    await decideCausalExperiment(selectedId, experimentId, payload);
-    await loadSelectedDetail(selectedCase);
-  }
-
-  async function handleCausalEvaluation(experimentId, payload) {
-    if (!selectedId || readOnly) return;
-    await evaluateCausalExperiment(selectedId, experimentId, payload);
-    await loadSelectedDetail(selectedCase);
   }
 
   const diagnosisProcess = useMemo(() => {
@@ -624,19 +594,8 @@ export default function AIDiagnosis() {
                   feedback={resources.feedback}
                   onSubmitFeedback={handleSubmitFeedback}
                   feedbackSubmitting={feedbackSubmitting}
+                  skillActivations={resources.skillActivations}
                 />
-                {detail && resources.hypotheses.length > 0 && (
-                  <CausalReplayPanel
-                    diagnosis={detail}
-                    hypotheses={resources.hypotheses}
-                    experiments={resources.causalExperiments}
-                    cases={causalCases}
-                    readOnly={readOnly}
-                    onCreate={handleCreateCausalExperiment}
-                    onDecision={handleCausalDecision}
-                    onEvaluate={handleCausalEvaluation}
-                  />
-                )}
               </Spin>
             </div>
             <Space.Compact style={{ marginTop: 12, width: "100%" }}>

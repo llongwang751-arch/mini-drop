@@ -281,6 +281,7 @@ def _artifact_message(message_id: str):
         "diagnosis_id": f"diagnosis-{message_id}",
         "artifact_id": f"artifact-{message_id}",
         "artifact_hash": "sha256:" + "a" * 64,
+        "status": "DISPATCHING",
         "attempts": 0,
     }
 
@@ -302,6 +303,12 @@ def test_dispatch_artifact_once_failure_persistence_error_does_not_starve_batch(
     class Store:
         def claim_artifact_outbox(self, worker_id, limit):
             return [first, second]
+
+        def validate_artifact_delivery(self, message_id, worker_id):
+            return None
+
+        def mark_artifact_outbox_delivering(self, message_id, worker_id):
+            return {"status": "DELIVERING", "last_error": None}
 
         def fail_artifact_outbox(self, *args, **kwargs):
             raise RuntimeError("write failed")
@@ -329,6 +336,12 @@ def test_dispatch_artifact_once_ack_error_leaves_retryable_and_continues():
     class Store:
         def claim_artifact_outbox(self, worker_id, limit):
             return [first, second]
+
+        def validate_artifact_delivery(self, message_id, worker_id):
+            return None
+
+        def mark_artifact_outbox_delivering(self, message_id, worker_id):
+            return {"status": "DELIVERING", "last_error": None}
 
         def fail_artifact_outbox(self, *args, **kwargs):
             failed.append(args[0])

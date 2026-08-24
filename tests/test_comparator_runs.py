@@ -77,6 +77,23 @@ def test_submission_is_not_reported_as_executed_or_scored_without_evaluator_key(
     )
 
 
+def test_submission_is_unscored_when_evaluator_has_no_admissible_cases(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("MINI_DROP_REAL_WORLD_COMMITMENT_KEY", "test-key")
+    monkeypatch.setattr(
+        "server.app.diagnosis.comparator_runs.score_results",
+        lambda *_args, **_kwargs: {"evaluated_cases": 0, "results": []},
+    )
+    store, payload = _bound_store_and_payload(tmp_path)
+
+    result = store.submit("holmesgpt", payload)
+
+    assert result["status"] == "UNSCORED"
+    assert result["report"] == {"evaluated_cases": 0, "results": []}
+    assert store.list()["scored_submission_count"] == 0
+
+
 def test_product_must_match_registered_comparator(tmp_path) -> None:
     store, payload = _bound_store_and_payload(tmp_path)
     with pytest.raises(ValueError, match="product"):

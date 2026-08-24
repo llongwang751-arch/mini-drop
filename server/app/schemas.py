@@ -8,7 +8,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from server.app.state_machine import TaskStatus
 
@@ -57,8 +57,27 @@ class AgentMetrics(BaseModel):
 # ── 任务 ──────────────────────────────────────────────────────
 
 
+class ProcessIdentityBindingRequest(BaseModel):
+    """Immutable Agent-scoped identity selected from a server-received snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    agent_id: str = Field(..., min_length=1, max_length=128)
+    pid: int = Field(..., ge=1)
+    boot_id: str = Field(..., min_length=1, max_length=1024)
+    process_start_ticks: int = Field(..., ge=1)
+    pid_namespace_inode: int = Field(..., ge=1)
+    namespace_pid: int = Field(..., ge=1)
+    executable_identity: str = Field(..., min_length=1, max_length=1024)
+    process_snapshot_id: str = Field(..., min_length=1, max_length=128)
+    snapshot_generation: int = Field(..., ge=1)
+    snapshot_received_at: datetime
+
+
 class CreateTaskRequest(BaseModel):
     """Web 创建任务的请求体。"""
+
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     agent_id: str
@@ -67,6 +86,7 @@ class CreateTaskRequest(BaseModel):
     sample_rate: int = 99
     duration_sec: int = 15
     options: dict[str, Any] = Field(default_factory=dict)
+    process_binding: Optional[ProcessIdentityBindingRequest] = None
 
 
 class CancelTaskRequest(BaseModel):

@@ -50,6 +50,10 @@ class MockSidecarHandler(BaseHTTPRequestHandler):
         elif self.path.endswith("/turn"):
             response = self.__class__.turn_response or {"ok": True, "data": {
                 "turn_id": body["turn"]["turn_id"],
+                "runtime_session_id": (
+                    f"pi:{body['turn']['diagnosis_id']}:{body['turn']['runtime_generation']}"
+                ),
+                "runtime_generation": body["turn"]["runtime_generation"],
                 "accepted": True,
                 "mode": "pi",
                 "detail": "accepted",
@@ -73,6 +77,8 @@ class MockSidecarHandler(BaseHTTPRequestHandler):
             else:
                 self._respond(200, {"ok": True, "data": {
                     "turn_id": "turn-authoritative",
+                    "runtime_session_id": "pi:diag-runtime:3",
+                    "runtime_generation": 3,
                     "accepted": True,
                     "mode": "pi",
                     "detail": "recovered",
@@ -144,17 +150,90 @@ def test_adapter_uses_diagnosis_protocol_and_preserves_turn_identity(sidecar):
     assert turn_request[3] == "test-token"
 
 
-def test_adapter_rejects_sidecar_turn_identity_substitution(sidecar):
-    from server.app.agent_runtime.pi_adapter import PiAgentRuntimeAdapter, PiProtocolError
+def test_adapter_marks_sidecar_turn_identity_substitution_as_acceptance_unknown(sidecar):
+    from server.app.agent_runtime.pi_adapter import (
+        PiAcceptanceUnknown,
+        PiAgentRuntimeAdapter,
+    )
 
     MockSidecarHandler.turn_response = {"ok": True, "data": {
         "turn_id": "sidecar-invented",
+        "runtime_session_id": "pi:diag-runtime:3",
+        "runtime_generation": 3,
         "accepted": True,
         "mode": "pi",
         "detail": "wrong identity",
     }}
 
-    with pytest.raises(PiProtocolError, match="turn identity"):
+    with pytest.raises(PiAcceptanceUnknown, match="turn identity.*acceptance unknown"):
+        PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
+
+
+def test_submit_marks_invalid_success_envelope_as_acceptance_unknown(sidecar):
+    from server.app.agent_runtime.pi_adapter import (
+        PiAcceptanceUnknown,
+        PiAgentRuntimeAdapter,
+    )
+
+    MockSidecarHandler.turn_response = {"data": {"accepted": True}}
+
+    with pytest.raises(PiAcceptanceUnknown, match="invalid envelope.*acceptance unknown"):
+        PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
+
+
+@pytest.mark.parametrize(
+    ("data", "message"),
+    [
+        (None, "validation error"),
+        ({"turn_id": "turn-authoritative"}, "validation error"),
+        ({
+            "turn_id": "turn-authoritative",
+            "runtime_session_id": "pi:diag-runtime:other",
+            "runtime_generation": 3,
+            "accepted": True,
+            "mode": "pi",
+        }, "runtime session"),
+        ({
+            "turn_id": "turn-authoritative",
+            "runtime_session_id": "pi:diag-runtime:4",
+            "runtime_generation": 4,
+            "accepted": True,
+            "mode": "pi",
+        }, "runtime generation"),
+    ],
+)
+def test_submit_marks_invalid_success_response_as_acceptance_unknown(
+    sidecar,
+    data,
+    message,
+):
+    from server.app.agent_runtime.pi_adapter import (
+        PiAcceptanceUnknown,
+        PiAgentRuntimeAdapter,
+    )
+
+    MockSidecarHandler.turn_response = {"ok": True, "data": data}
+
+    with pytest.raises(PiAcceptanceUnknown, match=message):
+        PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
+
+
+def test_submit_treats_explicit_not_accepted_as_definitive_rejection(sidecar):
+    from server.app.agent_runtime.pi_adapter import (
+        PiAgentRuntimeAdapter,
+        PiDefinitiveRejection,
+    )
+
+    MockSidecarHandler.turn_response = {"ok": True, "data": {
+        "turn_id": "turn-authoritative",
+        "runtime_session_id": "pi:diag-runtime:3",
+        "runtime_generation": 3,
+        "accepted": False,
+        "mode": "pi",
+        "detail": "rejected",
+    }}
+
+    with pytest.raises(PiDefinitiveRejection, match="definitively rejected"):
         PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
 
 
@@ -187,6 +266,19 @@ def test_submit_distinguishes_definitive_rejection(sidecar):
     MockSidecarHandler.turn_response = {"ok": False, "error": "stale generation"}
 
     with pytest.raises(PiDefinitiveRejection, match="HTTP 409"):
+        PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
+
+
+def test_submit_marks_server_failure_as_acceptance_unknown(sidecar):
+    from server.app.agent_runtime.pi_adapter import (
+        PiAcceptanceUnknown,
+        PiAgentRuntimeAdapter,
+    )
+
+    MockSidecarHandler.turn_status = 500
+    MockSidecarHandler.turn_response = {"ok": False, "error": "post-commit failure"}
+
+    with pytest.raises(PiAcceptanceUnknown, match="HTTP 500.*acceptance unknown"):
         PiAgentRuntimeAdapter(sidecar).submit_turn(_turn())
 
 

@@ -17,6 +17,8 @@ class PolicyContext:
     max_risk_level: str
     used_tool_calls: int
     max_tool_calls: int
+    allowed_pid: int | None = None
+    binding_authoritative: bool = True
 
 
 def evaluate_tool_call(
@@ -35,10 +37,16 @@ def evaluate_tool_call(
         return _result("DENY", checks, "; ".join(schema_errors))
 
     agent_id = arguments.get("agent_id")
-    scope_ok = not agent_id or agent_id in context.allowed_agent_ids
+    pid = arguments.get("pid")
+    scope_ok = (
+        context.binding_authoritative
+        and bool(agent_id)
+        and agent_id in context.allowed_agent_ids
+        and (pid is None or pid == context.allowed_pid)
+    )
     checks.append({"name": "TARGET_SCOPE", "result": "PASS" if scope_ok else "FAIL"})
     if not scope_ok:
-        return _result("DENY", checks, "Agent 不在本次诊断授权范围")
+        return _result("DENY", checks, "工具参数不在最新进程身份绑定授权范围")
 
     required = set(tool.get("required_capabilities", []))
     capability_ok = required.issubset(context.agent_capabilities)

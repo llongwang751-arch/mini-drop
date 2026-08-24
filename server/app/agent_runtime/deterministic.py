@@ -56,6 +56,8 @@ class DeterministicAgentRuntime:
                 return accepted
             accepted = AcceptedTurn(
                 turn_id=turn.turn_id,
+                runtime_session_id=binding.runtime_session_id,
+                runtime_generation=binding.runtime_generation,
                 accepted=True,
                 mode=self.runtime_type,
                 detail="提交到确定性调查路径，不调用模型。",

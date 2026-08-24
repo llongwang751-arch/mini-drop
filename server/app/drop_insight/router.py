@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from server.app.schemas import APIResponse
 
@@ -14,12 +14,19 @@ from .schemas import (
     ImportTaskEvidenceRequest,
     PreviewToolCallRequest,
     RunPlannerRequest,
+    QuarantineDiagnosticSkillRequest,
     SubmitDiagnosisFeedbackRequest,
     VerifyFixRequest,
-    CreateCausalExperimentRequest,
-    DecideCausalExperimentRequest,
-    EvaluateCausalExperimentRequest,
-    PreviewCausalExperimentRequest,
+)
+from .skill_evolution import (
+    create_candidate_from_diagnosis,
+    evaluate_skill,
+    get_skill,
+    list_activations,
+    list_skills,
+    publish_skill,
+    quarantine_skill,
+    rollback_skill,
 )
 from .service import (
     add_evidence,
@@ -29,6 +36,7 @@ from .service import (
     create_hypothesis,
     decide_tool_call,
     delete_diagnosis,
+    discover_target_candidates,
     generate_report,
     get_diagnosis,
     list_diagnoses,
@@ -47,16 +55,77 @@ from .service import (
     update_tool_call_arguments,
     verify_diagnosis_fix,
     list_fix_verifications,
-    create_causal_experiment,
-    decide_causal_experiment,
-    evaluate_causal_experiment,
-    list_causal_experiments,
-    list_causal_replay_cases,
-    preview_causal_experiment,
 )
 from .tools import TOOLS
 
 router = APIRouter(prefix="/api/v2", tags=["drop-insight-v2"])
+
+
+@router.get("/diagnostic-skills")
+def diagnostic_skills_list() -> APIResponse:
+    return APIResponse(data={"items": list_skills()})
+
+
+@router.get("/diagnostic-skills/{skill_id}")
+def diagnostic_skill_detail(skill_id: str) -> APIResponse:
+    result = get_skill(skill_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="diagnostic skill not found")
+    return APIResponse(data=result)
+
+
+@router.post("/diagnoses/{diagnosis_id}/diagnostic-skills/candidate")
+def diagnostic_skill_candidate(
+    diagnosis_id: str, request: Request
+) -> APIResponse:
+    try:
+        result = create_candidate_from_diagnosis(
+            diagnosis_id, created_by=_principal(request)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return APIResponse(data=result)
+
+
+@router.post("/diagnostic-skills/{skill_id}/evaluate")
+def diagnostic_skill_evaluate(skill_id: str) -> APIResponse:
+    try:
+        return APIResponse(data=evaluate_skill(skill_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/diagnostic-skills/{skill_id}/publish")
+def diagnostic_skill_publish(skill_id: str) -> APIResponse:
+    try:
+        return APIResponse(data=publish_skill(skill_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/diagnostic-skills/{skill_id}/quarantine")
+def diagnostic_skill_quarantine(
+    skill_id: str, payload: QuarantineDiagnosticSkillRequest
+) -> APIResponse:
+    try:
+        return APIResponse(data=quarantine_skill(skill_id, reason=payload.reason))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/diagnostic-skills/{skill_id}/rollback")
+def diagnostic_skill_rollback(skill_id: str) -> APIResponse:
+    try:
+        return APIResponse(data=rollback_skill(skill_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/diagnoses/{diagnosis_id}/diagnostic-skill-activations")
+def diagnostic_skill_activations(diagnosis_id: str) -> APIResponse:
+    if get_diagnosis(diagnosis_id) is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data={"items": list_activations(diagnosis_id)})
 
 
 @router.post("/diagnoses")
@@ -91,6 +160,25 @@ def detail(diagnosis_id: str) -> APIResponse:
     return APIResponse(data=diagnosis.to_dict())
 
 
+@router.get("/diagnoses/{diagnosis_id}/target-candidates")
+def target_candidates(
+    diagnosis_id: str,
+    service: str | None = Query(default=None, min_length=1, max_length=128),
+    environment: str | None = Query(default=None, min_length=1, max_length=64),
+) -> APIResponse:
+    try:
+        result = discover_target_candidates(
+            diagnosis_id,
+            service=service,
+            environment=environment,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data=result)
+
+
 @router.get("/diagnoses/{diagnosis_id}/events")
 def events(diagnosis_id: str) -> APIResponse:
     if get_diagnosis(diagnosis_id) is None:
@@ -101,82 +189,6 @@ def events(diagnosis_id: str) -> APIResponse:
 @router.get("/diagnostic-tools")
 def tools() -> APIResponse:
     return APIResponse(data={"items": TOOLS})
-
-
-@router.get("/causal-replay/cases")
-def causal_replay_cases() -> APIResponse:
-    return APIResponse(data=list_causal_replay_cases())
-
-
-@router.post("/diagnoses/{diagnosis_id}/causal-experiments/preview")
-def causal_experiment_preview(
-    diagnosis_id: str, payload: PreviewCausalExperimentRequest
-) -> APIResponse:
-    try:
-        result = preview_causal_experiment(diagnosis_id, payload)
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
-    return APIResponse(data=result)
-
-
-@router.post("/diagnoses/{diagnosis_id}/causal-experiments")
-def causal_experiment_create(
-    diagnosis_id: str,
-    payload: CreateCausalExperimentRequest,
-    request: Request,
-) -> APIResponse:
-    try:
-        result = create_causal_experiment(
-            diagnosis_id, payload, requested_by=_principal(request)
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
-    return APIResponse(data=result)
-
-
-@router.get("/diagnoses/{diagnosis_id}/causal-experiments")
-def causal_experiment_list(diagnosis_id: str) -> APIResponse:
-    result = list_causal_experiments(diagnosis_id)
-    if result is None:
-        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
-    return APIResponse(data={"items": result})
-
-
-@router.post("/diagnoses/{diagnosis_id}/causal-experiments/{experiment_id}/decision")
-def causal_experiment_decide(
-    diagnosis_id: str,
-    experiment_id: str,
-    payload: DecideCausalExperimentRequest,
-    request: Request,
-) -> APIResponse:
-    try:
-        result = decide_causal_experiment(
-            diagnosis_id, experiment_id, payload, decided_by=_principal(request)
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="causal experiment not found")
-    return APIResponse(data=result)
-
-
-@router.post("/diagnoses/{diagnosis_id}/causal-experiments/{experiment_id}/evaluate")
-def causal_experiment_evaluate(
-    diagnosis_id: str,
-    experiment_id: str,
-    payload: EvaluateCausalExperimentRequest,
-) -> APIResponse:
-    try:
-        result = evaluate_causal_experiment(diagnosis_id, experiment_id, payload)
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="causal experiment not found")
-    return APIResponse(data=result)
 
 
 @router.post("/diagnoses/{diagnosis_id}/hypotheses")

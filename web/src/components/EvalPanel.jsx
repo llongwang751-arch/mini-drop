@@ -29,6 +29,7 @@ import {
 } from "../api/client";
 import CampaignPanel from "./CampaignPanel";
 import RealWorldBenchmarkPanel from "./RealWorldBenchmarkPanel";
+import SkillEvolutionPanel from "./SkillEvolutionPanel";
 
 const { Text, Paragraph } = Typography;
 
@@ -308,6 +309,8 @@ export default function EvalPanel() {
         message="方法与评测不是黑盒：诊断步骤、标准答案、实际输出和每项门禁都可追溯"
         description="100% 只表示当前版本通过了这组确定性的 Golden 回归用例，不代表线上诊断永远正确。真实环境还要执行故障注入 Campaign 并比较修复前后快照。"
       />
+
+      <SkillEvolutionPanel />
 
       <CampaignPanel />
 

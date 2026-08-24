@@ -110,7 +110,7 @@ def verify_report_claims(
     covered_falsification: set[int] = set()
 
     for role, envelope in evidence:
-        if role not in {"SUPPORT", "COUNTER"}:
+        if role not in {"SUPPORT", "COUNTER", "CONTROL"}:
             continue
         classification = classify_evidence(envelope)
         if not classification["can_support_conclusion"]:
@@ -363,17 +363,18 @@ def _verification_result(
 ) -> dict[str, Any]:
     support_count = sum(1 for item in claims if item.get("direction") == "SUPPORT")
     counter_count = sum(1 for item in claims if item.get("direction") == "COUNTER")
+    control_count = sum(1 for item in claims if item.get("direction") == "CONTROL")
     denominator = n_expected + n_falsification
     coverage_ratio = (
         (len(covered_expected) + len(covered_falsification)) / denominator
         if denominator > 0
         else 0.0
     )
-    has_counter = counter_count > 0
+    has_counter_or_control = counter_count > 0 or control_count > 0
 
     if not claims:
         status = "INSUFFICIENT_EVIDENCE"
-    elif support_count > 0 and has_counter and coverage_ratio >= 1.0:
+    elif support_count > 0 and has_counter_or_control and coverage_ratio >= 1.0:
         status = "VERIFIED"
     elif support_count > 0:
         status = "PARTIAL_WITHOUT_COUNTER"
@@ -382,9 +383,10 @@ def _verification_result(
 
     verification = {
         "status": status,
-        "has_independent_counter_or_control": has_counter,
+        "has_independent_counter_or_control": has_counter_or_control,
         "support_claim_count": support_count,
         "counter_claim_count": counter_count,
+        "control_claim_count": control_count,
         "coverage_ratio": coverage_ratio,
         "covered_expected": sorted(covered_expected),
         "covered_falsification": sorted(covered_falsification),
@@ -397,7 +399,8 @@ def _verification_result(
         "support_claim_count": support_count,
         "counter_claim_count": counter_count,
         "coverage_ratio": coverage_ratio,
-        "has_independent_counter_or_control": has_counter,
+        "has_independent_counter_or_control": has_counter_or_control,
+        "control_claim_count": control_count,
         "verification": verification,
     }
 

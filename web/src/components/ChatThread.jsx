@@ -1,4 +1,4 @@
-import { Card, Empty, Typography } from "antd";
+import { Alert, Card, Empty, Space, Tag, Typography } from "antd";
 import ChatMessage from "./ChatMessage";
 import DiagnosisPathPanel from "./DiagnosisPathPanel";
 import PlannerBlock from "./PlannerBlock";
@@ -32,6 +32,7 @@ export default function ChatThread({
   feedback = [],
   onSubmitFeedback,
   feedbackSubmitting,
+  skillActivations = [],
   mode = "expert",
   readOnly = false,
   unavailableSections = [],
@@ -68,6 +69,11 @@ export default function ChatThread({
   const acceptedEvidence = (evidence || []).filter(
     (item) => item.classification?.decision === "ACCEPT_SUPPORT",
   );
+  const skillActivation = [...skillActivations].sort(
+    (a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0),
+  )[0] || null;
+  const skillReason = skillActivation?.match_reason || {};
+  const route = skillReason.route || [];
 
   return (
     <div>
@@ -81,6 +87,8 @@ export default function ChatThread({
         {detail.status === "NEEDS_CLARIFICATION" && !readOnly && (
           <ScopeCard
             key={detail.diagnosis_id || detail.id}
+            diagnosisId={detail.diagnosis_id || detail.id}
+            diagnosisVersion={detail.diagnosis_version ?? detail.version}
             questions={detail.clarification_questions || []}
             onClarify={onClarify}
             submitting={clarifying}
@@ -93,6 +101,36 @@ export default function ChatThread({
           classification={classification}
           hypotheses={hypotheses}
         />
+        {skillActivation && (
+          <Alert
+            type="success"
+            showIcon
+            style={{ marginBottom: 12 }}
+            message={
+              <Space wrap>
+                <Text strong>已复用经过验证的诊断经验</Text>
+                <Tag color="green">技能 v{skillReason.skill_version || "-"}</Tag>
+                <Tag color="blue">匹配度 {Math.round(Number(skillActivation.match_score || 0) * 100)}%</Tag>
+              </Space>
+            }
+            description={
+              <div>
+                <div>
+                  本轮原计划使用 <Text code>{skillActivation.baseline_tool}</Text>，经验策略选择
+                  {" "}<Text code>{skillActivation.selected_tool}</Text>。
+                </div>
+                {route.length > 0 && (
+                  <div style={{ marginTop: 6 }}>
+                    已验证取证顺序：{route.map((tool) => <Tag key={tool}>{tool}</Tag>)}
+                  </div>
+                )}
+                <Text type="secondary">
+                  命中依据：故障类别、服务与运行环境相似；若后续反馈判错，系统会统计负迁移并自动隔离该技能。
+                </Text>
+              </div>
+            }
+          />
+        )}
         {sortedTools.map((tool) => (
           <ToolCallCard
             key={tool.tool_call_id}

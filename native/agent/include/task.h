@@ -14,6 +14,7 @@ struct Task {
   std::string callgraph = "fp";
   std::string event = "cpu-cycles:u";
   std::string container_name;
+  std::string task_attempt_authority;
 };
 
 struct TaskResult {
@@ -21,6 +22,7 @@ struct TaskResult {
   bool ok = false;
   std::string error;
   std::string artifact_json;
+  std::string task_attempt_authority;
 };
 
 }  // namespace mini_drop_native

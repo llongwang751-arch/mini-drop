@@ -13,6 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from server.app.artifact_integrity import normalize_sha256
 from server.app.database import new_session
 from server.app.models import (
+    AgentModel,
     AnalysisJobModel,
     ArtifactModel,
     ContinuousDiagnosisTriggerModel,
@@ -32,6 +33,7 @@ from server.app.models import (
     DiagnosisSessionModel,
     ProbeExecutionModel,
     TaskAttemptModel,
+    TaskModel,
     TopologySnapshotModel,
 )
 from server.app.diagnosis.pipeline import PIPELINE_NODES, PIPELINE_VERSION, node_run_id
@@ -50,6 +52,25 @@ def _is_before(value: datetime, reference: datetime) -> bool:
     elif value.tzinfo is not None and reference.tzinfo is None:
         reference = reference.replace(tzinfo=timezone.utc)
     return value < reference
+
+
+def _is_after(value: datetime, reference: datetime) -> bool:
+    return _is_before(reference, value)
+
+
+def _parse_snapshot_datetime(value: Any, *, field: str) -> datetime:
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError(f"Evidence {field} is not a valid datetime") from exc
+    else:
+        raise ValueError(f"Evidence {field} is not a valid datetime")
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _canonicalize_snapshot(value: Any) -> Any:
@@ -993,6 +1014,18 @@ class DiagnosisStore:
                             created_at=reviewed_at,
                             updated_at=reviewed_at,
                         ))
+                    session.query(DiagnosisArtifactOutboxModel).filter(
+                        DiagnosisArtifactOutboxModel.artifact_id == frozen.id,
+                        DiagnosisArtifactOutboxModel.status.in_(
+                            ("PENDING", "FAILED", "DISPATCHING")
+                        ),
+                    ).update({
+                        "status": "SUPPRESSED",
+                        "last_error": "SUPPRESS_ARTIFACT_REVOKED",
+                        "worker_lease_owner": None,
+                        "worker_lease_expires_at": None,
+                        "updated_at": reviewed_at,
+                    }, synchronize_session=False)
 
             session.commit()
             return row.to_dict()
@@ -1041,9 +1074,44 @@ class DiagnosisStore:
             if diagnosis is None:
                 raise ValueError("snapshot diagnosis does not exist")
             finalized["diagnosis_id"] = diagnosis_id
-            task_id = finalized.get("task_id")
+            task_id = str(finalized.get("task_id") or "").strip()
             evidence_rows: list[DiagnosisEvidenceModel] = []
             if task_id:
+                task = (
+                    session.query(TaskModel)
+                    .filter(TaskModel.id == task_id)
+                    .with_for_update()
+                    .one_or_none()
+                )
+                if task is None:
+                    raise ValueError(f"snapshot task does not exist: {task_id}")
+                if task.status not in {"SUCCEEDED", "DONE"}:
+                    raise ValueError(f"snapshot task {task_id} is not successful")
+                finalized["task_id"] = task_id
+
+                evidence_role = str(
+                    finalized.get("evidence_role") or "incident"
+                ).strip()
+                if not evidence_role:
+                    raise ValueError("snapshot Evidence role is required")
+                finalized["evidence_role"] = evidence_role
+                expected_target = {
+                    "agent_id": task.agent_id,
+                    "pid": task.target_pid,
+                }
+                snapshot_target = finalized.get("target")
+                if not isinstance(snapshot_target, dict) or any(
+                    snapshot_target.get(key) != value
+                    for key, value in expected_target.items()
+                ):
+                    raise ValueError("snapshot target does not match task target")
+                finalized["target"] = expected_target
+                finalized["collector"] = task.collector_type
+                agent = session.get(AgentModel, task.agent_id)
+                finalized["collector_version"] = (
+                    agent.version if agent is not None else None
+                )
+
                 artifact_ids = {
                     int(value)
                     for value in finalized.pop("artifact_ids", [])
@@ -1074,6 +1142,7 @@ class DiagnosisStore:
                         "artifact_id": row.id,
                         "task_id": row.task_id,
                         "object_key": row.object_key,
+                        "local_path": row.local_path,
                         "sha256": normalize_sha256(row.sha256),
                         "size_bytes": row.size_bytes,
                         "integrity_status": row.integrity_status,
@@ -1103,6 +1172,46 @@ class DiagnosisStore:
                 ):
                     raise ValueError("snapshot Evidence does not belong to diagnosis")
                 finalized["evidence_refs"] = evidence_refs
+                if any(row.evidence_role != evidence_role for row in evidence_rows):
+                    raise ValueError("Evidence role does not match snapshot role")
+                if any(
+                    not isinstance(row.target_json, dict)
+                    or any(
+                        row.target_json.get(key) != value
+                        for key, value in expected_target.items()
+                    )
+                    for row in evidence_rows
+                ):
+                    raise ValueError("Evidence target does not match task target")
+
+                task_reference = f"task:{task_id}"
+                raw_references = {
+                    f"task:{task_id}:artifact:{row.artifact_type}"
+                    for row in artifact_rows
+                }
+                derived_references = {
+                    value
+                    for row in artifact_rows
+                    for value in (row.object_key, row.local_path)
+                    if value
+                }
+                for row in evidence_rows:
+                    raw_reference = str(row.raw_artifact_ref or "").strip()
+                    derived_reference = str(row.derived_artifact_ref or "").strip()
+                    if raw_reference and raw_reference not in raw_references:
+                        raise ValueError(
+                            f"Evidence {row.id} raw Artifact reference does not match task artifacts"
+                        )
+                    if derived_reference and derived_reference not in (
+                        derived_references | {task_reference}
+                    ):
+                        raise ValueError(
+                            f"Evidence {row.id} derived Artifact reference does not match task artifacts"
+                        )
+                    if not raw_reference and not derived_reference:
+                        raise ValueError(
+                            f"Evidence {row.id} has no Task or Artifact reference"
+                        )
 
                 successful_jobs = (
                     session.query(AnalysisJobModel)
@@ -1113,18 +1222,48 @@ class DiagnosisStore:
                     .with_for_update()
                     .all()
                 )
+                successful_attempts = (
+                    session.query(TaskAttemptModel)
+                    .filter(
+                        TaskAttemptModel.task_id == task_id,
+                        TaskAttemptModel.status.in_(("SUCCEEDED", "DONE")),
+                    )
+                    .with_for_update()
+                    .all()
+                )
+                if len(successful_attempts) != 1:
+                    raise ValueError(
+                        f"task {task_id} must have exactly one successful attempt"
+                    )
+                attempt = successful_attempts[0]
                 relevant_jobs = []
+                covered_artifact_ids: set[int] = set()
                 for job in successful_jobs:
                     job_artifact_ids = {
                         int(value)
-                        for value in (
-                            list(job.input_artifact_ids_json or [])
-                            + list(job.output_artifact_ids_json or [])
-                        )
+                        for value in (job.output_artifact_ids_json or [])
                         if value is not None and str(value).strip()
                     }
-                    if artifact_ids.intersection(job_artifact_ids):
+                    covered = artifact_ids.intersection(job_artifact_ids)
+                    if covered:
                         relevant_jobs.append(job)
+                        covered_artifact_ids.update(covered)
+                if covered_artifact_ids != artifact_ids:
+                    missing = sorted(artifact_ids - covered_artifact_ids)
+                    raise ValueError(
+                        "selected artifacts lack successful Analysis Job lineage: "
+                        f"{missing}"
+                    )
+                if any(job.task_attempt_id is None for job in relevant_jobs):
+                    raise ValueError(
+                        f"analysis job attempt lineage is missing for task {task_id}"
+                    )
+                job_attempt_ids = {job.task_attempt_id for job in relevant_jobs}
+                if job_attempt_ids != {attempt.id}:
+                    raise ValueError(
+                        f"analysis job attempt lineage does not match the sole "
+                        f"successful attempt for task {task_id}"
+                    )
                 relevant_jobs.sort(key=lambda job: job.id)
                 finalized["analysis_provenance"] = [
                     {
@@ -1147,42 +1286,9 @@ class DiagnosisStore:
                     for job in relevant_jobs
                 ]
 
-                job_attempt_ids = {
-                    job.task_attempt_id
-                    for job in relevant_jobs
-                    if job.task_attempt_id
-                }
-                if len(job_attempt_ids) > 1:
+                if attempt.agent_id != task.agent_id:
                     raise ValueError(
-                        f"conflicting analysis job attempt lineage for task {task_id}"
-                    )
-                if job_attempt_ids:
-                    attempt = session.get(TaskAttemptModel, next(iter(job_attempt_ids)))
-                else:
-                    attempts = session.query(TaskAttemptModel).filter(
-                        TaskAttemptModel.task_id == task_id,
-                        TaskAttemptModel.status.in_(("SUCCEEDED", "DONE")),
-                    ).all()
-                    if len(attempts) != 1:
-                        raise ValueError(
-                            "task-backed snapshot requires one unambiguous successful "
-                            f"attempt for task {task_id}; found {len(attempts)}"
-                        )
-                    attempt = attempts[0]
-
-                if attempt is None or attempt.task_id != task_id:
-                    raise ValueError(
-                        f"snapshot attempt does not belong to task {task_id}"
-                    )
-                if attempt.status not in {"SUCCEEDED", "DONE"}:
-                    raise ValueError(
-                        f"snapshot attempt {attempt.id} is not successful"
-                    )
-                if relevant_jobs and any(
-                    job.task_attempt_id is None for job in relevant_jobs
-                ):
-                    raise ValueError(
-                        f"analysis job attempt lineage is missing for task {task_id}"
+                        f"snapshot attempt {attempt.id} does not belong to task agent"
                     )
                 for provenance in finalized["artifact_provenance"]:
                     provenance["producing_task_attempt_id"] = attempt.id
@@ -1192,8 +1298,32 @@ class DiagnosisStore:
                     raise ValueError(
                         f"successful attempt {attempt.id} lacks terminal timestamps"
                     )
+                for row in evidence_rows:
+                    event_range = row.event_time_range_json
+                    if not isinstance(event_range, dict) or not event_range:
+                        raise ValueError(f"Evidence {row.id} time range is required")
+                    if "start" not in event_range:
+                        raise ValueError(f"Evidence {row.id} time range start is required")
+                    if "end" not in event_range:
+                        raise ValueError(f"Evidence {row.id} time range end is required")
+                    event_start = _parse_snapshot_datetime(
+                        event_range["start"], field=f"{row.id} time range start"
+                    )
+                    event_end = _parse_snapshot_datetime(
+                        event_range["end"], field=f"{row.id} time range end"
+                    )
+                    if _is_after(event_start, event_end):
+                        raise ValueError(f"Evidence {row.id} time range is inverted")
+                    if _is_before(event_start, started_at):
+                        raise ValueError(
+                            f"Evidence {row.id} starts before successful attempt"
+                        )
+                    if _is_after(event_end, attempt.finished_at):
+                        raise ValueError(
+                            f"Evidence {row.id} ends after successful attempt"
+                        )
+
                 round_index = int(finalized.get("round_index", 1))
-                evidence_role = finalized.get("evidence_role", "incident")
                 identity = (
                     f"{finalized['diagnosis_id']}:{task_id}:{attempt.id}:"
                     f"{round_index}:{evidence_role}"
@@ -1385,15 +1515,26 @@ class DiagnosisStore:
                     DiagnosisEvidenceModel.ingestion_time.asc(), DiagnosisEvidenceModel.id.asc()
                 ).all()
             ]
-            snapshots = [
-                row.to_dict() for row in session.query(DiagnosisEvidenceSnapshotModel).filter(
+            snapshot_rows = (
+                session.query(DiagnosisEvidenceSnapshotModel)
+                .filter(
                     DiagnosisEvidenceSnapshotModel.diagnosis_id == diagnosis_id
-                ).order_by(
+                )
+                .order_by(
                     DiagnosisEvidenceSnapshotModel.round_index.asc(),
                     DiagnosisEvidenceSnapshotModel.captured_at.asc(),
                     DiagnosisEvidenceSnapshotModel.id.asc(),
-                ).all()
-            ]
+                )
+                .with_for_update()
+                .all()
+            )
+            snapshots = []
+            for snapshot_row in snapshot_rows:
+                snapshot_payload = snapshot_row.to_dict()
+                integrity_hash = _snapshot_integrity_hash(snapshot_payload)
+                snapshot_row.integrity_hash = integrity_hash
+                snapshot_payload["integrity_hash"] = integrity_hash
+                snapshots.append(snapshot_payload)
             artifact = FrozenDiagnosisArtifact.model_validate({
                 "schema_version": "diagnosis-artifact-v1",
                 "diagnosis_id": diagnosis_id,
@@ -1578,6 +1719,48 @@ class DiagnosisStore:
             return "INTEGRITY_ARTIFACT_LINEAGE_MISMATCH"
         return None
 
+    def _load_artifact_gate_code(
+        self,
+        session,
+        row: DiagnosisArtifactOutboxModel,
+    ) -> str | None:
+        artifact = session.get(FrozenDiagnosisArtifactModel, row.artifact_id)
+        integrity_code = self._artifact_outbox_integrity_code(row, artifact)
+        if integrity_code is not None:
+            return integrity_code
+        if session.query(DiagnosisArtifactRevocationModel.id).filter(
+            DiagnosisArtifactRevocationModel.artifact_id == row.artifact_id
+        ).first() is not None:
+            return "SUPPRESS_ARTIFACT_REVOKED"
+
+        validated = FrozenDiagnosisArtifact.model_validate_json(
+            artifact.canonical_json
+        )
+        conclusion_hash = _validated_conclusion_hash(validated.conclusion)
+        if conclusion_hash is not None and session.query(
+            DiagnosisConclusionInvalidationModel.id
+        ).filter(
+            DiagnosisConclusionInvalidationModel.diagnosis_id == row.diagnosis_id,
+            DiagnosisConclusionInvalidationModel.conclusion_hash == conclusion_hash,
+        ).first() is not None:
+            return "SUPPRESS_CONCLUSION_INVALIDATED"
+
+        evidence_refs = _all_evidence_refs(validated.conclusion)
+        if evidence_refs:
+            evidence_rows = session.query(DiagnosisEvidenceModel).filter(
+                DiagnosisEvidenceModel.id.in_(evidence_refs)
+            ).all()
+            if (
+                {evidence.id for evidence in evidence_rows} != evidence_refs
+                or any(
+                    evidence.diagnosis_id != row.diagnosis_id
+                    or not _evidence_is_ai_eligible(evidence)
+                    for evidence in evidence_rows
+                )
+            ):
+                return "SUPPRESS_ARTIFACT_EVIDENCE_INELIGIBLE"
+        return None
+
     def claim_artifact_outbox(
         self,
         worker_id: str,
@@ -1602,7 +1785,9 @@ class DiagnosisStore:
                     DiagnosisArtifactOutboxModel.next_attempt_at <= now,
                 ),
                 and_(
-                    DiagnosisArtifactOutboxModel.status == "DISPATCHING",
+                    DiagnosisArtifactOutboxModel.status.in_(
+                        ["DISPATCHING", "DELIVERING"]
+                    ),
                     DiagnosisArtifactOutboxModel.worker_lease_expires_at < now,
                 ),
             )
@@ -1629,19 +1814,20 @@ class DiagnosisStore:
                     break
                 seen_ids.update(row.id for row in rows)
                 for row in rows:
-                    artifact = session.get(
-                        FrozenDiagnosisArtifactModel, row.artifact_id
-                    )
-                    integrity_code = self._artifact_outbox_integrity_code(
-                        row, artifact
-                    )
-                    if integrity_code is not None:
+                    gate_code = self._load_artifact_gate_code(session, row)
+                    crossed_delivery_boundary = row.status == "DELIVERING"
+                    if gate_code is not None and not crossed_delivery_boundary:
+                        status = (
+                            "DEAD_LETTER"
+                            if gate_code.startswith("INTEGRITY_")
+                            else "SUPPRESSED"
+                        )
                         session.query(DiagnosisArtifactOutboxModel).filter(
                             DiagnosisArtifactOutboxModel.id == row.id,
                             eligibility,
                         ).update({
-                            "status": "DEAD_LETTER",
-                            "last_error": integrity_code,
+                            "status": status,
+                            "last_error": gate_code,
                             "worker_lease_owner": None,
                             "worker_lease_expires_at": None,
                             "updated_at": now,
@@ -1651,7 +1837,7 @@ class DiagnosisStore:
                         DiagnosisArtifactOutboxModel.id == row.id,
                         eligibility,
                     ).update({
-                        "status": "DISPATCHING",
+                        "status": "DELIVERING" if crossed_delivery_boundary else "DISPATCHING",
                         "worker_lease_owner": worker_id,
                         "worker_lease_expires_at": lease_expires_at,
                         "updated_at": now,
@@ -1664,7 +1850,9 @@ class DiagnosisStore:
             session.expire_all()
             claimed = session.query(DiagnosisArtifactOutboxModel).filter(
                 DiagnosisArtifactOutboxModel.id.in_(claimed_ids),
-                DiagnosisArtifactOutboxModel.status == "DISPATCHING",
+                DiagnosisArtifactOutboxModel.status.in_(
+                    ["DISPATCHING", "DELIVERING"]
+                ),
                 DiagnosisArtifactOutboxModel.worker_lease_owner == worker_id,
             ).all()
             claimed_by_id = {row.id: row for row in claimed}
@@ -1673,6 +1861,128 @@ class DiagnosisStore:
                 for outbox_id in claimed_ids
                 if outbox_id in claimed_by_id
             ]
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def finalize_artifact_gate(
+        self,
+        outbox_id: str,
+        worker_id: str,
+        *,
+        now: datetime | None = None,
+    ) -> str:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactOutboxModel, outbox_id)
+            if row is None:
+                return "UNKNOWN"
+            if row.status in {"DEAD_LETTER", "SUPPRESSED"}:
+                return row.status
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"artifact outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(
+                row.worker_lease_expires_at, now
+            ):
+                raise ValueError(f"artifact outbox lease expired: {outbox_id}")
+            gate_code = self._load_artifact_gate_code(session, row)
+            if gate_code is None:
+                raise ValueError(
+                    f"artifact outbox publication gate is open: {outbox_id}"
+                )
+            row.status = (
+                "DEAD_LETTER"
+                if gate_code.startswith("INTEGRITY_")
+                else "SUPPRESSED"
+            )
+            row.last_error = gate_code[:2000]
+            row.updated_at = now
+            row.worker_lease_owner = None
+            row.worker_lease_expires_at = None
+            session.commit()
+            return row.status
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def validate_artifact_delivery(
+        self,
+        outbox_id: str,
+        worker_id: str,
+        *,
+        now: datetime | None = None,
+    ) -> str | None:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactOutboxModel, outbox_id)
+            if row is None:
+                return "INTEGRITY_ARTIFACT_OUTBOX_NOT_FOUND"
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"artifact outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(
+                row.worker_lease_expires_at, now
+            ):
+                raise ValueError(f"artifact outbox lease expired: {outbox_id}")
+            return self._load_artifact_gate_code(session, row)
+        finally:
+            session.close()
+
+    def mark_artifact_outbox_delivering(
+        self,
+        outbox_id: str,
+        worker_id: str,
+        *,
+        now: datetime | None = None,
+    ) -> dict[str, Any]:
+        """Record the irreversible boundary immediately before delivery."""
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = (
+                session.query(DiagnosisArtifactOutboxModel)
+                .filter(DiagnosisArtifactOutboxModel.id == outbox_id)
+                .with_for_update()
+                .one_or_none()
+            )
+            if row is None:
+                raise ValueError(f"artifact outbox does not exist: {outbox_id}")
+            if row.status == "DELIVERING":
+                if row.worker_lease_owner != worker_id:
+                    raise ValueError(
+                        f"artifact outbox lease owner mismatch: {outbox_id}"
+                    )
+                if row.worker_lease_expires_at is None or _is_before(
+                    row.worker_lease_expires_at, now
+                ):
+                    raise ValueError(f"artifact outbox lease expired: {outbox_id}")
+                return self._artifact_outbox_dict(row)
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"artifact outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(
+                row.worker_lease_expires_at, now
+            ):
+                raise ValueError(f"artifact outbox lease expired: {outbox_id}")
+            gate_code = self._load_artifact_gate_code(session, row)
+            if gate_code is None:
+                row.status = "DELIVERING"
+            else:
+                row.status = (
+                    "DEAD_LETTER"
+                    if gate_code.startswith("INTEGRITY_")
+                    else "SUPPRESSED"
+                )
+                row.last_error = gate_code[:2000]
+                row.worker_lease_owner = None
+                row.worker_lease_expires_at = None
+            row.updated_at = now
+            session.commit()
+            return self._artifact_outbox_dict(row)
         except Exception:
             session.rollback()
             raise
@@ -1695,7 +2005,7 @@ class DiagnosisStore:
                 return None
             if row.status == "PUBLISHED":
                 return self._artifact_outbox_dict(row)
-            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+            if row.status != "DELIVERING" or row.worker_lease_owner != worker_id:
                 raise ValueError(f"artifact outbox lease owner mismatch: {outbox_id}")
             if row.worker_lease_expires_at is None or _is_before(
                 row.worker_lease_expires_at, now
@@ -1727,12 +2037,17 @@ class DiagnosisStore:
         now = now or utcnow()
         session = new_session()
         try:
-            row = session.get(DiagnosisArtifactOutboxModel, outbox_id)
+            row = (
+                session.query(DiagnosisArtifactOutboxModel)
+                .filter(DiagnosisArtifactOutboxModel.id == outbox_id)
+                .with_for_update()
+                .one_or_none()
+            )
             if row is None:
                 return "UNKNOWN"
             if row.status == "PUBLISHED":
                 return "PUBLISHED"
-            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+            if row.status != "DELIVERING" or row.worker_lease_owner != worker_id:
                 raise ValueError(f"artifact outbox lease owner mismatch: {outbox_id}")
             if row.worker_lease_expires_at is None or _is_before(
                 row.worker_lease_expires_at, now
@@ -1763,7 +2078,9 @@ class DiagnosisStore:
         row: DiagnosisArtifactRevocationOutboxModel,
         revocation: DiagnosisArtifactRevocationModel | None,
     ) -> dict[str, Any]:
-        payload = revocation.to_dict() if revocation is not None else {}
+        if revocation is None:
+            raise ValueError(f"revocation not found: {row.revocation_id}")
+        payload = revocation.to_dict()
         payload.update({
             "outbox_id": row.id,
             "status": row.status,
@@ -1777,6 +2094,87 @@ class DiagnosisStore:
             "updated_at": row.updated_at,
         })
         return payload
+
+    @staticmethod
+    def _revocation_outbox_integrity_code(
+        row: DiagnosisArtifactRevocationOutboxModel,
+        revocation: DiagnosisArtifactRevocationModel | None,
+        artifact: FrozenDiagnosisArtifactModel | None,
+        evidence: DiagnosisEvidenceModel | None,
+        review: DiagnosisEvidenceReviewModel | None,
+    ) -> str | None:
+        if revocation is None:
+            return "INTEGRITY_REVOCATION_NOT_FOUND"
+        if artifact is None:
+            return "INTEGRITY_REVOCATION_ARTIFACT_NOT_FOUND"
+        if evidence is None:
+            return "INTEGRITY_REVOCATION_EVIDENCE_NOT_FOUND"
+        if review is None:
+            return "INTEGRITY_REVOCATION_REVIEW_NOT_FOUND"
+        try:
+            validated = FrozenDiagnosisArtifact.model_validate_json(
+                artifact.canonical_json
+            )
+            canonical = canonical_artifact_json(validated)
+        except Exception:
+            return "INTEGRITY_REVOCATION_ARTIFACT_MALFORMED"
+        if artifact_hash(canonical) != artifact.artifact_hash:
+            return "INTEGRITY_REVOCATION_ARTIFACT_HASH_INVALID"
+        conclusion = validated.conclusion
+        conclusion_hash = (
+            conclusion.get("integrity_hash")
+            if isinstance(conclusion, dict)
+            else None
+        )
+        if (
+            validated.diagnosis_id != artifact.diagnosis_id
+            or revocation.id != row.revocation_id
+            or revocation.diagnosis_id != artifact.diagnosis_id
+            or revocation.artifact_id != artifact.id
+            or revocation.artifact_hash != artifact.artifact_hash
+            or revocation.conclusion_hash != conclusion_hash
+            or evidence.id != revocation.evidence_id
+            or evidence.diagnosis_id != revocation.diagnosis_id
+            or review.evidence_id != revocation.evidence_id
+            or review.diagnosis_id != revocation.diagnosis_id
+            or review.revision != revocation.review_revision
+        ):
+            return "INTEGRITY_REVOCATION_LINEAGE_MISMATCH"
+        return None
+
+    @staticmethod
+    def _revocation_publication_gate_code(
+        evidence: DiagnosisEvidenceModel,
+    ) -> str | None:
+        if _evidence_is_ai_eligible(evidence):
+            return "SUPPRESS_REVOCATION_NO_LONGER_REQUIRED"
+        return None
+
+    def _load_revocation_gate_code(
+        self, session, row: DiagnosisArtifactRevocationOutboxModel,
+    ) -> str | None:
+        revocation = session.get(DiagnosisArtifactRevocationModel, row.revocation_id)
+        artifact = (
+            session.get(FrozenDiagnosisArtifactModel, revocation.artifact_id)
+            if revocation is not None else None
+        )
+        evidence = (
+            session.get(DiagnosisEvidenceModel, revocation.evidence_id)
+            if revocation is not None else None
+        )
+        review = (
+            session.query(DiagnosisEvidenceReviewModel).filter(
+                DiagnosisEvidenceReviewModel.evidence_id == revocation.evidence_id,
+                DiagnosisEvidenceReviewModel.revision == revocation.review_revision,
+            ).one_or_none()
+            if revocation is not None else None
+        )
+        integrity_code = self._revocation_outbox_integrity_code(
+            row, revocation, artifact, evidence, review
+        )
+        if integrity_code is not None:
+            return integrity_code
+        return self._revocation_publication_gate_code(evidence)
 
     def list_pending_artifact_revocation_outbox(self, limit: int = 100) -> list[dict[str, Any]]:
         session = new_session()
@@ -1805,6 +2203,8 @@ class DiagnosisStore:
         now = now or utcnow()
         session = new_session()
         try:
+            claim_limit = max(1, int(limit))
+            expires = now + timedelta(seconds=max(1, int(lease_seconds)))
             eligibility = or_(
                 and_(
                     DiagnosisArtifactRevocationOutboxModel.status.in_(["PENDING", "FAILED"]),
@@ -1815,32 +2215,192 @@ class DiagnosisStore:
                     DiagnosisArtifactRevocationOutboxModel.worker_lease_expires_at < now,
                 ),
             )
-            rows = (session.query(DiagnosisArtifactRevocationOutboxModel)
-                .filter(eligibility)
-                .order_by(DiagnosisArtifactRevocationOutboxModel.created_at.asc(),
-                          DiagnosisArtifactRevocationOutboxModel.id.asc())
-                .limit(max(1, int(limit))).with_for_update(skip_locked=True).all())
-            expires = now + timedelta(seconds=max(1, int(lease_seconds)))
-            claimed_ids = []
-            for row in rows:
-                changed = session.query(DiagnosisArtifactRevocationOutboxModel).filter(
-                    DiagnosisArtifactRevocationOutboxModel.id == row.id, eligibility,
-                ).update({
-                    "status": "DISPATCHING", "worker_lease_owner": worker_id,
-                    "worker_lease_expires_at": expires, "updated_at": now,
-                }, synchronize_session=False)
-                if changed == 1:
-                    claimed_ids.append(row.id)
+            claimed_ids: list[str] = []
+            seen_ids: set[str] = set()
+            while len(claimed_ids) < claim_limit:
+                query = session.query(
+                    DiagnosisArtifactRevocationOutboxModel
+                ).filter(eligibility)
+                if seen_ids:
+                    query = query.filter(
+                        DiagnosisArtifactRevocationOutboxModel.id.notin_(seen_ids)
+                    )
+                rows = (
+                    query.order_by(
+                        DiagnosisArtifactRevocationOutboxModel.created_at.asc(),
+                        DiagnosisArtifactRevocationOutboxModel.id.asc(),
+                    )
+                    .limit(claim_limit - len(claimed_ids))
+                    .with_for_update(skip_locked=True)
+                    .all()
+                )
+                if not rows:
+                    break
+                seen_ids.update(row.id for row in rows)
+                for row in rows:
+                    revocation = session.get(
+                        DiagnosisArtifactRevocationModel, row.revocation_id
+                    )
+                    artifact = (
+                        session.get(
+                            FrozenDiagnosisArtifactModel, revocation.artifact_id
+                        )
+                        if revocation is not None
+                        else None
+                    )
+                    evidence = (
+                        session.get(DiagnosisEvidenceModel, revocation.evidence_id)
+                        if revocation is not None
+                        else None
+                    )
+                    review = (
+                        session.query(DiagnosisEvidenceReviewModel).filter(
+                            DiagnosisEvidenceReviewModel.evidence_id
+                            == revocation.evidence_id,
+                            DiagnosisEvidenceReviewModel.revision
+                            == revocation.review_revision,
+                        ).one_or_none()
+                        if revocation is not None
+                        else None
+                    )
+                    integrity_code = self._revocation_outbox_integrity_code(
+                        row, revocation, artifact, evidence, review
+                    )
+                    if integrity_code is not None:
+                        session.query(
+                            DiagnosisArtifactRevocationOutboxModel
+                        ).filter(
+                            DiagnosisArtifactRevocationOutboxModel.id == row.id,
+                            eligibility,
+                        ).update({
+                            "status": "DEAD_LETTER",
+                            "last_error": integrity_code,
+                            "worker_lease_owner": None,
+                            "worker_lease_expires_at": None,
+                            "updated_at": now,
+                        }, synchronize_session=False)
+                        continue
+                    publication_code = self._revocation_publication_gate_code(
+                        evidence
+                    )
+                    if publication_code is not None:
+                        session.query(
+                            DiagnosisArtifactRevocationOutboxModel
+                        ).filter(
+                            DiagnosisArtifactRevocationOutboxModel.id == row.id,
+                            eligibility,
+                        ).update({
+                            "status": "SUPPRESSED",
+                            "last_error": publication_code,
+                            "worker_lease_owner": None,
+                            "worker_lease_expires_at": None,
+                            "updated_at": now,
+                        }, synchronize_session=False)
+                        continue
+                    changed = session.query(
+                        DiagnosisArtifactRevocationOutboxModel
+                    ).filter(
+                        DiagnosisArtifactRevocationOutboxModel.id == row.id,
+                        eligibility,
+                    ).update({
+                        "status": "DISPATCHING",
+                        "worker_lease_owner": worker_id,
+                        "worker_lease_expires_at": expires,
+                        "updated_at": now,
+                    }, synchronize_session=False)
+                    if changed == 1:
+                        claimed_ids.append(row.id)
             session.commit()
-            result = []
-            for outbox_id in claimed_ids:
-                row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
-                revocation = session.get(DiagnosisArtifactRevocationModel, row.revocation_id)
-                result.append(self._revocation_outbox_dict(row, revocation))
-            return result
+            if not claimed_ids:
+                return []
+            session.expire_all()
+            claimed = session.query(
+                DiagnosisArtifactRevocationOutboxModel
+            ).filter(
+                DiagnosisArtifactRevocationOutboxModel.id.in_(claimed_ids),
+                DiagnosisArtifactRevocationOutboxModel.status == "DISPATCHING",
+                DiagnosisArtifactRevocationOutboxModel.worker_lease_owner == worker_id,
+            ).all()
+            claimed_by_id = {row.id: row for row in claimed}
+            return [
+                self._revocation_outbox_dict(
+                    claimed_by_id[outbox_id],
+                    session.get(
+                        DiagnosisArtifactRevocationModel,
+                        claimed_by_id[outbox_id].revocation_id,
+                    ),
+                )
+                for outbox_id in claimed_ids
+                if outbox_id in claimed_by_id
+            ]
         except Exception:
             session.rollback()
             raise
+        finally:
+            session.close()
+
+    def finalize_artifact_revocation_gate(
+        self,
+        outbox_id: str,
+        worker_id: str,
+        *,
+        now: datetime | None = None,
+    ) -> str:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
+            if row is None:
+                return "UNKNOWN"
+            if row.status in {"DEAD_LETTER", "SUPPRESSED"}:
+                return row.status
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(
+                    f"revocation outbox lease owner mismatch: {outbox_id}"
+                )
+            if row.worker_lease_expires_at is None or _is_before(
+                row.worker_lease_expires_at, now
+            ):
+                raise ValueError(f"revocation outbox lease expired: {outbox_id}")
+            current_code = self._load_revocation_gate_code(session, row)
+            if current_code is None:
+                raise ValueError(
+                    f"revocation outbox publication gate is open: {outbox_id}"
+                )
+            row.status = (
+                "DEAD_LETTER"
+                if current_code.startswith("INTEGRITY_")
+                else "SUPPRESSED"
+            )
+            row.last_error = current_code[:2000]
+            row.updated_at = now
+            row.worker_lease_owner = None
+            row.worker_lease_expires_at = None
+            session.commit()
+            return row.status
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def validate_artifact_revocation_delivery(
+        self, outbox_id: str, worker_id: str,
+        *, now: datetime | None = None,
+    ) -> str | None:
+        now = now or utcnow()
+        session = new_session()
+        try:
+            row = session.get(DiagnosisArtifactRevocationOutboxModel, outbox_id)
+            if row is None:
+                return "INTEGRITY_REVOCATION_OUTBOX_NOT_FOUND"
+            if row.status != "DISPATCHING" or row.worker_lease_owner != worker_id:
+                raise ValueError(f"revocation outbox lease owner mismatch: {outbox_id}")
+            if row.worker_lease_expires_at is None or _is_before(
+                row.worker_lease_expires_at, now
+            ):
+                raise ValueError(f"revocation outbox lease expired: {outbox_id}")
+            return self._load_revocation_gate_code(session, row)
         finally:
             session.close()
 

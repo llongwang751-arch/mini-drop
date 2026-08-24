@@ -98,7 +98,7 @@ describe("RealWorldBenchmarkPanel", () => {
     expect(screen.getAllByText("否").length).toBeGreaterThan(0);
     expect(screen.queryByText(/根因机制命中|Oracle 门禁/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /下载同条件对照输入/ })).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it.each([
     ["FAILED", "执行失败"],

@@ -286,7 +286,7 @@ class ComparatorSubmissionStore:
                     json.dump(frozen, handle, ensure_ascii=False, allow_nan=False)
                     temporary_path = Path(handle.name)
                 report = score_results(temporary_path, commitment_key=key.encode("utf-8"))
-                status = "SCORED" if report.get("evaluated_cases", 0) else "VALIDATED_UNSCORED"
+                status = "SCORED" if report.get("evaluated_cases", 0) else "UNSCORED"
             except (TypeError, ValueError) as exc:
                 status = "REJECTED_BY_EVALUATOR"
                 scoring_error = str(exc)

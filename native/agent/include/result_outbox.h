@@ -25,7 +25,9 @@ class ResultOutbox {
   std::size_t replay(const std::function<bool(const TaskResult&)>& deliver);
 
  private:
-  std::filesystem::path path_for(const std::string& task_id) const;
+  std::filesystem::path path_for(
+      const std::string& task_id,
+      const std::string& task_attempt_authority) const;
   void trim();
 
   std::filesystem::path directory_;

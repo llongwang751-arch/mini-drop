@@ -88,6 +88,9 @@ def evaluate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
             "evidence_id": ref,
             "target": dict(obs.get("target", {})),
             "evidence_role": "incident",
+            "lifecycle_status": "ACTIVE",
+            "trust_status": "TRUSTED",
+            "superseded_by": None,
             "data_quality": {
                 "completeness": "high",
                 "domains": _observation_domains(obs),

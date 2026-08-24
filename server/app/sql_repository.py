@@ -55,6 +55,7 @@ from server.app.prometheus_metrics import (
     record_task_transition,
 )
 from server.app.rca.models import FeedbackPrior
+from server.app.process_attestation import ProcessIdentityBinding
 from server.app.schemas import CreateTaskRequest
 from server.app.state_machine import (
     AnalysisStatus,
@@ -211,7 +212,9 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
         self, session: OrmSession, task_id: str,
         to_status: TaskStatus, reason: str, actor: Actor,
         metadata: dict[str, Any] | None = None,
-    ) -> None:
+        *,
+        task_attempt_authority_sha256: str | None = None,
+    ) -> TaskAttemptModel | None:
         task = session.get(TaskModel, task_id)
         # 事件：from 用旧 status value
         from_status = task.status
@@ -238,18 +241,20 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
                 .count()
                 + 1
             )
-            session.add(TaskAttemptModel(
+            attempt = TaskAttemptModel(
                 id=f"attempt_{uuid4().hex}",
                 task_id=task_id,
                 attempt_no=attempt_no,
                 agent_id=task.agent_id,
                 status=TaskStatus.RUNNING.value,
                 reason=reason,
+                task_attempt_authority_sha256=task_attempt_authority_sha256,
                 lease_expires_at=started_at + timedelta(seconds=task.duration_sec + 30),
                 metadata_json=metadata or {},
                 created_at=started_at,
                 started_at=started_at,
-            ))
+            )
+            session.add(attempt)
         elif to_status in {
             TaskStatus.UPLOADING,
             TaskStatus.ANALYZING,
@@ -283,6 +288,7 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
 
         # 发布 SSE 事件
         notify_task_changed(task_id, from_status, to_status.value, reason)
+        return attempt if to_status == TaskStatus.RUNNING else None
 
     @staticmethod
     def _update_execution_dimensions(
@@ -337,6 +343,25 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
         agent = session.get(AgentModel, payload.agent_id)
         if agent is None:
             raise ValueError(f"Agent {payload.agent_id} does not exist")
+        request_payload = payload.model_dump(mode="json")
+        process_binding_json = None
+        process_snapshot_id = None
+        if payload.process_binding is not None:
+            binding = ProcessIdentityBinding.from_mapping(
+                payload.process_binding.model_dump()
+            )
+            if not self._validate_process_binding_in_session(
+                session,
+                binding,
+                agent_id=payload.agent_id,
+                target_pid=payload.target_pid,
+                now=ts,
+            ):
+                raise ValueError(
+                    "process binding does not match the Agent's latest fresh snapshot"
+                )
+            process_binding_json = binding.to_dict()
+            process_snapshot_id = binding.process_snapshot_id
         task = TaskModel(
             id=task_id,
             name=payload.name,
@@ -349,7 +374,9 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             status_reason=reason,
             collection_status=CollectionStatus.QUEUED.value,
             analysis_status=AnalysisStatus.NOT_STARTED.value,
-            request_params=payload.model_dump(),
+            request_params=request_payload,
+            process_snapshot_id=process_snapshot_id,
+            process_binding_json=process_binding_json,
             diagnosis_step_id=(payload.options or {}).get("diagnosis_step_id"),
             created_at=ts,
         )
@@ -362,20 +389,20 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             TaskStatus.PENDING,
             reason,
             actor,
-            payload.model_dump(),
+            request_payload,
         )
         self._write_audit(
             session,
             "TASK_CREATED",
             task_id=task_id,
             message=f"Task {task_id} created by AI tool call",
-            metadata=payload.model_dump(),
+            metadata=request_payload,
         )
         record_task_transition("NONE", TaskStatus.PENDING.value)
         # §9.6: every task-creation path publishes task.created through the
         # transactional outbox, not just the Go/Web entrypoint.
         self.enqueue_outbox(
-            "task", task_id, "task.created", payload.model_dump(),
+            "task", task_id, "task.created", request_payload,
             session=session,
         )
         return task

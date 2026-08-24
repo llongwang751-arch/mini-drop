@@ -1,6 +1,7 @@
 #include "result_outbox.h"
 
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -36,23 +37,31 @@ void require(bool condition, const std::string& message) {
 
 TaskResult make_result(const std::string& task_id, bool ok,
                        const std::string& error,
-                       const std::string& artifact_json) {
+                       const std::string& artifact_json,
+                       const std::string& task_attempt_authority = "") {
   TaskResult result;
   result.task_id = task_id;
   result.ok = ok;
   result.error = error;
   result.artifact_json = artifact_json;
+  result.task_attempt_authority = task_attempt_authority;
   return result;
 }
 
-void test_roundtrip_and_acknowledge() {
+void test_v2_roundtrip_and_acknowledge() {
   TemporaryDirectory directory;
   ResultOutbox outbox(directory.path());
   const auto saved = outbox.enqueue(
-      make_result("task-1", true, "", "{\"artifact\":\"raw\"}"));
+      make_result("task-1", true, "", "{\"artifact\":\"raw\"}", "authority-1"));
+  std::ifstream raw(saved.path, std::ios::binary);
+  std::string header(8, '\0');
+  raw.read(header.data(), static_cast<std::streamsize>(header.size()));
+  require(header == std::string("MDRES02\0", 8), "v2 header mismatch");
   const auto entries = outbox.pending();
   require(entries.size() == 1, "roundtrip entry count");
   require(entries[0].result.task_id == "task-1", "roundtrip task id");
+  require(entries[0].result.task_attempt_authority == "authority-1",
+          "roundtrip authority");
   require(entries[0].result.ok, "roundtrip status");
   require(entries[0].result.artifact_json == "{\"artifact\":\"raw\"}",
           "roundtrip artifact");
@@ -61,15 +70,27 @@ void test_roundtrip_and_acknowledge() {
   require(!fs::exists(saved.path), "acknowledged file still exists");
 }
 
-void test_same_task_replaces_entry() {
+void test_same_attempt_replaces_entry() {
   TemporaryDirectory directory;
   ResultOutbox outbox(directory.path());
-  outbox.enqueue(make_result("task-1", false, "first", ""));
-  outbox.enqueue(make_result("task-1", true, "", "second"));
+  outbox.enqueue(make_result("task-1", false, "first", "", "authority-1"));
+  outbox.enqueue(make_result("task-1", true, "", "second", "authority-1"));
   const auto entries = outbox.pending();
-  require(entries.size() == 1, "same task created duplicate entries");
+  require(entries.size() == 1, "same attempt created duplicate entries");
   require(entries[0].result.ok, "replacement status mismatch");
   require(entries[0].result.artifact_json == "second", "replacement payload mismatch");
+}
+
+void test_distinct_attempts_have_distinct_entries() {
+  TemporaryDirectory directory;
+  ResultOutbox outbox(directory.path());
+  const auto first = outbox.enqueue(
+      make_result("task-1", true, "", "first", "authority-1"));
+  const auto second = outbox.enqueue(
+      make_result("task-1", true, "", "second", "authority-2"));
+  require(first.path != second.path, "distinct attempts shared a path");
+  const auto entries = outbox.pending();
+  require(entries.size() == 2, "distinct attempts replaced one another");
 }
 
 void test_restart_replays_unacknowledged_entry() {
@@ -83,6 +104,36 @@ void test_restart_replays_unacknowledged_entry() {
   require(entries.size() == 1, "restart did not replay entry");
   require(entries[0].result.task_id == "task-restart", "replayed task mismatch");
   require(entries[0].result.error == "offline", "replayed error mismatch");
+}
+
+void append_u64(std::string& output, std::uint64_t value) {
+  for (int shift = 56; shift >= 0; shift -= 8) {
+    output.push_back(static_cast<char>((value >> shift) & 0xff));
+  }
+}
+
+void append_string(std::string& output, const std::string& value) {
+  append_u64(output, value.size());
+  output.append(value);
+}
+
+void test_legacy_v1_replays_without_authority() {
+  TemporaryDirectory directory;
+  std::string payload("MDRES01\0", 8);
+  payload.push_back('\1');
+  append_string(payload, "task-legacy");
+  append_string(payload, "");
+  append_string(payload, "legacy-artifact");
+  std::ofstream output(directory.path() / "legacy.outbox", std::ios::binary);
+  output.write(payload.data(), static_cast<std::streamsize>(payload.size()));
+  output.close();
+
+  ResultOutbox outbox(directory.path());
+  const auto entries = outbox.pending();
+  require(entries.size() == 1, "legacy entry was not replayed");
+  require(entries[0].result.task_id == "task-legacy", "legacy task mismatch");
+  require(entries[0].result.task_attempt_authority.empty(),
+          "legacy authority was fabricated");
 }
 
 void test_corrupt_entry_is_quarantined() {
@@ -167,9 +218,11 @@ void test_temporary_entry_is_ignored_during_recovery() {
 
 int main() {
   try {
-    test_roundtrip_and_acknowledge();
-    test_same_task_replaces_entry();
+    test_v2_roundtrip_and_acknowledge();
+    test_same_attempt_replaces_entry();
+    test_distinct_attempts_have_distinct_entries();
     test_restart_replays_unacknowledged_entry();
+    test_legacy_v1_replays_without_authority();
     test_corrupt_entry_is_quarantined();
     test_pending_entries_are_bounded();
     test_successful_replay_acknowledges_entries();

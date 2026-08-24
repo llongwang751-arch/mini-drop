@@ -30,6 +30,33 @@ message HealthCheckRequest {
   PidStats children_pstats = 6;  // 采集器子进程聚合开销
   bool busy                = 7;  // Agent 正在执行任务时只心跳，不拉取新任务
   string active_task_id    = 8;  // Agent current task, used to receive cancellation
+
+  ProcessCandidateSnapshot process_candidate_snapshot = 9;
+}
+
+
+message ProcessCandidate {
+  uint32 pid                              = 1;
+  uint64 process_start_ticks              = 2;
+  uint64 pid_namespace_inode              = 3;
+  uint32 namespace_pid                    = 4;
+  string comm                             = 5;
+  string executable_identity              = 6;
+  string cgroup                           = 7;
+  string service_hint                     = 8;
+  string instance_hint                    = 9;
+  repeated string collector_capabilities  = 10;
+}
+
+
+message ProcessCandidateSnapshot {
+  uint64 generation              = 1;
+  string boot_id                 = 2;
+  uint64 observed_at_unix_ms     = 3;
+  bool complete                  = 4;
+  bool truncated                 = 5;
+  repeated ProcessCandidate candidates = 6;
+  string error                   = 7;
 }
 
 

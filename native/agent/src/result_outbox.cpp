@@ -14,7 +14,8 @@
 namespace mini_drop_native {
 namespace {
 
-constexpr std::array<char, 8> kMagic{'M', 'D', 'R', 'E', 'S', '0', '1', '\0'};
+constexpr std::array<char, 8> kMagicV1{'M', 'D', 'R', 'E', 'S', '0', '1', '\0'};
+constexpr std::array<char, 8> kMagicV2{'M', 'D', 'R', 'E', 'S', '0', '2', '\0'};
 constexpr std::uint64_t kMaxFieldBytes = 64ULL * 1024ULL * 1024ULL;
 
 void append_u64(std::string& output, std::uint64_t value) {
@@ -52,20 +53,25 @@ std::string read_string(const std::string& input, std::size_t& offset) {
 }
 
 std::string serialize(const TaskResult& result) {
-  std::string output(kMagic.begin(), kMagic.end());
+  std::string output(kMagicV2.begin(), kMagicV2.end());
   output.push_back(result.ok ? '\1' : '\0');
   append_string(output, result.task_id);
   append_string(output, result.error);
   append_string(output, result.artifact_json);
+  append_string(output, result.task_attempt_authority);
   return output;
 }
 
 TaskResult deserialize(const std::string& input) {
-  if (input.size() < kMagic.size() + 1 ||
-      !std::equal(kMagic.begin(), kMagic.end(), input.begin())) {
+  if (input.size() < kMagicV1.size() + 1) {
     throw std::runtime_error("invalid outbox header");
   }
-  std::size_t offset = kMagic.size();
+  const bool is_v1 = std::equal(kMagicV1.begin(), kMagicV1.end(), input.begin());
+  const bool is_v2 = std::equal(kMagicV2.begin(), kMagicV2.end(), input.begin());
+  if (!is_v1 && !is_v2) {
+    throw std::runtime_error("invalid outbox header");
+  }
+  std::size_t offset = kMagicV1.size();
   const unsigned char ok = static_cast<unsigned char>(input[offset++]);
   if (ok > 1) {
     throw std::runtime_error("invalid outbox status");
@@ -75,6 +81,9 @@ TaskResult deserialize(const std::string& input) {
   result.task_id = read_string(input, offset);
   result.error = read_string(input, offset);
   result.artifact_json = read_string(input, offset);
+  if (is_v2) {
+    result.task_attempt_authority = read_string(input, offset);
+  }
   if (result.task_id.empty() || offset != input.size()) {
     throw std::runtime_error("invalid outbox payload");
   }
@@ -155,7 +164,7 @@ OutboxEntry ResultOutbox::enqueue(const TaskResult& result) {
   if (result.task_id.empty()) {
     throw std::invalid_argument("outbox task id must not be empty");
   }
-  const auto path = path_for(result.task_id);
+  const auto path = path_for(result.task_id, result.task_attempt_authority);
   const auto temporary = path.string() + ".tmp";
   const std::string payload = serialize(result);
   const int fd = ::open(temporary.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
@@ -218,8 +227,13 @@ std::size_t ResultOutbox::replay(
   return delivered;
 }
 
-std::filesystem::path ResultOutbox::path_for(const std::string& task_id) const {
-  return directory_ / (hex_hash(fnv1a(task_id)) + ".outbox");
+std::filesystem::path ResultOutbox::path_for(
+    const std::string& task_id,
+    const std::string& task_attempt_authority) const {
+  std::string identity = task_id;
+  identity.push_back('\0');
+  identity.append(task_attempt_authority);
+  return directory_ / (hex_hash(fnv1a(identity)) + ".outbox");
 }
 
 void ResultOutbox::trim() {
