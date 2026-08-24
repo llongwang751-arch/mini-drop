@@ -1,0 +1,127 @@
+.skill-plaza.ant-card {
+  border-color: #dce5e1;
+  box-shadow: none;
+}
+
+.skill-plaza > .ant-card-head {
+  min-height: 4.25rem;
+  border-bottom-color: #dce5e1;
+}
+
+.skill-plaza-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.skill-plaza-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5ece9;
+}
+
+.skill-benchmark-card.ant-card {
+  margin: 0 0 1rem;
+  border-color: #dce5e1;
+  background: #fbfcfc;
+}
+
+.skill-benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0.85rem 0;
+}
+
+.skill-benchmark-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid #e3e9e6;
+  border-radius: 0.65rem;
+  background: #fff;
+}
+
+.skill-benchmark-item > div {
+  grid-row: 1 / 3;
+  align-self: center;
+  color: #087a5b;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.skill-benchmark-item > div b { font-size: 1.25rem; }
+.skill-benchmark-item > div span { margin-left: 0.15rem; font-size: 0.7rem; }
+.skill-benchmark-item > .ant-typography:last-child { font-size: 0.72rem; line-height: 1.5; }
+.skill-benchmark-boundary { display: block; font-size: 0.75rem; }
+
+.skill-plaza-list.ant-collapse {
+  border-color: #dce5e1;
+  background: #fff;
+}
+
+.skill-plaza-list .ant-collapse-item {
+  border-bottom-color: #e5ece9;
+}
+
+.skill-plaza-list .ant-collapse-header {
+  align-items: center !important;
+  padding: 1rem 1.15rem !important;
+}
+
+.skill-card-label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.skill-card-heading {
+  min-width: 0;
+}
+
+.skill-route {
+  display: block;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 1.15rem;
+  color: #718079;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.skill-card-metrics b {
+  color: #17332a;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.skill-gate-detail {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+@media (max-width: 900px) {
+  .skill-plaza-toolbar { align-items: stretch; flex-direction: column; }
+  .skill-card-label { grid-template-columns: 1fr; }
+  .skill-card-metrics { justify-content: start; }
+  .skill-benchmark-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .skill-card-metrics { grid-template-columns: 1fr; gap: 0.25rem; }
+  .skill-plaza-toolbar .ant-segmented-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skill-benchmark-grid { grid-template-columns: 1fr; }
+}
