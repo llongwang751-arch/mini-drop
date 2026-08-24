@@ -57,21 +57,44 @@ def _analyzing_task(repo: SqlRepository, collector_type: str = "perf_cpu"):
     return task
 
 
+def _attempt(repo: SqlRepository, task_id: str):
+    return repo.get_task_attempts(task_id)[-1]
+
+
+def _add_attempt_artifacts(
+    repo: SqlRepository,
+    task_id: str,
+    artifacts: list[dict],
+):
+    attempt = _attempt(repo, task_id)
+    artifact_ids = repo.add_attempt_artifacts(task_id, attempt.id, artifacts)
+    return attempt, artifact_ids
+
+
 def test_enqueue_is_idempotent_for_same_input(repo: SqlRepository):
     task = _analyzing_task(repo)
+    attempt, artifact_ids = _add_attempt_artifacts(
+        repo,
+        task.id,
+        [{"artifact_type": "sys_metrics", "size_bytes": 10}],
+    )
     checksum = artifact_input_checksum([{"artifact_type": "sys_metrics", "size_bytes": 10}])
 
     first = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum=checksum,
+        input_artifact_ids=artifact_ids,
     )
     second = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum=checksum,
+        input_artifact_ids=artifact_ids,
     )
 
     assert first.id == second.id
@@ -134,11 +157,18 @@ def test_collector_contract_rejects_wrong_artifact_type():
 
 def test_enqueue_uses_collector_specific_contract(repo: SqlRepository):
     task = _analyzing_task(repo, "sys_metrics")
+    attempt, artifact_ids = _add_attempt_artifacts(
+        repo,
+        task.id,
+        [{"artifact_type": "sys_metrics"}],
+    )
 
     job = enqueue_artifact_analysis(
         repo,
         task.id,
+        attempt.id,
         [{"artifact_type": "sys_metrics"}],
+        artifact_ids,
         collector_type="sys_metrics",
     )
 
@@ -148,11 +178,18 @@ def test_enqueue_uses_collector_specific_contract(repo: SqlRepository):
 
 def test_claim_uses_owner_lease_and_can_be_renewed(repo: SqlRepository):
     task = _analyzing_task(repo)
+    attempt, artifact_ids = _add_attempt_artifacts(
+        repo,
+        task.id,
+        [{"artifact_type": "sys_metrics"}],
+    )
     job = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum="a" * 64,
+        input_artifact_ids=artifact_ids,
     )
 
     claimed = repo.claim_analysis_job("worker-a", lease_sec=30)
@@ -168,13 +205,14 @@ def test_claim_uses_owner_lease_and_can_be_renewed(repo: SqlRepository):
 
 def test_worker_completes_analysis_ready_artifact_and_parent_task(repo: SqlRepository):
     task = _analyzing_task(repo)
-    artifact_ids = repo.add_artifacts(task.id, [{
+    attempt, artifact_ids = _add_attempt_artifacts(repo, task.id, [{
         "artifact_type": "sys_metrics",
         "object_key": "tasks/test/sys_metrics.json",
         "content_type": "application/json",
     }])
     repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum="b" * 64,
@@ -192,16 +230,18 @@ def test_worker_completes_analysis_ready_artifact_and_parent_task(repo: SqlRepos
 
 def test_failure_retries_then_enters_dead_letter(repo: SqlRepository, monkeypatch):
     task = _analyzing_task(repo)
-    repo.add_artifacts(task.id, [{
+    attempt, artifact_ids = _add_attempt_artifacts(repo, task.id, [{
         "artifact_type": "raw",
         "filename": "perf.data",
         "local_path": "/outside/allowed/root/perf.data",
     }])
     job = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum="c" * 64,
+        input_artifact_ids=artifact_ids,
         max_retries=1,
     )
     monkeypatch.setenv("MINI_DROP_ANALYZER_RETRY_DELAY_SEC", "0")
@@ -222,11 +262,18 @@ def test_failure_retries_then_enters_dead_letter(repo: SqlRepository, monkeypatc
 
 def test_expired_lease_is_recovered_by_another_worker(repo: SqlRepository):
     task = _analyzing_task(repo)
+    attempt, artifact_ids = _add_attempt_artifacts(
+        repo,
+        task.id,
+        [{"artifact_type": "sys_metrics"}],
+    )
     job = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="artifact-set",
         analyzer_version="1.0.0",
         input_checksum="d" * 64,
+        input_artifact_ids=artifact_ids,
     )
     assert repo.claim_analysis_job("crashed-worker") is not None
     with new_session() as session:
@@ -257,13 +304,14 @@ class _SlowAnalyzer:
 
 def _enqueue_slow_job(repo: SqlRepository):
     task = _analyzing_task(repo)
-    artifact_ids = repo.add_artifacts(task.id, [{
+    attempt, artifact_ids = _add_attempt_artifacts(repo, task.id, [{
         "artifact_type": "sys_metrics",
         "object_key": "tasks/slow/sys_metrics.json",
         "content_type": "application/json",
     }])
     job = repo.enqueue_analysis_job(
         task.id,
+        task_attempt_id=attempt.id,
         analyzer_type="slow-test",
         analyzer_version="1.0.0",
         input_checksum="e" * 64,

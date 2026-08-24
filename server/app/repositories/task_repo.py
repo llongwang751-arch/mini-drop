@@ -369,10 +369,53 @@ class TaskMixin:
             return None
         return AuthorizedTaskAttempt(task=task, task_attempt=attempt)
 
+    def authorize_task_attempt_result(
+        self,
+        task_id: str,
+        task_attempt_authority: str,
+    ) -> AuthorizedTaskAttempt | None:
+        """Resolve an Agent result to exactly one task attempt.
+
+        The authority is intentionally opaque to the Agent, so result callbacks
+        do not need to expose the database attempt id in the public protobuf.
+        """
+        if not task_id:
+            return None
+        with self._read_session() as session:
+            attempts = (
+                session.query(TaskAttemptModel)
+                .filter(TaskAttemptModel.task_id == task_id)
+                .order_by(TaskAttemptModel.attempt_no.desc())
+                .all()
+            )
+            for attempt in attempts:
+                if verify_task_attempt_authority(
+                    task_attempt_authority,
+                    attempt.task_attempt_authority_sha256,
+                ):
+                    task = session.get(TaskModel, task_id)
+                    if task is None or task.deleted_at is not None:
+                        return None
+                    return AuthorizedTaskAttempt(task=task, task_attempt=attempt)
+
+            # Compatibility for attempts created before attempt authorities
+            # existed. New heartbeat-dispatched attempts always have a verifier.
+            if (
+                not task_attempt_authority
+                and len(attempts) == 1
+                and attempts[0].task_attempt_authority_sha256 is None
+            ):
+                task = session.get(TaskModel, task_id)
+                if task is not None and task.deleted_at is None:
+                    return AuthorizedTaskAttempt(task=task, task_attempt=attempts[0])
+        return None
+
     def transition_task(
         self, task_id: str, to_status: TaskStatus,
         reason: str, actor: Actor,
         metadata: dict[str, Any] | None = None,
+        *,
+        task_attempt_id: str | None = None,
     ) -> TaskModel:
         with self._write_session() as session:
             task = session.get(TaskModel, task_id)
@@ -386,6 +429,7 @@ class TaskMixin:
 
             self._transition_task_in_session(
                 session, task_id, to_status, reason, actor, metadata,
+                task_attempt_id=task_attempt_id,
             )
             task.status = to_status.value
             return task

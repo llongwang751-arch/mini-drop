@@ -3,6 +3,7 @@
 import json
 from typing import Any
 
+import grpc
 from google.protobuf.empty_pb2 import Empty
 
 from server.app.analysis_jobs import enqueue_artifact_analysis
@@ -23,8 +24,19 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
 
     def NotifyResult(self, request, context) -> Empty:
         task_id = request.task_id
-        getter = getattr(self._repo, "get_task", None)
-        task = getter(task_id) if callable(getter) else self._repo.tasks.get(task_id)
+        authorize = getattr(self._repo, "authorize_task_attempt_result", None)
+        authorized = (
+            authorize(task_id, request.task_attempt_authority)
+            if callable(authorize)
+            else None
+        )
+        if authorized is None:
+            context.abort(
+                grpc.StatusCode.UNAUTHENTICATED,
+                "invalid or expired task attempt authority",
+            )
+        task = authorized.task
+        task_attempt_id = authorized.task_attempt.id
         if task is not None:
             status = task.status.value if isinstance(task.status, TaskStatus) else task.status
             # A late collector result must not resurrect a user-cancelled task.
@@ -45,6 +57,7 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
             self._repo.transition_task(
                 task_id, TaskStatus.FAILED,
                 reason, Actor.AGENT,
+                task_attempt_id=task_attempt_id,
             )
             return Empty()
 
@@ -52,6 +65,7 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
         self._repo.transition_task(
             task_id, TaskStatus.UPLOADING,
             "采集完成，准备上传产物", Actor.AGENT,
+            task_attempt_id=task_attempt_id,
         )
 
         # 解析 artifact 元数据
@@ -67,7 +81,11 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
 
         artifact_ids: list[int] = []
         if artifacts:
-            persisted = self._repo.add_artifacts(task_id, artifacts)
+            persisted = self._repo.add_attempt_artifacts(
+                task_id,
+                task_attempt_id,
+                artifacts,
+            )
             if isinstance(persisted, list):
                 artifact_ids = persisted
 
@@ -75,14 +93,30 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
         self._repo.transition_task(
             task_id, TaskStatus.ANALYZING,
             "产物已记录，等待分析", Actor.SERVER,
+            task_attempt_id=task_attempt_id,
         )
-        analysis_job = enqueue_artifact_analysis(
-            self._repo,
-            task_id,
-            artifacts,
-            artifact_ids,
-            collector_type=getattr(task, "collector_type", None),
-        )
+        try:
+            analysis_job = enqueue_artifact_analysis(
+                self._repo,
+                task_id,
+                task_attempt_id,
+                artifacts,
+                artifact_ids,
+                collector_type=getattr(task, "collector_type", None),
+            )
+        except Exception as exc:
+            reason = _safe_text(
+                f"分析任务入队失败: {type(exc).__name__}",
+                max_length=MAX_ERROR_MESSAGE_LENGTH,
+            )
+            self._repo.transition_task(
+                task_id,
+                TaskStatus.FAILED,
+                reason,
+                Actor.ANALYZER,
+                task_attempt_id=task_attempt_id,
+            )
+            raise
         if analysis_job is not None:
             return Empty()
 
@@ -91,12 +125,17 @@ class HotmethodService(hotmethod_pb2_grpc.HotmethodServicer):
         if not _has_analysis_result(artifacts):
             generated_artifacts = analyze_raw_perf_artifacts(task_id, artifacts)
             if generated_artifacts:
-                self._repo.add_artifacts(task_id, generated_artifacts)
+                self._repo.add_attempt_artifacts(
+                    task_id,
+                    task_attempt_id,
+                    generated_artifacts,
+                )
                 artifacts.extend(generated_artifacts)
         if _has_analysis_result(artifacts):
             self._repo.transition_task(
                 task_id, TaskStatus.DONE,
                 _analysis_done_reason(artifacts), Actor.ANALYZER,
+                task_attempt_id=task_attempt_id,
             )
 
         return Empty()

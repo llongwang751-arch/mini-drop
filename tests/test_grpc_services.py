@@ -426,6 +426,73 @@ class TestHotmethodNotifyResult:
         fix.repo.transition_task(task.id, TaskStatus.RUNNING, "heartbeat", Actor.SERVER)
         return task.id
 
+    def _create_and_dispatch_task(self, fix: GrpcFixture) -> tuple[str, str]:
+        fix.init_stub.RegisterAgent(
+            init_pb2.RegisterAgentRequest(
+                agent_id=self.AGENT_ID,
+                hostname="h",
+                ip_addr=self.IP,
+            )
+        )
+        task = fix.repo.create_task(
+            CreateTaskRequest(
+                name="authorized-result-test",
+                agent_id=self.AGENT_ID,
+                target_pid=5678,
+                collector_type="sys_metrics",
+            )
+        )
+        response = fix.hc_stub.Do(
+            healthcheck_pb2.HealthCheckRequest(
+                agent_id=self.AGENT_ID,
+                ip_addr=self.IP,
+            )
+        )
+        assert response.pending is True
+        return task.id, response.task_desc.task_attempt_authority
+
+    def test_notify_binds_artifacts_to_authorized_task_attempt(
+        self,
+        grpc_fix: GrpcFixture,
+    ):
+        task_id, authority = self._create_and_dispatch_task(grpc_fix)
+
+        grpc_fix.hotmethod_stub.NotifyResult(
+            hotmethod_pb2.TaskResult(
+                task_id=task_id,
+                task_attempt_authority=authority,
+                artifact_metadata_json=(
+                    '[{"artifact_type":"sys_metrics",'
+                    '"filename":"sys_metrics.json"}]'
+                ),
+            )
+        )
+
+        assert grpc_fix.repo.tasks[task_id].status == TaskStatus.DONE
+        assert len(grpc_fix.repo.artifacts[task_id]) == 1
+
+    def test_notify_rejects_wrong_task_attempt_authority(
+        self,
+        grpc_fix: GrpcFixture,
+    ):
+        task_id, _ = self._create_and_dispatch_task(grpc_fix)
+
+        with pytest.raises(grpc.RpcError) as exc_info:
+            grpc_fix.hotmethod_stub.NotifyResult(
+                hotmethod_pb2.TaskResult(
+                    task_id=task_id,
+                    task_attempt_authority="0" * 64,
+                    artifact_metadata_json=(
+                        '[{"artifact_type":"sys_metrics",'
+                        '"filename":"sys_metrics.json"}]'
+                    ),
+                )
+            )
+
+        assert exc_info.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert grpc_fix.repo.tasks[task_id].status == TaskStatus.RUNNING
+        assert grpc_fix.repo.artifacts.get(task_id, []) == []
+
     def test_notify_success_transitions_to_analyzing(self, grpc_fix: GrpcFixture):
         task_id = self._create_and_start_task(grpc_fix)
         grpc_fix.hotmethod_stub.NotifyResult(

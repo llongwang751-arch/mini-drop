@@ -523,13 +523,49 @@ class InMemoryRepository:
         self, task_id: str, to_status: TaskStatus,
         reason: str, actor: Actor,
         metadata: dict[str, Any] | None = None,
+        *,
+        task_attempt_id: str | None = None,
     ) -> TaskRecord:
         """对指定任务执行一次状态迁移。"""
         with self._lock:
+            if task_attempt_id is not None:
+                attempts = self.task_attempts.get(task_id, [])
+                if not any(item.id == task_attempt_id for item in attempts):
+                    raise ValueError("TaskAttempt identity does not match task")
             task, _ = self._transition_task_in_lock(
                 task_id, to_status, reason, actor, metadata,
             )
             return task
+
+    def authorize_task_attempt_result(
+        self,
+        task_id: str,
+        task_attempt_authority: str,
+    ) -> AuthorizedTaskAttempt | None:
+        attempts = list(reversed(self.task_attempts.get(task_id, [])))
+        for attempt in attempts:
+            if verify_task_attempt_authority(
+                task_attempt_authority,
+                attempt.task_attempt_authority_sha256,
+            ):
+                task = self.tasks.get(task_id)
+                return (
+                    AuthorizedTaskAttempt(task=task, task_attempt=attempt)
+                    if task is not None
+                    else None
+                )
+        if (
+            not task_attempt_authority
+            and len(attempts) == 1
+            and attempts[0].task_attempt_authority_sha256 is None
+        ):
+            task = self.tasks.get(task_id)
+            return (
+                AuthorizedTaskAttempt(task=task, task_attempt=attempts[0])
+                if task is not None
+                else None
+            )
+        return None
 
     def _transition_task_in_lock(
         self,
@@ -646,6 +682,23 @@ class InMemoryRepository:
         """追加采集产物元数据。"""
         with self._lock:
             prepared = [prepare_artifact(task_id, item) for item in artifacts]
+            self.artifacts.setdefault(task_id, []).extend(prepared)
+
+    def add_attempt_artifacts(
+        self,
+        task_id: str,
+        task_attempt_id: str,
+        artifacts: list[dict[str, Any]],
+    ) -> None:
+        attempts = self.task_attempts.get(task_id, [])
+        if not any(item.id == task_attempt_id for item in attempts):
+            raise ValueError("TaskAttempt identity does not match task")
+        with self._lock:
+            prepared = []
+            for item in artifacts:
+                artifact = prepare_artifact(task_id, item)
+                artifact["task_attempt_id"] = task_attempt_id
+                prepared.append(artifact)
             self.artifacts.setdefault(task_id, []).extend(prepared)
 
     def get_artifacts(self, task_id: str) -> list[dict[str, Any]]:
