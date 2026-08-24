@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Collapse, Descriptions, Empty, Progress, Row, Space, Statistic, Steps, Tag, Typography, message } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Alert, Button, Card, Col, Collapse, Descriptions, Empty, Progress, Row, Segmented, Space, Statistic, Steps, Tag, Typography, message } from "antd";
 import { DeploymentUnitOutlined, ReloadOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import {
   evaluateDiagnosticSkill,
@@ -9,6 +9,7 @@ import {
   quarantineDiagnosticSkill,
   rollbackDiagnosticSkill,
 } from "../api/client";
+import "./SkillEvolutionPanel.css";
 
 const { Paragraph, Text } = Typography;
 
@@ -25,10 +26,34 @@ const GATE_LABEL = {
   ENVIRONMENT_DRIFT: "环境漂移降级",
 };
 
+const STATUS_LABEL = {
+  CANDIDATE: "候选",
+  ACTIVE: "已发布",
+  QUARANTINED: "已隔离",
+  RETIRED: "已退役",
+};
+
+const FILTER_OPTIONS = [
+  { label: "全部", value: "ALL" },
+  { label: "候选", value: "CANDIDATE" },
+  { label: "已发布", value: "ACTIVE" },
+  { label: "已隔离", value: "QUARANTINED" },
+];
+
+const INDEPENDENT_BENCHMARK = [
+  { key: "SIMILAR_INCIDENT", label: "相似事故", count: 5, purpose: "验证能否缩短已知问题的取证路径" },
+  { key: "MISLEADING_INCIDENT", label: "误导反例", count: 4, purpose: "验证不会因为表面症状相似而误用 Skill" },
+  { key: "ENVIRONMENT_DRIFT", label: "环境漂移", count: 2, purpose: "验证采集能力或环境变化时能够降级" },
+  { key: "WRONG_FEEDBACK", label: "错误反馈", count: 2, purpose: "验证负迁移会触发自动隔离" },
+  { key: "VERSION_ROLLBACK", label: "版本回滚", count: 1, purpose: "验证新版本失效后可恢复上一版" },
+  { key: "CONTAMINATED_EVIDENCE", label: "污染证据", count: 1, purpose: "验证缺失来源或校验失败的证据不能生成 Skill" },
+];
+
 export default function SkillEvolutionPanel() {
   const [skills, setSkills] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,18 +93,28 @@ export default function SkillEvolutionPanel() {
   const activeCount = skills.filter((item) => item.status === "ACTIVE").length;
   const quarantinedCount = skills.filter((item) => item.status === "QUARANTINED").length;
   const activationCount = skills.reduce((total, item) => total + (item.activation_count || 0), 0);
+  const visibleSkills = useMemo(
+    () => statusFilter === "ALL" ? skills : skills.filter((item) => item.status === statusFilter),
+    [skills, statusFilter],
+  );
 
   return (
     <Card
+      className="skill-plaza"
       size="small"
-      title={<Space><DeploymentUnitOutlined />诊断策略自进化</Space>}
+      title={(
+        <Space direction="vertical" size={0}>
+          <Space><DeploymentUnitOutlined /><span>诊断 Skill 广场</span></Space>
+          <Text type="secondary" className="skill-plaza-subtitle">把已验证的诊断流程沉淀成可评测、可发布、可回滚的能力</Text>
+        </Space>
+      )}
       extra={<Button icon={<ReloadOutlined />} loading={loading} onClick={load}>刷新</Button>}
     >
       <Alert
         showIcon
         type="info"
-        message="系统学习的是诊断策略，不是未经验证的答案"
-        description="结论经可信证据校验且人工确认正确后，系统才抽取候选技能；候选必须通过相似正例、误导反例和环境漂移门禁，发布后才能影响新诊断。连续负反馈会自动隔离，旧版本可回滚。"
+        message="这里展示的不是提示词模板，而是经过验证的诊断流程"
+        description="结论经可信证据校验且人工确认正确后，系统提取探针顺序、证据要求和停止条件形成候选 Skill。候选通过相似正例、误导反例和环境漂移门禁后才能发布；真实诊断中的负反馈会触发隔离，旧版本可以回滚。"
       />
       <Row gutter={[12, 12]} style={{ marginTop: 16 }}>
         <Col xs={12} md={6}><Card size="small"><Statistic title="候选策略" value={candidateCount} /></Card></Col>
@@ -99,24 +134,64 @@ export default function SkillEvolutionPanel() {
           { title: "监控回滚", description: "负迁移自动隔离" },
         ]}
       />
+      <Card className="skill-benchmark-card" size="small" title="独立难例评测 · 15 个未参与技能生成的案例">
+        <Alert
+          type="warning"
+          showIcon
+          message="发布门禁和效果评测是两件事"
+          description="三类门禁用于阻止明显不安全的候选发布；独立难例集用于比较启用 Skill 前后的根因准确率、反例拒绝率、工具调用数、诊断耗时、负迁移、隔离和回滚。测试案例与来源诊断严格分离，避免拿训练样本给自己打分。"
+        />
+        <div className="skill-benchmark-grid">
+          {INDEPENDENT_BENCHMARK.map((item) => (
+            <div className="skill-benchmark-item" key={item.key}>
+              <div><b>{item.count}</b><span>例</span></div>
+              <Text strong>{item.label}</Text>
+              <Text type="secondary">{item.purpose}</Text>
+            </div>
+          ))}
+        </div>
+        <Text className="skill-benchmark-boundary" type="secondary">
+          当前仓库提供确定性离线回放；真实根因准确率和实际耗时仍需在 Linux 故障 Campaign 中，用基线、故障、恢复三段快照复核。
+        </Text>
+      </Card>
+      <div className="skill-plaza-toolbar">
+        <div>
+          <Text strong>能力目录</Text>
+          <Text type="secondary"> · 每张卡片都能追溯到来源诊断和门禁记录</Text>
+        </div>
+        <Segmented value={statusFilter} options={FILTER_OPTIONS} onChange={setStatusFilter} />
+      </div>
       {skills.length === 0 ? (
         <Empty description="还没有候选技能。完成一次有可信证据的诊断并选择“结论正确”后，系统会自动生成候选。" />
+      ) : visibleSkills.length === 0 ? (
+        <Empty description="当前筛选条件下没有 Skill" />
       ) : (
         <Collapse
+          className="skill-plaza-list"
           onChange={(keys) => keys.forEach(openDetail)}
-          items={skills.map((skill) => {
+          items={visibleSkills.map((skill) => {
             const detail = details[skill.skill_id];
             const metrics = skill.gate_metrics || {};
             const route = skill.strategy?.probe_order || [];
+            const gatePercent = metrics.total ? Math.round((metrics.passed / metrics.total) * 100) : 0;
             return {
               key: skill.skill_id,
               label: (
-                <Space wrap>
-                  <Text strong>{skill.category}</Text>
-                  <Tag>v{skill.version}</Tag>
-                  <Tag color={STATUS_COLOR[skill.status]}>{skill.status}</Tag>
-                  <Text type="secondary">{route.join(" → ") || "待提取路线"}</Text>
-                </Space>
+                <div className="skill-card-label">
+                  <div className="skill-card-heading">
+                    <Space wrap>
+                      <Text strong>{skill.category}</Text>
+                      <Tag>v{skill.version}</Tag>
+                      <Tag color={STATUS_COLOR[skill.status]}>{STATUS_LABEL[skill.status] || skill.status}</Tag>
+                    </Space>
+                    <Text className="skill-route" type="secondary">{route.join(" → ") || "待提取取证路线"}</Text>
+                  </div>
+                  <div className="skill-card-metrics">
+                    <span><b>{gatePercent}%</b> 门禁</span>
+                    <span><b>{skill.activation_count || 0}</b> 次命中</span>
+                    <span><b>{skill.wrong_outcome_count || 0}</b> 次负反馈</span>
+                  </div>
+                </div>
               ),
               children: (
                 <Space direction="vertical" style={{ width: "100%" }} size={12}>
@@ -131,7 +206,7 @@ export default function SkillEvolutionPanel() {
                     </Descriptions.Item>
                   </Descriptions>
                   <Progress
-                    percent={metrics.total ? Math.round((metrics.passed / metrics.total) * 100) : 0}
+                    percent={gatePercent}
                     status={metrics.eligible ? "success" : "normal"}
                     format={() => metrics.total ? `${metrics.passed}/${metrics.total} 门禁` : "未评测"}
                   />
@@ -149,7 +224,7 @@ export default function SkillEvolutionPanel() {
                       type={item.passed ? "success" : "error"}
                       showIcon
                       message={`${GATE_LABEL[item.case_kind] || item.case_kind}：${item.passed ? "通过" : "失败"}`}
-                      description={<Text code>{JSON.stringify(item.details)}</Text>}
+                      description={<Text className="skill-gate-detail" code>{JSON.stringify(item.details)}</Text>}
                     />
                   ))}
                   {detail?.activations?.length > 0 && (

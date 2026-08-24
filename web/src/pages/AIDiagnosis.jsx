@@ -466,7 +466,7 @@ export default function AIDiagnosis() {
       if (payload.feedback_label === "correct") {
         try {
           await createDiagnosticSkillCandidate(selectedId);
-          message.success("已从这次验证轨迹生成候选诊断技能，请到“方法与测试集”运行门禁");
+          message.success("已从这次验证轨迹生成候选诊断技能，请到“验证中心”运行门禁");
         } catch (skillError) {
           message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
         }
@@ -504,7 +504,7 @@ export default function AIDiagnosis() {
           </Paragraph>
           <Segmented
             block
-            options={[{ label: "诊断工作台", value: "workspace" }, { label: "方法与测试集", value: "evaluation" }]}
+            options={[{ label: "诊断工作台", value: "workspace" }, { label: "验证中心", value: "evaluation" }]}
             value={workspaceView}
             onChange={setWorkspaceView}
           />
@@ -535,7 +535,7 @@ export default function AIDiagnosis() {
         title={
           <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
             <Text strong ellipsis>
-              {workspaceView === "evaluation" ? "AI 诊断方法与统一测试集" : (detail?.query || selectedCase?.query || "新诊断")}
+              {workspaceView === "evaluation" ? "AI 诊断验证中心" : (detail?.query || selectedCase?.query || "新诊断")}
             </Text>
             {workspaceView === "workspace" && selectedCase && (
               <Space wrap>
