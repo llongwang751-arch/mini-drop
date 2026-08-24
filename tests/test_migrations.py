@@ -834,6 +834,51 @@ def test_task_attempt_lineage_migration_lifecycle(tmp_path: Path) -> None:
     engine.dispose()
 
 
+def test_analysis_artifact_repair_recovers_stamped_schema_drift(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "migration.db"
+    _alembic(tmp_path, "upgrade 20260824_0032")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    with engine.begin() as connection:
+        connection.execute(text("DROP TABLE analysis_job_output_artifacts"))
+        connection.execute(text("DROP TABLE analysis_job_input_artifacts"))
+    engine.dispose()
+
+    _alembic(tmp_path, "upgrade head")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    inspector = inspect(engine)
+    tables = set(inspector.get_table_names())
+    assert {
+        "analysis_job_input_artifacts",
+        "analysis_job_output_artifacts",
+        "migration_20260825_0033_ownership",
+    } <= tables
+    assert {
+        "ix_analysis_job_input_artifacts_analysis_job_id",
+        "ix_analysis_job_input_artifacts_artifact_id",
+    } <= {
+        item["name"]
+        for item in inspector.get_indexes("analysis_job_input_artifacts")
+    }
+    engine.dispose()
+
+    _alembic(tmp_path, "downgrade 20260824_0032")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    assert not {
+        "analysis_job_input_artifacts",
+        "analysis_job_output_artifacts",
+        "migration_20260825_0033_ownership",
+    } & set(inspect(engine).get_table_names())
+    engine.dispose()
+
+
 def test_task_attempt_lineage_migration_rejects_duplicate_authority(
     tmp_path: Path,
 ) -> None:
