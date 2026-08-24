@@ -394,6 +394,54 @@ class TestProcessAttestation:
             binding, now=received_at - timedelta(microseconds=1)
         )
 
+    def test_later_snapshot_reaffirms_same_immutable_process_binding(
+        self, repo: SqlRepository
+    ):
+        agent_id, _ = _register_process_agent(repo)
+        timestamp = now_utc()
+        first = repo.record_process_candidate_snapshot(
+            agent_id, _process_snapshot(generation=1), received_at=timestamp
+        )
+        binding = first.candidates[0].binding()
+        second = repo.record_process_candidate_snapshot(
+            agent_id,
+            _process_snapshot(generation=2),
+            received_at=timestamp + timedelta(seconds=5),
+        )
+
+        assert first.snapshot_id != second.snapshot_id
+        assert repo.validate_process_binding(
+            binding, now=timestamp + timedelta(seconds=5)
+        )
+
+    def test_snapshot_retention_prunes_unreferenced_heartbeat_history(
+        self, repo: SqlRepository, monkeypatch
+    ):
+        from server.app.database import new_session
+        from server.app.models import ProcessCandidateSnapshotModel
+
+        monkeypatch.setenv("MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT", "2")
+        agent_id, _ = _register_process_agent(repo)
+        timestamp = now_utc()
+        for generation in range(1, 5):
+            repo.record_process_candidate_snapshot(
+                agent_id,
+                _process_snapshot(generation=generation),
+                received_at=timestamp + timedelta(seconds=generation),
+            )
+
+        session = new_session()
+        try:
+            rows = (
+                session.query(ProcessCandidateSnapshotModel)
+                .filter(ProcessCandidateSnapshotModel.agent_id == agent_id)
+                .order_by(ProcessCandidateSnapshotModel.generation.asc())
+                .all()
+            )
+            assert [row.generation for row in rows] == [3, 4]
+        finally:
+            session.close()
+
     @pytest.mark.parametrize(
         ("field", "value"),
         [
@@ -707,6 +755,38 @@ class TestRCAPersistence:
 
 
 class TestTaskCancellationPersistence:
+    def test_expired_running_attempt_is_failed_by_maintenance(self, repo: SqlRepository):
+        from server.app.database import new_session
+        from server.app.models import TaskAttemptModel
+
+        agent_id = "lease_expiry_agent"
+        repo.register_agent(agent_id, "h", "10.0.8.9")
+        task = repo.create_task(CreateTaskRequest(
+            name="expired-lease-task",
+            agent_id=agent_id,
+            target_pid=399,
+            collector_type="sys_metrics",
+            duration_sec=5,
+        ))
+        repo.transition_task(task.id, TaskStatus.RUNNING, "Agent claimed", Actor.SERVER)
+        session = new_session()
+        attempt = session.query(TaskAttemptModel).filter_by(task_id=task.id).one()
+        attempt.lease_expires_at = now_utc() - timedelta(seconds=1)
+        session.commit()
+        session.close()
+
+        expired = repo.expire_stale_task_leases(timestamp=now_utc())
+
+        assert expired == [task.id]
+        persisted = repo.get_task(task.id)
+        assert persisted.status == TaskStatus.FAILED.value
+        assert persisted.collection_status == CollectionStatus.FAILED.value
+        assert repo.get_task_attempts(task.id)[0].status == TaskStatus.FAILED.value
+        assert any(
+            item.event_type == "TASK_LEASE_EXPIRED" and item.task_id == task.id
+            for item in repo.audit_logs
+        )
+
     def test_cancel_task_persists_terminal_state_event_and_audit(self, repo: SqlRepository):
         agent_id = "cancel_agent"
         repo.register_agent(agent_id, "h", "10.0.8.1")

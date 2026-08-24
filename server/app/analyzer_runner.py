@@ -358,11 +358,19 @@ def _read_top_functions(output_dir: Path) -> list[dict]:
         for row in payload[:20]:
             if not isinstance(row, dict) or not isinstance(row.get("name"), str):
                 continue
-            result.append({
+            normalized = {
                 "name": row["name"][:512],
                 "samples": max(0, int(row.get("samples") or 0)),
                 "percent": max(0.0, min(100.0, float(row.get("percent") or 0))),
-            })
+            }
+            if isinstance(row.get("file"), str) and row["file"]:
+                normalized["file"] = row["file"][:1024]
+            try:
+                if int(row.get("line") or 0) > 0:
+                    normalized["line"] = int(row["line"])
+            except (TypeError, ValueError):
+                pass
+            result.append(normalized)
         return result
     except (OSError, ValueError, TypeError, json.JSONDecodeError):
         return []

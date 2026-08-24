@@ -45,6 +45,7 @@ class CreateDiagnosisRequestV2(StrictModel):
     query: str = Field(min_length=3, max_length=2000)
     target: DiagnosticTarget = Field(default_factory=DiagnosticTarget)
     time_range: DiagnosticTimeRange | None = None
+    auto_scope: bool = False
     mode: Literal["ASSISTED", "OBSERVE_ONLY", "REPRODUCTION", "REPLAY"] = "ASSISTED"
     budget: DiagnosisBudget = Field(default_factory=DiagnosisBudget)
 

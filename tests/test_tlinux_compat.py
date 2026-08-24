@@ -1,4 +1,5 @@
 from agent.mini_drop_agent.platform_compat import (
+    KNOWN_COLLECTORS,
     build_compatibility_report,
     detect_host_platform,
     parse_os_release,
@@ -65,3 +66,32 @@ def test_unknown_tlinux_generation_is_rejected_by_preflight_report():
         path_exists=lambda _: False,
     )
     assert report["supported_tlinux_generation"] is False
+
+
+def test_tlinux_matrix_preserves_generation_kernel_and_architecture():
+    matrix = {
+        2: ("5.4.241-tlinux", "x86_64", "yum"),
+        3: ("5.4.241-tlinux3", "x86_64", "dnf"),
+        4: ("6.6.90-tlinux4", "aarch64", "dnf"),
+    }
+    for major, (kernel, architecture, package_manager) in matrix.items():
+        report = build_compatibility_report(
+            ["go_pprof", "sys_metrics"],
+            os_release_text=TLINUX_RELEASES[major],
+            which=_which_for(package_manager),
+            path_exists=lambda path: path == "/proc/self/status",
+            kernel_release=kernel,
+            architecture=architecture,
+        )
+        assert report["supported_tlinux_generation"] is True
+        assert report["host"]["tlinux_generation"] == major
+        assert report["host"]["kernel_release"] == kernel
+        assert report["host"]["architecture"] == architecture
+        assert report["host"]["package_manager"] == package_manager
+        assert set(report["available_collectors"]) == {"go_pprof", "sys_metrics"}
+
+
+def test_preflight_collector_names_match_agent_registry():
+    from agent.mini_drop_agent.main import COLLECTORS
+
+    assert set(KNOWN_COLLECTORS) == set(COLLECTORS)

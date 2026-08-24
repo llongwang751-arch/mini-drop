@@ -197,6 +197,57 @@ def _remove_effect_schema(connection, table_name: str) -> None:
     )
 
 
+def _remove_named_table_constraint(
+    connection,
+    table_name: str,
+    constraint_name: str,
+) -> None:
+    indexes = inspect(connection).get_indexes(table_name)
+    sql = connection.execute(text(
+        "SELECT sql FROM sqlite_master "
+        "WHERE type = 'table' AND name = :table_name"
+    ), {"table_name": table_name}).scalar_one()
+    sql = re.sub(
+        rf",\s*CONSTRAINT {re.escape(constraint_name)} "
+        r"(?:UNIQUE \([^)]*\)|FOREIGN KEY\([^)]*\) "
+        r"REFERENCES [^( ]+ \([^)]*\))",
+        "",
+        sql,
+        count=1,
+    )
+    assert constraint_name not in sql
+    legacy_name = f"{table_name}_legacy"
+    connection.execute(text(sql.replace(
+        f"CREATE TABLE {table_name}",
+        f"CREATE TABLE {legacy_name}",
+        1,
+    )))
+    quote = connection.dialect.identifier_preparer.quote
+    columns = [
+        item["name"] for item in inspect(connection).get_columns(table_name)
+    ]
+    selected = ", ".join(quote(name) for name in columns)
+    connection.execute(text(
+        f"INSERT INTO {quote(legacy_name)} ({selected}) "
+        f"SELECT {selected} FROM {quote(table_name)}"
+    ))
+    connection.execute(text(f"DROP TABLE {quote(table_name)}"))
+    connection.execute(text(
+        f"ALTER TABLE {quote(legacy_name)} RENAME TO {quote(table_name)}"
+    ))
+    for index in indexes:
+        name = index.get("name")
+        index_columns = index.get("column_names") or []
+        if not name or not index_columns:
+            continue
+        unique = "UNIQUE " if index.get("unique") else ""
+        selected = ", ".join(quote(column) for column in index_columns)
+        connection.execute(text(
+            f"CREATE {unique}INDEX {quote(name)} "
+            f"ON {quote(table_name)} ({selected})"
+        ))
+
+
 def test_fresh_session_initialization_does_not_deadlock(monkeypatch, tmp_path):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'fresh.db'}")
     reset_engine()
@@ -709,6 +760,78 @@ def test_managed_schema_rejects_missing_effect_identity(monkeypatch, tmp_path):
             r"\(diagnosis_id, effect_key\)"
         ),
     ):
+        init_db()
+    reset_engine()
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    [
+        (
+            "column",
+            "analysis_job_input_artifacts missing columns: created_at",
+        ),
+        (
+            "index",
+            "analysis_jobs missing or incompatible indexes: "
+            "ix_analysis_jobs_task_attempt_id",
+        ),
+        (
+            "identity",
+            "artifacts missing unique identities: "
+            r"\(id, task_id, task_attempt_id\)",
+        ),
+        (
+            "foreign-key",
+            "analysis_jobs missing composite foreign keys: "
+            r"\(task_attempt_id, task_id\)->task_attempts\(id, task_id\)",
+        ),
+    ],
+)
+def test_managed_schema_rejects_incomplete_task_attempt_lineage(
+    monkeypatch,
+    tmp_path,
+    mutation,
+    expected,
+):
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        f"sqlite:///{tmp_path / ('managed-lineage-' + mutation + '.db')}",
+    )
+    monkeypatch.delenv("MINI_DROP_SCHEMA_MANAGED", raising=False)
+    reset_engine()
+    init_db()
+    engine = _get_engine()
+    _install_managed_revision(engine)
+    with engine.begin() as connection:
+        if mutation == "column":
+            connection.execute(text(
+                "ALTER TABLE analysis_job_input_artifacts "
+                "DROP COLUMN created_at"
+            ))
+        elif mutation == "index":
+            connection.execute(text(
+                "DROP INDEX ix_analysis_jobs_task_attempt_id"
+            ))
+            connection.execute(text(
+                "CREATE INDEX ix_analysis_jobs_task_attempt_id "
+                "ON analysis_jobs (task_id)"
+            ))
+        elif mutation == "identity":
+            _remove_named_table_constraint(
+                connection,
+                "artifacts",
+                "uq_artifact_attempt_identity",
+            )
+        else:
+            _remove_named_table_constraint(
+                connection,
+                "analysis_jobs",
+                "fk_analysis_jobs_task_attempt_identity",
+            )
+
+    monkeypatch.setenv("MINI_DROP_SCHEMA_MANAGED", "1")
+    with pytest.raises(RuntimeError, match=expected):
         init_db()
     reset_engine()
 

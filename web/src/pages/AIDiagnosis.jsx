@@ -405,7 +405,7 @@ export default function AIDiagnosis() {
     }
     setSending(true);
     try {
-      const created = await createDropInsightDiagnosis({ query: text, mode: "ASSISTED" });
+      const created = await createDropInsightDiagnosis({ query: text, mode: "ASSISTED", auto_scope: true });
       const item = normalizeCase({ ...created, query: text, status: created.status || "CREATED" }, true);
       setQuery("");
       setSelectedCase(item);

@@ -50,6 +50,10 @@ def generate_candidates(
             missing_evidence=_detect_missing_evidence(candidate_id, evidence),
         ))
 
+    external_candidate = _build_external_evidence_candidate(evidence)
+    if external_candidate is not None:
+        candidates.append(external_candidate)
+
     candidates.sort(key=lambda item: item.rule_score, reverse=True)
     if not candidates:
         candidates.append(CandidateCause(
@@ -60,6 +64,37 @@ def generate_candidates(
             missing_evidence=["更长的采样时长", "多采集器交叉验证", "历史基线对比"],
         ))
     return candidates
+
+
+def _build_external_evidence_candidate(evidence: EvidenceInput) -> CandidateCause | None:
+    """Expose imported, provenance-checked evidence to the reasoning stage.
+
+    External replay packs and integrations can carry evidence kinds that are
+    intentionally broader than the built-in perf/eBPF rules.  Treating those
+    records as ``insufficient_data`` makes the candidate whitelist discard
+    perfectly usable evidence.  This generic candidate does not infer a root
+    cause; it only permits the model to synthesize a bounded hypothesis from
+    the successful evidence records already admitted by the evidence layer.
+    """
+    successful = [
+        item for item in evidence.tool_results
+        if item.get("status") == "success" and item.get("evidence_ref")
+    ]
+    if not successful:
+        return None
+
+    refs = list(dict.fromkeys(str(item["evidence_ref"]) for item in successful))
+    kinds = list(dict.fromkeys(str(item.get("tool_name") or "structured evidence") for item in successful))
+    return CandidateCause(
+        candidate_id="external_evidence_synthesis",
+        description=(
+            "综合已通过完整性校验的外部结构化证据定位责任边界与具体机制；"
+            f"可用证据类型: {', '.join(kinds)}"
+        ),
+        evidence_refs=refs,
+        rule_score=min(0.55 + 0.08 * len(refs), 0.87),
+        missing_evidence=[],
+    )
 
 
 _rules_mtime_cache: dict[str, float] = {}

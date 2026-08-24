@@ -3,13 +3,16 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from pydantic import ValidationError
 from sqlalchemy import func
 
 from server.app.database import new_session
+from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.models import (
     DiagnosticSkillActivationModel,
     DiagnosticSkillEvaluationModel,
     DiagnosticSkillModel,
+    DropInsightEvidenceModel,
     DropInsightFeedbackModel,
     DropInsightReportModel,
     DropInsightSessionModel,
@@ -27,6 +30,23 @@ _TOOL_CATEGORY = {
     "collect_network_diagnostics": "NETWORK_DEGRADATION",
 }
 _MATCH_THRESHOLD = 700
+_GENERIC_ROUTE_CATEGORIES = {"SYSTEM_RESOURCE"}
+_SUBSYSTEM_CATEGORY = {
+    "cpu": "CPU_HOTSPOT",
+    "python": "PYTHON_RUNTIME",
+    "storage": "IO_LATENCY",
+    "io": "IO_LATENCY",
+    "jvm": "JVM_GC",
+    "database": "DATABASE_LOCK",
+    "network": "NETWORK_DEGRADATION",
+}
+_TOOL_REQUIRED_CAPABILITIES = {
+    "collect_sys_metrics": {"sys_metrics"},
+    "start_perf_profile": {"perf_cpu"},
+    "start_ebpf_io_profile": {"ebpf_io"},
+    "start_pyspy_profile": {"pyspy"},
+    "collect_database_diagnostics": {"database_lock"},
+}
 
 
 def _now() -> datetime:
@@ -43,6 +63,85 @@ def _category_for_route(route: list[str]) -> str:
 def _family_key(category: str, target: dict) -> str:
     environment = str(target.get("environment") or "*").strip().lower()
     return f"{category.lower()}:{environment}"
+
+
+def _route_compatible(category: str, baseline_tool: str, target: dict) -> tuple[bool, dict]:
+    baseline_category = _TOOL_CATEGORY.get(baseline_tool)
+    if (
+        baseline_category
+        and baseline_category not in _GENERIC_ROUTE_CATEGORIES
+        and baseline_category != category
+    ):
+        return False, {
+            "route_conflict": "baseline_tool",
+            "baseline_category": baseline_category,
+            "skill_category": category,
+        }
+
+    subsystem = str(target.get("suspected_subsystem") or "").strip().lower()
+    subsystem_category = _SUBSYSTEM_CATEGORY.get(subsystem)
+    if subsystem_category and subsystem_category != category:
+        return False, {
+            "route_conflict": "suspected_subsystem",
+            "subsystem": subsystem,
+            "subsystem_category": subsystem_category,
+            "skill_category": category,
+        }
+    return True, {}
+
+
+def _tool_available(tool_name: str, target: dict) -> bool:
+    required = _TOOL_REQUIRED_CAPABILITIES.get(tool_name, set())
+    denied = {str(item) for item in (target.get("permission_denied") or [])}
+    if required.intersection(denied):
+        return False
+    if "collector_capabilities" not in target:
+        return True
+    available = {str(item) for item in (target.get("collector_capabilities") or [])}
+    return required.issubset(available)
+
+
+def _validate_report_evidence(session, diagnosis_id: str, report: DropInsightReportModel) -> None:
+    supporting_refs = list(report.evidence_refs_json or [])
+    counter_refs = list(report.counter_evidence_refs_json or [])
+    refs = supporting_refs + counter_refs
+    if not supporting_refs:
+        raise ValueError("报告没有可信 evidence 引用，不能沉淀技能")
+    if len(refs) != len(set(refs)):
+        raise ValueError("报告 evidence 引用重复，无法确认 provenance")
+
+    rows = (
+        session.query(DropInsightEvidenceModel)
+        .filter(DropInsightEvidenceModel.id.in_(refs))
+        .all()
+    )
+    by_id = {row.id: row for row in rows}
+    missing = [ref for ref in refs if ref not in by_id]
+    if missing:
+        raise ValueError(f"evidence 引用不存在或不可追溯: {missing}")
+
+    for ref in refs:
+        evidence = by_id[ref]
+        if evidence.diagnosis_id != diagnosis_id:
+            raise ValueError(f"evidence provenance 与诊断不匹配: {ref}")
+        if evidence.hypothesis_id != report.hypothesis_id:
+            raise ValueError(f"evidence provenance 与报告假设不匹配: {ref}")
+        try:
+            envelope = EvidenceEnvelope.model_validate(evidence.envelope_json)
+        except ValidationError as exc:
+            raise ValueError(f"evidence envelope integrity 校验失败: {ref}") from exc
+        if envelope.evidence_id != ref or envelope.diagnosis_id != diagnosis_id:
+            raise ValueError(f"evidence envelope provenance 不匹配: {ref}")
+
+        computed = classify_evidence(envelope)
+        stored = evidence.classification_json or {}
+        if (
+            computed.get("decision") != "ACCEPT_SUPPORT"
+            or computed.get("can_support_conclusion") is not True
+            or stored.get("decision") != "ACCEPT_SUPPORT"
+            or stored.get("can_support_conclusion") is not True
+        ):
+            raise ValueError(f"evidence provenance 或 integrity 不足以支持结论: {ref}")
 
 
 def _match_score(skill: DiagnosticSkillModel, category: str, target: dict) -> tuple[int, dict]:
@@ -155,14 +254,19 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             raise ValueError("只有通过证据完整性校验的诊断才能沉淀技能")
         if not (report.evidence_refs_json or []):
             raise ValueError("报告没有可信证据引用，不能沉淀技能")
+        _validate_report_evidence(session, diagnosis_id, report)
         feedback = (
             session.query(DropInsightFeedbackModel)
-            .filter(DropInsightFeedbackModel.diagnosis_id == diagnosis_id)
+            .filter(
+                DropInsightFeedbackModel.diagnosis_id == diagnosis_id,
+                DropInsightFeedbackModel.report_id == report.id,
+                DropInsightFeedbackModel.feedback_label == "correct",
+            )
             .order_by(DropInsightFeedbackModel.created_at.desc())
             .first()
         )
-        if feedback is None or feedback.feedback_label != "correct":
-            raise ValueError("需要人工确认结论正确后才能沉淀技能")
+        if feedback is None:
+            raise ValueError("需要人工确认当前报告结论正确后才能沉淀技能")
         existing_candidate = (
             session.query(DiagnosticSkillModel)
             .filter(DiagnosticSkillModel.source_diagnosis_ids_json == [diagnosis_id])
@@ -255,10 +359,20 @@ def evaluate_skill(skill_id: str) -> dict:
             and route
             and positive_score >= _MATCH_THRESHOLD
         )
-        negative_score, _ = _match_score(
-            skill, "MISLEADING_OTHER_CATEGORY", source_target
+        misleading_tool = next(
+            (
+                tool_name
+                for tool_name, tool_category in _TOOL_CATEGORY.items()
+                if tool_category not in _GENERIC_ROUTE_CATEGORIES
+                and tool_category != skill.category
+            ),
+            "collect_sys_metrics",
         )
-        negative_pass = negative_score < _MATCH_THRESHOLD
+        negative_pass, negative_reason = _route_compatible(
+            skill.category, misleading_tool, source_target
+        )
+        negative_score = 0 if not negative_pass else positive_score
+        negative_pass = not negative_pass
         drift_target = dict(source.target_json or {}) if source else {}
         drift_target["environment"] = "__incompatible_environment__"
         drift_score, _ = _match_score(skill, skill.category, drift_target)
@@ -275,7 +389,7 @@ def evaluate_skill(skill_id: str) -> dict:
                     "match_reason": positive_reason,
                 },
             ),
-            ("MISLEADING_NEGATIVE", negative_pass, 1000 if negative_pass else 0, {"match_score": negative_score, "expected": "ABSTAIN"}),
+            ("MISLEADING_NEGATIVE", negative_pass, 1000 if negative_pass else 0, {"match_score": negative_score, "match_reason": negative_reason, "expected": "ABSTAIN"}),
             ("ENVIRONMENT_DRIFT", drift_pass, 1000 if drift_pass else 0, {"match_score": drift_score, "expected": "FALLBACK"}),
         ]
         session.query(DiagnosticSkillEvaluationModel).filter(
@@ -378,6 +492,11 @@ def rollback_skill(skill_id: str) -> dict:
 
 
 def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dict) -> dict | None:
+    baseline_tool = plan["tool_name"]
+    compatible, _ = _route_compatible(category, baseline_tool, target)
+    if not compatible:
+        return None
+
     session = new_session()
     try:
         skills = session.query(DiagnosticSkillModel).filter(
@@ -392,7 +511,6 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
             return None
         (score, reasons), skill = ranked[0]
         route = (skill.strategy_json or {}).get("probe_order") or []
-        baseline_tool = plan["tool_name"]
         completed_tools = {
             item[0]
             for item in session.query(DropInsightToolCallModel.tool_name)
@@ -403,9 +521,15 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
             .all()
         }
         selected_tool = next(
-            (tool_name for tool_name in route if tool_name not in completed_tools),
-            baseline_tool,
+            (
+                tool_name
+                for tool_name in route
+                if tool_name not in completed_tools and _tool_available(tool_name, target)
+            ),
+            None,
         )
+        if selected_tool is None:
+            return None
         timestamp = _now()
         activation = DiagnosticSkillActivationModel(
             id=f"skill_activation_{uuid4().hex}", skill_id=skill.id,

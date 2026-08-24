@@ -5,6 +5,7 @@ name: mini-drop-cloud-control
 services:
   postgres:
     image: postgres:16
+    hostname: mini-drop-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-mini_drop}
       POSTGRES_USER: ${POSTGRES_USER:-mini_drop}
@@ -87,12 +88,13 @@ services:
       MINI_DROP_AI_BASE_URL: ${MINI_DROP_AI_BASE_URL:-https://api.deepseek.com}
       MINI_DROP_AI_API_KEY: ${MINI_DROP_AI_API_KEY:-}
       MINI_DROP_AI_MODEL: ${MINI_DROP_AI_MODEL:-deepseek-chat}
+      MINI_DROP_DATABASE_SERVICE: ${MINI_DROP_DATABASE_SERVICE:-mini-drop-postgres}
       # The real-fault Campaign runs against allow-listed demo services on the
       # same private Compose network.  These are deliberately not published to
       # the Internet; only the control plane can operate their bounded switches.
       MINI_DROP_CAMPAIGN_TARGET_URL: http://python-hotspot:8081
       MINI_DROP_CAMPAIGN_JAVA_TARGET_URL: http://java-hotspot:7070
-      MINI_DROP_SOURCE_ROOTS: /workspace-otel/src/ad:/workspace-otel/src/email
+      MINI_DROP_SOURCE_ROOTS: /workspace-source/demo/python-hotspot:/workspace-otel/src/ad:/workspace-otel/src/email
     ports:
       - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_GRPC_PORT:-50051}:50051"
     volumes:
@@ -214,6 +216,7 @@ services:
       MINIO_SECURE: "0"
       AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
       AGENT_RESULT_OUTBOX_MAX_ENTRIES: 256
+      MINI_DROP_DATABASE_DIAGNOSTIC_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
     volumes:
       - ./deploy/certs:/certs:ro
       - /sys/kernel/tracing:/sys/kernel/tracing
@@ -243,6 +246,7 @@ services:
     build:
       context: demo/python-hotspot
     pid: host
+    hostname: python-hotspot
     environment:
       CPU_HOTSPOT_ACTIVE: "1"
       DOWNSTREAM_URL: http://downstream-service:8082
@@ -262,6 +266,7 @@ services:
   downstream-service:
     build:
       context: demo/downstream-service
+    hostname: downstream-service
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8082/health', timeout=2)"]
       interval: 5s
@@ -272,6 +277,7 @@ services:
   network-proxy:
     build:
       context: demo/network-proxy
+    hostname: network-proxy
     environment:
       UPSTREAM_URL: http://downstream-service:8082
     depends_on:
@@ -287,6 +293,7 @@ services:
   java-hotspot:
     build:
       context: demo/java-hotspot
+    hostname: java-hotspot
     pid: host
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/7070; printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"]

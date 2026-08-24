@@ -48,6 +48,7 @@ ANALYSIS_READY_TYPES = {
     "memory_json",
     "pprof_raw",
     "sys_metrics",
+    "database_locks_json",
 }
 
 
@@ -79,8 +80,9 @@ def artifact_input_checksum(artifacts: list[dict[str, Any]]) -> str:
 def enqueue_artifact_analysis(
     repo: Any,
     task_id: str,
+    task_attempt_id: str,
     artifacts: list[dict[str, Any]],
-    artifact_ids: list[int] | None = None,
+    artifact_ids: list[int],
     *,
     collector_type: str | None = None,
 ):
@@ -94,12 +96,17 @@ def enqueue_artifact_analysis(
         if collector_type
         else None
     )
+    if not task_attempt_id:
+        raise ValueError("task_attempt_id is required")
+    if not artifact_ids:
+        raise ValueError("artifact_ids must not be empty")
     return enqueue(
         task_id,
+        task_attempt_id=task_attempt_id,
         analyzer_type=contract.analyzer_type if contract else ANALYZER_TYPE,
         analyzer_version=contract.analyzer_version if contract else ANALYZER_VERSION,
         input_checksum=artifact_input_checksum(artifacts),
-        input_artifact_ids=artifact_ids or [],
+        input_artifact_ids=list(artifact_ids),
         max_retries=int(os.getenv("MINI_DROP_ANALYZER_MAX_RETRIES", "3")),
     )
 
@@ -326,7 +333,19 @@ class AnalysisWorker:
         )
         heartbeat.start()
         try:
-            artifacts = self.repo.get_artifacts(job.task_id)
+            if not job.task_attempt_id:
+                raise ValueError("AnalysisJob has no exact TaskAttempt lineage")
+            artifacts = self.repo.get_analysis_job_input_artifacts(job.id)
+            artifact_ids = [int(item["id"]) for item in artifacts]
+            if artifact_ids != list(job.input_artifact_ids_json or []):
+                raise ValueError("AnalysisJob input bindings do not match declared inputs")
+            if any(
+                artifact.get("task_id") != job.task_id
+                or artifact.get("task_attempt_id") != job.task_attempt_id
+                or artifact.get("analysis_job_id") is not None
+                for artifact in artifacts
+            ):
+                raise ValueError("AnalysisJob input artifact lineage mismatch")
             for artifact in artifacts:
                 status, reason = verify_artifact_bytes(artifact)
                 marker = getattr(self.repo, "mark_artifact_integrity", None)
@@ -453,6 +472,8 @@ def _done_reason(artifacts: list[dict[str, Any]]) -> str:
         return "eBPF IO 延迟分布已生成"
     if "sys_metrics" in types:
         return "系统多维指标分析已生成"
+    if "database_locks_json" in types:
+        return "数据库锁等待与阻塞关系快照已生成"
     if "memory_json" in types:
         return "内存时间序列分析已生成"
     if "continuous_summary" in types:
@@ -474,6 +495,7 @@ def _collector_done_reason(collector_type: str) -> str:
         "go_pprof": "Go pprof 数据已通过产物契约验证",
         "memory_smaps": "进程内存趋势已通过产物契约验证",
         "sys_metrics": "系统多维指标已通过 sys_metrics.v2 契约验证",
+        "database_lock": "数据库锁等待证据已通过 database_lock.v1 契约验证",
     }
     return reasons[collector_type]
 

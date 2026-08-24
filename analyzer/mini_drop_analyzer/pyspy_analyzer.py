@@ -30,14 +30,22 @@ def load_speedscope(data: bytes | str) -> dict:
     return document
 
 
-def _frame_name(frames: list[dict], index: int) -> str:
+def _frame_info(frames: list[dict], index: int) -> dict:
     if 0 <= index < len(frames):
         frame = frames[index]
         if isinstance(frame, dict):
             name = frame.get("name")
             if isinstance(name, str) and name:
-                return name
-    return f"frame_{index}"
+                result = {"name": name}
+                if isinstance(frame.get("file"), str) and frame["file"]:
+                    result["file"] = frame["file"]
+                try:
+                    if int(frame.get("line") or 0) > 0:
+                        result["line"] = int(frame["line"])
+                except (TypeError, ValueError):
+                    pass
+                return result
+    return {"name": f"frame_{index}"}
 
 
 def analyze_speedscope(document: dict, *, limit: int = 20) -> dict:
@@ -49,69 +57,96 @@ def analyze_speedscope(document: dict, *, limit: int = 20) -> dict:
     profiles = document.get("profiles", [])
     if not isinstance(profiles, list):
         profiles = []
-    profile = None
-    for candidate in profiles:
-        if isinstance(candidate, dict) and candidate.get("type") == "sampled":
-            profile = candidate
-            break
-    if profile is None and profiles:
-        profile = profiles[0] if isinstance(profiles[0], dict) else None
-    if profile is None:
+    sampled_profiles = [
+        candidate
+        for candidate in profiles
+        if isinstance(candidate, dict) and candidate.get("type") == "sampled"
+    ]
+    if not sampled_profiles:
         raise ValueError("speedscope 中缺少 sampled profile")
 
-    samples = profile.get("samples", [])
-    weights = profile.get("weights", [])
-    if not isinstance(samples, list) or not isinstance(weights, list):
-        raise ValueError("speedscope sampled profile 缺少 samples/weights")
-
-    resolved: list[tuple[list[str], int]] = []
+    resolved: list[tuple[list[dict], int]] = []
     total = 0
-    for sample_index, stack in enumerate(samples):
-        if not isinstance(stack, list):
-            continue
-        weight = weights[sample_index] if sample_index < len(weights) else 1
-        try:
-            weight = max(0, int(weight))
-        except (TypeError, ValueError):
-            weight = 1
-        total += weight
-        frames_in_stack = [
-            _frame_name(frames, int(frame_index))
-            for frame_index in stack
-            if isinstance(frame_index, (int, float, str))
-        ]
-        if frames_in_stack:
-            resolved.append((frames_in_stack, weight))
+    # py-spy emits one sampled speedscope profile per Python thread. Aggregate
+    # every thread; selecting profiles[0] usually analyzes only the idle main
+    # thread and misses the actual worker hotspot.
+    for profile in sampled_profiles:
+        samples = profile.get("samples", [])
+        weights = profile.get("weights", [])
+        if not isinstance(samples, list) or not isinstance(weights, list):
+            raise ValueError("speedscope sampled profile 缺少 samples/weights")
+        for sample_index, stack in enumerate(samples):
+            if not isinstance(stack, list):
+                continue
+            weight = weights[sample_index] if sample_index < len(weights) else 1
+            try:
+                numeric_weight = float(weight)
+                # py-spy writes sampling intervals in seconds (for example
+                # 0.0101 at 99 Hz), not integer occurrence counts.  Each stack is
+                # still one observed sample; converting the interval with int()
+                # silently turned every sample into zero.
+                weight = 1 if 0 < numeric_weight < 1 else max(0, int(numeric_weight))
+            except (TypeError, ValueError):
+                weight = 1
+            total += weight
+            frames_in_stack = [
+                _frame_info(frames, int(frame_index))
+                for frame_index in stack
+                if isinstance(frame_index, (int, float, str))
+            ]
+            if frames_in_stack:
+                resolved.append((frames_in_stack, weight))
 
-    counter: dict[str, int] = {}
+    # Speedscope sampled stacks are root-first. Top Functions must use leaf/self
+    # samples; counting every parent frame makes the whole call chain appear
+    # as a set of 100% hotspots and destroys diagnostic discrimination.
+    counter: dict[tuple[str, str, int], int] = {}
     for frames_in_stack, weight in resolved:
-        for frame in frames_in_stack:
-            counter[frame] = counter.get(frame, 0) + weight
+        if frames_in_stack:
+            leaf = frames_in_stack[-1]
+            identity = (
+                str(leaf.get("name") or "unknown"),
+                str(leaf.get("file") or ""),
+                int(leaf.get("line") or 0),
+            )
+            counter[identity] = counter.get(identity, 0) + weight
     top = [
         {
-            "name": name,
+            "name": identity[0],
+            **({"file": identity[1]} if identity[1] else {}),
+            **({"line": identity[2]} if identity[2] else {}),
             "samples": count,
             "percent": round(count / total * 100, 1) if total else 0,
         }
-        for name, count in sorted(counter.items(), key=lambda kv: kv[1], reverse=True)[:limit]
+        for identity, count in sorted(
+            counter.items(), key=lambda kv: kv[1], reverse=True
+        )[:limit]
     ]
 
-    # py-spy speedscope samples are leaf-first; reverse to root-to-leaf for the
-    # d3 flame tree (consistent with the perf analyzer's collapsed stacks).
+    # Speedscope samples are already root-to-leaf, matching the d3 flame tree.
     root: dict = {"name": "root", "value": 0, "children": []}
     node_map: dict[tuple[str, ...], dict] = {(): root}
     for frames_in_stack, weight in resolved:
         root["value"] += weight
-        ordered = list(reversed(frames_in_stack))
+        ordered = frames_in_stack
         depth = min(len(ordered), MAX_TREE_DEPTH)
         for i in range(depth):
-            prefix = tuple(ordered[: i + 1])
-            parent_key = tuple(ordered[:i])
+            identities = [
+                (str(item.get("name") or "unknown"), str(item.get("file") or ""), int(item.get("line") or 0))
+                for item in ordered
+            ]
+            prefix = tuple(identities[: i + 1])
+            parent_key = tuple(identities[:i])
             parent = node_map.get(parent_key)
             if parent is None:
                 break
             if prefix not in node_map:
-                node: dict = {"name": ordered[i], "value": 0}
+                frame = ordered[i]
+                node: dict = {"name": frame["name"], "value": 0}
+                if frame.get("file"):
+                    node["file"] = frame["file"]
+                if frame.get("line"):
+                    node["line"] = frame["line"]
                 parent.setdefault("children", []).append(node)
                 node_map[prefix] = node
             node_map[prefix]["value"] += weight

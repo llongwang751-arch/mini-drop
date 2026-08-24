@@ -18,6 +18,21 @@ import shutil
 from typing import Callable, Iterable
 
 
+# Installation preflight must not import the Agent runtime and its grpc/psutil
+# dependencies. A test below guards this name-only registry against drift.
+KNOWN_COLLECTORS = (
+    "perf_cpu",
+    "pyspy",
+    "java_async",
+    "continuous_perf",
+    "go_pprof",
+    "ebpf_io",
+    "memory_smaps",
+    "sys_metrics",
+    "database_lock",
+)
+
+
 @dataclass(frozen=True)
 class HostPlatform:
     distro_id: str
@@ -141,6 +156,10 @@ def detect_collector_capabilities(
         "go_pprof": (True, "HTTP pprof acquisition is built in"),
         "memory_smaps": (proc and path_exists("/proc/self/smaps"), "requires procfs smaps"),
         "sys_metrics": (proc, "requires procfs"),
+        "database_lock": (
+            proc and bool(os.getenv("MINI_DROP_DATABASE_DIAGNOSTIC_URL", "").strip()),
+            "requires MINI_DROP_DATABASE_DIAGNOSTIC_URL and procfs",
+        ),
     }
     result: dict[str, CapabilityStatus] = {}
     for name in sorted(set(registered)):
@@ -174,8 +193,10 @@ def build_compatibility_report(
         path_exists=path_exists,
     )
     supported_tlinux = not host.is_tlinux or host.tlinux_generation in {2, 3, 4}
+    host_payload = asdict(host)
+    host_payload["tlinux_generation"] = host.tlinux_generation
     return {
-        "host": asdict(host),
+        "host": host_payload,
         "supported_tlinux_generation": supported_tlinux,
         "available_collectors": [name for name, item in statuses.items() if item.available],
         "unavailable_collectors": {

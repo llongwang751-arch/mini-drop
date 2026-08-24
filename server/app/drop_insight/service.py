@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import os
 import re
 from contextvars import ContextVar
@@ -40,6 +41,7 @@ from .policy import PolicyContext, evaluate_tool_call
 from server.app.artifact_contracts import CONTRACT_VERSION
 from .schemas import (
     AddEvidenceRequest,
+    ClarificationTarget,
     ClarifyDiagnosisRequest,
     CreateDiagnosisRequestV2,
     CreateHypothesisRequest,
@@ -50,6 +52,7 @@ from .schemas import (
     PreviewToolCallRequest,
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
+    DiagnosticTimeRange,
 )
 from server.app.schemas import CreateTaskRequest, ProcessIdentityBindingRequest
 from server.app.process_attestation import (
@@ -62,6 +65,7 @@ from server.app.diagnosis.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
 
 
+logger = logging.getLogger(__name__)
 _REPORT_EFFECT_LEASE = timedelta(minutes=5)
 _REPORT_EFFECT_RECONCILIATION = ContextVar(
     "drop_insight_report_effect_reconciliation",
@@ -77,6 +81,32 @@ _TARGET_DISCOVERY_TTL = timedelta(seconds=60)
 _AGENT_HEARTBEAT_MAX_AGE = timedelta(
     seconds=max(1, int(os.getenv("AGENT_OFFLINE_TIMEOUT_SEC", "30")))
 )
+
+_AUTO_SCOPE_STOP_WORDS = {
+    "cpu", "io", "service", "the", "this", "please", "recent", "minutes",
+    "minute", "high", "定位", "原因", "最近", "分钟", "服务", "飙高", "异常",
+}
+_AUTO_SCOPE_ALIASES = {
+    "订单": ("order", "orders"),
+    "支付": ("payment", "pay"),
+    "用户": ("user", "account"),
+    "库存": ("inventory", "stock"),
+    "网关": ("gateway", "api-gateway"),
+    "数据库": ("database", "mysql", "postgres"),
+    "缓存": ("cache", "redis"),
+    "python": ("python",),
+    "java": ("java", "jvm"),
+    "go": ("golang", "go-"),
+}
+
+_DATABASE_QUERY_TOKENS = (
+    "数据库锁", "锁等待", "deadlock", "mysql lock", "postgres lock", "db lock",
+)
+
+
+def _is_database_query(query: str) -> bool:
+    lowered = query.casefold()
+    return any(token in lowered for token in _DATABASE_QUERY_TOKENS)
 
 
 def _scope_questions(target: dict | None, time_range: dict | None) -> list[dict]:
@@ -130,6 +160,111 @@ def _candidate_matches_filter(candidate, service: str | None, environment: str |
     ) and (
         not environment or environment.casefold() in environment_text
     )
+
+
+def _auto_scope_tokens(query: str) -> set[str]:
+    lowered = query.casefold()
+    tokens = {
+        token
+        for token in re.findall(r"[a-z][a-z0-9_.-]{1,127}", lowered)
+        if token not in _AUTO_SCOPE_STOP_WORDS
+    }
+    for phrase, aliases in _AUTO_SCOPE_ALIASES.items():
+        present = (
+            re.search(rf"\b{re.escape(phrase)}\b", lowered) is not None
+            if phrase.isascii()
+            else phrase in lowered
+        )
+        if present:
+            tokens.update(aliases)
+    return tokens
+
+
+def _auto_scope_score(query: str, candidate: dict) -> int:
+    haystack = " ".join(
+        str(candidate.get(key) or "")
+        for key in ("service", "environment", "instance", "process")
+    ).casefold()
+    score = 0
+    for token in _auto_scope_tokens(query):
+        if token == haystack:
+            score += 100
+        elif token in haystack:
+            score += 20
+    return score
+
+
+def _auto_scope_service_filter(query: str) -> str | None:
+    """Extract an explicit machine-style service name, when the user gave one."""
+
+    specific = sorted(
+        (token for token in _auto_scope_tokens(query) if "-" in token or "." in token),
+        key=lambda token: (-len(token), token),
+    )
+    if specific:
+        return specific[0]
+    if _is_database_query(query):
+        return os.getenv("MINI_DROP_DATABASE_SERVICE", "mini-drop-postgres").strip() or None
+    return None
+
+
+def _select_auto_scope_candidate(query: str, discovery: dict) -> dict | None:
+    candidates = [item for item in discovery.get("candidates", []) if item.get("eligible")]
+    if len(candidates) == 1:
+        return candidates[0]
+    if not candidates:
+        return None
+    if _is_database_query(query):
+        postgres = [
+            item for item in candidates
+            if "postgres" in str(item.get("process") or "").casefold()
+        ]
+        instances = {str(item.get("instance") or "") for item in postgres}
+        if postgres and len(instances) == 1:
+            return sorted(
+                postgres, key=lambda item: str(item.get("binding_id") or "")
+            )[0]
+    ranked = sorted(
+        ((_auto_scope_score(query, item), item) for item in candidates),
+        key=lambda pair: (-pair[0], str(pair[1].get("binding_id") or "")),
+    )
+    top_score, top = ranked[0]
+    runner_up = ranked[1][0] if len(ranked) > 1 else -1
+    if top_score >= 20 and top_score > runner_up:
+        return top
+    return None
+
+
+def _default_auto_scope_range(query: str, *, timestamp: datetime) -> DiagnosticTimeRange:
+    minutes = 5
+    minute_match = re.search(
+        r"(?:最近|过去|last|past)\s*(\d{1,3})\s*(?:分钟|分|min(?:ute)?s?)",
+        query,
+        re.IGNORECASE,
+    )
+    hour_match = re.search(
+        r"(?:最近|过去|last|past)\s*(\d{1,2})\s*(?:小时|h(?:ou)?rs?)",
+        query,
+        re.IGNORECASE,
+    )
+    if minute_match:
+        minutes = max(1, min(180, int(minute_match.group(1))))
+    elif hour_match:
+        minutes = max(1, min(180, int(hour_match.group(1)) * 60))
+    return DiagnosticTimeRange(
+        # Auto-scoped diagnoses use live collectors. Reserve a bounded forward
+        # observation window so evidence gathered after the user presses Send
+        # is inside scope. Explicit user-supplied historical ranges are never
+        # rewritten by this path.
+        start=timestamp,
+        end=timestamp + timedelta(minutes=minutes),
+        timezone="Asia/Shanghai",
+    )
+
+
+def _auto_scope_environment(candidate: dict) -> str:
+    value = str(candidate.get("environment") or candidate.get("instance") or "").strip()
+    return value[:64] if value else "discovered"
 
 
 def _invalidate_discovery(discovery, *, timestamp: datetime) -> None:
@@ -365,6 +500,9 @@ def discover_target_candidates(
             expires_at=timestamp + _TARGET_DISCOVERY_TTL,
         )
         session.add(discovery)
+        # Bindings reference this row without an ORM relationship, so make
+        # the parent INSERT order explicit for PostgreSQL.
+        session.flush()
 
         heartbeat_cutoff = timestamp - _AGENT_HEARTBEAT_MAX_AGE
         agents = (
@@ -437,16 +575,20 @@ def discover_target_candidates(
         discovery.snapshot_state_json = snapshot_states
         if not agents:
             discovery.status = "UNAVAILABLE"
+        # A missing/old snapshot on one host must not hide securely attested
+        # candidates from another host. Each returned binding is still tied to
+        # one fresh authoritative snapshot; snapshot_state_json preserves the
+        # incomplete-host warning for audit and UI disclosure.
+        elif len(matched) == 1:
+            discovery.status = "READY"
+        elif len(matched) > 1:
+            discovery.status = "AMBIGUOUS"
         elif "TRUNCATED" in fail_statuses:
             discovery.status = "TRUNCATED"
         elif "STALE" in fail_statuses:
             discovery.status = "STALE"
         elif fail_statuses:
             discovery.status = "UNAVAILABLE"
-        elif len(matched) == 1:
-            discovery.status = "READY"
-        elif len(matched) > 1:
-            discovery.status = "AMBIGUOUS"
         elif authoritative_seen:
             discovery.status = "EMPTY"
         else:
@@ -476,14 +618,71 @@ def discover_target_candidates(
                     display_json={
                         "service": candidate.service_hint or None,
                         "instance": candidate.instance_hint or None,
+                        "environment": candidate.instance_hint or None,
                         "process": candidate.comm or None,
                         "collector_capabilities": candidate.collector_capabilities or [],
+                        "eligible": True,
+                        "ineligible_reason": None,
                     },
                 ))
         session.commit()
         return _render_target_discovery(session, discovery.id)
     finally:
         session.close()
+
+
+def _auto_resolve_diagnosis_scope(diagnosis_id: str, query: str) -> None:
+    """Bind one fresh, unambiguous real process target without demo presets."""
+
+    # A heartbeat may replace the latest snapshot between discovery and
+    # selection. Retry only that narrow race; every attempt still validates a
+    # fresh immutable process identity before it can update the diagnosis.
+    for attempt in range(3):
+        discovery = discover_target_candidates(
+            diagnosis_id,
+            service=_auto_scope_service_filter(query),
+        )
+        if not discovery or discovery.get("status") not in {"READY", "AMBIGUOUS"}:
+            return
+        selected = _select_auto_scope_candidate(query, discovery)
+        if selected is None:
+            return
+        timestamp = now_utc()
+        session = new_session()
+        try:
+            diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+            requested_range = dict((diagnosis.requested_time_range_json or {})) if diagnosis else {}
+            existing_target = dict((diagnosis.target_json or {})) if diagnosis else {}
+        finally:
+            session.close()
+        service = str(
+            existing_target.get("service")
+            or selected.get("service")
+            or selected.get("process")
+            or "discovered-service"
+        ).strip()[:128]
+        payload = ClarifyDiagnosisRequest(
+            expected_version=discovery.get("diagnosis_version"),
+            target=ClarificationTarget(
+                service=service,
+                environment=(
+                    existing_target.get("environment") or _auto_scope_environment(selected)
+                ),
+                discovery_id=discovery["discovery_id"],
+                binding_id=selected["binding_id"],
+            ),
+            time_range=(
+                None
+                if requested_range
+                else _default_auto_scope_range(query, timestamp=timestamp)
+            ),
+        )
+        try:
+            clarify_diagnosis(diagnosis_id, payload, actor="AI_SCOPE_RESOLVER")
+            return
+        except _DiscoveryInvalidationError:
+            if attempt == 2:
+                raise
 
 
 def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionModel:
@@ -525,9 +724,20 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         session.add(event)
         session.commit()
         session.refresh(model)
-        return model
     finally:
         session.close()
+
+    if payload.auto_scope and questions:
+        try:
+            _auto_resolve_diagnosis_scope(diagnosis_id, payload.query)
+        except Exception:
+            logger.exception("automatic diagnosis scope resolution failed", extra={"diagnosis_id": diagnosis_id})
+
+    refreshed_session = new_session()
+    try:
+        return refreshed_session.get(DropInsightSessionModel, diagnosis_id)
+    finally:
+        refreshed_session.close()
 
 
 def _utc_iso(value: datetime) -> str:
@@ -1034,7 +1244,7 @@ def generate_report(
             limitations.append("No accepted supporting evidence; conclusion is not established.")
         elif not verification["has_independent_counter_or_control"]:
             limitations.append(
-                "缺少独立反证或对照证据；报告可作为阶段性判断，但诊断不会进入最终完成态。"
+                "缺少独立反证或对照证据；结论已完成，但仍应在修复复测中补充独立验证。"
             )
 
         source_symbols = _extract_source_symbols(supporting + counter)
@@ -1078,14 +1288,16 @@ def generate_report(
         )
         if counter_refs and not support_refs:
             hypothesis.status = "COUNTER"
-        elif confidence >= 0.6 and verification["status"] == "VERIFIED":
+        elif confidence >= 0.6 and verification["status"] in {
+            "VERIFIED", "PARTIAL_WITHOUT_COUNTER"
+        }:
             hypothesis.status = "SUPPORTED"
         else:
             hypothesis.status = "INCONCLUSIVE"
         hypothesis.updated_at = timestamp
         next_status = (
             "COMPLETED"
-            if verification["status"] == "VERIFIED"
+            if support_refs and confidence >= 0.6
             else "COLLECTING_EVIDENCE"
             if support_refs
             else "INSUFFICIENT_EVIDENCE"
@@ -1376,7 +1588,7 @@ def _apply_report_effects(
                         hypothesis_id,
                         report_id,
                     )
-                elif verification_status == "VERIFIED":
+                elif verification_status in {"VERIFIED", "PARTIAL_WITHOUT_COUNTER"}:
                     _record_successful_route(diagnosis_id, report_id)
             finally:
                 _REPORT_EFFECT_RECONCILIATION.reset(token)
@@ -1419,6 +1631,12 @@ def _extract_source_symbols(evidence_rows: list) -> list[str]:
             return
         if isinstance(value, dict):
             for child_key, child in value.items():
+                if str(child_key).lower() == "top_functions" and isinstance(child, list):
+                    for row in child[:20]:
+                        if isinstance(row, dict) and isinstance(row.get("name"), str):
+                            candidate = row["name"].strip()
+                            if 1 < len(candidate) <= 256 and candidate not in symbols:
+                                symbols.append(candidate)
                 walk(child, str(child_key).lower(), depth + 1)
         elif isinstance(value, list):
             for child in value[:100]:
@@ -1561,6 +1779,7 @@ def _replan_from_feedback(
         "falsification": ["补充证据与该纠正原因不一致或出现更强反证"],
         "tool_name": _feedback_tool(correction, parent),
     }
+    model_attempted = True
     proposal = propose_hypothesis_plan(
         query=diagnosis.query,
         target=target,
@@ -1571,7 +1790,10 @@ def _replan_from_feedback(
             for item in previous
         ],
         user_correction=correction,
-        allowed_tools=["collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile", "start_pyspy_profile"],
+        allowed_tools=[
+            "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile",
+            "start_pyspy_profile", "collect_database_diagnostics",
+        ],
         route_priors=_successful_tool_route_priors(),
     )
     candidate = (proposal or {}).get("hypotheses", [{}])[0]
@@ -1610,6 +1832,8 @@ def _replan_from_feedback(
 
 def _feedback_tool(correction: str, parent: DropInsightHypothesisModel | None) -> str:
     text = correction.lower()
+    if any(token in text for token in _DATABASE_QUERY_TOKENS):
+        return "collect_database_diagnostics"
     if any(token in text for token in ("io", "磁盘", "写入", "读取")):
         return "start_ebpf_io_profile"
     if any(token in text for token in ("python", "gil", "协程")):
@@ -1842,6 +2066,7 @@ def _replan_after_insufficient_evidence(
         "start_perf_profile": "perf_cpu",
         "start_ebpf_io_profile": "ebpf_io",
         "start_pyspy_profile": "pyspy",
+        "collect_database_diagnostics": "database_lock",
     }
     session = new_session()
     try:
@@ -1860,7 +2085,8 @@ def _replan_after_insufficient_evidence(
         return None
     attempted = {item.tool_name for item in list_tool_calls(diagnosis_id)}
     all_tools = [
-        "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile", "start_pyspy_profile",
+        "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile",
+        "start_pyspy_profile", "collect_database_diagnostics",
     ]
     existing_call = _tool_call_by_effect_key(
         diagnosis_id,
@@ -2374,6 +2600,129 @@ def list_tool_calls(diagnosis_id: str) -> list[DropInsightToolCallModel]:
         session.close()
 
 
+def maintain_drop_insight_sessions(
+    *,
+    timestamp: datetime | None = None,
+    approval_timeout_sec: int | None = None,
+    limit: int = 100,
+) -> dict[str, list[str]]:
+    """Finalize supported diagnoses and expire abandoned approval cards."""
+
+    now = timestamp or now_utc()
+    configured_timeout = approval_timeout_sec
+    if configured_timeout is None:
+        try:
+            configured_timeout = int(
+                os.getenv("MINI_DROP_APPROVAL_TIMEOUT_SEC", "1800")
+            )
+        except ValueError:
+            configured_timeout = 1800
+    timeout_sec = min(max(int(configured_timeout), 60), 86_400)
+    bounded_limit = max(1, min(int(limit), 1000))
+    completed: list[str] = []
+    expired: list[str] = []
+
+    session = new_session()
+    try:
+        # A high-confidence accepted support report is a valid terminal result.
+        # Independent counter/control remains a limitation and fix-verification
+        # recommendation, not a reason to leave the UI spinning forever.
+        candidate_reports = (
+            session.query(DropInsightReportModel)
+            .filter(DropInsightReportModel.confidence >= 600)
+            .order_by(DropInsightReportModel.created_at.desc())
+            .limit(bounded_limit * 3)
+            .all()
+        )
+        seen: set[str] = set()
+        for report in candidate_reports:
+            if report.diagnosis_id in seen or not (report.evidence_refs_json or []):
+                continue
+            seen.add(report.diagnosis_id)
+            diagnosis = _lock_diagnosis(session, report.diagnosis_id)
+            if diagnosis is None or diagnosis.status != "COLLECTING_EVIDENCE":
+                continue
+            _cas_session_update(session, diagnosis, status="COMPLETED", timestamp=now)
+            _append_event(
+                session,
+                diagnosis.id,
+                "diagnosis.completed_from_supported_report",
+                "SYSTEM",
+                {
+                    "report_id": report.id,
+                    "confidence": report.confidence / 1000,
+                    "verification_status": (report.verification_json or {}).get("status"),
+                },
+                now,
+            )
+            completed.append(diagnosis.id)
+
+        cutoff = now - timedelta(seconds=timeout_sec)
+        pending = (
+            session.query(DropInsightToolCallModel)
+            .filter(
+                DropInsightToolCallModel.status == "PENDING_APPROVAL",
+                DropInsightToolCallModel.created_at <= cutoff,
+            )
+            .order_by(DropInsightToolCallModel.created_at.asc())
+            .limit(bounded_limit)
+            .with_for_update()
+            .all()
+        )
+        for tool_call in pending:
+            tool_call.status = "REJECTED"
+            tool_call.approved_by = "system:maintenance"
+            tool_call.approval_reason = "审批窗口已过期，系统自动释放资源预留"
+            tool_call.decided_at = now
+            tool_call.result_json = {
+                "reason": "approval_expired",
+                "timeout_seconds": timeout_sec,
+            }
+            _release_budget_reservation(
+                tool_call,
+                timestamp=now,
+                reason="approval_expired",
+            )
+            _append_event(
+                session,
+                tool_call.diagnosis_id,
+                "tool_call.approval_expired",
+                "SYSTEM",
+                {
+                    "tool_call_id": tool_call.id,
+                    "timeout_seconds": timeout_sec,
+                },
+                now,
+            )
+            diagnosis = _lock_diagnosis(session, tool_call.diagnosis_id)
+            if diagnosis is not None and diagnosis.status != "COMPLETED":
+                active_count = (
+                    session.query(DropInsightToolCallModel)
+                    .filter(
+                        DropInsightToolCallModel.diagnosis_id == diagnosis.id,
+                        DropInsightToolCallModel.id != tool_call.id,
+                        DropInsightToolCallModel.status.in_({
+                            "PENDING_APPROVAL", "APPROVED", "TASK_CREATED", "RUNNING"
+                        }),
+                    )
+                    .count()
+                )
+                if active_count == 0 and diagnosis.status in {
+                    "PLANNING", "HYPOTHESIZING", "COLLECTING_EVIDENCE"
+                }:
+                    _cas_session_update(
+                        session,
+                        diagnosis,
+                        status="INSUFFICIENT_EVIDENCE",
+                        timestamp=now,
+                    )
+            expired.append(tool_call.id)
+        session.commit()
+        return {"completed_diagnoses": completed, "expired_approvals": expired}
+    finally:
+        session.close()
+
+
 def get_budget_usage(diagnosis_id: str) -> dict | None:
     session = new_session()
     try:
@@ -2739,6 +3088,7 @@ _ESTIMATED_ARTIFACT_BYTES = {
     "start_perf_profile": 64 * 1024 * 1024,
     "start_ebpf_io_profile": 16 * 1024 * 1024,
     "start_pyspy_profile": 16 * 1024 * 1024,
+    "collect_database_diagnostics": 2 * 1024 * 1024,
 }
 
 
@@ -2983,6 +3333,7 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             "start_perf_profile": "perf_cpu",
             "start_ebpf_io_profile": "ebpf_io",
             "start_pyspy_profile": "pyspy",
+            "collect_database_diagnostics": "database_lock",
         }.get(model.tool_name)
         if collector_type is None:
             model.status = "FAILED"
@@ -3065,6 +3416,7 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             "start_perf_profile": "perf_cpu",
             "start_ebpf_io_profile": "ebpf_io",
             "start_pyspy_profile": "pyspy",
+            "collect_database_diagnostics": "database_lock",
         }.get(model.tool_name)
         if collector_type is None:
             raise
@@ -3370,10 +3722,10 @@ def run_diagnosis_planner(
             "planner_version": "rules-v2",
             "category": "DATABASE_LOCK",
             "statement": "请求变慢可能与数据库锁等待或连接阻塞有关",
-            "expected": ["系统初筛显示进程等待、上下文切换或负载异常，需继续采集数据库锁证据"],
+            "expected": ["数据库快照存在等待锁的会话", "阻塞关系能够指向至少一个 blocker"],
             "falsification": ["系统资源平稳且数据库锁等待快照为空"],
-            "tool_name": "collect_sys_metrics",
-            "arguments": triage_arguments,
+            "tool_name": "collect_database_diagnostics",
+            "arguments": _planner_tool_arguments("collect_database_diagnostics", target),
         }
     elif any(token in query for token in ("丢包", "packet loss", "网络抖动", "重传", "timeout", "超时")):
         plan = {
@@ -3543,6 +3895,7 @@ def run_diagnosis_planner(
 
     # 规则负责范围/工具白名单，模型只在边界内提出和排序可证伪假设。
     # 模型不可用时保留确定性规则结果，且把来源显式展示给用户。
+    model_attempted = True
     proposal = propose_hypothesis_plan(
         query=diagnosis.query,
         target=target,
@@ -3551,7 +3904,7 @@ def run_diagnosis_planner(
         prior_hypotheses=[item.to_dict() for item in list_hypotheses(diagnosis_id)],
         allowed_tools=[plan["tool_name"]],
         route_priors=_successful_tool_route_priors(),
-    ) if plan["category"] == "CPU_HOTSPOT" else None
+    )
     if proposal:
         plan["tool_name"] = proposal["tool_name"]
         plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
@@ -3573,7 +3926,11 @@ def run_diagnosis_planner(
     else:
         candidates = _candidate_hypotheses(plan["category"], plan)
         source = "DETERMINISTIC_RULE"
-        generation_reason = "模型未启用或输出未通过约束校验，使用可复现规则兜底。"
+        generation_reason = (
+            "模型调用不可用或输出未通过约束校验，使用可复现规则兜底。"
+            if model_attempted
+            else f"规则分类器已选择 {plan['category']} 诊断路径；该类别当前使用确定性规划。"
+        )
 
     # 方案 §5.2：除主假设外，同时保留备选假设与 OTHER/UNKNOWN，
     # 避免假设成为答案边界。主假设仍驱动后续工具调用与报告生成。
@@ -4100,22 +4457,81 @@ def _compute_hypothesis_predicate(
     the counter-evidence gate reachable: without a COUNTER path, no imported
     artifact can ever satisfy ``has_independent_counter_or_control``.
     """
+    expected = hypothesis.expected_observations_json or []
+    falsification = hypothesis.falsification_criteria_json or []
+    statement = str(hypothesis.statement or "").casefold()
+
+    if str(metadata.get("schema_version") or "").startswith("database_lock."):
+        lock_wait_count = max(0, int(metadata.get("lock_wait_count") or 0))
+        blocker_count = max(0, int(metadata.get("blocker_count") or 0))
+        max_wait_ms = max(0.0, float(metadata.get("max_wait_ms") or 0.0))
+        database_hypothesis = any(token in statement for token in (
+            "数据库", "锁等待", "阻塞", "deadlock", "database lock", "db lock",
+        ))
+        if database_hypothesis and lock_wait_count > 0 and blocker_count > 0:
+            covered = list(range(min(2, len(expected)))) or [0]
+            return {
+                "outcome": "SUPPORT",
+                "version": "hypothesis-predicate-v2",
+                "reason": (
+                    f"observed {lock_wait_count} lock-waiting session(s), "
+                    f"{blocker_count} blocker(s), max wait {max_wait_ms:.1f} ms"
+                ),
+                "criterion_indexes": covered,
+                "metrics": {
+                    "lock_wait_count": lock_wait_count,
+                    "blocker_count": blocker_count,
+                    "lock_wait_ms": max_wait_ms,
+                },
+            }
+        if database_hypothesis and lock_wait_count == 0:
+            return {
+                "outcome": "COUNTER",
+                "version": "hypothesis-predicate-v2",
+                "reason": "bounded database snapshots contained no lock-waiting sessions",
+                "criterion_indexes": [0] if falsification else [],
+                "metrics": {
+                    "lock_wait_count": 0,
+                    "blocker_count": 0,
+                    "lock_wait_ms": 0.0,
+                },
+            }
+
     top_functions = metadata.get("top_functions")
     if not isinstance(top_functions, list):
         return None
-    named = [
+    raw_named = [
         row
         for row in top_functions
         if isinstance(row, dict)
         and isinstance(row.get("name"), str)
         and row["name"].strip()
     ]
-    if not named:
+    if not raw_named:
         return None
-    expected = hypothesis.expected_observations_json or []
-    falsification = hypothesis.falsification_criteria_json or []
-    statement = str(hypothesis.statement or "").casefold()
-
+    # Source-aware analyzers intentionally keep one TopN row per file/line.
+    # Hypothesis scoring, however, reasons about functions.  A hot function
+    # sampled on several executable lines must not be mistaken for several
+    # unrelated weak hotspots (for example 40% + 25% + 10% in one loop).
+    aggregated: dict[str, dict] = {}
+    for row in raw_named:
+        name = row["name"].strip()
+        current = aggregated.setdefault(
+            name,
+            {"name": name, "percent": 0.0, "samples": 0, "locations": []},
+        )
+        current["percent"] += _safe_percent(row.get("percent"))
+        try:
+            current["samples"] += max(0, int(row.get("samples") or 0))
+        except (TypeError, ValueError):
+            pass
+        if row.get("file") or row.get("line"):
+            current["locations"].append({
+                "file": row.get("file"),
+                "line": row.get("line"),
+                "percent": _safe_percent(row.get("percent")),
+            })
+    named = list(aggregated.values())
     def _percent(row: dict) -> float:
         return _safe_percent(row.get("percent"))
 
@@ -4152,9 +4568,21 @@ def _compute_hypothesis_predicate(
     dominant_user_pct = _percent(dominant_user) if dominant_user else 0.0
     dominant_kernel_pct = _percent(dominant_kernel) if dominant_kernel else 0.0
 
-    user_hypothesis = any(token in statement for token in (
-        "用户态", "业务代码", "hot function", "user-space", "userspace",
-    ))
+    hypothesis_text = " ".join(
+        [statement, *(str(item).casefold() for item in expected if isinstance(item, str))]
+    )
+    user_hypothesis = any(token in hypothesis_text for token in (
+        "用户态", "业务代码", "热点函数", "python hotspot",
+        "hot function", "user-space", "userspace", "函数集中", "样本集中",
+    )) or (
+        "python" in hypothesis_text
+        and "函数" in hypothesis_text
+        and any(token in hypothesis_text for token in ("集中", "热点", "占比"))
+    )
+    # A GIL hypothesis often mentions a single hotspot in its falsification
+    # wording.  The causal subject is still GIL contention and must be scored
+    # before the generic user-hotspot branch.
+    gil_hypothesis = "gil" in statement
     kernel_hypothesis = any(token in statement for token in (
         "内核态", "系统调用", "中断", "kernel", "syscall",
     ))
@@ -4165,6 +4593,22 @@ def _compute_hypothesis_predicate(
     # Planner prose describes signal classes rather than concrete symbols.
     # Turn the Analyzer's TopN distribution into an explicit, auditable
     # predicate so high-quality data is not incorrectly left neutral.
+    if gil_hypothesis:
+        if dominant_user and dominant_user_pct >= 60.0 and 1 <= len(significant) <= 3:
+            return _predicate(
+                "COUNTER",
+                f"single dominant hotspot {dominant_user['name']} at "
+                f"{dominant_user_pct:.1f}% contradicts a GIL-contention explanation",
+                [0, 1],
+                dominant_function=dominant_user["name"],
+                dominant_percent=dominant_user_pct,
+                significant_hotspot_count=len(significant),
+            )
+        return _predicate(
+            "NEUTRAL",
+            "TopN function distribution alone does not establish GIL contention",
+            [],
+        )
     if user_hypothesis:
         if dominant_user and dominant_user_pct >= 60.0 and 1 <= len(significant) <= 3:
             return _predicate(
@@ -4501,6 +4945,8 @@ def _fix_view(model) -> dict:
 def clarify_diagnosis(
     diagnosis_id: str,
     payload: ClarifyDiagnosisRequest,
+    *,
+    actor: str = "USER",
 ) -> dict | None:
     """Resolve clarification scope from opaque, persisted process authority."""
 
@@ -4584,7 +5030,7 @@ def clarify_diagnosis(
             session,
             diagnosis_id,
             "diagnosis.clarified",
-            "USER",
+            actor,
             {
                 "target": replacement_target,
                 "time_range": diagnosis.time_range_json or {},

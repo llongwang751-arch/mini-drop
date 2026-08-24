@@ -32,6 +32,24 @@ TOOLS = [
         },
     },
     {
+        "name": "collect_database_diagnostics",
+        "version": "1.0",
+        "description": "只读采集 PostgreSQL 锁等待、阻塞关系与事务等待时长（不采集 SQL 正文）",
+        "risk_level": "R1",
+        "requires_approval": False,
+        "required_capabilities": ["database_lock"],
+        "input_schema": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["agent_id", "pid", "duration_seconds"],
+            "properties": {
+                "agent_id": {"type": "string", "minLength": 1},
+                "pid": {"type": "integer", "minimum": 1},
+                "duration_seconds": {"type": "integer", "minimum": 5, "maximum": 60},
+            },
+        },
+    },
+    {
         "name": "start_perf_profile",
         "version": "1.0",
         "description": "对指定 Linux PID 执行 CPU Profile",

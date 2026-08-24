@@ -832,9 +832,27 @@ class DiagnosticSkillActivationModel(Base):
 
 class ArtifactModel(Base):
     __tablename__ = "artifacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "id", "task_id", "task_attempt_id",
+            name="uq_artifact_attempt_identity",
+        ),
+        ForeignKeyConstraint(
+            ["task_attempt_id", "task_id"],
+            ["task_attempts.id", "task_attempts.task_id"],
+            name="fk_artifacts_task_attempt_identity",
+        ),
+        ForeignKeyConstraint(
+            ["analysis_job_id", "task_id", "task_attempt_id"],
+            ["analysis_jobs.id", "analysis_jobs.task_id", "analysis_jobs.task_attempt_id"],
+            name="fk_artifacts_analysis_job_identity",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     task_id = Column(String(128), ForeignKey("tasks.id"), nullable=False, index=True)
+    task_attempt_id = Column(String(128), nullable=True, index=True)
+    analysis_job_id = Column(String(128), nullable=True, index=True)
     artifact_type = Column(String(32), nullable=False)
     bucket = Column(String(64), default="mini-drop")
     object_key = Column(String(512), nullable=False)
@@ -853,6 +871,8 @@ class ArtifactModel(Base):
         return {
             "id": self.id,
             "task_id": self.task_id,
+            "task_attempt_id": self.task_attempt_id,
+            "analysis_job_id": self.analysis_job_id,
             "artifact_type": self.artifact_type,
             "bucket": self.bucket,
             "object_key": self.object_key,
@@ -874,13 +894,20 @@ class AnalysisJobModel(Base):
     __tablename__ = "analysis_jobs"
     __table_args__ = (
         UniqueConstraint("idempotency_key", name="uq_analysis_job_idempotency_key"),
+        UniqueConstraint(
+            "id", "task_id", "task_attempt_id",
+            name="uq_analysis_job_attempt_identity",
+        ),
+        ForeignKeyConstraint(
+            ["task_attempt_id", "task_id"],
+            ["task_attempts.id", "task_attempts.task_id"],
+            name="fk_analysis_jobs_task_attempt_identity",
+        ),
     )
 
     id = Column(String(128), primary_key=True)
     task_id = Column(String(128), ForeignKey("tasks.id"), nullable=False, index=True)
-    task_attempt_id = Column(
-        String(128), ForeignKey("task_attempts.id"), nullable=True, index=True
-    )
+    task_attempt_id = Column(String(128), nullable=True, index=True)
     analyzer_type = Column(String(64), nullable=False, index=True)
     analyzer_version = Column(String(64), nullable=False)
     input_checksum = Column(String(64), nullable=False)
@@ -925,6 +952,60 @@ class AnalysisJobModel(Base):
             "started_at": self.started_at,
             "finished_at": self.finished_at,
         }
+
+
+class AnalysisJobInputArtifactModel(Base):
+    __tablename__ = "analysis_job_input_artifacts"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["analysis_job_id", "task_id", "task_attempt_id"],
+            ["analysis_jobs.id", "analysis_jobs.task_id", "analysis_jobs.task_attempt_id"],
+            name="fk_analysis_job_inputs_job_identity",
+        ),
+        ForeignKeyConstraint(
+            ["artifact_id", "task_id", "task_attempt_id"],
+            ["artifacts.id", "artifacts.task_id", "artifacts.task_attempt_id"],
+            name="fk_analysis_job_inputs_artifact_identity",
+        ),
+        UniqueConstraint(
+            "analysis_job_id", "artifact_id",
+            name="uq_analysis_job_input_artifact",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    analysis_job_id = Column(String(128), nullable=False, index=True)
+    artifact_id = Column(Integer, nullable=False, index=True)
+    task_id = Column(String(128), nullable=False)
+    task_attempt_id = Column(String(128), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class AnalysisJobOutputArtifactModel(Base):
+    __tablename__ = "analysis_job_output_artifacts"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["analysis_job_id", "task_id", "task_attempt_id"],
+            ["analysis_jobs.id", "analysis_jobs.task_id", "analysis_jobs.task_attempt_id"],
+            name="fk_analysis_job_outputs_job_identity",
+        ),
+        ForeignKeyConstraint(
+            ["artifact_id", "task_id", "task_attempt_id"],
+            ["artifacts.id", "artifacts.task_id", "artifacts.task_attempt_id"],
+            name="fk_analysis_job_outputs_artifact_identity",
+        ),
+        UniqueConstraint(
+            "analysis_job_id", "artifact_id",
+            name="uq_analysis_job_output_artifact",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    analysis_job_id = Column(String(128), nullable=False, index=True)
+    artifact_id = Column(Integer, nullable=False, index=True)
+    task_id = Column(String(128), nullable=False)
+    task_attempt_id = Column(String(128), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
 
 
 class OutboxMessageModel(Base):

@@ -8,7 +8,7 @@ LLM 输出的 JSON 必须符合 DiagnosisReport 的 schema，
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -72,9 +72,14 @@ class CauseEntry(BaseModel):
     """LLM 输出的单条归因结论。"""
 
     cause_id: str
+    root_location: Literal[
+        "self", "peer", "dependency", "shared_infrastructure", "unknown"
+    ] = "unknown"
+    mechanism: str = ""
     confidence: float = Field(ge=0.0, le=1.0)
     claim: str
     evidence_refs: list[str] = Field(default_factory=list)
+    counter_evidence_refs: list[str] = Field(default_factory=list)
     uncertainties: list[str] = Field(default_factory=list)
     verification_steps: list[str] = Field(default_factory=list)
 

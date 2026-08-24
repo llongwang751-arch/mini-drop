@@ -27,6 +27,7 @@ import grpc
 
 from agent.mini_drop_agent.collectors.base import CollectorTask
 from agent.mini_drop_agent.collectors.continuous import ContinuousCollector
+from agent.mini_drop_agent.collectors.database_lock import DatabaseLockCollector
 from agent.mini_drop_agent.collectors.ebpf import EBPFCollector
 from agent.mini_drop_agent.collectors.java_async import JavaAsyncProfilerCollector
 from agent.mini_drop_agent.collectors.memory import MemoryCollector
@@ -43,6 +44,7 @@ from agent.mini_drop_agent.platform_compat import (
     build_compatibility_report,
     compact_os_info,
 )
+from agent.mini_drop_agent.process_snapshot import fill_process_candidate_snapshot
 from agent.mini_drop_agent.result_outbox import OutboxEntry, ResultOutbox
 from server.app.generated import (
     healthcheck_pb2,
@@ -64,6 +66,7 @@ COLLECTORS = {
     "go_pprof": PprofCollector(),
     "memory_smaps": MemoryCollector(),
     "sys_metrics": SysMetricsCollector(),
+    "database_lock": DatabaseLockCollector(),
 }
 
 COMPATIBILITY_REPORT = build_compatibility_report(COLLECTORS.keys())
@@ -175,6 +178,7 @@ def _heartbeat(
     if sampler is not None:
         _fill_pid_stats(request.self_pstats, sampler.sample_self())
         _fill_pid_stats(request.children_pstats, sampler.sample_children())
+    fill_process_candidate_snapshot(request.process_candidate_snapshot, CAPABILITIES)
     resp = stub.Do(
         request,
         timeout=5,
@@ -491,6 +495,7 @@ _PROFILER_TO_COLLECTOR: dict[int, str] = {
     5: "memory_smaps",     # memory smaps
     6: "sys_metrics",      # system multi-metrics
     7: "continuous_perf",  # continuous perf
+    8: "database_lock",    # read-only PostgreSQL lock diagnostics
 }
 
 # task_type → collector_type 映射（MemCheck 等需要特殊路由的场景）

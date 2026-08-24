@@ -1,4 +1,4 @@
-"""py-spy 用户态采集器：对 Python 进程进行采样并输出火焰图 SVG。
+"""py-spy 用户态采集器：对 Python 进程采样并输出 speedscope 原始栈。
 
 py-spy 通过读取目标进程内存直接获取 Python 调用栈，
 无需修改目标代码或重启进程。
@@ -34,16 +34,21 @@ class PySpyCollector:
 
         output_dir = os.path.join(self.OUTPUT_BASE, task.id)
         os.makedirs(output_dir, exist_ok=True)
-        svg_path = os.path.join(output_dir, "pyspy.svg")
+        speedscope_path = os.path.join(output_dir, "pyspy-speedscope.json")
 
         base_cmd = [
             pyspy, "record",
             "-p", str(task.target_pid),
             "-d", str(task.duration_sec),
             "-r", str(task.sample_rate),
-            "-o", svg_path,
+            "--format", "speedscope",
+            "-o", speedscope_path,
         ]
-        cmd = base_cmd + ["--native"]  # 同时显示 C 扩展调用帧
+        # Native unwinding can block indefinitely on some kernels/container
+        # combinations. Plain Python stacks are the reliable default; callers
+        # may explicitly opt in when C-extension frames are required.
+        use_native = bool(task.options.get("native", False))
+        cmd = base_cmd + (["--native"] if use_native else [])
 
         timeout = task.duration_sec + 30
 
@@ -64,7 +69,11 @@ class PySpyCollector:
                 reason=f"py-spy 异常: {exc}",
             )
 
-        if proc.returncode != 0 and self._should_retry_without_native(proc.stderr):
+        if (
+            use_native
+            and proc.returncode != 0
+            and self._should_retry_without_native(proc.stderr)
+        ):
             try:
                 proc = subprocess.run(
                     base_cmd,
@@ -89,25 +98,27 @@ class PySpyCollector:
                 reason=f"py-spy 执行失败 (exit={proc.returncode}): {err[:200]}",
             )
 
-        if not os.path.isfile(svg_path) or os.path.getsize(svg_path) == 0:
+        if not os.path.isfile(speedscope_path) or os.path.getsize(speedscope_path) == 0:
             return CollectorResult(
                 ok=False,
-                reason="py-spy 未产出 SVG 文件",
+                reason="py-spy 未产出 speedscope 文件",
             )
 
-        size = os.path.getsize(svg_path)
+        size = os.path.getsize(speedscope_path)
         return CollectorResult(
             ok=True,
             reason="py-spy 采集完成",
             artifacts=[
                 {
-                    "artifact_type": "flamegraph_svg",
-                    "filename": "pyspy.svg",
-                    "local_path": svg_path,
-                    "content_type": "image/svg+xml",
+                    # The Analyzer turns this raw sampled profile into
+                    # flamegraph_json + top_json with verifiable sample counts.
+                    "artifact_type": "raw",
+                    "filename": "pyspy-speedscope.json",
+                    "local_path": speedscope_path,
+                    "content_type": "application/json",
                     "size_bytes": size,
                     "metadata": {
-                        "schema_version": "pyspy.v1",
+                        "schema_version": "pyspy.speedscope.v1",
                         "duration_sec": task.duration_sec,
                         "sample_rate": task.sample_rate,
                         "expected_samples": task.duration_sec * task.sample_rate,

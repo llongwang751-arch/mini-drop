@@ -14,7 +14,7 @@ from server.app.ai_provider import (
 )
 
 
-def test_ai_defaults_use_current_deepseek_flash(monkeypatch):
+def test_ai_defaults_use_official_deepseek_chat(monkeypatch):
     for name in (
         "MINI_DROP_AI_PROVIDER",
         "DEEPSEEK_PROVIDER",
@@ -29,7 +29,7 @@ def test_ai_defaults_use_current_deepseek_flash(monkeypatch):
     settings = get_ai_settings()
     assert settings.provider == "deepseek"
     assert settings.base_url == "https://api.deepseek.com"
-    assert settings.model == "deepseek-v4-flash"
+    assert settings.model == "deepseek-chat"
     assert _chat_url(settings.base_url) == "https://api.deepseek.com/v1/chat/completions"
 
 

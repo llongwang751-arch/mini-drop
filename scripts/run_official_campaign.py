@@ -64,6 +64,98 @@ SUPPORTED_TAGS = {
 }
 
 
+def _number(snapshot: dict[str, Any], key: str) -> float:
+    try:
+        return float(snapshot.get(key) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def supported_tags_from_snapshots(
+    case_id: str,
+    snapshots: dict[str, Any],
+    *,
+    comparison_passed: bool,
+) -> set[str]:
+    """Return only evidence tags demonstrated by captured Campaign fields.
+
+    The benchmark score must be reconstructable from the raw Campaign JSON.
+    Therefore this function checks observed values instead of granting tags by
+    case name alone.  Existing tags remain the conservative compatibility
+    baseline while richer tags require explicit measurements.
+    """
+
+    if not comparison_passed:
+        return set()
+    baseline = snapshots.get("baseline_snapshot") or {}
+    incident = snapshots.get("fault_snapshot") or {}
+    recovery = snapshots.get("recovery_snapshot") or {}
+    if not incident:
+        return set()
+
+    tags = set(SUPPORTED_TAGS.get(case_id, set()))
+
+    if case_id in {"T1-CODE-001", "T1-CPU-001"}:
+        has_profile = bool(
+            incident.get("hot_function")
+            and _number(incident, "hot_function_samples") > 0
+            and _number(incident, "source_profile_samples") > 0
+        )
+        cpu_spike = (
+            _number(incident, "process_cpu_percent")
+            > max(_number(baseline, "process_cpu_percent") + 10, 50)
+        )
+        recovered = (
+            not recovery
+            or _number(recovery, "process_cpu_percent")
+            < _number(incident, "process_cpu_percent") * 0.5
+        )
+        if has_profile and cpu_spike and recovered:
+            tags.add("profile_hot_function")
+        if case_id == "T1-CODE-001" and not (
+            incident.get("source_file") and _number(incident, "source_line") > 0
+        ):
+            tags.discard("source_location")
+
+    if case_id == "T1-MEM-001":
+        rss_key = "process_rss_mb" if "process_rss_mb" in incident else "rss_mb"
+        rss_growth = (
+            _number(incident, rss_key)
+            - _number(baseline, rss_key)
+        )
+        retained = _number(incident, "retained_memory_mb")
+        recovered = (
+            not recovery
+            or (
+                _number(recovery, "retained_memory_mb") == 0
+                and not bool(recovery.get("memory_fault_active"))
+            )
+        )
+        if rss_growth > 10 and retained > 0 and recovered:
+            tags.update({"rss_growth", "memory_profile_growth"})
+        else:
+            tags.difference_update({"rss_growth", "memory_profile_growth"})
+
+    if case_id == "T1-NOISY-001":
+        peer_observed = bool(
+            incident.get("same_host_verified")
+            and incident.get("peer_pid")
+            and _number(incident, "peer_cpu_ticks") > 0
+        )
+        target_observed = "process_cpu_percent" in incident
+        if peer_observed:
+            tags.add("peer_cpu_pressure")
+        else:
+            tags.discard("peer_cpu_pressure")
+        # A low target CPU sample next to a busy peer is useful refuting
+        # evidence: it prevents mislabelling host contention as a target
+        # process hotspot even when no stack frame is dominant.
+        if peer_observed and target_observed:
+            tags.add("target_cpu_profile")
+
+    return tags
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -129,8 +221,12 @@ def scoring_detail(execution: dict[str, Any], run: dict[str, Any]) -> dict[str, 
         evidence_id = f"{run['run_id']}:e{index}"
         comparison_passed = bool((run.get("comparison") or {}).get("passed"))
         tags = (
-            sorted(SUPPORTED_TAGS[case_id])
-            if role == "incident" and observed and comparison_passed
+            sorted(supported_tags_from_snapshots(
+                case_id,
+                snapshots,
+                comparison_passed=comparison_passed,
+            ))
+            if role == "incident" and observed
             else []
         )
         evidence.append({
@@ -260,6 +356,11 @@ def main() -> int:
         default="MINI_DROP_API_KEY",
         help="environment variable containing the API key used by the Web gateway",
     )
+    parser.add_argument(
+        "--rescore-existing",
+        action="store_true",
+        help="rebuild submissions from saved raw Campaign JSON without injecting faults",
+    )
     args = parser.parse_args()
     output = args.output_dir.resolve()
     raw_dir = output / "raw-campaigns"
@@ -268,6 +369,21 @@ def main() -> int:
     plan = build_run_plan()
     (output / "run-plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     current = json.loads(submissions_path.read_text(encoding="utf-8")) if submissions_path.exists() else []
+    if args.rescore_existing:
+        rebuilt: list[dict[str, Any]] = []
+        for execution in plan["executions"]:
+            execution_id = execution["execution_id"]
+            raw_path = raw_dir / f"{execution_id.replace(':', '__')}.json"
+            if not raw_path.exists():
+                raise FileNotFoundError(f"missing raw Campaign: {raw_path}")
+            run = json.loads(raw_path.read_text(encoding="utf-8"))
+            rebuilt.append({
+                "case_id": execution["case_id"],
+                "strategy": execution["strategy"],
+                "repetition": execution["repetition"],
+                "diagnosis_detail": scoring_detail(execution, run),
+            })
+        current = rebuilt
     current = normalize_submission_quality(current)
     atomic_write_json(submissions_path, current)
     completed = {f"{item['case_id']}:{item['strategy']}:{item['repetition']}" for item in current}

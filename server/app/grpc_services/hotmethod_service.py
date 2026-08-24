@@ -116,6 +116,7 @@ def _has_analysis_result(artifacts: list[dict]) -> bool:
         "memory_json",
         "pprof_raw",
         "sys_metrics",
+        "database_locks_json",
     } & artifact_types)
 
 
@@ -127,6 +128,8 @@ def _analysis_done_reason(artifacts: list[dict]) -> str:
         return "内存时间序列分析已生成"
     if "sys_metrics" in artifact_types:
         return "系统多维指标分析已生成"
+    if "database_locks_json" in artifact_types:
+        return "数据库锁等待与阻塞关系分析已生成"
     if "continuous_summary" in artifact_types:
         return "连续采样窗口分析已生成"
     if "java_flamegraph_html" in artifact_types:

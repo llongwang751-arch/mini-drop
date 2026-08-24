@@ -28,6 +28,8 @@ from server.app.models import (
     AgentMetricSnapshotModel,
     AgentModel,
     AnalysisJobModel,
+    AnalysisJobInputArtifactModel,
+    AnalysisJobOutputArtifactModel,
     ArtifactModel,
     AuditLogModel,
     DiagnosisReportModel,
@@ -68,57 +70,147 @@ from server.app.state_machine import (
 
 
 class AnalysisJobMixin:
-    def enqueue_analysis_job(
+    def _enqueue_analysis_job_in_session(
         self,
+        session: OrmSession,
         task_id: str,
+        task_attempt_id: str,
         *,
         analyzer_type: str,
         analyzer_version: str,
         input_checksum: str,
-        input_artifact_ids: list[int] | None = None,
+        input_artifact_ids: list[int],
         max_retries: int = 3,
     ) -> AnalysisJobModel:
-        """Create one idempotent analyzer execution for a collected artifact set."""
-
-        key = f"{task_id}:{analyzer_type}:{analyzer_version}:{input_checksum}"
-        with self._write_session() as session:
-            existing = (
-                session.query(AnalysisJobModel)
-                .filter(AnalysisJobModel.idempotency_key == key)
-                .first()
+        if not task_attempt_id:
+            raise ValueError("task_attempt_id is required")
+        if not input_artifact_ids:
+            raise ValueError("input_artifact_ids must not be empty")
+        if len(set(input_artifact_ids)) != len(input_artifact_ids):
+            raise ValueError("input_artifact_ids must not contain duplicates")
+        attempt = (
+            session.query(TaskAttemptModel)
+            .filter(
+                TaskAttemptModel.task_id == task_id,
+                TaskAttemptModel.id == task_attempt_id,
             )
-            if existing is not None:
-                return existing
-            ts = now_utc()
-            attempts = (
-                session.query(TaskAttemptModel)
-                .filter(TaskAttemptModel.task_id == task_id)
-                .order_by(TaskAttemptModel.attempt_no.desc())
-                .first()
-            )
-            job = AnalysisJobModel(
-                id=f"analysis_{uuid4().hex}",
+            .one_or_none()
+        )
+        if attempt is None:
+            raise ValueError("TaskAttempt identity does not match task")
+        artifacts = (
+            session.query(ArtifactModel)
+            .filter(ArtifactModel.id.in_(input_artifact_ids))
+            .all()
+        )
+        if len(artifacts) != len(input_artifact_ids):
+            raise ValueError("input artifact does not exist")
+        if any(
+            artifact.task_id != task_id
+            or artifact.task_attempt_id != task_attempt_id
+            or artifact.analysis_job_id is not None
+            for artifact in artifacts
+        ):
+            raise ValueError("input artifact lineage does not match AnalysisJob")
+        key = (
+            f"{task_id}:{task_attempt_id}:{analyzer_type}:"
+            f"{analyzer_version}:{input_checksum}"
+        )
+        existing = (
+            session.query(AnalysisJobModel)
+            .filter(AnalysisJobModel.idempotency_key == key)
+            .first()
+        )
+        if existing is not None:
+            existing_ids = [
+                row.artifact_id
+                for row in (
+                    session.query(AnalysisJobInputArtifactModel)
+                    .filter(
+                        AnalysisJobInputArtifactModel.analysis_job_id == existing.id
+                    )
+                    .order_by(AnalysisJobInputArtifactModel.id.asc())
+                    .all()
+                )
+            ]
+            if existing_ids != input_artifact_ids:
+                raise ValueError("idempotent AnalysisJob input binding mismatch")
+            return existing
+        ts = now_utc()
+        job = AnalysisJobModel(
+            id=f"analysis_{uuid4().hex}",
+            task_id=task_id,
+            task_attempt_id=task_attempt_id,
+            analyzer_type=analyzer_type,
+            analyzer_version=analyzer_version,
+            input_checksum=input_checksum,
+            input_artifact_ids_json=list(input_artifact_ids),
+            idempotency_key=key,
+            status="PENDING",
+            status_reason="采集产物已持久化，等待 Analyzer Worker",
+            retry_count=0,
+            max_retries=max(0, int(max_retries)),
+            next_run_at=ts,
+            created_at=ts,
+            updated_at=ts,
+        )
+        session.add(job)
+        session.flush()
+        for artifact_id in input_artifact_ids:
+            session.add(AnalysisJobInputArtifactModel(
+                analysis_job_id=job.id,
+                artifact_id=artifact_id,
                 task_id=task_id,
-                task_attempt_id=attempts.id if attempts else None,
-                analyzer_type=analyzer_type,
-                analyzer_version=analyzer_version,
-                input_checksum=input_checksum,
-                input_artifact_ids_json=list(input_artifact_ids or []),
-                idempotency_key=key,
-                status="PENDING",
-                status_reason="采集产物已持久化，等待 Analyzer Worker",
-                retry_count=0,
-                max_retries=max(0, int(max_retries)),
-                next_run_at=ts,
+                task_attempt_id=task_attempt_id,
                 created_at=ts,
-                updated_at=ts,
-            )
+            ))
+        task = session.get(TaskModel, task_id)
+        if task is not None:
+            task.analysis_status = AnalysisStatus.QUEUED.value
+        self._write_audit(
+            session,
+            "ANALYSIS_JOB_ENQUEUED",
+            task_id=task_id,
+            message=f"分析任务已入队: {analyzer_type}@{analyzer_version}",
+            metadata={
+                "analysis_job_id": job.id,
+                "task_attempt_id": task_attempt_id,
+                "input_checksum": input_checksum,
+                "input_artifact_ids": input_artifact_ids,
+            },
+        )
+        record_analysis_job("PENDING", analyzer_type)
+        return job
+
+    def enqueue_analysis_job(
+        self,
+        task_id: str,
+        *,
+        task_attempt_id: str,
+        analyzer_type: str,
+        analyzer_version: str,
+        input_checksum: str,
+        input_artifact_ids: list[int],
+        max_retries: int = 3,
+    ) -> AnalysisJobModel:
+        with self._write_session() as session:
             try:
                 with session.begin_nested():
-                    session.add(job)
-                    session.flush()
+                    return self._enqueue_analysis_job_in_session(
+                        session,
+                        task_id,
+                        task_attempt_id,
+                        analyzer_type=analyzer_type,
+                        analyzer_version=analyzer_version,
+                        input_checksum=input_checksum,
+                        input_artifact_ids=list(input_artifact_ids),
+                        max_retries=max_retries,
+                    )
             except IntegrityError:
-                # Another API replica won the idempotency race.
+                key = (
+                    f"{task_id}:{task_attempt_id}:{analyzer_type}:"
+                    f"{analyzer_version}:{input_checksum}"
+                )
                 winner = (
                     session.query(AnalysisJobModel)
                     .filter(AnalysisJobModel.idempotency_key == key)
@@ -126,19 +218,20 @@ class AnalysisJobMixin:
                 )
                 if winner is None:
                     raise
+                winner_ids = [
+                    row.artifact_id
+                    for row in (
+                        session.query(AnalysisJobInputArtifactModel)
+                        .filter(
+                            AnalysisJobInputArtifactModel.analysis_job_id == winner.id
+                        )
+                        .order_by(AnalysisJobInputArtifactModel.id.asc())
+                        .all()
+                    )
+                ]
+                if winner_ids != list(input_artifact_ids):
+                    raise ValueError("idempotent AnalysisJob input binding mismatch")
                 return winner
-            task = session.get(TaskModel, task_id)
-            if task is not None:
-                task.analysis_status = AnalysisStatus.QUEUED.value
-            self._write_audit(
-                session,
-                "ANALYSIS_JOB_ENQUEUED",
-                task_id=task_id,
-                message=f"分析任务已入队: {analyzer_type}@{analyzer_version}",
-                metadata={"analysis_job_id": job.id, "input_checksum": input_checksum},
-            )
-            record_analysis_job("PENDING", analyzer_type)
-            return job
 
     def list_analysis_jobs(
         self, *, task_id: str | None = None, status: str | None = None, limit: int = 100
@@ -274,8 +367,29 @@ class AnalysisJobMixin:
                 return job
             if job.status != "RUNNING" or job.lease_owner != worker_id:
                 raise ValueError("分析任务租约不属于当前 Worker")
+            if not job.task_attempt_id:
+                raise ValueError("AnalysisJob has no exact TaskAttempt lineage")
             ts = now_utc()
             ids = list(output_artifact_ids or [])
+            if len(set(ids)) != len(ids):
+                raise ValueError("output_artifact_ids must not contain duplicates")
+            if ids:
+                existing_outputs = (
+                    session.query(ArtifactModel)
+                    .filter(ArtifactModel.id.in_(ids))
+                    .all()
+                )
+                if len(existing_outputs) != len(ids):
+                    raise ValueError("output artifact does not exist")
+                if any(
+                    artifact.task_id != job.task_id
+                    or artifact.task_attempt_id != job.task_attempt_id
+                    or artifact.analysis_job_id is not None
+                    for artifact in existing_outputs
+                ):
+                    raise ValueError("output artifact lineage does not match AnalysisJob")
+                for artifact in existing_outputs:
+                    artifact.analysis_job_id = job.id
             for artifact in output_artifacts or []:
                 analyzer_verified = (
                     artifact.get("integrity_status") == "VERIFIED"
@@ -291,6 +405,8 @@ class AnalysisJobMixin:
                     artifact["local_path"] = None
                 model = ArtifactModel(
                     task_id=job.task_id,
+                    task_attempt_id=job.task_attempt_id,
+                    analysis_job_id=job.id,
                     artifact_type=artifact.get("artifact_type", "analysis"),
                     bucket=artifact.get("bucket", "mini-drop"),
                     object_key=artifact.get("object_key", ""),
@@ -308,6 +424,14 @@ class AnalysisJobMixin:
                 session.add(model)
                 session.flush()
                 ids.append(int(model.id))
+            for artifact_id in ids:
+                session.add(AnalysisJobOutputArtifactModel(
+                    analysis_job_id=job.id,
+                    artifact_id=artifact_id,
+                    task_id=job.task_id,
+                    task_attempt_id=job.task_attempt_id,
+                    created_at=ts,
+                ))
             job.status = "SUCCEEDED"
             job.status_reason = reason
             job.output_artifact_ids_json = ids

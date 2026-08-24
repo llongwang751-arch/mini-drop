@@ -1,6 +1,6 @@
 # Mini-Drop Official 90-Run Strategy Evaluation
 
-- Generated at: `2026-08-10T06:01:09.358681+00:00`
+- Generated at: `2026-08-24T15:31:40.636875+00:00`
 - Executions: `90 / 90`
 - Unique execution IDs: `90`
 - Completeness gate: `PASS`
@@ -10,9 +10,9 @@
 
 | Strategy | Runs | Average score | Exact root cause | Evidence integrity | Unsupported claims | Required evidence coverage |
 |---|---:|---:|---:|---:|---:|---:|
-| CONSTRAINED_HYBRID | 30 | 87.89% | 86.7% | 100.0% | 0.0% | 70.0% |
-| DECISION_TREE | 30 | 83.67% | 80.0% | 100.0% | 0.0% | 70.0% |
-| EXPLORATORY | 30 | 85.78% | 83.3% | 100.0% | 0.0% | 70.0% |
+| CONSTRAINED_HYBRID | 30 | 92.0% | 90.0% | 100.0% | 0.0% | 80.0% |
+| DECISION_TREE | 30 | 92.0% | 90.0% | 100.0% | 0.0% | 80.0% |
+| EXPLORATORY | 30 | 92.0% | 90.0% | 100.0% | 0.0% | 80.0% |
 
 ## Method
 

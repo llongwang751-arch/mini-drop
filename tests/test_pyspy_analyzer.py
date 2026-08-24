@@ -9,7 +9,7 @@ from server.app.analyzer_runner import analyze_speedscope_artifacts
 
 
 def _build_speedscope() -> dict:
-    # py-spy speedscope: samples are leaf-first stacks over shared frames.
+    # Speedscope sampled profiles use root-first stacks over shared frames.
     return {
         "$schema": "https://www.speedscope.app/file-format-schema.json",
         "activeProfileIndex": 0,
@@ -21,8 +21,8 @@ def _build_speedscope() -> dict:
                 "endValue": 150,
                 "unit": "milliseconds",
                 "samples": [
-                    [2, 1, 0],  # leaf frame_2 -> frame_1 -> frame_0
-                    [2, 0],
+                    [0, 1, 2],  # main -> compute -> worker (leaf)
+                    [0, 2],
                 ],
                 "weights": [100, 50],
             }
@@ -47,15 +47,37 @@ def test_analyze_speedscope_rebuilds_top_and_flame_tree():
     result = analyze_speedscope(_build_speedscope())
     assert result["sample_count"] == 150
     by_name = {row["name"]: row for row in result["top"]}
-    assert set(by_name) == {"main", "compute", "worker"}
+    assert set(by_name) == {"worker"}
     assert by_name["worker"]["samples"] == 150
-    assert by_name["main"]["samples"] == 150
-    assert by_name["compute"]["samples"] == 100
 
     tree = result["flamegraph"]
     assert tree["value"] == 150
     main = tree["children"][0]
     assert main["name"] == "main" and main["value"] == 150
+
+
+def test_analyze_speedscope_counts_fractional_sampling_intervals():
+    document = _build_speedscope()
+    document["profiles"][0]["weights"] = [0.0101, 0.0101]
+    result = analyze_speedscope(document)
+    assert result["sample_count"] == 2
+    assert result["top"][0] == {
+        "name": "worker", "file": "app.py", "line": 30,
+        "samples": 2, "percent": 100.0,
+    }
+
+
+def test_analyze_speedscope_aggregates_all_thread_profiles():
+    document = _build_speedscope()
+    document["profiles"].append({
+        "type": "sampled",
+        "name": "second-thread",
+        "samples": [[0, 1]],
+        "weights": [50],
+    })
+    result = analyze_speedscope(document)
+    assert result["sample_count"] == 200
+    assert {row["name"] for row in result["top"]} == {"worker", "compute"}
 
 
 def test_pyspy_cli_writes_outputs(tmp_path):
@@ -72,7 +94,7 @@ def test_pyspy_cli_writes_outputs(tmp_path):
     )
     assert proc.returncode == 0, proc.stderr
     top = json.loads((out / "task-pyspy" / "top.json").read_text())
-    assert top and top[0]["name"] in {"main", "worker"}
+    assert top and top[0]["name"] == "worker"
     flame = json.loads((out / "task-pyspy" / "flamegraph.json").read_text())
     assert flame["name"] == "root" and flame["value"] == 150
 
@@ -110,4 +132,6 @@ def test_analyzer_runner_speedscope_integration(tmp_path, monkeypatch):
     by_type = {item["artifact_type"]: item for item in outputs}
     assert "flamegraph_json" in by_type and "top_json" in by_type
     assert by_type["flamegraph_json"]["metadata"]["schema_version"] == "pyspy_analysis.v1"
-    assert by_type["flamegraph_json"]["metadata"]["top_functions"][0]["name"] in {"main", "worker"}
+    assert by_type["flamegraph_json"]["metadata"]["top_functions"][0]["name"] == "worker"
+    assert by_type["flamegraph_json"]["metadata"]["top_functions"][0]["file"] == "app.py"
+    assert by_type["flamegraph_json"]["metadata"]["top_functions"][0]["line"] == 30

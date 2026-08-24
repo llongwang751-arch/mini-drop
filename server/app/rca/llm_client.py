@@ -43,7 +43,12 @@ def diagnose(
     evidence_json = _serialize_evidence(evidence)
     candidate_caps = _candidate_confidence_caps(candidates_json)
     system_prompt = build_system_prompt(model_name)
-    user_message = build_user_message(evidence_json, candidates_json)
+    valid_paths = _collect_evidence_paths(evidence)
+    user_message = build_user_message(
+        evidence_json,
+        candidates_json,
+        allowed_evidence_refs=_flatten_evidence_paths(valid_paths),
+    )
 
     if not is_feature_enabled("rca"):
         return _fallback_report(task_id, evidence, candidates_json)
@@ -59,6 +64,7 @@ def diagnose(
             raw = _call_deepseek(messages, model_name)
             report, issues = _validate_and_parse(raw, evidence, candidate_caps)
             if not issues:
+                report = _enforce_fix_verification_boundary(report, evidence)
                 report = _apply_confidence_caps(report, candidate_caps)
                 return ValidatedReport(
                     task_id=task_id,
@@ -221,6 +227,11 @@ def _validate_and_parse(
         for ref in cause.evidence_refs:
             if not _ref_exists(ref, valid_paths):
                 issues.append(f"ranked_causes[{i}].evidence_refs 中的 '{ref}' 不在证据路径中")
+        for ref in cause.counter_evidence_refs:
+            if not _ref_exists(ref, valid_paths):
+                issues.append(
+                    f"ranked_causes[{i}].counter_evidence_refs 中的 '{ref}' 不在证据路径中"
+                )
 
     # 步骤 4：边界校验
     if report.not_enough_evidence and not report.ranked_causes:
@@ -232,6 +243,53 @@ def _validate_and_parse(
         return None, issues
 
     return report, []
+
+
+def _enforce_fix_verification_boundary(
+    report: DiagnosisReport,
+    evidence: EvidenceInput,
+) -> DiagnosisReport:
+    """Do not turn a failed fix verification into an invented root cause.
+
+    A post-fix snapshot can prove that a release or cleanup condition still
+    fails.  Without separate causal evidence it cannot prove where the
+    original defect lives.  Keep the useful mechanism statement, but abstain
+    on the ownership boundary so model wording cannot bypass this rule.
+    """
+
+    failed_verification = False
+    causal_evidence = False
+    for item in evidence.tool_results or []:
+        output = item.get("output") if isinstance(item, dict) else None
+        if not isinstance(output, dict):
+            continue
+        projection = output.get("projection")
+        observed = projection if isinstance(projection, dict) else output
+        if observed.get("release_verified") is False:
+            failed_verification = True
+        if observed.get("after_cleanup") is True and (
+            int(observed.get("detached_nodes") or 0) > 0
+            or int(observed.get("reachable_from_root") or 0) > 0
+        ):
+            failed_verification = True
+        if any(
+            observed.get(field)
+            for field in (
+                "causal_symbol",
+                "causal_source_location",
+                "allocation_site",
+                "retention_path",
+            )
+        ):
+            causal_evidence = True
+
+    if failed_verification and not causal_evidence:
+        report.not_enough_evidence = True
+        for cause in report.ranked_causes:
+            cause.root_location = "unknown"
+            if "原始根因边界尚未由因果证据闭合" not in cause.uncertainties:
+                cause.uncertainties.append("原始根因边界尚未由因果证据闭合")
+    return report
 
 
 def _candidate_confidence_caps(candidates_json: str) -> dict[str, float]:
@@ -306,22 +364,27 @@ def _collect_evidence_paths(evidence: EvidenceInput) -> dict[str, set[str]]:
             paths["top_functions"].update(item.keys())
 
     if evidence.ebpf_metrics:
-        paths["ebpf_metrics"] = set(evidence.ebpf_metrics.keys())
+        paths["ebpf_metrics"] = _nested_paths(evidence.ebpf_metrics)
 
     if evidence.baseline_diff:
-        paths["baseline_diff"] = set(evidence.baseline_diff.keys())
+        paths["baseline_diff"] = _nested_paths(evidence.baseline_diff)
 
     if evidence.agent_stats:
-        paths["agent_stats"] = set(evidence.agent_stats.keys())
+        paths["agent_stats"] = _nested_paths(evidence.agent_stats)
 
     if evidence.task_metadata:
-        paths["task_metadata"] = set(evidence.task_metadata.keys())
+        paths["task_metadata"] = _nested_paths(evidence.task_metadata)
 
     if evidence.tool_results:
         # tool_results can be referenced by tool_name and also by generic keys
         tool_paths: set[str] = set()
         for item in evidence.tool_results:
             tn = item.get("tool_name", "")
+            evidence_ref = item.get("evidence_ref", "")
+            if evidence_ref:
+                # External evidence IDs (for example ev-01-profile) are valid
+                # first-class references, not display-only metadata.
+                paths[str(evidence_ref)] = set()
             if tn:
                 tool_paths.add(tn)
             # collect common tool result top-level fields
@@ -331,8 +394,8 @@ def _collect_evidence_paths(evidence: EvidenceInput) -> dict[str, set[str]]:
                     tool_paths.add(f"{tn}.{field}" if tn else field)
             # also collect sub-keys of tool output so LLM can reference them
             out = item.get("output", {}) if isinstance(item.get("output"), dict) else {}
-            for k in out.keys():
-                tool_paths.add(f"{tn}.output.{k}" if tn else k)
+            for nested in _nested_paths(out):
+                tool_paths.add(f"{tn}.output.{nested}" if tn else f"output.{nested}")
         paths["tool_results"] = tool_paths
 
     # Top-level scalar fields on EvidenceInput — LLM can reference them directly
@@ -341,9 +404,37 @@ def _collect_evidence_paths(evidence: EvidenceInput) -> dict[str, set[str]]:
     if evidence.suggestions:
         paths["suggestions"] = set()  # list field
     if evidence.sys_metrics:
-        paths["sys_metrics"] = set(evidence.sys_metrics.keys()) if isinstance(evidence.sys_metrics, dict) else set()
+        paths["sys_metrics"] = (
+            _nested_paths(evidence.sys_metrics)
+            if isinstance(evidence.sys_metrics, dict)
+            else set()
+        )
 
     return paths
+
+
+def _nested_paths(value: object, prefix: str = "") -> set[str]:
+    """Return every real container/leaf path without inventing schema fields."""
+    result: set[str] = set()
+    if isinstance(value, dict):
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            result.add(path)
+            result.update(_nested_paths(child, path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value[:10]):
+            path = f"{prefix}[{index}]"
+            result.add(path)
+            result.update(_nested_paths(child, path))
+    return result
+
+
+def _flatten_evidence_paths(valid_paths: dict[str, set[str]]) -> list[str]:
+    refs: list[str] = []
+    for top, children in valid_paths.items():
+        refs.append(top)
+        refs.extend(f"{top}.{child}" for child in sorted(children))
+    return refs[:240]
 
 
 def _ref_exists(ref: str, valid_paths: dict[str, set[str]]) -> bool:
@@ -355,6 +446,7 @@ def _ref_exists(ref: str, valid_paths: dict[str, set[str]]) -> bool:
       - "tool_results[3].output.failure_reasons" → LLM 用索引引用 tool_results，
         校验时去掉索引 + tool_name 前缀做 lenient 匹配
     """
+    raw_base = ref
     # 去掉索引后缀: "top_functions[0]" → "top_functions"
     base = re.sub(r"\[\d+\]", "", ref)
     # 取顶层 key
@@ -371,7 +463,10 @@ def _ref_exists(ref: str, valid_paths: dict[str, set[str]]) -> bool:
     sub_paths = valid_paths[top]
 
     # 精确匹配
-    if sub in sub_paths:
+    raw_sub = raw_base.split(".", 1)[1] if "." in raw_base else ""
+    if sub in sub_paths or raw_sub in sub_paths:
+        return True
+    if any(re.sub(r"\[\d+\]", "", candidate) == sub for candidate in sub_paths):
         return True
 
     # Lenient: tool_results 的 LLM 可能用索引或省略 tool_name 前缀

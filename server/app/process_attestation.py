@@ -218,7 +218,20 @@ def binding_matches_candidate(
     binding: ProcessIdentityBinding,
     candidate: ResolvedProcessCandidate,
 ) -> bool:
-    return binding == candidate.binding()
+    # Snapshot id/generation identify the attestation event, not the process.
+    # A later authoritative heartbeat may reaffirm the same live process and
+    # should refresh its lease. PID reuse/restart is still rejected by the
+    # immutable boot/start/namespace/executable tuple below.
+    latest = candidate.binding()
+    return all((
+        binding.agent_id == latest.agent_id,
+        binding.pid == latest.pid,
+        binding.boot_id == latest.boot_id,
+        binding.process_start_ticks == latest.process_start_ticks,
+        binding.pid_namespace_inode == latest.pid_namespace_inode,
+        binding.namespace_pid == latest.namespace_pid,
+        binding.executable_identity == latest.executable_identity,
+    ))
 
 
 def candidate_identity_tuple(candidate: ProcessCandidateInput) -> tuple[Any, ...]:

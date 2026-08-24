@@ -27,6 +27,7 @@ MINIMUM_SAMPLES = {
     "go_pprof": 50,
     "memory_smaps": 3,
     "sys_metrics": 5,
+    "database_lock": 3,
 }
 
 COLLECTOR_ALIASES = {"perf": "perf_cpu"}

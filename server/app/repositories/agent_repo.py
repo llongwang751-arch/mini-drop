@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 
@@ -18,7 +19,7 @@ from typing import Any
 from uuid import uuid4
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import and_, func, or_, text
+from sqlalchemy import and_, func, or_, select, text
 from sqlalchemy.orm import Session as OrmSession
 
 from server.app.cron import next_schedule_fire
@@ -35,6 +36,7 @@ from server.app.models import (
     DiagnosisReportModel,
     DiagnosisRunModel,
     DiagnosisToolResultModel,
+    DropInsightTargetBindingModel,
     CompositeTaskItemModel,
     CompositeTaskModel,
     FixVerificationModel,
@@ -249,6 +251,10 @@ class AgentMixin:
                 received_at=timestamp,
             )
             session.add(row)
+            # The models intentionally do not expose an ORM relationship.
+            # Flush the FK parent before bulk-inserting candidate rows so
+            # PostgreSQL cannot choose the child INSERT first.
+            session.flush()
             for candidate in payload.candidates:
                 if candidate.pid <= 0 or candidate.process_start_ticks <= 0 or candidate.pid_namespace_inode <= 0 or candidate.namespace_pid <= 0:
                     continue
@@ -267,7 +273,48 @@ class AgentMixin:
                     collector_capabilities=list(candidate.collector_capabilities),
                 ))
             session.flush()
+            self._prune_process_candidate_snapshots(session, agent_id)
             return self._resolved_process_snapshot_in_session(session, row)
+
+    @staticmethod
+    def _prune_process_candidate_snapshots(
+        session: OrmSession,
+        agent_id: str,
+    ) -> int:
+        """Bound heartbeat history while preserving every referenced authority."""
+
+        try:
+            retention = int(os.getenv(
+                "MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT", "120"
+            ))
+        except ValueError:
+            retention = 120
+        retention = min(max(retention, 2), 10_000)
+        stale_ids = (
+            session.query(ProcessCandidateSnapshotModel.id)
+            .filter(ProcessCandidateSnapshotModel.agent_id == agent_id)
+            .order_by(
+                ProcessCandidateSnapshotModel.received_at.desc(),
+                ProcessCandidateSnapshotModel.id.desc(),
+            )
+            .offset(retention)
+            .limit(100)
+            .subquery()
+        )
+        return (
+            session.query(ProcessCandidateSnapshotModel)
+            .filter(
+                ProcessCandidateSnapshotModel.id.in_(select(stale_ids.c.id)),
+                ~session.query(TaskModel.id).filter(
+                    TaskModel.process_snapshot_id == ProcessCandidateSnapshotModel.id
+                ).exists(),
+                ~session.query(DropInsightTargetBindingModel.id).filter(
+                    DropInsightTargetBindingModel.process_snapshot_id
+                    == ProcessCandidateSnapshotModel.id
+                ).exists(),
+            )
+            .delete(synchronize_session=False)
+        )
 
     def get_process_candidate_snapshot(
         self, agent_id: str

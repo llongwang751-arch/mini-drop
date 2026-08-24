@@ -15,6 +15,7 @@ from server.app.rca.evidence import collect_evidence, evidence_to_json
 from server.app.rca.llm_client import (
     _apply_confidence_caps,
     _collect_evidence_paths,
+    _enforce_fix_verification_boundary,
     _extract_json,
     _ref_exists,
     _validate_and_parse,
@@ -123,6 +124,34 @@ class TestCandidateGeneration:
         assert len(candidates) == 1
         assert candidates[0].candidate_id == "insufficient_data"
 
+    def test_external_evidence_is_not_discarded_as_insufficient(self):
+        task = _StubTask()
+        ev = collect_evidence(
+            task_id="t-external",
+            task_record=task,
+            tool_results=[
+                {
+                    "tool_name": "retained_capacity",
+                    "status": "success",
+                    "evidence_ref": "ev-capacity",
+                    "output": {"active_items": 120, "backing_capacity": 16384},
+                },
+                {
+                    "tool_name": "benchmark_boundary",
+                    "status": "success",
+                    "evidence_ref": "ev-boundary",
+                    "output": {"reproduced": False},
+                },
+            ],
+        )
+        candidates = generate_candidates(ev)
+        candidate = next(
+            item for item in candidates
+            if item.candidate_id == "external_evidence_synthesis"
+        )
+        assert candidate.evidence_refs == ["ev-capacity", "ev-boundary"]
+        assert all(item.candidate_id != "insufficient_data" for item in candidates)
+
     def test_target_pid_invalid_matched(self):
         task = _StubTask()
         task.status = "FAILED"
@@ -183,6 +212,13 @@ class TestPromptTemplate:
         assert "硬性约束" in prompt
         assert "evidence_refs" in prompt
         assert "样例" in prompt
+
+    def test_prompt_separates_fix_verification_from_root_attribution(self):
+        prompt = build_system_prompt()
+        assert "修复结果判定" in prompt
+        assert "原始根因定位" in prompt
+        assert "release_verified=false" in prompt
+        assert "root_location 必须为 unknown" in prompt
 
     def test_prompt_contains_few_shots(self):
         prompt = build_system_prompt()
@@ -328,6 +364,76 @@ class TestValidationAndParsing:
         )
         assert capped.ranked_causes[0].confidence == 0.61
 
+    def test_failed_fix_verification_does_not_invent_root_location(self):
+        report = DiagnosisReport(
+            summary="cleanup did not release retained objects",
+            ranked_causes=[CauseEntry(
+                cause_id="retained_objects_after_cleanup",
+                root_location="self",
+                mechanism="objects remain reachable after cleanup",
+                confidence=0.88,
+                claim="the original defect is in this service",
+                evidence_refs=["ev-08-nodes", "ev-08-map"],
+            )],
+            facts=[],
+        )
+        evidence = EvidenceInput(tool_results=[
+            {
+                "tool_name": "get_evidence_slice",
+                "status": "ok",
+                "evidence_ref": "ev-08-nodes",
+                "output": {"projection": {
+                    "detached_nodes": 64,
+                    "reachable_from_root": 64,
+                    "after_cleanup": True,
+                }},
+            },
+            {
+                "tool_name": "query_metrics",
+                "status": "ok",
+                "evidence_ref": "ev-08-map",
+                "output": {"projection": {
+                    "map_entries_before": 64,
+                    "map_entries_after": 64,
+                    "release_verified": False,
+                }},
+            },
+        ])
+
+        bounded = _enforce_fix_verification_boundary(report, evidence)
+
+        assert bounded.not_enough_evidence is True
+        assert bounded.ranked_causes[0].root_location == "unknown"
+        assert "原始根因边界尚未由因果证据闭合" in bounded.ranked_causes[0].uncertainties
+
+    def test_failed_fix_verification_keeps_root_when_causal_evidence_exists(self):
+        report = DiagnosisReport(
+            summary="retention path identifies the owner",
+            ranked_causes=[CauseEntry(
+                cause_id="retained_objects_after_cleanup",
+                root_location="self",
+                mechanism="a concrete retention path keeps objects alive",
+                confidence=0.88,
+                claim="the retaining field is owned by this service",
+                evidence_refs=["ev-retention"],
+            )],
+            facts=[],
+        )
+        evidence = EvidenceInput(tool_results=[{
+            "tool_name": "inspect_heap_retention",
+            "status": "ok",
+            "evidence_ref": "ev-retention",
+            "output": {"projection": {
+                "release_verified": False,
+                "retention_path": "RepositoryController.workqueue.items",
+            }},
+        }])
+
+        bounded = _enforce_fix_verification_boundary(report, evidence)
+
+        assert bounded.not_enough_evidence is False
+        assert bounded.ranked_causes[0].root_location == "self"
+
     def test_missing_required_fields_rejected(self):
         evidence = EvidenceInput()
         raw = '{"summary":"x"}'
@@ -368,6 +474,55 @@ class TestValidationAndParsing:
         assert _ref_exists("top_functions[0]", paths) is True
         assert _ref_exists("top_functions", paths) is True
         assert _ref_exists("nonexistent", paths) is False
+
+    def test_nested_sys_metric_refs_are_collected_and_validated(self):
+        evidence = EvidenceInput(
+            sys_metrics={
+                "summary": {"avg_cpu_iowait_pct": 82.5},
+                "samples": [{"rss_mb": [10, 12, 18]}],
+            }
+        )
+        paths = _collect_evidence_paths(evidence)
+        assert _ref_exists("sys_metrics.summary.avg_cpu_iowait_pct", paths) is True
+        assert _ref_exists("sys_metrics.samples[0].rss_mb", paths) is True
+        assert _ref_exists("sys_metrics.summary.not_observed", paths) is False
+
+    def test_counter_evidence_reference_must_exist(self):
+        evidence = EvidenceInput(tool_results=[{
+            "tool_name": "cpu_profile_topn",
+            "status": "success",
+            "evidence_ref": "ev-01-profile",
+            "output": {},
+        }])
+        raw = json.dumps({
+            "summary": "bounded conclusion",
+            "ranked_causes": [{
+                "cause_id": "cpu_hotspot",
+                "root_location": "self",
+                "mechanism": "a hot loop consumes CPU",
+                "confidence": 0.7,
+                "claim": "CPU hot loop",
+                "evidence_refs": ["ev-01-profile"],
+                "counter_evidence_refs": ["ev-01-missing"],
+                "uncertainties": [],
+                "verification_steps": [],
+            }],
+            "facts": [],
+            "not_enough_evidence": False,
+        })
+        report, issues = _validate_and_parse(raw, evidence)
+        assert report is None
+        assert any("counter_evidence_refs" in issue for issue in issues)
+
+    def test_prompt_lists_exact_allowed_evidence_refs(self):
+        msg = build_user_message(
+            '{}',
+            '[]',
+            allowed_evidence_refs=["ev-01-profile", "sys_metrics.summary.avg_cpu_user_pct"],
+        )
+        assert "允许的 evidence_refs" in msg
+        assert "ev-01-profile" in msg
+        assert "不得自造路径" in msg
 
     def test_tool_result_ref_is_valid(self):
         evidence = EvidenceInput(
@@ -423,6 +578,28 @@ class TestToolAndRepairFlow:
         flame_tool = next(item for item in tools if item.tool_name == "get_flamegraph_top")
         assert flame_tool.status == "success"
         assert flame_tool.evidence_ref == "tool_results.get_flamegraph_top"
+
+    def test_external_evidence_ids_survive_import_and_are_referenceable(self):
+        external = [{
+            "tool_name": "cpu_profile_topn",
+            "status": "success",
+            "evidence_ref": "ev-01-profile",
+            "output": {"top_functions": [{"name": "calculate_price", "percent": 81}]},
+        }]
+        with mock.patch.dict("os.environ", {}, clear=True):
+            outcome = run_diagnosis_context(
+                task_id="task-external-evidence",
+                task_record=_StubTask(),
+                external_tool_results=external,
+            )
+
+        snapshot = EvidenceInput.model_validate(outcome.report.evidence_snapshot)
+        imported = next(
+            item for item in snapshot.tool_results
+            if item.get("evidence_ref") == "ev-01-profile"
+        )
+        assert imported["output"]["top_functions"][0]["name"] == "calculate_price"
+        assert _ref_exists("ev-01-profile", _collect_evidence_paths(snapshot)) is True
 
     def test_context_is_read_only_by_default(self):
         stub_repo = _StubRepo()

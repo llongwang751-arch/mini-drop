@@ -130,13 +130,18 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             try:
                 yield session
                 session.commit()
+                pending_notifications = list(
+                    session.info.get("task_change_notifications", ())
+                )
             except Exception:
                 session.rollback()
                 raise
             finally:
                 session.close()
-            # 写入后清除所有 TTL 缓存，确保下次读取拿到最新数据
+            # 写入后先清除所有 TTL 缓存，通知处理器失败也不能留下陈旧读缓存。
             self._cache.clear()
+            for notification in pending_notifications:
+                notify_task_changed(*notification)
 
     @contextmanager
     def _read_session(self):
@@ -214,8 +219,11 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
         metadata: dict[str, Any] | None = None,
         *,
         task_attempt_authority_sha256: str | None = None,
+        task_attempt_id: str | None = None,
     ) -> TaskAttemptModel | None:
         task = session.get(TaskModel, task_id)
+        if task is None:
+            raise ValueError(f"任务 {task_id} 不存在")
         # 事件：from 用旧 status value
         from_status = task.status
         session.add(StatusEventModel(
@@ -261,12 +269,20 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             TaskStatus.FAILED,
             TaskStatus.CANCELLED,
         }:
-            attempt = (
-                session.query(TaskAttemptModel)
-                .filter(TaskAttemptModel.task_id == task_id)
-                .order_by(TaskAttemptModel.attempt_no.desc())
-                .first()
+            query = session.query(TaskAttemptModel).filter(
+                TaskAttemptModel.task_id == task_id
             )
+            if task_attempt_id is not None:
+                query = query.filter(
+                    TaskAttemptModel.id == task_attempt_id
+                )
+                attempt = query.one_or_none()
+            else:
+                attempt = query.order_by(
+                    TaskAttemptModel.attempt_no.desc()
+                ).first()
+            if task_attempt_id is not None and attempt is None:
+                raise ValueError("TaskAttempt identity does not match task")
             if attempt is not None:
                 # TaskAttempt describes collection execution only. Analyzer
                 # retries and failures are tracked by AnalysisJobModel.
@@ -286,8 +302,9 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
         if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
             task.finished_at = now_utc()
 
-        # 发布 SSE 事件
-        notify_task_changed(task_id, from_status, to_status.value, reason)
+        session.info.setdefault("task_change_notifications", []).append(
+            (task_id, from_status, to_status.value, reason)
+        )
         return attempt if to_status == TaskStatus.RUNNING else None
 
     @staticmethod

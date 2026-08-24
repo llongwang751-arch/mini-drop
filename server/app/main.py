@@ -215,8 +215,17 @@ async def _lifespan(_app: FastAPI):
 
 def _run_maintenance_once() -> None:
     timeout_sec = int(os.getenv("AGENT_OFFLINE_TIMEOUT_SEC", "30"))
+    from server.app.drop_insight.service import maintain_drop_insight_sessions
+
     maintenance_steps = (
         ("mark_offline_agents", lambda: repo.mark_offline_agents(timeout_sec=timeout_sec)),
+        (
+            "expire_stale_task_leases",
+            lambda: repo.expire_stale_task_leases()
+            if hasattr(repo, "expire_stale_task_leases")
+            else None,
+        ),
+        ("maintain_drop_insight_sessions", maintain_drop_insight_sessions),
         (
             "persist_agent_metric_snapshots",
             lambda: repo.persist_agent_metric_snapshots()

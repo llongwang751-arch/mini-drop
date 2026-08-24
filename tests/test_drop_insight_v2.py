@@ -417,6 +417,33 @@ def test_target_discovery_ready_ambiguous_and_opaque():
     assert ready["candidates"][0]["binding_id"].startswith("binding_")
 
 
+def test_target_discovery_keeps_authoritative_candidate_when_another_agent_is_absent():
+    client = TestClient(app)
+    _seed_agent_snapshot()
+    timestamp = now_utc()
+    session = new_session()
+    session.add(AgentModel(
+        id="agent-without-snapshot",
+        hostname="empty-host",
+        ip_addr="127.0.0.2",
+        version="1.0",
+        os_info="linux",
+        capabilities=["perf_cpu"],
+        status="ONLINE",
+        last_heartbeat_at=timestamp,
+        created_at=timestamp,
+        updated_at=timestamp,
+    ))
+    session.commit()
+    session.close()
+    diagnosis = _create_scoped_diagnosis(client)
+
+    discovery = _discover(client, diagnosis["diagnosis_id"])
+
+    assert discovery["status"] == "READY"
+    assert len(discovery["candidates"]) == 1
+
+
 def test_target_discovery_stale_and_latest_snapshot_invalidation():
     client = TestClient(app)
     _seed_agent_snapshot(received_at=now_utc() - timedelta(seconds=16))

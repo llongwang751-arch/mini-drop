@@ -26,7 +26,7 @@ fi
 
 PYTHON_BIN="${MINI_DROP_PYTHON:-}"
 if [[ -z "$PYTHON_BIN" ]]; then
-  for candidate in python3.12 python3.11 python3.10 python3.9 python3; do
+  for candidate in python3.12 python3.11 python3.10 python3; do
     if command -v "$candidate" >/dev/null 2>&1; then
       PYTHON_BIN="$(command -v "$candidate")"
       break
@@ -37,11 +37,11 @@ fi
 echo "detected host: ${PRETTY_NAME:-$DISTRO_ID $DISTRO_VERSION}, kernel=$(uname -r), arch=$(uname -m)"
 echo "package manager: $(command -v dnf || command -v yum || command -v apt-get || echo unavailable)"
 
-[[ -n "$PYTHON_BIN" ]] || { echo "Python >=3.9 is required; set MINI_DROP_PYTHON" >&2; exit 1; }
+[[ -n "$PYTHON_BIN" ]] || { echo "Python >=3.10 is required; set MINI_DROP_PYTHON" >&2; exit 1; }
 "$PYTHON_BIN" - <<'PY'
 import sys
-if sys.version_info < (3, 9):
-    raise SystemExit("Python >=3.9 is required; set MINI_DROP_PYTHON to a newer interpreter")
+if sys.version_info < (3, 10):
+    raise SystemExit("Python >=3.10 is required; set MINI_DROP_PYTHON to a newer interpreter")
 PY
 "$PYTHON_BIN" -m venv "$ROOT/.venv"
 "$ROOT/.venv/bin/pip" install --upgrade pip

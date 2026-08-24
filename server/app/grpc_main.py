@@ -30,8 +30,13 @@ class ControlPlaneMaintenance:
 
     def run_once(self) -> dict[str, int]:
         offline = self.repo.mark_offline_agents(timeout_sec=self.timeout_sec)
+        expired = self.repo.expire_stale_task_leases()
         snapshots = self.repo.persist_agent_metric_snapshots()
-        return {"offline_agents": len(offline), "metric_snapshots": snapshots}
+        return {
+            "offline_agents": len(offline),
+            "expired_task_leases": len(expired),
+            "metric_snapshots": snapshots,
+        }
 
     def start(self) -> None:
         if self._thread is not None:

@@ -28,6 +28,7 @@ from server.app.models import (
     AgentMetricSnapshotModel,
     AgentModel,
     AnalysisJobModel,
+    AnalysisJobInputArtifactModel,
     ArtifactModel,
     AuditLogModel,
     DiagnosisReportModel,
@@ -68,6 +69,63 @@ from server.app.state_machine import (
 
 
 class ArtifactMixin:
+    def _add_artifacts_in_session(
+        self,
+        session: OrmSession,
+        task_id: str,
+        task_attempt_id: str,
+        artifacts: list[dict[str, Any]],
+        *,
+        analysis_job_id: str | None = None,
+    ) -> list[int]:
+        attempt = (
+            session.query(TaskAttemptModel)
+            .filter(
+                TaskAttemptModel.task_id == task_id,
+                TaskAttemptModel.id == task_attempt_id,
+            )
+            .one_or_none()
+        )
+        if attempt is None:
+            raise ValueError("TaskAttempt identity does not match task")
+        ts = now_utc()
+        models: list[ArtifactModel] = []
+        for value in artifacts:
+            artifact = prepare_artifact(task_id, value)
+            model = ArtifactModel(
+                task_id=task_id,
+                task_attempt_id=task_attempt_id,
+                analysis_job_id=analysis_job_id,
+                artifact_type=artifact.get("artifact_type", "raw"),
+                bucket=artifact.get("bucket", "mini-drop"),
+                object_key=artifact.get("object_key", ""),
+                filename=artifact.get("filename"),
+                local_path=artifact.get("local_path"),
+                content_type=artifact.get("content_type", "application/octet-stream"),
+                size_bytes=artifact.get("size_bytes", 0),
+                sha256=artifact.get("sha256"),
+                manifest_json=artifact.get("manifest", {}),
+                integrity_status=artifact.get("integrity_status", "LEGACY_UNVERIFIED"),
+                integrity_reason=artifact.get("integrity_reason", ""),
+                meta_json=artifact.get("metadata", {}),
+                created_at=ts,
+            )
+            session.add(model)
+            models.append(model)
+        session.flush()
+        return [int(model.id) for model in models]
+
+    def add_attempt_artifacts(
+        self,
+        task_id: str,
+        task_attempt_id: str,
+        artifacts: list[dict[str, Any]],
+    ) -> list[int]:
+        with self._write_session() as session:
+            return self._add_artifacts_in_session(
+                session, task_id, task_attempt_id, artifacts
+            )
+
     def add_artifacts(self, task_id: str, artifacts: list[dict[str, Any]]) -> list[int]:
         with self._write_session() as session:
             ts = now_utc()
@@ -113,6 +171,33 @@ class ArtifactMixin:
                     session.query(ArtifactModel)
                     .filter(ArtifactModel.task_id == task_id)
                     .order_by(ArtifactModel.id.asc())
+                    .all()
+                )
+            ]
+
+    def get_analysis_job_input_artifacts(
+        self, analysis_job_id: str
+    ) -> list[dict[str, Any]]:
+        with self._read_session() as session:
+            job = session.get(AnalysisJobModel, analysis_job_id)
+            if job is None or not job.task_attempt_id:
+                return []
+            return [
+                artifact.to_dict()
+                for artifact in (
+                    session.query(ArtifactModel)
+                    .join(
+                        AnalysisJobInputArtifactModel,
+                        AnalysisJobInputArtifactModel.artifact_id == ArtifactModel.id,
+                    )
+                    .filter(
+                        AnalysisJobInputArtifactModel.analysis_job_id == analysis_job_id,
+                        AnalysisJobInputArtifactModel.task_id == job.task_id,
+                        AnalysisJobInputArtifactModel.task_attempt_id == job.task_attempt_id,
+                        ArtifactModel.task_id == job.task_id,
+                        ArtifactModel.task_attempt_id == job.task_attempt_id,
+                    )
+                    .order_by(AnalysisJobInputArtifactModel.id.asc())
                     .all()
                 )
             ]

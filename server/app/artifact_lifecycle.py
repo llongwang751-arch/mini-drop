@@ -43,6 +43,7 @@ _RESULT_TYPES = {
     "java_flamegraph_html",
     "memory_json",
     "sys_metrics",
+    "database_locks_json",
 }
 _RAW_TYPES = {"raw", "ebpf_raw", "pprof_raw", "continuous_window"}
 

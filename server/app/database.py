@@ -29,6 +29,11 @@ _MANAGED_SCHEMA_REVISION = "20260824_0032"
 _MANAGED_SCHEMA_TABLES = {
     "alembic_version",
     "tasks",
+    "task_attempts",
+    "artifacts",
+    "analysis_jobs",
+    "analysis_job_input_artifacts",
+    "analysis_job_output_artifacts",
     "agents",
     "process_candidate_snapshots",
     "process_candidates",
@@ -123,6 +128,103 @@ _MANAGED_PROCESS_FOREIGN_KEYS = {
         ("discovery_id", "drop_insight_target_discoveries", "id"),
         ("agent_id", "agents", "id"),
         ("process_snapshot_id", "process_candidate_snapshots", "id"),
+    },
+}
+_MANAGED_TASK_LINEAGE_COLUMNS = {
+    "task_attempts": {"task_attempt_authority_sha256"},
+    "analysis_jobs": {"task_attempt_id"},
+    "artifacts": {"task_attempt_id", "analysis_job_id"},
+    "analysis_job_input_artifacts": {
+        "id", "analysis_job_id", "artifact_id", "task_id",
+        "task_attempt_id", "created_at",
+    },
+    "analysis_job_output_artifacts": {
+        "id", "analysis_job_id", "artifact_id", "task_id",
+        "task_attempt_id", "created_at",
+    },
+}
+_MANAGED_TASK_LINEAGE_INDEXES = {
+    "analysis_jobs": {
+        "ix_analysis_jobs_task_attempt_id": (("task_attempt_id",), False),
+    },
+    "artifacts": {
+        "ix_artifacts_task_attempt_id": (("task_attempt_id",), False),
+        "ix_artifacts_analysis_job_id": (("analysis_job_id",), False),
+    },
+    "analysis_job_input_artifacts": {
+        "ix_analysis_job_input_artifacts_analysis_job_id": (
+            ("analysis_job_id",), False
+        ),
+        "ix_analysis_job_input_artifacts_artifact_id": (
+            ("artifact_id",), False
+        ),
+    },
+    "analysis_job_output_artifacts": {
+        "ix_analysis_job_output_artifacts_analysis_job_id": (
+            ("analysis_job_id",), False
+        ),
+        "ix_analysis_job_output_artifacts_artifact_id": (
+            ("artifact_id",), False
+        ),
+    },
+}
+_MANAGED_TASK_LINEAGE_IDENTITIES = {
+    "task_attempts": {
+        ("task_attempt_authority_sha256",),
+        ("id", "task_id"),
+    },
+    "analysis_jobs": {("id", "task_id", "task_attempt_id")},
+    "artifacts": {("id", "task_id", "task_attempt_id")},
+    "analysis_job_input_artifacts": {
+        ("analysis_job_id", "artifact_id")
+    },
+    "analysis_job_output_artifacts": {
+        ("analysis_job_id", "artifact_id")
+    },
+}
+_MANAGED_TASK_LINEAGE_FOREIGN_KEYS = {
+    "analysis_jobs": {
+        (
+            ("task_attempt_id", "task_id"),
+            "task_attempts",
+            ("id", "task_id"),
+        ),
+    },
+    "artifacts": {
+        (
+            ("task_attempt_id", "task_id"),
+            "task_attempts",
+            ("id", "task_id"),
+        ),
+        (
+            ("analysis_job_id", "task_id", "task_attempt_id"),
+            "analysis_jobs",
+            ("id", "task_id", "task_attempt_id"),
+        ),
+    },
+    "analysis_job_input_artifacts": {
+        (
+            ("analysis_job_id", "task_id", "task_attempt_id"),
+            "analysis_jobs",
+            ("id", "task_id", "task_attempt_id"),
+        ),
+        (
+            ("artifact_id", "task_id", "task_attempt_id"),
+            "artifacts",
+            ("id", "task_id", "task_attempt_id"),
+        ),
+    },
+    "analysis_job_output_artifacts": {
+        (
+            ("analysis_job_id", "task_id", "task_attempt_id"),
+            "analysis_jobs",
+            ("id", "task_id", "task_attempt_id"),
+        ),
+        (
+            ("artifact_id", "task_id", "task_attempt_id"),
+            "artifacts",
+            ("id", "task_id", "task_attempt_id"),
+        ),
     },
 }
 _MANAGED_ARTIFACT_OUTBOX_COLUMNS = {
@@ -280,6 +382,20 @@ def init_db() -> None:
                     f"database schema is not migrated; {table_name} "
                     "missing columns: " + ", ".join(missing_process_columns)
                 )
+        for table_name, required_columns in (
+            _MANAGED_TASK_LINEAGE_COLUMNS.items()
+        ):
+            actual_columns = {
+                item["name"] for item in inspector.get_columns(table_name)
+            }
+            missing_lineage_columns = sorted(
+                required_columns - actual_columns
+            )
+            if missing_lineage_columns:
+                raise RuntimeError(
+                    f"database schema is not migrated; {table_name} "
+                    "missing columns: " + ", ".join(missing_lineage_columns)
+                )
         for table_name, required_indexes in _MANAGED_PROCESS_INDEXES.items():
             actual_indexes = {
                 item["name"] for item in inspector.get_indexes(table_name)
@@ -289,6 +405,72 @@ def init_db() -> None:
                 raise RuntimeError(
                     f"database schema is not migrated; {table_name} "
                     "missing indexes: " + ", ".join(missing_process_indexes)
+                )
+        for table_name, required_indexes in (
+            _MANAGED_TASK_LINEAGE_INDEXES.items()
+        ):
+            actual_indexes = {
+                str(item["name"]): (
+                    tuple(item.get("column_names") or ()),
+                    bool(item.get("unique")),
+                )
+                for item in inspector.get_indexes(table_name)
+                if item.get("name")
+            }
+            invalid_indexes = sorted(
+                name
+                for name, signature in required_indexes.items()
+                if actual_indexes.get(name) != signature
+            )
+            if invalid_indexes:
+                raise RuntimeError(
+                    f"database schema is not migrated; {table_name} "
+                    "missing or incompatible indexes: "
+                    + ", ".join(invalid_indexes)
+                )
+        for table_name, expected_identities in (
+            _MANAGED_TASK_LINEAGE_IDENTITIES.items()
+        ):
+            identities = {
+                tuple(item.get("column_names") or [])
+                for item in inspector.get_unique_constraints(table_name)
+            }
+            identities.update(
+                tuple(item.get("column_names") or [])
+                for item in inspector.get_indexes(table_name)
+                if item.get("unique")
+            )
+            missing_identities = expected_identities - identities
+            if missing_identities:
+                rendered = ", ".join(
+                    "(" + ", ".join(item) + ")"
+                    for item in sorted(missing_identities)
+                )
+                raise RuntimeError(
+                    f"database schema is not migrated; {table_name} "
+                    "missing unique identities: " + rendered
+                )
+        for table_name, expected_foreign_keys in (
+            _MANAGED_TASK_LINEAGE_FOREIGN_KEYS.items()
+        ):
+            actual_foreign_keys = {
+                (
+                    tuple(item.get("constrained_columns") or []),
+                    str(item.get("referred_table") or ""),
+                    tuple(item.get("referred_columns") or []),
+                )
+                for item in inspector.get_foreign_keys(table_name)
+            }
+            missing_foreign_keys = expected_foreign_keys - actual_foreign_keys
+            if missing_foreign_keys:
+                rendered = ", ".join(
+                    f"({', '.join(columns)})->{table}"
+                    f"({', '.join(targets)})"
+                    for columns, table, targets in sorted(missing_foreign_keys)
+                )
+                raise RuntimeError(
+                    f"database schema is not migrated; {table_name} "
+                    "missing composite foreign keys: " + rendered
                 )
         for table_name, required_constraints in (
             _MANAGED_PROCESS_CONSTRAINTS.items()

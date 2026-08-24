@@ -470,7 +470,7 @@ class CampaignManager:
                 22,
             )
 
-            self.target.start_cpu(max(fault_window, 4.0))
+            self.target.start_cpu(self._fault_guard_seconds(fault_window, minimum=4.0))
             self._event(run_id, "FAULT_INJECTED", "已启动真实 Python CPU 忙循环", 35)
             time.sleep(settle * 1.5)
             fault = self.target.snapshot()
@@ -551,7 +551,7 @@ class CampaignManager:
             22,
         )
 
-        self.target.start_memory(max(fault_window, 6.0), 96)
+        self.target.start_memory(self._fault_guard_seconds(fault_window, minimum=6.0), 96)
         self._event(run_id, "FAULT_INJECTED", "已启动有上限的真实内存保留故障", 35)
         deadline = time.monotonic() + max(settle * 5, 1.2)
         fault = self.target.snapshot()
@@ -630,7 +630,7 @@ class CampaignManager:
             22,
         )
 
-        self.target.start_io(max(fault_window, 6.0))
+        self.target.start_io(self._fault_guard_seconds(fault_window, minimum=6.0))
         self._event(run_id, "FAULT_INJECTED", "已启动白名单同步 I/O 写入故障", 35)
         deadline = time.monotonic() + max(settle * 5, 1.2)
         fault = self.target.snapshot()
@@ -707,7 +707,9 @@ class CampaignManager:
             22,
         )
 
-        self.target.start_downstream(max(fault_window, 6.0), 750)
+        self.target.start_downstream(
+            self._fault_guard_seconds(fault_window, minimum=6.0), 750
+        )
         self._event(
             run_id,
             "FAULT_INJECTED",
@@ -791,7 +793,9 @@ class CampaignManager:
             22,
         )
 
-        self.target.start_network(max(fault_window, 6.0), 650)
+        self.target.start_network(
+            self._fault_guard_seconds(fault_window, minimum=6.0), 650
+        )
         self._event(
             run_id,
             "FAULT_INJECTED",
@@ -872,7 +876,7 @@ class CampaignManager:
             22,
         )
 
-        self.target.start_source(max(fault_window, 4.0))
+        self.target.start_source(self._fault_guard_seconds(fault_window, minimum=4.0))
         self._event(
             run_id,
             "FAULT_INJECTED",
@@ -960,7 +964,7 @@ class CampaignManager:
             22,
         )
 
-        target.start_gc(max(fault_window, 4.0))
+        target.start_gc(self._fault_guard_seconds(fault_window, minimum=4.0))
         self._event(
             run_id,
             "FAULT_INJECTED",
@@ -1066,7 +1070,7 @@ class CampaignManager:
         self._snapshot(run_id, "baseline_snapshot", baseline)
         self._event(run_id, "BASELINE_CAPTURED", "无故障基线快照已保存", 22)
 
-        start_fault(max(fault_window, 5.0))
+        start_fault(self._fault_guard_seconds(fault_window, minimum=5.0))
         self._event(run_id, "FAULT_INJECTED", f"已启动白名单故障：{kind}", 35)
         deadline = time.monotonic() + max(settle * 6, 1.2)
         fault = self.target.snapshot()
@@ -1184,6 +1188,34 @@ class CampaignManager:
             return True
         return bool(linked and linked.get("evidence_chain_verified"))
 
+    @staticmethod
+    def _collection_task_timeout_seconds() -> float:
+        """Maximum wait for a real Agent evidence task to finish.
+
+        Cloud Agents can legitimately have one short task ahead of a Campaign.
+        Keep this bounded so a broken Agent cannot stall fault cleanup forever.
+        """
+
+        raw = os.getenv("MINI_DROP_CAMPAIGN_TASK_TIMEOUT_SEC", "30")
+        try:
+            configured = float(raw)
+        except (TypeError, ValueError):
+            configured = 30.0
+        return min(max(configured, 5.0), 120.0)
+
+    def _fault_guard_seconds(self, requested: float, *, minimum: float) -> float:
+        """Keep the allowlisted fault alive while queued evidence is collected.
+
+        Campaign cleanup still stops the fault immediately after diagnosis.  The
+        longer value is only an automatic safety deadline for a delayed Agent.
+        """
+
+        return max(
+            float(requested),
+            float(minimum),
+            self._collection_task_timeout_seconds() + 5.0,
+        )
+
     def _create_collection_task(
         self, run_id: str, fault: dict[str, Any], scenario: dict[str, Any]
     ) -> dict[str, Any] | None:
@@ -1231,7 +1263,7 @@ class CampaignManager:
             idempotency_key=f"campaign-{run_id}",
             creator_id="campaign-runner",
         )
-        deadline = time.monotonic() + 18
+        deadline = time.monotonic() + self._collection_task_timeout_seconds()
         status = status_value(task.status)
         reason = task.status_reason or ""
         while status not in TERMINAL_TASK_STATUSES and time.monotonic() < deadline:

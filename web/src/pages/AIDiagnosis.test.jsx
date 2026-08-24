@@ -155,6 +155,7 @@ describe("AIDiagnosis conversation page", () => {
       expect(api.createDropInsightDiagnosis).toHaveBeenCalledWith({
         query: "新问题",
         mode: "ASSISTED",
+        auto_scope: true,
       }),
     );
     await waitFor(() => expect(window.location.search).toContain("case=drop_insight_v2%3Adiag-new"));

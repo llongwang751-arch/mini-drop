@@ -153,6 +153,8 @@ def _score_run(
     rollback_correct = 0
     evidence_complete = 0
     evidence_measured = 0
+    contaminated_rejected = 0
+    contaminated_total = 0
 
     for case in case_list:
         case_id = str(case["case_id"])
@@ -193,7 +195,13 @@ def _score_run(
             if item.root_cause is not None:
                 root_cause_measured += 1
                 root_cause_correct += item.root_cause == case["expected_root_cause"]
-            if item.evidence_refs_valid is not None:
+            # Evidence completeness applies to admitted evidence-bearing
+            # candidates. A deliberately contaminated candidate that is
+            # rejected belongs to the safety metric below, not this metric.
+            if (
+                item.evidence_refs_valid is not None
+                and item.candidate_admitted is not False
+            ):
                 evidence_measured += 1
                 evidence_complete += item.evidence_refs_valid
 
@@ -212,6 +220,14 @@ def _score_run(
                 quarantine_correct += 1
         if family == "VERSION_ROLLBACK" and passed:
             rollback_correct += 1
+        if family == "CONTAMINATED_EVIDENCE":
+            contaminated_total += 1
+            if (
+                item is not None
+                and item.candidate_admitted is False
+                and item.evidence_integrity == "FAILED"
+            ):
+                contaminated_rejected += 1
 
         rows.append(
             {
@@ -252,6 +268,9 @@ def _score_run(
             "rollback_success_rate": _rate(rollback_correct, rollback_total),
             "evidence_reference_completeness_rate": _rate(
                 evidence_complete, evidence_measured
+            ),
+            "contaminated_evidence_rejection_rate": _rate(
+                contaminated_rejected, contaminated_total
             ),
         },
         "family_results": {

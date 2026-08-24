@@ -440,3 +440,22 @@ def test_remaining_campaigns_cover_noisy_load_and_queue(monkeypatch):
         assert current["comparison"]["benchmark_case_id"] == case_id
         assert current["comparison"]["passed"] is True
         assert current["cleanup"]["succeeded"] is True
+
+
+def test_campaign_fault_guard_covers_agent_queue_wait(monkeypatch):
+    monkeypatch.setenv("MINI_DROP_CAMPAIGN_TASK_TIMEOUT_SEC", "30")
+    manager = CampaignManager(target=FakeTarget())
+
+    assert manager._collection_task_timeout_seconds() == 30.0
+    assert manager._fault_guard_seconds(8.0, minimum=4.0) == 35.0
+
+
+def test_campaign_task_timeout_is_bounded_and_tolerates_invalid_env(monkeypatch):
+    monkeypatch.setenv("MINI_DROP_CAMPAIGN_TASK_TIMEOUT_SEC", "invalid")
+    assert CampaignManager._collection_task_timeout_seconds() == 30.0
+
+    monkeypatch.setenv("MINI_DROP_CAMPAIGN_TASK_TIMEOUT_SEC", "999")
+    assert CampaignManager._collection_task_timeout_seconds() == 120.0
+
+    monkeypatch.setenv("MINI_DROP_CAMPAIGN_TASK_TIMEOUT_SEC", "1")
+    assert CampaignManager._collection_task_timeout_seconds() == 5.0

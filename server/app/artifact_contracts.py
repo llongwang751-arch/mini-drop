@@ -141,6 +141,12 @@ COLLECTOR_CONTRACTS: dict[str, CollectorArtifactContract] = {
         required_any={"sys_metrics"},
         analysis={"sys_metrics"},
     ),
+    "database_lock": _contract(
+        "database_lock",
+        accepted={"database_locks_json"},
+        required_any={"database_locks_json"},
+        analysis={"database_locks_json"},
+    ),
 }
 
 

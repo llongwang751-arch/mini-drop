@@ -12,8 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from agent.mini_drop_agent.main import COLLECTORS  # noqa: E402
-from agent.mini_drop_agent.platform_compat import build_compatibility_report  # noqa: E402
+from agent.mini_drop_agent.platform_compat import (  # noqa: E402
+    KNOWN_COLLECTORS,
+    build_compatibility_report,
+)
 
 
 def main() -> int:
@@ -25,8 +27,24 @@ def main() -> int:
         default=[],
         help="collector that must be available (repeatable)",
     )
+    parser.add_argument(
+        "--os-release-file",
+        help="read distro metadata from this file instead of /etc/os-release",
+    )
+    parser.add_argument("--kernel-release", help="override the detected kernel release")
+    parser.add_argument("--architecture", help="override the detected architecture")
     args = parser.parse_args()
-    report = build_compatibility_report(COLLECTORS.keys())
+    os_release_text = None
+    if args.os_release_file:
+        os_release_text = Path(args.os_release_file).read_text(
+            encoding="utf-8", errors="replace"
+        )
+    report = build_compatibility_report(
+        KNOWN_COLLECTORS,
+        os_release_text=os_release_text,
+        kernel_release=args.kernel_release,
+        architecture=args.architecture,
+    )
     print(json.dumps(report, ensure_ascii=False, indent=None if args.json else 2))
 
     host = report["host"]

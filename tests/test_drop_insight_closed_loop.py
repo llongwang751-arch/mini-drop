@@ -1906,6 +1906,33 @@ def test_rejected_tool_call_never_creates_task():
     assert rejected.json()["data"]["task_id"] is None
 
 
+def test_maintenance_expires_abandoned_approval_and_releases_budget():
+    _seed_online_agent()
+    client = TestClient(app)
+    diagnosis_id = create_diagnosis(client)
+    pending = _request_perf_tool_call(client, diagnosis_id)
+
+    session = new_session()
+    tool_call = session.get(DropInsightToolCallModel, pending["tool_call_id"])
+    tool_call.created_at = now_utc() - timedelta(minutes=10)
+    session.commit()
+    session.close()
+
+    result = drop_insight_service.maintain_drop_insight_sessions(
+        timestamp=now_utc(), approval_timeout_sec=60
+    )
+
+    assert result["expired_approvals"] == [pending["tool_call_id"]]
+    session = new_session()
+    tool_call = session.get(DropInsightToolCallModel, pending["tool_call_id"])
+    diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+    assert tool_call.status == "REJECTED"
+    assert tool_call.budget_reservation_status == "RELEASED"
+    assert tool_call.result_json["reason"] == "approval_expired"
+    assert diagnosis.status == "INSUFFICIENT_EVIDENCE"
+    session.close()
+
+
 def test_tool_call_recovers_matching_task_identity_winner():
     _seed_online_agent()
     client = TestClient(app)
@@ -2174,7 +2201,10 @@ def test_planner_keeps_unknown_query_out_of_cpu_fallback():
         ("怀疑同宿主机噪声邻居", "NOISY_NEIGHBOR"),
     ],
 )
-def test_rules_v2_planner_exposes_domain_and_uses_low_risk_triage(query, category):
+def test_rules_v2_planner_exposes_domain_and_uses_low_risk_triage(
+    query, category, monkeypatch
+):
+    monkeypatch.setenv("MINI_DROP_AI_ENABLED", "none")
     session = new_session()
     timestamp = now_utc()
     session.add(
@@ -2184,7 +2214,7 @@ def test_rules_v2_planner_exposes_domain_and_uses_low_risk_triage(query, categor
             ip_addr="127.0.0.1",
             version="1.0",
             os_info="linux",
-            capabilities=["sys_metrics"],
+            capabilities=["sys_metrics", "database_lock"],
             status="ONLINE",
             last_heartbeat_at=timestamp,
             created_at=timestamp,
@@ -2203,7 +2233,12 @@ def test_rules_v2_planner_exposes_domain_and_uses_low_risk_triage(query, categor
     assert result["planner_kind"] == "DETERMINISTIC_RULES"
     assert result["planner_version"] == "rules-v2"
     assert result["category"] == category
-    assert result["tool_call"]["tool_name"] == "collect_sys_metrics"
+    expected_tool = (
+        "collect_database_diagnostics"
+        if category == "DATABASE_LOCK"
+        else "collect_sys_metrics"
+    )
+    assert result["tool_call"]["tool_name"] == expected_tool
 
 
 def test_budget_usage_is_server_calculated_and_blocks_excess_tool_calls():
@@ -2429,7 +2464,7 @@ def test_orchestrator_converts_completed_tool_task_into_evidence_and_report():
     assert reports[0]["verification"]["status"] == "PARTIAL_WITHOUT_COUNTER"
     assert reports[0]["verification"]["has_independent_counter_or_control"] is False
     diagnosis = client.get(f"/api/v2/diagnoses/{diagnosis_id}").json()["data"]
-    assert diagnosis["status"] == "COLLECTING_EVIDENCE"
+    assert diagnosis["status"] == "COMPLETED"
 
     first_version = diagnosis["version"]
     first_report = reports[0]
@@ -2588,3 +2623,69 @@ def test_clarify_fills_missing_scope_and_resumes():
     data = clarified.json()["data"]
     assert data["status"] == "UNDERSTANDING"
     assert data["target"]["service"] == "order-service"
+
+
+def test_auto_scope_resolves_one_real_candidate_without_user_form():
+    client = TestClient(app)
+    _ensure_process_authority()
+
+    created = client.post(
+        "/api/v2/diagnoses",
+        json={
+            "query": "订单服务最近 5 分钟 CPU 飙高，请定位原因",
+            "auto_scope": True,
+        },
+    )
+
+    assert created.status_code == 200, created.text
+    data = created.json()["data"]
+    assert data["status"] == "UNDERSTANDING"
+    assert data["clarification_questions"] == []
+    assert data["target"]["service"] == "order-service"
+    assert data["target"]["environment"] == "staging"
+    assert data["target"]["agent_id"] == "agent-a"
+    assert data["target"]["pid"] == 123
+    assert data["target"]["process_binding"]["process_snapshot_id"]
+    start = datetime.fromisoformat(data["time_range"]["start"])
+    end = datetime.fromisoformat(data["time_range"]["end"])
+    assert timedelta(minutes=4, seconds=55) <= end - start <= timedelta(minutes=5, seconds=5)
+
+    events = client.get(
+        f"/api/v2/diagnoses/{data['diagnosis_id']}/events"
+    ).json()["data"]
+    clarified = next(item for item in events if item["event_type"] == "diagnosis.clarified")
+    assert clarified["actor"] == "AI_SCOPE_RESOLVER"
+
+
+def test_auto_scope_keeps_human_confirmation_for_ambiguous_candidates():
+    client = TestClient(app)
+    _ensure_process_authority()
+    snapshot = _process_snapshot()
+    snapshot["generation"] = 2
+    snapshot["candidates"].append(
+        {
+            "pid": 124,
+            "process_start_ticks": 457,
+            "pid_namespace_inode": 789,
+            "namespace_pid": 124,
+            "executable_identity": "sha256:payment-service",
+            "comm": "payment-service",
+            "cgroup": "/staging/payment-service",
+            "service_hint": "payment-service",
+            "instance_hint": "staging",
+            "collector_capabilities": ["sys_metrics", "perf_cpu"],
+        }
+    )
+    SqlRepository().record_process_candidate_snapshot(
+        "agent-a", snapshot, received_at=now_utc()
+    )
+
+    created = client.post(
+        "/api/v2/diagnoses",
+        json={"query": "服务最近 5 分钟 CPU 飙高", "auto_scope": True},
+    )
+
+    assert created.status_code == 200, created.text
+    data = created.json()["data"]
+    assert data["status"] == "NEEDS_CLARIFICATION"
+    assert "process_binding" not in data["target"]

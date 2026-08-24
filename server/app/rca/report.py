@@ -86,6 +86,7 @@ def run_diagnosis_context(
     agent_record=None,
     repo=None,
     auto_execute_safe: bool = False,
+    external_tool_results: list[dict] | None = None,
 ) -> DiagnosisOutcome:
     """执行带工具证据和修复计划的完整诊断。
 
@@ -102,6 +103,7 @@ def run_diagnosis_context(
         task_events=task_events,
         agent_record=agent_record,
     )
+    external_evidence = external_tool_results or []
 
     # 1. 证据采集
     evidence = collect_evidence(
@@ -114,7 +116,9 @@ def run_diagnosis_context(
         failure_events=failure_events,
         baseline_diff=baseline_diff,
         agent_stats=agent_stats,
-        tool_results=tool_results_to_evidence(tool_results),
+        # Imported incidents may already contain stable evidence identifiers.
+        # Preserve them so external scorers can verify the report provenance.
+        tool_results=tool_results_to_evidence(tool_results) + external_evidence,
     )
 
     # 2. 候选归因生成

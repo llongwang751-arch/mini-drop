@@ -4,7 +4,7 @@
 
 不是页面能打开，也不是 Docker 镜像能启动就算兼容。对 Mini-Drop 而言，至少包含四层：
 
-1. **能安装**：识别 TLinux 2/3/4、`yum`/`dnf`、x86_64/aarch64 和 Python 版本。
+1. **能安装**：识别 TLinux 2/3/4、`yum`/`dnf`、x86_64/aarch64，并使用 Python 3.10 及以上版本。
 2. **Agent 能上线**：systemd 启动、每 5 秒心跳、把发行版/内核/架构上报给 Server。
 3. **采集器不误报**：本机没有 `perf`、`bpftrace`、`py-spy` 或 tracefs 时，不把对应能力上报给 Server；调度器不会把不可能完成的任务发到该节点。
 4. **内核能力可验证**：分别检查 procfs、tracefs、BTF、perf/eBPF 权限；能力缺失时明确降级并记录 reason。
@@ -26,6 +26,17 @@
 - `scripts/check_tlinux_compat.py`：安装前和上线后都可运行的 JSON 预检。
 - `deploy/scripts/install-worker.sh`：支持 `MINI_DROP_PYTHON`，验证 Python >=3.9，并在安装后执行预检。
 - eBPF 错误提示不再只写 Ubuntu 的 apt，而是区分 TLinux 2 与 TLinux 3/4。
+- 项目最低 Python 版本统一为 3.10。TLinux 2 默认 Python 较旧时，需要先安装独立的 Python 3.10+，再通过 `MINI_DROP_PYTHON` 指定，不能直接使用系统旧解释器。
+
+用于验证发行版识别逻辑的离线矩阵示例：
+
+```bash
+python3 scripts/check_tlinux_compat.py \
+  --os-release-file tests/fixtures/tlinux/tlinux2-os-release \
+  --kernel-release 5.4.241-tlinux --architecture x86_64
+```
+
+该命令只验证用户态识别和调度逻辑，不等价于对应内核上的 perf/eBPF 真机认证。
 
 ## 4. 每台 TLinux Worker 的验收步骤
 

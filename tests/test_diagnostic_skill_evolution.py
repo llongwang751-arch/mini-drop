@@ -1,8 +1,9 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from server.app.database import init_db, new_session, reset_engine
+from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.drop_insight.skill_evolution import (
     apply_active_skill,
     create_candidate_from_diagnosis,
@@ -15,6 +16,7 @@ from server.app.drop_insight.skill_evolution import (
 from server.app.models import (
     DiagnosticSkillActivationModel,
     DiagnosticSkillModel,
+    DropInsightEvidenceModel,
     DropInsightFeedbackModel,
     DropInsightReportModel,
     DropInsightSessionModel,
@@ -31,9 +33,53 @@ def isolated_database(monkeypatch):
     reset_engine()
 
 
+def _valid_evidence(diagnosis_id: str, timestamp: datetime) -> tuple[dict, dict]:
+    envelope = EvidenceEnvelope.model_validate(
+        {
+            "evidence_id": f"evidence-{diagnosis_id}",
+            "diagnosis_id": diagnosis_id,
+            "evidence_type": "PERF_CPU_PROFILE",
+            "source": {
+                "tool_name": "start_perf_profile",
+                "task_id": f"task-{diagnosis_id}",
+                "task_attempt_id": f"attempt-{diagnosis_id}",
+                "artifact_id": f"artifact-{diagnosis_id}",
+                "artifact_sha256": "a" * 64,
+                "analysis_job_id": f"analysis-{diagnosis_id}",
+                "analyzer_type": "perf_profile",
+                "analyzer_version": "1.0.0",
+                "analyzer_output_schema_version": "1.0.0",
+                "observation_json_pointer": "/top_symbol",
+            },
+            "scope": {
+                "agent_id": "agent-a",
+                "service": "order-service",
+                "pid": 123,
+            },
+            "time_range": {
+                "start": timestamp - timedelta(minutes=1),
+                "end": timestamp,
+                "timezone": "UTC",
+            },
+            "observation": {"top_symbol": "calculate_price", "cpu_percent": 74},
+            "quality": {
+                "level": "HIGH",
+                "sample_count": 200,
+                "degraded": False,
+                "target_match": True,
+                "time_overlap": True,
+            },
+        }
+    )
+    return envelope.model_dump(mode="json"), classify_evidence(envelope)
+
+
 def _seed_verified_trajectory(diagnosis_id: str, *, environment: str = "staging") -> None:
     session = new_session()
     timestamp = datetime.now(timezone.utc)
+    evidence_envelope, evidence_classification = _valid_evidence(
+        diagnosis_id, timestamp
+    )
     session.add(
         DropInsightSessionModel(
             id=diagnosis_id,
@@ -67,6 +113,17 @@ def _seed_verified_trajectory(diagnosis_id: str, *, environment: str = "staging"
             status="COMPLETED",
             result_json={"top_symbol": "calculate_price", "cpu_percent": 74},
             requested_by="planner",
+            created_at=timestamp,
+        )
+    )
+    session.add(
+        DropInsightEvidenceModel(
+            id=f"evidence-{diagnosis_id}",
+            diagnosis_id=diagnosis_id,
+            hypothesis_id=None,
+            role="SUPPORT",
+            envelope_json=evidence_envelope,
+            classification_json=evidence_classification,
             created_at=timestamp,
         )
     )
@@ -109,6 +166,35 @@ def _publish_source(diagnosis_id: str = "diagnosis-source") -> dict:
     evaluated = evaluate_skill(candidate["skill_id"])
     assert evaluated["gate_metrics"]["eligible"] is True
     return publish_skill(candidate["skill_id"])
+
+
+def test_candidate_requires_correct_feedback_for_current_report():
+    diagnosis_id = "diagnosis-stale-feedback"
+    _seed_verified_trajectory(diagnosis_id)
+    session = new_session()
+    timestamp = datetime.now(timezone.utc) + timedelta(seconds=1)
+    session.add(
+        DropInsightReportModel(
+            id=f"report-{diagnosis_id}-new",
+            diagnosis_id=diagnosis_id,
+            conclusion="new report without review",
+            confidence=920,
+            evidence_refs_json=[f"evidence-{diagnosis_id}"],
+            counter_evidence_refs_json=[],
+            assumptions_json=[],
+            limitations_json=[],
+            next_actions_json=[],
+            claims_json=[],
+            verification_json={"status": "VERIFIED"},
+            effects_status="APPLIED",
+            created_at=timestamp,
+        )
+    )
+    session.commit()
+    session.close()
+
+    with pytest.raises(ValueError, match="当前报告"):
+        create_candidate_from_diagnosis(diagnosis_id, created_by="reviewer")
 
 
 def test_verified_trajectory_becomes_versioned_active_skill_once():
@@ -161,10 +247,29 @@ def test_active_skill_reuses_route_only_for_matching_context():
     misleading_plan = {"tool_name": "collect_network_diagnostics"}
     assert apply_active_skill(
         "diagnosis-misleading",
-        "NETWORK_DEGRADATION",
+        "CPU_HOTSPOT",
         misleading_plan,
-        {"service": "order-service", "environment": "staging"},
+        {
+            "service": "order-service",
+            "environment": "staging",
+            "suspected_subsystem": "network",
+        },
     ) is None
+    assert misleading_plan["tool_name"] == "collect_network_diagnostics"
+
+    capability_plan = {"tool_name": "collect_sys_metrics"}
+    assert apply_active_skill(
+        "diagnosis-capability-drift",
+        "CPU_HOTSPOT",
+        capability_plan,
+        {
+            "service": "order-service",
+            "environment": "staging",
+            "collector_capabilities": ["sys_metrics"],
+            "permission_denied": ["perf_cpu"],
+        },
+    ) is None
+    assert capability_plan["tool_name"] == "collect_sys_metrics"
 
 
 def test_active_skill_advances_through_verified_probe_order():
@@ -179,7 +284,7 @@ def test_active_skill_advances_through_verified_probe_order():
     session.close()
 
     target = {"service": "order-service", "environment": "staging"}
-    first_plan = {"tool_name": "collect_network_diagnostics"}
+    first_plan = {"tool_name": "collect_sys_metrics"}
     first = apply_active_skill("diagnosis-route", "CPU_HOTSPOT", first_plan, target)
     assert first["selected_tool"] == "start_perf_profile"
 
@@ -202,7 +307,7 @@ def test_active_skill_advances_through_verified_probe_order():
     session.commit()
     session.close()
 
-    second_plan = {"tool_name": "collect_network_diagnostics"}
+    second_plan = {"tool_name": "collect_sys_metrics"}
     second = apply_active_skill("diagnosis-route", "CPU_HOTSPOT", second_plan, target)
     assert second["selected_tool"] == "collect_sys_metrics"
     assert second_plan["tool_name"] == "collect_sys_metrics"

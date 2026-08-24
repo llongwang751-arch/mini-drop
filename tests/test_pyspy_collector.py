@@ -47,9 +47,9 @@ class TestPySpyExecution:
 
     def test_execution_success(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
-        svg_file = tmp_path / task.id / "pyspy.svg"
-        svg_file.parent.mkdir(parents=True, exist_ok=True)
-        svg_file.write_text("<svg></svg>")
+        profile_file = tmp_path / task.id / "pyspy-speedscope.json"
+        profile_file.parent.mkdir(parents=True, exist_ok=True)
+        profile_file.write_text("{}")
 
         mock_result = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
 
@@ -59,13 +59,14 @@ class TestPySpyExecution:
             result = collector.collect(task)
 
         assert result.ok is True
-        assert result.artifacts[0]["artifact_type"] == "flamegraph_svg"
+        assert result.artifacts[0]["artifact_type"] == "raw"
+        assert result.artifacts[0]["filename"] == "pyspy-speedscope.json"
 
     def test_command_uses_task_sample_rate(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
-        svg_file = tmp_path / task.id / "pyspy.svg"
-        svg_file.parent.mkdir(parents=True, exist_ok=True)
-        svg_file.write_text("<svg></svg>")
+        profile_file = tmp_path / task.id / "pyspy-speedscope.json"
+        profile_file.parent.mkdir(parents=True, exist_ok=True)
+        profile_file.write_text("{}")
 
         mock_result = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
 
@@ -78,6 +79,8 @@ class TestPySpyExecution:
         cmd = run_mock.call_args.args[0]
         assert "-r" in cmd
         assert cmd[cmd.index("-r") + 1] == str(task.sample_rate)
+        assert cmd[cmd.index("--format") + 1] == "speedscope"
+        assert "--native" not in cmd
 
     def test_nonzero_exit(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
@@ -97,9 +100,17 @@ class TestPySpyExecution:
         assert "执行失败" in result.reason
 
     def test_native_unwind_error_retries_without_native(self, collector, task, tmp_path):
+        task = CollectorTask(
+            id=task.id,
+            collector_type=task.collector_type,
+            target_pid=task.target_pid,
+            sample_rate=task.sample_rate,
+            duration_sec=task.duration_sec,
+            options={"native": True},
+        )
         collector.OUTPUT_BASE = str(tmp_path)
-        svg_file = tmp_path / task.id / "pyspy.svg"
-        svg_file.parent.mkdir(parents=True, exist_ok=True)
+        profile_file = tmp_path / task.id / "pyspy-speedscope.json"
+        profile_file.parent.mkdir(parents=True, exist_ok=True)
 
         failed = mock.MagicMock(
             returncode=1,
@@ -111,7 +122,7 @@ class TestPySpyExecution:
         def fake_run(cmd, **_kwargs):
             if "--native" in cmd:
                 return failed
-            svg_file.write_text("<svg></svg>")
+            profile_file.write_text("{}")
             return succeeded
 
         with mock.patch("shutil.which", return_value="/usr/bin/py-spy"), \
@@ -135,7 +146,7 @@ class TestPySpyExecution:
         assert result.ok is False
         assert "超时" in result.reason
 
-    def test_svg_not_produced(self, collector, task, tmp_path):
+    def test_speedscope_not_produced(self, collector, task, tmp_path):
         collector.OUTPUT_BASE = str(tmp_path)
         (tmp_path / task.id).mkdir(parents=True, exist_ok=True)
 
@@ -147,7 +158,7 @@ class TestPySpyExecution:
             result = collector.collect(task)
 
         assert result.ok is False
-        assert "SVG" in result.reason
+        assert "speedscope" in result.reason
 
 
 class TestPidCheck:

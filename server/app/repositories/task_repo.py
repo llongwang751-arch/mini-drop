@@ -56,6 +56,10 @@ from server.app.prometheus_metrics import (
 from server.app.rca.models import FeedbackPrior
 from server.app.process_attestation import ProcessIdentityBinding
 from server.app.schemas import CreateTaskRequest
+from server.app.task_attempt_authority import (
+    AuthorizedTaskAttempt,
+    verify_task_attempt_authority,
+)
 from server.app.state_machine import (
     AnalysisStatus,
     Actor,
@@ -77,6 +81,74 @@ def _same_task_request(a: dict, b: dict) -> bool:
 
 
 class TaskMixin:
+    def expire_stale_task_leases(
+        self,
+        *,
+        timestamp: datetime | None = None,
+        limit: int = 100,
+    ) -> list[str]:
+        """Fail RUNNING tasks whose authoritative execution lease expired.
+
+        A late Agent result is already rejected by TaskAttempt authority, so
+        closing the task here cannot let a stale collector overwrite a newer
+        execution.  The transition is persisted with the normal event/audit
+        trail instead of silently rewriting status columns.
+        """
+
+        now = timestamp or now_utc()
+        expired: list[str] = []
+        with self._write_session() as session:
+            attempts = (
+                session.query(TaskAttemptModel)
+                .join(TaskModel, TaskModel.id == TaskAttemptModel.task_id)
+                .filter(
+                    TaskModel.status == TaskStatus.RUNNING.value,
+                    TaskAttemptModel.status == TaskStatus.RUNNING.value,
+                    TaskAttemptModel.lease_expires_at.is_not(None),
+                    TaskAttemptModel.lease_expires_at <= now,
+                )
+                .order_by(TaskAttemptModel.lease_expires_at.asc())
+                .limit(max(1, min(limit, 1000)))
+                .with_for_update()
+                .all()
+            )
+            for attempt in attempts:
+                task = session.get(TaskModel, attempt.task_id)
+                if task is None or task.status != TaskStatus.RUNNING.value:
+                    continue
+                latest = (
+                    session.query(TaskAttemptModel)
+                    .filter(TaskAttemptModel.task_id == task.id)
+                    .order_by(TaskAttemptModel.attempt_no.desc())
+                    .first()
+                )
+                if latest is None or latest.id != attempt.id:
+                    continue
+                reason = "采集执行租约已过期，维护任务自动回收僵尸任务"
+                self._transition_task_in_session(
+                    session,
+                    task.id,
+                    TaskStatus.FAILED,
+                    reason,
+                    Actor.SERVER,
+                    {
+                        "task_attempt_id": attempt.id,
+                        "lease_expires_at": attempt.lease_expires_at.isoformat(),
+                        "maintenance_action": "EXPIRE_STALE_TASK_LEASE",
+                    },
+                    task_attempt_id=attempt.id,
+                )
+                self._write_audit(
+                    session,
+                    "TASK_LEASE_EXPIRED",
+                    agent_id=task.agent_id,
+                    task_id=task.id,
+                    message=reason,
+                    metadata={"task_attempt_id": attempt.id},
+                )
+                expired.append(task.id)
+        return expired
+
     def delete_task(self, task_id: str) -> bool:
         """Archive a terminal task while retaining audit and AI evidence."""
         with self._write_session() as session:
@@ -249,6 +321,53 @@ class TaskMixin:
             )
         finally:
             session.close()
+
+    def get_task_attempt(self, task_id: str, task_attempt_id: str) -> TaskAttemptModel | None:
+        with self._read_session() as session:
+            return (
+                session.query(TaskAttemptModel)
+                .filter(
+                    TaskAttemptModel.task_id == task_id,
+                    TaskAttemptModel.id == task_attempt_id,
+                )
+                .one_or_none()
+            )
+
+    def authorize_task_attempt(
+        self,
+        task_id: str,
+        task_attempt_id: str,
+        task_attempt_authority: str,
+        *,
+        session: OrmSession | None = None,
+    ) -> AuthorizedTaskAttempt | None:
+        if not task_id or not task_attempt_id:
+            return None
+        if session is None:
+            with self._read_session() as read:
+                return self.authorize_task_attempt(
+                    task_id,
+                    task_attempt_id,
+                    task_attempt_authority,
+                    session=read,
+                )
+        attempt = (
+            session.query(TaskAttemptModel)
+            .filter(
+                TaskAttemptModel.task_id == task_id,
+                TaskAttemptModel.id == task_attempt_id,
+            )
+            .one_or_none()
+        )
+        if attempt is None or not verify_task_attempt_authority(
+            task_attempt_authority,
+            attempt.task_attempt_authority_sha256,
+        ):
+            return None
+        task = session.get(TaskModel, task_id)
+        if task is None or task.deleted_at is not None:
+            return None
+        return AuthorizedTaskAttempt(task=task, task_attempt=attempt)
 
     def transition_task(
         self, task_id: str, to_status: TaskStatus,

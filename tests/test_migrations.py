@@ -723,6 +723,173 @@ def test_target_discovery_migration_lifecycle(tmp_path: Path) -> None:
     } <= set(inspect(engine).get_table_names())
 
 
+def _foreign_key_identities(
+    engine,
+    table_name: str,
+) -> set[tuple[tuple[str, ...], str, tuple[str, ...]]]:
+    return {
+        (
+            tuple(item.get("constrained_columns") or []),
+            str(item.get("referred_table") or ""),
+            tuple(item.get("referred_columns") or []),
+        )
+        for item in inspect(engine).get_foreign_keys(table_name)
+    }
+
+
+def test_task_attempt_lineage_migration_lifecycle(tmp_path: Path) -> None:
+    database = tmp_path / "migration.db"
+    _alembic(tmp_path, "upgrade 20260824_0031")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    with engine.begin() as connection:
+        connection.execute(text("DROP TABLE analysis_job_output_artifacts"))
+        connection.execute(text("DROP TABLE analysis_job_input_artifacts"))
+        connection.execute(text("DROP TABLE artifacts"))
+        connection.execute(text("DROP TABLE analysis_jobs"))
+    engine.dispose()
+
+    # Rebuild the two parent tables from the current metadata, then remove only
+    # the lineage columns so 0032 owns and can reverse those additions.
+    from server.app.models import AnalysisJobModel, ArtifactModel
+
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    AnalysisJobModel.__table__.create(engine)
+    ArtifactModel.__table__.create(engine)
+    with engine.begin() as connection:
+        connection.execute(text("DROP INDEX ix_analysis_jobs_task_attempt_id"))
+        connection.execute(text("DROP INDEX ix_artifacts_analysis_job_id"))
+        connection.execute(text("DROP INDEX ix_artifacts_task_attempt_id"))
+    _rebuild_without_constraints(engine, "analysis_jobs")
+    _rebuild_without_constraints(engine, "artifacts")
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE analysis_jobs DROP COLUMN task_attempt_id"))
+        connection.execute(text("ALTER TABLE artifacts DROP COLUMN analysis_job_id"))
+        connection.execute(text("ALTER TABLE artifacts DROP COLUMN task_attempt_id"))
+    engine.dispose()
+
+    _alembic(tmp_path, "upgrade 20260824_0032")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    inspector = inspect(engine)
+    assert {
+        "analysis_job_input_artifacts",
+        "analysis_job_output_artifacts",
+        "migration_20260824_0032_ownership",
+    } <= set(inspector.get_table_names())
+    assert ("id", "task_id") in _unique_identities(engine, "task_attempts")
+    assert ("id", "task_id", "task_attempt_id") in _unique_identities(
+        engine, "analysis_jobs"
+    )
+    assert ("id", "task_id", "task_attempt_id") in _unique_identities(
+        engine, "artifacts"
+    )
+    assert (
+        ("task_attempt_id", "task_id"),
+        "task_attempts",
+        ("id", "task_id"),
+    ) in _foreign_key_identities(engine, "analysis_jobs")
+    assert (
+        ("analysis_job_id", "task_id", "task_attempt_id"),
+        "analysis_jobs",
+        ("id", "task_id", "task_attempt_id"),
+    ) in _foreign_key_identities(engine, "artifacts")
+    assert (
+        ("artifact_id", "task_id", "task_attempt_id"),
+        "artifacts",
+        ("id", "task_id", "task_attempt_id"),
+    ) in _foreign_key_identities(engine, "analysis_job_input_artifacts")
+    engine.dispose()
+
+    _alembic(tmp_path, "downgrade 20260824_0031")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    inspector = inspect(engine)
+    assert not {
+        "analysis_job_input_artifacts",
+        "analysis_job_output_artifacts",
+        "migration_20260824_0032_ownership",
+    } & set(inspector.get_table_names())
+    assert "task_attempt_id" not in {
+        item["name"] for item in inspector.get_columns("analysis_jobs")
+    }
+    assert not {"task_attempt_id", "analysis_job_id"} & {
+        item["name"] for item in inspector.get_columns("artifacts")
+    }
+    engine.dispose()
+
+    _alembic(tmp_path, "upgrade 20260824_0032")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    assert {
+        "analysis_job_input_artifacts",
+        "analysis_job_output_artifacts",
+    } <= set(inspect(engine).get_table_names())
+    engine.dispose()
+
+
+def test_task_attempt_lineage_migration_rejects_duplicate_authority(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "migration.db"
+    _alembic(tmp_path, "upgrade 20260824_0031")
+    engine = create_engine(
+        f"sqlite:///{database.as_posix()}", poolclass=NullPool
+    )
+    with engine.begin() as connection:
+        connection.execute(text("""
+            CREATE TABLE task_attempts_without_authority_unique (
+                id VARCHAR(128) NOT NULL,
+                task_id VARCHAR(128) NOT NULL,
+                attempt_no INTEGER NOT NULL,
+                task_attempt_authority_sha256 VARCHAR(64),
+                agent_id VARCHAR(128) NOT NULL,
+                status VARCHAR(16) NOT NULL,
+                reason TEXT,
+                lease_expires_at DATETIME,
+                metadata_json JSON,
+                created_at DATETIME NOT NULL,
+                started_at DATETIME,
+                finished_at DATETIME,
+                PRIMARY KEY (id)
+            )
+        """))
+        connection.execute(text("""
+            INSERT INTO task_attempts_without_authority_unique
+            SELECT * FROM task_attempts
+        """))
+        connection.execute(text("DROP TABLE task_attempts"))
+        connection.execute(text(
+            "ALTER TABLE task_attempts_without_authority_unique "
+            "RENAME TO task_attempts"
+        ))
+        connection.execute(text("""
+            INSERT INTO task_attempts (
+                id, task_id, attempt_no, task_attempt_authority_sha256,
+                agent_id, status, reason, metadata_json, created_at
+            ) VALUES
+                ('attempt-duplicate-1', 'missing-task', 1, :digest,
+                 'missing-agent', 'RUNNING', '', '{}', CURRENT_TIMESTAMP),
+                ('attempt-duplicate-2', 'missing-task', 2, :digest,
+                 'missing-agent', 'RUNNING', '', '{}', CURRENT_TIMESTAMP)
+        """), {"digest": "a" * 64})
+    engine.dispose()
+
+    result = _alembic(
+        tmp_path, "upgrade 20260824_0032", check=False
+    )
+    assert result.returncode != 0
+    assert "duplicate task attempt authority digest" in (
+        result.stdout + result.stderr
+    )
+
+
 def test_target_discovery_downgrade_preserves_preexisting_objects(
     tmp_path: Path,
 ) -> None:
