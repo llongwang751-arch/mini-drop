@@ -10,7 +10,9 @@
 
 from __future__ import annotations
 
+import ast
 import os
+from pathlib import Path
 import threading
 
 from sqlalchemy import Engine, create_engine, inspect, text
@@ -25,7 +27,44 @@ _sessionmaker: sessionmaker | None = None
 # must be re-entrant in a fresh process where neither singleton exists yet.
 _lock = threading.RLock()
 
-_MANAGED_SCHEMA_REVISION = "20260824_0032"
+def _managed_schema_head() -> str:
+    """Return the single Alembic head declared by the packaged migrations."""
+    versions_dir = Path(__file__).resolve().parents[1] / "migrations" / "versions"
+    revisions: set[str] = set()
+    parents: set[str] = set()
+    for migration in versions_dir.glob("*.py"):
+        tree = ast.parse(migration.read_text(encoding="utf-8"), filename=str(migration))
+        values: dict[str, object] = {}
+        for node in tree.body:
+            if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+                continue
+            target = node.targets[0]
+            if not isinstance(target, ast.Name) or target.id not in {
+                "revision", "down_revision",
+            }:
+                continue
+            try:
+                values[target.id] = ast.literal_eval(node.value)
+            except (TypeError, ValueError):
+                continue
+        revision = values.get("revision")
+        if isinstance(revision, str) and revision:
+            revisions.add(revision)
+        parent = values.get("down_revision")
+        if isinstance(parent, str) and parent:
+            parents.add(parent)
+        elif isinstance(parent, (tuple, list)):
+            parents.update(item for item in parent if isinstance(item, str) and item)
+    heads = revisions - parents
+    if len(heads) != 1:
+        raise RuntimeError(
+            "managed schema requires exactly one Alembic head; found: "
+            + (", ".join(sorted(heads)) or "<none>")
+        )
+    return heads.pop()
+
+
+_MANAGED_SCHEMA_REVISION = _managed_schema_head()
 _MANAGED_SCHEMA_TABLES = {
     "alembic_version",
     "tasks",
