@@ -1,6 +1,6 @@
 ﻿# Mini-Drop 剩余工作
 
-更新时间：2026-08-10
+更新时间：2026-08-25
 
 本文只记录尚未关闭的事项。已实现并通过自动测试或当前 Docker 环境端到端验证的能力，不再列为缺口。
 
@@ -60,4 +60,6 @@
 2. 当前 Docker Desktop/WSL2 环境已完成端到端验证；
 3. 原生 Ubuntu 或公开基准已完成现场实测并留存证据。
 
-目前剩余的 P0 项只有第三层的原生 Ubuntu 真机验收，不是当前代码链路缺失。
+2026-08-25 已在云端 Linux 环境完成 CPU 与内存真实 Campaign、TaskAttempt/Artifact/AnalysisJob 证据链、隐藏 Oracle 对比、finally 恢复、服务重启和短稳态验收。详细记录见 `docs/testing/cloud-production-acceptance-20260825.md`。
+
+目前仍需补齐的 P0 实测是完整跨语言采集矩阵和 eBPF I/O/调度异常的现场可视化留证，不是 CPU/内存核心 AI 链路缺失。
