@@ -133,6 +133,7 @@ export default function EvalPanel() {
         onCancel={() => setSkillPlazaOpen(false)}
         footer={null}
         width="min(94vw, 1440px)"
+        style={{ top: 24 }}
         destroyOnHidden
       >
         <SkillEvolutionPanel />
