@@ -137,6 +137,16 @@ function normalizeReport(report) {
   };
 }
 
+function isVerifiedReport(report) {
+  const verificationStatus = report?.verification?.status
+    || report?.verification_status
+    || report?.status;
+  const evidenceRefs = report?.evidence_refs || report?.evidence_refs_json || [];
+  return String(verificationStatus || "").toUpperCase() === "VERIFIED"
+    && Array.isArray(evidenceRefs)
+    && evidenceRefs.length > 0;
+}
+
 function adaptHistoricalDetail(caseItem, payload) {
   const native = payload?.native_payload || {};
   if (caseItem.source === "cluster_diagnosis_v1") {
@@ -210,6 +220,7 @@ export default function AIDiagnosis() {
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [sourceSkill, setSourceSkill] = useState(null);
   const [skillEvaluating, setSkillEvaluating] = useState(false);
+  const [skillGenerating, setSkillGenerating] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [mode, setMode] = useState(() => {
     try {
@@ -221,6 +232,7 @@ export default function AIDiagnosis() {
   const requestVersion = useRef(0);
   const advancing = useRef(false);
   const selectedIdRef = useRef("");
+  const automaticSkillAttempts = useRef(new Set());
   const initialCaseKey = useRef(new URLSearchParams(window.location.search).get("case") || "");
 
   const isExpert = mode === "expert";
@@ -244,6 +256,30 @@ export default function AIDiagnosis() {
     } catch {
       setSourceSkill(null);
       return null;
+    }
+  }, []);
+
+  const materializeDiagnosticSkill = useCallback(async (diagnosisId, { notify = false } = {}) => {
+    if (!diagnosisId) return null;
+    if (diagnosisId === selectedIdRef.current) setSkillGenerating(true);
+    try {
+      const candidate = await createDiagnosticSkillCandidate(diagnosisId);
+      const evaluated = await evaluateDiagnosticSkill(candidate.skill_id);
+      if (diagnosisId === selectedIdRef.current) setSourceSkill(evaluated);
+      if (notify) {
+        const gate = evaluated?.gate_metrics || {};
+        const actionText = candidate?.parent_skill_id
+          ? `本次诊断已自动把 Skill 优化为 v${candidate.version}`
+          : `本次诊断已自动生成候选 Skill v${candidate.version || 1}`;
+        if (gate.eligible) {
+          message.success(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 0} 通过，等待人工批准发布`);
+        } else {
+          message.warning(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 3} 通过，暂不投入复用`);
+        }
+      }
+      return evaluated;
+    } finally {
+      if (diagnosisId === selectedIdRef.current) setSkillGenerating(false);
     }
   }, []);
 
@@ -367,7 +403,27 @@ export default function AIDiagnosis() {
   }, [listLoaded, listLoading, selectedCase]);
 
   useEffect(() => { loadSelectedDetail(selectedCase); }, [selectedCase, loadSelectedDetail]);
-  useEffect(() => { loadSourceSkill(selectedId); }, [selectedId, loadSourceSkill]);
+  useEffect(() => {
+    setSourceSkill(null);
+    loadSourceSkill(selectedId);
+  }, [selectedId, loadSourceSkill]);
+
+  const latestVerifiedReport = useMemo(
+    () => [...(resources.reports || [])].reverse().find(isVerifiedReport) || null,
+    [resources.reports],
+  );
+
+  useEffect(() => {
+    if (!selectedId || sourceSkill || !latestVerifiedReport) return;
+    if (!TERMINAL.has(String(detail?.status || "").toUpperCase())) return;
+    if (automaticSkillAttempts.current.has(selectedId)) return;
+    automaticSkillAttempts.current.add(selectedId);
+    materializeDiagnosticSkill(selectedId, { notify: true }).catch((error) => {
+      if (selectedId === selectedIdRef.current) {
+        message.info(error?.message || "本次可信诊断暂未形成可复用 Skill");
+      }
+    });
+  }, [detail?.status, latestVerifiedReport, materializeDiagnosticSkill, selectedId, sourceSkill]);
 
   const pollSelectedDetail = useCallback(async () => {
     if (!selectedId || readOnly) return;
@@ -488,20 +544,9 @@ export default function AIDiagnosis() {
     try {
       const saved = await submitDropInsightFeedback(selectedId, payload);
       message.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
-      if (payload.feedback_label === "correct") {
+      if (payload.feedback_label === "correct" && !sourceSkill) {
         try {
-          const candidate = await createDiagnosticSkillCandidate(selectedId);
-          const evaluated = await evaluateDiagnosticSkill(candidate.skill_id);
-          setSourceSkill(evaluated);
-          const gate = evaluated?.gate_metrics || {};
-          const actionText = candidate?.parent_skill_id
-            ? `已从本次轨迹优化诊断 Skill 至 v${candidate.version}`
-            : "已从本次验证轨迹生成候选诊断 Skill";
-          if (gate.eligible) {
-            message.success(`${actionText}，三类门禁 ${gate.passed || 3}/${gate.total || 3} 通过`);
-          } else {
-            message.warning(`${actionText}，但门禁仅通过 ${gate.passed || 0}/${gate.total || 3}，暂不发布`);
-          }
+          await materializeDiagnosticSkill(selectedId, { notify: true });
         } catch (skillError) {
           message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
         }
@@ -649,7 +694,7 @@ export default function AIDiagnosis() {
                 />
                 <DiagnosisSkillOutcomeCard
                   skill={sourceSkill}
-                  evaluating={skillEvaluating}
+                  evaluating={skillEvaluating || skillGenerating}
                   onEvaluate={handleEvaluateSkill}
                   onOpenPlaza={() => setWorkspaceView("evaluation")}
                 />

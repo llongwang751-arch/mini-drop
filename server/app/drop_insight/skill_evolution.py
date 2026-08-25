@@ -13,7 +13,6 @@ from server.app.models import (
     DiagnosticSkillEvaluationModel,
     DiagnosticSkillModel,
     DropInsightEvidenceModel,
-    DropInsightFeedbackModel,
     DropInsightReportModel,
     DropInsightSessionModel,
     DropInsightToolCallModel,
@@ -312,7 +311,13 @@ def get_skill(skill_id: str) -> dict | None:
 
 
 def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> dict:
-    """Extract a strategy only from a verified report confirmed by a human."""
+    """Extract a candidate strategy from a verified, evidence-backed report.
+
+    Candidate generation is automatic so the diagnosis workspace can make
+    learning visible as soon as a trustworthy investigation finishes.  Human
+    approval is still required by the publish boundary before later incidents
+    are allowed to reuse the strategy.
+    """
     session = new_session()
     try:
         diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
@@ -329,18 +334,6 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
         if not (report.evidence_refs_json or []):
             raise ValueError("报告没有可信证据引用，不能沉淀技能")
         _validate_report_evidence(session, diagnosis_id, report)
-        feedback = (
-            session.query(DropInsightFeedbackModel)
-            .filter(
-                DropInsightFeedbackModel.diagnosis_id == diagnosis_id,
-                DropInsightFeedbackModel.report_id == report.id,
-                DropInsightFeedbackModel.feedback_label == "correct",
-            )
-            .order_by(DropInsightFeedbackModel.created_at.desc())
-            .first()
-        )
-        if feedback is None:
-            raise ValueError("需要人工确认当前报告结论正确后才能沉淀技能")
         # PostgreSQL's JSON type has no equality operator.  Keep this lookup
         # portable across PostgreSQL and SQLite by narrowing in SQL and
         # comparing the small source-id lists in Python.
