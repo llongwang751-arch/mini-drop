@@ -30,6 +30,93 @@ import {
 
 const { Link, Paragraph, Text } = Typography;
 
+const SNAPSHOT_ROLE_LABEL = {
+  baseline: "基线",
+  incident: "故障",
+  verification: "恢复",
+};
+
+const STATUS_LABEL = {
+  SCORED: "已评分",
+  FROZEN: "结果已冻结",
+  UNSCORED: "未评分",
+  NOT_EXECUTED_IN_THIS_WORKSPACE: "本环境尚未实测",
+  EXECUTED_PROVIDER_AUTH_BLOCKED: "已执行，但模型认证失败",
+  EXECUTED_CAPABILITY_PASS: "能力对照已通过",
+};
+
+const PRODUCT_META = {
+  rcaeval: {
+    name: "RCAEval 根因评测基准",
+    kind: "公开评测基准",
+    focus: "比较多服务场景下的根因排序与证据定位",
+    relation: "Mini-Drop 多了在线采集、人工审批和恢复复测",
+    boundary: "需要额外数据集和较高硬件资源，当前云环境暂未执行。",
+  },
+  openrca: {
+    name: "OpenRCA 开放根因评测",
+    kind: "开放评测框架",
+    focus: "比较模型对日志、指标和调用链的综合推理",
+    relation: "Mini-Drop 强调真实工具执行和证据来源校验",
+    boundary: "官方建议较大内存和存储，当前云环境暂未执行。",
+  },
+  holmesgpt: {
+    name: "HolmesGPT 运维诊断智能体",
+    kind: "开源运维智能体",
+    focus: "比较自然语言调查、工具调用和运维知识推理",
+    relation: "Mini-Drop 进一步加入反证门禁、人工纠正和 Skill 回滚",
+    boundary: "已按统一输入调用，但当时模型服务认证失败，因此不宣称诊断质量得分。",
+  },
+  "grafana-pyroscope": {
+    name: "Grafana Pyroscope 持续性能剖析",
+    kind: "成熟性能产品",
+    focus: "比较持续采样、火焰图和热点函数定位",
+    relation: "Pyroscope 强在采集展示，Mini-Drop 强在循证根因判断",
+    boundary: "已完成同一 CPU 热点工作负载的采集对照；该赛道只比较性能剖析能力。",
+  },
+};
+
+const TECH_LABEL = {
+  top1_root_cause: "首选根因命中",
+  source_location: "源码或模块定位",
+  evidence_citation: "证据引用",
+  three_phase_snapshot: "基线、故障、恢复快照",
+  continuous_profiling: "持续性能剖析",
+  flamegraph: "火焰图",
+  tool_calling: "工具调用",
+  abstention: "证据不足时主动停止",
+  offline_multi_service_rca: "离线多服务根因分析",
+  top_k_accuracy: "根因排序准确率",
+  metrics_logs_traces: "指标、日志和调用链",
+  llm_tool_use: "大模型工具调用",
+  large_telemetry_context: "大规模遥测上下文",
+  root_element_localization: "根因对象定位",
+  iterative_investigation: "多轮调查",
+  kubernetes_and_observability_tools: "容器与可观测工具",
+  read_only_governance: "只读安全治理",
+  continuous_profiles: "持续性能数据",
+  time_window_query: "时间窗口查询",
+  flamegraph_exploration: "火焰图探索",
+  live_profiling_agent: "在线性能采集节点",
+  human_approval_workflow: "人工审批流程",
+  perf_ebpf_collection: "perf 与 eBPF 采集",
+  process_level_profiler_control_plane: "进程级采集控制面",
+  oracle_scored_benchmark: "隐藏标准答案评分",
+  ai_root_cause_reasoning: "AI 根因推理",
+  fault_injection_campaign: "真实故障注入实验",
+};
+
+const TRACK_LABEL = {
+  offline_service_rca: "离线服务根因分析",
+  offline_llm_tool_rca: "离线 AI 工具诊断",
+  live_agent_investigation: "在线智能体调查",
+  continuous_profiling_experience: "持续性能剖析体验",
+};
+
+function readableList(values = []) {
+  return values.map((value) => TECH_LABEL[value] || String(value).replaceAll("_", " "));
+}
+
 const STAGE_ITEMS = [
   ["PREFLIGHT", "安全预检"],
   ["BASELINE", "基线快照"],
@@ -77,7 +164,7 @@ function safeList(value) {
 
 function snapshotColumns() {
   return [
-    { title: "证据角色", dataIndex: "role", render: (value) => <Tag color={value === "incident" ? "error" : value === "verification" ? "success" : "blue"}>{value}</Tag> },
+    { title: "证据角色", dataIndex: "role", render: (value) => <Tag color={value === "incident" ? "error" : value === "verification" ? "success" : "blue"}>{SNAPSHOT_ROLE_LABEL[value] || value}</Tag> },
     { title: "GC 后存活对象", dataIndex: "alive_after_gc" },
     { title: "仍存活回调", dataIndex: "registry_entries" },
     { title: "进程 RSS", dataIndex: "rss_kib", render: (value) => value ? `${value} KiB` : "-" },
@@ -239,7 +326,7 @@ export default function RealWorldBenchmarkPanel() {
     ? (scoreStatus === "UNSCORED" ? "未评分/不适用" : "未评分")
     : (result.passed ? "通过" : "未通过");
   return (
-    <Card size="small" title={<Space><CloudServerOutlined />真实开源缺陷：页面化云端复现与成熟产品对照</Space>}>
+    <Card size="small" title={<Space><CloudServerOutlined />真实开源缺陷复现与产品对照</Space>}>
       <Space direction="vertical" style={{ width: "100%" }} size={16}>
         <Alert
           showIcon
@@ -275,8 +362,8 @@ export default function RealWorldBenchmarkPanel() {
               />
               <Descriptions bordered size="small" column={{ xs: 1, md: 3 }}>
                 <Descriptions.Item label="执行状态"><Tag color={statusMeta.color}>{statusMeta.label}</Tag></Descriptions.Item>
-                <Descriptions.Item label="执行保真度"><Tag>{run.execution_fidelity || "未提供"}</Tag></Descriptions.Item>
-                <Descriptions.Item label="评分状态"><Tag color={scoreStatus === "SCORED" ? "blue" : "warning"}>{scoreStatus}</Tag></Descriptions.Item>
+                <Descriptions.Item label="执行方式"><Tag>{run.execution_fidelity === "MECHANISM_REPRO" ? "低资源机制复现" : run.execution_fidelity === "FULL_UPSTREAM_REPLAY" ? "完整上游回放" : "未提供"}</Tag></Descriptions.Item>
+                <Descriptions.Item label="评分状态"><Tag color={scoreStatus === "SCORED" ? "blue" : "warning"}>{STATUS_LABEL[scoreStatus] || scoreStatus}</Tag></Descriptions.Item>
               </Descriptions>
               {run.status === "COMPLETED" && (
                 <Alert
@@ -315,7 +402,7 @@ export default function RealWorldBenchmarkPanel() {
                   />
                   <Descriptions bordered size="small" column={{ xs: 1, md: 2 }} style={{ marginTop: 12 }}>
                     <Descriptions.Item label="评分结论">{passedLabel}</Descriptions.Item>
-                    <Descriptions.Item label="评分状态">{scoreStatus}</Descriptions.Item>
+                    <Descriptions.Item label="评分状态">{STATUS_LABEL[scoreStatus] || scoreStatus}</Descriptions.Item>
                     <Descriptions.Item label="机制已验证">{verificationLabel(result.mechanism_verified)}</Descriptions.Item>
                     <Descriptions.Item label="恢复已验证">{verificationLabel(result.recovery_verified)}</Descriptions.Item>
                     <Descriptions.Item label="纳入原因" span={2}>{result.admission_reason || "未提供"}</Descriptions.Item>
@@ -330,8 +417,29 @@ export default function RealWorldBenchmarkPanel() {
           </Card>
         )}
 
-        <Card size="small" type="inner" title="成熟产品 / 公开基准同条件对照">
+        <Card size="small" type="inner" title="成熟产品与公开基准同条件对照">
           <Alert showIcon type="info" message="公平比较要求同一故障窗口、同一遥测快照、同一模型和工具预算" description={catalog?.fair_comparison_rule} style={{ marginBottom: 12 }} />
+          <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+            {(catalog?.comparators || []).map((item) => {
+              const meta = PRODUCT_META[item.id] || { name: item.id, kind: "开源项目", focus: "待补充", relation: "待补充" };
+              const latest = comparisons?.latest_by_comparator?.[item.id];
+              return (
+                <Col xs={24} md={12} key={item.id}>
+                  <Card size="small" title={meta.name} extra={<Tag>{meta.kind}</Tag>}>
+                    <Paragraph><Text strong>适合比较：</Text>{meta.focus}</Paragraph>
+                    <Paragraph><Text strong>与 Mini-Drop 的关系：</Text>{meta.relation}</Paragraph>
+                    <Paragraph type="secondary"><Text strong>当前边界：</Text>{meta.boundary}</Paragraph>
+                    <Space wrap>
+                      <Tag color={item.execution_status === "EXECUTED_CAPABILITY_PASS" ? "success" : "warning"}>
+                        {STATUS_LABEL[item.execution_status] || (latest ? STATUS_LABEL[latest.status] : "尚未同条件实测")}
+                      </Tag>
+                      <Link href={item.url} target="_blank" rel="noreferrer">查看开源项目</Link>
+                    </Space>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
           <Space wrap style={{ marginBottom: 12 }}>
             <Button icon={<DownloadOutlined />} onClick={downloadComparisonTemplate}>下载统一结果模板</Button>
             <Tag color={comparisons?.evaluator_ready ? "success" : "warning"}>
@@ -345,21 +453,21 @@ export default function RealWorldBenchmarkPanel() {
             pagination={false}
             dataSource={catalog?.comparators || []}
             columns={[
-              { title: "项目", dataIndex: "id", render: (value, item) => <Link href={item.url} target="_blank" rel="noreferrer">{value}</Link> },
-              { title: "适合比较", dataIndex: "best_for", render: (value = []) => value.map((item) => <Tag key={item}>{item}</Tag>) },
+              { title: "项目", dataIndex: "id", render: (value, item) => <Link href={item.url} target="_blank" rel="noreferrer">{PRODUCT_META[value]?.name || value}</Link> },
+              { title: "适合比较", dataIndex: "best_for", render: (value = []) => readableList(value).map((label) => <Tag key={label}>{label}</Tag>) },
               {
                 title: "对照赛道",
                 dataIndex: "comparison_track",
                 width: 190,
-                render: (value) => value ? <Tag color="blue">{value}</Tag> : "-",
+                render: (value) => value ? <Tag color="blue">{TRACK_LABEL[value] || "专项能力对照"}</Tag> : "-",
               },
-              { title: "不能等价比较", dataIndex: "not_equivalent_to", render: (value = []) => value.join("、") },
+              { title: "不能等价比较", dataIndex: "not_equivalent_to", render: (value = []) => readableList(value).join("、") },
               {
                 title: "实际对照状态",
                 render: (_, item) => {
                   const latest = comparisons?.latest_by_comparator?.[item.id];
                   return latest
-                    ? <Space direction="vertical" size={0}><Tag color={latest.status === "SCORED" ? "success" : "processing"}>{latest.status}</Tag><Text type="secondary">{latest.submitted_cases} 个案例 · {latest.input_hash?.slice(0, 18)}…</Text></Space>
+                    ? <Space direction="vertical" size={0}><Tag color={latest.status === "SCORED" ? "success" : "processing"}>{STATUS_LABEL[latest.status] || latest.status}</Tag><Text type="secondary">{latest.submitted_cases} 个案例 · 输入指纹 {latest.input_hash?.slice(0, 12)}…</Text></Space>
                     : <Tag color="warning">尚无实际结果</Tag>;
                 },
               },
@@ -378,17 +486,17 @@ export default function RealWorldBenchmarkPanel() {
                   const report = comparisons?.latest_by_comparator?.[item.id]?.report;
                   if (!report) return <Text type="secondary">等待实际同条件运行</Text>;
                   return <Space direction="vertical" size={0}>
-                    <Text>Top1 {(100 * report.top1_exact_rate).toFixed(1)}% · 定位 {(100 * report.source_location_rate).toFixed(1)}%</Text>
+                    <Text>首选根因 {(100 * report.top1_exact_rate).toFixed(1)}% · 定位 {(100 * report.source_location_rate).toFixed(1)}%</Text>
                     <Text>证据 {(100 * report.evidence_citation_rate).toFixed(1)}% · 三阶段 {(100 * report.three_phase_snapshot_rate).toFixed(1)}%</Text>
                   </Space>;
                 },
               },
-              { title: "边界 / 下一步", dataIndex: "reason" },
+              { title: "边界与下一步", render: (_, item) => PRODUCT_META[item.id]?.boundary || "等待补充同条件实测" },
               {
                 title: "结果导入",
                 fixed: "right",
                 width: 130,
-                render: (_, item) => <Button icon={<UploadOutlined />} onClick={() => { setComparisonTarget(item); setComparisonJson(""); }}>导入实测 JSON</Button>,
+                render: (_, item) => <Button icon={<UploadOutlined />} onClick={() => { setComparisonTarget(item); setComparisonJson(""); }}>导入实测结果</Button>,
               },
             ]}
             scroll={{ x: 2010 }}
@@ -399,7 +507,7 @@ export default function RealWorldBenchmarkPanel() {
         </Card>
       </Space>
       <Modal
-        title={`导入成熟产品实测结果：${comparisonTarget?.id || ""}`}
+        title={`导入成熟产品实测结果：${PRODUCT_META[comparisonTarget?.id]?.name || comparisonTarget?.id || ""}`}
         open={Boolean(comparisonTarget)}
         onCancel={() => setComparisonTarget(null)}
         onOk={submitComparison}
