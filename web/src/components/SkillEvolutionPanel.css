@@ -13,6 +13,22 @@
   font-weight: 400;
 }
 
+.skill-overview-card.ant-card {
+  margin-top: 1rem;
+  border-color: #cfe1d9;
+  background: #f8fcfa;
+}
+
+.skill-runtime-strip {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #e0e9e5;
+  border-radius: 0.6rem;
+  background: #fff;
+}
+
 .skill-plaza-toolbar {
   display: flex;
   align-items: center;
@@ -101,6 +117,58 @@
 .skill-benchmark-item > .ant-typography:last-child { font-size: 0.72rem; line-height: 1.5; }
 .skill-benchmark-boundary { display: block; font-size: 0.75rem; }
 
+.skill-result-card.ant-card {
+  margin: 0.9rem 0;
+  border-color: #cfe1d9;
+  background: #f8fcfa;
+}
+
+.skill-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0.85rem 0;
+}
+
+.skill-result-metric {
+  display: flex;
+  min-height: 6.2rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dce7e2;
+  border-radius: 0.65rem;
+  background: #fff;
+}
+
+.skill-result-metric b {
+  color: #087a5b;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 1.35rem;
+}
+
+.skill-result-metric span { color: #718079; font-size: 0.75rem; }
+.skill-result-metric-muted b { color: #8a6d1d; font-size: 1rem; }
+
+.skill-proof-rounds {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border-radius: 0.65rem;
+  background: #fff;
+}
+
+.skill-proof-round {
+  display: grid;
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+}
+
+.skill-proof-round > div { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
+.skill-demo-target { margin-top: 0.85rem; }
+
 .skill-plaza-list.ant-collapse {
   border-color: #dce5e1;
   background: #fff;
@@ -161,6 +229,7 @@
   .skill-card-label { grid-template-columns: 1fr; }
   .skill-card-metrics { justify-content: start; }
   .skill-benchmark-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skill-result-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .builtin-skill-grid { grid-template-columns: 1fr; }
 }
 
@@ -168,4 +237,6 @@
   .skill-card-metrics { grid-template-columns: 1fr; gap: 0.25rem; }
   .skill-plaza-toolbar .ant-segmented-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .skill-benchmark-grid { grid-template-columns: 1fr; }
+  .skill-result-grid { grid-template-columns: 1fr; }
+  .skill-proof-round { grid-template-columns: 1fr; }
 }

@@ -49,6 +49,27 @@ const INDEPENDENT_BENCHMARK = [
   { key: "CONTAMINATED_EVIDENCE", label: "污染证据", count: 1, purpose: "验证缺失来源或校验失败的证据不能生成 Skill" },
 ];
 
+// These values come from the checked-in deterministic replay report. Keep the
+// source visible in the UI so they are not confused with live production data.
+const VERIFIED_SKILL_RESULTS = {
+  source: "artifacts/skill-evolution/benchmark-report.json",
+  baseline: { passed: 6, total: 15, passRate: 40, averageToolCalls: 2.33 },
+  enabled: { passed: 15, total: 15, passRate: 100, averageToolCalls: 1.27 },
+  similarIncidents: { passed: 5, total: 5 },
+  counterExamples: { passed: 4, total: 4 },
+  environmentDrift: { passed: 2, total: 2 },
+  wrongTransferRate: { baseline: 6.7, enabled: 0 },
+  rollback: { passed: 1, total: 1 },
+  quarantine: { passed: 1, total: 1 },
+  regression: { passed: 11, total: 11 },
+  durationStatus: "待真实环境采集",
+};
+
+const DEMO_TARGETS = {
+  baseline: { duration: 150, toolCalls: 5 },
+  enabled: { duration: 60, toolCalls: 2 },
+};
+
 const REPOSITORY_BRANCH = "release/unified-ai-diagnosis-20260821";
 const REPOSITORY_SKILL_ROOT = `https://github.com/llongwang751-arch/mini-drop/tree/${REPOSITORY_BRANCH}/skills`;
 
@@ -203,12 +224,23 @@ export default function SkillEvolutionPanel() {
         message="这里展示的不是提示词模板，而是经过验证的诊断流程"
         description="结论经可信证据校验且人工确认正确后，系统提取探针顺序、证据要求和停止条件形成候选 Skill。候选通过相似正例、误导反例和环境漂移门禁后才能发布；真实诊断中的负反馈会触发隔离，旧版本可以回滚。"
       />
-      <Row gutter={[12, 12]} style={{ marginTop: 16 }}>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="候选策略" value={candidateCount} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="已发布策略" value={activeCount} valueStyle={{ color: "#389e0d" }} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="真实复用次数" value={activationCount} valueStyle={{ color: "#1677ff" }} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="已隔离策略" value={quarantinedCount} valueStyle={{ color: quarantinedCount ? "#cf1322" : undefined }} /></Card></Col>
-      </Row>
+      <Card className="skill-overview-card" size="small" title="已验证能力概览">
+        <Row gutter={[12, 12]}>
+          <Col xs={12} md={6}><Statistic title="内置诊断流程" value={BUILTIN_SKILLS.length} suffix="个" /></Col>
+          <Col xs={12} md={6}><Statistic title="独立难例通过" value={VERIFIED_SKILL_RESULTS.enabled.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.enabled.total}`} valueStyle={{ color: "#087a5b" }} /></Col>
+          <Col xs={12} md={6}><Statistic title="相似事故复用" value={VERIFIED_SKILL_RESULTS.similarIncidents.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.similarIncidents.total}`} valueStyle={{ color: "#1677ff" }} /></Col>
+          <Col xs={12} md={6}><Statistic title="纵向回归通过" value={VERIFIED_SKILL_RESULTS.regression.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.regression.total}`} /></Col>
+        </Row>
+        <div className="skill-runtime-strip">
+          <Text>
+            当前运行实例策略库：候选 {candidateCount} 个 · 已发布 {activeCount} 个 · 真实复用 {activationCount} 次 · 已隔离 {quarantinedCount} 个
+          </Text>
+          <Text type="secondary">
+            这里为当前数据库实时状态；显示 0 只表示本实例尚未从真实诊断生成策略，不代表内置流程或离线评测不存在。
+          </Text>
+          <Text type="secondary">离线报告：<Text code>{VERIFIED_SKILL_RESULTS.source}</Text></Text>
+        </div>
+      </Card>
       <Steps
         style={{ margin: "20px 0" }}
         responsive
@@ -270,6 +302,71 @@ export default function SkillEvolutionPanel() {
             </div>
           ))}
         </div>
+        <Card className="skill-result-card" size="small" type="inner" title="已验证效果 · 启用 Skill 前后对照">
+          <Alert
+            showIcon
+            type="success"
+            message="下面是仓库评测报告中的确定性回放结果，不是手填演示数字"
+            description={<>报告来源：<Text code>{VERIFIED_SKILL_RESULTS.source}</Text>。诊断耗时尚未接入真实环境埋点，因此不把演示目标冒充实测。</>}
+          />
+          <div className="skill-result-grid">
+            <div className="skill-result-metric">
+              <Text type="secondary">独立难例通过率</Text>
+              <b><del>{VERIFIED_SKILL_RESULTS.baseline.passRate}%</del> → {VERIFIED_SKILL_RESULTS.enabled.passRate}%</b>
+              <span>{VERIFIED_SKILL_RESULTS.baseline.passed}/{VERIFIED_SKILL_RESULTS.baseline.total} → {VERIFIED_SKILL_RESULTS.enabled.passed}/{VERIFIED_SKILL_RESULTS.enabled.total}</span>
+            </div>
+            <div className="skill-result-metric">
+              <Text type="secondary">离线回放平均工具调用（推演）</Text>
+              <b>{VERIFIED_SKILL_RESULTS.baseline.averageToolCalls} → {VERIFIED_SKILL_RESULTS.enabled.averageToolCalls}</b>
+              <span>平均减少 45.7%</span>
+            </div>
+            <div className="skill-result-metric">
+              <Text type="secondary">错误经验迁移率</Text>
+              <b>{VERIFIED_SKILL_RESULTS.wrongTransferRate.baseline}% → {VERIFIED_SKILL_RESULTS.wrongTransferRate.enabled}%</b>
+              <span>误导反例 {VERIFIED_SKILL_RESULTS.counterExamples.passed}/{VERIFIED_SKILL_RESULTS.counterExamples.total} 正确拒绝</span>
+            </div>
+            <div className="skill-result-metric">
+              <Text type="secondary">技能升级回归</Text>
+              <b>{VERIFIED_SKILL_RESULTS.regression.passed}/{VERIFIED_SKILL_RESULTS.regression.total}</b>
+              <span>隔离与回滚均为 1/1</span>
+            </div>
+            <div className="skill-result-metric">
+              <Text type="secondary">相似事故复用</Text>
+              <b>{VERIFIED_SKILL_RESULTS.similarIncidents.passed}/{VERIFIED_SKILL_RESULTS.similarIncidents.total}</b>
+              <span>相似但不完全相同的独立案例</span>
+            </div>
+            <div className="skill-result-metric skill-result-metric-muted">
+              <Text type="secondary">平均诊断耗时</Text>
+              <b>{VERIFIED_SKILL_RESULTS.durationStatus}</b>
+              <span>需接入在线 Campaign 时间戳</span>
+            </div>
+          </div>
+          <div className="skill-proof-rounds">
+            <div className="skill-proof-round">
+              <Tag color="default">第 1 轮</Tag>
+              <div><Text strong>无技能基线</Text><Text>15 个难例通过 6 个，离线推演平均调用 {VERIFIED_SKILL_RESULTS.baseline.averageToolCalls} 个工具。</Text></div>
+            </div>
+            <div className="skill-proof-round">
+              <Tag color="success">第 2 轮</Tag>
+              <div><Text strong>相似事故自动复用</Text><Text>5/5 正确定位，离线推演平均工具调用降至 {VERIFIED_SKILL_RESULTS.enabled.averageToolCalls} 次。</Text></div>
+            </div>
+            <div className="skill-proof-round">
+              <Tag color="warning">第 3 轮</Tag>
+              <div><Text strong>相似症状、不同根因</Text><Text>4/4 正确拒绝旧 Skill；环境漂移 2/2 正确降级。</Text></div>
+            </div>
+            <div className="skill-proof-round">
+              <Tag color="blue">生命周期</Tag>
+              <div><Text strong>版本、隔离与回滚</Text><Text>候选 v1 经门禁发布；错误反馈触发隔离；新版本失效后 1/1 回滚并恢复。</Text></div>
+            </div>
+          </div>
+          <Alert
+            className="skill-demo-target"
+            showIcon
+            type="warning"
+            message="汇报演示目标（非当前实测）"
+            description={`第一轮目标 ${DEMO_TARGETS.baseline.toolCalls} 次工具 / ${DEMO_TARGETS.baseline.duration} 秒；Skill 命中后目标 ${DEMO_TARGETS.enabled.toolCalls} 次工具 / ${DEMO_TARGETS.enabled.duration} 秒。正式汇报前需用真实 Campaign 时间戳替换。`}
+          />
+        </Card>
         <Text className="skill-benchmark-boundary" type="secondary">
           当前仓库提供确定性离线回放；真实根因准确率和实际耗时仍需在 Linux 故障 Campaign 中，用基线、故障、恢复三段快照复核。
         </Text>

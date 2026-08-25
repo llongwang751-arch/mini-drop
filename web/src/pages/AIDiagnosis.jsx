@@ -15,6 +15,7 @@ import {
 import { ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
+import DiagnosisSkillOutcomeCard from "../components/DiagnosisSkillOutcomeCard";
 import EvalPanel from "../components/EvalPanel";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
@@ -25,11 +26,13 @@ import {
   createDiagnosticSkillCandidate,
   decideDropInsightToolCall,
   deleteDropInsightDiagnosis,
+  evaluateDiagnosticSkill,
   getDiagnosticCase,
   getDropInsightBudget,
   getDropInsightDiagnosis,
   listDiagnosticCasesPage,
   listDiagnosticSkillActivations,
+  listDiagnosticSkills,
   listDropInsightDiagnoses,
   listDropInsightEvidence,
   listDropInsightFeedback,
@@ -205,6 +208,8 @@ export default function AIDiagnosis() {
   const [loading, setLoading] = useState(false);
   const [clarifying, setClarifying] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [sourceSkill, setSourceSkill] = useState(null);
+  const [skillEvaluating, setSkillEvaluating] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [mode, setMode] = useState(() => {
     try {
@@ -222,6 +227,25 @@ export default function AIDiagnosis() {
   const selectedId = selectedCase?.source === "drop_insight_v2" ? selectedCase.diagnosis_id : "";
   selectedIdRef.current = selectedId;
   const readOnly = !selectedCase?.active || TERMINAL_CANONICAL.has(selectedCase?.canonical_status);
+
+  const loadSourceSkill = useCallback(async (diagnosisId) => {
+    if (!diagnosisId) {
+      setSourceSkill(null);
+      return null;
+    }
+    try {
+      const skills = await listDiagnosticSkills();
+      const matched = (skills || [])
+        .filter((skill) => (skill.source_diagnosis_ids || []).includes(diagnosisId))
+        .sort((left, right) => Number(right.version || 0) - Number(left.version || 0));
+      const latest = matched[0] || null;
+      setSourceSkill(latest);
+      return latest;
+    } catch {
+      setSourceSkill(null);
+      return null;
+    }
+  }, []);
 
   const loadCases = useCallback(async () => {
     setListLoading(true);
@@ -343,6 +367,7 @@ export default function AIDiagnosis() {
   }, [listLoaded, listLoading, selectedCase]);
 
   useEffect(() => { loadSelectedDetail(selectedCase); }, [selectedCase, loadSelectedDetail]);
+  useEffect(() => { loadSourceSkill(selectedId); }, [selectedId, loadSourceSkill]);
 
   const pollSelectedDetail = useCallback(async () => {
     if (!selectedId || readOnly) return;
@@ -465,8 +490,11 @@ export default function AIDiagnosis() {
       message.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
       if (payload.feedback_label === "correct") {
         try {
-          await createDiagnosticSkillCandidate(selectedId);
-          message.success("已从这次验证轨迹生成候选诊断技能，请到“验证中心”运行门禁");
+          const candidate = await createDiagnosticSkillCandidate(selectedId);
+          setSourceSkill(candidate);
+          message.success(candidate?.parent_skill_id
+            ? `已从本次轨迹优化诊断 Skill 至 v${candidate.version}`
+            : "已从本次验证轨迹生成候选诊断 Skill");
         } catch (skillError) {
           message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
         }
@@ -475,6 +503,22 @@ export default function AIDiagnosis() {
     } catch (error) {
       message.error(error?.message || "反馈提交失败");
     } finally { setFeedbackSubmitting(false); }
+  }
+
+  async function handleEvaluateSkill(skill) {
+    if (!skill?.skill_id || skillEvaluating) return;
+    setSkillEvaluating(true);
+    try {
+      const evaluated = await evaluateDiagnosticSkill(skill.skill_id);
+      setSourceSkill(evaluated);
+      const gate = evaluated?.gate_metrics || {};
+      if (gate.eligible) message.success(`门禁评测通过：${gate.passed || 3}/${gate.total || 3}`);
+      else message.warning(`门禁尚未通过：${gate.passed || 0}/${gate.total || 3}，请到 Skill 广场查看失败项`);
+    } catch (error) {
+      message.error(error?.message || "Skill 门禁评测失败");
+    } finally {
+      setSkillEvaluating(false);
+    }
   }
 
   const diagnosisProcess = useMemo(() => {
@@ -595,6 +639,12 @@ export default function AIDiagnosis() {
                   onSubmitFeedback={handleSubmitFeedback}
                   feedbackSubmitting={feedbackSubmitting}
                   skillActivations={resources.skillActivations}
+                />
+                <DiagnosisSkillOutcomeCard
+                  skill={sourceSkill}
+                  evaluating={skillEvaluating}
+                  onEvaluate={handleEvaluateSkill}
+                  onOpenPlaza={() => setWorkspaceView("evaluation")}
                 />
               </Spin>
             </div>
