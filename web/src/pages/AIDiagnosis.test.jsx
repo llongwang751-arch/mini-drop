@@ -459,7 +459,7 @@ describe("AIDiagnosis conversation page", () => {
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
   });
 
-  it("turns a confirmed terminal diagnosis into a visible evaluated Skill", async () => {
+  it("automatically turns a verified terminal diagnosis into a visible evaluated Skill", async () => {
     const item = diagnosticCase();
     api.listDropInsightDiagnoses.mockResolvedValue([item]);
     api.getDropInsightDiagnosis.mockResolvedValue({
@@ -475,10 +475,6 @@ describe("AIDiagnosis conversation page", () => {
       evidence_refs: ["evidence-1", "evidence-2"],
       verification: { status: "VERIFIED" },
     }]);
-    api.submitDropInsightFeedback.mockResolvedValue({
-      feedback_id: "feedback-1",
-      feedback_label: "correct",
-    });
     api.createDiagnosticSkillCandidate.mockResolvedValue({
       skill_id: "skill-1",
       version: 1,
@@ -502,16 +498,9 @@ describe("AIDiagnosis conversation page", () => {
     await screen.findByText("订单服务 CPU 高");
     clickCase("订单服务 CPU 高");
 
-    fireEvent.click(await screen.findByRole("button", { name: "结论正确" }));
-
-    await waitFor(() => expect(api.submitDropInsightFeedback).toHaveBeenCalledWith("diag-1", expect.objectContaining({
-      report_id: "report-1",
-      hypothesis_id: "hypothesis-1",
-      feedback_label: "correct",
-    })));
-    expect(api.createDiagnosticSkillCandidate).toHaveBeenCalledWith("diag-1");
-    expect(api.evaluateDiagnosticSkill).toHaveBeenCalledWith("skill-1");
-    expect(await screen.findByText("本次诊断沉淀的 Skill")).toBeInTheDocument();
+    await waitFor(() => expect(api.createDiagnosticSkillCandidate).toHaveBeenCalledWith("diag-1"));
+    await waitFor(() => expect(api.evaluateDiagnosticSkill).toHaveBeenCalledWith("skill-1"));
+    expect(await screen.findByText("本次诊断自动沉淀的 Skill")).toBeInTheDocument();
     expect(screen.getByText("Skill 已生成")).toBeInTheDocument();
     expect(screen.getAllByText("2/3 通过")).toHaveLength(2);
   });

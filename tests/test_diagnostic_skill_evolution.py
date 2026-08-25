@@ -168,7 +168,7 @@ def _publish_source(diagnosis_id: str = "diagnosis-source") -> dict:
     return publish_skill(candidate["skill_id"])
 
 
-def test_candidate_requires_correct_feedback_for_current_report():
+def test_latest_verified_report_can_generate_candidate_before_human_publish_approval():
     diagnosis_id = "diagnosis-stale-feedback"
     _seed_verified_trajectory(diagnosis_id)
     session = new_session()
@@ -193,8 +193,10 @@ def test_candidate_requires_correct_feedback_for_current_report():
     session.commit()
     session.close()
 
-    with pytest.raises(ValueError, match="当前报告"):
-        create_candidate_from_diagnosis(diagnosis_id, created_by="reviewer")
+    candidate = create_candidate_from_diagnosis(diagnosis_id, created_by="system:auto")
+
+    assert candidate["status"] == "CANDIDATE"
+    assert candidate["source_diagnosis_ids"] == [diagnosis_id]
 
 
 def test_verified_trajectory_becomes_versioned_active_skill_once():

@@ -56,7 +56,7 @@ export default function DiagnosisSkillOutcomeCard({
       title={(
         <Space wrap>
           <NodeIndexOutlined />
-          <span>本次诊断沉淀的 Skill</span>
+          <span>本次诊断自动沉淀的 Skill</span>
           <Tag color={status.color}>{status.text}</Tag>
         </Space>
       )}
@@ -66,7 +66,7 @@ export default function DiagnosisSkillOutcomeCard({
         showIcon
         type={isUpgrade ? "success" : "info"}
         message={isUpgrade ? `已基于上一版优化为 v${skill.version}` : `已生成首个候选版本 v${skill.version}`}
-        description="这不是一段提示词。系统从本次真实诊断中提取取证顺序、最低证据要求和停止条件；通过正例、反例与环境迁移门禁后，才允许发布给后续事故复用。"
+        description="可信报告完成后，系统会自动提取取证顺序、最低证据要求和停止条件，并立即执行正例、反例与环境迁移门禁。自动生成不等于自动发布，投入复用仍需人工批准。"
       />
 
       <Steps
@@ -75,10 +75,10 @@ export default function DiagnosisSkillOutcomeCard({
         responsive
         current={skill.status === "ACTIVE" ? 3 : gate.total ? 2 : 1}
         items={[
-          { title: "结论已确认", description: "保留证据与人工反馈" },
+          { title: "结论已验证", description: "可信证据与取证轨迹完整" },
           { title: isUpgrade ? "Skill 已升级" : "Skill 已生成", description: `候选版本 v${skill.version || 1}` },
           { title: "门禁评测", description: gate.total ? `${gate.passed || 0}/${gate.total} 通过` : "等待评测" },
-          { title: "人工发布", description: skill.status === "ACTIVE" ? "已投入复用" : "等待确认" },
+          { title: "人工发布", description: skill.status === "ACTIVE" ? "已投入复用" : "等待批准" },
         ]}
       />
 

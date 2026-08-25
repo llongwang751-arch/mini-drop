@@ -33,12 +33,12 @@ describe("DiagnosisSkillOutcomeCard", () => {
       />,
     );
 
-    expect(screen.getByText("本次诊断沉淀的 Skill")).toBeInTheDocument();
+    expect(screen.getByText("本次诊断自动沉淀的 Skill")).toBeInTheDocument();
     expect(screen.getByText("已生成首个候选版本 v1")).toBeInTheDocument();
-    expect(screen.getByText("结论已确认")).toBeInTheDocument();
+    expect(screen.getByText("结论已验证")).toBeInTheDocument();
     expect(screen.getByText("Skill 已生成")).toBeInTheDocument();
     expect(screen.getAllByText("1/3 通过")).toHaveLength(2);
-    expect(screen.getByText("等待确认")).toBeInTheDocument();
+    expect(screen.getByText("等待批准")).toBeInTheDocument();
     expect(screen.getByText("采集系统指标 → 采集 CPU 火焰图")).toBeInTheDocument();
     expect(screen.getByText("diag-verified-1")).toBeInTheDocument();
 
