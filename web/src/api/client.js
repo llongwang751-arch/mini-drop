@@ -501,6 +501,10 @@ export function listDiagnosticSkills() {
   return api.get("/v2/diagnostic-skills").then(itemsOf);
 }
 
+export function getMentorComplexShowcase() {
+  return api.get("/v2/showcases/mentor-complex");
+}
+
 export function getDiagnosticSkill(skillId) {
   return api.get(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}`);
 }

@@ -1,0 +1,28 @@
+.mentor-showcase-modal .ant-modal-content { padding: 0; overflow: hidden; }
+.mentor-showcase-modal .ant-modal-header { padding: 18px 24px; margin: 0; border-bottom: 1px solid #edf0f2; }
+.mentor-showcase-modal .ant-modal-close { top: 15px; }
+.mentor-showcase-modal .ant-modal-body { max-height: 86vh; overflow-y: auto; padding: 20px 24px 28px; background: #f6f8fa; }
+.mentor-showcase-content { display: flex; flex-direction: column; gap: 16px; }
+.showcase-conclusion { border-left: 4px solid #168f5b; background: #f4fbf7; }
+.exploration-tree { padding: 4px 0 8px; overflow-x: auto; }
+.tree-root { width: min(520px, 80%); margin: 0 auto; }
+.tree-trunk { width: 1px; height: 25px; margin: 0 auto; border-left: 2px solid #9aa9b8; }
+.tree-branches { position: relative; display: grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: 12px; min-width: 850px; padding-top: 24px; }
+.tree-branches::before { content: ""; position: absolute; top: 0; left: 12.5%; right: 12.5%; height: 24px; border-top: 2px solid #9aa9b8; }
+.tree-card { position: relative; min-height: 118px; padding: 11px 12px; border: 1px solid #d9e3ef; border-top-width: 4px; border-radius: 9px; background: #fff; }
+.tree-card-compact::before { content: ""; position: absolute; top: -28px; left: 50%; height: 25px; border-left: 2px solid #9aa9b8; }
+.tree-card-refuted { border-top-color: #cf3f45; background: #fff7f7; }
+.tree-card-confirmed { border-top-color: #168f5b; background: #f3fbf6; }
+.tree-card-visited { border-top-color: #2878d0; background: #f5f9ff; }
+.tree-card-unvisited { border-top-color: #a7adb4; color: #777; background: #fafafa; }
+.tree-card-heading { display: flex; gap: 7px; align-items: flex-start; margin-bottom: 7px; }
+.tree-card-evidence { margin: 7px 0 0 !important; line-height: 1.55; }
+.tree-success-chain { display: flex; flex-direction: column; gap: 8px; }
+.tree-success-chain .tree-card:not(:first-child)::before { display: none; }
+.tree-chain-arrow { align-self: center; padding: 2px 8px; color: #147a50; border: 1px dashed #75b99a; border-radius: 12px; background: #f4fbf7; font-size: 12px; }
+.tree-icon { display: inline-flex; margin-top: 4px; }
+.diagnosis-round p { margin: 5px 0 0; }
+.generated-skill-card { border-color: #93d8b8; background: #f8fffb; }
+.showcase-metric-card .ant-statistic-content { font-size: 24px; }
+.showcase-comparison { background: #fff; }
+@media (max-width: 768px) { .mentor-showcase-modal .ant-modal-body { padding: 14px; } .tree-root { width: 100%; } }

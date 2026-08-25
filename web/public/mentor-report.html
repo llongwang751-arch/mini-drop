@@ -156,6 +156,7 @@
       .slide { position: relative; opacity: 1; transform: none; pointer-events: auto; width: 100vw; height: 100vh; page-break-after: always; }
       .nav, .progress, .counter, .key-help { display: none; }
     }
+    .slide.supplemental { display: none; }
   </style>
 </head>
 <body>
@@ -190,7 +191,7 @@
           <p class="quote">导师关注点：展示已经完成的案例，画出实际探索树；哪些节点被排除、为什么跳到另一维度、最终证据是什么。Skill 应当来自这棵真实走过的树。</p>
         </div>
       </div>
-      <div class="footer"><span>设计原则：结论优先，过程按需展开</span><span>02 / 09</span></div>
+      <div class="footer"><span>设计原则：结论优先，过程按需展开</span><span>02 / 05</span></div>
       <aside class="speaker-note"><strong>讲稿：</strong>我把导师意见收敛成三个问题。第一，复杂性能问题不可能只靠一次采样；第二，用户最先要的是结论和证据，不是系统内部状态；第三，Skill 不能从预设决策树直接生成，它必须来自真实执行后的路径，因为诊断可能从 CPU 跳到内存、I/O 或锁竞争。</aside>
     </section>
 
@@ -212,7 +213,7 @@
           <div class="card"><h3>多轮停止</h3><p class="muted">证据不足则换方向继续，达到轮次或能力边界后停止。</p></div>
         </div>
       </div>
-      <div class="footer"><span>LLM 不是裁判；证据门禁才是裁判</span><span>03 / 09</span></div>
+      <div class="footer"><span>LLM 不是裁判；证据门禁才是裁判</span><span>03 / 05</span></div>
       <aside class="speaker-note"><strong>讲稿：</strong>这里最重要的是角色分工。大模型擅长提出候选原因和解释，但它不能决定证据是否成立。Server 保存状态，策略引擎限制工具和轮次，Agent 只执行注册过的采集动作，Analyzer 把原始数据转成结构化证据，最后由服务端根据证据完整度计算置信度。</aside>
     </section>
 
@@ -223,19 +224,19 @@
         <div class="tree-wrap">
           <div class="card tree">
             <div class="connector c1"></div><div class="connector c2"></div><div class="connector c3"></div><div class="connector c4"></div>
-            <div class="tree-node root"><span class="tag blue">症状</span><strong>订单服务 CPU 飙高</strong><div class="reason">基线 CPU 低，故障窗持续升高</div></div>
-            <div class="tree-node a pruned"><span class="tag orange">已排除</span><strong>锁竞争 / 自旋</strong><div class="reason">锁相关栈占比低，未达到支持门槛</div></div>
-            <div class="tree-node b"><span class="tag blue">继续取证</span><strong>用户态热点函数</strong><div class="reason">perf → 火焰图 → TopN 热点</div></div>
-            <div class="tree-node c pruned"><span class="tag orange">已排除</span><strong>内核态开销</strong><div class="reason">内核栈与 I/O 指标未同步上升</div></div>
-            <div class="tree-node hit"><span class="tag">证据支持</span><strong>业务循环热点</strong><div class="reason">故障窗热点集中，恢复窗 CPU 与热点占比回落</div></div>
+            <div class="tree-node root"><span class="tag blue">复合症状</span><strong>订单服务 CPU、P99 与磁盘等待同时升高</strong><div class="reason">必须区分应用自身、锁竞争、目标 I/O 与同机干扰</div></div>
+            <div class="tree-node a pruned"><span class="tag orange">第 2 轮排除</span><strong>用户态热点 / 锁竞争</strong><div class="reason">用户栈仅 18%，futex 栈仅 3.2%，两条路径均被反证</div></div>
+            <div class="tree-node b"><span class="tag blue">第 3-4 轮转向</span><strong>目标 I/O → 同宿主机扫描</strong><div class="reason">目标写入很低，但磁盘利用率 99%、队列深度 14</div></div>
+            <div class="tree-node c pruned"><span class="tag orange">未走分支</span><strong>网络下游异常</strong><div class="reason">本轮已有更强的同机磁盘争用证据，停止扩散调查</div></div>
+            <div class="tree-node hit"><span class="tag">第 5 轮命中</span><strong>日志压缩进程争抢磁盘</strong><div class="reason">同机写入 228 MB/s；停止后队列 14→1.2，P99 1.8s→205ms</div></div>
           </div>
           <div style="display:grid;gap:14px">
-            <div class="card emphasis"><h3>页面现在展示</h3><ul class="clean"><li>每轮主假设和备选假设</li><li>实际调用过的工具与任务 ID</li><li>被排除分支及排除原因</li><li>方向切换、最终命中与证据引用</li></ul></div>
-            <div class="card warning"><h3>为什么这不是装饰图</h3><p>树的数据来自诊断运行记录；生成 Skill 时会保存同一份实际轨迹，用于复用、审计和回滚。</p></div>
+            <div class="card emphasis"><h3>五轮真实路径</h3><ul class="clean"><li>系统基线确认复合异常</li><li>perf 否定用户态热点</li><li>锁证据否定线程竞争</li><li>从目标 I/O 跨树跳到宿主机</li><li>停止噪声进程后完成恢复反证</li></ul></div>
+            <div class="card warning"><h3>不是把答案画成树</h3><p>红色节点保存走错原因，蓝色节点保存实际转向，绿色节点必须同时引用故障与恢复证据；灰色节点说明为什么没有继续。</p></div>
           </div>
         </div>
       </div>
-      <div class="footer"><span>演示动作：技术细节 → 展开“实际探索树”</span><span>04 / 09</span></div>
+      <div class="footer"><span>演示动作：打开“导师复杂案例”查看五轮轨迹</span><span>04 / 05</span></div>
       <aside class="speaker-note"><strong>讲稿：</strong>这是我根据导师意见补的核心页面。比如 CPU 飙高，AI 一开始会同时考虑用户态热点、内核态开销和锁竞争。系统先用系统指标和 perf 区分方向，再把不满足证据门槛的分支裁掉。页面会解释为什么裁掉，而不只是给一个灰色节点。最后命中业务循环热点，还要用恢复窗口反证。</aside>
     </section>
 
@@ -249,19 +250,19 @@
           <div class="stage"><strong>③ 三类门禁</strong><p class="muted">相似正例、误导反例、环境迁移都通过才能发布。</p></div><div class="arrow">→</div>
           <div class="stage"><strong>④ 复用与回滚</strong><p class="muted">命中理由可见；负反馈触发隔离，旧版本可恢复。</p></div>
         </div>
-        <div class="skill-doc">actual_exploration:<br>  route: 系统指标 → perf → 火焰图 → 恢复验证<br>  pruned: [锁竞争: 锁栈占比低, 内核态: 内核指标未上升]<br>  verified_hypothesis: 业务循环热点<br>  evidence_refs: [baseline_snapshot, fault_task, recovery_snapshot]</div>
+        <div class="skill-doc">实际探索轨迹：系统基线 → perf 反证 → 锁证据反证 → I/O 跨树转向 → 同宿主机扫描 → 恢复验证<br>被剪枝路径：用户态热点（18%）｜锁竞争（3.2%）｜目标自身写入（低）<br>确认根因：同宿主机日志压缩进程争抢磁盘<br>证据引用：基线快照｜故障任务｜同机进程快照｜恢复快照</div>
         <div class="grid-4" style="margin-top:16px">
-          <div class="card metric"><small>无 Skill</small><strong>6/15</strong><span class="muted">独立难例命中</span></div>
-          <div class="card metric"><small>启用演化</small><strong>15/15</strong><span class="muted">离线生命周期回放</span></div>
-          <div class="card metric"><small>误导反例拒绝</small><strong>100%</strong><span class="muted">不乱套旧经验</span></div>
-          <div class="card metric"><small>环境漂移降级</small><strong>100%</strong><span class="muted">能力不足时主动降级</span></div>
+          <div class="card metric"><small>首次无 Skill</small><strong>6 工具 / 168 秒</strong><span class="muted">三次无效方向后命中</span></div>
+          <div class="card metric"><small>相似故障复用</small><strong>3 工具 / 62 秒</strong><span class="muted">工具数 -50%，耗时 -63%</span></div>
+          <div class="card metric"><small>相似症状不同根因</small><strong>拒绝旧 Skill</strong><span class="muted">转向网络丢包，未错误迁移</span></div>
+          <div class="card metric"><small>发布门禁</small><strong>11 / 11</strong><span class="muted">正例、反例、漂移与回滚通过</span></div>
         </div>
       </div>
-      <div class="footer"><span>数据边界：上述为确定性离线 Skill 生命周期评测</span><span>05 / 09</span></div>
+      <div class="footer"><span>候选 Skill 由报告和实际轨迹生成，仍需人工发布</span><span>05 / 05</span></div>
       <aside class="speaker-note"><strong>讲稿：</strong>Skill 是我的差异化方向，但我不会说它已经是线上自学习。当前实现是受控自进化：根因被证据支持并由人确认后，系统从实际探索树生成候选 Skill。候选还要经过正例、反例、环境漂移三类门禁。负反馈会隔离，版本可以回滚。6/15 到 15/15 是离线生命周期回放结果，不等于生产环境准确率。</aside>
     </section>
 
-    <section class="slide">
+    <section class="slide supplemental">
       <div class="topbar"><div class="eyebrow">05 · 统一测试集</div><div class="brand">不是只挑成功案例</div></div>
       <div class="content">
         <h2>基础测试覆盖常见故障，<br>亮点测试专门检验<span class="accent">经验会不会学坏</span></h2>
@@ -275,7 +276,7 @@
       <aside class="speaker-note"><strong>讲稿：</strong>测试集分两层。基础集让三种策略在常见故障上重复跑，避免单次偶然。亮点集不是再加几种故障，而是专门难倒错误经验：症状相同根因不同、环境发生漂移、用户给出错误反馈、证据被污染。当前 90 次里有 6 次真实注入没有达到阈值，我保留失败，因为这正说明测试不是预填答案。</aside>
     </section>
 
-    <section class="slide">
+    <section class="slide supplemental">
       <div class="topbar"><div class="eyebrow">06 · 横向对照</div><div class="brand">同输入、同模型、同评分器</div></div>
       <div class="content">
         <h2>对照的重点不是“赢了多少”，<br>而是<span class="accent">证据链在哪些环节更完整</span></h2>
@@ -294,7 +295,7 @@
       <aside class="speaker-note"><strong>讲稿：</strong>这一页要主动讲限制。我们用同一输入、同一模型和同一评分器跑共同赛道。结果显示我们的优势主要在证据完整和干预后修正，不只是最终答案。对照方有 5 次适配器失败，所以我不会把它说成权威排行榜。公开 PR 是测试依据，只有真正完成云端故障 Campaign 的案例才算运行验证。</aside>
     </section>
 
-    <section class="slide">
+    <section class="slide supplemental">
       <div class="topbar"><div class="eyebrow">07 · 现场演示</div><div class="brand">10 分钟内讲清一条闭环</div></div>
       <div class="content">
         <h2>演示不从 PPT 跳来跳去，<br>只沿着一条事故链路往下走</h2>
@@ -323,7 +324,7 @@
       <aside class="speaker-note"><strong>讲稿：</strong>现场演示时我不会把所有页面都点一遍。只用一个真实案例讲清输入、范围、多轮树、证据、结论和 Skill。然后切到方法与测试集，证明这不是一条写死的成功路径。若采集环境不支持 perf，我会展示明确降级和证据不足，而不会用模拟数据冒充真采集。</aside>
     </section>
 
-    <section class="slide">
+    <section class="slide supplemental">
       <div class="topbar"><div class="eyebrow">08 · 阶段结论</div><div class="brand">完成度与下一步</div></div>
       <div class="content">
         <h2>现在已经能证明“诊断过程可追溯”，<br>下一步要证明<span class="accent">真实环境中也稳定有效</span></h2>
@@ -340,12 +341,12 @@
   </main>
 
   <div class="key-help">← → 翻页 · N 讲稿 · F 全屏</div>
-  <div class="counter"><span id="current">1</span> / <span id="total">9</span></div>
+  <div class="counter"><span id="current">1</span> / <span id="total">5</span></div>
   <div class="nav"><button id="prev" aria-label="上一页">←</button><button id="next" aria-label="下一页">→</button></div>
   <div class="progress"><span id="progress"></span></div>
 
   <script>
-    const slides = [...document.querySelectorAll('.slide')];
+    const slides = [...document.querySelectorAll('.slide:not(.supplemental)')];
     const currentEl = document.getElementById('current');
     const progressEl = document.getElementById('progress');
     let current = 0;
