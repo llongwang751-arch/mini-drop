@@ -12,11 +12,12 @@ import {
   Typography,
   message,
 } from "antd";
-import { ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
+import { ExperimentOutlined, ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import DiagnosisSkillOutcomeCard from "../components/DiagnosisSkillOutcomeCard";
 import EvalPanel from "../components/EvalPanel";
+import MentorComplexShowcase from "../components/MentorComplexShowcase";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
 import {
@@ -27,6 +28,7 @@ import {
   decideDropInsightToolCall,
   deleteDropInsightDiagnosis,
   evaluateDiagnosticSkill,
+  getMentorComplexShowcase,
   getDiagnosticCase,
   getDropInsightBudget,
   getDropInsightDiagnosis,
@@ -222,6 +224,9 @@ export default function AIDiagnosis() {
   const [skillEvaluating, setSkillEvaluating] = useState(false);
   const [skillGenerating, setSkillGenerating] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [showcaseOpen, setShowcaseOpen] = useState(false);
+  const [showcaseLoading, setShowcaseLoading] = useState(false);
+  const [showcaseData, setShowcaseData] = useState(null);
   const [mode, setMode] = useState(() => {
     try {
       return window.localStorage.getItem("mini-drop-diagnosis-mode") === "expert" ? "expert" : "simple";
@@ -239,6 +244,19 @@ export default function AIDiagnosis() {
   const selectedId = selectedCase?.source === "drop_insight_v2" ? selectedCase.diagnosis_id : "";
   selectedIdRef.current = selectedId;
   const readOnly = !selectedCase?.active || TERMINAL_CANONICAL.has(selectedCase?.canonical_status);
+
+  const openMentorShowcase = useCallback(async () => {
+    setShowcaseOpen(true);
+    if (showcaseData) return;
+    setShowcaseLoading(true);
+    try {
+      setShowcaseData(await getMentorComplexShowcase());
+    } catch (error) {
+      message.error(error?.message || "复杂案例加载失败，请稍后重试");
+    } finally {
+      setShowcaseLoading(false);
+    }
+  }, [showcaseData]);
 
   const loadSourceSkill = useCallback(async (diagnosisId) => {
     if (!diagnosisId) {
@@ -633,20 +651,23 @@ export default function AIDiagnosis() {
             <Text strong ellipsis>
               {workspaceView === "evaluation" ? "AI 诊断验证中心" : (detail?.query || selectedCase?.query || "新诊断")}
             </Text>
-            {workspaceView === "workspace" && selectedCase && (
+            {workspaceView === "workspace" && (
               <Space wrap>
-                {readOnly && <Text type="secondary">只读记录</Text>}
-                <Segmented
-                  size="small"
-                  value={mode}
-                  onChange={(value) => {
-                    setMode(value);
-                    try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
-                  }}
-                  options={[{ label: "简单", value: "simple" }, { label: "专家", value: "expert" }]}
-                />
-                {isExpert && <Button size="small" icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>技术细节</Button>}
-                {!readOnly && <Button size="small" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
+                <Button size="small" icon={<ExperimentOutlined />} onClick={openMentorShowcase}>复杂案例回放</Button>
+                {selectedCase && <>
+                  {readOnly && <Text type="secondary">只读记录</Text>}
+                  <Segmented
+                    size="small"
+                    value={mode}
+                    onChange={(value) => {
+                      setMode(value);
+                      try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
+                    }}
+                    options={[{ label: "简单", value: "simple" }, { label: "专家", value: "expert" }]}
+                  />
+                  {isExpert && <Button size="small" icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>技术细节</Button>}
+                  {!readOnly && <Button size="small" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
+                </>}
               </Space>
             )}
           </Space>
@@ -723,6 +744,12 @@ export default function AIDiagnosis() {
         evidence={resources.evidence}
         reports={resources.reports}
         events={resources.events}
+      />
+      <MentorComplexShowcase
+        open={showcaseOpen}
+        loading={showcaseLoading}
+        data={showcaseData}
+        onClose={() => setShowcaseOpen(false)}
       />
     </div>
   );

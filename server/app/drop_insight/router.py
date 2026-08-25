@@ -57,8 +57,15 @@ from .service import (
     list_fix_verifications,
 )
 from .tools import TOOLS
+from .showcase import get_mentor_complex_showcase
 
 router = APIRouter(prefix="/api/v2", tags=["drop-insight-v2"])
+
+
+@router.get("/showcases/mentor-complex")
+def mentor_complex_showcase() -> APIResponse:
+    """Return an explicitly labelled completed controlled-fault replay."""
+    return APIResponse(data=get_mentor_complex_showcase())
 
 
 @router.get("/diagnostic-skills")
