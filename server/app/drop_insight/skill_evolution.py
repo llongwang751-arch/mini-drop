@@ -13,6 +13,7 @@ from server.app.models import (
     DiagnosticSkillEvaluationModel,
     DiagnosticSkillModel,
     DropInsightEvidenceModel,
+    DropInsightHypothesisModel,
     DropInsightReportModel,
     DropInsightSessionModel,
     DropInsightToolCallModel,
@@ -74,6 +75,111 @@ def _category_for_route(route: list[str]) -> str:
 def _family_key(category: str, target: dict) -> str:
     environment = str(target.get("environment") or "*").strip().lower()
     return f"{category.lower()}:{environment}"
+
+
+_PRUNED_HYPOTHESIS_STATUSES = {
+    "REFUTED",
+    "FALSIFIED",
+    "DISPROVED",
+    "RULED_OUT",
+    "REJECTED",
+    "CLOSED",
+}
+_PRUNED_TOOL_STATUSES = {"FAILED", "REJECTED", "CANCELLED", "DENIED"}
+
+
+def _actual_exploration(
+    hypotheses: list[DropInsightHypothesisModel],
+    calls: list[DropInsightToolCallModel],
+    report: DropInsightReportModel,
+) -> dict:
+    """Serialize the route actually explored, including dead ends."""
+    nodes: list[dict] = []
+    edges: list[dict] = []
+    pruned: list[dict] = []
+    switches: list[dict] = []
+    hypothesis_ids = {item.id for item in hypotheses}
+
+    for hypothesis in hypotheses:
+        status = str(hypothesis.status or "OPEN").upper()
+        nodes.append(
+            {
+                "id": hypothesis.id,
+                "kind": "HYPOTHESIS",
+                "label": hypothesis.statement,
+                "status": status,
+                "round": hypothesis.round_index,
+                "reason": hypothesis.generation_reason or "",
+            }
+        )
+        parent = hypothesis.parent_hypothesis_id
+        if parent and parent in hypothesis_ids:
+            edges.append({"from": parent, "to": hypothesis.id, "kind": "BRANCH"})
+        if status in _PRUNED_HYPOTHESIS_STATUSES:
+            pruned.append(
+                {
+                    "node_id": hypothesis.id,
+                    "label": hypothesis.statement,
+                    "reason": hypothesis.generation_reason or f"假设状态为 {status}",
+                }
+            )
+
+    previous_call = None
+    for index, call in enumerate(calls, start=1):
+        status = str(call.status or "UNKNOWN").upper()
+        category = _TOOL_CATEGORY.get(call.tool_name, "GENERAL")
+        node_id = f"tool:{call.id}"
+        nodes.append(
+            {
+                "id": node_id,
+                "kind": "TOOL",
+                "label": call.tool_name,
+                "status": status,
+                "category": category,
+                "order": index,
+                "hypothesis_id": call.hypothesis_id,
+                "reason": call.policy_reason or "",
+            }
+        )
+        if call.hypothesis_id in hypothesis_ids:
+            edges.append({"from": call.hypothesis_id, "to": node_id, "kind": "INVESTIGATE"})
+        if status in _PRUNED_TOOL_STATUSES:
+            pruned.append(
+                {
+                    "node_id": node_id,
+                    "label": call.tool_name,
+                    "reason": call.policy_reason or f"工具状态为 {status}",
+                }
+            )
+        if previous_call is not None:
+            previous_category = _TOOL_CATEGORY.get(previous_call.tool_name, "GENERAL")
+            if category != previous_category:
+                switches.append(
+                    {
+                        "from_tool": previous_call.tool_name,
+                        "from_category": previous_category,
+                        "to_tool": call.tool_name,
+                        "to_category": category,
+                        "reason": "上一方向尚未形成充分证据，切换到新的取证方向",
+                    }
+                )
+        previous_call = call
+
+    return {
+        "version": 1,
+        "nodes": nodes,
+        "edges": edges,
+        "actual_route": [item.tool_name for item in calls],
+        "pruned_branches": pruned,
+        "direction_switches": switches,
+        "verified_hypothesis_id": report.hypothesis_id,
+        "summary": {
+            "hypotheses_explored": len(hypotheses),
+            "tool_calls": len(calls),
+            "pruned_branches": len(pruned),
+            "direction_switches": len(switches),
+        },
+    }
 
 
 def _campaign_probe_route(
@@ -351,14 +457,12 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             return existing_candidate.to_dict()
         calls = (
             session.query(DropInsightToolCallModel)
-            .filter(
-                DropInsightToolCallModel.diagnosis_id == diagnosis_id,
-                DropInsightToolCallModel.status == "COMPLETED",
-            )
+            .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
             .order_by(DropInsightToolCallModel.created_at.asc())
             .all()
         )
-        route = list(dict.fromkeys(item.tool_name for item in calls))
+        completed_calls = [item for item in calls if item.status == "COMPLETED"]
+        route = list(dict.fromkeys(item.tool_name for item in completed_calls))
         route_source = "TOOL_CALL"
         if not route:
             route = _campaign_probe_route(session, diagnosis, report)
@@ -376,6 +480,19 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             .first()
         )
         timestamp = _now()
+        hypotheses = (
+            session.query(DropInsightHypothesisModel)
+            .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+            .order_by(
+                DropInsightHypothesisModel.round_index.asc(),
+                DropInsightHypothesisModel.created_at.asc(),
+            )
+            .all()
+        )
+        exploration = _actual_exploration(hypotheses, calls, report)
+        if not exploration["actual_route"] and route:
+            exploration["actual_route"] = route
+            exploration["summary"]["tool_calls"] = len(route)
         skill = DiagnosticSkillModel(
             id=f"skill_{uuid4().hex}",
             family_key=family_key,
@@ -399,6 +516,7 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
                 ),
                 "stop_rule": "VERIFIED_REPORT_OR_EXHAUSTED_SAFE_PROBES",
                 "refutation_rule": "COUNTER_EVIDENCE_OVERRIDES_ROUTE_PRIOR",
+                "actual_exploration": exploration,
             },
             gate_metrics_json={"eligible": False, "reason": "not_evaluated"},
             parent_skill_id=latest.id if latest else None,
