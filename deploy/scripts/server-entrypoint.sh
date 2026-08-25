@@ -17,6 +17,11 @@ if [ "${MINI_DROP_GRPC_SECURE:-0}" = "1" ]; then
   export MINI_DROP_GRPC_KEY_FILE=/tmp/mini-drop-tls/server.key
 fi
 
+# 对照实验、三阶段快照等运行数据写入持久卷。镜像内的 /app 保持只读，
+# 容器首次挂载命名卷时由 root 创建目录，再交给非 root 应用用户。
+runtime_dir="${MINI_DROP_RUNTIME_DIR:-/var/lib/mini-drop-runtime}"
+install -d -o mini-drop -g mini-drop -m 0750 "$runtime_dir"
+
 if [ "${MINI_DROP_RUN_MIGRATIONS:-0}" = "1" ]; then
   gosu mini-drop python -m alembic upgrade head
 fi

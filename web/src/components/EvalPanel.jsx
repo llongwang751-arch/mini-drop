@@ -1,20 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Card,
   Col,
-  Collapse,
-  List,
   Modal,
   Row,
   Segmented,
   Space,
   Statistic,
   Steps,
-  Table,
-  Tag,
   Typography,
-  message,
 } from "antd";
 import {
   BranchesOutlined,
@@ -23,26 +18,12 @@ import {
   ReadOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import { getDiagnosisEvalCatalog, getDiagnosisEvalPlan } from "../api/client";
 import CampaignPanel from "./CampaignPanel";
 import RealWorldBenchmarkPanel from "./RealWorldBenchmarkPanel";
 import SkillEvolutionPanel from "./SkillEvolutionPanel";
 import "./EvalPanel.css";
 
 const { Paragraph, Text, Title } = Typography;
-
-const FAULT_LABELS = {
-  CPU_HOTSPOT: "CPU 热点",
-  IO_LATENCY: "I/O 延迟",
-  MEMORY_PRESSURE: "内存压力",
-  NETWORK_DEGRADATION: "网络劣化",
-  JVM_GC: "JVM GC",
-  DOWNSTREAM_DEPENDENCY: "下游依赖",
-  QUEUE_CONGESTION: "队列积压",
-  NOISY_NEIGHBOR: "噪声邻居",
-  CONTAINER_RESOURCE_LIMIT: "容器限额",
-  DATABASE_LOCK: "数据库锁",
-};
 
 const NAV_ITEMS = [
   { label: "评测总览", value: "overview", icon: <ReadOutlined /> },
@@ -60,29 +41,7 @@ const DIAGNOSIS_STEPS = [
   { title: "修复验证", description: "比较基线、故障与恢复快照" },
 ];
 
-function OverviewPanel({ catalog, plan, loading }) {
-  const cases = catalog?.core_cases || [];
-  const sources = catalog?.sources || [];
-  const caseColumns = useMemo(() => [
-    { title: "用例", dataIndex: "case_id", width: 180, render: (value) => <Text code>{value}</Text> },
-    { title: "故障类型", dataIndex: "fault_type", width: 140, render: (value) => <Tag>{FAULT_LABELS[value] || value}</Tag> },
-    { title: "标准根因（Oracle）", dataIndex: "expected_root_cause", width: 280, ellipsis: true },
-    {
-      title: "必需证据",
-      dataIndex: "required_evidence",
-      width: 280,
-      render: (values = []) => values.map((value) => <Tag key={value}>{value}</Tag>),
-    },
-    {
-      title: "修复验证",
-      dataIndex: "snapshot_roles",
-      width: 140,
-      render: (values = []) => values.includes("verification")
-        ? <Tag color="success">要求恢复快照</Tag>
-        : <Tag>未定义</Tag>,
-    },
-  ], []);
-
+function OverviewPanel() {
   return (
     <Space direction="vertical" size={16} style={{ width: "100%" }}>
       <section className="eval-method-grid" aria-label="AI 诊断核心方法">
@@ -110,56 +69,21 @@ function OverviewPanel({ catalog, plan, loading }) {
         <Steps responsive items={DIAGNOSIS_STEPS} />
       </Card>
 
-      <Card className="eval-plan-card" title="当前有效评测基线">
+      <Card className="eval-plan-card" title="当前验证体系">
         <Row gutter={[24, 18]}>
-          <Col xs={12} lg={6}><Statistic title="核心故障用例" value={plan?.case_count ?? cases.length} suffix="个" /></Col>
-          <Col xs={12} lg={6}><Statistic title="诊断策略" value={plan?.strategies?.length ?? 3} suffix="种" /></Col>
-          <Col xs={12} lg={6}><Statistic title="每场景重复" value={plan?.repetitions ?? 3} suffix="次" /></Col>
-          <Col xs={12} lg={6}><Statistic title="计划执行" value={plan?.execution_count ?? 90} suffix="次" /></Col>
+          <Col xs={12} lg={6}><Statistic title="真实故障类型" value={4} suffix="类" /></Col>
+          <Col xs={12} lg={6}><Statistic title="Skill 独立难例" value={15} suffix="个" /></Col>
+          <Col xs={12} lg={6}><Statistic title="诊断路径" value={3} suffix="种" /></Col>
+          <Col xs={12} lg={6}><Statistic title="证据阶段" value={3} suffix="段" /></Col>
         </Row>
         <Alert
           className="eval-plan-note"
           type="warning"
           showIcon
           message="回归分数不等于线上正确率"
-          description="统一用例用于跨版本和跨方案比较；真实故障还要在受控环境中注入，并比较基线、故障和恢复三段快照。"
+          description="页面只保留当前真实故障、Skill 独立难例和同条件产品对照。旧版 10 条静态目录已下线，不再参与展示或请求。"
         />
       </Card>
-
-      <Collapse
-        className="eval-reference-collapse"
-        items={[
-          {
-            key: "catalog",
-            label: `基础测试集目录（${catalog?.dataset || "unified"} v${catalog?.version || "-"}，${cases.length} 个）`,
-            children: <Table rowKey="case_id" size="small" scroll={{ x: 1040 }} loading={loading} dataSource={cases} columns={caseColumns} pagination={{ pageSize: 6 }} />,
-          },
-          {
-            key: "sources",
-            label: `开源项目、论文与资料来源（${sources.length} 条）`,
-            children: (
-              <List
-                size="small"
-                dataSource={sources}
-                renderItem={(source) => (
-                  <List.Item>
-                    <Space direction="vertical" size={2}>
-                      <Space wrap>
-                        <Tag color="blue">{source.tier}</Tag>
-                        <Text strong>{source.source_id}</Text>
-                        {String(source.url || "").startsWith("http")
-                          ? <Typography.Link href={source.url} target="_blank" rel="noreferrer">查看原始来源</Typography.Link>
-                          : <Text code>{source.url}</Text>}
-                      </Space>
-                      <Text type="secondary">{source.purpose} · {source.license}</Text>
-                    </Space>
-                  </List.Item>
-                )}
-              />
-            ),
-          },
-        ]}
-      />
     </Space>
   );
 }
@@ -167,35 +91,12 @@ function OverviewPanel({ catalog, plan, loading }) {
 export default function EvalPanel() {
   const [section, setSection] = useState("overview");
   const [skillPlazaOpen, setSkillPlazaOpen] = useState(false);
-  const [catalog, setCatalog] = useState(null);
-  const [plan, setPlan] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const loadEvaluationContext = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [catalogResult, planResult] = await Promise.all([
-        getDiagnosisEvalCatalog(),
-        getDiagnosisEvalPlan(),
-      ]);
-      setCatalog(catalogResult);
-      setPlan(planResult);
-    } catch (error) {
-      message.error(error?.message || "评测资料加载失败");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadEvaluationContext();
-  }, [loadEvaluationContext]);
 
   return (
     <div className="eval-center">
       <header className="eval-center-header">
         <div>
-          <Text className="eval-eyebrow">DIAGNOSIS VALIDATION</Text>
+          <Text className="eval-eyebrow">诊断验证</Text>
           <Title level={3}>诊断验证中心</Title>
           <Paragraph>从方法、真实故障、策略演化到成熟产品对照，所有结论都有过程和证据可追溯。</Paragraph>
         </div>
@@ -221,7 +122,7 @@ export default function EvalPanel() {
       />
 
       <main className="eval-center-content">
-        {section === "overview" && <OverviewPanel catalog={catalog} plan={plan} loading={loading} />}
+        {section === "overview" && <OverviewPanel />}
         {section === "campaign" && <CampaignPanel />}
         {section === "comparison" && <RealWorldBenchmarkPanel />}
       </main>

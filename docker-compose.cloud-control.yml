@@ -88,6 +88,9 @@ services:
       MINI_DROP_AI_BASE_URL: ${MINI_DROP_AI_BASE_URL:-https://api.deepseek.com}
       MINI_DROP_AI_API_KEY: ${MINI_DROP_AI_API_KEY:-}
       MINI_DROP_AI_MODEL: ${MINI_DROP_AI_MODEL:-deepseek-chat}
+      MINI_DROP_REAL_WORLD_RUN_DIR: /var/lib/mini-drop-runtime/real-world-runs
+      MINI_DROP_COMPARISON_INPUT_DIR: /var/lib/mini-drop-runtime/comparison-inputs
+      MINI_DROP_COMPARATOR_RESULT_DIR: /var/lib/mini-drop-runtime/comparator-results
       MINI_DROP_DATABASE_SERVICE: ${MINI_DROP_DATABASE_SERVICE:-mini-drop-postgres}
       # The real-fault Campaign runs against allow-listed demo services on the
       # same private Compose network.  These are deliberately not published to
@@ -102,6 +105,7 @@ services:
       - ./:/workspace-source:ro
       - /opt/mini-drop-otel-3684411/src/ad:/workspace-otel/src/ad:ro
       - /opt/mini-drop-otel-3684411/src/email:/workspace-otel/src/email:ro
+      - diagnosis_runtime:/var/lib/mini-drop-runtime
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -131,6 +135,7 @@ services:
       - ./:/workspace-source:ro
       - /opt/mini-drop-otel-3684411/src/ad:/workspace-otel/src/ad:ro
       - /opt/mini-drop-otel-3684411/src/email:/workspace-otel/src/email:ro
+      - diagnosis_runtime:/var/lib/mini-drop-runtime
     depends_on:
       server:
         condition: service_healthy
@@ -326,3 +331,4 @@ volumes:
   pgdata:
   miniodata:
   campaign_agent_outbox:
+  diagnosis_runtime:

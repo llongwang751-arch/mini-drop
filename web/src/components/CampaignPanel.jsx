@@ -26,6 +26,19 @@ import {
 
 const { Text, Paragraph } = Typography;
 
+const ROOT_CAUSE_LABELS = {
+  SELF_CODE_CPU_HOTSPOT: "自身代码 CPU 热点",
+  MEMORY_LEAK: "内存持续增长",
+  IO_LATENCY: "磁盘 I/O 延迟",
+  DOWNSTREAM_LATENCY: "下游依赖响应慢",
+  NETWORK_DEGRADATION: "网络质量下降",
+  GC_PRESSURE: "垃圾回收压力",
+};
+
+function rootCauseLabel(value) {
+  return ROOT_CAUSE_LABELS[value] || value || "未给出";
+}
+
 const STAGE_ORDER = [
   "PRECHECK_PASSED",
   "BASELINE_CAPTURED",
@@ -44,7 +57,7 @@ const STEP_ITEMS = [
   { title: "异常确认", description: "确认指标相对基线变化" },
   { title: "任务取证", description: "下发 sys_metrics 任务" },
   { title: "循证诊断", description: "决策树、证据引用与置信度" },
-  { title: "Oracle 对比", description: "诊断后才读取标准答案" },
+  { title: "答案对比", description: "诊断后才读取标准答案" },
   { title: "恢复验证", description: "finally 清理并保存恢复快照" },
 ];
 
@@ -201,8 +214,8 @@ export default function CampaignPanel() {
       <Alert
         showIcon
         type="warning"
-        message="这不是预填答案：系统会控制真实进程、采集三段快照，并在诊断结束后才读取 Oracle"
-        description="按钮只调用白名单故障开关，不执行任意命令；无论中途哪一步失败，finally 都会停止故障并验证恢复。"
+        message="这不是预填答案：系统会控制真实进程、采集三段快照，并在诊断结束后才读取标准答案"
+        description="按钮只调用白名单故障开关，不执行任意命令；无论中途哪一步失败，系统都会停止故障并验证恢复。"
         style={{ marginBottom: 16 }}
       />
       {!run ? (
@@ -285,7 +298,7 @@ export default function CampaignPanel() {
           {diagnosis && (
             <Card size="small" title="循证 AI 诊断（过程可追溯）">
               <Row gutter={[16, 16]}>
-                <Col xs={24} lg={8}><Statistic title="诊断根因" value={diagnosis.root_cause} /></Col>
+                <Col xs={24} lg={8}><Statistic title="诊断根因" value={rootCauseLabel(diagnosis.root_cause)} /></Col>
                 <Col xs={12} lg={4}><Statistic title="置信度" value={Math.round((diagnosis.confidence || 0) * 100)} suffix="%" /></Col>
                 <Col xs={12} lg={4}><Statistic title="证据数" value={diagnosis.evidence_refs?.length || 0} /></Col>
                 <Col xs={24} lg={8}><Text>{diagnosis.recommended_action}</Text></Col>
@@ -298,22 +311,22 @@ export default function CampaignPanel() {
           )}
 
           {comparison && (
-            <Card size="small" title="隐藏 Oracle 对比与恢复门禁">
+            <Card size="small" title="隐藏标准答案对比与恢复检查">
               <Row gutter={[16, 12]}>
                 <Col xs={24} md={12} style={{ minWidth: 0 }}>
-                  <WrappedStatistic title="标准根因" value={comparison.expected_root_cause} />
+                  <WrappedStatistic title="标准根因" value={rootCauseLabel(comparison.expected_root_cause)} />
                 </Col>
                 <Col xs={24} md={12} style={{ minWidth: 0 }}>
-                  <WrappedStatistic title="实际根因" value={comparison.actual_root_cause} />
+                  <WrappedStatistic title="实际根因" value={rootCauseLabel(comparison.actual_root_cause)} />
                 </Col>
                 <Col xs={8} md={8} style={{ minWidth: 0 }}>
-                  <WrappedStatistic title="根因命中" value={comparison.root_cause_match ? "PASS" : "FAIL"} />
+                  <WrappedStatistic title="根因命中" value={comparison.root_cause_match ? "通过" : "未通过"} />
                 </Col>
                 <Col xs={8} md={8} style={{ minWidth: 0 }}>
-                  <WrappedStatistic title="证据完整" value={comparison.evidence_complete ? "PASS" : "FAIL"} />
+                  <WrappedStatistic title="证据完整" value={comparison.evidence_complete ? "通过" : "未通过"} />
                 </Col>
                 <Col xs={8} md={8} style={{ minWidth: 0 }}>
-                  <WrappedStatistic title="恢复清理" value={run.cleanup?.succeeded ? "PASS" : "FAIL"} />
+                  <WrappedStatistic title="恢复清理" value={run.cleanup?.succeeded ? "通过" : "未通过"} />
                 </Col>
               </Row>
             </Card>
