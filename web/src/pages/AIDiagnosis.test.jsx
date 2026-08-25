@@ -459,6 +459,63 @@ describe("AIDiagnosis conversation page", () => {
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
   });
 
+  it("turns a confirmed terminal diagnosis into a visible evaluated Skill", async () => {
+    const item = diagnosticCase();
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "COMPLETED",
+    });
+    api.listDropInsightReports.mockResolvedValue([{
+      report_id: "report-1",
+      hypothesis_id: "hypothesis-1",
+      conclusion: "订单序列化函数持续占用 CPU，是本次性能下降的根因。",
+      confidence: 0.91,
+      evidence_refs: ["evidence-1", "evidence-2"],
+      verification: { status: "VERIFIED" },
+    }]);
+    api.submitDropInsightFeedback.mockResolvedValue({
+      feedback_id: "feedback-1",
+      feedback_label: "correct",
+    });
+    api.createDiagnosticSkillCandidate.mockResolvedValue({
+      skill_id: "skill-1",
+      version: 1,
+      status: "CANDIDATE",
+    });
+    api.evaluateDiagnosticSkill.mockResolvedValue({
+      skill_id: "skill-1",
+      category: "CPU_HOTSPOT",
+      version: 1,
+      status: "CANDIDATE",
+      source_diagnosis_ids: ["diag-1"],
+      strategy: {
+        probe_order: ["collect_sys_metrics", "start_perf_profile"],
+        minimum_evidence: 2,
+        confidence_floor: 0.8,
+      },
+      gate_metrics: { eligible: false, passed: 2, total: 3 },
+    });
+
+    render(<AIDiagnosis />);
+    await screen.findByText("订单服务 CPU 高");
+    clickCase("订单服务 CPU 高");
+
+    fireEvent.click(await screen.findByRole("button", { name: "结论正确" }));
+
+    await waitFor(() => expect(api.submitDropInsightFeedback).toHaveBeenCalledWith("diag-1", expect.objectContaining({
+      report_id: "report-1",
+      hypothesis_id: "hypothesis-1",
+      feedback_label: "correct",
+    })));
+    expect(api.createDiagnosticSkillCandidate).toHaveBeenCalledWith("diag-1");
+    expect(api.evaluateDiagnosticSkill).toHaveBeenCalledWith("skill-1");
+    expect(await screen.findByText("本次诊断沉淀的 Skill")).toBeInTheDocument();
+    expect(screen.getByText("Skill 已生成")).toBeInTheDocument();
+    expect(screen.getAllByText("2/3 通过")).toHaveLength(2);
+  });
+
   it("advances only after an explicit user click", async () => {
     const item = diagnosticCase({ status: "RUNNING", canonical_status: "COLLECTING" });
     api.listDropInsightDiagnoses.mockResolvedValue([item]);

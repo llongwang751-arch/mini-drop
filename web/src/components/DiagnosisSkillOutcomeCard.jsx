@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, ExperimentOutlined, NodeIndexOutlined } from "@ant-design/icons";
-import { Alert, Button, Card, Descriptions, Space, Tag, Typography } from "antd";
+import { Alert, Button, Card, Descriptions, Space, Steps, Tag, Typography } from "antd";
 
 const { Text } = Typography;
 
@@ -69,6 +69,19 @@ export default function DiagnosisSkillOutcomeCard({
         description="这不是一段提示词。系统从本次真实诊断中提取取证顺序、最低证据要求和停止条件；通过正例、反例与环境迁移门禁后，才允许发布给后续事故复用。"
       />
 
+      <Steps
+        className="diagnosis-skill-outcome-steps"
+        size="small"
+        responsive
+        current={skill.status === "ACTIVE" ? 3 : gate.total ? 2 : 1}
+        items={[
+          { title: "结论已确认", description: "保留证据与人工反馈" },
+          { title: isUpgrade ? "Skill 已升级" : "Skill 已生成", description: `候选版本 v${skill.version || 1}` },
+          { title: "门禁评测", description: gate.total ? `${gate.passed || 0}/${gate.total} 通过` : "等待评测" },
+          { title: "人工发布", description: skill.status === "ACTIVE" ? "已投入复用" : "等待确认" },
+        ]}
+      />
+
       <Descriptions className="diagnosis-skill-outcome-details" size="small" column={{ xs: 1, sm: 2, lg: 3 }}>
         <Descriptions.Item label="能力名称">
           {CATEGORY_LABELS[skill.category] || skill.category || "通用循证诊断"}
@@ -85,7 +98,9 @@ export default function DiagnosisSkillOutcomeCard({
             : "未记录"}
         </Descriptions.Item>
         <Descriptions.Item label="门禁结果">
-          {gate.eligible ? <Tag color="green">通过，可发布</Tag> : <Tag color="gold">尚未通过</Tag>}
+          {gate.eligible
+            ? <Tag color="green">{gate.passed || 3}/{gate.total || 3} 通过，可发布</Tag>
+            : <Tag color="gold">{gate.total ? `${gate.passed || 0}/${gate.total} 通过` : "尚未评测"}</Tag>}
         </Descriptions.Item>
       </Descriptions>
 

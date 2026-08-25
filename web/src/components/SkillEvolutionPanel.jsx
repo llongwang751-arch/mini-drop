@@ -161,13 +161,17 @@ export default function SkillEvolutionPanel() {
   const [skills, setSkills] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
-      setSkills(await listDiagnosticSkills());
+      const items = await listDiagnosticSkills();
+      setSkills(Array.isArray(items) ? items : []);
     } catch (error) {
+      setLoadError(error.message || "读取诊断 Skill 失败");
       message.error(error.message || "读取诊断技能失败");
     } finally {
       setLoading(false);
@@ -224,6 +228,16 @@ export default function SkillEvolutionPanel() {
         message="这里展示的不是提示词模板，而是经过验证的诊断流程"
         description="结论经可信证据校验且人工确认正确后，系统提取探针顺序、证据要求和停止条件形成候选 Skill。候选通过相似正例、误导反例和环境漂移门禁后才能发布；真实诊断中的负反馈会触发隔离，旧版本可以回滚。"
       />
+      {loadError && (
+        <Alert
+          className="skill-runtime-error"
+          type="error"
+          showIcon
+          message="运行实例的 Skill 数据读取失败"
+          description={loadError}
+          action={<Button size="small" onClick={load}>重新读取</Button>}
+        />
+      )}
       <Card className="skill-overview-card" size="small" title="已验证能力概览">
         <Row gutter={[12, 12]}>
           <Col xs={12} md={6}><Statistic title="内置诊断流程" value={BUILTIN_SKILLS.length} suffix="个" /></Col>
@@ -233,7 +247,7 @@ export default function SkillEvolutionPanel() {
         </Row>
         <div className="skill-runtime-strip">
           <Text>
-            当前运行实例策略库：候选 {candidateCount} 个 · 已发布 {activeCount} 个 · 真实复用 {activationCount} 次 · 已隔离 {quarantinedCount} 个
+            当前运行实例策略库：候选 {loadError ? "不可用" : candidateCount} 个 · 已发布 {loadError ? "不可用" : activeCount} 个 · 真实复用 {loadError ? "不可用" : activationCount} 次 · 已隔离 {loadError ? "不可用" : quarantinedCount} 个
           </Text>
           <Text type="secondary">
             这里为当前数据库实时状态；显示 0 只表示本实例尚未从真实诊断生成策略，不代表内置流程或离线评测不存在。
@@ -378,7 +392,9 @@ export default function SkillEvolutionPanel() {
         </div>
         <Segmented value={statusFilter} options={FILTER_OPTIONS} onChange={setStatusFilter} />
       </div>
-      {skills.length === 0 ? (
+      {loadError ? (
+        <Empty description="运行实例数据暂不可用，请重新读取；上方离线评测结果仍可查看" />
+      ) : skills.length === 0 ? (
         <Empty description="还没有候选技能。完成一次有可信证据的诊断并选择“结论正确”后，系统会自动生成候选。" />
       ) : visibleSkills.length === 0 ? (
         <Empty description="当前筛选条件下没有 Skill" />
