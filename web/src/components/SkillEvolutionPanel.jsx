@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Button, Card, Col, Collapse, Descriptions, Empty, Progress, Row, Segmented, Space, Statistic, Steps, Tag, Typography, message } from "antd";
-import { DeploymentUnitOutlined, ReloadOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
+import { DeploymentUnitOutlined, ExportOutlined, ReloadOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import {
   evaluateDiagnosticSkill,
   getDiagnosticSkill,
@@ -48,6 +48,53 @@ const INDEPENDENT_BENCHMARK = [
   { key: "VERSION_ROLLBACK", label: "版本回滚", count: 1, purpose: "验证新版本失效后可恢复上一版" },
   { key: "CONTAMINATED_EVIDENCE", label: "污染证据", count: 1, purpose: "验证缺失来源或校验失败的证据不能生成 Skill" },
 ];
+
+const REPOSITORY_BRANCH = "release/unified-ai-diagnosis-20260821";
+const REPOSITORY_SKILL_ROOT = `https://github.com/llongwang751-arch/mini-drop/tree/${REPOSITORY_BRANCH}/skills`;
+
+const BUILTIN_SKILLS = [
+  {
+    id: "cpu-hotspot-diagnosis",
+    name: "CPU 热点循证诊断",
+    category: "CPU 性能",
+    description: "先比较系统指标，再用 perf 火焰图定位热点，并用恢复窗口反证结论。",
+    route: ["系统指标", "CPU 采样", "热点函数", "恢复验证"],
+    evidence: "CPU 变化、热点函数占比、恢复后 CPU 回落",
+  },
+  {
+    id: "memory-growth-diagnosis",
+    name: "内存持续增长诊断",
+    category: "内存",
+    description: "区分正常缓存、对象保留和真实泄漏，避免只凭 RSS 上升就下结论。",
+    route: ["RSS/PSS 趋势", "对象保留", "内存剖析", "停止增长验证"],
+    evidence: "连续窗口增长、对象或映射增长、故障停止后的趋势",
+  },
+  {
+    id: "io-latency-diagnosis",
+    name: "I/O 延迟分层诊断",
+    category: "I/O",
+    description: "从进程写入、内核延迟到磁盘压力逐层排查，区分应用阻塞与设备瓶颈。",
+    route: ["系统 I/O", "进程写入", "内核延迟", "磁盘压力"],
+    evidence: "吞吐与延迟、目标进程写入、内核 I/O 分布",
+  },
+  {
+    id: "dependency-latency-diagnosis",
+    name: "下游依赖延迟定位",
+    category: "服务依赖",
+    description: "把本机资源与下游响应时间对齐，判断慢在自身代码还是依赖链路。",
+    route: ["本机资源", "调用耗时", "下游健康", "恢复对照"],
+    evidence: "本机资源稳定、下游延迟上升、移除延迟后恢复",
+  },
+];
+
+const CATEGORY_LABEL = {
+  CPU_HOTSPOT: "CPU 热点",
+  MEMORY_LEAK: "内存持续增长",
+  MEMORY_PRESSURE: "内存压力",
+  IO_LATENCY: "I/O 延迟",
+  DOWNSTREAM_LATENCY: "下游依赖延迟",
+  NETWORK_DEGRADATION: "网络劣化",
+};
 
 export default function SkillEvolutionPanel() {
   const [skills, setSkills] = useState([]);
@@ -134,6 +181,38 @@ export default function SkillEvolutionPanel() {
           { title: "监控回滚", description: "负迁移自动隔离" },
         ]}
       />
+      <Card className="builtin-skill-card" size="small" title="内置参考 Skill · 可直接查看源码">
+        <Paragraph type="secondary">
+          这些是仓库自带的诊断流程模板，用来说明 Skill 在页面和代码中如何落地。它们不会冒充已通过真实故障评测的运行时 Skill；只有下方由真实诊断生成并通过门禁的策略，才能发布复用。
+        </Paragraph>
+        <div className="builtin-skill-grid">
+          {BUILTIN_SKILLS.map((skill) => (
+            <Card
+              className="builtin-skill-item"
+              key={skill.id}
+              size="small"
+              title={skill.name}
+              extra={<Tag color="blue">{skill.category}</Tag>}
+              actions={[
+                <Button
+                  key="source"
+                  type="link"
+                  icon={<ExportOutlined />}
+                  href={`${REPOSITORY_SKILL_ROOT}/${skill.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  查看仓库源码
+                </Button>,
+              ]}
+            >
+              <Paragraph>{skill.description}</Paragraph>
+              <Text className="builtin-skill-route">{skill.route.join(" → ")}</Text>
+              <Text className="builtin-skill-evidence" type="secondary">证据要求：{skill.evidence}</Text>
+            </Card>
+          ))}
+        </div>
+      </Card>
       <Card className="skill-benchmark-card" size="small" title="独立难例评测 · 15 个未参与技能生成的案例">
         <Alert
           type="warning"
@@ -180,7 +259,7 @@ export default function SkillEvolutionPanel() {
                 <div className="skill-card-label">
                   <div className="skill-card-heading">
                     <Space wrap>
-                      <Text strong>{skill.category}</Text>
+                      <Text strong>{CATEGORY_LABEL[skill.category] || skill.category}</Text>
                       <Tag>v{skill.version}</Tag>
                       <Tag color={STATUS_COLOR[skill.status]}>{STATUS_LABEL[skill.status] || skill.status}</Tag>
                     </Space>

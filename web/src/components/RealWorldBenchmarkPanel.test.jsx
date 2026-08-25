@@ -90,7 +90,7 @@ describe("RealWorldBenchmarkPanel", () => {
 
     expect(await screen.findByText("机制复现执行完成，未进入正式评分")).toBeInTheDocument();
     expect(screen.getByText("未评分/不适用")).toBeInTheDocument();
-    expect(screen.getByText("机制验证结果（非 Oracle 正式评分）")).toBeInTheDocument();
+    expect(screen.getByText("机制验证结果（非正式评分）")).toBeInTheDocument();
     expect(screen.getByText("仅纳入机制验证")).toBeInTheDocument();
     expect(screen.getByText("snapshot:incident")).toBeInTheDocument();
     expect(screen.getByText("不是完整上游仓库回放")).toBeInTheDocument();

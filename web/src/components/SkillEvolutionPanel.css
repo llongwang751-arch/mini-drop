@@ -29,6 +29,43 @@
   background: #fbfcfc;
 }
 
+.builtin-skill-card.ant-card {
+  margin: 0 0 1rem;
+  border-color: #cddfd8;
+  background: #f6fbf9;
+}
+
+.builtin-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.builtin-skill-item.ant-card {
+  border-color: #dce7e2;
+  background: #fff;
+}
+
+.builtin-skill-item .ant-card-body {
+  min-height: 9.5rem;
+}
+
+.builtin-skill-item .ant-card-actions > li {
+  margin: 0.35rem 0;
+}
+
+.builtin-skill-route,
+.builtin-skill-evidence {
+  display: block;
+  line-height: 1.65;
+}
+
+.builtin-skill-route {
+  margin-bottom: 0.55rem;
+  color: #087a5b;
+  font-weight: 600;
+}
+
 .skill-benchmark-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -118,6 +155,7 @@
   .skill-card-label { grid-template-columns: 1fr; }
   .skill-card-metrics { justify-content: start; }
   .skill-benchmark-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .builtin-skill-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {

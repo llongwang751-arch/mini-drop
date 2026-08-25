@@ -154,7 +154,7 @@ export default function RealWorldBenchmarkPanel() {
     try {
       const payload = await getRealWorldComparisonInput(run.run_id);
       downloadJson(payload, `mini-drop-comparison-input-${run.case_id}.json`);
-      message.success("同条件对照输入已导出；该文件不含 Mini-Drop 结论和隐藏 Oracle");
+      message.success("同条件对照输入已导出；该文件不含 Mini-Drop 结论和隐藏标准答案");
     } catch (error) {
       message.error(error.message);
     }
@@ -271,7 +271,7 @@ export default function RealWorldBenchmarkPanel() {
                 showIcon
                 type={statusMeta.alert}
                 message={isUnscoredCompletion ? "机制复现执行完成，未进入正式评分" : (run.message || statusMeta.label)}
-                description="该实验由云端 Server 执行白名单适配器，过程和快照实时回传到本页面；不是浏览器预填答案。执行完成只表示流程终止，不自动代表 Oracle 评分通过。"
+                description="该实验由云端服务执行白名单适配器，过程和快照实时回传到本页面；不是浏览器预填答案。执行完成只表示流程终止，不自动代表标准答案评分通过。"
               />
               <Descriptions bordered size="small" column={{ xs: 1, md: 3 }}>
                 <Descriptions.Item label="执行状态"><Tag color={statusMeta.color}>{statusMeta.label}</Tag></Descriptions.Item>
@@ -285,7 +285,7 @@ export default function RealWorldBenchmarkPanel() {
                   message="可将本次冻结证据交给成熟产品做同条件诊断"
                   description={(
                     <Space wrap>
-                      <Text>导出内容只有公开故障契约、基线/故障/修复快照和统一预算，不包含 Mini-Drop 的预测或隐藏 Oracle。</Text>
+                      <Text>导出内容只有公开故障契约、基线/故障/修复快照和统一约束，不包含 Mini-Drop 的预测或隐藏标准答案。</Text>
                       <Button icon={<DownloadOutlined />} onClick={downloadComparisonInput}>下载同条件对照输入</Button>
                     </Space>
                   )}
@@ -306,7 +306,7 @@ export default function RealWorldBenchmarkPanel() {
                 </Col>
               </Row>
               {result && (
-                <Card size="small" title={isMechanismRun ? "机制验证结果（非 Oracle 正式评分）" : "诊断完成后才揭示 Oracle"}>
+                <Card size="small" title={isMechanismRun ? "机制验证结果（非正式评分）" : "诊断完成后才揭示标准答案"}>
                   <Alert
                     showIcon
                     type={scoreStatus === "UNSCORED" ? "warning" : result.passed === true ? "info" : result.passed === false ? "error" : "warning"}
@@ -335,7 +335,7 @@ export default function RealWorldBenchmarkPanel() {
           <Space wrap style={{ marginBottom: 12 }}>
             <Button icon={<DownloadOutlined />} onClick={downloadComparisonTemplate}>下载统一结果模板</Button>
             <Tag color={comparisons?.evaluator_ready ? "success" : "warning"}>
-              {comparisons?.evaluator_ready ? "隐藏 Oracle 评测器已就绪" : "评测器密钥未配置：只冻结结果，不出分"}
+              {comparisons?.evaluator_ready ? "隐藏标准答案评测器已就绪" : "评测器密钥未配置：只冻结结果，不出分"}
             </Tag>
             <Text>实际提交 {comparisons?.actual_submission_count || 0} 次；正式评分 {comparisons?.scored_submission_count || 0} 次</Text>
           </Space>
@@ -411,7 +411,7 @@ export default function RealWorldBenchmarkPanel() {
           showIcon
           type="warning"
           message="这里只接收成熟产品真实运行后的冻结输出"
-          description="product 必须与所选产品一致；每条结果还必须填写导出包中的 source_run_id 和 comparison_input_hash。服务端会绑定原始三阶段证据、校验工具/时间预算并拒绝 Oracle 字段。未配置评测器密钥时只冻结结果，不显示虚假分数。"
+          description="产品名称必须与所选产品一致；每条结果还必须填写导出包中的运行编号和输入摘要。服务端会绑定原始三阶段证据、校验工具和时间限制，并拒绝提前提交标准答案。未配置评测器密钥时只冻结结果，不显示虚假分数。"
           style={{ marginBottom: 12 }}
         />
         <Input.TextArea
