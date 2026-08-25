@@ -267,11 +267,18 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
         )
         if feedback is None:
             raise ValueError("需要人工确认当前报告结论正确后才能沉淀技能")
-        existing_candidate = (
-            session.query(DiagnosticSkillModel)
-            .filter(DiagnosticSkillModel.source_diagnosis_ids_json == [diagnosis_id])
-            .order_by(DiagnosticSkillModel.version.desc())
-            .first()
+        # PostgreSQL's JSON type has no equality operator.  Keep this lookup
+        # portable across PostgreSQL and SQLite by narrowing in SQL and
+        # comparing the small source-id lists in Python.
+        existing_candidate = next(
+            (
+                item
+                for item in session.query(DiagnosticSkillModel)
+                .order_by(DiagnosticSkillModel.version.desc())
+                .all()
+                if list(item.source_diagnosis_ids_json or []) == [diagnosis_id]
+            ),
+            None,
         )
         if existing_candidate is not None:
             return existing_candidate.to_dict()
@@ -312,7 +319,11 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             strategy_json={
                 "probe_order": route,
                 "minimum_evidence": max(1, len(report.evidence_refs_json or [])),
-                "confidence_floor": report.confidence / 1000,
+                "confidence_floor": (
+                    report.confidence
+                    if report.confidence <= 1
+                    else report.confidence / 1000
+                ),
                 "stop_rule": "VERIFIED_REPORT_OR_EXHAUSTED_SAFE_PROBES",
                 "refutation_rule": "COUNTER_EVIDENCE_OVERRIDES_ROUTE_PRIOR",
             },
