@@ -9,6 +9,7 @@ import ConclusionCard from "./ConclusionCard";
 import ScopeCard from "./ScopeCard";
 import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
+import ActualExplorationTree from "./ActualExplorationTree";
 
 const { Text } = Typography;
 
@@ -113,6 +114,8 @@ export default function ChatThread({
             draftKey={detail.diagnosis_id || detail.id}
           />
         )}
+        {latestReport && <ConclusionCard report={latestReport} />}
+        <ActualExplorationTree hypotheses={hypotheses} toolCalls={sortedTools} report={latestReport} />
         <PlannerBlock
           classification={classification}
           hypotheses={hypotheses}
@@ -178,7 +181,6 @@ export default function ChatThread({
         {acceptedEvidence.map((item) => (
           <EvidenceCard key={item.evidence_id} evidence={item} />
         ))}
-        {latestReport && <ConclusionCard report={latestReport} />}
         {/* 诊断结束后仍允许评价结论；readOnly 只约束继续取证和工具调用。 */}
         {latestReport && onSubmitFeedback && (
           <DiagnosisFeedbackCard

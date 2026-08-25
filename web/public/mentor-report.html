@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini-Drop AI 性能诊断方案答辩</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #dfe6e2;
+      --paper: #f7f8f5;
+      --card: rgba(255, 255, 255, .92);
+      --green: #087f5b;
+      --green-soft: #e7f5ef;
+      --blue: #246bfd;
+      --blue-soft: #eaf1ff;
+      --orange: #f08c00;
+      --orange-soft: #fff4dd;
+      --red: #c92a2a;
+      --shadow: 0 18px 50px rgba(25, 42, 34, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      background:
+        linear-gradient(rgba(18, 79, 58, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 79, 58, .035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+    }
+
+    button { font: inherit; }
+    .deck { position: relative; width: 100%; height: 100%; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      padding: 46px 58px 32px;
+      opacity: 0;
+      transform: translateX(6%) scale(.985);
+      pointer-events: none;
+      transition: opacity .28s ease, transform .38s cubic-bezier(.2,.8,.2,1);
+    }
+    .slide.active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
+    .slide.previous { transform: translateX(-5%) scale(.985); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .eyebrow { color: var(--green); font-size: 14px; font-weight: 800; letter-spacing: .14em; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .brand-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: white; background: var(--ink); }
+    .content { min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+    h1 { margin: 0; max-width: 1100px; font-size: clamp(46px, 5.3vw, 82px); line-height: 1.08; letter-spacing: -.045em; }
+    h2 { margin: 0 0 18px; font-size: clamp(34px, 3.5vw, 58px); line-height: 1.12; letter-spacing: -.035em; }
+    h3 { margin: 0 0 9px; font-size: 20px; }
+    p { margin: 0; line-height: 1.75; }
+    .lead { margin-top: 24px; max-width: 980px; color: var(--muted); font-size: clamp(19px, 2vw, 28px); }
+    .accent { color: var(--green); }
+    .blue { color: var(--blue); }
+    .orange { color: var(--orange); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .card { border: 1px solid var(--line); border-radius: 18px; padding: 22px; background: var(--card); box-shadow: 0 6px 22px rgba(38, 55, 48, .045); }
+    .card.emphasis { border-color: #a9d7c6; background: linear-gradient(140deg, #f5fffb, #e9f8f1); }
+    .card.warning { border-color: #f5d28f; background: var(--orange-soft); }
+    .metric { padding: 20px; border-top: 4px solid var(--green); }
+    .metric strong { display: block; margin: 6px 0; font-size: clamp(29px, 3.3vw, 50px); line-height: 1; }
+    .metric small, .muted { color: var(--muted); }
+    .tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--green-soft); color: var(--green); }
+    .tag.blue { background: var(--blue-soft); color: var(--blue); }
+    .tag.orange { background: var(--orange-soft); color: #a85d00; }
+    .quote { padding-left: 20px; border-left: 5px solid var(--green); font-size: clamp(20px, 2.2vw, 31px); line-height: 1.6; font-weight: 700; }
+    ul.clean { margin: 10px 0 0; padding: 0; list-style: none; }
+    ul.clean li { position: relative; padding: 8px 0 8px 24px; line-height: 1.55; }
+    ul.clean li::before { content: ""; position: absolute; left: 2px; top: 18px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); }
+    .footer { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; }
+    .progress { position: fixed; z-index: 10; left: 0; right: 0; bottom: 0; height: 5px; background: #e8ece9; }
+    .progress > span { display: block; width: 0; height: 100%; background: var(--green); transition: width .3s ease; }
+    .nav { position: fixed; z-index: 12; right: 26px; bottom: 24px; display: flex; gap: 8px; }
+    .nav button { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 12px; background: white; cursor: pointer; box-shadow: 0 7px 18px rgba(20,40,32,.08); }
+    .counter { position: fixed; z-index: 12; left: 26px; bottom: 22px; color: var(--muted); font-size: 13px; }
+
+    .hero-panel { margin-top: 34px; display: grid; grid-template-columns: 1.3fr .7fr; gap: 22px; align-items: stretch; }
+    .hero-path { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 17px; font-weight: 700; }
+    .hero-path .step { padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .hero-path .arrow { color: var(--green); font-weight: 900; }
+    .stamp { height: 100%; display: grid; place-items: center; border: 2px solid var(--green); border-radius: 18px; color: var(--green); text-align: center; transform: rotate(-1.5deg); }
+    .stamp strong { display: block; font-size: 44px; }
+
+    .chain { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; margin-top: 20px; }
+    .chain .node { min-height: 128px; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: white; }
+    .chain .num { width: 28px; height: 28px; margin-bottom: 13px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: white; font-size: 13px; font-weight: 800; }
+    .chain .node strong { display: block; margin-bottom: 7px; }
+    .chain .node span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    .tree-wrap { display: grid; grid-template-columns: 1.22fr .78fr; gap: 18px; min-height: 0; }
+    .tree { position: relative; min-height: 455px; overflow: hidden; }
+    .tree-node { position: absolute; width: 190px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: white; box-shadow: 0 8px 25px rgba(30,50,42,.08); }
+    .tree-node.root { left: calc(50% - 95px); top: 15px; border-color: var(--green); }
+    .tree-node.a { left: 5%; top: 150px; }
+    .tree-node.b { left: calc(50% - 95px); top: 150px; }
+    .tree-node.c { right: 5%; top: 150px; }
+    .tree-node.hit { left: calc(50% - 95px); bottom: 25px; border: 2px solid var(--green); background: var(--green-soft); }
+    .tree-node.pruned { opacity: .62; text-decoration: line-through; }
+    .connector { position: absolute; height: 2px; background: #a7b5ae; transform-origin: left center; }
+    .c1 { left: 50%; top: 112px; width: 230px; transform: rotate(151deg); }
+    .c2 { left: 50%; top: 112px; width: 62px; transform: rotate(90deg); }
+    .c3 { left: 50%; top: 112px; width: 230px; transform: rotate(29deg); }
+    .c4 { left: 50%; top: 250px; width: 125px; transform: rotate(90deg); background: var(--green); }
+    .reason { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    .skill-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; gap: 10px; align-items: center; }
+    .skill-flow .stage { min-height: 165px; padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: white; }
+    .skill-flow .stage strong { display: block; margin-bottom: 12px; font-size: 18px; }
+    .skill-flow .arrow { color: var(--green); font-size: 28px; font-weight: 900; }
+    .skill-doc { margin-top: 18px; padding: 16px; border-radius: 14px; background: #10231d; color: #d5f5e8; font-family: Consolas, monospace; font-size: 14px; line-height: 1.65; }
+
+    table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    th, td { padding: 13px 15px; text-align: left; border-bottom: 1px solid var(--line); }
+    tr:last-child td { border-bottom: 0; }
+    th { color: var(--muted); font-size: 13px; background: #f5f7f5; }
+    td strong { font-size: 19px; }
+    .bar { height: 9px; border-radius: 999px; overflow: hidden; background: #edf0ee; }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+
+    .demo-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 20px; }
+    .timeline { display: grid; gap: 12px; }
+    .timeline .item { display: grid; grid-template-columns: 54px 1fr; gap: 14px; align-items: start; }
+    .timeline time { color: var(--green); font-weight: 900; }
+    .screen { min-height: 390px; padding: 18px; border-radius: 20px; background: #0c1b17; color: white; box-shadow: var(--shadow); }
+    .screen-head { display: flex; justify-content: space-between; color: #c4d2cc; font-size: 13px; }
+    .screen-body { margin-top: 24px; display: grid; gap: 12px; }
+    .bubble { max-width: 86%; padding: 13px 15px; border-radius: 14px; background: #1d342c; line-height: 1.5; }
+    .bubble.ai { margin-left: auto; background: #d9f5e8; color: #12372b; }
+
+    .speaker-note { display: none; position: fixed; z-index: 20; left: 20px; right: 20px; bottom: 20px; max-height: 34vh; overflow: auto; padding: 18px 22px; border-radius: 16px; background: rgba(12, 27, 23, .96); color: white; box-shadow: var(--shadow); line-height: 1.7; }
+    body.notes .slide.active .speaker-note { display: block; }
+    .key-help { position: fixed; z-index: 11; right: 28px; top: 22px; color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 1000px) {
+      .slide { padding: 34px 34px 28px; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .chain { grid-template-columns: repeat(3, 1fr); }
+      .tree-wrap, .demo-layout, .hero-panel { grid-template-columns: 1fr; }
+      .tree { min-height: 390px; }
+      .skill-flow { grid-template-columns: 1fr; }
+      .skill-flow .arrow { transform: rotate(90deg); text-align: center; }
+    }
+    @media print {
+      html, body { overflow: visible; }
+      .slide { position: relative; opacity: 1; transform: none; pointer-events: auto; width: 100vw; height: 100vh; page-break-after: always; }
+      .nav, .progress, .counter, .key-help { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-label="Mini-Drop 答辩演示">
+    <section class="slide active">
+      <div class="topbar"><div class="brand"><span class="brand-mark">MD</span> Mini-Drop</div><div class="eyebrow">AI 性能诊断阶段答辩</div></div>
+      <div class="content">
+        <span class="tag">李明远 · 小组 3</span>
+        <h1 style="margin-top:18px">让 AI 不只“猜根因”，<br>而是<span class="accent">展示它怎样查到根因</span></h1>
+        <p class="lead">围绕导师提出的“性能决策树、多轮取证、测试集与 Skill 复用”，我把自然语言诊断改造成一条可追溯、可拒答、可回归的循证链路。</p>
+        <div class="hero-panel">
+          <div class="card">
+            <div class="hero-path"><span class="step">描述现象</span><span class="arrow">→</span><span class="step">形成假设树</span><span class="arrow">→</span><span class="step">工具取证</span><span class="arrow">→</span><span class="step">证据裁决</span><span class="arrow">→</span><span class="step">生成 Skill</span></div>
+          </div>
+          <div class="stamp"><div><strong>证据优先</strong>结论可验证，过程可回放</div></div>
+        </div>
+      </div>
+      <div class="footer"><span>现场入口：AI 诊断 → 诊断工作台</span><span>方向键翻页 · N 显示讲稿</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>我这周没有继续堆采集器数量，而是集中解决导师上次指出的问题：页面过去只展示 AI 最后的回答，看不到它中间怎么判断。现在我把实际走过的假设、工具调用、被排除的分支和最终证据整理成探索树；只有真正完成取证的路径，才有资格沉淀成 Skill。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">01 · 导师问题</div><div class="brand">先回答“为什么改”</div></div>
+      <div class="content">
+        <h2>导师要看的不是功能清单，<br>而是一个<span class="accent">复杂案例怎样被逐步查清</span></h2>
+        <div class="grid-3">
+          <article class="card"><span class="tag orange">原问题</span><h3 style="margin-top:14px">一轮就结束</h3><p>简单案例看不出决策能力，也无法说明下一轮为什么换方向。</p></article>
+          <article class="card"><span class="tag orange">原问题</span><h3 style="margin-top:14px">结论与过程倒置</h3><p>用户先看到大量内部细节，却找不到根因、证据和修复建议。</p></article>
+          <article class="card"><span class="tag orange">原问题</span><h3 style="margin-top:14px">Skill 像静态模板</h3><p>如果没有真实探索轨迹，沉淀下来的只是预设流程，不是事故经验。</p></article>
+        </div>
+        <div class="card emphasis" style="margin-top:20px">
+          <p class="quote">导师关注点：展示已经完成的案例，画出实际探索树；哪些节点被排除、为什么跳到另一维度、最终证据是什么。Skill 应当来自这棵真实走过的树。</p>
+        </div>
+      </div>
+      <div class="footer"><span>设计原则：结论优先，过程按需展开</span><span>02 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>我把导师意见收敛成三个问题。第一，复杂性能问题不可能只靠一次采样；第二，用户最先要的是结论和证据，不是系统内部状态；第三，Skill 不能从预设决策树直接生成，它必须来自真实执行后的路径，因为诊断可能从 CPU 跳到内存、I/O 或锁竞争。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">02 · AI 主链路</div><div class="brand">受控工具调用 + 循证裁决</div></div>
+      <div class="content">
+        <h2>AI 负责提出可证伪假设，<br>系统负责<span class="accent">约束、取证和裁决</span></h2>
+        <div class="chain">
+          <div class="node"><div class="num">1</div><strong>理解问题</strong><span>识别服务、症状和时间窗，不猜机器。</span></div>
+          <div class="node"><div class="num">2</div><strong>确认范围</strong><span>明确 Agent、PID、环境与起止时间。</span></div>
+          <div class="node"><div class="num">3</div><strong>生成假设</strong><span>每条假设写清支持条件和反证条件。</span></div>
+          <div class="node"><div class="num">4</div><strong>决策树取证</strong><span>选择最能区分假设的只读采集工具。</span></div>
+          <div class="node"><div class="num">5</div><strong>证据裁决</strong><span>引用原始任务与快照，允许主动拒答。</span></div>
+          <div class="node"><div class="num">6</div><strong>验证结论</strong><span>对比基线、故障、恢复三阶段证据。</span></div>
+        </div>
+        <div class="grid-3" style="margin-top:18px">
+          <div class="card"><h3>安全边界</h3><p class="muted">高开销或变更动作要求人工确认；AI 不能任意执行命令。</p></div>
+          <div class="card"><h3>幻觉防线</h3><p class="muted">无可信证据时输出“证据不足”，不强行包装成根因。</p></div>
+          <div class="card"><h3>多轮停止</h3><p class="muted">证据不足则换方向继续，达到轮次或能力边界后停止。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>LLM 不是裁判；证据门禁才是裁判</span><span>03 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>这里最重要的是角色分工。大模型擅长提出候选原因和解释，但它不能决定证据是否成立。Server 保存状态，策略引擎限制工具和轮次，Agent 只执行注册过的采集动作，Analyzer 把原始数据转成结构化证据，最后由服务端根据证据完整度计算置信度。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">03 · 实际探索树</div><div class="brand">本轮新增的可视化</div></div>
+      <div class="content">
+        <h2>保存“实际走过的路”，<br>而不是只保存 AI 最初画的树</h2>
+        <div class="tree-wrap">
+          <div class="card tree">
+            <div class="connector c1"></div><div class="connector c2"></div><div class="connector c3"></div><div class="connector c4"></div>
+            <div class="tree-node root"><span class="tag blue">症状</span><strong>订单服务 CPU 飙高</strong><div class="reason">基线 CPU 低，故障窗持续升高</div></div>
+            <div class="tree-node a pruned"><span class="tag orange">已排除</span><strong>锁竞争 / 自旋</strong><div class="reason">锁相关栈占比低，未达到支持门槛</div></div>
+            <div class="tree-node b"><span class="tag blue">继续取证</span><strong>用户态热点函数</strong><div class="reason">perf → 火焰图 → TopN 热点</div></div>
+            <div class="tree-node c pruned"><span class="tag orange">已排除</span><strong>内核态开销</strong><div class="reason">内核栈与 I/O 指标未同步上升</div></div>
+            <div class="tree-node hit"><span class="tag">证据支持</span><strong>业务循环热点</strong><div class="reason">故障窗热点集中，恢复窗 CPU 与热点占比回落</div></div>
+          </div>
+          <div style="display:grid;gap:14px">
+            <div class="card emphasis"><h3>页面现在展示</h3><ul class="clean"><li>每轮主假设和备选假设</li><li>实际调用过的工具与任务 ID</li><li>被排除分支及排除原因</li><li>方向切换、最终命中与证据引用</li></ul></div>
+            <div class="card warning"><h3>为什么这不是装饰图</h3><p>树的数据来自诊断运行记录；生成 Skill 时会保存同一份实际轨迹，用于复用、审计和回滚。</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>演示动作：技术细节 → 展开“实际探索树”</span><span>04 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>这是我根据导师意见补的核心页面。比如 CPU 飙高，AI 一开始会同时考虑用户态热点、内核态开销和锁竞争。系统先用系统指标和 perf 区分方向，再把不满足证据门槛的分支裁掉。页面会解释为什么裁掉，而不只是给一个灰色节点。最后命中业务循环热点，还要用恢复窗口反证。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">04 · Skill 自进化</div><div class="brand">把一次事故变成可回归能力</div></div>
+      <div class="content">
+        <h2>一次正确诊断不会直接发布，<br>它先成为<span class="accent">候选 Skill</span></h2>
+        <div class="skill-flow">
+          <div class="stage"><strong>① 真实诊断</strong><p class="muted">记录探索路径、工具、证据和停止条件。</p></div><div class="arrow">→</div>
+          <div class="stage"><strong>② 生成候选</strong><p class="muted">从实际走过的树提取顺序，不抄初始预案。</p></div><div class="arrow">→</div>
+          <div class="stage"><strong>③ 三类门禁</strong><p class="muted">相似正例、误导反例、环境迁移都通过才能发布。</p></div><div class="arrow">→</div>
+          <div class="stage"><strong>④ 复用与回滚</strong><p class="muted">命中理由可见；负反馈触发隔离，旧版本可恢复。</p></div>
+        </div>
+        <div class="skill-doc">actual_exploration:<br>  route: 系统指标 → perf → 火焰图 → 恢复验证<br>  pruned: [锁竞争: 锁栈占比低, 内核态: 内核指标未上升]<br>  verified_hypothesis: 业务循环热点<br>  evidence_refs: [baseline_snapshot, fault_task, recovery_snapshot]</div>
+        <div class="grid-4" style="margin-top:16px">
+          <div class="card metric"><small>无 Skill</small><strong>6/15</strong><span class="muted">独立难例命中</span></div>
+          <div class="card metric"><small>启用演化</small><strong>15/15</strong><span class="muted">离线生命周期回放</span></div>
+          <div class="card metric"><small>误导反例拒绝</small><strong>100%</strong><span class="muted">不乱套旧经验</span></div>
+          <div class="card metric"><small>环境漂移降级</small><strong>100%</strong><span class="muted">能力不足时主动降级</span></div>
+        </div>
+      </div>
+      <div class="footer"><span>数据边界：上述为确定性离线 Skill 生命周期评测</span><span>05 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>Skill 是我的差异化方向，但我不会说它已经是线上自学习。当前实现是受控自进化：根因被证据支持并由人确认后，系统从实际探索树生成候选 Skill。候选还要经过正例、反例、环境漂移三类门禁。负反馈会隔离，版本可以回滚。6/15 到 15/15 是离线生命周期回放结果，不等于生产环境准确率。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">05 · 统一测试集</div><div class="brand">不是只挑成功案例</div></div>
+      <div class="content">
+        <h2>基础测试覆盖常见故障，<br>亮点测试专门检验<span class="accent">经验会不会学坏</span></h2>
+        <div class="grid-2">
+          <article class="card"><span class="tag blue">共同基础赛道</span><h3 style="margin-top:14px">10 类核心故障 × 3 策略 × 3 次</h3><p>CPU、内存、GC、I/O、下游延迟、锁竞争等常见场景，统一输入、统一评分、统一证据要求。</p><div class="grid-3" style="margin-top:16px"><div><strong style="font-size:28px">90</strong><br><small class="muted">计划执行</small></div><div><strong style="font-size:28px">84</strong><br><small class="muted">完整完成</small></div><div><strong style="font-size:28px">6</strong><br><small class="muted">真实注入门槛失败</small></div></div></article>
+          <article class="card emphasis"><span class="tag">亮点赛道</span><h3 style="margin-top:14px">15 个独立难例 + 11 步状态 Campaign</h3><p>相似事故、误导反例、环境迁移、错误反馈、版本回滚和污染证据，检验 Skill 是否会负迁移。</p><div class="grid-3" style="margin-top:16px"><div><strong style="font-size:28px">0</strong><br><small class="muted">负迁移</small></div><div><strong style="font-size:28px">11/11</strong><br><small class="muted">生命周期步骤</small></div><div><strong style="font-size:28px">100%</strong><br><small class="muted">证据引用完整</small></div></div></article>
+        </div>
+        <div class="card warning" style="margin-top:18px"><strong>诚实边界：</strong>90 次评测中 6 次因真实故障注入未达到阈值而失败；这类失败被保留，而不是改成通过。TLinux 2/3/4 目前完成代码与模拟矩阵，尚未宣称真机认证。</div>
+      </div>
+      <div class="footer"><span>“拒答正确”也是结果，不把不确定性抹掉</span><span>06 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>测试集分两层。基础集让三种策略在常见故障上重复跑，避免单次偶然。亮点集不是再加几种故障，而是专门难倒错误经验：症状相同根因不同、环境发生漂移、用户给出错误反馈、证据被污染。当前 90 次里有 6 次真实注入没有达到阈值，我保留失败，因为这正说明测试不是预填答案。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">06 · 横向对照</div><div class="brand">同输入、同模型、同评分器</div></div>
+      <div class="content">
+        <h2>对照的重点不是“赢了多少”，<br>而是<span class="accent">证据链在哪些环节更完整</span></h2>
+        <table>
+          <thead><tr><th>统一赛道指标</th><th>Mini-Drop</th><th>对照方案</th><th>差异解释</th></tr></thead>
+          <tbody>
+            <tr><td>根因 Top1</td><td><strong>88.89%</strong><div class="bar"><span style="width:88.89%"></span></div></td><td>77.78%</td><td>实际探索树减少表面症状误判</td></tr>
+            <tr><td>必需证据满足</td><td><strong>100%</strong><div class="bar"><span style="width:100%"></span></div></td><td>81.48%</td><td>结论必须绑定任务或快照引用</td></tr>
+            <tr><td>干预后修正</td><td><strong>100%</strong><div class="bar"><span style="width:100%"></span></div></td><td>62.50%</td><td>恢复窗口会反证旧结论</td></tr>
+            <tr><td>结构化完成</td><td><strong>100%</strong><div class="bar"><span style="width:100%"></span></div></td><td>81.48%</td><td>假设、反证、引用和边界均落库</td></tr>
+          </tbody>
+        </table>
+        <div class="card warning" style="margin-top:16px"><strong>对照限制：</strong>共同赛道为 9 个场景 × 3 次；本项目 27/27 有效，对照方案 22/27 有效。对照方适配器存在 5 次外部失败，因此以上数据用于说明工程差异，不包装成最终排行榜。</div>
+      </div>
+      <div class="footer"><span>成熟产品/开源 PR 作为问题来源，不冒充本项目已完成复现</span><span>07 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>这一页要主动讲限制。我们用同一输入、同一模型和同一评分器跑共同赛道。结果显示我们的优势主要在证据完整和干预后修正，不只是最终答案。对照方有 5 次适配器失败，所以我不会把它说成权威排行榜。公开 PR 是测试依据，只有真正完成云端故障 Campaign 的案例才算运行验证。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">07 · 现场演示</div><div class="brand">10 分钟内讲清一条闭环</div></div>
+      <div class="content">
+        <h2>演示不从 PPT 跳来跳去，<br>只沿着一条事故链路往下走</h2>
+        <div class="demo-layout">
+          <div class="timeline">
+            <div class="item"><time>0:00</time><div><strong>输入问题</strong><p class="muted">“订单服务最近 5 分钟 CPU 飙高，请定位原因。”</p></div></div>
+            <div class="item"><time>1:00</time><div><strong>确认范围</strong><p class="muted">选择在线 Agent、目标 PID 和故障时间窗。</p></div></div>
+            <div class="item"><time>2:00</time><div><strong>查看多轮树</strong><p class="muted">展开假设、工具、排除原因和方向切换。</p></div></div>
+            <div class="item"><time>5:00</time><div><strong>查看结论</strong><p class="muted">先讲根因，再点证据引用打开火焰图。</p></div></div>
+            <div class="item"><time>7:00</time><div><strong>生成 Skill</strong><p class="muted">展示候选、三类门禁、复用和回滚记录。</p></div></div>
+            <div class="item"><time>9:00</time><div><strong>打开测试集</strong><p class="muted">展示 90 次评测、失败保留与边界说明。</p></div></div>
+          </div>
+          <div class="screen">
+            <div class="screen-head"><span>Mini-Drop · AI 诊断工作台</span><span>在线</span></div>
+            <div class="screen-body">
+              <div class="bubble">订单服务最近 5 分钟 CPU 飙高，请定位原因。</div>
+              <div class="bubble ai"><strong>第 1 轮：</strong>先比较系统 CPU 与目标进程，再采集 perf，区分用户态热点、内核开销和锁竞争。</div>
+              <div class="bubble ai"><strong>第 2 轮：</strong>锁竞争与内核态分支已被证据排除。热点集中在业务循环，继续采恢复窗口反证。</div>
+              <div class="bubble ai"><strong>结论：</strong>业务循环热点导致 CPU 上升；故障窗与恢复窗证据一致。置信度 90%，引用 3 条证据。</div>
+              <div class="bubble ai"><strong>Skill：</strong>已生成候选“CPU 热点循证诊断 v1”，等待反例与漂移门禁。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>现场原则：先讲结论，再展开证据与过程</span><span>08 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>现场演示时我不会把所有页面都点一遍。只用一个真实案例讲清输入、范围、多轮树、证据、结论和 Skill。然后切到方法与测试集，证明这不是一条写死的成功路径。若采集环境不支持 perf，我会展示明确降级和证据不足，而不会用模拟数据冒充真采集。</aside>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">08 · 阶段结论</div><div class="brand">完成度与下一步</div></div>
+      <div class="content">
+        <h2>现在已经能证明“诊断过程可追溯”，<br>下一步要证明<span class="accent">真实环境中也稳定有效</span></h2>
+        <div class="grid-2">
+          <div class="card emphasis"><h3>本阶段已完成</h3><ul class="clean"><li>自然语言到多轮假设树的受控诊断链路</li><li>实际探索路径、裁枝原因和证据引用可视化</li><li>从真实探索树生成候选 Skill，并支持隔离与回滚</li><li>基础测试、亮点难例、90 次策略评测与横向对照</li></ul></div>
+          <div class="card"><h3>仍需继续做</h3><ul class="clean"><li>在 TLinux 2/3/4 真机完成采集器兼容验收</li><li>扩大真实事故样本，避免离线集对规则过拟合</li><li>补齐更多复杂跨维度、多轮跳转案例</li><li>将诊断耗时、工具调用成本和负迁移纳入长期监控</li></ul></div>
+        </div>
+        <div class="card warning" style="margin-top:20px"><strong>如果让我重做：</strong>我会更早统一“假设、任务、证据、Skill”四类对象的数据契约，先用 3 个复杂事故打通真实闭环，再扩展页面和采集器，减少后期重复重构。</div>
+        <p class="lead" style="margin-top:22px">Mini-Drop 的目标不是替代性能专家，而是把专家的取证顺序、证据门槛和反例意识沉淀成可验证的系统能力。</p>
+      </div>
+      <div class="footer"><span>谢谢 · Q&A</span><span>09 / 09</span></div>
+      <aside class="speaker-note"><strong>讲稿：</strong>最后我会明确完成边界。当前最完整的是 AI 循证诊断、探索树、Skill 生命周期和离线评测；还不能说已经完成 TLinux 真机认证，也不能把离线 100% 当生产准确率。下一阶段重点不是再加页面，而是增加真实事故样本和真机 Campaign，让这套方法经得住环境变化。</aside>
+    </section>
+  </main>
+
+  <div class="key-help">← → 翻页 · N 讲稿 · F 全屏</div>
+  <div class="counter"><span id="current">1</span> / <span id="total">9</span></div>
+  <div class="nav"><button id="prev" aria-label="上一页">←</button><button id="next" aria-label="下一页">→</button></div>
+  <div class="progress"><span id="progress"></span></div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const currentEl = document.getElementById('current');
+    const progressEl = document.getElementById('progress');
+    let current = 0;
+
+    function go(next) {
+      const target = Math.max(0, Math.min(slides.length - 1, next));
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === target);
+        slide.classList.toggle('previous', index < target);
+      });
+      current = target;
+      currentEl.textContent = String(current + 1);
+      progressEl.style.width = `${((current + 1) / slides.length) * 100}%`;
+      history.replaceState(null, '', `#${current + 1}`);
+    }
+
+    document.getElementById('prev').addEventListener('click', () => go(current - 1));
+    document.getElementById('next').addEventListener('click', () => go(current + 1));
+    addEventListener('keydown', event => {
+      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) go(current + 1);
+      if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) go(current - 1);
+      if (event.key.toLowerCase() === 'n') document.body.classList.toggle('notes');
+      if (event.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+    });
+    let wheelLock = false;
+    addEventListener('wheel', event => {
+      if (wheelLock || Math.abs(event.deltaY) < 25) return;
+      wheelLock = true;
+      go(current + (event.deltaY > 0 ? 1 : -1));
+      setTimeout(() => wheelLock = false, 650);
+    }, { passive: true });
+    const hashPage = Number(location.hash.slice(1));
+    go(Number.isFinite(hashPage) && hashPage > 0 ? hashPage - 1 : 0);
+  </script>
+</body>
+</html>

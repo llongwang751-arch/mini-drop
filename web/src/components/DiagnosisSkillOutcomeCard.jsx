@@ -48,6 +48,7 @@ export default function DiagnosisSkillOutcomeCard({
   const status = STATUS_META[skill.status] || { color: "default", text: skill.status || "未知" };
   const gate = skill.gate_metrics || {};
   const isUpgrade = Boolean(skill.parent_skill_id);
+  const explorationSummary = skill.strategy?.actual_exploration?.summary || {};
 
   return (
     <Card
@@ -91,6 +92,11 @@ export default function DiagnosisSkillOutcomeCard({
           <Text code copyable>{skill.source_diagnosis_ids?.[0] || "未记录"}</Text>
         </Descriptions.Item>
         <Descriptions.Item label="取证顺序" span={3}>{routeText(skill)}</Descriptions.Item>
+        <Descriptions.Item label="实际探索节点">
+          {explorationSummary.hypotheses_explored || 0} 个假设，{explorationSummary.tool_calls || 0} 次取证
+        </Descriptions.Item>
+        <Descriptions.Item label="剪枝记录">{explorationSummary.pruned_branches || 0} 条</Descriptions.Item>
+        <Descriptions.Item label="跨方向切换">{explorationSummary.direction_switches || 0} 次</Descriptions.Item>
         <Descriptions.Item label="最低证据数">{skill.strategy?.minimum_evidence ?? "未记录"}</Descriptions.Item>
         <Descriptions.Item label="置信度下限">
           {Number.isFinite(Number(skill.strategy?.confidence_floor))
