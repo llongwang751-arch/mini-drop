@@ -29,6 +29,18 @@ _TOOL_CATEGORY = {
     "collect_database_diagnostics": "DATABASE_LOCK",
     "collect_network_diagnostics": "NETWORK_DEGRADATION",
 }
+_CAMPAIGN_SOURCE_TOOL = {
+    "sys_metrics": "collect_sys_metrics",
+    "system_metrics": "collect_sys_metrics",
+    "campaign_fault_snapshot": "collect_sys_metrics",
+    "campaign_recovery_control": "collect_sys_metrics",
+    "perf": "start_perf_profile",
+    "perf_cpu": "start_perf_profile",
+    "pyspy": "start_pyspy_profile",
+    "py-spy": "start_pyspy_profile",
+    "ebpf_io": "start_ebpf_io_profile",
+    "jvm": "start_jvm_profile",
+}
 _MATCH_THRESHOLD = 700
 _GENERIC_ROUTE_CATEGORIES = {"SYSTEM_RESOURCE"}
 _SUBSYSTEM_CATEGORY = {
@@ -63,6 +75,68 @@ def _category_for_route(route: list[str]) -> str:
 def _family_key(category: str, target: dict) -> str:
     environment = str(target.get("environment") or "*").strip().lower()
     return f"{category.lower()}:{environment}"
+
+
+def _campaign_probe_route(
+    session, diagnosis: DropInsightSessionModel, report: DropInsightReportModel
+) -> list[str]:
+    """Recover the real probe route from a verified Campaign trust chain.
+
+    Campaign promotion imports an immutable TaskAttempt -> Artifact ->
+    AnalyzerJob chain instead of replaying the same probe through the
+    interactive tool-call table.  Only controlled reproductions with complete
+    provenance may use this bridge; ordinary diagnoses still require real
+    completed tool calls.
+    """
+    if str(diagnosis.mode or "").upper() != "REPRODUCTION":
+        return []
+    evidence_ids = list(report.evidence_refs_json or [])
+    if not evidence_ids:
+        return []
+    rows = (
+        session.query(DropInsightEvidenceModel)
+        .filter(
+            DropInsightEvidenceModel.diagnosis_id == diagnosis.id,
+            DropInsightEvidenceModel.id.in_(evidence_ids),
+        )
+        .all()
+    )
+    if len(rows) != len(set(evidence_ids)):
+        return []
+
+    route: list[str] = []
+    for row in rows:
+        try:
+            envelope = EvidenceEnvelope.model_validate(row.envelope_json or {})
+        except ValidationError:
+            return []
+        metadata = dict((envelope.observation or {}).get("metadata") or {})
+        source = envelope.source
+        provenance = (
+            source.task_id,
+            source.task_attempt_id,
+            source.artifact_id,
+            source.artifact_sha256,
+            source.analysis_job_id,
+            source.analyzer_type,
+            source.analyzer_version,
+            source.analyzer_output_schema_version,
+        )
+        if not metadata.get("campaign_run_id") or not all(provenance):
+            return []
+        if (
+            envelope.quality.level != "HIGH"
+            or envelope.quality.degraded
+            or not envelope.quality.target_match
+            or not envelope.quality.time_overlap
+            or not envelope.quality.schema_valid
+            or not envelope.quality.analyzer_validated
+        ):
+            return []
+        mapped = _CAMPAIGN_SOURCE_TOOL.get(source.tool_name.strip().lower())
+        if mapped:
+            route.append(mapped)
+    return list(dict.fromkeys(route))
 
 
 def _route_compatible(category: str, baseline_tool: str, target: dict) -> tuple[bool, dict]:
@@ -292,6 +366,11 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             .all()
         )
         route = list(dict.fromkeys(item.tool_name for item in calls))
+        route_source = "TOOL_CALL"
+        if not route:
+            route = _campaign_probe_route(session, diagnosis, report)
+            if route:
+                route_source = "CAMPAIGN_TRUST_CHAIN"
         if not route:
             raise ValueError("诊断没有已完成的真实工具调用，不能沉淀技能")
         category = _category_for_route(route)
@@ -318,6 +397,7 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             },
             strategy_json={
                 "probe_order": route,
+                "route_source": route_source,
                 "minimum_evidence": max(1, len(report.evidence_refs_json or [])),
                 "confidence_floor": (
                     report.confidence

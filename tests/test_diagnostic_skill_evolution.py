@@ -220,6 +220,57 @@ def test_verified_trajectory_becomes_versioned_active_skill_once():
     assert publish_skill(first["skill_id"])["status"] == "ACTIVE"
 
 
+def test_verified_campaign_trust_chain_can_become_candidate_without_tool_call():
+    diagnosis_id = "diagnosis-campaign-source"
+    _seed_verified_trajectory(diagnosis_id)
+    session = new_session()
+    diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+    diagnosis.mode = "REPRODUCTION"
+    session.query(DropInsightToolCallModel).filter(
+        DropInsightToolCallModel.diagnosis_id == diagnosis_id
+    ).delete()
+    evidence = session.get(DropInsightEvidenceModel, f"evidence-{diagnosis_id}")
+    envelope = dict(evidence.envelope_json or {})
+    source = dict(envelope.get("source") or {})
+    source["tool_name"] = "perf_cpu"
+    envelope["source"] = source
+    observation = dict(envelope.get("observation") or {})
+    observation["metadata"] = {"campaign_run_id": "campaign-run-1"}
+    envelope["observation"] = observation
+    evidence.envelope_json = envelope
+    evidence.classification_json = classify_evidence(
+        EvidenceEnvelope.model_validate(envelope)
+    )
+    session.commit()
+    session.close()
+
+    candidate = create_candidate_from_diagnosis(diagnosis_id, created_by="reviewer")
+
+    assert candidate["strategy"]["probe_order"] == ["start_perf_profile"]
+    assert candidate["strategy"]["route_source"] == "CAMPAIGN_TRUST_CHAIN"
+    assert candidate["category"] == "CPU_HOTSPOT"
+
+
+def test_assisted_diagnosis_cannot_replace_tool_call_with_campaign_metadata():
+    diagnosis_id = "diagnosis-assisted-no-tool"
+    _seed_verified_trajectory(diagnosis_id)
+    session = new_session()
+    session.query(DropInsightToolCallModel).filter(
+        DropInsightToolCallModel.diagnosis_id == diagnosis_id
+    ).delete()
+    evidence = session.get(DropInsightEvidenceModel, f"evidence-{diagnosis_id}")
+    envelope = dict(evidence.envelope_json or {})
+    observation = dict(envelope.get("observation") or {})
+    observation["metadata"] = {"campaign_run_id": "campaign-run-2"}
+    envelope["observation"] = observation
+    evidence.envelope_json = envelope
+    session.commit()
+    session.close()
+
+    with pytest.raises(ValueError, match="真实工具调用"):
+        create_candidate_from_diagnosis(diagnosis_id, created_by="reviewer")
+
+
 def test_active_skill_reuses_route_only_for_matching_context():
     published = _publish_source()
     plan = {"tool_name": "collect_sys_metrics"}
