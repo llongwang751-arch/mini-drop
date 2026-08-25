@@ -19,7 +19,10 @@ vi.mock("../api/client", () => ({
   deleteDropInsightDiagnosis: vi.fn(),
   listDropInsightFeedback: vi.fn(),
   listDiagnosticSkillActivations: vi.fn(),
+  listDiagnosticSkills: vi.fn(),
   submitDropInsightFeedback: vi.fn(),
+  createDiagnosticSkillCandidate: vi.fn(),
+  evaluateDiagnosticSkill: vi.fn(),
   createDropInsightDiagnosis: vi.fn(),
   runDropInsightPlanner: vi.fn(),
   decideDropInsightToolCall: vi.fn(),
@@ -88,6 +91,9 @@ describe("AIDiagnosis conversation page", () => {
     api.listDropInsightToolCalls.mockResolvedValue([]);
     api.listDropInsightFeedback.mockResolvedValue([]);
     api.listDiagnosticSkillActivations.mockResolvedValue([]);
+    api.listDiagnosticSkills.mockResolvedValue([]);
+    api.createDiagnosticSkillCandidate.mockResolvedValue(null);
+    api.evaluateDiagnosticSkill.mockResolvedValue(null);
     api.getDropInsightBudget.mockResolvedValue(null);
   });
 

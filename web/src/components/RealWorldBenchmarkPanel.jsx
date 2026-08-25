@@ -113,6 +113,32 @@ const TRACK_LABEL = {
   continuous_profiling_experience: "持续性能剖析体验",
 };
 
+const SAME_CONDITION_RESULT = {
+  source: "artifacts/comparison-20260824/comparison-summary.json",
+  ours: {
+    name: "Mini-Drop",
+    valid: true,
+    completed: 27,
+    total: 27,
+    top1: 88.89,
+    mechanism: 81.48,
+    evidence: 100,
+    abstention: 81.48,
+    revision: 100,
+  },
+  reference: {
+    name: "外部智能体参考实现",
+    valid: false,
+    completed: 22,
+    total: 27,
+    top1: 77.78,
+    mechanism: 66.67,
+    evidence: 81.48,
+    abstention: 77.78,
+    revision: 62.5,
+  },
+};
+
 function readableList(values = []) {
   return values.map((value) => TECH_LABEL[value] || String(value).replaceAll("_", " "));
 }
@@ -171,6 +197,42 @@ function snapshotColumns() {
     { title: "引用机制", dataIndex: "mechanism", render: (value) => value || "无注册回调" },
     { title: "时间", dataIndex: "recorded_at", render: (value) => value ? new Date(value).toLocaleTimeString() : "-" },
   ];
+}
+
+function VerifiedProductComparisonCard() {
+  return (
+    <Card size="small" className="verified-product-comparison" title="同条件量化结果 · 27 次统一输入">
+      <Alert
+        showIcon
+        type="warning"
+        message="外部参考实现只有 22/27 次返回合法结构，因此这组数据用于发现差距，不作为正式产品排名"
+        description={<>冻结报告：<Text code>{SAME_CONDITION_RESULT.source}</Text>。未实际运行的成熟产品不会被填成零分。</>}
+        style={{ marginBottom: 12 }}
+      />
+      <Row gutter={[12, 12]}>
+        {[SAME_CONDITION_RESULT.ours, SAME_CONDITION_RESULT.reference].map((item) => (
+          <Col xs={24} xl={12} key={item.name}>
+            <Card
+              size="small"
+              title={item.name}
+              extra={<Tag color={item.valid ? "success" : "warning"}>{item.completed}/{item.total} 次有效</Tag>}
+            >
+              <Row gutter={[12, 16]}>
+                <Col xs={12} md={8}><Statistic title="首选根因命中" value={item.top1} precision={2} suffix="%" /></Col>
+                <Col xs={12} md={8}><Statistic title="机理判断命中" value={item.mechanism} precision={2} suffix="%" /></Col>
+                <Col xs={12} md={8}><Statistic title="必需证据覆盖" value={item.evidence} precision={2} suffix="%" /></Col>
+                <Col xs={12} md={8}><Statistic title="证据不足时正确停手" value={item.abstention} precision={2} suffix="%" /></Col>
+                <Col xs={12} md={8}><Statistic title="人工纠正后修订" value={item.revision} precision={2} suffix="%" /></Col>
+              </Row>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+      <Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
+        本结果只代表当前统一测试集和冻结运行条件。RCAEval、OpenRCA、HolmesGPT、Grafana Pyroscope 接入同一输入适配器并真实执行后，才展示各自正式分数。
+      </Paragraph>
+    </Card>
+  );
 }
 
 export default function RealWorldBenchmarkPanel() {
@@ -340,6 +402,7 @@ export default function RealWorldBenchmarkPanel() {
           <Col xs={12} md={6}><Statistic title="完整上游已回放" value={catalog?.replayed_count || 0} suffix="个" /></Col>
           <Col xs={12} md={6}><Statistic title="对照产品" value={catalog?.comparators?.length || 0} suffix="个" /></Col>
         </Row>
+        <VerifiedProductComparisonCard />
         <Table
           rowKey="case_id"
           loading={loading}
