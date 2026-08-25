@@ -72,9 +72,9 @@ function OverviewPanel() {
       <Card className="eval-plan-card" title="当前验证体系">
         <Row gutter={[24, 18]}>
           <Col xs={12} lg={6}><Statistic title="真实故障类型" value={4} suffix="类" /></Col>
+          <Col xs={12} lg={6}><Statistic title="参考诊断 Skill" value={8} suffix="个" /></Col>
           <Col xs={12} lg={6}><Statistic title="Skill 独立难例" value={15} suffix="个" /></Col>
-          <Col xs={12} lg={6}><Statistic title="诊断路径" value={3} suffix="种" /></Col>
-          <Col xs={12} lg={6}><Statistic title="证据阶段" value={3} suffix="段" /></Col>
+          <Col xs={12} lg={6}><Statistic title="产品对照对象" value={4} suffix="个" /></Col>
         </Row>
         <Alert
           className="eval-plan-note"
@@ -91,6 +91,7 @@ function OverviewPanel() {
 export default function EvalPanel() {
   const [section, setSection] = useState("overview");
   const [skillPlazaOpen, setSkillPlazaOpen] = useState(false);
+  const [comparisonOpen, setComparisonOpen] = useState(false);
 
   return (
     <div className="eval-center">
@@ -117,6 +118,10 @@ export default function EvalPanel() {
             setSkillPlazaOpen(true);
             return;
           }
+          if (value === "comparison") {
+            setComparisonOpen(true);
+            return;
+          }
           setSection(value);
         }}
       />
@@ -124,7 +129,6 @@ export default function EvalPanel() {
       <main className="eval-center-content">
         {section === "overview" && <OverviewPanel />}
         {section === "campaign" && <CampaignPanel />}
-        {section === "comparison" && <RealWorldBenchmarkPanel />}
       </main>
       <Modal
         className="skill-plaza-modal"
@@ -137,6 +141,18 @@ export default function EvalPanel() {
         destroyOnHidden
       >
         <SkillEvolutionPanel />
+      </Modal>
+      <Modal
+        className="product-comparison-modal"
+        title="成熟产品与开源项目对照"
+        open={comparisonOpen}
+        onCancel={() => setComparisonOpen(false)}
+        footer={null}
+        width="min(96vw, 1560px)"
+        style={{ top: 20 }}
+        destroyOnHidden
+      >
+        <RealWorldBenchmarkPanel />
       </Modal>
     </div>
   );

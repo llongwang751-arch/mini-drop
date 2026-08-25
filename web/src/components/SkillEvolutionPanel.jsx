@@ -60,6 +60,7 @@ const BUILTIN_SKILLS = [
     description: "先比较系统指标，再用 perf 火焰图定位热点，并用恢复窗口反证结论。",
     route: ["系统指标", "CPU 采样", "热点函数", "恢复验证"],
     evidence: "CPU 变化、热点函数占比、恢复后 CPU 回落",
+    scenario: "订单计算、序列化、循环处理等业务函数持续占用 CPU",
   },
   {
     id: "memory-growth-diagnosis",
@@ -68,6 +69,7 @@ const BUILTIN_SKILLS = [
     description: "区分正常缓存、对象保留和真实泄漏，避免只凭 RSS 上升就下结论。",
     route: ["RSS/PSS 趋势", "对象保留", "内存剖析", "停止增长验证"],
     evidence: "连续窗口增长、对象或映射增长、故障停止后的趋势",
+    scenario: "缓存、监听器或任务队列持续保留对象，导致进程内存上升",
   },
   {
     id: "io-latency-diagnosis",
@@ -76,6 +78,7 @@ const BUILTIN_SKILLS = [
     description: "从进程写入、内核延迟到磁盘压力逐层排查，区分应用阻塞与设备瓶颈。",
     route: ["系统 I/O", "进程写入", "内核延迟", "磁盘压力"],
     evidence: "吞吐与延迟、目标进程写入、内核 I/O 分布",
+    scenario: "日志写入、同步落盘或文件扫描导致请求延迟升高",
   },
   {
     id: "dependency-latency-diagnosis",
@@ -84,6 +87,43 @@ const BUILTIN_SKILLS = [
     description: "把本机资源与下游响应时间对齐，判断慢在自身代码还是依赖链路。",
     route: ["本机资源", "调用耗时", "下游健康", "恢复对照"],
     evidence: "本机资源稳定、下游延迟上升、移除延迟后恢复",
+    scenario: "本机指标正常，但数据库、缓存或 HTTP 下游响应变慢",
+  },
+  {
+    id: "lock-contention-diagnosis",
+    name: "锁竞争与线程等待诊断",
+    category: "并发",
+    description: "先识别线程忙等和阻塞，再定位锁等待栈，避免把高 CPU 一律归因到业务热点。",
+    route: ["线程状态", "上下文切换", "锁等待栈", "解除竞争复测"],
+    evidence: "忙等线程占比、锁相关调用栈、降低并发后耗时回落",
+    scenario: "高并发下线程在互斥锁、自旋锁或条件变量上反复等待",
+  },
+  {
+    id: "gc-pressure-diagnosis",
+    name: "GC 压力循证诊断",
+    category: "运行时",
+    description: "把分配速率、回收次数和暂停时间关联起来，区分内存泄漏与短命对象抖动。",
+    route: ["内存趋势", "GC 次数与停顿", "对象分配", "降低分配复测"],
+    evidence: "分配速率、GC 暂停或次数、优化后吞吐和延迟恢复",
+    scenario: "Java 或 Python 服务频繁创建临时对象，引起 GC 次数和延迟同步上升",
+  },
+  {
+    id: "fd-leak-diagnosis",
+    name: "文件描述符泄漏诊断",
+    category: "资源",
+    description: "跟踪文件描述符总量和类型，定位未关闭的文件、Socket 或管道。",
+    route: ["FD 趋势", "资源类型", "持有进程", "关闭资源复测"],
+    evidence: "FD 连续增长、同类资源聚集、修复后数量不再上升",
+    scenario: "连接池、文件读取或子进程管道未释放，最终触发 too many open files",
+  },
+  {
+    id: "network-degradation-diagnosis",
+    name: "网络劣化与重传诊断",
+    category: "网络",
+    description: "结合连接、重传和上下游对照，区分应用慢、依赖慢和网络路径异常。",
+    route: ["连接指标", "重传与丢包", "上下游对照", "网络恢复验证"],
+    evidence: "重传率或丢包变化、对端耗时、恢复后请求延迟回落",
+    scenario: "跨节点调用抖动、连接重置或丢包导致 P95/P99 延迟升高",
   },
 ];
 
@@ -181,7 +221,7 @@ export default function SkillEvolutionPanel() {
           { title: "监控回滚", description: "负迁移自动隔离" },
         ]}
       />
-      <Card className="builtin-skill-card" size="small" title="内置参考 Skill · 可直接查看源码">
+      <Card className="builtin-skill-card" size="small" title="内置参考 Skill · 8 个可演示案例，可直接查看源码">
         <Paragraph type="secondary">
           这些是仓库自带的诊断流程模板，用来说明 Skill 在页面和代码中如何落地。它们不会冒充已通过真实故障评测的运行时 Skill；只有下方由真实诊断生成并通过门禁的策略，才能发布复用。
         </Paragraph>
@@ -207,6 +247,7 @@ export default function SkillEvolutionPanel() {
               ]}
             >
               <Paragraph>{skill.description}</Paragraph>
+              <Text className="builtin-skill-scenario"><b>适用案例：</b>{skill.scenario}</Text>
               <Text className="builtin-skill-route">{skill.route.join(" → ")}</Text>
               <Text className="builtin-skill-evidence" type="secondary">证据要求：{skill.evidence}</Text>
             </Card>

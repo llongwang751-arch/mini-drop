@@ -133,10 +133,11 @@ describe("AIDiagnosis conversation page", () => {
     await screen.findByText("订单服务 CPU 高");
     clickCase("订单服务 CPU 高");
 
-    expect(await screen.findByText("已复用经过验证的诊断经验")).toBeInTheDocument();
-    expect(screen.getByText("技能 v2")).toBeInTheDocument();
+    expect(await screen.findByText("复用了经过门禁验证的诊断经验")).toBeInTheDocument();
+    expect(screen.getByText("已命中发布 Skill")).toBeInTheDocument();
+    expect(screen.getByText("版本 2")).toBeInTheDocument();
     expect(screen.getByText("匹配度 91%")).toBeInTheDocument();
-    expect(screen.getAllByText("start_perf_profile").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("CPU 火焰图采集").length).toBeGreaterThan(0);
   });
 
   it("starts a new conversation on send", async () => {

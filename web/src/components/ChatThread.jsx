@@ -1,4 +1,5 @@
 import { Alert, Card, Empty, Space, Tag, Typography } from "antd";
+import { BranchesOutlined } from "@ant-design/icons";
 import ChatMessage from "./ChatMessage";
 import DiagnosisPathPanel from "./DiagnosisPathPanel";
 import PlannerBlock from "./PlannerBlock";
@@ -10,6 +11,20 @@ import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
 
 const { Text } = Typography;
+
+const TOOL_LABELS = {
+  collect_sys_metrics: "系统指标采集",
+  collect_database_diagnostics: "数据库状态采集",
+  start_perf_profile: "CPU 火焰图采集",
+  start_pyspy_profile: "Python 调用栈采集",
+  start_ebpf_io_profile: "I/O 延迟采集",
+  get_agent_status: "采集节点检查",
+};
+
+function readableToolName(tool) {
+  const key = tool?.tool_name || tool?.name || tool?.tool || "";
+  return TOOL_LABELS[key] || key || "待选择采集器";
+}
 
 /**
  * 对话线程：把一次诊断会话渲染成 Codex 式对话。
@@ -74,6 +89,7 @@ export default function ChatThread({
   )[0] || null;
   const skillReason = skillActivation?.match_reason || {};
   const route = skillReason.route || [];
+  const dynamicRoute = [...new Set(sortedTools.map(readableToolName).filter(Boolean))];
 
   return (
     <div>
@@ -101,36 +117,46 @@ export default function ChatThread({
           classification={classification}
           hypotheses={hypotheses}
         />
-        {skillActivation && (
-          <Alert
-            type="success"
-            showIcon
-            style={{ marginBottom: 12 }}
-            message={
+        <Card
+          className={`diagnosis-skill-trace ${skillActivation ? "is-published-skill" : "is-dynamic-route"}`}
+          size="small"
+          title={<Space><BranchesOutlined /><span>本轮诊断能力</span></Space>}
+          extra={skillActivation
+            ? <Tag color="green">已命中发布 Skill</Tag>
+            : <Tag color="blue">动态取证路线</Tag>}
+        >
+          {skillActivation ? (
+            <Space direction="vertical" size={8} style={{ width: "100%" }}>
               <Space wrap>
-                <Text strong>已复用经过验证的诊断经验</Text>
-                <Tag color="green">技能 v{skillReason.skill_version || "-"}</Tag>
+                <Text strong>复用了经过门禁验证的诊断经验</Text>
+                <Tag color="green">版本 {skillReason.skill_version || "-"}</Tag>
                 <Tag color="blue">匹配度 {Math.round(Number(skillActivation.match_score || 0) * 100)}%</Tag>
               </Space>
-            }
-            description={
               <div>
-                <div>
-                  本轮原计划使用 <Text code>{skillActivation.baseline_tool}</Text>，经验策略选择
-                  {" "}<Text code>{skillActivation.selected_tool}</Text>。
-                </div>
-                {route.length > 0 && (
-                  <div style={{ marginTop: 6 }}>
-                    已验证取证顺序：{route.map((tool) => <Tag key={tool}>{tool}</Tag>)}
-                  </div>
-                )}
-                <Text type="secondary">
-                  命中依据：故障类别、服务与运行环境相似；若后续反馈判错，系统会统计负迁移并自动隔离该技能。
-                </Text>
+                取证路线：{(route.length ? route : [skillActivation.selected_tool]).map((tool) => (
+                  <Tag key={tool}>{TOOL_LABELS[tool] || tool}</Tag>
+                ))}
               </div>
-            }
-          />
-        )}
+              <Text type="secondary">
+                命中依据来自故障类别、服务和运行环境；若人工反馈判错，系统会记录负迁移并隔离该 Skill。
+              </Text>
+            </Space>
+          ) : (
+            <Space direction="vertical" size={8} style={{ width: "100%" }}>
+              <Text>
+                本轮由性能决策树按当前证据动态选择工具，尚未命中可复用的已发布 Skill。
+              </Text>
+              <div>
+                当前路线：{dynamicRoute.length
+                  ? dynamicRoute.map((name) => <Tag key={name}>{name}</Tag>)
+                  : <Tag>等待范围确认后生成</Tag>}
+              </div>
+              <Text type="secondary">
+                动态路线不冒充 Skill；只有结论经证据验证、人工确认并通过正例、反例和环境漂移门禁后，才会进入 Skill 广场。
+              </Text>
+            </Space>
+          )}
+        </Card>
         {sortedTools.map((tool) => (
           <ToolCallCard
             key={tool.tool_call_id}
