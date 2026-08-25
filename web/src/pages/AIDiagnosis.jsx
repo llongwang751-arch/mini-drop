@@ -483,7 +483,7 @@ export default function AIDiagnosis() {
   }
 
   async function handleSubmitFeedback(payload) {
-    if (!selectedId || readOnly) return;
+    if (!selectedId) return;
     setFeedbackSubmitting(true);
     try {
       const saved = await submitDropInsightFeedback(selectedId, payload);
@@ -491,10 +491,17 @@ export default function AIDiagnosis() {
       if (payload.feedback_label === "correct") {
         try {
           const candidate = await createDiagnosticSkillCandidate(selectedId);
-          setSourceSkill(candidate);
-          message.success(candidate?.parent_skill_id
+          const evaluated = await evaluateDiagnosticSkill(candidate.skill_id);
+          setSourceSkill(evaluated);
+          const gate = evaluated?.gate_metrics || {};
+          const actionText = candidate?.parent_skill_id
             ? `已从本次轨迹优化诊断 Skill 至 v${candidate.version}`
-            : "已从本次验证轨迹生成候选诊断 Skill");
+            : "已从本次验证轨迹生成候选诊断 Skill";
+          if (gate.eligible) {
+            message.success(`${actionText}，三类门禁 ${gate.passed || 3}/${gate.total || 3} 通过`);
+          } else {
+            message.warning(`${actionText}，但门禁仅通过 ${gate.passed || 0}/${gate.total || 3}，暂不发布`);
+          }
         } catch (skillError) {
           message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
         }

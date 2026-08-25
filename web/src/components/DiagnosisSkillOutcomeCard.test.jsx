@@ -35,6 +35,10 @@ describe("DiagnosisSkillOutcomeCard", () => {
 
     expect(screen.getByText("本次诊断沉淀的 Skill")).toBeInTheDocument();
     expect(screen.getByText("已生成首个候选版本 v1")).toBeInTheDocument();
+    expect(screen.getByText("结论已确认")).toBeInTheDocument();
+    expect(screen.getByText("Skill 已生成")).toBeInTheDocument();
+    expect(screen.getAllByText("1/3 通过")).toHaveLength(2);
+    expect(screen.getByText("等待确认")).toBeInTheDocument();
     expect(screen.getByText("采集系统指标 → 采集 CPU 火焰图")).toBeInTheDocument();
     expect(screen.getByText("diag-verified-1")).toBeInTheDocument();
 
@@ -57,6 +61,8 @@ describe("DiagnosisSkillOutcomeCard", () => {
     );
 
     expect(screen.getByText("已基于上一版优化为 v3")).toBeInTheDocument();
+    expect(screen.getByText("Skill 已升级")).toBeInTheDocument();
+    expect(screen.getByText("已投入复用")).toBeInTheDocument();
     expect(screen.getByText("正例、反例与环境迁移门禁已通过")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /运行三类门禁评测/ })).not.toBeInTheDocument();
   });

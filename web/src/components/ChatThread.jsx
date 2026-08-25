@@ -179,7 +179,8 @@ export default function ChatThread({
           <EvidenceCard key={item.evidence_id} evidence={item} />
         ))}
         {latestReport && <ConclusionCard report={latestReport} />}
-        {latestReport && !readOnly && onSubmitFeedback && (
+        {/* 诊断结束后仍允许评价结论；readOnly 只约束继续取证和工具调用。 */}
+        {latestReport && onSubmitFeedback && (
           <DiagnosisFeedbackCard
             report={latestReport}
             latestFeedback={latestFeedback}
