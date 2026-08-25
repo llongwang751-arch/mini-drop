@@ -203,6 +203,7 @@ def test_verified_trajectory_becomes_versioned_active_skill_once():
     duplicate = create_candidate_from_diagnosis("diagnosis-source", created_by="reviewer")
 
     assert duplicate["skill_id"] == first["skill_id"]
+    assert first["strategy"]["confidence_floor"] == pytest.approx(0.92)
     evaluated = evaluate_skill(first["skill_id"])
     assert evaluated["gate_metrics"]["eligible"] is True
     assert evaluated["gate_metrics"]["passed"] == 3
