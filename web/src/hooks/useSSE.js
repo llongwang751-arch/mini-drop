@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { createEventSource } from "../api/client";
+import { createDiagnosisEventSource, createEventSource } from "../api/client";
 
 /**
  * Server-Sent Events 实时事件 Hook。
@@ -18,6 +18,7 @@ import { createEventSource } from "../api/client";
  * @param {(data: object) => void} [handlers.onDiagnosisComplete]
  * @param {(data: object) => void} [handlers.onDiagnosisProgress]
  * @param {(connected: boolean) => void} [handlers.onConnectionChange]
+ * @param {"control"|"diagnosis"} [handlers.channel]
  * @returns {{ connected: boolean, reconnect: () => void }}
  */
 export default function useSSE({
@@ -26,6 +27,7 @@ export default function useSSE({
   onDiagnosisComplete,
   onDiagnosisProgress,
   onConnectionChange,
+  channel = "control",
 } = {}) {
   const [connected, setConnected] = useState(false);
   const reconnectTimer = useRef(null);
@@ -44,7 +46,9 @@ export default function useSSE({
       reconnectTimer.current = null;
     }
     sourceRef.current?.close();
-    const es = createEventSource();
+    const es = channel === "diagnosis"
+      ? createDiagnosisEventSource()
+      : createEventSource();
     sourceRef.current = es;
 
     es.onopen = () => {
@@ -120,7 +124,7 @@ export default function useSSE({
     };
 
     return es;
-  }, []);
+  }, [channel]);
 
   useEffect(() => {
     mountedRef.current = true;

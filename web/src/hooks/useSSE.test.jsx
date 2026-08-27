@@ -4,9 +4,10 @@ import useSSE from "./useSSE";
 
 vi.mock("../api/client", () => ({
   createEventSource: vi.fn(),
+  createDiagnosisEventSource: vi.fn(),
 }));
 
-import { createEventSource } from "../api/client";
+import { createDiagnosisEventSource, createEventSource } from "../api/client";
 
 function makeFakeES() {
   const listeners = {};
@@ -30,6 +31,7 @@ describe("useSSE", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     createEventSource.mockReset();
+    createDiagnosisEventSource.mockReset();
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -98,6 +100,16 @@ describe("useSSE", () => {
       es._emit("diagnosis_progress", { diagnosis_id: "diag-1", sequence: 4 });
     });
     expect(onDiagnosisProgress).toHaveBeenCalledWith({ diagnosis_id: "diag-1", sequence: 4 });
+  });
+
+  it("uses the dedicated diagnosis stream when requested", () => {
+    const es = makeFakeES();
+    createDiagnosisEventSource.mockReturnValue(es);
+
+    renderHook(() => useSSE({ channel: "diagnosis" }));
+
+    expect(createDiagnosisEventSource).toHaveBeenCalledTimes(1);
+    expect(createEventSource).not.toHaveBeenCalled();
   });
 
   it("closes the stream and clears the timer on unmount", () => {

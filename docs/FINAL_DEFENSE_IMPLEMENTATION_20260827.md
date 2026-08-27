@@ -133,7 +133,8 @@ flowchart LR
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | GET | `/api/v2/diagnoses/{id}/exploration-tree` | 获取当前实时树快照 |
-| GET | `/api/events/stream` | 接收 `diagnosis_progress` 等 SSE 事件 |
+| GET | `/api/v2/events/stream` | 接收 Python 诊断引擎的 `diagnosis_progress` 事件 |
+| GET | `/api/events/stream` | 接收 Go 控制面的任务、Agent 和旧诊断事件 |
 | POST | `/api/v2/diagnoses/{id}/diagnostic-skills/candidate` | 从可信轨迹生成候选 Skill |
 | POST | `/api/v2/diagnostic-skills/{id}/evaluate` | 运行三类发布门禁 |
 | POST | `/api/v2/diagnostic-skills/{id}/publish` | 人工发布 |
@@ -194,7 +195,7 @@ npm run build
 ```text
 GET /api/healthz
 GET /api/v2/diagnoses/{id}/exploration-tree
-GET /api/events/stream
+GET /api/v2/events/stream
 ```
 
 最终验收标准不是“页面上有一棵树”，而是诊断过程中的每次状态变化都能成为可恢复、可审计的树事实；也不是“报告旁边出现 Skill 标签”，而是 Skill 有来源、门禁、发布边界、真实命中记录、负迁移隔离和版本回滚。
@@ -205,7 +206,7 @@ GET /api/events/stream
 | --- | --- |
 | Python 全量回归 | `1297 passed, 3 skipped`，耗时 408.24 秒 |
 | Go API 回归 | `go test ./...` 全部通过 |
-| Web 全量组件测试 | `15` 个测试文件、`68 passed` |
+| Web 全量组件测试 | `15` 个测试文件、`69 passed` |
 | Web 生产构建 | Vite 构建成功，`4632` 个模块完成转换 |
 | Alembic 迁移头 | `20260827_0034`，单一 head |
 | Git 差异检查 | `git diff --check` 通过 |

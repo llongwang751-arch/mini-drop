@@ -297,6 +297,15 @@ export function createEventSource(since = "") {
   return new EventSource(`/api/events/stream${params}`);
 }
 
+/**
+ * 连接 Python 诊断引擎的实时事件流。该路径经 Go 网关的 v2 白名单代理，
+ * 与控制面任务/Agent 事件流分开，避免两个事件所有权边界互相覆盖。
+ */
+export function createDiagnosisEventSource(since = "") {
+  const params = since ? `?since=${encodeURIComponent(since)}` : "";
+  return new EventSource(`/api/v2/events/stream${params}`);
+}
+
 // ── Prometheus 指标 ───────────────────────────────────────────────
 
 export function getMetrics() {

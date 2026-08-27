@@ -466,6 +466,7 @@ def _extract_api_token(request: Request) -> str | None:
 
 
 @app.get("/api/events/stream")
+@app.get("/api/v2/events/stream")
 async def sse_stream(request: Request, since: str = ""):
     """Server-Sent Events 实时推送。
 
