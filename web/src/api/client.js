@@ -80,6 +80,9 @@ api.interceptors.response.use(
         detail = String(detail);
       }
     }
+    if (err.response?.status >= 500 && /^Request failed with status code/i.test(detail)) {
+      throw new Error("服务暂时不可用，请稍后重试；若持续失败，请检查 Server 与数据库状态");
+    }
     throw new Error(translateError(detail));
   },
 );
@@ -320,6 +323,10 @@ export function getDropInsightDiagnosis(diagnosisId) {
 
 export function listDropInsightEvents(diagnosisId) {
   return api.get(`/v2/diagnoses/${diagnosisId}/events`);
+}
+
+export function getDropInsightExplorationTree(diagnosisId) {
+  return api.get(`/v2/diagnoses/${diagnosisId}/exploration-tree`);
 }
 
 export function createDropInsightHypothesis(diagnosisId, payload) {

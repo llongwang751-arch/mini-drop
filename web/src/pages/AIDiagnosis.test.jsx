@@ -7,6 +7,7 @@ vi.mock("../api/client", () => ({
   listDiagnosticCasesPage: vi.fn(),
   getDiagnosticCase: vi.fn(),
   getDropInsightDiagnosis: vi.fn(),
+  getDropInsightExplorationTree: vi.fn(),
   getDropInsightTargetCandidates: vi.fn(),
   listDropInsightEvents: vi.fn(),
   listDropInsightHypotheses: vi.fn(),
@@ -27,6 +28,10 @@ vi.mock("../api/client", () => ({
   runDropInsightPlanner: vi.fn(),
   decideDropInsightToolCall: vi.fn(),
   advanceDropInsightOrchestrator: vi.fn(),
+}));
+
+vi.mock("../hooks/useSSE", () => ({
+  default: vi.fn(() => ({ connected: true, reconnect: vi.fn() })),
 }));
 
 import * as api from "../api/client";
@@ -76,6 +81,7 @@ describe("AIDiagnosis conversation page", () => {
     api.listDiagnosticCasesPage.mockResolvedValue({ items: [], total: 0, limit: 100, offset: 0 });
     api.getDiagnosticCase.mockResolvedValue({ native_payload: {} });
     api.getDropInsightDiagnosis.mockResolvedValue(null);
+    api.getDropInsightExplorationTree.mockResolvedValue(null);
     api.getDropInsightTargetCandidates.mockResolvedValue({
       diagnosis_id: "diag-1",
       diagnosis_version: 1,
@@ -111,7 +117,7 @@ describe("AIDiagnosis conversation page", () => {
 
     expect(await screen.findByText("订单服务 CPU 高")).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/描述问题/)).toBeInTheDocument();
-    expect(screen.getByText("诊断工作台")).toBeInTheDocument();
+    expect(screen.getByText("工作台")).toBeInTheDocument();
   });
 
   it("shows when a verified diagnostic strategy changes the probe route", async () => {
@@ -156,7 +162,7 @@ describe("AIDiagnosis conversation page", () => {
     render(<AIDiagnosis />);
     const input = screen.getByPlaceholderText(/描述问题/);
     fireEvent.change(input, { target: { value: "新问题" } });
-    fireEvent.click(screen.getByText("发送"));
+    fireEvent.click(screen.getByText("开始诊断"));
 
     await waitFor(() =>
       expect(api.createDropInsightDiagnosis).toHaveBeenCalledWith({
@@ -431,7 +437,8 @@ describe("AIDiagnosis conversation page", () => {
     await act(async () => { await Promise.resolve(); });
     const diagnosisReadsBeforePoll = api.getDropInsightDiagnosis.mock.calls.length;
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    // SSE connected: polling remains a low-frequency watchdog, not the live update path.
+    await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
 
     expect(api.getDropInsightDiagnosis.mock.calls.length).toBeGreaterThan(diagnosisReadsBeforePoll);
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();

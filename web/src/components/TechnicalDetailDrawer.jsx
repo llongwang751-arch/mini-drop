@@ -151,8 +151,11 @@ export default function TechnicalDetailDrawer({ open, onClose, detail, toolCalls
             label: `报告 (${(reports || []).length})`,
             children: (
               <Descriptions column={1} size="small" bordered>
-                {(reports || []).slice(0, 3).map((r) => (
-                  <Descriptions.Item key={r.report_id} label={r.report_id}>
+                {(reports || []).slice(0, 3).map((r, index) => (
+                  <Descriptions.Item
+                    key={r.report_id || `report:${index}`}
+                    label={r.report_id || `历史报告 ${index + 1}`}
+                  >
                     <Text style={{ fontSize: 12 }}>{JSON.stringify(r, null, 2)}</Text>
                   </Descriptions.Item>
                 ))}

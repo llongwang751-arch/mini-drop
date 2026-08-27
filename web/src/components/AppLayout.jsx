@@ -1,60 +1,59 @@
-import { useState, useEffect, useCallback } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Button, Input, Layout, Menu, message, Space, Tag, Tooltip, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Button, Input, Layout, Menu, message, Popover, Space, Tag, Tooltip, Typography } from "antd";
 import {
-  DashboardOutlined,
+  ApiOutlined,
   AuditOutlined,
-  SettingOutlined,
+  DashboardOutlined,
+  KeyOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  KeyOutlined,
-  BulbOutlined,
-  BulbFilled,
-  ApiOutlined,
-  WifiOutlined,
   RobotOutlined,
-  ScheduleOutlined,
-  ClusterOutlined,
+  SettingOutlined,
+  WifiOutlined,
 } from "@ant-design/icons";
-import { getStoredApiKey, saveApiKey, createEventSource } from "../api/client";
-import ErrorBoundary from "../components/ErrorBoundary";
-import { COLORS, LAYOUT, SPACING, FONT_SIZES } from "../theme";
+import { createEventSource, getStoredApiKey, saveApiKey } from "../api/client";
+import ErrorBoundary from "./ErrorBoundary";
+import styles from "./AppLayout.module.css";
 
 const { Sider, Header, Content } = Layout;
+const { Text } = Typography;
 
-// 一级导航收敛（方案 §7）：AI 诊断默认首页，任务/系统为二级分组。
-// 复合任务不再单独占一级菜单，收进「任务」分组。
 const MENU_ITEMS = [
   { key: "/ai-diagnosis", icon: <RobotOutlined />, label: "AI 诊断" },
   {
     key: "tasks",
     icon: <DashboardOutlined />,
-    label: "任务",
+    label: "采集与任务",
     children: [
       { key: "/tasks", label: "任务面板" },
       { key: "/schedules", label: "计划任务" },
-      { key: "/composites", label: "复合任务" },
+      { key: "/composites", label: "复合采集" },
     ],
   },
   {
     key: "system",
     icon: <SettingOutlined />,
-    label: "系统",
+    label: "系统治理",
     children: [
-      { key: "/audit", label: "审计日志" },
+      { key: "/audit", icon: <AuditOutlined />, label: "审计日志" },
       { key: "/settings", label: "系统设置" },
     ],
   },
 ];
 
-// 根据 pathname 得到应高亮的叶子菜单 key 及其父级（用于展开二级菜单）。
+const PAGE_META = {
+  "/ai-diagnosis": ["AI 诊断工作台", "证据驱动的多轮诊断与 Skill 演进"],
+  "/tasks": ["任务面板", "采集任务、执行状态与结果入口"],
+  "/schedules": ["计划任务", "周期采集与执行策略"],
+  "/composites": ["复合采集", "跨工具采集编排"],
+  "/audit": ["审计日志", "关键操作与诊断责任链"],
+  "/settings": ["系统设置", "接入、策略与安全配置"],
+};
+
 function menuSelection(pathname) {
   if (pathname === "/ai-diagnosis") return { selected: "/ai-diagnosis", parent: null };
-  if (
-    pathname === "/tasks" ||
-    pathname.startsWith("/task/") ||
-    pathname.startsWith("/agent/")
-  ) {
+  if (pathname === "/tasks" || pathname.startsWith("/task/") || pathname.startsWith("/agent/")) {
     return { selected: "/tasks", parent: "tasks" };
   }
   if (pathname === "/schedules") return { selected: "/schedules", parent: "tasks" };
@@ -64,157 +63,88 @@ function menuSelection(pathname) {
   return { selected: "/ai-diagnosis", parent: null };
 }
 
-// ── 暗色主题 tokens ───────────────────────────────────────────
-
-const DARK_TOKENS = {
-  bgLayout: "#141414",
-  bgContent: "#1f1f1f",
-  bgHeader: "#1f1f1f",
-  borderColor: "#303030",
-  textPrimary: "rgba(255,255,255,0.85)",
-  textSecondary: "rgba(255,255,255,0.65)",
-  textTertiary: "rgba(255,255,255,0.45)",
-  cardBg: "#1f1f1f",
-};
-
-const LIGHT_TOKENS = {
-  bgLayout: "#f5f5f5",
-  bgContent: COLORS.cardBackground,
-  bgHeader: COLORS.cardBackground,
-  borderColor: COLORS.border,
-  textPrimary: COLORS.textPrimary,
-  textSecondary: COLORS.textSecondary,
-  textTertiary: COLORS.textTertiary,
-  cardBg: COLORS.cardBackground,
-};
+function pageMeta(pathname) {
+  if (pathname.startsWith("/task/")) return ["任务结果", "证据、火焰图与采集产物"];
+  if (pathname.startsWith("/agent/")) return ["采集节点", "Agent 状态与能力检查"];
+  return PAGE_META[pathname] || PAGE_META["/ai-diagnosis"];
+}
 
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [apiKey, setApiKey] = useState(getStoredApiKey() || "");
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem("mini-drop-theme") === "dark";
-    } catch {
-      return false;
-    }
-  });
-
-  // SSE 连接状态
+  const [credentialOpen, setCredentialOpen] = useState(false);
   const [sseConnected, setSseConnected] = useState(false);
-  // 二级菜单展开状态
   const [openKeys, setOpenKeys] = useState(() => {
     const { parent } = menuSelection(location.pathname);
     return parent ? [parent] : [];
   });
 
-  const T = darkMode ? DARK_TOKENS : LIGHT_TOKENS;
-
-  // ── 暗色模式持久化 ──────────────────────────────────────
-
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("mini-drop-theme", next ? "dark" : "light");
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }, []);
-
-  // ── SSE 事件流 ──────────────────────────────────────────
+  const { selected: selectedKey, parent: selectedParent } = menuSelection(location.pathname);
+  const [title, description] = pageMeta(location.pathname);
+  const diagnosisPage = location.pathname === "/ai-diagnosis";
 
   useEffect(() => {
-    const es = createEventSource();
-    es.onopen = () => setSseConnected(true);
-    es.onerror = () => setSseConnected(false);
-    return () => es.close();
+    const stream = createEventSource();
+    stream.onopen = () => setSseConnected(true);
+    stream.onerror = () => setSseConnected(false);
+    return () => stream.close();
   }, []);
 
-  // ── 路由激活 key ─────────────────────────────────────────
-
-  const { selected: selectedKey, parent: selectedParent } = menuSelection(location.pathname);
-
-  // 路由变化时展开对应父级（例如从任务详情返回时仍停留在「任务」分组）。
   useEffect(() => {
     if (selectedParent) {
-      setOpenKeys((prev) => (prev.includes(selectedParent) ? prev : [...prev, selectedParent]));
+      setOpenKeys((current) => current.includes(selectedParent) ? current : [...current, selectedParent]);
     }
   }, [selectedParent]);
 
-  // ── 保存 API Key ─────────────────────────────────────────
-
   async function handleSaveKey() {
     await saveApiKey(apiKey.trim());
-    message.success(
-      apiKey.trim()
-        ? "API Key 已保存 (HttpOnly Cookie + 降级)"
-        : "API Key 已清除"
-    );
+    setCredentialOpen(false);
+    message.success(apiKey.trim() ? "访问凭据已保存" : "访问凭据已清除");
   }
 
+  const credentialEditor = (
+    <div className={styles.credentialEditor}>
+      <div>
+        <Text strong>Mini-Drop API Key</Text>
+        <Text type="secondary">仅用于当前控制台访问，保存后立即生效。</Text>
+      </div>
+      <Input.Password
+        aria-label="Mini-Drop API Key"
+        placeholder="输入访问凭据"
+        value={apiKey}
+        onChange={(event) => setApiKey(event.target.value)}
+        onPressEnter={handleSaveKey}
+        prefix={<KeyOutlined />}
+      />
+      <Button type="primary" block onClick={handleSaveKey}>保存凭据</Button>
+    </div>
+  );
+
   return (
-    <Layout
-      style={{
-        minHeight: "100vh",
-        background: T.bgLayout,
-        transition: "background 0.3s ease",
-      }}
-    >
-      {/* ── 侧边栏 ─────────────────────────────────────────── */}
+    <Layout className={styles.layout}>
       <Sider
-        collapsible
+        className={styles.sider}
         collapsed={collapsed}
-        onCollapse={(v) => setCollapsed(v)}
-        breakpoint="lg"
-        collapsedWidth={64}
-        width={LAYOUT.siderWidth}
+        collapsedWidth={72}
+        width={224}
         theme="dark"
-        style={{
-          overflow: "auto",
-          height: "100vh",
-          position: "sticky",
-          top: 0,
-          left: 0,
-        }}
+        trigger={null}
       >
-        {/* Logo */}
-        <div
-          style={{
-            height: LAYOUT.headerHeight,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid rgba(255,255,255,0.12)",
-            gap: collapsed ? 0 : 8,
-          }}
-        >
-          <ApiOutlined
-            style={{
-              fontSize: collapsed ? 20 : 18,
-              color: COLORS.primary,
-              transition: "transform 0.3s",
-            }}
-          />
+        <div className={`${styles.brand} ${collapsed ? styles.brandCollapsed : ""}`}>
+          <span className={styles.brandMark}><ApiOutlined /></span>
           {!collapsed && (
-            <Typography.Text
-              strong
-              style={{
-                color: "#fff",
-                fontSize: 16,
-                letterSpacing: 0.5,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Mini-Drop
-            </Typography.Text>
+            <span className={styles.brandCopy}>
+              <b>Mini-Drop</b>
+              <small>Evidence-first diagnosis</small>
+            </span>
           )}
         </div>
 
+        <div className={styles.menuLabel}>{collapsed ? "" : "WORKSPACE"}</div>
         <Menu
+          className={styles.menu}
           theme="dark"
           mode="inline"
           selectedKeys={[selectedKey]}
@@ -222,129 +152,56 @@ export default function AppLayout() {
           onOpenChange={setOpenKeys}
           items={MENU_ITEMS}
           onClick={({ key }) => navigate(key)}
-          style={{ marginTop: SPACING.sm }}
         />
 
-        {/* SSE 指示器 */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 80,
-            left: 0,
-            right: 0,
-            padding: "0 16px",
-            textAlign: "center",
-          }}
-        >
-          <Tooltip
-            title={
-              sseConnected ? "实时事件推送已连接" : "实时事件推送断开（轮询兜底）"
-            }
-          >
-            <Tag
-              icon={<WifiOutlined />}
-              color={sseConnected ? "green" : "default"}
-              style={{
-                width: "100%",
-                textAlign: "center",
-                border: "none",
-                background: sseConnected
-                  ? "rgba(82,196,26,0.15)"
-                  : "rgba(255,255,255,0.06)",
-                color: sseConnected ? "#52c41a" : "rgba(255,255,255,0.3)",
-                fontSize: 11,
-              }}
-            >
-              {collapsed ? "" : sseConnected ? "SSE 已连接" : "SSE 断开"}
-            </Tag>
+        <div className={styles.siderFooter}>
+          <Tooltip title={sseConnected ? "实时事件链路正常" : "事件链路断开，页面使用轮询兜底"} placement="right">
+            <div className={`${styles.connectionCard} ${sseConnected ? styles.connected : ""}`}>
+              <span className={styles.connectionDot} />
+              {!collapsed && (
+                <span>
+                  <b>{sseConnected ? "事件流已连接" : "轮询兜底中"}</b>
+                  <small>{sseConnected ? "SSE / Outbox" : "自动重连"}</small>
+                </span>
+              )}
+            </div>
           </Tooltip>
         </div>
       </Sider>
 
-      {/* ── 主区域 ─────────────────────────────────────────── */}
-      <Layout style={{ minWidth: 0 }}>
-        {/* 顶栏 */}
-        <Header
-          style={{
-            height: LAYOUT.headerHeight,
-            lineHeight: `${LAYOUT.headerHeight}px`,
-            padding: `0 ${SPACING.lg}px`,
-            background: T.bgHeader,
-            borderBottom: `1px solid ${T.borderColor}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-            transition: "background 0.3s ease, border-color 0.3s ease",
-          }}
-        >
-          <Space size="middle">
-            <Typography.Text
-              strong
-              style={{
-                fontSize: FONT_SIZES.lg,
-                whiteSpace: "nowrap",
-                color: T.textPrimary,
-              }}
-            >
-              Mini-Drop 性能诊断平台
-            </Typography.Text>
-            <Tag
-              color={sseConnected ? "green" : "default"}
-              style={{ fontSize: 10, lineHeight: "16px" }}
-            >
-              {sseConnected ? "实时连接" : "轮询模式"}
-            </Tag>
-          </Space>
-
-          <Space size="small" wrap style={{ flexShrink: 0 }}>
-            {/* 暗色模式切换 */}
-            <Tooltip title={darkMode ? "切换亮色模式" : "切换暗色模式"}>
-              <Button
-                size="small"
-                type="text"
-                icon={
-                  darkMode ? (
-                    <BulbFilled style={{ color: COLORS.warning }} />
-                  ) : (
-                    <BulbOutlined />
-                  )
-                }
-                onClick={toggleDarkMode}
-                style={{ color: T.textSecondary }}
-              />
-            </Tooltip>
-
-            <Input.Password
-              placeholder="Mini-Drop API Key（必填）"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              onPressEnter={handleSaveKey}
-              size="small"
-              style={{ width: 200, maxWidth: "40vw" }}
-              prefix={<KeyOutlined style={{ color: T.textSecondary }} />}
+      <Layout className={styles.mainLayout}>
+        <Header className={styles.header}>
+          <div className={styles.headerIdentity}>
+            <Button
+              className={styles.collapseButton}
+              type="text"
+              aria-label={collapsed ? "展开导航" : "收起导航"}
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed((value) => !value)}
             />
-            <Button size="small" type="primary" onClick={handleSaveKey}>
-              保存
-            </Button>
+            <div className={styles.pageIdentity}>
+              <Text strong>{title}</Text>
+              <Text type="secondary">{description}</Text>
+            </div>
+          </div>
+
+          <Space className={styles.headerActions} size="small">
+            <Tag className={`${styles.liveTag} ${sseConnected ? styles.liveTagOnline : ""}`} icon={<WifiOutlined />}>
+              {sseConnected ? "实时" : "兜底"}
+            </Tag>
+            <Popover
+              content={credentialEditor}
+              trigger="click"
+              placement="bottomRight"
+              open={credentialOpen}
+              onOpenChange={setCredentialOpen}
+            >
+              <Button icon={<KeyOutlined />}>访问凭据</Button>
+            </Popover>
           </Space>
         </Header>
 
-        {/* 内容 */}
-        <Content
-          style={{
-            minWidth: 0,
-            margin: SPACING.lg,
-            padding: SPACING.xl,
-            background: T.bgContent,
-            borderRadius: 8,
-            minHeight: `calc(100vh - ${LAYOUT.headerHeight}px - ${SPACING.lg * 2}px)`,
-            border: `1px solid ${T.borderColor}`,
-            transition: "background 0.3s ease, border-color 0.3s ease",
-          }}
-        >
+        <Content className={`${styles.content} ${diagnosisPage ? styles.diagnosisContent : ""}`}>
           <ErrorBoundary key={location.pathname}>
             <Outlet />
           </ErrorBoundary>

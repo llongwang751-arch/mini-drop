@@ -89,6 +89,17 @@ describe("useSSE", () => {
     expect(onTaskChanged).toHaveBeenCalledWith({ task_id: "t1" });
   });
 
+  it("dispatches diagnosis_progress to the handler", () => {
+    const es = makeFakeES();
+    createEventSource.mockReturnValue(es);
+    const onDiagnosisProgress = vi.fn();
+    renderHook(() => useSSE({ onDiagnosisProgress }));
+    act(() => {
+      es._emit("diagnosis_progress", { diagnosis_id: "diag-1", sequence: 4 });
+    });
+    expect(onDiagnosisProgress).toHaveBeenCalledWith({ diagnosis_id: "diag-1", sequence: 4 });
+  });
+
   it("closes the stream and clears the timer on unmount", () => {
     const es = makeFakeES();
     createEventSource.mockReturnValue(es);
@@ -98,5 +109,38 @@ describe("useSSE", () => {
     });
     unmount();
     expect(es.close).toHaveBeenCalled();
+  });
+
+  it("keeps a single live stream when reconnect is requested manually", () => {
+    const streams = [];
+    createEventSource.mockImplementation(() => {
+      const es = makeFakeES();
+      streams.push(es);
+      return es;
+    });
+    const { result, unmount } = renderHook(() => useSSE({}));
+
+    act(() => result.current.reconnect());
+
+    expect(streams).toHaveLength(2);
+    expect(streams[0].close).toHaveBeenCalled();
+    unmount();
+    expect(streams[1].close).toHaveBeenCalled();
+  });
+
+  it("does not reconnect after the component unmounts", () => {
+    const streams = [];
+    createEventSource.mockImplementation(() => {
+      const es = makeFakeES();
+      streams.push(es);
+      return es;
+    });
+    const { unmount } = renderHook(() => useSSE({}));
+    act(() => streams[0].onerror());
+
+    unmount();
+    act(() => vi.advanceTimersByTime(30000));
+
+    expect(streams).toHaveLength(1);
   });
 });

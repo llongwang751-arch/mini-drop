@@ -9,6 +9,7 @@ from server.app.drop_insight.skill_evolution import (
     create_candidate_from_diagnosis,
     evaluate_skill,
     get_skill,
+    list_activations,
     publish_skill,
     record_activation_outcome,
     rollback_skill,
@@ -365,6 +366,62 @@ def test_active_skill_advances_through_verified_probe_order():
     second = apply_active_skill("diagnosis-route", "CPU_HOTSPOT", second_plan, target)
     assert second["selected_tool"] == "collect_sys_metrics"
     assert second_plan["tool_name"] == "collect_sys_metrics"
+
+
+def test_one_diagnosis_can_compose_multiple_active_skills():
+    cpu_skill = _publish_source()
+    session = new_session()
+    timestamp = datetime.now(timezone.utc)
+    session.add(
+        DiagnosticSkillModel(
+            id="skill-io-active",
+            family_key="io_latency:staging",
+            category="IO_LATENCY",
+            version=1,
+            status="ACTIVE",
+            source_diagnosis_ids_json=["diagnosis-source"],
+            trigger_json={"environment": "staging", "service": "order-service"},
+            strategy_json={"probe_order": ["start_ebpf_io_profile"]},
+            gate_metrics_json={"eligible": True},
+            parent_skill_id=None,
+            created_by="reviewer",
+            created_at=timestamp,
+            updated_at=timestamp,
+            published_at=timestamp,
+        )
+    )
+    session.add(
+        DropInsightSessionModel(
+            id="diagnosis-composed",
+            query="CPU and I/O latency rise together",
+            target_json={"service": "order-service", "environment": "staging"},
+            time_range_json={},
+            requested_time_range_json={},
+            effective_time_range_json={},
+            mode="ASSISTED",
+            budget_json={},
+            status="RUNNING",
+            clarification_questions_json=[],
+            created_at=timestamp,
+            updated_at=timestamp,
+        )
+    )
+    session.commit()
+    session.close()
+
+    target = {"service": "order-service", "environment": "staging"}
+    cpu_plan = {"tool_name": "collect_sys_metrics"}
+    io_plan = {"tool_name": "collect_sys_metrics"}
+
+    first = apply_active_skill("diagnosis-composed", "CPU_HOTSPOT", cpu_plan, target)
+    second = apply_active_skill("diagnosis-composed", "IO_LATENCY", io_plan, target)
+
+    assert first["skill_id"] == cpu_skill["skill_id"]
+    assert second["skill_id"] == "skill-io-active"
+    assert {item["skill_id"] for item in list_activations("diagnosis-composed")} == {
+        cpu_skill["skill_id"],
+        "skill-io-active",
+    }
 
 
 def test_repeated_wrong_feedback_quarantines_skill():

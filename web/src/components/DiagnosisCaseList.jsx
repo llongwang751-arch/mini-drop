@@ -28,6 +28,7 @@ const SOURCE_LABELS = {
   drop_insight_v2: "Drop Insight",
   cluster_diagnosis_v1: "集群诊断",
   legacy_rca: "任务 RCA",
+  controlled_showcase: "复杂案例",
 };
 
 export function caseMatchesFilter(item, filter) {

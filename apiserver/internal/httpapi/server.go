@@ -540,6 +540,11 @@ func (s *Server) listDiagnosticCases(w http.ResponseWriter, r *http.Request) {
 		}
 		return leftTime.After(rightTime)
 	})
+	// Completed controlled-fault replays are owned by the Python diagnosis
+	// engine, but they must appear in the same history list served by the Go
+	// gateway. Fetch only that explicit read-only source and keep DB sessions
+	// under the native Go ownership boundary.
+	items = append(s.listControlledShowcases(r), items...)
 	total := len(items)
 	start := offset
 	if start > total {
@@ -565,6 +570,10 @@ func (s *Server) getDiagnosticCase(w http.ResponseWriter, r *http.Request) {
 		writeAPI(w, http.StatusBadRequest, 1400, "诊断案例 ID 不合法", nil)
 		return
 	}
+	if strings.HasPrefix(caseID, "showcase-") {
+		s.proxy.ServeHTTP(w, r)
+		return
+	}
 	item, err := s.repo.GetDiagnosticCase(r.Context(), caseID)
 	if errors.Is(err, repository.ErrNotFound) {
 		writeAPI(w, http.StatusNotFound, 1404, "diagnostic case not found", nil)
@@ -576,6 +585,48 @@ func (s *Server) getDiagnosticCase(w http.ResponseWriter, r *http.Request) {
 	}
 	item["served_by"] = "go-apiserver"
 	writeAPI(w, http.StatusOK, 0, "ok", item)
+}
+
+func (s *Server) listControlledShowcases(r *http.Request) []repository.DiagnosticCase {
+	upstream := *s.cfg.LegacyAPIURL
+	upstream.Path = "/api/diagnostic-cases"
+	query := upstream.Query()
+	query.Set("limit", "10")
+	upstream.RawQuery = query.Encode()
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, upstream.String(), nil)
+	if err != nil {
+		return nil
+	}
+	if s.cfg.InternalGatewayToken != "" {
+		req.Header.Set("X-Mini-Drop-Gateway-Token", s.cfg.InternalGatewayToken)
+	}
+	attachPrincipalHeaders(req, principalFromRequest(r))
+	resp, err := s.client.Do(req)
+	if err != nil {
+		s.logger.Warn("controlled showcase list unavailable", "error", err)
+		return nil
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		s.logger.Warn("controlled showcase list returned non-200", "status", resp.StatusCode)
+		return nil
+	}
+	var envelope struct {
+		Data struct {
+			Items []repository.DiagnosticCase `json:"items"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 2<<20)).Decode(&envelope); err != nil {
+		s.logger.Warn("controlled showcase list decode failed", "error", err)
+		return nil
+	}
+	showcases := make([]repository.DiagnosticCase, 0, 3)
+	for _, item := range envelope.Data.Items {
+		if item.Source == "controlled_showcase" {
+			showcases = append(showcases, item)
+		}
+	}
+	return showcases
 }
 
 func parseBoundedPage(r *http.Request, maxLimit int) (int, int) {

@@ -99,6 +99,10 @@ from server.app.drop_insight.service import (
     get_diagnosis as get_drop_insight_diagnosis,
     list_diagnoses as list_drop_insight_diagnoses,
 )
+from server.app.drop_insight.showcase import (
+    get_showcase_diagnostic_case,
+    list_showcase_diagnostic_cases,
+)
 from server.app.diagnostic_case_adapter import (
     adapt_cluster_diagnosis,
     adapt_drop_insight,
@@ -1560,20 +1564,31 @@ def list_diagnostic_cases(limit: int = 100, offset: int = 0) -> APIResponse:
     cluster_items = diagnosis_orchestrator.list(limit=500, offset=0)
     insight_items = [item.to_dict() for item in list_drop_insight_diagnoses()]
     legacy_items = repo.list_diagnoses(limit=500, offset=0)
-    return APIResponse(
-        data=merge_diagnostic_cases(
+    merged = merge_diagnostic_cases(
             cluster_items,
             insight_items,
             legacy_items=legacy_items,
-            limit=safe_limit,
-            offset=safe_offset,
+            limit=500,
+            offset=0,
         )
+    items = [*list_showcase_diagnostic_cases(), *merged["items"]]
+    total = len(items)
+    merged.update(
+        items=items[safe_offset : safe_offset + safe_limit],
+        total=total,
+        limit=safe_limit,
+        offset=safe_offset,
     )
+    return APIResponse(data=merged)
 
 
 @app.get("/api/diagnostic-cases/{case_id}")
 def get_diagnostic_case(case_id: str) -> APIResponse:
     """按来源读取统一案例详情，不触发旧会话迁移或状态推进。"""
+
+    showcase = get_showcase_diagnostic_case(case_id)
+    if showcase is not None:
+        return APIResponse(data=showcase)
 
     if case_id.startswith("insight_"):
         insight = get_drop_insight_diagnosis(case_id)

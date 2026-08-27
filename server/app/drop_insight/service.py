@@ -27,6 +27,7 @@ from server.app.models import (
     DropInsightTargetDiscoveryModel,
     DropInsightToolCallModel,
     FixVerificationModel,
+    OutboxMessageModel,
     ProcessCandidateModel,
     ProcessCandidateSnapshotModel,
     TaskAttemptModel,
@@ -722,6 +723,7 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         session.add(model)
         session.flush()
         session.add(event)
+        _enqueue_diagnosis_event(session, event)
         session.commit()
         session.refresh(model)
     finally:
@@ -1908,7 +1910,8 @@ def _replan_from_counter_evidence(
     if parent is None:
         return None
     round_index = (parent.round_index or 1) + 1
-    if round_index > 3:
+    max_rounds = int((diagnosis.budget_json or {}).get("max_diagnosis_rounds", 6))
+    if round_index > max_rounds:
         return None
     target = diagnosis.target_json or {}
     statement = (
@@ -2081,7 +2084,8 @@ def _replan_after_insufficient_evidence(
     if parent is None:
         return None
     round_index = (parent.round_index or 1) + 1
-    if round_index > 3:
+    max_rounds = int((diagnosis.budget_json or {}).get("max_diagnosis_rounds", 6))
+    if round_index > max_rounds:
         return None
     attempted = {item.tool_name for item in list_tool_calls(diagnosis_id)}
     all_tools = [
@@ -2853,6 +2857,20 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                 next_status = "RUNNING" if task_status != "PENDING" else "TASK_CREATED"
                 if tool_call.status != next_status:
                     tool_call.status = next_status
+                    _append_event(
+                        session,
+                        diagnosis_id,
+                        "tool_call.progress",
+                        "SYSTEM",
+                        {
+                            "tool_call_id": tool_call.id,
+                            "task_id": task.id,
+                            "task_status": task_status,
+                            "status": next_status,
+                        },
+                        now_utc(),
+                        effect_key=f"tool_call:{tool_call.id}:progress:{task_status}",
+                    )
                     session.commit()
                 actions.append({
                     "tool_call_id": tool_call.id,
@@ -3660,7 +3678,7 @@ def _score_candidate_hypotheses(diagnosis_id: str) -> None:
         if metadata is None:
             return
         timestamp = now_utc()
-        changed = False
+        changed = []
         for hypothesis in hypotheses:
             if hypothesis.id in report_hypothesis_ids:
                 continue
@@ -3674,8 +3692,16 @@ def _score_candidate_hypotheses(diagnosis_id: str) -> None:
             else:
                 hypothesis.status = "INCONCLUSIVE"
             hypothesis.updated_at = timestamp
-            changed = True
+            changed.append({"hypothesis_id": hypothesis.id, "status": hypothesis.status})
         if changed:
+            _append_event(
+                session,
+                diagnosis_id,
+                "hypotheses.scored",
+                "SYSTEM",
+                {"hypotheses": changed},
+                timestamp,
+            )
             session.commit()
     finally:
         session.close()
@@ -4337,19 +4363,45 @@ def _append_event(
         )
     ).scalar_one()
     sequence = int(current or 0) + 1
+    event = DropInsightEventModel(
+        id=f"event_{uuid4().hex}",
+        diagnosis_id=diagnosis_id,
+        sequence=sequence,
+        event_type=event_type,
+        actor=actor,
+        payload_json=payload,
+        effect_key=effect_key,
+        occurred_at=timestamp,
+    )
+    session.add(event)
+    _enqueue_diagnosis_event(session, event)
+    return True
+
+
+def _enqueue_diagnosis_event(session, event: DropInsightEventModel) -> None:
+    """Persist SSE publication in the same transaction as the domain event."""
+    timestamp = event.occurred_at
     session.add(
-        DropInsightEventModel(
-            id=f"event_{uuid4().hex}",
-            diagnosis_id=diagnosis_id,
-            sequence=sequence,
-            event_type=event_type,
-            actor=actor,
-            payload_json=payload,
-            effect_key=effect_key,
-            occurred_at=timestamp,
+        OutboxMessageModel(
+            id=f"outbox_{event.id}",
+            aggregate_type="diagnosis",
+            aggregate_id=event.diagnosis_id,
+            event_type=event.event_type,
+            payload_json={
+                "event_id": event.id,
+                "sequence": event.sequence,
+                "event_type": event.event_type,
+                "actor": event.actor,
+                "payload": event.payload_json or {},
+                "occurred_at": timestamp.isoformat(),
+            },
+            status="PENDING",
+            attempts=0,
+            next_attempt_at=timestamp,
+            created_at=timestamp,
+            updated_at=timestamp,
         )
     )
-    return True
 
 
 def _lock_diagnosis(session, diagnosis_id: str, expected_version: int | None = None):

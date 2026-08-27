@@ -35,6 +35,7 @@ class DiagnosticTimeRange(StrictModel):
 class DiagnosisBudget(StrictModel):
     max_duration_seconds: int = Field(default=300, ge=10, le=1800)
     max_tool_calls: int = Field(default=12, ge=1, le=50)
+    max_diagnosis_rounds: int = Field(default=6, ge=1, le=12)
     max_concurrent_tasks: int = Field(default=3, ge=1, le=10)
     max_hosts: int = Field(default=5, ge=1, le=20)
     max_artifact_bytes: int = Field(default=524_288_000, ge=1)

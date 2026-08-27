@@ -733,6 +733,12 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
         if selected_tool is None:
             return None
         timestamp = _now()
+        application = {
+            "baseline_tool": baseline_tool,
+            "selected_tool": selected_tool,
+            "completed_route_tools": sorted(completed_tools),
+            "applied_at": timestamp.isoformat(),
+        }
         activation = DiagnosticSkillActivationModel(
             id=f"skill_activation_{uuid4().hex}", skill_id=skill.id,
             diagnosis_id=diagnosis_id, match_score=score,
@@ -741,17 +747,21 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
                 "route": route,
                 "skill_version": skill.version,
                 "completed_route_tools": sorted(completed_tools),
+                "applications": [application],
             },
             baseline_tool=baseline_tool, selected_tool=selected_tool,
             created_at=timestamp, updated_at=timestamp,
         )
         existing = session.query(DiagnosticSkillActivationModel).filter(
-            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id
+            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id,
+            DiagnosticSkillActivationModel.skill_id == skill.id,
         ).first()
         if existing is None:
             session.add(activation)
             session.commit()
         else:
+            previous_reason = dict(existing.match_reason_json or {})
+            applications = list(previous_reason.get("applications") or [])
             existing.match_score = score
             existing.match_reason_json = {
                 **reasons,
@@ -759,7 +769,10 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
                 "skill_version": skill.version,
                 "completed_route_tools": sorted(completed_tools),
                 "current_selected_tool": selected_tool,
+                "applications": [*applications[-19:], application],
             }
+            existing.baseline_tool = baseline_tool
+            existing.selected_tool = selected_tool
             existing.updated_at = timestamp
             session.commit()
         plan["tool_name"] = selected_tool
@@ -779,31 +792,34 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
 def record_activation_outcome(diagnosis_id: str, feedback_label: str) -> None:
     session = new_session()
     try:
-        activation = session.query(DiagnosticSkillActivationModel).filter(
+        activations = session.query(DiagnosticSkillActivationModel).filter(
             DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id
-        ).first()
-        if activation is None:
+        ).all()
+        if not activations:
             return
-        activation.outcome = feedback_label.upper()
-        activation.updated_at = _now()
+        timestamp = _now()
+        for activation in activations:
+            activation.outcome = feedback_label.upper()
+            activation.updated_at = timestamp
         session.commit()
-        total = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-            DiagnosticSkillActivationModel.skill_id == activation.skill_id,
-            DiagnosticSkillActivationModel.outcome.isnot(None),
-        ).scalar() or 0
-        wrong = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-            DiagnosticSkillActivationModel.skill_id == activation.skill_id,
-            DiagnosticSkillActivationModel.outcome == "WRONG",
-        ).scalar() or 0
-        if total >= 2 and wrong >= 2 and wrong / total >= 0.5:
-            skill = session.get(DiagnosticSkillModel, activation.skill_id)
-            if skill is not None and skill.status == "ACTIVE":
-                metrics = dict(skill.gate_metrics_json or {})
-                metrics.update({"negative_transfer_count": wrong, "observed_outcomes": total})
-                skill.gate_metrics_json = metrics
-                skill.status = "QUARANTINED"
-                skill.updated_at = _now()
-                session.commit()
+        for skill_id in {item.skill_id for item in activations}:
+            total = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
+                DiagnosticSkillActivationModel.skill_id == skill_id,
+                DiagnosticSkillActivationModel.outcome.isnot(None),
+            ).scalar() or 0
+            wrong = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
+                DiagnosticSkillActivationModel.skill_id == skill_id,
+                DiagnosticSkillActivationModel.outcome == "WRONG",
+            ).scalar() or 0
+            if total >= 2 and wrong >= 2 and wrong / total >= 0.5:
+                skill = session.get(DiagnosticSkillModel, skill_id)
+                if skill is not None and skill.status == "ACTIVE":
+                    metrics = dict(skill.gate_metrics_json or {})
+                    metrics.update({"negative_transfer_count": wrong, "observed_outcomes": total})
+                    skill.gate_metrics_json = metrics
+                    skill.status = "QUARANTINED"
+                    skill.updated_at = _now()
+        session.commit()
     finally:
         session.close()
 

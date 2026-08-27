@@ -9,7 +9,6 @@ import ConclusionCard from "./ConclusionCard";
 import ScopeCard from "./ScopeCard";
 import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
-import ActualExplorationTree from "./ActualExplorationTree";
 
 const { Text } = Typography;
 
@@ -85,11 +84,10 @@ export default function ChatThread({
   const acceptedEvidence = (evidence || []).filter(
     (item) => item.classification?.decision === "ACCEPT_SUPPORT",
   );
-  const skillActivation = [...skillActivations].sort(
+  const sortedSkillActivations = [...skillActivations].sort(
     (a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0),
-  )[0] || null;
-  const skillReason = skillActivation?.match_reason || {};
-  const route = skillReason.route || [];
+  );
+  const skillActivation = sortedSkillActivations[0] || null;
   const dynamicRoute = [...new Set(sortedTools.map(readableToolName).filter(Boolean))];
 
   return (
@@ -115,7 +113,6 @@ export default function ChatThread({
           />
         )}
         {latestReport && <ConclusionCard report={latestReport} />}
-        <ActualExplorationTree hypotheses={hypotheses} toolCalls={sortedTools} report={latestReport} />
         <PlannerBlock
           classification={classification}
           hypotheses={hypotheses}
@@ -125,23 +122,34 @@ export default function ChatThread({
           size="small"
           title={<Space><BranchesOutlined /><span>本轮诊断能力</span></Space>}
           extra={skillActivation
-            ? <Tag color="green">已命中发布 Skill</Tag>
+            ? <Tag color="green">{sortedSkillActivations.length === 1 ? "已命中发布 Skill" : `已组合 ${sortedSkillActivations.length} 个发布 Skill`}</Tag>
             : <Tag color="blue">动态取证路线</Tag>}
         >
           {skillActivation ? (
             <Space direction="vertical" size={8} style={{ width: "100%" }}>
-              <Space wrap>
-                <Text strong>复用了经过门禁验证的诊断经验</Text>
-                <Tag color="green">版本 {skillReason.skill_version || "-"}</Tag>
-                <Tag color="blue">匹配度 {Math.round(Number(skillActivation.match_score || 0) * 100)}%</Tag>
-              </Space>
-              <div>
-                取证路线：{(route.length ? route : [skillActivation.selected_tool]).map((tool) => (
-                  <Tag key={tool}>{TOOL_LABELS[tool] || tool}</Tag>
-                ))}
+              <Text strong>复用了经过门禁验证的诊断经验</Text>
+              <div className="diagnosis-skill-composition">
+                {sortedSkillActivations.map((activation, index) => {
+                  const reason = activation.match_reason || {};
+                  const activationRoute = reason.route?.length ? reason.route : [activation.selected_tool];
+                  return (
+                    <div className="diagnosis-skill-composition-item" key={activation.activation_id || activation.skill_id}>
+                      <Space wrap>
+                        <Tag color="green">Skill {index + 1}</Tag>
+                        <Tag>版本 {reason.skill_version || "-"}</Tag>
+                        <Tag color="blue">匹配度 {Math.round(Number(activation.match_score || 0) * 100)}%</Tag>
+                      </Space>
+                      <div>
+                        取证路线：{activationRoute.map((tool) => (
+                          <Tag key={`${activation.skill_id}:${tool}`}>{TOOL_LABELS[tool] || tool}</Tag>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <Text type="secondary">
-                命中依据来自故障类别、服务和运行环境；若人工反馈判错，系统会记录负迁移并隔离该 Skill。
+                系统可在一次多轮诊断中按方向组合多个 Skill；命中仍受故障类别、服务、环境和工具能力约束，判错后会记录负迁移并隔离相关版本。
               </Text>
             </Space>
           ) : (

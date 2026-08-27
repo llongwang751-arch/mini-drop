@@ -58,6 +58,7 @@ from .service import (
 )
 from .tools import TOOLS
 from .showcase import get_mentor_complex_showcase
+from .exploration_tree import get_live_exploration_tree
 
 router = APIRouter(prefix="/api/v2", tags=["drop-insight-v2"])
 
@@ -191,6 +192,15 @@ def events(diagnosis_id: str) -> APIResponse:
     if get_diagnosis(diagnosis_id) is None:
         raise HTTPException(status_code=404, detail="Drop Insight 诊断不存在")
     return APIResponse(data=[item.to_dict() for item in list_events(diagnosis_id)])
+
+
+@router.get("/diagnoses/{diagnosis_id}/exploration-tree")
+def exploration_tree(diagnosis_id: str) -> APIResponse:
+    """Return the tree as it exists now, including unfinished branches."""
+    result = get_live_exploration_tree(diagnosis_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Drop Insight diagnosis not found")
+    return APIResponse(data=result)
 
 
 @router.get("/diagnostic-tools")

@@ -161,11 +161,23 @@ class TestAnalysisJobsApi:
             target_pid=101,
             collector_type="sys_metrics",
         ))
+        repo.transition_task(task.id, TaskStatus.RUNNING, "agent accepted", Actor.SERVER)
+        repo.transition_task(task.id, TaskStatus.UPLOADING, "collected", Actor.AGENT)
+        repo.transition_task(task.id, TaskStatus.ANALYZING, "analyzing", Actor.ANALYZER)
+        attempt = repo.get_task_attempts(task.id)[-1]
+        artifact_ids = repo.add_attempt_artifacts(task.id, attempt.id, [{
+            "artifact_type": "sys_metrics",
+            "object_key": f"tasks/{task.id}/sys_metrics.json",
+            "size_bytes": 1,
+            "sha256": "e" * 64,
+        }])
         return repo.enqueue_analysis_job(
             task.id,
+            task_attempt_id=attempt.id,
             analyzer_type="artifact-set",
             analyzer_version="1.0.0",
             input_checksum="e" * 64,
+            input_artifact_ids=artifact_ids,
             max_retries=0,
         )
 

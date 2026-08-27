@@ -16,6 +16,7 @@ import time
 from server.app.event_bus import (
     notify_diagnosis_artifact_published,
     notify_diagnosis_artifact_revoked,
+    notify_diagnosis_progress,
     notify_task_changed,
 )
 from server.app.logging_utils import log_event
@@ -112,6 +113,9 @@ def event_bus_deliver(message) -> None:
             "PENDING",
             "outbox:task.created",
         )
+        return
+    if message.aggregate_type == "diagnosis":
+        notify_diagnosis_progress(message.aggregate_id, message.payload_json or {})
         return
     log_event(
         "info",

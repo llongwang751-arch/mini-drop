@@ -238,6 +238,7 @@ function VerifiedProductComparisonCard() {
 export default function RealWorldBenchmarkPanel() {
   const [catalog, setCatalog] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadWarnings, setLoadWarnings] = useState([]);
   const [run, setRun] = useState(null);
   const [comparisons, setComparisons] = useState(null);
   const [comparisonTarget, setComparisonTarget] = useState(null);
@@ -246,12 +247,21 @@ export default function RealWorldBenchmarkPanel() {
   const pollRef = useRef(null);
 
   useEffect(() => {
-    Promise.all([getRealWorldBenchmarkCatalog(), getRealWorldComparisons()])
-      .then(([nextCatalog, nextComparisons]) => {
-        setCatalog(nextCatalog);
-        setComparisons(nextComparisons);
+    Promise.allSettled([getRealWorldBenchmarkCatalog(), getRealWorldComparisons()])
+      .then(([catalogResult, comparisonsResult]) => {
+        const warnings = [];
+        if (catalogResult.status === "fulfilled") {
+          setCatalog(catalogResult.value);
+        } else {
+          warnings.push(`真实缺陷目录加载失败：${catalogResult.reason?.message || "未知错误"}`);
+        }
+        if (comparisonsResult.status === "fulfilled") {
+          setComparisons(comparisonsResult.value);
+        } else {
+          warnings.push(`产品对照记录加载失败：${comparisonsResult.reason?.message || "未知错误"}`);
+        }
+        setLoadWarnings(warnings);
       })
-      .catch((error) => message.error(error.message))
       .finally(() => setLoading(false));
     return () => window.clearTimeout(pollRef.current);
   }, []);
@@ -389,6 +399,15 @@ export default function RealWorldBenchmarkPanel() {
     : (result.passed ? "通过" : "未通过");
   return (
     <Card size="small" title={<Space><CloudServerOutlined />真实开源缺陷复现与产品对照</Space>}>
+      {loadWarnings.length > 0 ? (
+        <Alert
+          showIcon
+          type="warning"
+          style={{ marginBottom: 16 }}
+          message="部分实时数据暂时不可用"
+          description={loadWarnings.join("；")}
+        />
+      ) : null}
       <Space direction="vertical" style={{ width: "100%" }} size={16}>
         <Alert
           showIcon

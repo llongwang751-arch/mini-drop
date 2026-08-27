@@ -100,6 +100,17 @@ describe("RealWorldBenchmarkPanel", () => {
     expect(screen.getByRole("button", { name: /下载同条件对照输入/ })).toBeInTheDocument();
   }, 10_000);
 
+  it("keeps the benchmark catalog visible when comparison records fail to load", async () => {
+    api.getRealWorldComparisons.mockRejectedValue(new Error("服务端存储暂不可用"));
+
+    render(<RealWorldBenchmarkPanel />);
+
+    expect(await screen.findByText("真实机制案例")).toBeInTheDocument();
+    expect(screen.getByText("部分实时数据暂时不可用")).toBeInTheDocument();
+    expect(screen.getByText(/产品对照记录加载失败：服务端存储暂不可用/)).toBeInTheDocument();
+    expect(screen.getAllByText("1", { selector: ".ant-statistic-content-value-int" })).toHaveLength(2);
+  });
+
   it.each([
     ["FAILED", "执行失败"],
     ["INTERRUPTED", "执行中断"],

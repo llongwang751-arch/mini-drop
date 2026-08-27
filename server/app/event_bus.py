@@ -121,6 +121,14 @@ def notify_diagnosis_complete(task_id: str, diagnosis_id: str, status: str) -> N
     })
 
 
+def notify_diagnosis_progress(diagnosis_id: str, payload: dict[str, Any]) -> None:
+    """Publish one durable Drop Insight event to live Web subscribers."""
+    BUS.publish("diagnosis_progress", {
+        "diagnosis_id": diagnosis_id,
+        **payload,
+    })
+
+
 def notify_diagnosis_artifact_published(
     diagnosis_id: str,
     artifact_id: str,

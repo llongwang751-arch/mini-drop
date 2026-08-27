@@ -797,7 +797,11 @@ class DiagnosticSkillEvaluationModel(Base):
 class DiagnosticSkillActivationModel(Base):
     __tablename__ = "diagnostic_skill_activations"
     __table_args__ = (
-        UniqueConstraint("diagnosis_id", name="uq_diagnostic_skill_activation_diagnosis"),
+        UniqueConstraint(
+            "diagnosis_id",
+            "skill_id",
+            name="uq_diagnostic_skill_activation_diagnosis_skill",
+        ),
     )
 
     id = Column(String(128), primary_key=True)

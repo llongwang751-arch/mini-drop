@@ -22,6 +22,9 @@ class _ControlRepo:
         self.persisted += 1
         return 2
 
+    def expire_stale_task_leases(self):
+        return ["task-expired"]
+
 
 class _Orchestrator:
     def __init__(self) -> None:
@@ -37,7 +40,11 @@ def test_control_plane_maintenance_keeps_metric_cache_with_grpc_repo() -> None:
 
     assert repo.timeout == 31
     assert repo.persisted == 1
-    assert result == {"offline_agents": 1, "metric_snapshots": 2}
+    assert result == {
+        "offline_agents": 1,
+        "expired_task_leases": 1,
+        "metric_snapshots": 2,
+    }
 
 
 def test_diagnosis_worker_advances_persisted_sessions_once() -> None:

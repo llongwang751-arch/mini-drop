@@ -531,7 +531,8 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
-    artifact_ids = repo.add_artifacts(task_id, [{
+    attempt = repo.get_task_attempts(task_id)[-1]
+    artifact_ids = repo.add_attempt_artifacts(task_id, attempt.id, [{
         "artifact_type": "sys_metrics",
         "object_key": f"tasks/{task_id}/sys_metrics.json",
         "size_bytes": len(artifact_bytes),
@@ -547,6 +548,7 @@ def _finish_sys_metrics_task(task_id: str, summary: dict):
         repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
     job = repo.enqueue_analysis_job(
         task_id,
+        task_attempt_id=attempt.id,
         analyzer_type="collector.sys_metrics",
         analyzer_version="test",
         input_checksum=hashlib.sha256(artifact_bytes).hexdigest(),
@@ -1006,7 +1008,8 @@ class TestDiagnosisSessionAPI:
             sort_keys=True,
             separators=(",", ":"),
         ).encode("utf-8")
-        artifact_ids = repo.add_artifacts(deep_task_id, [{
+        attempt = repo.get_task_attempts(deep_task_id)[-1]
+        artifact_ids = repo.add_attempt_artifacts(deep_task_id, attempt.id, [{
             "artifact_type": "top_json",
             "object_key": f"tasks/{deep_task_id}/top.json",
             "size_bytes": len(artifact_bytes),
@@ -1017,6 +1020,7 @@ class TestDiagnosisSessionAPI:
             repo.mark_artifact_integrity(artifact_id, "VERIFIED", "test fixture verified")
         job = repo.enqueue_analysis_job(
             deep_task_id,
+            task_attempt_id=attempt.id,
             analyzer_type="collector.perf_cpu",
             analyzer_version="test",
             input_checksum=hashlib.sha256(artifact_bytes).hexdigest(),
