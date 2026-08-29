@@ -5,6 +5,8 @@ import pytest
 from server.app.database import init_db, new_session, reset_engine
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.drop_insight.skill_evolution import (
+    _match_score,
+    _rank_hybrid_skills,
     apply_active_skill,
     create_candidate_from_diagnosis,
     evaluate_skill,
@@ -325,6 +327,60 @@ def test_active_skill_reuses_route_only_for_matching_context():
         },
     ) is None
     assert capability_plan["tool_name"] == "collect_sys_metrics"
+
+
+def test_hybrid_retrieval_breaks_the_legacy_context_score_tie():
+    timestamp = datetime.now(timezone.utc)
+    common = {
+        "family_key": "cpu_hotspot:staging",
+        "category": "CPU_HOTSPOT",
+        "version": 1,
+        "status": "ACTIVE",
+        "source_diagnosis_ids_json": [],
+        "strategy_json": {"probe_order": ["start_perf_profile"]},
+        "gate_metrics_json": {"eligible": True},
+        "created_by": "reviewer",
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "published_at": timestamp,
+    }
+    cpu_skill = DiagnosticSkillModel(
+        id="skill-cpu-query",
+        trigger_json={
+            "environment": "staging",
+            "service": "order-service",
+            "source_query": "order service CPU hotspot calculate price",
+        },
+        **common,
+    )
+    unrelated_skill = DiagnosticSkillModel(
+        id="skill-unrelated-query",
+        trigger_json={
+            "environment": "staging",
+            "service": "order-service",
+            "source_query": "batch export disk queue latency",
+        },
+        **common,
+    )
+    target = {
+        "environment": "staging",
+        "service": "order-service",
+        "_baseline_tool": "collect_sys_metrics",
+    }
+
+    assert _match_score(cpu_skill, "CPU_HOTSPOT", target)[0] == _match_score(
+        unrelated_skill, "CPU_HOTSPOT", target
+    )[0]
+    ranked = _rank_hybrid_skills(
+        [unrelated_skill, cpu_skill],
+        "CPU_HOTSPOT",
+        target,
+        "order service CPU is high in calculate price",
+    )
+
+    assert ranked[0][2].id == "skill-cpu-query"
+    assert ranked[0][1]["retrieval"] == "HYBRID_BM25_VECTOR"
+    assert ranked[0][1]["bm25"] > ranked[1][1]["bm25"]
 
 
 def test_active_skill_advances_through_verified_probe_order():

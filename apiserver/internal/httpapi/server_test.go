@@ -46,6 +46,16 @@ func TestReadIdempotencyKeyNormalizesWhitespace(t *testing.T) {
 	}
 }
 
+func TestParseProcessCandidateLimitIsBounded(t *testing.T) {
+	for raw, want := range map[string]int{
+		"": 20, "invalid": 20, "0": 20, "12": 12, "101": 100,
+	} {
+		if got := parseProcessCandidateLimit(raw); got != want {
+			t.Fatalf("raw=%q got=%d want=%d", raw, got, want)
+		}
+	}
+}
+
 func testServer(t *testing.T, auth bool) (*httptest.Server, *httptest.Server) {
 	t.Helper()
 	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +68,7 @@ func testServer(t *testing.T, auth bool) (*httptest.Server, *httptest.Server) {
 	}))
 	upstream, _ := url.Parse(legacy.URL)
 	handler := New(config.Config{
-		ListenAddr: ":0", LegacyAPIURL: upstream, AuthEnabled: auth, APIKey: "test-key",
+		ListenAddr: ":0", AnalysisEngineURL: upstream, AuthEnabled: auth, APIKey: "test-key",
 	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	return httptest.NewServer(handler), legacy
 }
@@ -77,6 +87,32 @@ func TestNativeHealthAndMe(t *testing.T) {
 			t.Fatalf("%s status=%d", path, resp.StatusCode)
 		}
 		_ = resp.Body.Close()
+	}
+}
+
+func TestTaskKindCatalogIsServedByGo(t *testing.T) {
+	server, legacy := testServer(t, false)
+	defer server.Close()
+	defer legacy.Close()
+
+	resp, err := http.Get(server.URL + "/api/task-kinds")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status=%d", resp.StatusCode)
+	}
+	var body struct {
+		Data struct {
+			Items []map[string]any `json:"items"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	if len(body.Data.Items) < 8 {
+		t.Fatalf("task kinds=%d", len(body.Data.Items))
 	}
 }
 
@@ -107,7 +143,7 @@ func TestProxyReplacesClientGatewayHeaderWithInternalCredential(t *testing.T) {
 	defer legacy.Close()
 	upstream, _ := url.Parse(legacy.URL)
 	handler := New(config.Config{
-		LegacyAPIURL: upstream, AuthEnabled: true, InternalGatewayToken: "internal-secret",
+		AnalysisEngineURL: upstream, AuthEnabled: true, InternalGatewayToken: "internal-secret",
 		Principals: []config.Principal{{
 			ID: "operator-a", APIKey: "operator-key", Roles: []string{"operator"},
 			AgentIDs: []string{"agent-a"}, ServiceIDs: []string{"service-a"}, Environments: []string{"staging"},
@@ -146,7 +182,7 @@ func TestRealWorldBenchmarkRoutesAreProxiedToPython(t *testing.T) {
 	}))
 	defer legacy.Close()
 	upstream, _ := url.Parse(legacy.URL)
-	api := httptest.NewServer(New(config.Config{LegacyAPIURL: upstream}, slog.New(slog.NewTextHandler(io.Discard, nil))))
+	api := httptest.NewServer(New(config.Config{AnalysisEngineURL: upstream}, slog.New(slog.NewTextHandler(io.Discard, nil))))
 	defer api.Close()
 
 	resp, err := http.Get(api.URL + "/api/v1/real-world-benchmarks/catalog")
@@ -242,7 +278,7 @@ func TestRBACPrincipalAndResourceScope(t *testing.T) {
 	defer legacy.Close()
 	upstream, _ := url.Parse(legacy.URL)
 	handler := New(config.Config{
-		ListenAddr: ":0", LegacyAPIURL: upstream, AuthEnabled: true,
+		ListenAddr: ":0", AnalysisEngineURL: upstream, AuthEnabled: true,
 		Principals: []config.Principal{
 			{ID: "reader", APIKey: "reader-key", Roles: []string{"viewer"}, AgentIDs: []string{"agent-a"}},
 			{ID: "operator-a", APIKey: "operator-key", Roles: []string{"operator"}, AgentIDs: []string{"agent-a"}, ServiceIDs: []string{"service-a"}, Environments: []string{"staging"}},

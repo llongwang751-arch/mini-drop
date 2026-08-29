@@ -45,7 +45,6 @@ from server.app.prometheus_metrics import (
 from server.app.grpc_server import serve_in_background
 from server.app.logging_utils import log_event
 from server.app.nlp.intent_parser import parse_intent
-from server.app.nlp.process_resolver import resolve_pid
 from server.app.nlp.summarizer import summarize, suggest_followup
 from server.app.diagnosis import DiagnosisOrchestrator
 from server.app.diagnosis.eval_harness import run_evaluation as run_golden_evaluation
@@ -481,6 +480,10 @@ async def sse_stream(request: Request, since: str = ""):
     async def event_generator():
         queue = BUS.subscribe()
         try:
+            # Flush response headers immediately so EventSource reaches OPEN before
+            # the first domain event or keepalive heartbeat arrives.
+            yield ":connected\n\n"
+
             # 先发送历史事件（如果客户端提供了 since 时间戳）
             for event in BUS.get_history(since if since else None):
                 yield f"event: {event['event']}\ndata: {_json.dumps(event['data'], ensure_ascii=False, default=str)}\n\n"
@@ -522,14 +525,6 @@ def prometheus_metrics() -> Any:
     return PlainTextResponse(content=REGISTRY.generate(), media_type="text/plain; charset=utf-8")
 
 
-@app.get("/api/top-processes")
-def top_processes_api(limit: int = 20) -> APIResponse:
-    """宿主顶层进程（供采集预设选忙 PID）。需要 server 容器 pid: host。"""
-    from server.app.process_discovery import top_processes
-
-    return APIResponse(data={"items": top_processes(limit)})
-
-
 @app.get("/api/healthz")
 def healthz() -> APIResponse:
     """健康检查端点：验证服务自身及关键依赖（数据库、对象存储）的状态。
@@ -553,14 +548,28 @@ def healthz() -> APIResponse:
     except Exception as exc:
         checks["database"] = {"status": "unavailable", "error": str(exc)[:200]}
 
-    # 对象存储连通性检查
-    try:
-        store.ensure_bucket(os.getenv("MINIO_BUCKET", "mini-drop"))
-        checks["storage"] = {"status": "ok"}
-    except Exception as exc:
-        checks["storage"] = {"status": "unavailable", "error": str(exc)[:200]}
+    # 本地 SQLite 模式不配置对象存储；配置端点后才执行只读、有时限的就绪检查。
+    storage_endpoint = os.getenv("MINIO_ENDPOINT", "").strip()
+    if not storage_endpoint:
+        checks["storage"] = {"status": "disabled"}
+    else:
+        try:
+            bucket = os.getenv("MINIO_BUCKET", "mini-drop")
+            timeout_seconds = min(
+                5.0,
+                max(0.05, float(os.getenv("MINI_DROP_HEALTH_STORAGE_TIMEOUT_SEC", "0.75"))),
+            )
+            if store.bucket_available(bucket, timeout_seconds=timeout_seconds):
+                checks["storage"] = {"status": "ok"}
+            else:
+                checks["storage"] = {
+                    "status": "unavailable",
+                    "error": f"bucket {bucket!r} does not exist",
+                }
+        except Exception as exc:
+            checks["storage"] = {"status": "unavailable", "error": str(exc)[:200]}
 
-    all_ok = all(c["status"] == "ok" for c in checks.values())
+    all_ok = all(c["status"] in {"ok", "disabled"} for c in checks.values())
     return APIResponse(data={
         "service": "mini-drop-server",
         "version": "0.1.0",
@@ -1726,8 +1735,6 @@ def nlp_parse_intent(body: dict) -> APIResponse:
         raise HTTPException(status_code=400, detail="query 不能超过 500 字符")
 
     intent = parse_intent(query)
-    candidates = [] if intent.target_pid else resolve_pid(intent.process_name)
-
     return APIResponse(data={
         "process_name": intent.process_name,
         "selected_pid": intent.target_pid,
@@ -1735,7 +1742,11 @@ def nlp_parse_intent(body: dict) -> APIResponse:
         "duration_sec": intent.duration_sec,
         "sample_rate": intent.sample_rate,
         "reasoning": intent.reasoning,
-        "candidate_pids": [c.to_dict() for c in candidates],
+        # The Analysis Engine has no authority over a remote Agent's /proc.
+        # Go projects the selected Agent's attested heartbeat snapshot instead.
+        "candidate_pids": [],
+        "process_candidates_source": "agent_snapshot",
+        "requires_agent_selection": True,
     })
 
 

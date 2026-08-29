@@ -19,6 +19,7 @@ import { createDiagnosisEventSource, createEventSource } from "../api/client";
  * @param {(data: object) => void} [handlers.onDiagnosisProgress]
  * @param {(connected: boolean) => void} [handlers.onConnectionChange]
  * @param {"control"|"diagnosis"} [handlers.channel]
+ * @param {string} [handlers.resourceId] - diagnosis channel 的诊断 ID
  * @returns {{ connected: boolean, reconnect: () => void }}
  */
 export default function useSSE({
@@ -28,11 +29,13 @@ export default function useSSE({
   onDiagnosisProgress,
   onConnectionChange,
   channel = "control",
+  resourceId = "",
 } = {}) {
   const [connected, setConnected] = useState(false);
   const reconnectTimer = useRef(null);
   const retryCount = useRef(0);
   const sourceRef = useRef(null);
+  const cursorRef = useRef(0);
   const mountedRef = useRef(false);
   const maxRetryDelay = 30000;
 
@@ -47,7 +50,7 @@ export default function useSSE({
     }
     sourceRef.current?.close();
     const es = channel === "diagnosis"
-      ? createDiagnosisEventSource()
+      ? createDiagnosisEventSource(resourceId, cursorRef.current)
       : createEventSource();
     sourceRef.current = es;
 
@@ -87,6 +90,7 @@ export default function useSSE({
     es.addEventListener("diagnosis_progress", (e) => {
       try {
         const data = JSON.parse(e.data);
+        cursorRef.current = Math.max(cursorRef.current, Number(data.sequence) || 0);
         handlersRef.current.onDiagnosisProgress?.(data);
       } catch {
         // 忽略解析错误
@@ -124,10 +128,11 @@ export default function useSSE({
     };
 
     return es;
-  }, [channel]);
+  }, [channel, resourceId]);
 
   useEffect(() => {
     mountedRef.current = true;
+    cursorRef.current = 0;
     connect();
     return () => {
       mountedRef.current = false;

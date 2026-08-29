@@ -12,7 +12,11 @@ from server.app.common_utils import env_bool
 MAX_PRESIGN_EXPIRES_SEC = 7 * 24 * 60 * 60
 
 
-def _client(endpoint: str | None = None, secure: bool | None = None) -> Any:
+def _client(
+    endpoint: str | None = None,
+    secure: bool | None = None,
+    request_timeout_seconds: float | None = None,
+) -> Any:
     try:
         from minio import Minio
     except ImportError as exc:
@@ -21,12 +25,27 @@ def _client(endpoint: str | None = None, secure: bool | None = None) -> Any:
     endpoint, inferred_secure = _normalize_endpoint(
         endpoint or os.getenv("MINIO_ENDPOINT", "minio:9000")
     )
+    http_client = None
+    if request_timeout_seconds is not None:
+        if request_timeout_seconds <= 0:
+            raise ValueError("request_timeout_seconds must be positive")
+        from urllib3 import PoolManager, Timeout
+
+        http_client = PoolManager(
+            timeout=Timeout(
+                connect=request_timeout_seconds,
+                read=request_timeout_seconds,
+            ),
+            retries=False,
+        )
+
     return Minio(
         endpoint=endpoint,
         access_key=os.getenv("MINIO_ACCESS_KEY", ""),
         secret_key=os.getenv("MINIO_SECRET_KEY", ""),
         secure=inferred_secure if secure is None else secure,
         region=os.getenv("MINIO_REGION", "us-east-1"),
+        http_client=http_client,
     )
 
 
@@ -55,6 +74,14 @@ def ensure_bucket(bucket: str) -> None:
     client = _client()
     if not client.bucket_exists(bucket):
         client.make_bucket(bucket)
+
+
+def bucket_available(bucket: str, timeout_seconds: float = 0.75) -> bool:
+    """Run a bounded, read-only readiness check against object storage."""
+    if not bucket:
+        raise ValueError("bucket must not be empty")
+    client = _client(request_timeout_seconds=timeout_seconds)
+    return bool(client.bucket_exists(bucket))
 
 
 def upload_file(

@@ -35,6 +35,7 @@ vi.mock("../hooks/useSSE", () => ({
 }));
 
 import * as api from "../api/client";
+import useSSE from "../hooks/useSSE";
 
 function diagnosticCase(overrides = {}) {
   return {
@@ -137,6 +138,11 @@ describe("AIDiagnosis conversation page", () => {
       match_reason: {
         skill_version: 2,
         route: ["start_perf_profile", "collect_sys_metrics"],
+        retrieval: "HYBRID_BM25_VECTOR",
+        bm25: 0.88,
+        vector: 0.76,
+        structured: 0.85,
+        matched_terms: ["order", "cpu"],
       },
       updated_at: "2026-08-24T09:00:00Z",
     }]);
@@ -149,6 +155,9 @@ describe("AIDiagnosis conversation page", () => {
     expect(screen.getByText("已命中发布 Skill")).toBeInTheDocument();
     expect(screen.getByText("版本 2")).toBeInTheDocument();
     expect(screen.getByText("匹配度 91%")).toBeInTheDocument();
+    expect(screen.getByText("BM25 88%")).toBeInTheDocument();
+    expect(screen.getByText("向量 76%")).toBeInTheDocument();
+    expect(screen.getByText("命中词：order、cpu")).toBeInTheDocument();
     expect(screen.getAllByText("CPU 火焰图采集").length).toBeGreaterThan(0);
   });
 
@@ -442,6 +451,41 @@ describe("AIDiagnosis conversation page", () => {
 
     expect(api.getDropInsightDiagnosis.mock.calls.length).toBeGreaterThan(diagnosisReadsBeforePoll);
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();
+  });
+
+  it("refreshes the persisted exploration tree when a diagnosis event arrives", async () => {
+    const item = diagnosticCase({ status: "RUNNING", canonical_status: "COLLECTING" });
+    api.listDropInsightDiagnoses.mockResolvedValue([item]);
+    api.getDropInsightDiagnosis.mockResolvedValue({
+      diagnosis_id: "diag-1",
+      query: "订单服务 CPU 高",
+      status: "RUNNING",
+    });
+    api.getDropInsightExplorationTree
+      .mockResolvedValueOnce({
+        diagnosis_id: "diag-1", revision: 1, nodes: [], stats: { current_round: 0 },
+      })
+      .mockResolvedValueOnce({
+        diagnosis_id: "diag-1", revision: 2, nodes: [], stats: { current_round: 1 },
+        last_event: { event_type: "hypothesis.created" },
+      });
+
+    render(<AIDiagnosis />);
+    await screen.findByText("订单服务 CPU 高");
+    clickCase("订单服务 CPU 高");
+    await waitFor(() => expect(screen.getByText("树版本 1")).toBeInTheDocument());
+    const streamOptions = [...useSSE.mock.calls]
+      .reverse()
+      .map(([options]) => options)
+      .find((options) => options.resourceId === "diag-1");
+
+    await act(async () => {
+      streamOptions.onDiagnosisProgress({ diagnosis_id: "diag-1", sequence: 2 });
+      await Promise.resolve();
+    });
+
+    await waitFor(() => expect(screen.getByText("树版本 2")).toBeInTheDocument());
+    expect(api.getDropInsightExplorationTree).toHaveBeenLastCalledWith("diag-1");
   });
 
   it("does not poll terminal diagnoses", async () => {

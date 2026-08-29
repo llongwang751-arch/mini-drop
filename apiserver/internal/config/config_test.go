@@ -30,9 +30,26 @@ func TestValidateProductionForbidsDefaultMinIO(t *testing.T) {
 
 func TestValidateProductionAcceptsSecureConfig(t *testing.T) {
 	t.Setenv("MINI_DROP_ENV", "production")
-	cfg := Config{AuthEnabled: true, InternalGatewayToken: "internal-secret", MinIOAccessKey: "real", MinIOSecretKey: "real"}
+	cfg := Config{
+		AuthEnabled: true, InternalGatewayToken: "internal-secret",
+		MinIOAccessKey: "real", MinIOSecretKey: "real",
+		ControlGRPCTLS: true, ControlGRPCCAFile: "/certs/ca.crt",
+		ControlGRPCClientCertFile: "/certs/client.crt",
+		ControlGRPCClientKeyFile:  "/certs/client.key",
+	}
 	if err := validateProduction(cfg); err != nil {
 		t.Fatalf("secure production config must pass: %v", err)
+	}
+}
+
+func TestValidateProductionRequiresControlPlaneMutualTLS(t *testing.T) {
+	t.Setenv("MINI_DROP_ENV", "production")
+	cfg := Config{
+		AuthEnabled: true, InternalGatewayToken: "internal-secret",
+		MinIOAccessKey: "real", MinIOSecretKey: "real",
+	}
+	if err := validateProduction(cfg); err == nil {
+		t.Fatal("production must reject an insecure Go to C++ control-plane hop")
 	}
 }
 

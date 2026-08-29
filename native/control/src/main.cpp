@@ -1,23 +1,31 @@
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
 
 #include "healthcheck.grpc.pb.h"
 #include "hotmethod.grpc.pb.h"
 #include "init.grpc.pb.h"
+#include "control.grpc.pb.h"
 
 #include <google/protobuf/empty.pb.h>
 #include <nlohmann/json.hpp>
 #include <pqxx/pqxx>
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <random>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 using json = nlohmann::json;
@@ -75,6 +83,13 @@ struct Config {
   std::string database_url;
   std::string grpc_token;
   bool auth_enabled;
+  bool grpc_secure;
+  std::string grpc_cert_file;
+  std::string grpc_key_file;
+  std::string grpc_ca_file;
+  std::string grpc_client_cert_file;
+  std::string grpc_client_key_file;
+  bool grpc_require_client_cert;
   std::string minio_endpoint;
   std::string minio_access;
   std::string minio_secret;
@@ -82,15 +97,24 @@ struct Config {
   bool distribute_credentials;
   int agent_offline_timeout_sec;
   int maintenance_interval_sec;
+  int process_snapshot_retention;
+  int process_snapshot_max_age_sec;
 };
 
 Config load_config() {
   return Config{
-      env_or("NATIVE_CONTROL_LISTEN_ADDR", "0.0.0.0:50052"),
+      env_or("NATIVE_CONTROL_LISTEN_ADDR", "0.0.0.0:50051"),
       normalize_database_url(env_or(
           "DATABASE_URL", "postgresql://mini_drop:mini_drop@postgres:5432/mini_drop")),
       env_or("MINI_DROP_GRPC_TOKEN", ""),
       env_bool("MINI_DROP_GRPC_AUTH_ENABLED"),
+      env_bool("MINI_DROP_GRPC_SECURE"),
+      env_or("MINI_DROP_GRPC_CERT_FILE", ""),
+      env_or("MINI_DROP_GRPC_KEY_FILE", ""),
+      env_or("MINI_DROP_GRPC_CA_FILE", ""),
+      env_or("MINI_DROP_GRPC_CLIENT_CERT_FILE", ""),
+      env_or("MINI_DROP_GRPC_CLIENT_KEY_FILE", ""),
+      env_bool("MINI_DROP_GRPC_REQUIRE_CLIENT_CERT"),
       env_or("MINIO_AGENT_ENDPOINT", env_or("MINIO_ENDPOINT", "minio:9000")),
       env_or("MINIO_ACCESS_KEY", ""),
       env_or("MINIO_SECRET_KEY", ""),
@@ -98,7 +122,251 @@ Config load_config() {
       env_bool("MINI_DROP_GRPC_DISTRIBUTE_MINIO_CREDENTIALS") &&
           env_bool("MINI_DROP_GRPC_SECURE"),
       env_int("AGENT_OFFLINE_TIMEOUT_SEC", 30),
-      env_int("MINI_DROP_CONTROL_MAINTENANCE_SEC", 5)};
+      env_int("MINI_DROP_CONTROL_MAINTENANCE_SEC", 5),
+      std::min(10000, std::max(2, env_int(
+          "MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT", 120))),
+      env_int("MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC", 30)};
+}
+
+std::string bounded_text(std::string value, std::size_t max_length = 1024) {
+  value.erase(std::remove(value.begin(), value.end(), '\0'), value.end());
+  if (value.size() > max_length) value.resize(max_length);
+  return value;
+}
+
+std::int64_t bounded_u64(std::uint64_t value) {
+  const auto maximum = static_cast<std::uint64_t>(
+      std::numeric_limits<std::int64_t>::max());
+  return static_cast<std::int64_t>(std::min(value, maximum));
+}
+
+void persist_process_snapshot(
+    pqxx::work& tx,
+    const Config& config,
+    const std::string& agent_id,
+    const mini_drop::ProcessCandidateSnapshot& snapshot) {
+  constexpr int kMaxCandidates = 256;
+  constexpr int kMaxCapabilities = 16;
+
+  bool invalid = snapshot.candidates_size() > kMaxCandidates;
+  const bool truncated = snapshot.truncated() || invalid;
+  const std::string boot_id = bounded_text(snapshot.boot_id());
+  const std::string error = bounded_text(snapshot.error());
+  if (snapshot.generation() >
+          static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()) ||
+      snapshot.observed_at_unix_ms() >
+          static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) {
+    invalid = true;
+  }
+
+  struct CandidateRow {
+    int pid;
+    std::int64_t process_start_ticks;
+    std::int64_t pid_namespace_inode;
+    int namespace_pid;
+    std::string executable_identity;
+    std::string comm;
+    std::string cgroup;
+    std::string service_hint;
+    std::string instance_hint;
+    std::string collector_capabilities;
+  };
+  std::vector<CandidateRow> candidates;
+  candidates.reserve(std::min(snapshot.candidates_size(), kMaxCandidates));
+  std::unordered_set<std::string> identities;
+  for (int index = 0;
+       index < snapshot.candidates_size() && index < kMaxCandidates;
+       ++index) {
+    const auto& candidate = snapshot.candidates(index);
+    const std::string executable_identity =
+        bounded_text(candidate.executable_identity());
+    const bool candidate_valid =
+        candidate.pid() > 0 &&
+        candidate.pid() <= static_cast<std::uint32_t>(
+            std::numeric_limits<int>::max()) &&
+        candidate.process_start_ticks() > 0 &&
+        candidate.process_start_ticks() <= static_cast<std::uint64_t>(
+            std::numeric_limits<std::int64_t>::max()) &&
+        candidate.pid_namespace_inode() > 0 &&
+        candidate.pid_namespace_inode() <= static_cast<std::uint64_t>(
+            std::numeric_limits<std::int64_t>::max()) &&
+        candidate.namespace_pid() > 0 &&
+        candidate.namespace_pid() <= static_cast<std::uint32_t>(
+            std::numeric_limits<int>::max()) &&
+        !executable_identity.empty();
+    if (!candidate_valid) {
+      invalid = true;
+      continue;
+    }
+
+    std::ostringstream identity;
+    identity << candidate.pid() << ':' << candidate.process_start_ticks()
+             << ':' << candidate.pid_namespace_inode() << ':'
+             << candidate.namespace_pid() << ':' << executable_identity;
+    if (!identities.insert(identity.str()).second) {
+      invalid = true;
+      continue;
+    }
+
+    json capabilities = json::array();
+    if (candidate.collector_capabilities_size() > kMaxCapabilities) {
+      invalid = true;
+    }
+    for (int capability_index = 0;
+         capability_index < candidate.collector_capabilities_size() &&
+         capability_index < kMaxCapabilities;
+         ++capability_index) {
+      capabilities.push_back(bounded_text(
+          candidate.collector_capabilities(capability_index), 64));
+    }
+    candidates.push_back(CandidateRow{
+        static_cast<int>(candidate.pid()),
+        bounded_u64(candidate.process_start_ticks()),
+        bounded_u64(candidate.pid_namespace_inode()),
+        static_cast<int>(candidate.namespace_pid()),
+        executable_identity,
+        bounded_text(candidate.comm()),
+        bounded_text(candidate.cgroup()),
+        bounded_text(candidate.service_hint()),
+        bounded_text(candidate.instance_hint()),
+        capabilities.dump()});
+  }
+
+  std::string state;
+  if (!error.empty()) {
+    state = "failed";
+  } else if (truncated) {
+    state = "truncated";
+  } else if (!snapshot.complete() || invalid || snapshot.generation() == 0 ||
+             boot_id.empty()) {
+    state = "partial";
+  } else if (candidates.empty()) {
+    state = "complete-empty";
+  } else {
+    state = "complete-populated";
+  }
+  const bool authoritative =
+      state == "complete-empty" || state == "complete-populated";
+  const std::string snapshot_id = random_id("psnap_");
+  tx.exec_params(
+      "INSERT INTO process_candidate_snapshots("
+      "id,agent_id,generation,boot_id,observed_at_unix_ms,complete,truncated,"
+      "error,state,authoritative,received_at) "
+      "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())",
+      snapshot_id, agent_id, bounded_u64(snapshot.generation()), boot_id,
+      bounded_u64(snapshot.observed_at_unix_ms()), snapshot.complete(),
+      truncated, error, state, authoritative);
+  for (const auto& candidate : candidates) {
+    tx.exec_params(
+        "INSERT INTO process_candidates("
+        "snapshot_id,agent_id,pid,process_start_ticks,pid_namespace_inode,"
+        "namespace_pid,executable_identity,comm,cgroup,service_hint,"
+        "instance_hint,collector_capabilities) "
+        "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::json)",
+        snapshot_id, agent_id, candidate.pid, candidate.process_start_ticks,
+        candidate.pid_namespace_inode, candidate.namespace_pid,
+        candidate.executable_identity, candidate.comm, candidate.cgroup,
+        candidate.service_hint, candidate.instance_hint,
+        candidate.collector_capabilities);
+  }
+
+  tx.exec_params(
+      "DELETE FROM process_candidate_snapshots s WHERE s.id IN ("
+      "SELECT id FROM process_candidate_snapshots WHERE agent_id=$1 "
+      "ORDER BY received_at DESC,id DESC OFFSET $2 LIMIT 100) "
+      "AND NOT EXISTS (SELECT 1 FROM tasks t WHERE t.process_snapshot_id=s.id) "
+      "AND NOT EXISTS (SELECT 1 FROM drop_insight_target_bindings b "
+      "WHERE b.process_snapshot_id=s.id)",
+      agent_id, config.process_snapshot_retention);
+}
+
+bool process_binding_matches_latest(
+    pqxx::work& tx,
+    const Config& config,
+    const std::string& agent_id,
+    int target_pid,
+    const std::string& binding_json) {
+  try {
+    const json binding = json::parse(binding_json);
+    if (binding.value("agent_id", std::string{}) != agent_id ||
+        binding.value("pid", 0) != target_pid) {
+      return false;
+    }
+    const auto matches = tx.exec_params(
+        "WITH latest AS ("
+        "SELECT id,agent_id,boot_id,authoritative,received_at "
+        "FROM process_candidate_snapshots WHERE agent_id=$1 "
+        "ORDER BY received_at DESC,id DESC LIMIT 1) "
+        "SELECT count(*) FROM latest l JOIN process_candidates p "
+        "ON p.snapshot_id=l.id WHERE l.authoritative=true "
+        "AND l.received_at >= now()-($9::int * interval '1 second') "
+        "AND p.pid=$2 AND l.boot_id=$3 AND p.process_start_ticks=$4 "
+        "AND p.pid_namespace_inode=$5 AND p.namespace_pid=$6 "
+        "AND p.executable_identity=$7 AND l.agent_id=$8",
+        agent_id, target_pid, binding.at("boot_id").get<std::string>(),
+        binding.at("process_start_ticks").get<std::int64_t>(),
+        binding.at("pid_namespace_inode").get<std::int64_t>(),
+        binding.at("namespace_pid").get<int>(),
+        binding.at("executable_identity").get<std::string>(),
+        binding.at("agent_id").get<std::string>(),
+        config.process_snapshot_max_age_sec);
+    return !matches.empty() && matches[0][0].as<int>() == 1;
+  } catch (...) {
+    return false;
+  }
+}
+
+std::string read_file(const std::string& path) {
+  if (path.empty()) return "";
+  std::ifstream input(path, std::ios::binary);
+  if (!input) throw std::runtime_error("cannot read TLS file: " + path);
+  std::ostringstream content;
+  content << input.rdbuf();
+  return content.str();
+}
+
+std::shared_ptr<grpc::ServerCredentials> server_credentials(const Config& config) {
+  if (!config.grpc_secure) return grpc::InsecureServerCredentials();
+  if (config.grpc_cert_file.empty() || config.grpc_key_file.empty()) {
+    throw std::runtime_error(
+        "MINI_DROP_GRPC_CERT_FILE and MINI_DROP_GRPC_KEY_FILE are required");
+  }
+  grpc::SslServerCredentialsOptions options;
+  options.pem_key_cert_pairs.push_back({
+      read_file(config.grpc_key_file), read_file(config.grpc_cert_file)});
+  if (config.grpc_require_client_cert) {
+    if (config.grpc_ca_file.empty()) {
+      throw std::runtime_error(
+          "MINI_DROP_GRPC_CA_FILE is required when client certificates are required");
+    }
+    options.pem_root_certs = read_file(config.grpc_ca_file);
+    options.client_certificate_request =
+        GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_AND_VERIFY;
+  }
+  return grpc::SslServerCredentials(options);
+}
+
+std::shared_ptr<grpc::Channel> health_channel(const Config& config) {
+  const std::string address =
+      env_or("NATIVE_CONTROL_HEALTH_ADDR", "127.0.0.1:50051");
+  if (!config.grpc_secure) {
+    return grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
+  }
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = read_file(config.grpc_ca_file);
+  if (!config.grpc_client_cert_file.empty() && !config.grpc_client_key_file.empty()) {
+    options.pem_cert_chain = read_file(config.grpc_client_cert_file);
+    options.pem_private_key = read_file(config.grpc_client_key_file);
+  } else if (config.grpc_require_client_cert) {
+    throw std::runtime_error(
+        "control healthcheck requires MINI_DROP_GRPC_CLIENT_CERT_FILE and key");
+  }
+  grpc::ChannelArguments arguments;
+  const std::string server_name =
+      env_or("NATIVE_CONTROL_HEALTH_TLS_SERVER_NAME", "");
+  if (!server_name.empty()) arguments.SetSslTargetNameOverride(server_name);
+  return grpc::CreateCustomChannel(
+      address, grpc::SslCredentials(options), arguments);
 }
 
 void run_maintenance(const Config config) {
@@ -219,6 +487,90 @@ int profiler_type(const std::string& collector) {
   return 0;
 }
 
+class ControlService final : public mini_drop::Control::Service, private ServiceBase {
+ public:
+  explicit ControlService(const Config& config) : ServiceBase(config) {}
+
+  grpc::Status CreateTask(
+      grpc::ServerContext* context,
+      const mini_drop::CreateTaskRequest* request,
+      mini_drop::CreateTaskResponse* response) override {
+    if (const auto status = authorize(context); !status.ok()) return status;
+    if (request->task_id().empty() || request->target_ip().empty() ||
+        !request->has_task_desc() || request->task_desc().task_id() != request->task_id()) {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                          "task_id, target and consistent TaskDesc are required");
+    }
+    try {
+      auto connection = database();
+      pqxx::work tx(connection);
+      const auto rows = tx.exec_params(
+          "SELECT t.status,a.status FROM tasks t JOIN agents a ON a.id=t.agent_id "
+          "WHERE t.id=$1 AND (a.id=$2 OR a.ip_addr=$2) FOR UPDATE OF t",
+          request->task_id(), request->target_ip());
+      if (rows.empty()) {
+        return grpc::Status(grpc::StatusCode::NOT_FOUND,
+                            "persisted task or target agent not found");
+      }
+      const std::string task_status = rows[0][0].as<std::string>();
+      const std::string agent_status = rows[0][1].as<std::string>();
+      if (agent_status != "ONLINE") {
+        return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION,
+                            "target agent is not online");
+      }
+      if (task_status != "PENDING" && task_status != "RUNNING") {
+        return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION,
+                            "task is not dispatchable");
+      }
+      tx.exec_params(
+          "UPDATE tasks SET status_reason=$2,updated_at=now() WHERE id=$1",
+          request->task_id(), "C++ Control.CreateTask 已确认调度");
+      const auto request_id_header =
+          context->client_metadata().find("x-request-id");
+      const std::string request_id =
+          request_id_header == context->client_metadata().end()
+              ? ""
+              : std::string(request_id_header->second.data(),
+                            request_id_header->second.length());
+      const json metadata = {
+          {"served_by", "cpp-control"}, {"request_id", request_id}};
+      tx.exec_params(
+          "INSERT INTO audit_logs(event_type,message,task_id,metadata,created_at) "
+          "VALUES('TASK_DISPATCH_CONFIRMED',$1,$2,$3::jsonb,now())",
+          "C++ 控制面确认任务可调度", request->task_id(), metadata.dump());
+      tx.commit();
+      response->set_task_id(request->task_id());
+      response->set_status(task_status);
+      return grpc::Status::OK;
+    } catch (const std::exception& error) {
+      return grpc::Status(grpc::StatusCode::INTERNAL, error.what());
+    }
+  }
+
+  grpc::Status StatAgent(
+      grpc::ServerContext* context,
+      const mini_drop::StatAgentRequest* request,
+      mini_drop::StatAgentResponse* response) override {
+    if (const auto status = authorize(context); !status.ok()) return status;
+    if (request->agent_id().empty()) {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "agent_id is required");
+    }
+    try {
+      auto connection = database();
+      pqxx::read_transaction tx(connection);
+      const auto rows = tx.exec_params(
+          "SELECT status FROM agents WHERE id=$1", request->agent_id());
+      if (rows.empty()) {
+        return grpc::Status(grpc::StatusCode::NOT_FOUND, "agent not found");
+      }
+      response->set_agent_status(rows[0][0].as<std::string>());
+      return grpc::Status::OK;
+    } catch (const std::exception& error) {
+      return grpc::Status(grpc::StatusCode::INTERNAL, error.what());
+    }
+  }
+};
+
 class HealthService final : public mini_drop::HealthCheck::Service, private ServiceBase {
  public:
   explicit HealthService(const Config& config) : ServiceBase(config) {}
@@ -236,6 +588,11 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
           "UPDATE agents SET ip_addr=CASE WHEN $2='' THEN ip_addr ELSE $2 END,status='ONLINE',"
           "last_heartbeat_at=now(),updated_at=now() WHERE id=$1",
           request->agent_id(), request->ip_addr());
+      if (request->has_process_candidate_snapshot()) {
+        persist_process_snapshot(
+            tx, config_, request->agent_id(),
+            request->process_candidate_snapshot());
+      }
 
       if (request->busy()) {
         if (!request->active_task_id().empty()) {
@@ -253,7 +610,8 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       }
 
       const auto tasks = tx.exec_params(
-          "SELECT id,target_pid,collector_type,sample_rate,duration_sec,request_params "
+          "SELECT id,target_pid,collector_type,sample_rate,duration_sec,request_params,"
+          "COALESCE(process_binding_json,'{}'::json)::text "
           "FROM tasks WHERE agent_id=$1 AND status='PENDING' "
           "ORDER BY created_at ASC FOR UPDATE SKIP LOCKED LIMIT 1",
           request->agent_id());
@@ -265,6 +623,23 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       const auto row = tasks[0];
       const std::string task_id = row[0].as<std::string>();
       const std::string collector = row[2].as<std::string>();
+      if (!process_binding_matches_latest(
+              tx, config_, request->agent_id(), row[1].as<int>(),
+              row[6].as<std::string>())) {
+        tx.exec_params(
+            "UPDATE tasks SET status='FAILED',status_reason=$2,"
+            "collection_status='FAILED',analysis_status='NOT_STARTED',"
+            "finished_at=now(),updated_at=now() WHERE id=$1",
+            task_id, "目标进程身份已变化或快照过期");
+        tx.exec_params(
+            "INSERT INTO task_status_events("
+            "task_id,from_status,to_status,reason,actor,metadata,created_at) "
+            "VALUES($1,'PENDING','FAILED',$2,'server',$3::jsonb,now())",
+            task_id, "目标进程身份已变化或快照过期",
+            R"({"served_by":"cpp-control","error_code":"TARGET_IDENTITY_CHANGED"})");
+        tx.commit();
+        return grpc::Status::OK;
+      }
       tx.exec_params(
           "UPDATE tasks SET status='RUNNING',status_reason=$2,collection_status='RUNNING',"
           "started_at=COALESCE(started_at,now()) WHERE id=$1",
@@ -460,22 +835,35 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
 int main(int argc, char** argv) {
   const Config config = load_config();
   if (argc > 1 && std::string(argv[1]) == "--healthcheck") {
-    auto channel = grpc::CreateChannel(
-        env_or("NATIVE_CONTROL_HEALTH_ADDR", "127.0.0.1:50052"),
-        grpc::InsecureChannelCredentials());
-    const bool ready = channel->WaitForConnected(
-        std::chrono::system_clock::now() + std::chrono::seconds(3));
-    return ready ? 0 : 1;
+    try {
+      auto channel = health_channel(config);
+      const bool ready = channel->WaitForConnected(
+          std::chrono::system_clock::now() + std::chrono::seconds(3));
+      return ready ? 0 : 1;
+    } catch (const std::exception& error) {
+      std::cerr << R"({"level":"error","event":"control_health_tls_failed","error":")"
+                << error.what() << R"("})" << std::endl;
+      return 1;
+    }
   }
 
   InitService init(config);
   HealthService health(config);
   ResultService result(config);
+  ControlService control(config);
   grpc::ServerBuilder builder;
-  builder.AddListeningPort(config.listen_addr, grpc::InsecureServerCredentials());
+  try {
+    grpc::EnableDefaultHealthCheckService(true);
+    builder.AddListeningPort(config.listen_addr, server_credentials(config));
+  } catch (const std::exception& error) {
+    std::cerr << R"({"level":"error","event":"control_tls_init_failed","error":")"
+              << error.what() << R"("})" << std::endl;
+    return 2;
+  }
   builder.RegisterService(&init);
   builder.RegisterService(&health);
   builder.RegisterService(&result);
+  builder.RegisterService(&control);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   if (!server) {
     std::cerr << R"({"level":"error","event":"control_start_failed"})" << std::endl;

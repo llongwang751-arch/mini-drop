@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/subtle"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +14,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"path"
 	"sort"
 	"strconv"
@@ -19,9 +22,16 @@ import (
 	"sync/atomic"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
+	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/metadata"
 	"mini-drop/apiserver/internal/config"
+	mini_drop "mini-drop/apiserver/internal/gen/mini_drop"
 	"mini-drop/apiserver/internal/objectstore"
 	"mini-drop/apiserver/internal/repository"
+	"mini-drop/apiserver/internal/taskkind"
 )
 
 type principalContextKey struct{}
@@ -35,17 +45,57 @@ type requestPrincipal struct {
 }
 
 type Server struct {
-	cfg       config.Config
-	logger    *slog.Logger
-	proxy     *httputil.ReverseProxy
-	requestID atomic.Uint64
-	client    *http.Client
-	repo      *repository.Postgres
-	store     objectstore.Store
+	cfg            config.Config
+	logger         *slog.Logger
+	proxy          *httputil.ReverseProxy
+	requestID      atomic.Uint64
+	client         *http.Client
+	repo           *repository.Postgres
+	store          objectstore.Store
+	control        mini_drop.ControlClient
+	controlHealth  grpc_health_v1.HealthClient
+	controlInitErr error
+}
+
+func controlTransportCredentials(cfg config.Config) (credentials.TransportCredentials, error) {
+	if !cfg.ControlGRPCTLS {
+		return insecure.NewCredentials(), nil
+	}
+	if cfg.ControlGRPCCAFile == "" {
+		return nil, errors.New("control gRPC CA file is required when TLS is enabled")
+	}
+	caPEM, err := os.ReadFile(cfg.ControlGRPCCAFile)
+	if err != nil {
+		return nil, fmt.Errorf("read control gRPC CA: %w", err)
+	}
+	roots := x509.NewCertPool()
+	if !roots.AppendCertsFromPEM(caPEM) {
+		return nil, errors.New("control gRPC CA file does not contain a certificate")
+	}
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		RootCAs:    roots,
+		ServerName: cfg.ControlGRPCServerName,
+	}
+	hasCert := cfg.ControlGRPCClientCertFile != ""
+	hasKey := cfg.ControlGRPCClientKeyFile != ""
+	if hasCert != hasKey {
+		return nil, errors.New("control gRPC client certificate and key must be configured together")
+	}
+	if hasCert {
+		certificate, err := tls.LoadX509KeyPair(
+			cfg.ControlGRPCClientCertFile, cfg.ControlGRPCClientKeyFile,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("load control gRPC client certificate: %w", err)
+		}
+		tlsConfig.Certificates = []tls.Certificate{certificate}
+	}
+	return credentials.NewTLS(tlsConfig), nil
 }
 
 func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Postgres) http.Handler {
-	proxy := httputil.NewSingleHostReverseProxy(cfg.LegacyAPIURL)
+	proxy := httputil.NewSingleHostReverseProxy(cfg.AnalysisEngineURL)
 	originalDirector := proxy.Director
 	proxy.Director = func(req *http.Request) {
 		originalDirector(req)
@@ -65,7 +115,7 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 		return nil
 	}
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		logger.Error("legacy api unavailable",
+		logger.Error("analysis engine unavailable",
 			"request_id", r.Header.Get("X-Request-ID"),
 			"path", r.URL.Path,
 			"error", err,
@@ -77,6 +127,25 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 		logger: logger,
 		proxy:  proxy,
 		client: &http.Client{Timeout: 3 * time.Second},
+	}
+	if cfg.ControlGRPCAddress != "" {
+		transportCredentials, credentialErr := controlTransportCredentials(cfg)
+		if credentialErr != nil {
+			s.controlInitErr = credentialErr
+			logger.Error("control grpc credentials initialization failed", "error", credentialErr)
+		} else {
+			connection, err := grpc.NewClient(
+				cfg.ControlGRPCAddress,
+				grpc.WithTransportCredentials(transportCredentials),
+			)
+			if err != nil {
+				s.controlInitErr = err
+				logger.Error("control grpc client initialization failed", "error", err)
+			} else {
+				s.control = mini_drop.NewControlClient(connection)
+				s.controlHealth = grpc_health_v1.NewHealthClient(connection)
+			}
+		}
 	}
 	if len(repositories) > 0 {
 		s.repo = repositories[0]
@@ -90,11 +159,15 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 		}
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", s.health)
-	mux.HandleFunc("GET /api/healthz", s.health)
+	mux.HandleFunc("GET /livez", s.liveness)
+	mux.HandleFunc("GET /readyz", s.readiness)
+	mux.HandleFunc("GET /healthz", s.readiness)
+	mux.HandleFunc("GET /api/healthz", s.readiness)
 	mux.HandleFunc("GET /api/me", s.me)
+	mux.HandleFunc("GET /api/task-kinds", s.listTaskKinds)
 	if s.repo != nil {
 		mux.HandleFunc("GET /api/agents", s.listAgents)
+		mux.HandleFunc("GET /api/top-processes", s.listTopProcesses)
 		mux.HandleFunc("POST /api/tasks", s.createTask)
 		mux.HandleFunc("GET /api/tasks", s.listTasks)
 		mux.HandleFunc("GET /api/tasks/{task_id}", s.getTask)
@@ -140,8 +213,6 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 	// Composite tasks remain on the Python engine; proxy their full surface.
 	mux.Handle("/api/composite-tasks", proxy)
 	mux.Handle("/api/composite-tasks/{rest...}", proxy)
-	// Host process discovery for the quick-collection preset PID dropdown.
-	mux.Handle("GET /api/top-processes", proxy)
 	return s.accessLog(s.requestTrace(s.auth(mux)))
 }
 
@@ -405,18 +476,54 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		writeAPI(w, http.StatusForbidden, 1403, "agent is outside the principal resource scope", nil)
 		return
 	}
+	kind, supportedKind := taskkind.Lookup(input.CollectorType)
+	if !supportedKind {
+		writeAPI(w, http.StatusBadRequest, 1400, "未知或未启用的采集器", nil)
+		return
+	}
+	agentCapability, err := s.repo.AgentSupportsCollector(
+		r.Context(), input.AgentID, input.CollectorType,
+	)
+	if err != nil {
+		s.databaseError(w, r, err)
+		return
+	}
+	if !agentCapability.Exists {
+		writeAPI(w, http.StatusNotFound, 1404, "目标 Agent 不存在", nil)
+		return
+	}
+	if !agentCapability.Online {
+		writeAPI(w, http.StatusConflict, 1409, "目标 Agent 当前不在线", nil)
+		return
+	}
+	if !agentCapability.Supported {
+		writeAPI(w, http.StatusConflict, 1409, "目标 Agent 不支持该采集器", nil)
+		return
+	}
 	if input.TargetPID < 1 || input.TargetPID > 4194304 {
 		writeAPI(w, http.StatusBadRequest, 1400, "target_pid 超出有效范围", nil)
 		return
 	}
+	processBinding, err := s.repo.ResolveFreshProcessCandidate(
+		r.Context(), input.AgentID, input.TargetPID,
+		time.Duration(max(s.cfg.ProcessSnapshotMaxAgeSec, 1))*time.Second,
+	)
+	if errors.Is(err, repository.ErrTargetUnavailable) {
+		writeAPI(w, http.StatusConflict, 1409, "目标 PID 不在 Agent 的最新可信进程快照中，请刷新后重试", nil)
+		return
+	}
+	if err != nil {
+		s.databaseError(w, r, err)
+		return
+	}
 	if input.SampleRate == 0 {
-		input.SampleRate = 99
+		input.SampleRate = kind.DefaultSampleRate
 	}
 	if input.DurationSec == 0 {
-		input.DurationSec = 15
+		input.DurationSec = kind.DefaultDurationSec
 	}
-	if input.SampleRate < 1 || input.SampleRate > 10000 ||
-		input.DurationSec < 1 || input.DurationSec > 600 {
+	if input.SampleRate < 1 || input.SampleRate > kind.MaxSampleRate ||
+		input.DurationSec < 1 || input.DurationSec > kind.MaxDurationSec {
 		writeAPI(w, http.StatusBadRequest, 1400, "采样率或采样时长超出策略范围", nil)
 		return
 	}
@@ -428,6 +535,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		CollectorType: input.CollectorType, SampleRate: input.SampleRate,
 		DurationSec: input.DurationSec, Options: input.Options,
 		CreatorID: principal.ID, IdempotencyKey: idempotencyKey,
+		ProcessBinding: processBinding,
 	})
 	if errors.Is(err, repository.ErrNotFound) {
 		writeAPI(w, http.StatusNotFound, 1404, "目标 Agent 不存在", nil)
@@ -441,8 +549,55 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		s.databaseError(w, r, err)
 		return
 	}
+	dispatchStatus := "PENDING"
+	if !replayed && s.controlInitErr != nil {
+		writeAPI(w, http.StatusServiceUnavailable, 1503, "C++ 控制面客户端初始化失败", map[string]any{
+			"task_id": taskID, "status": "PENDING", "retryable": true,
+		})
+		return
+	}
+	if !replayed && s.control != nil {
+		ctx, cancel := context.WithTimeout(
+			r.Context(),
+			time.Duration(max(s.cfg.ControlGRPCTimeoutMS, 1))*time.Millisecond,
+		)
+		defer cancel()
+		if s.cfg.ControlGRPCToken != "" {
+			ctx = metadata.AppendToOutgoingContext(
+				ctx, "x-mini-drop-grpc-token", s.cfg.ControlGRPCToken,
+			)
+		}
+		if requestID := r.Header.Get("X-Request-ID"); requestID != "" {
+			ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", requestID)
+		}
+		response, dispatchErr := s.control.CreateTask(ctx, &mini_drop.CreateTaskRequest{
+			TargetIp: input.AgentID,
+			TaskId:   taskID,
+			TaskDesc: &mini_drop.TaskDesc{
+				TaskId:       taskID,
+				ProfilerType: kind.ProfilerType,
+				SampleArgv: &mini_drop.RecordArgv{
+					Hz:       uint32(input.SampleRate),
+					Duration: uint64(input.DurationSec),
+					Pid:      int32(input.TargetPID),
+				},
+				TimeoutSec: uint32(input.DurationSec + 30),
+			},
+		})
+		if dispatchErr != nil {
+			_ = s.repo.RecordControlCommand(
+				r.Context(), "TASK_DISPATCH_DEFERRED", "C++ 控制面暂未确认任务",
+				map[string]any{"task_id": taskID, "error": dispatchErr.Error()},
+			)
+			writeAPI(w, http.StatusServiceUnavailable, 1503, "任务已持久化，但 C++ 控制面暂未确认，请使用相同 Idempotency-Key 重试", map[string]any{
+				"task_id": taskID, "status": "PENDING", "retryable": true,
+			})
+			return
+		}
+		dispatchStatus = response.GetStatus()
+	}
 	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
-		"task_id": taskID, "status": "PENDING", "served_by": "go-apiserver", "replayed": replayed,
+		"task_id": taskID, "status": dispatchStatus, "served_by": "go-apiserver", "replayed": replayed,
 	})
 }
 
@@ -463,6 +618,59 @@ func (s *Server) listAgents(w http.ResponseWriter, r *http.Request) {
 	}
 	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
 		"items": items, "total": total, "offset": offset, "limit": limit,
+	})
+}
+
+func (s *Server) listTaskKinds(w http.ResponseWriter, _ *http.Request) {
+	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
+		"items": taskkind.List(), "served_by": "go-apiserver",
+	})
+}
+
+func parseProcessCandidateLimit(value string) int {
+	limit, err := strconv.Atoi(value)
+	if err != nil || limit < 1 {
+		return 20
+	}
+	if limit > 100 {
+		return 100
+	}
+	return limit
+}
+
+func (s *Server) listTopProcesses(w http.ResponseWriter, r *http.Request) {
+	agentID := strings.TrimSpace(r.URL.Query().Get("agent_id"))
+	if agentID == "" || len(agentID) > 128 {
+		writeAPI(w, http.StatusBadRequest, 1400, "agent_id is required", nil)
+		return
+	}
+	principal := principalFromRequest(r)
+	if principal == nil || !scopeAllows(principal.AgentIDs, agentID) {
+		writeAPI(w, http.StatusNotFound, 1404, "Agent 不存在", nil)
+		return
+	}
+	maxAge := time.Duration(s.cfg.ProcessSnapshotMaxAgeSec) * time.Second
+	if maxAge <= 0 {
+		maxAge = 30 * time.Second
+	}
+	snapshot, err := s.repo.LatestProcessCandidates(
+		r.Context(), agentID,
+		parseProcessCandidateLimit(r.URL.Query().Get("limit")), maxAge,
+	)
+	if err != nil {
+		s.databaseError(w, r, err)
+		return
+	}
+	items := snapshot.Items
+	if !snapshot.Authoritative || !snapshot.Fresh {
+		items = []map[string]any{}
+	}
+	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
+		"items": items, "agent_id": agentID,
+		"snapshot_id": snapshot.SnapshotID, "snapshot_state": snapshot.State,
+		"snapshot_received_at": snapshot.ReceivedAt,
+		"authoritative":        snapshot.Authoritative, "fresh": snapshot.Fresh,
+		"served_by": "go-apiserver",
 	})
 }
 
@@ -588,7 +796,7 @@ func (s *Server) getDiagnosticCase(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) listControlledShowcases(r *http.Request) []repository.DiagnosticCase {
-	upstream := *s.cfg.LegacyAPIURL
+	upstream := *s.cfg.AnalysisEngineURL
 	upstream.Path = "/api/diagnostic-cases"
 	query := upstream.Query()
 	query.Set("limit", "10")
@@ -1095,25 +1303,56 @@ func (s *Server) databaseError(w http.ResponseWriter, r *http.Request, err error
 	writeAPI(w, http.StatusServiceUnavailable, 1503, "数据库暂时不可用", nil)
 }
 
-func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
-	req, _ := http.NewRequest(http.MethodGet, s.cfg.LegacyAPIURL.String()+"/api/healthz", nil)
+func (s *Server) liveness(w http.ResponseWriter, _ *http.Request) {
+	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
+		"service": "mini-drop-apiserver", "status": "alive",
+	})
+}
+
+func (s *Server) readiness(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+	defer cancel()
+	dependencies := map[string]string{}
+	if s.repo != nil {
+		if err := s.repo.Ping(ctx); err != nil {
+			dependencies["database"] = "unhealthy"
+		} else {
+			dependencies["database"] = "healthy"
+		}
+	}
+	if s.controlInitErr != nil || (s.cfg.ControlGRPCAddress != "" && s.controlHealth == nil) {
+		dependencies["control_plane"] = "unhealthy"
+	} else if s.controlHealth != nil {
+		response, err := s.controlHealth.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
+		if err != nil || response.GetStatus() != grpc_health_v1.HealthCheckResponse_SERVING {
+			dependencies["control_plane"] = "unhealthy"
+		} else {
+			dependencies["control_plane"] = "healthy"
+		}
+	}
+	req, _ := http.NewRequestWithContext(
+		ctx, http.MethodGet, s.cfg.AnalysisEngineURL.String()+"/api/healthz", nil,
+	)
 	resp, err := s.client.Do(req)
 	if err != nil || resp.StatusCode >= 500 {
 		if resp != nil {
 			_ = resp.Body.Close()
 		}
-		writeAPI(w, http.StatusServiceUnavailable, 1503, "依赖服务异常", map[string]any{
-			"service":    "mini-drop-apiserver",
-			"language":   "go",
-			"legacy_api": "unhealthy",
-		})
-		return
+		dependencies["analysis_engine"] = "unhealthy"
+	} else {
+		_ = resp.Body.Close()
+		dependencies["analysis_engine"] = "healthy"
 	}
-	_ = resp.Body.Close()
+	for _, status := range dependencies {
+		if status != "healthy" {
+			writeAPI(w, http.StatusServiceUnavailable, 1503, "依赖服务异常", map[string]any{
+				"service": "mini-drop-apiserver", "language": "go", "dependencies": dependencies,
+			})
+			return
+		}
+	}
 	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
-		"service":    "mini-drop-apiserver",
-		"language":   "go",
-		"legacy_api": "healthy",
+		"service": "mini-drop-apiserver", "language": "go", "dependencies": dependencies,
 	})
 }
 
@@ -1136,7 +1375,8 @@ func (s *Server) me(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/healthz" || r.URL.Path == "/api/healthz" {
+		if r.URL.Path == "/livez" || r.URL.Path == "/readyz" ||
+			r.URL.Path == "/healthz" || r.URL.Path == "/api/healthz" {
 			next.ServeHTTP(w, r.WithContext(context.WithValue(
 				r.Context(), principalContextKey{}, developmentPrincipal(),
 			)))

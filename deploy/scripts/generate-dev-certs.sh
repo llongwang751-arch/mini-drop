@@ -8,7 +8,8 @@ if [[ -z "$CONTROL_ADDRESS" ]]; then
   echo "usage: $0 <control-IP-or-DNS> [cert-dir]" >&2
   exit 2
 fi
-if [[ -e "$CERT_DIR/server.key" || -e "$CERT_DIR/server.crt" || -e "$CERT_DIR/ca.crt" ]]; then
+if [[ -e "$CERT_DIR/server.key" || -e "$CERT_DIR/server.crt" || -e "$CERT_DIR/ca.crt" || \
+      -e "$CERT_DIR/client.key" || -e "$CERT_DIR/client.crt" ]]; then
   echo "certificate files already exist in $CERT_DIR; remove them explicitly before regenerating" >&2
   exit 1
 fi
@@ -44,8 +45,19 @@ printf '%s\n' \
 
 openssl x509 -req -in "$CERT_DIR/server.csr" -CA "$CERT_DIR/ca.crt" -CAkey "$CERT_DIR/ca.key" \
   -CAcreateserial -out "$CERT_DIR/server.crt" -days 825 -sha256 -extfile "$CERT_DIR/server.ext"
+
+openssl genrsa -out "$CERT_DIR/client.key" 2048
+openssl req -new -key "$CERT_DIR/client.key" -subj "/CN=mini-drop-control-client" \
+  -out "$CERT_DIR/client.csr"
+printf '%s\n' \
+  'authorityKeyIdentifier=keyid,issuer' \
+  'basicConstraints=CA:FALSE' \
+  'keyUsage=digitalSignature,keyEncipherment' \
+  'extendedKeyUsage=clientAuth' > "$CERT_DIR/client.ext"
+openssl x509 -req -in "$CERT_DIR/client.csr" -CA "$CERT_DIR/ca.crt" -CAkey "$CERT_DIR/ca.key" \
+  -CAcreateserial -out "$CERT_DIR/client.crt" -days 825 -sha256 -extfile "$CERT_DIR/client.ext"
 chmod 600 "$CERT_DIR"/*.key
 chmod 644 "$CERT_DIR"/*.crt
 
-echo "generated development CA and server certificate in $CERT_DIR"
-echo "copy ca.crt to each Worker deploy/certs directory; never copy ca.key"
+echo "generated development CA, server certificate and mTLS client certificate in $CERT_DIR"
+echo "copy ca.crt, client.crt and client.key to each Worker; never copy ca.key or server.key"

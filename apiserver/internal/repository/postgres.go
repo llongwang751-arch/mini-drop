@@ -19,6 +19,7 @@ var (
 	ErrNotFound            = errors.New("not found")
 	ErrConflict            = errors.New("conflict")
 	ErrIdempotencyConflict = errors.New("idempotency key replayed with different parameters")
+	ErrTargetUnavailable   = errors.New("target process is absent, stale, or ambiguous")
 )
 
 var cancellableStatuses = map[string]bool{
@@ -51,6 +52,20 @@ type CreateTask struct {
 	Options        map[string]any
 	CreatorID      string
 	IdempotencyKey string
+	ProcessBinding ProcessBinding
+}
+
+type ProcessBinding struct {
+	AgentID            string    `json:"agent_id"`
+	PID                int       `json:"pid"`
+	BootID             string    `json:"boot_id"`
+	ProcessStartTicks  int64     `json:"process_start_ticks"`
+	PIDNamespaceInode  int64     `json:"pid_namespace_inode"`
+	NamespacePID       int       `json:"namespace_pid"`
+	ExecutableIdentity string    `json:"executable_identity"`
+	ProcessSnapshotID  string    `json:"process_snapshot_id"`
+	SnapshotGeneration int64     `json:"snapshot_generation"`
+	SnapshotReceivedAt time.Time `json:"snapshot_received_at"`
 }
 
 type Artifact struct {
@@ -120,6 +135,22 @@ type DiagnosticCase struct {
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	LegacyLinks        map[string]any `json:"legacy_links"`
+}
+
+type ProcessCandidateSnapshot struct {
+	SnapshotID    string
+	AgentID       string
+	State         string
+	Authoritative bool
+	ReceivedAt    time.Time
+	Fresh         bool
+	Items         []map[string]any
+}
+
+type AgentCapability struct {
+	Exists    bool
+	Online    bool
+	Supported bool
 }
 
 // RecordControlCommand persists the accepted control-plane intent without
@@ -603,6 +634,15 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 	if err != nil {
 		return "", false, err
 	}
+	processBinding, err := json.Marshal(input.ProcessBinding)
+	if err != nil {
+		return "", false, err
+	}
+	if input.ProcessBinding.ProcessSnapshotID == "" ||
+		input.ProcessBinding.AgentID != input.AgentID ||
+		input.ProcessBinding.PID != input.TargetPID {
+		return "", false, ErrTargetUnavailable
+	}
 
 	if input.IdempotencyKey != "" {
 		replayedID, replay, err := p.resolveIdempotentTask(ctx, input, requestParams)
@@ -637,11 +677,12 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 		INSERT INTO tasks (
 			id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
 			status, status_reason, collection_status, analysis_status, request_params,
-			creator_id, idempotency_key, created_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,'QUEUED','NOT_STARTED',$9::jsonb,$10,$11,$12)`,
+			creator_id, idempotency_key, process_snapshot_id, process_binding_json, created_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,'QUEUED','NOT_STARTED',$9::jsonb,$10,$11,$12,$13::json,$14)`,
 		taskID, input.Name, input.AgentID, input.TargetPID, input.CollectorType,
 		input.SampleRate, input.DurationSec, "Go API 创建任务", string(requestParams),
-		creatorID, idemKey, now,
+		creatorID, idemKey, input.ProcessBinding.ProcessSnapshotID,
+		string(processBinding), now,
 	); err != nil {
 		if input.IdempotencyKey != "" && isUniqueViolation(err) {
 			// A concurrent replica won the idempotency race; reconcile instead of failing.
@@ -773,6 +814,147 @@ func (p *Postgres) ListAgents(ctx context.Context, page Page) ([]map[string]any,
 		})
 	}
 	return items, total, rows.Err()
+}
+
+func (p *Postgres) AgentSupportsCollector(
+	ctx context.Context, agentID, collector string,
+) (AgentCapability, error) {
+	var status string
+	var rawCapabilities []byte
+	err := p.pool.QueryRow(ctx, `
+		SELECT status,capabilities FROM agents WHERE id=$1`, agentID,
+	).Scan(&status, &rawCapabilities)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return AgentCapability{}, nil
+	}
+	if err != nil {
+		return AgentCapability{}, err
+	}
+	var capabilities []string
+	if err := json.Unmarshal(rawCapabilities, &capabilities); err != nil {
+		return AgentCapability{}, fmt.Errorf("decode Agent capabilities: %w", err)
+	}
+	supported := false
+	for _, item := range capabilities {
+		if item == collector {
+			supported = true
+			break
+		}
+	}
+	return AgentCapability{
+		Exists: true, Online: status == "ONLINE", Supported: supported,
+	}, nil
+}
+
+func (p *Postgres) ResolveFreshProcessCandidate(
+	ctx context.Context, agentID string, pid int, maxAge time.Duration,
+) (ProcessBinding, error) {
+	maxAgeSeconds := int(maxAge / time.Second)
+	if maxAgeSeconds < 1 {
+		maxAgeSeconds = 30
+	}
+	rows, err := p.pool.Query(ctx, `
+		WITH latest AS (
+			SELECT id,agent_id,generation,boot_id,received_at,authoritative
+			FROM process_candidate_snapshots
+			WHERE agent_id=$1
+			ORDER BY received_at DESC,id DESC
+			LIMIT 1
+		)
+		SELECT l.agent_id,p.pid,l.boot_id,p.process_start_ticks,
+		       p.pid_namespace_inode,p.namespace_pid,p.executable_identity,
+		       l.id,l.generation,l.received_at
+		FROM latest l
+		JOIN process_candidates p ON p.snapshot_id=l.id
+		WHERE l.authoritative=true
+		  AND l.received_at >= now()-($3::int * interval '1 second')
+		  AND p.pid=$2
+		ORDER BY p.id
+		LIMIT 2`, agentID, pid, maxAgeSeconds)
+	if err != nil {
+		return ProcessBinding{}, err
+	}
+	defer rows.Close()
+	bindings := make([]ProcessBinding, 0, 2)
+	for rows.Next() {
+		var binding ProcessBinding
+		if err := rows.Scan(
+			&binding.AgentID, &binding.PID, &binding.BootID,
+			&binding.ProcessStartTicks, &binding.PIDNamespaceInode,
+			&binding.NamespacePID, &binding.ExecutableIdentity,
+			&binding.ProcessSnapshotID, &binding.SnapshotGeneration,
+			&binding.SnapshotReceivedAt,
+		); err != nil {
+			return ProcessBinding{}, err
+		}
+		bindings = append(bindings, binding)
+	}
+	if err := rows.Err(); err != nil {
+		return ProcessBinding{}, err
+	}
+	if len(bindings) != 1 {
+		return ProcessBinding{}, ErrTargetUnavailable
+	}
+	return bindings[0], nil
+}
+
+// LatestProcessCandidates projects the newest Agent-attested process snapshot.
+// It deliberately reads the latest snapshot even when that snapshot is
+// partial: falling back to an older authoritative snapshot could resurrect a
+// PID that has already exited or been reused.
+func (p *Postgres) LatestProcessCandidates(
+	ctx context.Context, agentID string, limit int, maxAge time.Duration,
+) (ProcessCandidateSnapshot, error) {
+	rows, err := p.pool.Query(ctx, `
+		WITH latest AS (
+			SELECT id,agent_id,state,authoritative,received_at
+			FROM process_candidate_snapshots
+			WHERE agent_id=$1
+			ORDER BY received_at DESC,id DESC
+			LIMIT 1
+		)
+		SELECT l.id,l.agent_id,l.state,l.authoritative,l.received_at,
+		       COALESCE(p.pid,0),COALESCE(p.comm,''),
+		       COALESCE(p.service_hint,''),COALESCE(p.instance_hint,''),
+		       COALESCE(p.collector_capabilities,'[]'::json)
+		FROM latest l
+		LEFT JOIN process_candidates p ON p.snapshot_id=l.id
+		ORDER BY CASE WHEN COALESCE(p.service_hint,'')<>'' THEN 0 ELSE 1 END,
+		         COALESCE(p.comm,''),COALESCE(p.pid,0)
+		LIMIT $2`, agentID, limit)
+	if err != nil {
+		return ProcessCandidateSnapshot{}, err
+	}
+	defer rows.Close()
+
+	result := ProcessCandidateSnapshot{AgentID: agentID, Items: []map[string]any{}}
+	for rows.Next() {
+		var pid int
+		var comm, serviceHint, instanceHint string
+		var capabilities []byte
+		if err := rows.Scan(
+			&result.SnapshotID, &result.AgentID, &result.State,
+			&result.Authoritative, &result.ReceivedAt, &pid, &comm,
+			&serviceHint, &instanceHint, &capabilities,
+		); err != nil {
+			return ProcessCandidateSnapshot{}, err
+		}
+		if pid > 0 {
+			result.Items = append(result.Items, map[string]any{
+				"pid": pid, "comm": comm, "service_hint": serviceHint,
+				"instance_hint":          instanceHint,
+				"collector_capabilities": decodeJSON(capabilities, []any{}),
+			})
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return ProcessCandidateSnapshot{}, err
+	}
+	if !result.ReceivedAt.IsZero() {
+		age := time.Since(result.ReceivedAt)
+		result.Fresh = age >= -5*time.Second && age <= maxAge
+	}
+	return result, nil
 }
 
 func (p *Postgres) ListTasks(ctx context.Context, page Page) ([]map[string]any, int, error) {

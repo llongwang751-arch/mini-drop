@@ -3,6 +3,7 @@
 Supports both insecure (default, for dev/demo) and TLS-secured channels.
 Set AGENT_GRPC_SECURE=1 to enable TLS with default system root CAs.
 Set AGENT_GRPC_CA_CERT to specify a custom CA certificate path.
+Set AGENT_GRPC_CLIENT_CERT and AGENT_GRPC_CLIENT_KEY for mutual TLS.
 """
 
 from __future__ import annotations
@@ -38,11 +39,28 @@ def _build_channel(address: str) -> grpc.Channel:
     """Create a gRPC channel, optionally secured with TLS."""
     if _env_bool("AGENT_GRPC_SECURE", default=False):
         ca_cert = os.getenv("AGENT_GRPC_CA_CERT", "").strip()
+        client_cert = os.getenv("AGENT_GRPC_CLIENT_CERT", "").strip()
+        client_key = os.getenv("AGENT_GRPC_CLIENT_KEY", "").strip()
+        if bool(client_cert) != bool(client_key):
+            raise ValueError(
+                "AGENT_GRPC_CLIENT_CERT and AGENT_GRPC_CLIENT_KEY must be configured together"
+            )
+        root_certificates = None
+        certificate_chain = None
+        private_key = None
         if ca_cert:
             with open(ca_cert, "rb") as fh:
-                creds = grpc.ssl_channel_credentials(root_certificates=fh.read())
-        else:
-            creds = grpc.ssl_channel_credentials()
+                root_certificates = fh.read()
+        if client_cert:
+            with open(client_cert, "rb") as fh:
+                certificate_chain = fh.read()
+            with open(client_key, "rb") as fh:
+                private_key = fh.read()
+        creds = grpc.ssl_channel_credentials(
+            root_certificates=root_certificates,
+            private_key=private_key,
+            certificate_chain=certificate_chain,
+        )
         server_name = os.getenv("AGENT_GRPC_TLS_SERVER_NAME", "").strip()
         options = []
         if server_name:

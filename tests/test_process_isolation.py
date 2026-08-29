@@ -108,11 +108,98 @@ def test_primary_compose_activates_outbox_only_in_api_server() -> None:
     assert services["diagnosis-worker"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "0"
 
 
+def test_primary_compose_follows_replication_guide_control_path() -> None:
+    services = _compose("docker-compose.yml")["services"]
+
+    assert services["control-plane"]["build"]["dockerfile"] == "deploy/dockerfiles/native-control.Dockerfile"
+    assert "profiles" not in services["native-agent"]
+    assert services["native-agent"]["environment"]["AGENT_GRPC_ADDR"].endswith("control-plane:50051}")
+    assert services["agent"]["profiles"] == ["python-agent"]
+    assert services["apiserver"]["build"]["dockerfile"] == "deploy/dockerfiles/apiserver.Dockerfile"
+    assert services["apiserver"]["environment"]["MINI_DROP_CONTROL_GRPC_ADDRESS"] == "control-plane:50051"
+    assert "control-plane" in services["apiserver"]["depends_on"]
+    assert services["server"]["environment"]["MINI_DROP_EMBED_GRPC"] == "0"
+    assert "pid" not in services["server"]
+    assert services["web"]["depends_on"] == {"apiserver": {"condition": "service_healthy"}}
+
+
 def test_cloud_compose_worker_overrides_server_outbox_environment() -> None:
     services = _compose("docker-compose.cloud-control.yml")["services"]
 
     assert services["server"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "1"
     assert services["diagnosis-worker"]["environment"]["MINI_DROP_OUTBOX_DISPATCH_ENABLED"] == "0"
+
+
+def test_cloud_compose_uses_cpp_control_with_mutual_tls() -> None:
+    services = _compose("docker-compose.cloud-control.yml")["services"]
+
+    control = services["control-plane"]
+    assert control["build"]["dockerfile"] == "deploy/dockerfiles/native-control.Dockerfile"
+    assert control["environment"]["MINI_DROP_GRPC_SECURE"] == "1"
+    assert control["environment"]["MINI_DROP_GRPC_REQUIRE_CLIENT_CERT"] == "1"
+    assert services["server"]["environment"]["MINI_DROP_EMBED_GRPC"] == "0"
+    assert services["apiserver"]["environment"]["MINI_DROP_CONTROL_GRPC_ADDRESS"] == "control-plane:50051"
+    assert services["apiserver"]["environment"]["MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE"] == "/certs/client.crt"
+    assert "pid" not in services["server"]
+    assert services["campaign-agent"]["profiles"] == ["showcase"]
+    assert services["campaign-agent"]["build"]["dockerfile"] == "deploy/dockerfiles/native-agent.Dockerfile"
+    assert services["campaign-agent"]["environment"]["AGENT_GRPC_ADDR"] == "control-plane:50051"
+    assert services["campaign-agent"]["environment"]["AGENT_GRPC_CLIENT_CERT"] == "/certs/client.crt"
+
+
+def test_worker_compose_uses_native_cpp_agent_with_mutual_tls() -> None:
+    services = _compose("docker-compose.worker.yml")["services"]
+    agent = services["agent"]
+
+    assert agent["build"]["dockerfile"] == "deploy/dockerfiles/native-agent.Dockerfile"
+    assert agent["environment"]["AGENT_GRPC_SECURE"] == "1"
+    assert agent["environment"]["AGENT_GRPC_CLIENT_CERT"] == "/certs/client.crt"
+    assert agent["environment"]["AGENT_GRPC_CLIENT_KEY"] == "/certs/client.key"
+
+
+def test_three_host_control_compose_matches_the_same_four_module_topology() -> None:
+    services = _compose("docker-compose.control.yml")["services"]
+
+    assert services["control-plane"]["build"]["dockerfile"] == "deploy/dockerfiles/native-control.Dockerfile"
+    assert services["server"]["environment"]["MINI_DROP_EMBED_GRPC"] == "0"
+    assert services["apiserver"]["environment"]["MINI_DROP_CONTROL_GRPC_ADDRESS"] == "control-plane:50051"
+    assert services["web"]["depends_on"] == {"apiserver": {"condition": "service_healthy"}}
+    assert "diagnosis-worker" in services
+    assert "analyzer" in services
+
+
+def test_cpp_control_persists_agent_process_snapshots() -> None:
+    source = Path("native/control/src/main.cpp").read_text(encoding="utf-8")
+
+    assert "persist_process_snapshot" in source
+    assert "INSERT INTO process_candidate_snapshots" in source
+    assert "INSERT INTO process_candidates" in source
+    assert "request->has_process_candidate_snapshot()" in source
+    assert "process_binding_matches_latest" in source
+    assert "TARGET_IDENTITY_CHANGED" in source
+
+
+def test_go_owns_process_candidate_read_api() -> None:
+    go_server = Path("apiserver/internal/httpapi/server.go").read_text(encoding="utf-8")
+    python_server = Path("server/app/main.py").read_text(encoding="utf-8")
+    web_input = Path("web/src/components/NLPTaskInput.jsx").read_text(encoding="utf-8")
+
+    assert 'mux.HandleFunc("GET /api/top-processes", s.listTopProcesses)' in go_server
+    assert 'mux.Handle("GET /api/top-processes", proxy)' not in go_server
+    assert '@app.get("/api/top-processes")' not in python_server
+    assert "resolve_pid(intent.process_name)" not in python_server
+    assert '"process_candidates_source": "agent_snapshot"' in python_server
+    assert "listTopProcesses(agentId, 20)" in web_input
+    assert "result.candidate_pids.map" not in web_input
+
+
+def test_go_task_creation_uses_agent_capability_and_process_attestation() -> None:
+    go_server = Path("apiserver/internal/httpapi/server.go").read_text(encoding="utf-8")
+    repository = Path("apiserver/internal/repository/postgres.go").read_text(encoding="utf-8")
+
+    assert "AgentSupportsCollector" in go_server
+    assert "ResolveFreshProcessCandidate" in go_server
+    assert "process_snapshot_id, process_binding_json" in repository
 
 
 def test_grpc_tcp_healthcheck_fails_for_closed_port() -> None:

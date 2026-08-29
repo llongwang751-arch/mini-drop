@@ -16,7 +16,7 @@ const API_KEY_STORAGE_KEY = "mini-drop-api-key";
 const api = axios.create({
   baseURL: "/api",
   timeout: 30000,
-  withCredentials: true,  // 发送 HttpOnly cookie
+  withCredentials: true, // 发送 HttpOnly cookie
 });
 
 api.interceptors.request.use((config) => {
@@ -31,15 +31,24 @@ api.interceptors.request.use((config) => {
 
 /** 后端英文/内部错误文案 → 中文提示（方案 §4.3：错误提示改为"发生了什么 + 下一步"）。 */
 const ERROR_TRANSLATIONS = [
-  [/Drop Insight diagnosis not found/i, "诊断会话不存在，可能已被删除或尚未创建"],
+  [
+    /Drop Insight diagnosis not found/i,
+    "诊断会话不存在，可能已被删除或尚未创建",
+  ],
   [/Drop Insight tool call not found/i, "工具调用不存在"],
   [/hypothesis does not belong to diagnosis/i, "该假设不属于当前诊断会话"],
   [/tool call is not awaiting approval/i, "该工具调用不在待审批状态，无法操作"],
   [/tool call not found/i, "工具调用不存在"],
   [/tool call is not executable/i, "该工具调用当前不可执行"],
-  [/planner requires target\.agent_id and target\.pid/i, "缺少目标 Agent 或 PID，无法规划诊断路径"],
+  [
+    /planner requires target\.agent_id and target\.pid/i,
+    "缺少目标 Agent 或 PID，无法规划诊断路径",
+  ],
   [/task not found/i, "采集任务不存在"],
-  [/only DONE tasks can be imported as evidence/i, "只有成功完成的采集任务才能导入为证据，请等待任务完成"],
+  [
+    /only DONE tasks can be imported as evidence/i,
+    "只有成功完成的采集任务才能导入为证据，请等待任务完成",
+  ],
   [/task has no artifacts/i, "该采集任务没有任何产物"],
   [/diagnosis version conflict/i, "诊断状态已变化，请刷新后重试"],
   [/diagnosis session CAS conflict/i, "诊断状态已变化，请刷新后重试"],
@@ -67,7 +76,9 @@ api.interceptors.response.use(
   },
   (err) => {
     if (err.response?.status === 401) {
-      throw new Error("访问认证失败：请在右上角填写 Mini-Drop API Key 并点击保存");
+      throw new Error(
+        "访问认证失败：请在右上角填写 Mini-Drop API Key 并点击保存",
+      );
     }
     // Pydantic validation errors come back as `detail: [...]` (a list of
     // objects); stringify any non-string detail so callers never see
@@ -80,8 +91,13 @@ api.interceptors.response.use(
         detail = String(detail);
       }
     }
-    if (err.response?.status >= 500 && /^Request failed with status code/i.test(detail)) {
-      throw new Error("服务暂时不可用，请稍后重试；若持续失败，请检查 Server 与数据库状态");
+    if (
+      err.response?.status >= 500 &&
+      /^Request failed with status code/i.test(detail)
+    ) {
+      throw new Error(
+        "服务暂时不可用，请稍后重试；若持续失败，请检查 Server 与数据库状态",
+      );
     }
     throw new Error(translateError(detail));
   },
@@ -123,7 +139,7 @@ export async function clearCookieApiKey() {
 /** 统一设置 API Key：优先 HttpOnly cookie，同时更新 localStorage 作为降级。*/
 export async function saveApiKey(token) {
   const trimmed = (token || "").trim();
-  setStoredApiKey(trimmed);  // 降级方案
+  setStoredApiKey(trimmed); // 降级方案
   if (trimmed) {
     try {
       await setCookieApiKey(trimmed);
@@ -153,6 +169,10 @@ function itemsOf(value) {
 
 export function listAgents() {
   return api.get("/agents").then(itemsOf);
+}
+
+export function listTaskKinds() {
+  return api.get("/task-kinds").then(itemsOf);
 }
 
 export function listAuditLogs() {
@@ -194,7 +214,9 @@ export function getTaskArtifacts(taskId) {
 }
 
 export function getTaskArtifactContent(taskId, artifactType, params = {}) {
-  return api.get(`/tasks/${taskId}/artifacts/${artifactType}/content`, { params });
+  return api.get(`/tasks/${taskId}/artifacts/${artifactType}/content`, {
+    params,
+  });
 }
 
 export async function downloadTaskArtifact(taskId, artifactType, params = {}) {
@@ -212,7 +234,11 @@ export async function downloadTaskArtifact(taskId, artifactType, params = {}) {
   const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
   let filename = `${artifactType}.bin`;
   if (encoded) {
-    try { filename = decodeURIComponent(encoded); } catch { filename = encoded; }
+    try {
+      filename = decodeURIComponent(encoded);
+    } catch {
+      filename = encoded;
+    }
   }
   return { blob: response.data, filename };
 }
@@ -244,9 +270,7 @@ export function listDiagnosisSessions(params = {}) {
 }
 
 export function listContinuousDiagnosisTriggers(params = {}) {
-  return api
-    .get("/v1/continuous-diagnosis-triggers", { params })
-    .then(itemsOf);
+  return api.get("/v1/continuous-diagnosis-triggers", { params }).then(itemsOf);
 }
 
 export function getDiagnosisSession(diagnosisId) {
@@ -301,9 +325,15 @@ export function createEventSource(since = "") {
  * 连接 Python 诊断引擎的实时事件流。该路径经 Go 网关的 v2 白名单代理，
  * 与控制面任务/Agent 事件流分开，避免两个事件所有权边界互相覆盖。
  */
-export function createDiagnosisEventSource(since = "") {
-  const params = since ? `?since=${encodeURIComponent(since)}` : "";
-  return new EventSource(`/api/v2/events/stream${params}`);
+export function createDiagnosisEventSource(
+  diagnosisId = "",
+  afterSequence = 0,
+) {
+  if (!diagnosisId) return new EventSource("/api/v2/events/stream");
+  const after = Math.max(0, Number(afterSequence) || 0);
+  return new EventSource(
+    `/api/v2/diagnoses/${encodeURIComponent(diagnosisId)}/events/stream?after=${after}`,
+  );
 }
 
 // ── Prometheus 指标 ───────────────────────────────────────────────
@@ -375,10 +405,17 @@ export function listDropInsightToolCalls(diagnosisId) {
 }
 
 export function decideDropInsightToolCall(diagnosisId, toolCallId, payload) {
-  return api.post(`/v2/diagnoses/${diagnosisId}/tool-calls/${toolCallId}/decision`, payload);
+  return api.post(
+    `/v2/diagnoses/${diagnosisId}/tool-calls/${toolCallId}/decision`,
+    payload,
+  );
 }
 
-export function updateDropInsightToolCall(diagnosisId, toolCallId, argumentsObj) {
+export function updateDropInsightToolCall(
+  diagnosisId,
+  toolCallId,
+  argumentsObj,
+) {
   return api.put(`/v2/diagnoses/${diagnosisId}/tool-calls/${toolCallId}`, {
     arguments: argumentsObj,
   });
@@ -475,7 +512,9 @@ export function getExternalDiagnosisBenchmark() {
 }
 
 export function getExternalDiagnosisBenchmarkCase(caseId) {
-  return api.get(`/v1/diagnosis-evaluations/external/cases/${encodeURIComponent(caseId)}`);
+  return api.get(
+    `/v1/diagnosis-evaluations/external/cases/${encodeURIComponent(caseId)}`,
+  );
 }
 
 export function getRealWorldBenchmarkCatalog() {
@@ -491,7 +530,9 @@ export function getRealWorldBenchmarkRun(runId) {
 }
 
 export function getRealWorldComparisonInput(runId) {
-  return api.get(`/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}/comparison-input`);
+  return api.get(
+    `/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}/comparison-input`,
+  );
 }
 
 export function getRealWorldComparisons() {
@@ -526,29 +567,42 @@ export function getDiagnosticSkill(skillId) {
 }
 
 export function createDiagnosticSkillCandidate(diagnosisId) {
-  return api.post(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skills/candidate`);
+  return api.post(
+    `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skills/candidate`,
+  );
 }
 
 export function listDiagnosticSkillActivations(diagnosisId) {
-  return api.get(
-    `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skill-activations`,
-  ).then(itemsOf);
+  return api
+    .get(
+      `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/diagnostic-skill-activations`,
+    )
+    .then(itemsOf);
 }
 
 export function evaluateDiagnosticSkill(skillId) {
-  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/evaluate`);
+  return api.post(
+    `/v2/diagnostic-skills/${encodeURIComponent(skillId)}/evaluate`,
+  );
 }
 
 export function publishDiagnosticSkill(skillId) {
-  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/publish`);
+  return api.post(
+    `/v2/diagnostic-skills/${encodeURIComponent(skillId)}/publish`,
+  );
 }
 
 export function quarantineDiagnosticSkill(skillId, reason) {
-  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/quarantine`, { reason });
+  return api.post(
+    `/v2/diagnostic-skills/${encodeURIComponent(skillId)}/quarantine`,
+    { reason },
+  );
 }
 
 export function rollbackDiagnosticSkill(skillId) {
-  return api.post(`/v2/diagnostic-skills/${encodeURIComponent(skillId)}/rollback`);
+  return api.post(
+    `/v2/diagnostic-skills/${encodeURIComponent(skillId)}/rollback`,
+  );
 }
 
 export function getDiagnosisEvalPlan() {
@@ -564,7 +618,9 @@ export function startDiagnosisEvalGoldenRun() {
 }
 
 export function getDiagnosisEvalGoldenRun(runId) {
-  return api.get(`/v1/diagnosis-evaluations/golden-runs/${encodeURIComponent(runId)}`);
+  return api.get(
+    `/v1/diagnosis-evaluations/golden-runs/${encodeURIComponent(runId)}`,
+  );
 }
 
 export function listDiagnosisCampaignScenarios() {
@@ -580,7 +636,9 @@ export function getDiagnosisCampaign(runId) {
 }
 
 export function promoteDiagnosisCampaign(runId) {
-  return api.post(`/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}/promote`);
+  return api.post(
+    `/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}/promote`,
+  );
 }
 
 export function getDiagnosticCase(caseId) {
@@ -588,13 +646,17 @@ export function getDiagnosticCase(caseId) {
 }
 
 export function getDropInsightTargetCandidates(diagnosisId) {
-  return api.get(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/target-candidates`);
+  return api.get(
+    `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/target-candidates`,
+  );
 }
 
 export function clarifyDropInsightDiagnosis(diagnosisId, payload) {
   return api.post(`/v2/diagnoses/${diagnosisId}/clarify`, payload);
 }
 
-export function listTopProcesses(limit = 20) {
-  return api.get("/top-processes", { params: { limit } }).then(itemsOf);
+export function listTopProcesses(agentId, limit = 20) {
+  return api
+    .get("/top-processes", { params: { agent_id: agentId, limit } })
+    .then(itemsOf);
 }

@@ -1,7 +1,7 @@
 name: mini-drop-cloud-control
 
-# 云端三机部署的控制节点：Web/Go API/Python Server/诊断 Worker/Analyzer/存储。
-# 远端 Agent 通过 TLS gRPC 连接 Python Server 的 50051 端口。
+# 云端三机部署的控制节点：C++ Control、Go API、Python Analyzer/AI、Web 和存储。
+# 远端 Agent 通过 mTLS gRPC 连接 C++ Control 的 50051 端口。
 services:
   postgres:
     image: postgres:16
@@ -52,10 +52,53 @@ services:
         condition: service_healthy
     restart: "no"
 
+  control-plane:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/native-control.Dockerfile
+    image: mini-drop-cloud-native-control:local
+    environment:
+      NATIVE_CONTROL_LISTEN_ADDR: "0.0.0.0:50051"
+      NATIVE_CONTROL_HEALTH_ADDR: "127.0.0.1:50051"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:?set MINIO_AGENT_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_GRPC_AUTH_ENABLED: "1"
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN}
+      MINI_DROP_GRPC_SECURE: "1"
+      MINI_DROP_GRPC_CERT_FILE: /certs/server.crt
+      MINI_DROP_GRPC_KEY_FILE: /certs/server.key
+      MINI_DROP_GRPC_CA_FILE: /certs/ca.crt
+      MINI_DROP_GRPC_CLIENT_CERT_FILE: /certs/client.crt
+      MINI_DROP_GRPC_CLIENT_KEY_FILE: /certs/client.key
+      MINI_DROP_GRPC_REQUIRE_CLIENT_CERT: "1"
+      MINI_DROP_GRPC_DISTRIBUTE_MINIO_CREDENTIALS: "0"
+      AGENT_OFFLINE_TIMEOUT_SEC: ${AGENT_OFFLINE_TIMEOUT_SEC:-30}
+      MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT: ${MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT:-120}
+      MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC: ${MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC:-30}
+    ports:
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_GRPC_PORT:-50051}:50051"
+    volumes:
+      - ./deploy/certs:/certs:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mini-drop-native-control", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
   server:
     image: mini-drop-cloud-server:local
     pull_policy: never
-    pid: host
     environment: &server_environment
       MINI_DROP_ENV: cloud
       SERVER_HOST: 0.0.0.0
@@ -74,12 +117,9 @@ services:
       MINI_DROP_INTERNAL_GATEWAY_TOKEN: ${MINI_DROP_INTERNAL_GATEWAY_TOKEN:?set MINI_DROP_INTERNAL_GATEWAY_TOKEN}
       MINI_DROP_GRPC_AUTH_ENABLED: "1"
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN}
-      MINI_DROP_GRPC_SECURE: "1"
-      MINI_DROP_GRPC_CERT_FILE: /certs/server.crt
-      MINI_DROP_GRPC_KEY_FILE: /certs/server.key
       MINI_DROP_GRPC_DISTRIBUTE_MINIO_CREDENTIALS: "0"
-      MINI_DROP_EMBED_GRPC: "1"
-      MINI_DROP_EMBED_MAINTENANCE: "1"
+      MINI_DROP_EMBED_GRPC: "0"
+      MINI_DROP_EMBED_MAINTENANCE: "0"
       MINI_DROP_OUTBOX_DISPATCH_ENABLED: "1"
       MINI_DROP_SCHEMA_MANAGED: "1"
       MINI_DROP_ALLOWED_SERVICES: ${MINI_DROP_ALLOWED_SERVICES:-}
@@ -98,10 +138,7 @@ services:
       MINI_DROP_CAMPAIGN_TARGET_URL: http://python-hotspot:8081
       MINI_DROP_CAMPAIGN_JAVA_TARGET_URL: http://java-hotspot:7070
       MINI_DROP_SOURCE_ROOTS: /workspace-source/demo/python-hotspot:/workspace-otel/src/ad:/workspace-otel/src/email
-    ports:
-      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_GRPC_PORT:-50051}:50051"
     volumes:
-      - ./deploy/certs:/certs:ro
       - ./:/workspace-source:ro
       - /opt/mini-drop-otel-3684411/src/ad:/workspace-otel/src/ad:ro
       - /opt/mini-drop-otel-3684411/src/email:/workspace-otel/src/email:ro
@@ -171,8 +208,18 @@ services:
       context: .
       dockerfile: deploy/dockerfiles/apiserver.Dockerfile
     environment:
+      MINI_DROP_ENV: production
       MINI_DROP_API_LISTEN_ADDR: ":8080"
-      MINI_DROP_LEGACY_API_URL: http://server:8191
+      MINI_DROP_ANALYSIS_ENGINE_URL: http://server:8191
+      MINI_DROP_CONTROL_GRPC_ADDRESS: control-plane:50051
+      MINI_DROP_CONTROL_GRPC_TIMEOUT_MS: ${MINI_DROP_CONTROL_GRPC_TIMEOUT_MS:-3000}
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
+      MINI_DROP_CONTROL_GRPC_TLS: "1"
+      MINI_DROP_CONTROL_GRPC_CA_FILE: /certs/ca.crt
+      MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE: /certs/client.crt
+      MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE: /certs/client.key
+      MINI_DROP_CONTROL_GRPC_SERVER_NAME: ${CONTROL_PUBLIC_IP:-47.112.10.137}
+      MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC: ${MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC:-30}
       DATABASE_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
       MINI_DROP_API_AUTH_ENABLED: "1"
       MINI_DROP_API_KEY: ${MINI_DROP_API_KEY}
@@ -183,8 +230,12 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINIO_SECURE: "0"
     depends_on:
+      control-plane:
+        condition: service_healthy
       server:
         condition: service_healthy
+    volumes:
+      - ./deploy/certs:/certs:ro
     healthcheck:
       test: ["CMD", "/usr/local/bin/mini-drop-apiserver", "--healthcheck"]
       interval: 10s
@@ -197,31 +248,31 @@ services:
   # Worker Agents cannot sample a PID that exists on another Linux host, so a
   # local Agent is required to keep the Campaign evidence chain truthful.
   campaign-agent:
+    profiles: ["showcase"]
     build:
       context: .
-      dockerfile: deploy/dockerfiles/agent.Dockerfile
-      args:
-        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
+      dockerfile: deploy/dockerfiles/native-agent.Dockerfile
     hostname: control-campaign-agent
     environment:
       AGENT_ID: control-campaign-agent
       AGENT_IP_ADDR: ${CONTROL_PUBLIC_IP:-47.112.10.137}
-      AGENT_GRPC_ADDR: server:50051
+      AGENT_GRPC_ADDR: control-plane:50051
       AGENT_HEARTBEAT_INTERVAL_SEC: 5
       AGENT_GRPC_SECURE: "1"
       AGENT_GRPC_CA_CERT: /certs/ca.crt
+      AGENT_GRPC_CLIENT_CERT: /certs/client.crt
+      AGENT_GRPC_CLIENT_KEY: /certs/client.key
       AGENT_GRPC_TLS_SERVER_NAME: ${CONTROL_PUBLIC_IP:-47.112.10.137}
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
-      AGENT_UPLOAD_ARTIFACTS: "1"
       MINIO_ENDPOINT: minio:9000
-      AGENT_KEEP_LOCAL_MINIO_ENDPOINT: "1"
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINIO_SECURE: "0"
       AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
       AGENT_RESULT_OUTBOX_MAX_ENTRIES: 256
-      MINI_DROP_DATABASE_DIAGNOSTIC_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      NATIVE_AGENT_RUNNER_MAX_MEMORY_MB: ${NATIVE_AGENT_RUNNER_MAX_MEMORY_MB:-1024}
+      NATIVE_AGENT_RUNNER_MAX_OUTPUT_MB: ${NATIVE_AGENT_RUNNER_MAX_OUTPUT_MB:-256}
     volumes:
       - ./deploy/certs:/certs:ro
       - /sys/kernel/tracing:/sys/kernel/tracing
@@ -240,7 +291,7 @@ services:
       - no-new-privileges:true
       - seccomp:unconfined
     depends_on:
-      server:
+      control-plane:
         condition: service_healthy
       minio:
         condition: service_healthy
@@ -248,6 +299,7 @@ services:
 
   # Allow-listed real-fault lab.  No generic shell execution is exposed.
   python-hotspot:
+    profiles: ["showcase"]
     build:
       context: demo/python-hotspot
     pid: host
@@ -269,6 +321,7 @@ services:
     restart: unless-stopped
 
   downstream-service:
+    profiles: ["showcase"]
     build:
       context: demo/downstream-service
     hostname: downstream-service
@@ -280,6 +333,7 @@ services:
     restart: unless-stopped
 
   network-proxy:
+    profiles: ["showcase"]
     build:
       context: demo/network-proxy
     hostname: network-proxy
@@ -296,6 +350,7 @@ services:
     restart: unless-stopped
 
   java-hotspot:
+    profiles: ["showcase"]
     build:
       context: demo/java-hotspot
     hostname: java-hotspot

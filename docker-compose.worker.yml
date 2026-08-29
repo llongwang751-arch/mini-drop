@@ -8,7 +8,7 @@ services:
   agent:
     build:
       context: .
-      dockerfile: deploy/dockerfiles/agent.Dockerfile
+      dockerfile: deploy/dockerfiles/native-agent.Dockerfile
     hostname: ${AGENT_ID:?set AGENT_ID}
     environment:
       AGENT_ID: ${AGENT_ID}
@@ -17,18 +17,23 @@ services:
       AGENT_HEARTBEAT_INTERVAL_SEC: ${AGENT_HEARTBEAT_INTERVAL_SEC:-5}
       AGENT_GRPC_SECURE: "1"
       AGENT_GRPC_CA_CERT: /certs/ca.crt
+      AGENT_GRPC_CLIENT_CERT: /certs/client.crt
+      AGENT_GRPC_CLIENT_KEY: /certs/client.key
       AGENT_GRPC_TLS_SERVER_NAME: ${AGENT_GRPC_TLS_SERVER_NAME:-}
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN}
-      AGENT_UPLOAD_ARTIFACTS: "1"
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:?set MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINIO_SECURE: ${MINIO_SECURE:-0}
+      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
+      AGENT_RESULT_OUTBOX_MAX_ENTRIES: ${AGENT_RESULT_OUTBOX_MAX_ENTRIES:-256}
     volumes:
       - ./deploy/certs:/certs:ro
+      - /sys/kernel/tracing:/sys/kernel/tracing
       - /sys/kernel/debug:/sys/kernel/debug
       - /lib/modules:/lib/modules:ro
+      - agentoutbox:/var/lib/mini-drop-agent/outbox
     privileged: true
     pid: host
     cap_add:
@@ -41,3 +46,6 @@ services:
       - no-new-privileges:true
       - seccomp:unconfined
     restart: unless-stopped
+
+volumes:
+  agentoutbox:

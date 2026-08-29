@@ -15,5 +15,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates libgrpc++1 libprotobuf23 libpqxx-6.4 \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /build/mini-drop-native-control /usr/local/bin/
-EXPOSE 50052
+EXPOSE 50051
 ENTRYPOINT ["/usr/local/bin/mini-drop-native-control"]

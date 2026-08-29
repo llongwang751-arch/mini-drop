@@ -35,6 +35,7 @@ def _reset_repo(monkeypatch):
     monkeypatch.delenv("MINI_DROP_INTERNAL_GATEWAY_TOKEN", raising=False)
     monkeypatch.delenv("MINI_DROP_EVALUATOR_ORACLE_PATH", raising=False)
     monkeypatch.setenv("MINIO_AUTO_CREATE_BUCKET", "0")
+    monkeypatch.setattr(store, "bucket_available", lambda bucket, timeout_seconds: True)
     REGISTRY.clear()
     reset_engine()
     init_db()
@@ -65,6 +66,29 @@ class TestHealthz:
         body = resp.json()
         assert body["code"] == 0
         assert body["data"]["service"] == "mini-drop-server"
+        assert body["data"]["healthy"] is True
+        assert body["data"]["checks"]["storage"]["status"] == "disabled"
+
+    def test_healthz_reports_storage_failure_without_creating_bucket(
+        self, client: TestClient, monkeypatch
+    ):
+        observed = {}
+
+        def unavailable(bucket: str, timeout_seconds: float) -> bool:
+            observed.update(bucket=bucket, timeout_seconds=timeout_seconds)
+            return False
+
+        monkeypatch.setenv("MINI_DROP_HEALTH_STORAGE_TIMEOUT_SEC", "0.2")
+        monkeypatch.setenv("MINIO_ENDPOINT", "localhost:9000")
+        monkeypatch.setattr(store, "bucket_available", unavailable)
+
+        resp = client.get("/api/healthz")
+
+        assert resp.status_code == 200
+        data = resp.json()["data"]
+        assert data["healthy"] is False
+        assert data["checks"]["storage"]["status"] == "unavailable"
+        assert observed == {"bucket": "mini-drop", "timeout_seconds": 0.2}
 
     def test_me_returns_demo_user(self, client: TestClient):
         resp = client.get("/api/me")

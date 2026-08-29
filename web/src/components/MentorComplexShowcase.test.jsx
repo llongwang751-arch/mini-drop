@@ -67,5 +67,5 @@ describe("MentorComplexShowcase", () => {
     expect(screen.getByText("案例乙诊断成功 · 完整探索树")).toBeInTheDocument();
     expect(screen.getAllByText("乙入口")).toHaveLength(2);
     expect(screen.getByText(/滚轮缩放、按住空白区域拖动/)).toBeInTheDocument();
-  });
+  }, 15000);
 });

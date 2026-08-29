@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import math
+import re
+from collections import Counter
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -42,6 +46,66 @@ _CAMPAIGN_SOURCE_TOOL = {
     "jvm": "start_jvm_profile",
 }
 _MATCH_THRESHOLD = 700
+_HYBRID_MATCH_THRESHOLD = 0.35
+_HYBRID_MIN_MARGIN = 0.04
+_TOKEN_RE = re.compile(r"[a-z0-9_]+|[\u4e00-\u9fff]+", re.IGNORECASE)
+_SEARCH_STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "for",
+    "in",
+    "is",
+    "of",
+    "on",
+    "the",
+    "to",
+    "with",
+    "出现",
+    "发生",
+    "异常",
+    "问题",
+}
+_VECTOR_CONCEPTS = {
+    "cpu": "compute",
+    "hotspot": "compute",
+    "火焰图": "compute",
+    "热点": "compute",
+    "busyloop": "compute",
+    "p99": "latency",
+    "latency": "latency",
+    "尾延迟": "latency",
+    "延迟": "latency",
+    "slow": "latency",
+    "io": "storage",
+    "iops": "storage",
+    "disk": "storage",
+    "磁盘": "storage",
+    "writeback": "storage",
+    "fsync": "storage",
+    "lock": "lock",
+    "mutex": "lock",
+    "futex": "lock",
+    "锁": "lock",
+    "锁等": "lock",
+    "等待": "wait",
+    "queue": "wait",
+    "排队": "wait",
+    "pool": "pool",
+    "连接池": "pool",
+    "connection": "pool",
+    "gc": "runtime",
+    "gil": "runtime",
+    "python": "runtime",
+    "jvm": "runtime",
+    "serialisation": "serialization",
+    "serialization": "serialization",
+    "network": "network",
+    "tcp": "network",
+    "网络": "network",
+    "timeout": "timeout",
+    "超时": "timeout",
+}
 _GENERIC_ROUTE_CATEGORIES = {"SYSTEM_RESOURCE"}
 _SUBSYSTEM_CATEGORY = {
     "cpu": "CPU_HOTSPOT",
@@ -352,6 +416,202 @@ def _match_score(skill: DiagnosticSkillModel, category: str, target: dict) -> tu
     return min(score, 1000), reasons
 
 
+def _tokenize_search_text(value: object) -> list[str]:
+    """Tokenize mixed Chinese/English incident text for local retrieval."""
+    tokens: list[str] = []
+    for part in _TOKEN_RE.findall(str(value or "").lower()):
+        if re.fullmatch(r"[\u4e00-\u9fff]+", part):
+            if len(part) == 1:
+                tokens.append(part)
+            else:
+                tokens.extend(part[index : index + 2] for index in range(len(part) - 1))
+                if len(part) <= 8:
+                    tokens.append(part)
+        else:
+            tokens.append(part)
+    return [item for item in tokens if item and item not in _SEARCH_STOPWORDS]
+
+
+def _skill_search_text(skill: DiagnosticSkillModel) -> str:
+    trigger = skill.trigger_json or {}
+    strategy = skill.strategy_json or {}
+    values: list[object] = [
+        trigger.get("source_query"),
+        " ".join(trigger.get("query_terms") or []),
+        trigger.get("service"),
+        skill.category,
+        " ".join(strategy.get("probe_order") or []),
+        " ".join(strategy.get("symptoms") or []),
+    ]
+    exploration = strategy.get("actual_exploration") or {}
+    for node in exploration.get("nodes") or []:
+        values.extend((node.get("label"), node.get("reason")))
+    return " ".join(str(item or "") for item in values)
+
+
+def _bm25_scores(query_tokens: list[str], documents: list[list[str]]) -> list[float]:
+    if not query_tokens or not documents:
+        return [0.0 for _ in documents]
+    document_count = len(documents)
+    average_length = sum(len(item) for item in documents) / max(document_count, 1)
+    document_frequency = Counter()
+    for document in documents:
+        document_frequency.update(set(document))
+    query_frequency = Counter(query_tokens)
+    raw_scores: list[float] = []
+    for document in documents:
+        frequencies = Counter(document)
+        score = 0.0
+        for token, query_count in query_frequency.items():
+            frequency = frequencies.get(token, 0)
+            if frequency == 0:
+                continue
+            inverse_document_frequency = math.log(
+                1 + (document_count - document_frequency[token] + 0.5)
+                / (document_frequency[token] + 0.5)
+            )
+            denominator = frequency + 1.5 * (
+                1 - 0.75 + 0.75 * len(document) / max(average_length, 1)
+            )
+            score += query_count * inverse_document_frequency * frequency * 2.5 / denominator
+        raw_scores.append(score)
+    # Saturate each score independently. Normalizing by the best candidate
+    # made confidence change whenever an unrelated Skill entered the catalog.
+    return [1.0 - math.exp(-item) for item in raw_scores]
+
+
+def _vector_features(tokens: list[str]) -> Counter[str]:
+    """Build deterministic lexical n-gram and domain-concept features.
+
+    This is not a neural embedding. It is a local feature-vector backend that
+    tolerates punctuation, spelling variants and bounded diagnosis synonyms.
+    """
+    features: Counter[str] = Counter()
+    compact_ascii = "".join(token for token in tokens if token.isascii())
+    for token in tokens:
+        features[f"token:{token}"] += 1.0
+        concept = _VECTOR_CONCEPTS.get(token)
+        if concept:
+            features[f"concept:{concept}"] += 3.0
+        if token.isascii() and len(token) >= 4:
+            normalized = re.sub(r"[^a-z0-9]", "", token)
+            for width in (3, 4):
+                for index in range(max(0, len(normalized) - width + 1)):
+                    features[f"char:{normalized[index:index + width]}"] += 0.35
+    # Joining ASCII tokens lets write-back/writeback and similar punctuation
+    # variants meet in vector space without weakening BM25 exact matching.
+    if compact_ascii:
+        for width in (3, 4):
+            for index in range(max(0, len(compact_ascii) - width + 1)):
+                features[f"compact:{compact_ascii[index:index + width]}"] += 0.15
+    return features
+
+
+def _hashed_vector(features: Counter[str], dimensions: int = 512) -> list[float]:
+    """Create a deterministic signed-hashing vector from weighted features."""
+    vector = [0.0] * dimensions
+    for feature, weight in features.items():
+        digest = hashlib.sha256(feature.encode("utf-8")).digest()
+        index = int.from_bytes(digest[:4], "big") % dimensions
+        sign = 1.0 if digest[4] & 1 else -1.0
+        vector[index] += sign * weight
+    norm = math.sqrt(sum(item * item for item in vector))
+    return [item / norm for item in vector] if norm else vector
+
+
+def _vector_similarity(left: list[str], right: list[str]) -> float:
+    if not left or not right:
+        return 0.0
+    left_vector = _hashed_vector(_vector_features(left))
+    right_vector = _hashed_vector(_vector_features(right))
+    return max(0.0, min(1.0, sum(a * b for a, b in zip(left_vector, right_vector))))
+
+
+def _rank_hybrid_skills(
+    skills: list[DiagnosticSkillModel], category: str, target: dict, query: str
+) -> list[tuple[float, dict, DiagnosticSkillModel]]:
+    """Hard-filter incompatible Skills, then rank by BM25 + vector + context."""
+    query_tokens = _tokenize_search_text(query)
+    eligible: list[tuple[DiagnosticSkillModel, int, dict, list[str], bool]] = []
+    baseline_tool = str(target.get("_baseline_tool") or "")
+    for skill in skills:
+        context_score, reasons = _match_score(skill, category, target)
+        if context_score < _MATCH_THRESHOLD:
+            continue
+        compatible, conflict = _route_compatible(category, baseline_tool, target)
+        if not compatible:
+            continue
+        route = (skill.strategy_json or {}).get("probe_order") or []
+        if not any(_tool_available(tool_name, target) for tool_name in route):
+            continue
+        trigger = skill.trigger_json or {}
+        has_retrieval_document = bool(trigger.get("source_query") or trigger.get("query_terms"))
+        eligible.append(
+            (
+                skill,
+                context_score,
+                {**reasons, **conflict},
+                _tokenize_search_text(_skill_search_text(skill)),
+                has_retrieval_document,
+            )
+        )
+    if not eligible:
+        return []
+
+    documents = [item[3] for item in eligible]
+    bm25 = _bm25_scores(query_tokens, documents)
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]] = []
+    for index, (skill, context_score, reasons, document_tokens, has_retrieval_document) in enumerate(eligible):
+        vector_score = _vector_similarity(query_tokens, document_tokens)
+        context = context_score / 1000
+        has_text_signal = bool(query_tokens and document_tokens and has_retrieval_document)
+        score = (
+            0.30 * context + 0.45 * bm25[index] + 0.25 * vector_score
+            if has_text_signal
+            else context
+        )
+        matched_terms = sorted(set(query_tokens).intersection(document_tokens))[:12]
+        ranked.append(
+            (
+                score,
+                {
+                    **reasons,
+                    "retrieval": "HYBRID_BM25_VECTOR" if has_text_signal else "STRUCTURED_FALLBACK",
+                    "bm25": round(bm25[index], 4),
+                    "vector": round(vector_score, 4),
+                    "vector_backend": "HASHED_NGRAM_CONCEPT_VECTOR",
+                    "structured": round(context, 4),
+                    "matched_terms": matched_terms,
+                },
+                skill,
+            )
+        )
+    return sorted(ranked, key=lambda item: (-item[0], item[2].id))
+
+
+def _select_ranked_skill(
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]],
+) -> tuple[float, dict, DiagnosticSkillModel] | None:
+    """Apply the production confidence and ambiguity gates to a ranking."""
+    if not ranked or ranked[0][0] < _HYBRID_MATCH_THRESHOLD:
+        return None
+    if len(ranked) > 1 and ranked[0][1].get("retrieval") == "HYBRID_BM25_VECTOR":
+        total_margin = ranked[0][0] - ranked[1][0]
+        bm25_margin = float(ranked[0][1].get("bm25") or 0) - float(
+            ranked[1][1].get("bm25") or 0
+        )
+        vector_margin = float(ranked[0][1].get("vector") or 0) - float(
+            ranked[1][1].get("vector") or 0
+        )
+        if (
+            total_margin < _HYBRID_MIN_MARGIN
+            and bm25_margin < 0.08
+            and vector_margin < 0.08
+        ):
+            return None
+    return ranked[0]
+
+
 def list_skills(*, include_retired: bool = True) -> list[dict]:
     session = new_session()
     try:
@@ -503,7 +763,8 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             trigger_json={
                 "environment": target.get("environment") or "*",
                 "service": target.get("service") or "",
-                "query_terms": sorted(set(diagnosis.query.lower().split()))[:20],
+                "source_query": diagnosis.query,
+                "query_terms": list(dict.fromkeys(_tokenize_search_text(diagnosis.query)))[:80],
             },
             strategy_json={
                 "probe_order": route,
@@ -705,13 +966,15 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
             DiagnosticSkillModel.status == "ACTIVE",
             DiagnosticSkillModel.category == category,
         ).all()
-        ranked = sorted(
-            ((_match_score(skill, category, target), skill) for skill in skills),
-            key=lambda item: item[0][0], reverse=True,
-        )
-        if not ranked or ranked[0][0][0] < _MATCH_THRESHOLD:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        query = diagnosis.query if diagnosis is not None else str(target.get("query") or "")
+        ranking_target = {**target, "_baseline_tool": baseline_tool}
+        ranked = _rank_hybrid_skills(skills, category, ranking_target, query)
+        selected = _select_ranked_skill(ranked)
+        if selected is None:
             return None
-        (score, reasons), skill = ranked[0]
+        score_value, reasons, skill = selected
+        score = int(round(score_value * 1000))
         route = (skill.strategy_json or {}).get("probe_order") or []
         completed_tools = {
             item[0]

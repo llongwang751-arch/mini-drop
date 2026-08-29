@@ -138,12 +138,22 @@ export default function ChatThread({
                         <Tag color="green">Skill {index + 1}</Tag>
                         <Tag>版本 {reason.skill_version || "-"}</Tag>
                         <Tag color="blue">匹配度 {Math.round(Number(activation.match_score || 0) * 100)}%</Tag>
+                        {reason.retrieval === "HYBRID_BM25_VECTOR" && (
+                          <>
+                            <Tag color="purple">BM25 {Math.round(Number(reason.bm25 || 0) * 100)}%</Tag>
+                            <Tag color="geekblue">向量 {Math.round(Number(reason.vector || 0) * 100)}%</Tag>
+                            <Tag>上下文 {Math.round(Number(reason.structured || 0) * 100)}%</Tag>
+                          </>
+                        )}
                       </Space>
                       <div>
                         取证路线：{activationRoute.map((tool) => (
                           <Tag key={`${activation.skill_id}:${tool}`}>{TOOL_LABELS[tool] || tool}</Tag>
                         ))}
                       </div>
+                      {reason.matched_terms?.length > 0 && (
+                        <Text type="secondary">命中词：{reason.matched_terms.join("、")}</Text>
+                      )}
                     </div>
                   );
                 })}

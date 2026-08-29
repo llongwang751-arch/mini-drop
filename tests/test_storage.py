@@ -28,6 +28,22 @@ class TestEnsureBucket:
             mock_minio.make_bucket.assert_not_called()
 
 
+class TestBucketAvailable:
+    def test_uses_bounded_read_only_client(self):
+        with mock.patch.object(store, "_client") as mock_client:
+            mock_client.return_value.bucket_exists.return_value = True
+
+            assert store.bucket_available("existing-bucket", timeout_seconds=0.25) is True
+
+        mock_client.assert_called_once_with(request_timeout_seconds=0.25)
+        mock_client.return_value.bucket_exists.assert_called_once_with("existing-bucket")
+        mock_client.return_value.make_bucket.assert_not_called()
+
+    def test_rejects_empty_bucket(self):
+        with pytest.raises(ValueError, match="bucket must not be empty"):
+            store.bucket_available("")
+
+
 class TestUploadFile:
     def test_upload_returns_size(self, tmp_path):
         f = tmp_path / "test.dat"

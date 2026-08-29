@@ -105,7 +105,9 @@ def test_secure_channel_uses_custom_ca_and_server_name(monkeypatch, tmp_path):
     monkeypatch.setattr(
         grpc,
         "ssl_channel_credentials",
-        lambda root_certificates=None: ("credentials", root_certificates),
+        lambda root_certificates=None, private_key=None, certificate_chain=None: (
+            "credentials", root_certificates, private_key, certificate_chain
+        ),
     )
 
     def fake_secure_channel(address, credentials, options=None):
@@ -117,5 +119,36 @@ def test_secure_channel_uses_custom_ca_and_server_name(monkeypatch, tmp_path):
     _build_channel("10.0.0.10:50051")
 
     assert captured["address"] == "10.0.0.10:50051"
-    assert captured["credentials"] == ("credentials", b"test-ca")
+    assert captured["credentials"] == ("credentials", b"test-ca", None, None)
     assert ("grpc.ssl_target_name_override", "control.internal") in captured["options"]
+
+
+def test_secure_channel_loads_mutual_tls_identity(monkeypatch, tmp_path):
+    ca_file = tmp_path / "ca.crt"
+    cert_file = tmp_path / "client.crt"
+    key_file = tmp_path / "client.key"
+    ca_file.write_bytes(b"test-ca")
+    cert_file.write_bytes(b"test-client-cert")
+    key_file.write_bytes(b"test-client-key")
+    captured = {}
+
+    monkeypatch.setenv("AGENT_GRPC_SECURE", "1")
+    monkeypatch.setenv("AGENT_GRPC_CA_CERT", str(ca_file))
+    monkeypatch.setenv("AGENT_GRPC_CLIENT_CERT", str(cert_file))
+    monkeypatch.setenv("AGENT_GRPC_CLIENT_KEY", str(key_file))
+    monkeypatch.setattr(
+        grpc,
+        "ssl_channel_credentials",
+        lambda **kwargs: captured.update(kwargs) or "credentials",
+    )
+    monkeypatch.setattr(
+        grpc, "secure_channel", lambda *_args, **_kwargs: FakeChannel()
+    )
+
+    _build_channel("control:50051")
+
+    assert captured == {
+        "root_certificates": b"test-ca",
+        "private_key": b"test-client-key",
+        "certificate_chain": b"test-client-cert",
+    }

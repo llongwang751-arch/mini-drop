@@ -521,6 +521,7 @@ export default function AIDiagnosis() {
   const { connected: sseConnected } = useSSE({
     onDiagnosisProgress: handleDiagnosisProgress,
     channel: "diagnosis",
+    resourceId: selectedId,
   });
 
   useEffect(() => () => {

@@ -106,10 +106,26 @@ describe("useSSE", () => {
     const es = makeFakeES();
     createDiagnosisEventSource.mockReturnValue(es);
 
-    renderHook(() => useSSE({ channel: "diagnosis" }));
+    renderHook(() => useSSE({ channel: "diagnosis", resourceId: "diag-1" }));
 
-    expect(createDiagnosisEventSource).toHaveBeenCalledTimes(1);
+    expect(createDiagnosisEventSource).toHaveBeenCalledWith("diag-1", 0);
     expect(createEventSource).not.toHaveBeenCalled();
+  });
+
+  it("replays the diagnosis stream from the last received sequence", () => {
+    const streams = [];
+    createDiagnosisEventSource.mockImplementation(() => {
+      const es = makeFakeES();
+      streams.push(es);
+      return es;
+    });
+    renderHook(() => useSSE({ channel: "diagnosis", resourceId: "diag-1" }));
+
+    act(() => streams[0]._emit("diagnosis_progress", { diagnosis_id: "diag-1", sequence: 7 }));
+    act(() => streams[0].onerror());
+    act(() => vi.advanceTimersByTime(1000));
+
+    expect(createDiagnosisEventSource).toHaveBeenLastCalledWith("diag-1", 7);
   });
 
   it("closes the stream and clears the timer on unmount", () => {

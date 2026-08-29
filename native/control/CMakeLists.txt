@@ -13,7 +13,7 @@ pkg_check_modules(PQXX REQUIRED libpqxx)
 set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 file(MAKE_DIRECTORY "${GENERATED_DIR}")
 set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../proto")
-set(PROTO_FILES common.proto hotmethod.proto healthcheck.proto init.proto)
+set(PROTO_FILES common.proto hotmethod.proto healthcheck.proto init.proto control.proto)
 set(GENERATED_SOURCES)
 foreach(PROTO_FILE IN LISTS PROTO_FILES)
   get_filename_component(PROTO_NAME "${PROTO_FILE}" NAME_WE)
@@ -35,6 +35,7 @@ add_custom_command(
     "${PROTO_DIR}/hotmethod.proto"
     "${PROTO_DIR}/healthcheck.proto"
     "${PROTO_DIR}/init.proto"
+    "${PROTO_DIR}/control.proto"
   VERBATIM)
 
 add_executable(mini-drop-native-control src/main.cpp ${GENERATED_SOURCES})

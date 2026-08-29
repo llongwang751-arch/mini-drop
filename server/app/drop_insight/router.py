@@ -1,5 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query, Request
+import asyncio
+import json
+import queue
 
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
+
+from server.app.event_bus import BUS
 from server.app.schemas import APIResponse
 
 from .schemas import (
@@ -192,6 +198,75 @@ def events(diagnosis_id: str) -> APIResponse:
     if get_diagnosis(diagnosis_id) is None:
         raise HTTPException(status_code=404, detail="Drop Insight 诊断不存在")
     return APIResponse(data=[item.to_dict() for item in list_events(diagnosis_id)])
+
+
+@router.get("/diagnoses/{diagnosis_id}/events/stream")
+async def diagnosis_events_stream(
+    diagnosis_id: str,
+    request: Request,
+    after: int = Query(default=0, ge=0),
+):
+    """Replay durable diagnosis events, then continue with live SSE updates."""
+    if get_diagnosis(diagnosis_id) is None:
+        raise HTTPException(status_code=404, detail="Drop Insight 诊断不存在")
+    header_cursor = request.headers.get("last-event-id", "").strip()
+    try:
+        cursor = max(after, int(header_cursor)) if header_cursor else after
+    except ValueError:
+        cursor = after
+
+    async def event_generator():
+        live_queue = BUS.subscribe()
+        last_sequence = cursor
+        try:
+            yield ":connected\n\n"
+            # Subscribe before reading the database. Any event committed during
+            # replay is either present in the snapshot or remains in the queue;
+            # the sequence guard removes the possible duplicate.
+            for item in list_events(diagnosis_id):
+                if item.sequence <= last_sequence:
+                    continue
+                last_sequence = item.sequence
+                payload = item.to_dict()
+                yield (
+                    f"id: {item.sequence}\n"
+                    "event: diagnosis_progress\n"
+                    f"data: {json.dumps(payload, ensure_ascii=False, default=str)}\n\n"
+                )
+            while True:
+                try:
+                    event = await asyncio.to_thread(live_queue.get, True, 30.0)
+                except queue.Empty:
+                    yield ":keepalive\n\n"
+                    continue
+                if event.get("event") != "diagnosis_progress":
+                    continue
+                payload = event.get("data") or {}
+                if payload.get("diagnosis_id") != diagnosis_id:
+                    continue
+                sequence = int(payload.get("sequence") or 0)
+                if sequence <= last_sequence:
+                    continue
+                last_sequence = sequence
+                yield (
+                    f"id: {sequence}\n"
+                    "event: diagnosis_progress\n"
+                    f"data: {json.dumps(payload, ensure_ascii=False, default=str)}\n\n"
+                )
+        except asyncio.CancelledError:
+            pass
+        finally:
+            BUS.unsubscribe(live_queue)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/diagnoses/{diagnosis_id}/exploration-tree")

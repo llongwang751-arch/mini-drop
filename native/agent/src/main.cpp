@@ -24,6 +24,7 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -64,6 +65,42 @@ std::string read_first_line(const fs::path& path) {
   std::string line;
   std::getline(input, line);
   return line;
+}
+
+std::string read_file(const std::string& path) {
+  if (path.empty()) return "";
+  std::ifstream input(path, std::ios::binary);
+  if (!input) throw std::runtime_error("cannot read TLS file: " + path);
+  std::ostringstream content;
+  content << input.rdbuf();
+  return content.str();
+}
+
+std::shared_ptr<grpc::Channel> create_control_channel(const Config& config) {
+  if (!config.grpc_secure) {
+    return grpc::CreateChannel(config.grpc_addr, grpc::InsecureChannelCredentials());
+  }
+  if (config.grpc_ca_cert.empty()) {
+    throw std::runtime_error("AGENT_GRPC_CA_CERT is required when TLS is enabled");
+  }
+  const bool has_client_cert = !config.grpc_client_cert.empty();
+  const bool has_client_key = !config.grpc_client_key.empty();
+  if (has_client_cert != has_client_key) {
+    throw std::runtime_error(
+        "AGENT_GRPC_CLIENT_CERT and AGENT_GRPC_CLIENT_KEY must be configured together");
+  }
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = read_file(config.grpc_ca_cert);
+  if (has_client_cert) {
+    options.pem_cert_chain = read_file(config.grpc_client_cert);
+    options.pem_private_key = read_file(config.grpc_client_key);
+  }
+  grpc::ChannelArguments arguments;
+  if (!config.grpc_tls_server_name.empty()) {
+    arguments.SetSslTargetNameOverride(config.grpc_tls_server_name);
+  }
+  return grpc::CreateCustomChannel(
+      config.grpc_addr, grpc::SslCredentials(options), arguments);
 }
 
 std::string json_escape(const std::string& value) {
@@ -275,8 +312,14 @@ int main() {
   std::signal(SIGTERM, on_signal);
 
   Config config = load_config();
-  auto channel = grpc::CreateChannel(
-      config.grpc_addr, grpc::InsecureChannelCredentials());
+  std::shared_ptr<grpc::Channel> channel;
+  try {
+    channel = create_control_channel(config);
+  } catch (const std::exception& error) {
+    std::cerr << "{\"level\":\"error\",\"event\":\"grpc_tls_init_failed\","
+              << "\"message\":\"" << json_escape(error.what()) << "\"}\n";
+    return 2;
+  }
   auto init_stub = mini_drop::InitAgent::NewStub(channel);
   auto health_stub = mini_drop::HealthCheck::NewStub(channel);
   auto result_stub = mini_drop::Hotmethod::NewStub(channel);
