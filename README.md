@@ -35,6 +35,11 @@ React Web ---> Go API ---------------------> PostgreSQL
 - Python Analyzer 异步解析产物；Python Diagnosis Worker 只通过内部 gRPC 接收诊断请求。
 - 浏览器不直接访问 Python Worker，AI 也不能绕过 Go 和 C++ 的权限、能力及预算门禁。
 
+## 项目目录
+
+各顶层目录、关键文件、生成文件与测试文件的职责，见
+[`docs/architecture/repository-layout.md`](docs/architecture/repository-layout.md)。
+
 ## 任务数据流
 
 1. Web 通过 HTTP 创建 Task；Go 校验参数、权限和幂等键，将 `PENDING` Task 写入 PostgreSQL 后立即返回任务 ID。
