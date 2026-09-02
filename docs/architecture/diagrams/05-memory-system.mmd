@@ -1,0 +1,61 @@
+flowchart TB
+    classDef work fill:#EEF6FF,stroke:#2563EB,color:#172033,stroke-width:2px
+    classDef route fill:#FFF7E8,stroke:#D89016,color:#172033,stroke-width:2px
+    classDef long fill:#EAFBF4,stroke:#0F8A61,color:#172033,stroke-width:2px
+    classDef static fill:#F5F2FF,stroke:#7557C8,color:#172033,stroke-width:2px
+    classDef guard fill:#FFF0F0,stroke:#CF3F4A,color:#172033,stroke-width:2px
+
+    subgraph WM["A. 当前诊断工作记忆（可恢复、动态更新）"]
+        SESSION["Diagnosis Session<br/>query、scope、budget、status"]:::work
+        EVENT["递增 Event Log<br/>sequence 是树 revision"]:::work
+        HYP["Hypothesis<br/>轮次、父节点、反证条件"]:::work
+        CALL["ToolCall<br/>策略决策、预算、结果"]:::work
+        EVI["EvidenceEnvelope<br/>来源、质量、支持/反证"]:::work
+        REPORT["Verified Report<br/>claims、证据引用、限制"]:::work
+        TREE["实时探索树快照<br/>蓝调查、红剪枝、绿根因、灰未走"]:::work
+        SESSION --> HYP --> CALL --> EVI --> REPORT
+        SESSION --> EVENT
+        HYP --> TREE
+        CALL --> TREE
+        EVI --> TREE
+        REPORT --> TREE
+        EVENT --> TREE
+    end
+
+    subgraph RM["B. 路线记忆（只影响排序）"]
+        HIST["历史终态诊断<br/>症状、runtime、probe 执行"]:::route
+        WEIGHT["上下文加权<br/>同症状 +1.0，同 runtime +0.65"]:::route
+        OUTCOME["结果加权<br/>终态质量 × 证据产出率"]:::route
+        PRIOR["Beta(1,1) 平滑<br/>得到 probe success prior"]:::route
+        RANK["下一轮 Planner 路线先验"]:::route
+        HIST --> WEIGHT --> OUTCOME --> PRIOR --> RANK
+    end
+
+    subgraph LM["C. 长期 Skill 记忆（版本化经验）"]
+        SOURCE["VERIFIED 报告 + 真实探索轨迹<br/>成功路径、错路、转向、停止条件"]:::long
+        CAND["CANDIDATE Skill<br/>trigger、probe_order、evidence floor"]:::long
+        EVAL["确定性评测<br/>正例、误导反例、环境漂移"]:::long
+        ACTIVE["ACTIVE 版本"]:::long
+        RETRIEVE["三路混合检索与安全门禁"]:::long
+        ACT["Activation 与结果反馈"]:::long
+        ROLLBACK["隔离 / 回滚 / 新版本"]:::long
+        SOURCE --> CAND --> EVAL --> ACTIVE --> RETRIEVE --> ACT
+        ACT -->|"错误、漂移"| ROLLBACK
+        ROLLBACK --> CAND
+    end
+
+    subgraph KM["D. 静态知识（参考，不是事实记忆）"]
+        CATALOG["knowledge/catalog.json"]:::static
+        DOC["诊断条目<br/>required_evidence、caveats、document"]:::static
+        CATALOG --> DOC
+    end
+
+    REPORT -->|"只有 VERIFIED 且 provenance 完整"| SOURCE
+    SESSION -->|"终态后进入统计"| HIST
+    RANK -->|"先验，不生成命令"| CALL
+    RETRIEVE -->|"候选路线，不跳过本轮证据"| CALL
+    DOC -->|"补充报告背景与注意事项"| REPORT
+    GUARD["共同安全边界<br/>历史经验不能绕过能力检查、预算、审批<br/>反证优先于路线先验，知识不能替代运行证据"]:::guard
+    GUARD -.约束.-> RANK
+    GUARD -.约束.-> RETRIEVE
+    GUARD -.约束.-> REPORT

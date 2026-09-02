@@ -478,12 +478,18 @@ def _showcase_history_payload(case: dict) -> dict:
                 "created_at": f"2026-08-26T10:{index:02d}:00+08:00",
             }
         )
+        role = "SUPPORT" if is_final else "COUNTER" if is_refuted else "NEUTRAL"
+        decision = {
+            "SUPPORT": "ACCEPT_SUPPORT",
+            "COUNTER": "ACCEPT_COUNTER",
+            "NEUTRAL": "ACCEPT_NEUTRAL",
+        }[role]
         evidence.append(
             {
                 "evidence_id": evidence_id,
                 "hypothesis_id": hypothesis_id,
-                "role": "SUPPORT" if is_final else "COUNTER" if is_refuted else "NEUTRAL",
-                "classification": {"decision": "ACCEPT_SUPPORT"},
+                "role": role,
+                "classification": {"decision": decision},
                 "envelope": {
                     "source": {"tool_name": round_item["tool"]},
                     "observation": {"metadata": {"summary": round_item["decision"]}},
@@ -535,6 +541,11 @@ def _showcase_history_payload(case: dict) -> dict:
         "classification": "受控故障 · 多轮循证诊断",
         "target": {"agent_id": "showcase-agent", "pid": 31042},
         "time_range": {"mode": "受控故障回放"},
+        "provenance": {
+            "kind": "CONTROLLED_REPLAY",
+            "live_collection": False,
+            "description": "固定受控案例，用于验证多轮交互、剪枝和证据展示；不代表线上事故或生产准确率。",
+        },
         "created_at": "2026-08-26T10:00:00+08:00",
         "updated_at": "2026-08-26T10:20:00+08:00",
         "showcase": case,

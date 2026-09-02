@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mini-drop.local/contracts/task-parameters/pyspy.schema.json",
+  "title": "Mini-Drop pyspy task parameters",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "target_pid",
+    "duration_sec",
+    "sample_rate"
+  ],
+  "properties": {
+    "target_pid": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4194304
+    },
+    "duration_sec": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 300,
+      "default": 15
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999,
+      "default": 99
+    },
+    "options": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "timeout_sec": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        },
+        "container_name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "container_type": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "subprocess": {
+          "type": "boolean"
+        }
+      },
+      "default": {}
+    }
+  },
+  "x-task-kind": "pyspy",
+  "x-contract-version": "1.0.0"
+}

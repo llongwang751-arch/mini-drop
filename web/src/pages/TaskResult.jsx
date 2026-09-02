@@ -4,11 +4,9 @@ import {
   Button,
   Card,
   Col,
-  Collapse,
   Descriptions,
   Empty,
   message,
-  Progress,
   Row,
   Select,
   Skeleton,
@@ -17,30 +15,23 @@ import {
   Table,
   Tag,
   Timeline,
-  Tooltip,
   Typography,
 } from "antd";
 import {
   ArrowLeftOutlined,
   BarChartOutlined,
   DownloadOutlined,
-  ExperimentOutlined,
   FileTextOutlined,
   RedoOutlined,
-  ReloadOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   createTask,
   downloadTaskArtifact,
-  getDiagnosis,
   getTask,
   getTaskArtifactContent,
   getTaskArtifacts,
   getTaskEvents,
-  listTaskDiagnoses,
-  submitDiagnosisFeedback,
-  triggerDiagnose,
 } from "../api/client";
 import FlamegraphViewer from "../components/FlamegraphViewer";
 import TopNChart from "../components/TopNChart";
@@ -65,9 +56,6 @@ export default function TaskResult() {
   const [task, setTask] = useState(null);
   const [events, setEvents] = useState([]);
   const [artifacts, setArtifacts] = useState([]);
-  const [diagnoses, setDiagnoses] = useState([]);
-  const [diagnosis, setDiagnosis] = useState(null);
-  const [diagnosing, setDiagnosing] = useState(false);
   const [analysis, setAnalysis] = useState({ top: [], svg: "", hasFlameJson: false });
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [selectedContinuousIndex, setSelectedContinuousIndex] = useState(null);
@@ -83,13 +71,12 @@ export default function TaskResult() {
         getTask(taskId),
         getTaskEvents(taskId),
         getTaskArtifacts(taskId),
-        listTaskDiagnoses(taskId),
       ]);
-      const [taskResp, eventResp, artifactResp, diagnosisList] = results.map(
+      const [taskResp, eventResp, artifactResp] = results.map(
         (r) => (r.status === "fulfilled" ? r.value : null)
       );
-      const failedNames = ["task", "events", "artifacts", "diagnoses"].filter((_, i) => results[i].status === "rejected");
-      if (failedNames.length > 0 && failedNames.length < 4) {
+      const failedNames = ["task", "events", "artifacts"].filter((_, i) => results[i].status === "rejected");
+      if (failedNames.length > 0 && failedNames.length < 3) {
         console.warn("部分数据加载失败:", failedNames.join(", "));
       }
       if (!taskResp) {
@@ -120,16 +107,6 @@ export default function TaskResult() {
       setAnalysis(next);
       setAnalysisLoading(false);
 
-      setDiagnoses(diagnosisList || []);
-      if (diagnosisList?.[0]?.id) {
-        try {
-          setDiagnosis(await getDiagnosis(diagnosisList[0].id));
-        } catch {
-          setDiagnosis(null);
-        }
-      } else {
-        setDiagnosis(null);
-      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -147,80 +124,7 @@ export default function TaskResult() {
   const taskCollector = collectorMeta(task?.collector_type);
   usePolling(loadAll, { interval: 5000, enabled: isActive });
 
-  // ── 诊断操作 ──────────────────────────────────────────
-
-  async function runDiagnosis() {
-    setDiagnosing(true);
-    setError("");
-    try {
-      const result = await triggerDiagnose(taskId);
-      const detail = await getDiagnosis(result.diagnosis_id);
-      const list = await listTaskDiagnoses(taskId);
-      setDiagnosis(detail);
-      setDiagnoses(list || []);
-      message.success("诊断完成");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setDiagnosing(false);
-    }
-  }
-
-  async function sendFeedback(label, causeId) {
-    if (!diagnosis?.run?.id) return;
-    try {
-      await submitDiagnosisFeedback(diagnosis.run.id, {
-        predicted_cause_id: causeId || "insufficient_data",
-        feedback_label: label,
-      });
-      message.success("反馈已记录");
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  async function refreshDiagnosis() {
-    if (!diagnosis?.run?.id) return;
-    try {
-      setDiagnosis(await getDiagnosis(diagnosis.run.id));
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
   // ── 产物提取 ──────────────────────────────────────────
-
-  const report = diagnosis?.report?.report || {};
-  const rankedCauses = diagnosis?.report?.ranked_causes || [];
-  const repairPlan = diagnosis?.repair_plan;
-  const toolResults = diagnosis?.tool_results || [];
-  const topCause = rankedCauses[0];
-
-  // 可信分层展示（assessment §4.2）：不再用单一 validated 布尔表示"通过/未通过"。
-  const generationMode = report.generation_mode || diagnosis?.generation_mode;
-  const semanticValidated = report.semantic_validated ?? diagnosis?.semantic_validated;
-  const modelInvoked = report.model_invoked ?? diagnosis?.model_invoked;
-  const fallbackReason = report.fallback_reason || diagnosis?.fallback_reason;
-  const verificationStatus = report.verification?.status;
-  const trustTags = (
-    <Space size={4} wrap>
-      <Tag color={generationMode === "MODEL" ? "green" : "orange"}>
-        {generationMode || "未知模式"}
-      </Tag>
-      <Tag color={modelInvoked ? "blue" : "default"}>
-        模型{modelInvoked ? "已调用" : "未调用"}
-      </Tag>
-      <Tag color={semanticValidated ? "green" : "orange"}>
-        语义{semanticValidated ? "可信" : "未验证"}
-      </Tag>
-      {verificationStatus && (
-        <Tag color={verificationStatus === "VERIFIED" ? "green" : "gold"}>
-          反证门禁:{verificationStatus}
-        </Tag>
-      )}
-      {fallbackReason && <Tag color="red">{fallbackReason}</Tag>}
-    </Space>
-  );
   const topArtifact = artifacts.find((item) => item.artifact_type === "top_json");
   const flameArtifact = artifacts.find(
     (item) =>
@@ -477,7 +381,7 @@ export default function TaskResult() {
                 <StatusTag status={task.collection_status || task.status} />
               </Descriptions.Item>
               <Descriptions.Item label="分析状态">
-                <StatusTag status={task.analysis_status || "NOT_STARTED"} />
+                <StatusTag status={task.analysis_status || "PENDING"} />
               </Descriptions.Item>
               <Descriptions.Item label="名称">{task.name}</Descriptions.Item>
               <Descriptions.Item label="Agent">{task.agent_id}</Descriptions.Item>
@@ -495,13 +399,13 @@ export default function TaskResult() {
             message={`预期可视化：${taskCollector.resultLabel}`}
             description={
               task.status === "FAILED"
-                ? task.collection_status === "SUCCEEDED"
+                ? task.collection_status === "COLLECTED"
                   ? `采集产物已成功保存，Analyzer 失败：${task.status_reason || "未提供失败原因"}。可重放分析任务，无需重新采集。`
                   : `采集失败原因：${task.status_reason || "未提供失败原因"}`
                 : `${taskCollector.description}${task.status_reason ? ` 当前状态：${task.status_reason}` : ""}`
             }
             action={
-              task.status === "FAILED" && task.collection_status !== "SUCCEEDED" ? (
+              task.status === "FAILED" && task.collection_status !== "COLLECTED" ? (
                 <Button size="small" icon={<RedoOutlined />} onClick={recreateTask}>
                   重新采集
                 </Button>
@@ -798,249 +702,13 @@ export default function TaskResult() {
         </Card>
       )}
 
-      {/* 智能归因 */}
-      <Card
-        title={
-          <Space>
-            <ExperimentOutlined style={{ color: COLORS.primary }} />
-            智能归因
-          </Space>
-        }
-        size="small"
-        extra={
-          <Space>
-            {diagnoses.length > 0 && <Tag>{diagnoses.length} 次诊断</Tag>}
-            <Button
-              icon={<ExperimentOutlined />}
-              loading={diagnosing}
-              onClick={runDiagnosis}
-              type="primary"
-              size="small"
-            >
-              运行诊断
-            </Button>
-            <Tooltip title="刷新诊断报告">
-              <Button
-                icon={<ReloadOutlined />}
-                size="small"
-                onClick={refreshDiagnosis}
-                disabled={!diagnosis?.run?.id}
-              />
-            </Tooltip>
-          </Space>
-        }
-      >
-        {!diagnosis ? (
-          <Empty
-            description={
-              diagnosing
-                ? "诊断进行中…"
-                : "暂无诊断报告，点击「运行诊断」基于当前证据进行 AI 归因分析"
-            }
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          >
-            {diagnosing && <Spin />}
-          </Empty>
-        ) : (
-          <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
-            {/* 诊断元数据 */}
-            <Descriptions column={{ xs: 1, sm: 2, md: 4 }} size="small">
-              <Descriptions.Item label="诊断 ID">
-                <Typography.Text copyable={{ text: diagnosis.run?.id }} style={{ fontSize: 12 }}>
-                  {diagnosis.run?.id}
-                </Typography.Text>
-              </Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <StatusTag
-                  status={diagnosis.run?.status === "DONE" ? "DONE" : "FAILED"}
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label="模型">
-                <Tag>{diagnosis.run?.model_name}</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="校验">
-                {trustTags}
-              </Descriptions.Item>
-            </Descriptions>
-
-            {/* 摘要 */}
-            <Alert
-              type={report.not_enough_evidence ? "warning" : "info"}
-              message={
-                <SafeMarkdown>
-                  {report.summary || diagnosis.run?.summary || "诊断完成"}
-                </SafeMarkdown>
-              }
-              showIcon
-            />
-
-            {/* 归因列表 */}
-            {rankedCauses.length > 0 && (
-              <Table
-                rowKey={(record) => record.cause_id}
-                dataSource={rankedCauses}
-                pagination={false}
-                size="small"
-                scroll={{ x: 600 }}
-                columns={[
-                  { title: "根因", dataIndex: "cause_id", width: 200 },
-                  {
-                    title: "置信度",
-                    dataIndex: "confidence",
-                    width: 140,
-                    render: (value) => (
-                      <Progress
-                        percent={Math.round((value || 0) * 100)}
-                        size="small"
-                        strokeColor={
-                          (value || 0) > 0.7
-                            ? COLORS.success
-                            : (value || 0) > 0.4
-                            ? COLORS.warning
-                            : COLORS.error
-                        }
-                      />
-                    ),
-                  },
-                  { title: "结论", dataIndex: "claim", ellipsis: true },
-                  {
-                    title: "证据引用",
-                    dataIndex: "evidence_refs",
-                    width: 200,
-                    render: (refs = []) => (
-                      <Space size={[2, 2]} wrap>
-                        {refs.map((ref) => (
-                          <Tag key={ref} style={{ fontSize: 10, margin: 0 }}>
-                            {ref}
-                          </Tag>
-                        ))}
-                      </Space>
-                    ),
-                  },
-                ]}
-              />
-            )}
-
-            {/* 反馈 */}
-            <Space>
-              <Button
-                size="small"
-                onClick={() => sendFeedback("correct", topCause?.cause_id)}
-                disabled={!topCause}
-              >
-                👍 正确
-              </Button>
-              <Button
-                size="small"
-                onClick={() => sendFeedback("partial", topCause?.cause_id)}
-                disabled={!topCause}
-              >
-                🔶 部分正确
-              </Button>
-              <Button
-                size="small"
-                danger
-                onClick={() => sendFeedback("wrong", topCause?.cause_id)}
-                disabled={!topCause}
-              >
-                👎 错误
-              </Button>
-            </Space>
-
-            {/* 可折叠详情 */}
-            <Collapse
-              ghost
-              items={[
-                {
-                  key: "tools",
-                  label: `Tool-Use 证据链 (${toolResults.length})`,
-                  children: toolResults.length > 0 ? (
-                    <Table
-                      rowKey={(record, index) => `${record.tool_name}-${index}`}
-                      dataSource={toolResults}
-                      pagination={false}
-                      size="small"
-                      scroll={{ x: 700 }}
-                      columns={[
-                        { title: "工具", dataIndex: "tool_name", width: 200 },
-                        {
-                          title: "状态",
-                          dataIndex: "status",
-                          width: 100,
-                          render: (value) => <Tag>{value}</Tag>,
-                        },
-                        {
-                          title: "证据引用",
-                          dataIndex: "evidence_ref",
-                          width: 240,
-                          ellipsis: true,
-                        },
-                        {
-                          title: "结果",
-                          dataIndex: "output",
-                          render: (value) => (
-                            <Typography.Text
-                              code
-                              ellipsis
-                              style={{ maxWidth: 200, display: "inline-block" }}
-                            >
-                              {JSON.stringify(value).slice(0, 160)}
-                            </Typography.Text>
-                          ),
-                        },
-                      ]}
-                    />
-                  ) : (
-                    <Empty description="无工具调用记录" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                  ),
-                },
-                {
-                  key: "repair",
-                  label: "修复计划",
-                  children: repairPlan ? (
-                    <Space direction="vertical" style={{ width: "100%" }}>
-                      <Space wrap>
-                        <Tag
-                          color={
-                            repairPlan.risk_level === "safe_auto" ? "green" : "orange"
-                          }
-                        >
-                          {repairPlan.risk_level}
-                        </Tag>
-                        <Tag>{repairPlan.status}</Tag>
-                        {repairPlan.requires_user_confirm && (
-                          <Tag color="orange">需人工确认风险动作</Tag>
-                        )}
-                      </Space>
-                      <Table
-                        rowKey="action_id"
-                        dataSource={repairPlan.actions || []}
-                        pagination={false}
-                        size="small"
-                        scroll={{ x: 600 }}
-                        columns={[
-                          { title: "动作", dataIndex: "action_type", width: 180 },
-                          {
-                            title: "风险",
-                            dataIndex: "risk_level",
-                            width: 120,
-                            render: (value) => <Tag>{value}</Tag>,
-                          },
-                          { title: "状态", dataIndex: "status", width: 100 },
-                          { title: "说明", dataIndex: "description", ellipsis: true },
-                          { title: "结果", dataIndex: "result", ellipsis: true },
-                        ]}
-                      />
-                    </Space>
-                  ) : (
-                    <Empty description="暂无修复计划" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                  ),
-                },
-              ]}
-            />
-          </Space>
-        )}
-      </Card>
+      <Alert
+        type="info"
+        showIcon
+        message="AI 诊断已统一到 Drop Insight 工作台"
+        description="采集任务只负责产生原始产物和结构化分析结果。根因判断必须进入 AI 诊断工作台，经过目标、时间窗、完整性和证据引用门禁。"
+        action={<Button onClick={() => navigate("/ai-diagnosis")}>进入 AI 诊断</Button>}
+      />
     </Space>
   );
 }

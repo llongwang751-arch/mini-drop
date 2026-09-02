@@ -109,12 +109,14 @@ func (x *PidStats) GetChildrenCount() int32 {
 // Agent 启动时通过 InitAgent.FetchConfig 获取，
 // 用于上传采集产物到 MinIO/S3/COS。
 type CosConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Endpoint      string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                    // 对象存储地址，如 minio:9000
-	AccessKey     string                 `protobuf:"bytes,2,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"` // access key
-	SecretKey     string                 `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"` // secret key
-	Bucket        string                 `protobuf:"bytes,4,opt,name=bucket,proto3" json:"bucket,omitempty"`                        // 默认 bucket 名称
-	Region        string                 `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`                        // 区域（可选，MinIO 留空）
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Endpoint string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"` // 对象存储地址，如 minio:9000
+	// Deprecated: Marked as deprecated in common.proto.
+	AccessKey string `protobuf:"bytes,2,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"` // 兼容旧 Agent；新链路禁止分发
+	// Deprecated: Marked as deprecated in common.proto.
+	SecretKey     string `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"` // 兼容旧 Agent；新链路禁止分发
+	Bucket        string `protobuf:"bytes,4,opt,name=bucket,proto3" json:"bucket,omitempty"`                        // 默认 bucket 名称
+	Region        string `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`                        // 区域（可选，MinIO 留空）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -156,6 +158,7 @@ func (x *CosConfig) GetEndpoint() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in common.proto.
 func (x *CosConfig) GetAccessKey() string {
 	if x != nil {
 		return x.AccessKey
@@ -163,6 +166,7 @@ func (x *CosConfig) GetAccessKey() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in common.proto.
 func (x *CosConfig) GetSecretKey() string {
 	if x != nil {
 		return x.SecretKey
@@ -184,6 +188,68 @@ func (x *CosConfig) GetRegion() string {
 	return ""
 }
 
+// UploadTarget is a least-privilege authorization for one exact task object.
+// The URL is short-lived and must never be logged or persisted by the Agent.
+type UploadTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ObjectKey     string                 `protobuf:"bytes,1,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
+	PutUrl        string                 `protobuf:"bytes,2,opt,name=put_url,json=putUrl,proto3" json:"put_url,omitempty"`
+	ExpiresUnixMs int64                  `protobuf:"varint,3,opt,name=expires_unix_ms,json=expiresUnixMs,proto3" json:"expires_unix_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadTarget) Reset() {
+	*x = UploadTarget{}
+	mi := &file_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadTarget) ProtoMessage() {}
+
+func (x *UploadTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadTarget.ProtoReflect.Descriptor instead.
+func (*UploadTarget) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UploadTarget) GetObjectKey() string {
+	if x != nil {
+		return x.ObjectKey
+	}
+	return ""
+}
+
+func (x *UploadTarget) GetPutUrl() string {
+	if x != nil {
+		return x.PutUrl
+	}
+	return ""
+}
+
+func (x *UploadTarget) GetExpiresUnixMs() int64 {
+	if x != nil {
+		return x.ExpiresUnixMs
+	}
+	return 0
+}
+
 // File 内联传输用的小文件结构。
 // 小于 1 MB 的文件可以直接放在 gRPC 消息中传输，不经过对象存储。
 type File struct {
@@ -198,7 +264,7 @@ type File struct {
 
 func (x *File) Reset() {
 	*x = File{}
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -210,7 +276,7 @@ func (x *File) String() string {
 func (*File) ProtoMessage() {}
 
 func (x *File) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -223,7 +289,7 @@ func (x *File) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use File.ProtoReflect.Descriptor instead.
 func (*File) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{2}
+	return file_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *File) GetFilename() string {
@@ -266,15 +332,20 @@ const file_common_proto_rawDesc = "" +
 	"\tread_kb_s\x18\x03 \x01(\x02R\areadKbS\x12\x1c\n" +
 	"\n" +
 	"write_kb_s\x18\x04 \x01(\x02R\bwriteKbS\x12%\n" +
-	"\x0echildren_count\x18\x05 \x01(\x05R\rchildrenCount\"\x95\x01\n" +
+	"\x0echildren_count\x18\x05 \x01(\x05R\rchildrenCount\"\x9d\x01\n" +
 	"\tCosConfig\x12\x1a\n" +
-	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x1d\n" +
+	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12!\n" +
 	"\n" +
-	"access_key\x18\x02 \x01(\tR\taccessKey\x12\x1d\n" +
+	"access_key\x18\x02 \x01(\tB\x02\x18\x01R\taccessKey\x12!\n" +
 	"\n" +
-	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12\x16\n" +
+	"secret_key\x18\x03 \x01(\tB\x02\x18\x01R\tsecretKey\x12\x16\n" +
 	"\x06bucket\x18\x04 \x01(\tR\x06bucket\x12\x16\n" +
-	"\x06region\x18\x05 \x01(\tR\x06region\"~\n" +
+	"\x06region\x18\x05 \x01(\tR\x06region\"n\n" +
+	"\fUploadTarget\x12\x1d\n" +
+	"\n" +
+	"object_key\x18\x01 \x01(\tR\tobjectKey\x12\x17\n" +
+	"\aput_url\x18\x02 \x01(\tR\x06putUrl\x12&\n" +
+	"\x0fexpires_unix_ms\x18\x03 \x01(\x03R\rexpiresUnixMs\"~\n" +
 	"\x04File\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\fR\acontent\x12!\n" +
@@ -294,11 +365,12 @@ func file_common_proto_rawDescGZIP() []byte {
 	return file_common_proto_rawDescData
 }
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_common_proto_goTypes = []any{
-	(*PidStats)(nil),  // 0: mini_drop.PidStats
-	(*CosConfig)(nil), // 1: mini_drop.CosConfig
-	(*File)(nil),      // 2: mini_drop.File
+	(*PidStats)(nil),     // 0: mini_drop.PidStats
+	(*CosConfig)(nil),    // 1: mini_drop.CosConfig
+	(*UploadTarget)(nil), // 2: mini_drop.UploadTarget
+	(*File)(nil),         // 3: mini_drop.File
 }
 var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -319,7 +391,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

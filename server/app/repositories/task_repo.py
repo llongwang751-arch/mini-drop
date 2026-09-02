@@ -6,54 +6,15 @@
 from __future__ import annotations
 
 import json
-import threading
-import time
-
-from server.app.event_bus import notify_task_changed, notify_agent_status
-from collections import deque
-from contextlib import contextmanager
-from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import and_, func, or_, text
 from sqlalchemy.orm import Session as OrmSession
 
-from server.app.cron import next_schedule_fire
 from server.app.database import new_session
-from server.app.artifact_integrity import prepare_artifact
-from server.app.models import (
-    AgentMetricSnapshotModel,
-    AgentModel,
-    AnalysisJobModel,
-    ArtifactModel,
-    AuditLogModel,
-    DiagnosisReportModel,
-    DiagnosisRunModel,
-    DiagnosisToolResultModel,
-    CompositeTaskItemModel,
-    CompositeTaskModel,
-    FixVerificationModel,
-    OutboxMessageModel,
-    RCAFeedbackModel,
-    RCAFeedbackWeightModel,
-    RepairPlanModel,
-    ScheduleModel,
-    ScheduleRecordModel,
-    StatusEventModel,
-    TaskAttemptModel,
-    TaskModel,
-)
-from server.app.prometheus_metrics import (
-    observe_analysis_job_duration,
-    record_analysis_job,
-    record_composite_created,
-    record_composite_status,
-    record_task_transition,
-)
-from server.app.rca.models import FeedbackPrior
+from server.app.models import AgentModel, StatusEventModel, TaskAttemptModel, TaskModel
 from server.app.process_attestation import ProcessIdentityBinding
 from server.app.schemas import CreateTaskRequest
 from server.app.task_attempt_authority import (
@@ -226,7 +187,7 @@ class TaskMixin:
                     status=TaskStatus.PENDING.value,
                     status_reason="Web 请求创建任务",
                     collection_status=CollectionStatus.QUEUED.value,
-                    analysis_status=AnalysisStatus.NOT_STARTED.value,
+                    analysis_status=AnalysisStatus.PENDING.value,
                     request_params=request_payload,
                     process_snapshot_id=process_snapshot_id,
                     process_binding_json=process_binding_json,
@@ -241,8 +202,6 @@ class TaskMixin:
                 # 状态事件
                 self._write_event(session, task_id, None, TaskStatus.PENDING,
                                   "Web 请求创建任务", Actor.WEB, request_payload)
-                record_task_transition("NONE", TaskStatus.PENDING.value)
-
                 # 审计日志
                 self._write_audit(session, "TASK_CREATED", task_id=task_id,
                                   message=f"任务 {task_id} 已创建",
@@ -505,6 +464,7 @@ class TaskMixin:
                     actor=Actor(m.actor) if m.actor else Actor.SERVER,
                     metadata=m.meta_json if isinstance(m.meta_json, dict) else {},
                     created_at=m.created_at if m.created_at else now_utc(),
+                    sequence=m.id,
                 ))
             return result
         finally:

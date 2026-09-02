@@ -1,22 +1,21 @@
 package httpapi
 
 import (
-	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/subtle"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"path"
-	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -45,19 +44,19 @@ type requestPrincipal struct {
 }
 
 type Server struct {
-	cfg            config.Config
-	logger         *slog.Logger
-	proxy          *httputil.ReverseProxy
-	requestID      atomic.Uint64
-	client         *http.Client
-	repo           *repository.Postgres
-	store          objectstore.Store
-	control        mini_drop.ControlClient
-	controlHealth  grpc_health_v1.HealthClient
-	controlInitErr error
+	cfg             config.Config
+	logger          *slog.Logger
+	requestID       atomic.Uint64
+	repo            *repository.Postgres
+	store           objectstore.Store
+	control         mini_drop.ControlClient
+	controlHealth   grpc_health_v1.HealthClient
+	controlInitErr  error
+	diagnosticAI    mini_drop.DiagnosticAIClient
+	diagnosticAIErr error
 }
 
-func controlTransportCredentials(cfg config.Config) (credentials.TransportCredentials, error) {
+func grpcTransportCredentials(cfg config.Config, serverName string) (credentials.TransportCredentials, error) {
 	if !cfg.ControlGRPCTLS {
 		return insecure.NewCredentials(), nil
 	}
@@ -75,7 +74,7 @@ func controlTransportCredentials(cfg config.Config) (credentials.TransportCreden
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 		RootCAs:    roots,
-		ServerName: cfg.ControlGRPCServerName,
+		ServerName: serverName,
 	}
 	hasCert := cfg.ControlGRPCClientCertFile != ""
 	hasKey := cfg.ControlGRPCClientKeyFile != ""
@@ -95,41 +94,12 @@ func controlTransportCredentials(cfg config.Config) (credentials.TransportCreden
 }
 
 func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Postgres) http.Handler {
-	proxy := httputil.NewSingleHostReverseProxy(cfg.AnalysisEngineURL)
-	originalDirector := proxy.Director
-	proxy.Director = func(req *http.Request) {
-		originalDirector(req)
-		// This header authenticates the private Go -> Python hop. Never forward a
-		// client supplied value across the trust boundary.
-		req.Header.Del("X-Mini-Drop-Gateway-Token")
-		if cfg.InternalGatewayToken != "" {
-			req.Header.Set("X-Mini-Drop-Gateway-Token", cfg.InternalGatewayToken)
-		}
-	}
-	proxy.FlushInterval = -1
-	proxy.ModifyResponse = func(resp *http.Response) error {
-		resp.Header.Set("X-Request-ID", resp.Request.Header.Get("X-Request-ID"))
-		if owner := resp.Request.Header.Get("X-Mini-Drop-Write-Owner"); owner != "" {
-			resp.Header.Set("X-Mini-Drop-Write-Owner", owner)
-		}
-		return nil
-	}
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		logger.Error("analysis engine unavailable",
-			"request_id", r.Header.Get("X-Request-ID"),
-			"path", r.URL.Path,
-			"error", err,
-		)
-		writeAPI(w, http.StatusBadGateway, 1502, "Python 分析服务暂不可用", nil)
-	}
 	s := &Server{
 		cfg:    cfg,
 		logger: logger,
-		proxy:  proxy,
-		client: &http.Client{Timeout: 3 * time.Second},
 	}
 	if cfg.ControlGRPCAddress != "" {
-		transportCredentials, credentialErr := controlTransportCredentials(cfg)
+		transportCredentials, credentialErr := grpcTransportCredentials(cfg, cfg.ControlGRPCServerName)
 		if credentialErr != nil {
 			s.controlInitErr = credentialErr
 			logger.Error("control grpc credentials initialization failed", "error", credentialErr)
@@ -147,10 +117,30 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 			}
 		}
 	}
+	if cfg.DiagnosticAIGRPCAddress != "" {
+		transportCredentials, credentialErr := grpcTransportCredentials(cfg, cfg.DiagnosticAIGRPCServerName)
+		if credentialErr != nil {
+			s.diagnosticAIErr = credentialErr
+			logger.Error("diagnostic AI gRPC credentials initialization failed", "error", credentialErr)
+		} else {
+			connection, err := grpc.NewClient(
+				cfg.DiagnosticAIGRPCAddress,
+				grpc.WithTransportCredentials(transportCredentials),
+			)
+			if err != nil {
+				s.diagnosticAIErr = err
+				logger.Error("diagnostic AI gRPC initialization failed", "error", err)
+			} else {
+				s.diagnosticAI = mini_drop.NewDiagnosticAIClient(connection)
+			}
+		}
+	}
 	if len(repositories) > 0 {
 		s.repo = repositories[0]
-		store, err := objectstore.New(
-			cfg.MinIOEndpoint, cfg.MinIOAccessKey, cfg.MinIOSecretKey, cfg.MinIOSecure,
+		store, err := objectstore.NewWithSignerEndpoint(
+			cfg.MinIOEndpoint, cfg.MinIOAgentEndpoint,
+			cfg.MinIOAccessKey, cfg.MinIOSecretKey,
+			cfg.MinIOSecure, cfg.MinIOAgentSecure,
 		)
 		if err != nil {
 			logger.Error("object storage initialization failed", "error", err)
@@ -180,233 +170,114 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 		mux.HandleFunc("GET /api/tasks/{task_id}/artifacts/{artifact_type}/download", s.downloadTaskArtifact)
 		mux.HandleFunc("GET /api/audit-logs", s.listAuditLogs)
 		mux.HandleFunc("GET /api/events/stream", s.eventStream)
-		mux.HandleFunc("GET /api/v1/diagnoses", s.listDiagnosisSessions)
-		mux.HandleFunc("GET /api/v1/continuous-diagnosis-triggers", s.listContinuousDiagnosisTriggers)
-		mux.HandleFunc("GET /api/diagnostic-cases", s.listDiagnosticCases)
-		mux.HandleFunc("GET /api/diagnostic-cases/{case_id}", s.getDiagnosticCase)
 		// Schedules are now handled natively in Go (cron port + DB CRUD); the
 		// Python reverse-proxy routes were removed below.
 		(&scheduleHandlers{store: s.repo}).register(mux)
 	}
-	// AI write commands are always owned and policy-validated by Go. The
-	// Python engine behind the reverse proxy performs the reasoning workflow.
-	mux.HandleFunc("POST /api/v1/diagnoses", s.createDiagnosisSession)
-	mux.HandleFunc("POST /api/v1/diagnoses/{diagnosis_id}/approvals", s.approveDiagnosisProbe)
-	// Explicit compatibility surface.  Unknown /api paths must not silently
-	// cross the Go/Python trust boundary through a catch-all reverse proxy.
-	mux.Handle("/api/auth/{rest...}", proxy)
-	mux.Handle("GET /api/metrics", proxy)
-	mux.Handle("GET /api/ai-config", proxy)
-	mux.Handle("POST /api/ai-validation/runs", proxy)
-	mux.Handle("GET /api/analysis-jobs", proxy)
-	mux.Handle("/api/analysis-jobs/{rest...}", proxy)
-	mux.Handle("POST /api/tasks/{task_id}/diagnose", proxy)
-	mux.Handle("GET /api/tasks/{task_id}/diagnoses", proxy)
-	mux.Handle("/api/diagnoses/{rest...}", proxy)
-	mux.Handle("GET /api/v1/probes", proxy)
-	mux.Handle("/api/v1/diagnosis-evaluations/{rest...}", proxy)
-	mux.Handle("/api/v1/diagnosis-campaigns/{rest...}", proxy)
-	mux.Handle("/api/v1/real-world-benchmarks/{rest...}", proxy)
-	mux.Handle("/api/nlp/{rest...}", proxy)
-	mux.Handle("/api/v2/{rest...}", proxy)
-	// Schedules are now native Go handlers (registered in the repo block).
-	// Composite tasks remain on the Python engine; proxy their full surface.
-	mux.Handle("/api/composite-tasks", proxy)
-	mux.Handle("/api/composite-tasks/{rest...}", proxy)
+	// Drop Insight V2 is the only AI diagnosis surface. Go remains the only
+	// public HTTP server and invokes the Python diagnosis worker over private
+	// gRPC. The durable SSE projection is served directly from PostgreSQL.
+	mux.HandleFunc("GET /api/v2/diagnoses/{diagnosis_id}/events/stream", s.streamDropInsightEvents)
+	mux.HandleFunc("/api/v2", s.invokeDiagnosticAI)
+	mux.HandleFunc("/api/v2/{rest...}", s.invokeDiagnosticAI)
 	return s.accessLog(s.requestTrace(s.auth(mux)))
 }
 
-// diagnosisCreateCommand is the Go control-plane boundary for AI writes.  The
-// Python diagnosis engine still owns reasoning, but malformed, over-budget or
-// unknown commands are rejected here before they can reach the orchestrator.
-type diagnosisCreateCommand struct {
-	Query              string          `json:"query"`
-	CaseID             string          `json:"case_id,omitempty"`
-	Context            json.RawMessage `json:"context,omitempty"`
-	BudgetProfile      string          `json:"budget_profile,omitempty"`
-	Budget             json.RawMessage `json:"budget,omitempty"`
-	DiagnosisMode      string          `json:"diagnosis_mode,omitempty"`
-	AnalysisStrategy   string          `json:"analysis_strategy,omitempty"`
-	EvidenceTimePolicy json.RawMessage `json:"evidence_time_policy,omitempty"`
-	BaselineTaskIDs    []string        `json:"baseline_task_ids,omitempty"`
-}
-
-type diagnosisApprovalCommand struct {
-	StepID     string `json:"step_id"`
-	Decision   string `json:"decision"`
-	Scope      string `json:"scope,omitempty"`
-	ApproverID string `json:"approver_id,omitempty"`
-}
-
-const (
-	diagnosisCommandAcceptedEvent = "AI_DIAGNOSIS_COMMAND_ACCEPTED"
-	probeApprovalAcceptedEvent    = "AI_PROBE_APPROVAL_ACCEPTED"
-)
-
-func decodeStrictBody(w http.ResponseWriter, r *http.Request, target any) ([]byte, error) {
-	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
+func (s *Server) invokeDiagnosticAI(w http.ResponseWriter, r *http.Request) {
+	if s.diagnosticAIErr != nil || s.diagnosticAI == nil {
+		writeAPI(w, http.StatusServiceUnavailable, 1503, "AI 诊断 Worker 暂不可用", nil)
+		return
+	}
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 2<<20))
 	if err != nil {
-		return nil, err
+		writeAPI(w, http.StatusRequestEntityTooLarge, 1413, "AI 请求体过大", nil)
+		return
 	}
-	decoder := json.NewDecoder(bytes.NewReader(body))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(target); err != nil {
-		return nil, err
-	}
-	if decoder.Decode(&struct{}{}) != io.EOF {
-		return nil, errors.New("request body must contain one JSON object")
-	}
-	return body, nil
-}
-
-func (s *Server) forwardValidatedAIWrite(w http.ResponseWriter, r *http.Request, body []byte) {
-	r.Body = io.NopCloser(bytes.NewReader(body))
-	r.ContentLength = int64(len(body))
-	r.Header.Set("X-Mini-Drop-Write-Owner", "go-apiserver")
-	r.Header.Set("X-Mini-Drop-Policy-Validated", "true")
-	if principal := principalFromRequest(r); principal != nil {
-		r.Header.Set("X-Mini-Drop-Principal", principal.ID)
-		r.Header.Set("X-Mini-Drop-Roles", strings.Join(principal.Roles, ","))
-		r.Header.Set("X-Mini-Drop-Agent-Scope", strings.Join(principal.AgentIDs, ","))
-		r.Header.Set("X-Mini-Drop-Service-Scope", strings.Join(principal.ServiceIDs, ","))
-		r.Header.Set("X-Mini-Drop-Environment-Scope", strings.Join(principal.Environments, ","))
-	}
-	s.proxy.ServeHTTP(w, r)
-}
-
-func (s *Server) createDiagnosisSession(w http.ResponseWriter, r *http.Request) {
 	principal := principalFromRequest(r)
-	if !requireAnyRole(w, principal, "operator", "admin") {
-		return
+	principalID := "local-anonymous"
+	if principal != nil && strings.TrimSpace(principal.ID) != "" {
+		principalID = principal.ID
 	}
-	var input diagnosisCreateCommand
-	body, err := decodeStrictBody(w, r, &input)
+	ctx, cancel := context.WithTimeout(r.Context(), 180*time.Second)
+	defer cancel()
+	if token := strings.TrimSpace(s.cfg.ControlGRPCToken); token != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "x-mini-drop-grpc-token", token)
+	}
+	response, err := s.diagnosticAI.Invoke(ctx, &mini_drop.DiagnosticAIRequest{
+		Method:    r.Method,
+		Path:      strings.TrimPrefix(r.URL.Path, "/api/v2"),
+		Query:     r.URL.RawQuery,
+		BodyJson:  string(body),
+		Principal: principalID,
+	})
 	if err != nil {
-		writeAPI(w, http.StatusBadRequest, 1400, "diagnosis command is not valid JSON", nil)
+		s.logger.Error("diagnostic AI RPC failed", "path", r.URL.Path, "error", err)
+		writeAPI(w, http.StatusBadGateway, 1502, "AI 诊断 Worker 调用失败", nil)
 		return
 	}
-	input.Query = strings.TrimSpace(input.Query)
-	if len(input.Query) < 3 || len(input.Query) > 2000 {
-		writeAPI(w, http.StatusBadRequest, 1400, "query length must be between 3 and 2000", nil)
-		return
+	status := int(response.GetStatusCode())
+	if status < 100 || status > 599 {
+		status = http.StatusBadGateway
 	}
-	input.CaseID = strings.TrimSpace(input.CaseID)
-	if len(input.CaseID) > 128 {
-		writeAPI(w, http.StatusBadRequest, 1400, "case_id exceeds 128 characters", nil)
-		return
-	}
-	if input.BudgetProfile == "" {
-		input.BudgetProfile = "production_safe"
-	}
-	if !map[string]bool{"production_safe": true, "staging": true, "development": true}[input.BudgetProfile] {
-		writeAPI(w, http.StatusBadRequest, 1400, "unsupported budget_profile", nil)
-		return
-	}
-	if input.DiagnosisMode != "" && !map[string]bool{
-		"AUTO": true, "LIVE": true, "HISTORICAL": true, "REPRODUCTION": true,
-	}[input.DiagnosisMode] {
-		writeAPI(w, http.StatusBadRequest, 1400, "unsupported diagnosis_mode", nil)
-		return
-	}
-	if input.AnalysisStrategy != "" && !map[string]bool{
-		"CONSTRAINED_HYBRID": true, "DECISION_TREE": true, "EXPLORATORY": true,
-	}[input.AnalysisStrategy] {
-		writeAPI(w, http.StatusBadRequest, 1400, "unsupported analysis_strategy", nil)
-		return
-	}
-	if len(input.BaselineTaskIDs) > 20 {
-		writeAPI(w, http.StatusBadRequest, 1400, "baseline_task_ids exceeds 20 items", nil)
-		return
-	}
-	if !diagnosisContextAllowed(principal, input.Context) {
-		writeAPI(w, http.StatusForbidden, 1403, "diagnosis target is outside the principal resource scope", nil)
-		return
-	}
-	seenBaselineTasks := map[string]bool{}
-	for _, taskID := range input.BaselineTaskIDs {
-		taskID = strings.TrimSpace(taskID)
-		if taskID == "" || len(taskID) > 128 || strings.ContainsAny(taskID, "/\\") || seenBaselineTasks[taskID] {
-			writeAPI(w, http.StatusBadRequest, 1400, "baseline_task_ids contains an invalid or duplicate task id", nil)
-			return
-		}
-		seenBaselineTasks[taskID] = true
-	}
-	body, err = json.Marshal(input)
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	if s.repo != nil {
-		if err := s.repo.RecordControlCommand(
-			r.Context(), diagnosisCommandAcceptedEvent,
-			"Go control plane accepted an AI diagnosis command",
-			map[string]any{
-				"query_length": len(input.Query), "budget_profile": input.BudgetProfile,
-				"diagnosis_mode":    input.DiagnosisMode,
-				"analysis_strategy": input.AnalysisStrategy,
-				"request_id":        r.Header.Get("X-Request-ID"), "served_by": "go-apiserver",
-			},
-		); err != nil {
-			s.databaseError(w, r, err)
-			return
-		}
-	}
-	s.forwardValidatedAIWrite(w, r, body)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Mini-Drop-AI-Transport", "grpc")
+	w.WriteHeader(status)
+	_, _ = io.WriteString(w, response.GetBodyJson())
 }
 
-func (s *Server) approveDiagnosisProbe(w http.ResponseWriter, r *http.Request) {
-	principal := principalFromRequest(r)
-	if !requireAnyRole(w, principal, "approver", "admin") {
+func (s *Server) streamDropInsightEvents(w http.ResponseWriter, r *http.Request) {
+	if s.repo == nil {
+		writeAPI(w, http.StatusServiceUnavailable, 1503, "数据库暂时不可用", nil)
 		return
 	}
 	diagnosisID := strings.TrimSpace(r.PathValue("diagnosis_id"))
-	if diagnosisID == "" || len(diagnosisID) > 128 || strings.ContainsAny(diagnosisID, "/\\") {
-		writeAPI(w, http.StatusBadRequest, 1400, "diagnosis_id is invalid", nil)
+	if diagnosisID == "" || len(diagnosisID) > 128 {
+		writeAPI(w, http.StatusBadRequest, 1400, "诊断 ID 不合法", nil)
 		return
 	}
-	var input diagnosisApprovalCommand
-	body, err := decodeStrictBody(w, r, &input)
-	if err != nil {
-		writeAPI(w, http.StatusBadRequest, 1400, "approval command is not valid JSON", nil)
-		return
-	}
-	input.StepID = strings.TrimSpace(input.StepID)
-	if input.StepID == "" || len(input.StepID) > 128 {
-		writeAPI(w, http.StatusBadRequest, 1400, "step_id is invalid", nil)
-		return
-	}
-	if input.Decision != "approve" && input.Decision != "reject" {
-		writeAPI(w, http.StatusBadRequest, 1400, "decision must be approve or reject", nil)
-		return
-	}
-	if input.Scope != "" && input.Scope != "single_execution" {
-		writeAPI(w, http.StatusBadRequest, 1400, "only single_execution approval is allowed", nil)
-		return
-	}
-	if input.Scope == "" {
-		input.Scope = "single_execution"
-	}
-	input.ApproverID = principal.ID
-	body, err = json.Marshal(input)
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	if s.repo != nil {
-		if err := s.repo.RecordControlCommand(
-			r.Context(), probeApprovalAcceptedEvent,
-			"Go control plane accepted a single-execution probe decision",
-			map[string]any{
-				"diagnosis_id": diagnosisID, "step_id": input.StepID,
-				"decision": input.Decision, "approver_id": input.ApproverID,
-				"request_id": r.Header.Get("X-Request-ID"), "served_by": "go-apiserver",
-			},
-		); err != nil {
-			s.databaseError(w, r, err)
-			return
+	after, _ := strconv.ParseInt(r.URL.Query().Get("after"), 10, 64)
+	if header := strings.TrimSpace(r.Header.Get("Last-Event-ID")); header != "" {
+		if value, err := strconv.ParseInt(header, 10, 64); err == nil && value > after {
+			after = value
 		}
 	}
-	s.forwardValidatedAIWrite(w, r, body)
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		writeAPI(w, http.StatusInternalServerError, 1500, "当前连接不支持事件流", nil)
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("X-Accel-Buffering", "no")
+	_, _ = io.WriteString(w, ":connected\n\n")
+	flusher.Flush()
+	ticker := time.NewTicker(time.Second)
+	keepalive := time.NewTicker(20 * time.Second)
+	defer ticker.Stop()
+	defer keepalive.Stop()
+	for {
+		select {
+		case <-r.Context().Done():
+			return
+		case <-ticker.C:
+			events, err := s.repo.ListDropInsightEventsAfter(r.Context(), diagnosisID, after, 200)
+			if err != nil {
+				s.logger.Warn("drop insight SSE poll failed", "diagnosis_id", diagnosisID, "error", err)
+				continue
+			}
+			for _, event := range events {
+				after = event.Sequence
+				data, _ := json.Marshal(event.Payload)
+				fmt.Fprintf(w, "id: %d\nevent: diagnosis_progress\ndata: %s\n\n", event.Sequence, data)
+			}
+			if len(events) > 0 {
+				flusher.Flush()
+			}
+		case <-keepalive.C:
+			_, _ = io.WriteString(w, ":keepalive\n\n")
+			flusher.Flush()
+		}
+	}
 }
 
 type createTaskRequest struct {
@@ -530,6 +401,10 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 	if input.Options == nil {
 		input.Options = map[string]any{}
 	}
+	if err := taskkind.ValidateOptions(kind, input.Options); err != nil {
+		writeAPI(w, http.StatusBadRequest, 1400, "采集器 options 不符合参数契约: "+err.Error(), nil)
+		return
+	}
 	taskID, replayed, err := s.repo.CreateTask(r.Context(), repository.CreateTask{
 		Name: input.Name, AgentID: input.AgentID, TargetPID: input.TargetPID,
 		CollectorType: input.CollectorType, SampleRate: input.SampleRate,
@@ -550,13 +425,43 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dispatchStatus := "PENDING"
-	if !replayed && s.controlInitErr != nil {
+	shouldIssueUploadAuthorization := true
+	if replayed {
+		persisted, getErr := s.repo.GetTask(r.Context(), taskID)
+		if getErr != nil {
+			s.databaseError(w, r, getErr)
+			return
+		}
+		if status, ok := persisted["status"].(string); ok && status != "" {
+			dispatchStatus = status
+			shouldIssueUploadAuthorization = status == "PENDING"
+		}
+	}
+	if shouldIssueUploadAuthorization {
+		err = s.issueTaskUploadAuthorizations(
+			r.Context(), taskID, kind, input.DurationSec,
+		)
+	}
+	if err != nil {
+		_ = s.repo.RecordControlCommand(
+			r.Context(), "TASK_UPLOAD_AUTHORIZATION_FAILED",
+			"任务已持久化，但短时上传授权生成失败",
+			map[string]any{"task_id": taskID, "error": err.Error()},
+		)
+		writeAPI(w, http.StatusServiceUnavailable, 1503,
+			"任务已持久化，但短时上传授权生成失败；请使用相同 Idempotency-Key 重试",
+			map[string]any{"task_id": taskID, "status": "PENDING", "retryable": true},
+		)
+		return
+	}
+	shouldDispatch := !replayed || dispatchStatus == "PENDING"
+	if shouldDispatch && s.controlInitErr != nil {
 		writeAPI(w, http.StatusServiceUnavailable, 1503, "C++ 控制面客户端初始化失败", map[string]any{
 			"task_id": taskID, "status": "PENDING", "retryable": true,
 		})
 		return
 	}
-	if !replayed && s.control != nil {
+	if shouldDispatch && s.control != nil {
 		ctx, cancel := context.WithTimeout(
 			r.Context(),
 			time.Duration(max(s.cfg.ControlGRPCTimeoutMS, 1))*time.Millisecond,
@@ -575,7 +480,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 			TaskId:   taskID,
 			TaskDesc: &mini_drop.TaskDesc{
 				TaskId:       taskID,
-				ProfilerType: kind.ProfilerType,
+				ProfilerType: mini_drop.TaskKindProfiler(kind.ProfilerType),
 				SampleArgv: &mini_drop.RecordArgv{
 					Hz:       uint32(input.SampleRate),
 					Duration: uint64(input.DurationSec),
@@ -599,6 +504,51 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
 		"task_id": taskID, "status": dispatchStatus, "served_by": "go-apiserver", "replayed": replayed,
 	})
+}
+
+func (s *Server) issueTaskUploadAuthorizations(
+	ctx context.Context, taskID string, kind taskkind.Kind, durationSec int,
+) error {
+	if s.store == nil {
+		return errors.New("object storage is unavailable")
+	}
+	ttlSeconds := max(s.cfg.MinIOUploadAuthTTLSeconds, durationSec+300)
+	// MinIO/S3 presigned operations are intentionally bounded. The default is
+	// 30 minutes and the hard cap prevents configuration drift into long-lived
+	// credentials while still covering the longest supported collection.
+	ttlSeconds = min(ttlSeconds, 3600)
+	expiresAt := time.Now().UTC().Add(time.Duration(ttlSeconds) * time.Second)
+	attemptID, err := newTaskAttemptID()
+	if err != nil {
+		return err
+	}
+	items := make([]repository.TaskUploadAuthorization, 0, len(kind.ArtifactFilenames))
+	for _, filename := range kind.ArtifactFilenames {
+		attemptPrefix := "tasks/" + taskID + "/attempts/" + attemptID + "/"
+		objectKey := attemptPrefix + "raw/" + filename
+		if filename == "manifest.json" {
+			objectKey = attemptPrefix + filename
+		}
+		putURL, err := s.store.PresignPut(
+			ctx, s.cfg.MinIOBucket, objectKey, time.Duration(ttlSeconds)*time.Second,
+		)
+		if err != nil {
+			return fmt.Errorf("presign %s: %w", filename, err)
+		}
+		items = append(items, repository.TaskUploadAuthorization{
+			TaskAttemptID: attemptID, ObjectKey: objectKey,
+			PutURL: putURL.String(), ExpiresAt: expiresAt,
+		})
+	}
+	return s.repo.ReplaceTaskUploadAuthorizations(ctx, taskID, items)
+}
+
+func newTaskAttemptID() (string, error) {
+	var entropy [16]byte
+	if _, err := rand.Read(entropy[:]); err != nil {
+		return "", fmt.Errorf("generate task attempt id: %w", err)
+	}
+	return "attempt_" + hex.EncodeToString(entropy[:]), nil
 }
 
 func (s *Server) listAgents(w http.ResponseWriter, r *http.Request) {
@@ -698,143 +648,6 @@ func (s *Server) listTasks(w http.ResponseWriter, r *http.Request) {
 		"items": items, "total": total, "offset": offset, "limit": limit,
 		"served_by": "go-apiserver",
 	})
-}
-
-func (s *Server) listDiagnosisSessions(w http.ResponseWriter, r *http.Request) {
-	limit, offset := parseBoundedPage(r, 1000)
-	items, total, err := s.repo.ListDiagnosisSessions(
-		r.Context(), repository.Page{Limit: limit, Offset: offset},
-	)
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
-		"items": items, "total": total, "offset": offset, "limit": limit,
-		"served_by": "go-apiserver",
-	})
-}
-
-func (s *Server) listContinuousDiagnosisTriggers(w http.ResponseWriter, r *http.Request) {
-	limit, offset := parseBoundedPage(r, 1000)
-	items, total, err := s.repo.ListContinuousDiagnosisTriggers(
-		r.Context(), repository.Page{Limit: limit, Offset: offset},
-	)
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
-		"items": items, "total": total, "offset": offset, "limit": limit,
-		"served_by": "go-apiserver",
-	})
-}
-
-func (s *Server) listDiagnosticCases(w http.ResponseWriter, r *http.Request) {
-	limit, offset := parseBoundedPage(r, 500)
-	items, err := s.repo.ListDiagnosticCases(r.Context())
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	sort.SliceStable(items, func(i, j int) bool {
-		left, right := items[i], items[j]
-		leftTime, rightTime := left.UpdatedAt, right.UpdatedAt
-		if leftTime.IsZero() {
-			leftTime = left.CreatedAt
-		}
-		if rightTime.IsZero() {
-			rightTime = right.CreatedAt
-		}
-		return leftTime.After(rightTime)
-	})
-	// Completed controlled-fault replays are owned by the Python diagnosis
-	// engine, but they must appear in the same history list served by the Go
-	// gateway. Fetch only that explicit read-only source and keep DB sessions
-	// under the native Go ownership boundary.
-	items = append(s.listControlledShowcases(r), items...)
-	total := len(items)
-	start := offset
-	if start > total {
-		start = total
-	}
-	end := start + limit
-	if end > total {
-		end = total
-	}
-	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{
-		"items": items[start:end], "total": total, "limit": limit, "offset": offset,
-		"compatibility": map[string]any{
-			"v1_preserved": true, "v2_preserved": true,
-			"legacy_rca_preserved": true, "write_mode": "native_api_only",
-		},
-		"served_by": "go-apiserver",
-	})
-}
-
-func (s *Server) getDiagnosticCase(w http.ResponseWriter, r *http.Request) {
-	caseID := strings.TrimSpace(r.PathValue("case_id"))
-	if caseID == "" || len(caseID) > 128 {
-		writeAPI(w, http.StatusBadRequest, 1400, "诊断案例 ID 不合法", nil)
-		return
-	}
-	if strings.HasPrefix(caseID, "showcase-") {
-		s.proxy.ServeHTTP(w, r)
-		return
-	}
-	item, err := s.repo.GetDiagnosticCase(r.Context(), caseID)
-	if errors.Is(err, repository.ErrNotFound) {
-		writeAPI(w, http.StatusNotFound, 1404, "diagnostic case not found", nil)
-		return
-	}
-	if err != nil {
-		s.databaseError(w, r, err)
-		return
-	}
-	item["served_by"] = "go-apiserver"
-	writeAPI(w, http.StatusOK, 0, "ok", item)
-}
-
-func (s *Server) listControlledShowcases(r *http.Request) []repository.DiagnosticCase {
-	upstream := *s.cfg.AnalysisEngineURL
-	upstream.Path = "/api/diagnostic-cases"
-	query := upstream.Query()
-	query.Set("limit", "10")
-	upstream.RawQuery = query.Encode()
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, upstream.String(), nil)
-	if err != nil {
-		return nil
-	}
-	if s.cfg.InternalGatewayToken != "" {
-		req.Header.Set("X-Mini-Drop-Gateway-Token", s.cfg.InternalGatewayToken)
-	}
-	attachPrincipalHeaders(req, principalFromRequest(r))
-	resp, err := s.client.Do(req)
-	if err != nil {
-		s.logger.Warn("controlled showcase list unavailable", "error", err)
-		return nil
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		s.logger.Warn("controlled showcase list returned non-200", "status", resp.StatusCode)
-		return nil
-	}
-	var envelope struct {
-		Data struct {
-			Items []repository.DiagnosticCase `json:"items"`
-		} `json:"data"`
-	}
-	if err := json.NewDecoder(io.LimitReader(resp.Body, 2<<20)).Decode(&envelope); err != nil {
-		s.logger.Warn("controlled showcase list decode failed", "error", err)
-		return nil
-	}
-	showcases := make([]repository.DiagnosticCase, 0, 3)
-	for _, item := range envelope.Data.Items {
-		if item.Source == "controlled_showcase" {
-			showcases = append(showcases, item)
-		}
-	}
-	return showcases
 }
 
 func parseBoundedPage(r *http.Request, maxLimit int) (int, int) {
@@ -976,7 +789,7 @@ func (s *Server) getTaskArtifactContent(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if artifact.ObjectKey == "" && artifact.LocalPath != "" {
-		s.proxy.ServeHTTP(w, r)
+		writeAPI(w, http.StatusUnprocessableEntity, 1422, "旧版本地制品未迁移到对象存储", nil)
 		return
 	}
 	bucket, key, err := s.validateArtifactLocation(artifact)
@@ -1028,7 +841,7 @@ func (s *Server) downloadTaskArtifact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if artifact.ObjectKey == "" && artifact.LocalPath != "" {
-		s.proxy.ServeHTTP(w, r)
+		writeAPI(w, http.StatusUnprocessableEntity, 1422, "旧版本地制品未迁移到对象存储", nil)
 		return
 	}
 	bucket, key, err := s.validateArtifactLocation(artifact)
@@ -1167,19 +980,16 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	taskCursor, auditCursor, diagnosisCursor := int64(0), int64(0), int64(0)
+	taskCursor, auditCursor := int64(0), int64(0)
 	if raw := strings.TrimSpace(r.Header.Get("Last-Event-ID")); raw != "" {
-		taskCursor, auditCursor, diagnosisCursor = parseEventCursor(raw)
+		taskCursor, auditCursor = parseEventCursor(raw)
 	} else if raw := strings.TrimSpace(r.URL.Query().Get("since")); raw != "" {
-		taskCursor, auditCursor, diagnosisCursor = parseEventCursor(raw)
+		taskCursor, auditCursor = parseEventCursor(raw)
 	} else {
 		var err error
 		taskCursor, err = s.repo.LatestStatusEventID(r.Context())
 		if err == nil {
 			auditCursor, err = s.repo.LatestAuditEventID(r.Context())
-		}
-		if err == nil {
-			diagnosisCursor, err = s.repo.LatestDiagnosisEventID(r.Context())
 		}
 		if err != nil {
 			s.databaseError(w, r, err)
@@ -1218,7 +1028,7 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 				})
 				taskCursor = event.ID
 				fmt.Fprintf(w, "id: %s\nevent: task_changed\ndata: %s\n\n",
-					formatEventCursor(taskCursor, auditCursor, diagnosisCursor), data)
+					formatEventCursor(taskCursor, auditCursor), data)
 				wrote = true
 			}
 
@@ -1241,26 +1051,7 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 					"message": event.Message, "metadata": event.Metadata,
 				})
 				fmt.Fprintf(w, "id: %s\nevent: agent_status\ndata: %s\n\n",
-					formatEventCursor(taskCursor, auditCursor, diagnosisCursor), data)
-				wrote = true
-			}
-
-			diagnosisEvents, err := s.repo.ListDiagnosisEventsAfter(r.Context(), diagnosisCursor, 200)
-			if err != nil {
-				s.logger.Error("sse diagnosis poll failed", "error", err, "cursor", diagnosisCursor)
-				continue
-			}
-			for _, event := range diagnosisEvents {
-				diagnosisCursor = event.ID
-				if event.EventType != "diagnosis_completed" {
-					continue
-				}
-				data, _ := json.Marshal(map[string]any{
-					"diagnosis_id": event.DiagnosisID, "status": event.ToStatus,
-					"payload": event.Payload,
-				})
-				fmt.Fprintf(w, "id: %s\nevent: diagnosis_complete\ndata: %s\n\n",
-					formatEventCursor(taskCursor, auditCursor, diagnosisCursor), data)
+					formatEventCursor(taskCursor, auditCursor), data)
 				wrote = true
 			}
 			if wrote {
@@ -1270,11 +1061,11 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseEventCursor(raw string) (int64, int64, int64) {
+func parseEventCursor(raw string) (int64, int64) {
 	if value, err := strconv.ParseInt(raw, 10, 64); err == nil {
-		return value, 0, 0
+		return value, 0
 	}
-	var taskID, auditID, diagnosisID int64
+	var taskID, auditID int64
 	for _, part := range strings.Split(raw, ";") {
 		keyValue := strings.SplitN(part, ":", 2)
 		if len(keyValue) != 2 {
@@ -1286,15 +1077,13 @@ func parseEventCursor(raw string) (int64, int64, int64) {
 			taskID = value
 		case "a":
 			auditID = value
-		case "d":
-			diagnosisID = value
 		}
 	}
-	return taskID, auditID, diagnosisID
+	return taskID, auditID
 }
 
-func formatEventCursor(taskID, auditID, diagnosisID int64) string {
-	return fmt.Sprintf("t:%d;a:%d;d:%d", taskID, auditID, diagnosisID)
+func formatEventCursor(taskID, auditID int64) string {
+	return fmt.Sprintf("t:%d;a:%d", taskID, auditID)
 }
 
 func (s *Server) databaseError(w http.ResponseWriter, r *http.Request, err error) {
@@ -1330,18 +1119,23 @@ func (s *Server) readiness(w http.ResponseWriter, r *http.Request) {
 			dependencies["control_plane"] = "healthy"
 		}
 	}
-	req, _ := http.NewRequestWithContext(
-		ctx, http.MethodGet, s.cfg.AnalysisEngineURL.String()+"/api/healthz", nil,
-	)
-	resp, err := s.client.Do(req)
-	if err != nil || resp.StatusCode >= 500 {
-		if resp != nil {
-			_ = resp.Body.Close()
+	if s.cfg.DiagnosticAIGRPCAddress != "" && (s.diagnosticAIErr != nil || s.diagnosticAI == nil) {
+		dependencies["diagnostic_ai"] = "unhealthy"
+	} else if s.diagnosticAI != nil {
+		diagnosticContext := ctx
+		if token := strings.TrimSpace(s.cfg.ControlGRPCToken); token != "" {
+			diagnosticContext = metadata.AppendToOutgoingContext(
+				diagnosticContext, "x-mini-drop-grpc-token", token,
+			)
 		}
-		dependencies["analysis_engine"] = "unhealthy"
-	} else {
-		_ = resp.Body.Close()
-		dependencies["analysis_engine"] = "healthy"
+		response, err := s.diagnosticAI.Invoke(diagnosticContext, &mini_drop.DiagnosticAIRequest{
+			Method: "GET", Path: "/diagnostic-tools", Principal: "readiness",
+		})
+		if err != nil || response.GetStatusCode() >= 500 {
+			dependencies["diagnostic_ai"] = "unhealthy"
+		} else {
+			dependencies["diagnostic_ai"] = "healthy"
+		}
 	}
 	for _, status := range dependencies {
 		if status != "healthy" {
@@ -1544,51 +1338,6 @@ func (s *Server) authorizeTaskResource(w http.ResponseWriter, r *http.Request, t
 	if err != nil {
 		s.databaseError(w, r, err)
 		return false
-	}
-	return true
-}
-
-func diagnosisContextAllowed(principal *requestPrincipal, raw json.RawMessage) bool {
-	if principal == nil || len(raw) == 0 || string(raw) == "null" {
-		return true
-	}
-	var value any
-	if json.Unmarshal(raw, &value) != nil {
-		return false
-	}
-	return resourceTreeAllowed(principal, value)
-}
-
-func resourceTreeAllowed(principal *requestPrincipal, value any) bool {
-	switch item := value.(type) {
-	case map[string]any:
-		for key, child := range item {
-			if text, ok := child.(string); ok {
-				switch strings.ToLower(key) {
-				case "agent_id":
-					if !scopeAllows(principal.AgentIDs, text) {
-						return false
-					}
-				case "service_id", "target_service":
-					if !scopeAllows(principal.ServiceIDs, text) {
-						return false
-					}
-				case "environment":
-					if !scopeAllows(principal.Environments, text) {
-						return false
-					}
-				}
-			}
-			if !resourceTreeAllowed(principal, child) {
-				return false
-			}
-		}
-	case []any:
-		for _, child := range item {
-			if !resourceTreeAllowed(principal, child) {
-				return false
-			}
-		}
 	}
 	return true
 }

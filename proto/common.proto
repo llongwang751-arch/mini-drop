@@ -27,10 +27,18 @@ message PidStats {
 // 用于上传采集产物到 MinIO/S3/COS。
 message CosConfig {
   string endpoint   = 1;  // 对象存储地址，如 minio:9000
-  string access_key = 2;  // access key
-  string secret_key = 3;  // secret key
+  string access_key = 2 [deprecated = true]; // 兼容旧 Agent；新链路禁止分发
+  string secret_key = 3 [deprecated = true]; // 兼容旧 Agent；新链路禁止分发
   string bucket     = 4;  // 默认 bucket 名称
   string region     = 5;  // 区域（可选，MinIO 留空）
+}
+
+// UploadTarget is a least-privilege authorization for one exact task object.
+// The URL is short-lived and must never be logged or persisted by the Agent.
+message UploadTarget {
+  string object_key      = 1;
+  string put_url         = 2;
+  int64 expires_unix_ms  = 3;
 }
 
 

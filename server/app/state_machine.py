@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from enum import Enum, unique
 from typing import Any
 
+from server.app.generated.status_contract import AnalysisStatus, CollectionStatus
+
 
 @unique
 class TaskStatus(str, Enum):
@@ -27,32 +29,6 @@ class TaskStatus(str, Enum):
     ANALYZING = "ANALYZING"
     DONE = "DONE"
     FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
-
-
-@unique
-class CollectionStatus(str, Enum):
-    """采集执行状态；与 Analyzer 结果解耦。"""
-
-    QUEUED = "QUEUED"
-    COLLECTING = "COLLECTING"
-    UPLOADING = "UPLOADING"
-    SUCCEEDED = "SUCCEEDED"
-    FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
-
-
-@unique
-class AnalysisStatus(str, Enum):
-    """分析执行状态；采集成功后才进入队列。"""
-
-    NOT_STARTED = "NOT_STARTED"
-    QUEUED = "QUEUED"
-    RUNNING = "RUNNING"
-    RETRYING = "RETRYING"
-    SUCCEEDED = "SUCCEEDED"
-    FAILED = "FAILED"
-    SKIPPED = "SKIPPED"
     CANCELLED = "CANCELLED"
 
 
@@ -98,6 +74,7 @@ class StatusEvent:
     actor: Actor
     metadata: dict[str, Any]
     created_at: datetime
+    sequence: int | None = None
 
 
 def now_utc() -> datetime:

@@ -10,51 +10,26 @@ import json
 import threading
 import time
 
-from server.app.event_bus import notify_task_changed, notify_agent_status
 from collections import deque
 from contextlib import contextmanager
 from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import and_, func, or_, text
 from sqlalchemy.orm import Session as OrmSession
 
-from server.app.cron import next_schedule_fire
 from server.app.database import new_session
-from server.app.artifact_integrity import prepare_artifact
 from server.app.models import (
-    AgentMetricSnapshotModel,
     AgentModel,
     AnalysisJobModel,
     ArtifactModel,
     AuditLogModel,
-    DiagnosisReportModel,
-    DiagnosisRunModel,
-    DiagnosisToolResultModel,
-    CompositeTaskItemModel,
-    CompositeTaskModel,
-    FixVerificationModel,
     OutboxMessageModel,
-    RCAFeedbackModel,
-    RCAFeedbackWeightModel,
-    RepairPlanModel,
-    ScheduleModel,
-    ScheduleRecordModel,
     StatusEventModel,
     TaskAttemptModel,
     TaskModel,
 )
-from server.app.prometheus_metrics import (
-    observe_analysis_job_duration,
-    record_analysis_job,
-    record_composite_created,
-    record_composite_status,
-    record_task_transition,
-)
-from server.app.rca.models import FeedbackPrior
 from server.app.process_attestation import ProcessIdentityBinding
 from server.app.schemas import CreateTaskRequest
 from server.app.state_machine import (
@@ -63,7 +38,6 @@ from server.app.state_machine import (
     CollectionStatus,
     StatusEvent,
     TaskStatus,
-    build_status_event,
     now_utc,
 )
 
@@ -83,14 +57,9 @@ from server.app.repositories.task_repo import TaskMixin
 from server.app.repositories.artifact_repo import ArtifactMixin
 from server.app.repositories.analysis_job_repo import AnalysisJobMixin
 from server.app.repositories.outbox_repo import OutboxMixin
-from server.app.repositories.schedule_repo import ScheduleMixin
-from server.app.repositories.composite_repo import CompositeMixin
-from server.app.repositories.diagnosis_repo import DiagnosisMixin
-from server.app.repositories.feedback_repo import FeedbackMixin
-from server.app.repositories.runtime_repo import RuntimeMixin
 
 
-class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, OutboxMixin, ScheduleMixin, CompositeMixin, DiagnosisMixin, FeedbackMixin, RuntimeMixin):
+class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, OutboxMixin):
     """SQLAlchemy 持久化 Repository。
 
     基类保留共享状态与跨域内部方法；各领域方法来自 repositories/ 下的 mixin。
@@ -130,18 +99,13 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             try:
                 yield session
                 session.commit()
-                pending_notifications = list(
-                    session.info.get("task_change_notifications", ())
-                )
             except Exception:
                 session.rollback()
                 raise
             finally:
                 session.close()
-            # 写入后先清除所有 TTL 缓存，通知处理器失败也不能留下陈旧读缓存。
+            # Go API 通过 PostgreSQL 事件读取状态；Python worker 只清理本地读缓存。
             self._cache.clear()
-            for notification in pending_notifications:
-                notify_task_changed(*notification)
 
     @contextmanager
     def _read_session(self):
@@ -162,12 +126,12 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             data["from_status"] = value.from_status.value if value.from_status else None
             data["to_status"] = value.to_status.value
             data["actor"] = value.actor.value
+            data["source"] = value.actor.value
+            data["task_attempt_id"] = value.metadata.get("task_attempt_id")
             return data
         if isinstance(value, (
             AgentModel, TaskModel, TaskAttemptModel, StatusEventModel, AuditLogModel, ArtifactModel,
             AnalysisJobModel,
-            DiagnosisRunModel, DiagnosisToolResultModel, DiagnosisReportModel,
-            RepairPlanModel,
         )):
             return value.to_dict()
         return json.loads(json.dumps(value, default=str))
@@ -226,18 +190,30 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             raise ValueError(f"任务 {task_id} 不存在")
         # 事件：from 用旧 status value
         from_status = task.status
+        event_metadata = dict(metadata or {})
+        if task_attempt_id:
+            event_metadata["task_attempt_id"] = task_attempt_id
         session.add(StatusEventModel(
             task_id=task_id,
             from_status=from_status,
             to_status=to_status.value,
             reason=reason,
             actor=actor.value,
-            meta_json=metadata or {},
+            meta_json=event_metadata,
             created_at=now_utc(),
         ))
-        record_task_transition(from_status, to_status.value)
         task.status = to_status.value
         task.status_reason = reason
+        error_code = (metadata or {}).get("error_code")
+        if to_status == TaskStatus.FAILED:
+            task.error_code = str(error_code or "INTERNAL_ERROR")
+            task.error_message = reason
+        elif to_status == TaskStatus.CANCELLED:
+            task.error_code = "TASK_CANCELED"
+            task.error_message = reason
+        else:
+            task.error_code = None
+            task.error_message = None
         self._update_execution_dimensions(task, to_status, actor)
         if to_status == TaskStatus.RUNNING:
             started_at = now_utc()
@@ -287,7 +263,9 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
                 # TaskAttempt describes collection execution only. Analyzer
                 # retries and failures are tracked by AnalysisJobModel.
                 if to_status == TaskStatus.ANALYZING:
-                    attempt.status = CollectionStatus.SUCCEEDED.value
+                    # TaskAttempt keeps its execution-result vocabulary;
+                    # COLLECTED belongs only to Task.collection_status.
+                    attempt.status = "SUCCEEDED"
                 elif to_status == TaskStatus.FAILED and actor == Actor.ANALYZER:
                     pass
                 else:
@@ -302,9 +280,6 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
         if to_status in (TaskStatus.DONE, TaskStatus.FAILED, TaskStatus.CANCELLED):
             task.finished_at = now_utc()
 
-        session.info.setdefault("task_change_notifications", []).append(
-            (task_id, from_status, to_status.value, reason)
-        )
         return attempt if to_status == TaskStatus.RUNNING else None
 
     @staticmethod
@@ -317,30 +292,30 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
 
         if to_status == TaskStatus.PENDING:
             task.collection_status = CollectionStatus.QUEUED.value
-            task.analysis_status = AnalysisStatus.NOT_STARTED.value
+            task.analysis_status = AnalysisStatus.PENDING.value
         elif to_status == TaskStatus.RUNNING:
-            task.collection_status = CollectionStatus.COLLECTING.value
+            task.collection_status = CollectionStatus.RUNNING.value
         elif to_status == TaskStatus.UPLOADING:
             task.collection_status = CollectionStatus.UPLOADING.value
         elif to_status == TaskStatus.ANALYZING:
-            task.collection_status = CollectionStatus.SUCCEEDED.value
-            task.analysis_status = AnalysisStatus.QUEUED.value
+            task.collection_status = CollectionStatus.COLLECTED.value
+            task.analysis_status = AnalysisStatus.PENDING.value
         elif to_status == TaskStatus.DONE:
-            task.collection_status = CollectionStatus.SUCCEEDED.value
-            task.analysis_status = AnalysisStatus.SUCCEEDED.value
+            task.collection_status = CollectionStatus.COLLECTED.value
+            task.analysis_status = AnalysisStatus.SUCCESS.value
         elif to_status == TaskStatus.FAILED:
             if actor == Actor.ANALYZER:
-                task.collection_status = CollectionStatus.SUCCEEDED.value
+                task.collection_status = CollectionStatus.COLLECTED.value
                 task.analysis_status = AnalysisStatus.FAILED.value
             else:
                 task.collection_status = CollectionStatus.FAILED.value
-                task.analysis_status = AnalysisStatus.SKIPPED.value
+                task.analysis_status = AnalysisStatus.CANCELED.value
         elif to_status == TaskStatus.CANCELLED:
-            if task.collection_status == CollectionStatus.SUCCEEDED.value:
-                task.analysis_status = AnalysisStatus.CANCELLED.value
+            if task.collection_status == CollectionStatus.COLLECTED.value:
+                task.analysis_status = AnalysisStatus.CANCELED.value
             else:
-                task.collection_status = CollectionStatus.CANCELLED.value
-                task.analysis_status = AnalysisStatus.SKIPPED.value
+                task.collection_status = CollectionStatus.CANCELED.value
+                task.analysis_status = AnalysisStatus.CANCELED.value
 
     def create_task_in_session(
         self,
@@ -390,7 +365,7 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             status=TaskStatus.PENDING.value,
             status_reason=reason,
             collection_status=CollectionStatus.QUEUED.value,
-            analysis_status=AnalysisStatus.NOT_STARTED.value,
+            analysis_status=AnalysisStatus.PENDING.value,
             request_params=request_payload,
             process_snapshot_id=process_snapshot_id,
             process_binding_json=process_binding_json,
@@ -415,7 +390,6 @@ class SqlRepository(AgentMixin, TaskMixin, ArtifactMixin, AnalysisJobMixin, Outb
             message=f"Task {task_id} created by AI tool call",
             metadata=request_payload,
         )
-        record_task_transition("NONE", TaskStatus.PENDING.value)
         # §9.6: every task-creation path publishes task.created through the
         # transactional outbox, not just the Go/Web entrypoint.
         self.enqueue_outbox(

@@ -5,60 +5,24 @@
 """
 from __future__ import annotations
 
-import json
 import os
-import threading
-import time
-
-from server.app.event_bus import notify_task_changed, notify_agent_status
 from collections import deque
-from contextlib import contextmanager
-from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import and_, func, or_, select, text
+from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from server.app.cron import next_schedule_fire
 from server.app.database import new_session
-from server.app.artifact_integrity import prepare_artifact
 from server.app.models import (
     AgentMetricSnapshotModel,
     AgentModel,
+    DropInsightTargetBindingModel,
     ProcessCandidateModel,
     ProcessCandidateSnapshotModel,
-    AnalysisJobModel,
-    ArtifactModel,
-    AuditLogModel,
-    DiagnosisReportModel,
-    DiagnosisRunModel,
-    DiagnosisToolResultModel,
-    DropInsightTargetBindingModel,
-    CompositeTaskItemModel,
-    CompositeTaskModel,
-    FixVerificationModel,
-    OutboxMessageModel,
-    RCAFeedbackModel,
-    RCAFeedbackWeightModel,
-    RepairPlanModel,
-    ScheduleModel,
-    ScheduleRecordModel,
-    StatusEventModel,
-    TaskAttemptModel,
     TaskModel,
 )
-from server.app.prometheus_metrics import (
-    observe_analysis_job_duration,
-    record_analysis_job,
-    record_composite_created,
-    record_composite_status,
-    record_task_transition,
-)
-from server.app.rca.models import FeedbackPrior
-from server.app.schemas import CreateTaskRequest
 from server.app.process_attestation import (
     PROCESS_SNAPSHOT_MAX_AGE,
     ProcessCandidateInput,
@@ -69,15 +33,7 @@ from server.app.process_attestation import (
     binding_matches_candidate,
     normalize_process_candidate_snapshot,
 )
-from server.app.state_machine import (
-    AnalysisStatus,
-    Actor,
-    CollectionStatus,
-    StatusEvent,
-    TaskStatus,
-    build_status_event,
-    now_utc,
-)
+from server.app.state_machine import Actor, TaskStatus, now_utc
 from server.app.task_attempt_authority import (
     TaskDispatch,
     generate_task_attempt_authority,
@@ -146,7 +102,6 @@ class AgentMixin:
             if ip_addr not in self._task_queues:
                 self._task_queues[ip_addr] = deque()
 
-            notify_agent_status(agent_id, "ONLINE", ip_addr)
             return agent
 
     def heartbeat(
@@ -465,7 +420,6 @@ class AgentMixin:
                     session, "AGENT_OFFLINE", agent.id,
                     f"{agent.id} 心跳超时 {timeout_sec}s，标记为离线",
                 )
-                notify_agent_status(agent.id, "OFFLINE", agent.ip_addr)
             return changed
 
     @property

@@ -3,10 +3,8 @@
 所有 Web 请求通过此模块调用 Server REST API。
 axios 拦截器统一处理错误码和响应格式。
 
-认证方式（按优先级）:
-  1. HttpOnly cookie (mini_drop_api_key) — 首选，XSS 无法窃取
-  2. localStorage Bearer token — 兼容旧版
-  3. X-API-Key header — 兼容直接调用
+认证方式：控制台把本地保存的访问凭据放入 ``X-API-Key``。Go API 是唯一
+公开 HTTP 入口，不依赖 Python Worker 提供网页路由。
 */
 
 import axios from "axios";
@@ -16,12 +14,10 @@ const API_KEY_STORAGE_KEY = "mini-drop-api-key";
 const api = axios.create({
   baseURL: "/api",
   timeout: 30000,
-  withCredentials: true, // 发送 HttpOnly cookie
+  withCredentials: false,
 });
 
 api.interceptors.request.use((config) => {
-  // cookie 会自动携带，不再需要手动设置 Authorization header
-  // 但保留兼容：如果 cookie 不可用，fallback 到 localStorage
   const token = getStoredApiKey();
   if (token) {
     config.headers["X-API-Key"] = token;
@@ -126,34 +122,8 @@ export function setStoredApiKey(token) {
   }
 }
 
-/** 通过 HttpOnly cookie 设置 API Key（比 localStorage 更安全，XSS 无法读取）。*/
-export async function setCookieApiKey(token) {
-  await axios.post("/api/auth/set-cookie", { api_key: token });
-}
-
-/** 清除 HttpOnly cookie。*/
-export async function clearCookieApiKey() {
-  await axios.post("/api/auth/clear-cookie");
-}
-
-/** 统一设置 API Key：优先 HttpOnly cookie，同时更新 localStorage 作为降级。*/
 export async function saveApiKey(token) {
-  const trimmed = (token || "").trim();
-  setStoredApiKey(trimmed); // 降级方案
-  if (trimmed) {
-    try {
-      await setCookieApiKey(trimmed);
-    } catch {
-      // cookie 设置失败时不影响 localStorage 降级
-      console.warn("HttpOnly cookie 设置失败，使用 localStorage 降级方案");
-    }
-  } else {
-    try {
-      await clearCookieApiKey();
-    } catch {
-      // ignore
-    }
-  }
+  setStoredApiKey((token || "").trim());
 }
 
 export function healthz() {
@@ -241,68 +211,6 @@ export async function downloadTaskArtifact(taskId, artifactType, params = {}) {
     }
   }
   return { blob: response.data, filename };
-}
-
-export function triggerDiagnose(taskId) {
-  return api.post(`/tasks/${taskId}/diagnose`);
-}
-
-export function listTaskDiagnoses(taskId) {
-  return api.get(`/tasks/${taskId}/diagnoses`);
-}
-
-export function getDiagnosis(diagnosisId) {
-  return api.get(`/diagnoses/${diagnosisId}`);
-}
-
-export function submitDiagnosisFeedback(diagnosisId, payload) {
-  return api.post(`/diagnoses/${diagnosisId}/feedback`, payload);
-}
-
-// ── AI 集群诊断会话 ──────────────────────────────────────────────
-
-export function createDiagnosisSession(payload) {
-  return api.post("/v1/diagnoses", payload);
-}
-
-export function listDiagnosisSessions(params = {}) {
-  return api.get("/v1/diagnoses", { params }).then(itemsOf);
-}
-
-export function listContinuousDiagnosisTriggers(params = {}) {
-  return api.get("/v1/continuous-diagnosis-triggers", { params }).then(itemsOf);
-}
-
-export function getDiagnosisSession(diagnosisId) {
-  return api.get(`/v1/diagnoses/${diagnosisId}`);
-}
-
-export function approveDiagnosisProbe(diagnosisId, payload) {
-  return api.post(`/v1/diagnoses/${diagnosisId}/approvals`, payload);
-}
-
-export function listProbeDefinitions() {
-  return api.get("/v1/probes");
-}
-
-// ── NLP 自然语言采集 ────────────────────────────────────────────
-
-export function nlpParse(query) {
-  return api.post("/nlp/parse", { query });
-}
-
-export function nlpSummarize(taskId) {
-  return api.post("/nlp/summarize", { task_id: taskId });
-}
-
-// ── 配置 ──────────────────────────────────────────────────────────
-
-export function getAIConfig() {
-  return api.get("/ai-config");
-}
-
-export function runAIValidation() {
-  return api.post("/ai-validation/runs", {}, { timeout: 180000 });
 }
 
 export function getCurrentUser() {
@@ -459,28 +367,6 @@ export function listScheduleRecords(id) {
   return api.get(`/schedules/${id}/records`).then(itemsOf);
 }
 
-// ── Composite Task / DAG ───────────────────────────────────────
-
-export function listCompositeTasks() {
-  return api.get("/composite-tasks").then(itemsOf);
-}
-
-export function createCompositeTask(payload) {
-  return api.post("/composite-tasks", payload);
-}
-
-export function getCompositeTask(id) {
-  return api.get(`/composite-tasks/${id}`);
-}
-
-export function aggregateCompositeTask(id) {
-  return api.post(`/composite-tasks/${id}/aggregate`);
-}
-
-export function cancelCompositeTask(id) {
-  return api.post(`/composite-tasks/${id}/cancel`);
-}
-
 // ── Fix-verification (before/after) ────────────────────────────
 
 export function verifyDiagnosisFix(diagnosisId, payload) {
@@ -489,61 +375,6 @@ export function verifyDiagnosisFix(diagnosisId, payload) {
 
 export function listFixVerifications(diagnosisId) {
   return api.get(`/v2/diagnoses/${diagnosisId}/fix`).then(itemsOf);
-}
-
-// ── 统一诊断视图（/diagnostic-cases）──────────────────────────
-
-export function listDiagnosticCases(params = {}) {
-  return api.get("/diagnostic-cases", { params }).then(itemsOf);
-}
-
-export function listDiagnosticCasesPage(params = {}) {
-  return api.get("/diagnostic-cases", { params });
-}
-
-// ── 评测闭环（方案 §9）──────────────────────────────────────
-
-export function getDiagnosisEvalCatalog() {
-  return api.get("/v1/diagnosis-evaluations/catalog");
-}
-
-export function getExternalDiagnosisBenchmark() {
-  return api.get("/v1/diagnosis-evaluations/external");
-}
-
-export function getExternalDiagnosisBenchmarkCase(caseId) {
-  return api.get(
-    `/v1/diagnosis-evaluations/external/cases/${encodeURIComponent(caseId)}`,
-  );
-}
-
-export function getRealWorldBenchmarkCatalog() {
-  return api.get("/v1/real-world-benchmarks/catalog");
-}
-
-export function startRealWorldBenchmark(caseId) {
-  return api.post("/v1/real-world-benchmarks/runs", { case_id: caseId });
-}
-
-export function getRealWorldBenchmarkRun(runId) {
-  return api.get(`/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}`);
-}
-
-export function getRealWorldComparisonInput(runId) {
-  return api.get(
-    `/v1/real-world-benchmarks/runs/${encodeURIComponent(runId)}/comparison-input`,
-  );
-}
-
-export function getRealWorldComparisons() {
-  return api.get("/v1/real-world-benchmarks/comparisons");
-}
-
-export function submitRealWorldComparison(comparatorId, results) {
-  return api.post("/v1/real-world-benchmarks/comparisons", {
-    comparator_id: comparatorId,
-    results,
-  });
 }
 
 export function listDropInsightFeedback(diagnosisId) {
@@ -603,46 +434,6 @@ export function rollbackDiagnosticSkill(skillId) {
   return api.post(
     `/v2/diagnostic-skills/${encodeURIComponent(skillId)}/rollback`,
   );
-}
-
-export function getDiagnosisEvalPlan() {
-  return api.get("/v1/diagnosis-evaluations/plan");
-}
-
-export function runDiagnosisEvalGolden() {
-  return api.get("/v1/diagnosis-evaluations/golden", { timeout: 300000 });
-}
-
-export function startDiagnosisEvalGoldenRun() {
-  return api.post("/v1/diagnosis-evaluations/golden-runs");
-}
-
-export function getDiagnosisEvalGoldenRun(runId) {
-  return api.get(
-    `/v1/diagnosis-evaluations/golden-runs/${encodeURIComponent(runId)}`,
-  );
-}
-
-export function listDiagnosisCampaignScenarios() {
-  return api.get("/v1/diagnosis-campaigns/scenarios").then(itemsOf);
-}
-
-export function startDiagnosisCampaign(scenarioId = "LIVE-CPU-001") {
-  return api.post("/v1/diagnosis-campaigns/runs", { scenario_id: scenarioId });
-}
-
-export function getDiagnosisCampaign(runId) {
-  return api.get(`/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}`);
-}
-
-export function promoteDiagnosisCampaign(runId) {
-  return api.post(
-    `/v1/diagnosis-campaigns/runs/${encodeURIComponent(runId)}/promote`,
-  );
-}
-
-export function getDiagnosticCase(caseId) {
-  return api.get(`/diagnostic-cases/${encodeURIComponent(caseId)}`);
 }
 
 export function getDropInsightTargetCandidates(diagnosisId) {

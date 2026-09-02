@@ -13,7 +13,7 @@ set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 file(MAKE_DIRECTORY "${GENERATED_DIR}")
 
 set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../proto")
-set(PROTO_FILES common.proto hotmethod.proto healthcheck.proto init.proto)
+set(PROTO_FILES common.proto errorcode.proto taskkind.proto hotmethod.proto healthcheck.proto init.proto)
 set(GENERATED_SOURCES)
 
 foreach(PROTO_FILE IN LISTS PROTO_FILES)
@@ -36,6 +36,8 @@ add_custom_command(
   WORKING_DIRECTORY "${PROTO_DIR}"
   DEPENDS
     "${PROTO_DIR}/common.proto"
+    "${PROTO_DIR}/errorcode.proto"
+    "${PROTO_DIR}/taskkind.proto"
     "${PROTO_DIR}/hotmethod.proto"
     "${PROTO_DIR}/healthcheck.proto"
     "${PROTO_DIR}/init.proto"
@@ -59,6 +61,7 @@ add_executable(mini-drop-native-agent
 
 target_include_directories(mini-drop-native-agent PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../generated"
   "${GENERATED_DIR}"
   ${GRPCPP_INCLUDE_DIRS}
   ${PROTOBUF_INCLUDE_DIRS}

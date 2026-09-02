@@ -141,6 +141,17 @@ def test_each_collector_contract_has_a_versioned_analyzer(
     assert collector_type in handler.analyzer_type
 
 
+def test_attempt_manifest_is_transport_metadata_not_analyzer_input():
+    contract = COLLECTOR_CONTRACTS["sys_metrics"]
+    artifact_types = contract.validate([
+        {"id": 7, "artifact_type": "sys_metrics"},
+        {"id": 8, "artifact_type": "manifest"},
+    ])
+
+    assert artifact_types == {"sys_metrics", "manifest"}
+    assert "manifest" not in contract.analysis_types
+
+
 def test_collector_contract_rejects_wrong_artifact_type():
     contract = COLLECTOR_CONTRACTS["ebpf_io"]
     handler = default_analyzer_registry().resolve(
@@ -255,7 +266,7 @@ def test_failure_retries_then_enters_dead_letter(repo: SqlRepository, monkeypatc
     assert repo.get_analysis_job(job.id).retry_count == 2
     failed_task = repo.get_task(task.id)
     assert failed_task.status == TaskStatus.FAILED.value
-    assert failed_task.collection_status == "SUCCEEDED"
+    assert failed_task.collection_status == "COLLECTED"
     assert failed_task.analysis_status == "FAILED"
     assert repo.get_task_attempts(task.id)[0].status == "SUCCEEDED"
 

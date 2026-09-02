@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from server.app.diagnosis.source_mapper import map_hot_functions
+from server.app.drop_insight.source_mapper import map_hot_functions
 
 
 def test_maps_python_hot_symbol_to_ast_location(tmp_path: Path) -> None:
@@ -77,23 +77,24 @@ def test_maps_cpp_qualified_function(tmp_path: Path) -> None:
     assert mapping["review_signals"] == ["blocking_or_wait_call", "loop"]
 
 
-def test_maps_java_nested_class_symbol_from_real_fixture() -> None:
-    source_root = (
-        Path(__file__).resolve().parents[1]
-        / "external"
-        / "opentelemetry-demo"
-        / "src"
-        / "ad"
-        / "src"
-        / "main"
-        / "java"
-        / "oteldemo"
-        / "problempattern"
+def test_maps_java_nested_class_symbol(tmp_path: Path) -> None:
+    (tmp_path / "CPULoad.java").write_text(
+        "package oteldemo.problempattern;\n\n"
+        "class CPULoad {\n"
+        "    static class Logarithmizer {\n"
+        "        void run() {\n"
+        "            for (int i = 0; i < 10; i++) {\n"
+        "                Math.log(i + 1);\n"
+        "            }\n"
+        "        }\n"
+        "    }\n"
+        "}\n",
+        encoding="utf-8",
     )
 
     result = map_hot_functions(
         ["oteldemo.problempattern.CPULoad$Logarithmizer.run"],
-        roots=[source_root],
+        roots=[tmp_path],
     )
 
     mapping = result["mappings"][0]
@@ -102,21 +103,24 @@ def test_maps_java_nested_class_symbol_from_real_fixture() -> None:
     assert mapping["language"] == "java"
     assert mapping["file"] == "CPULoad.java"
     assert mapping["qualname"] == "CPULoad.Logarithmizer.run"
-    assert mapping["line_start"] == 100
-    assert mapping["line_end"] == 104
+    assert mapping["line_start"] == 5
+    assert mapping["line_end"] == 9
     assert mapping["review_signals"] == ["loop"]
 
 
-def test_maps_ruby_method_extent_from_real_fixture() -> None:
-    source_root = (
-        Path(__file__).resolve().parents[1]
-        / "external"
-        / "opentelemetry-demo"
-        / "src"
-        / "email"
+def test_maps_ruby_method_extent(tmp_path: Path) -> None:
+    (tmp_path / "email_server.rb").write_text(
+        "def send_email(message)\n"
+        "  validate(message)\n"
+        "  deliver(message)\n"
+        "end\n\n"
+        "def health\n"
+        "  true\n"
+        "end\n",
+        encoding="utf-8",
     )
 
-    result = map_hot_functions(["send_email"], roots=[source_root])
+    result = map_hot_functions(["send_email"], roots=[tmp_path])
 
     mapping = result["mappings"][0]
     assert result["unresolved_symbols"] == []
@@ -124,8 +128,8 @@ def test_maps_ruby_method_extent_from_real_fixture() -> None:
     assert mapping["language"] == "ruby"
     assert mapping["file"] == "email_server.rb"
     assert mapping["qualname"] == "send_email"
-    assert mapping["line_start"] == 61
-    assert mapping["line_end"] == 102
+    assert mapping["line_start"] == 1
+    assert mapping["line_end"] == 4
 
 
 def test_ruby_postfix_modifier_does_not_extend_method(tmp_path: Path) -> None:

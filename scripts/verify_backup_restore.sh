@@ -33,7 +33,7 @@ docker compose exec -T postgres sh -ec \
   'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' >"$output/postgres.dump"
 test -s "$output/postgres.dump"
 
-count_sql="SELECT json_build_object('tasks',(SELECT count(*) FROM tasks),'agents',(SELECT count(*) FROM agents),'artifacts',(SELECT count(*) FROM artifacts),'diagnosis_sessions',(SELECT count(*) FROM diagnosis_sessions));"
+count_sql="SELECT json_build_object('tasks',(SELECT count(*) FROM tasks),'agents',(SELECT count(*) FROM agents),'artifacts',(SELECT count(*) FROM artifacts),'drop_insight_sessions',(SELECT count(*) FROM drop_insight_sessions));"
 docker compose exec -T postgres sh -ec \
   'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "$1"' sh "$count_sql" \
   >"$output/postgres-before.json"

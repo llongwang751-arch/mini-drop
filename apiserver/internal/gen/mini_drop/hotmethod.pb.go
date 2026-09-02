@@ -30,17 +30,20 @@ const (
 // TaskDesc 描述一次采集任务的完整参数。
 // 嵌入在 HealthCheckResponse 中，Agent 心跳时拉取。
 type TaskDesc struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	TaskId               string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                              // 全局唯一任务 ID
-	TaskType             uint32                 `protobuf:"varint,2,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`                                       // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
-	ProfilerType         uint32                 `protobuf:"varint,3,opt,name=profiler_type,json=profilerType,proto3" json:"profiler_type,omitempty"`                           // 采集工具: 0=perf 1=async-profiler 2=pprof 3=py-spy 4=bpftrace 5=smaps 6=sys-metrics 7=continuous-perf 8=database-lock
-	SampleArgv           *RecordArgv            `protobuf:"bytes,4,opt,name=sample_argv,json=sampleArgv,proto3" json:"sample_argv,omitempty"`                                  // 采集参数
-	ContainerName        string                 `protobuf:"bytes,5,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`                         // 容器/Pod 名称（非容器场景为空）
-	ContainerType        uint32                 `protobuf:"varint,6,opt,name=container_type,json=containerType,proto3" json:"container_type,omitempty"`                        // 容器运行时类型
-	TimeoutSec           uint32                 `protobuf:"varint,7,opt,name=timeout_sec,json=timeoutSec,proto3" json:"timeout_sec,omitempty"`                                 // 任务超时秒数，Agent 应在此时限内完成采集
-	CosConfig            *CosConfig             `protobuf:"bytes,8,opt,name=cos_config,json=cosConfig,proto3" json:"cos_config,omitempty"`                                     // 对象存储上传凭证（本次任务专用，覆盖全局配置）
-	ScriptContent        string                 `protobuf:"bytes,9,opt,name=script_content,json=scriptContent,proto3" json:"script_content,omitempty"`                         // 仅 ScriptExec 类任务使用，存放脚本内容
-	TaskAttemptAuthority string                 `protobuf:"bytes,20,opt,name=task_attempt_authority,json=taskAttemptAuthority,proto3" json:"task_attempt_authority,omitempty"` // 不透明的任务尝试授权，Agent 必须原样回传
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                                    // 全局唯一任务 ID
+	TaskType      uint32                 `protobuf:"varint,2,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`                                             // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
+	ProfilerType  TaskKindProfiler       `protobuf:"varint,3,opt,name=profiler_type,json=profilerType,proto3,enum=mini_drop.TaskKindProfiler" json:"profiler_type,omitempty"` // 唯一编号来自 contracts/taskkinds.json
+	SampleArgv    *RecordArgv            `protobuf:"bytes,4,opt,name=sample_argv,json=sampleArgv,proto3" json:"sample_argv,omitempty"`                                        // 采集参数
+	ContainerName string                 `protobuf:"bytes,5,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`                               // 容器/Pod 名称（非容器场景为空）
+	ContainerType uint32                 `protobuf:"varint,6,opt,name=container_type,json=containerType,proto3" json:"container_type,omitempty"`                              // 容器运行时类型
+	TimeoutSec    uint32                 `protobuf:"varint,7,opt,name=timeout_sec,json=timeoutSec,proto3" json:"timeout_sec,omitempty"`                                       // 任务超时秒数，Agent 应在此时限内完成采集
+	// Deprecated: Marked as deprecated in hotmethod.proto.
+	CosConfig            *CosConfig      `protobuf:"bytes,8,opt,name=cos_config,json=cosConfig,proto3" json:"cos_config,omitempty"`                                     // 仅保留字段号兼容；Agent 不再接受长期密钥
+	ScriptContent        string          `protobuf:"bytes,9,opt,name=script_content,json=scriptContent,proto3" json:"script_content,omitempty"`                         // 仅 ScriptExec 类任务使用，存放脚本内容
+	TaskAttemptAuthority string          `protobuf:"bytes,20,opt,name=task_attempt_authority,json=taskAttemptAuthority,proto3" json:"task_attempt_authority,omitempty"` // 不透明的任务尝试授权，Agent 必须原样回传
+	UploadTargets        []*UploadTarget `protobuf:"bytes,21,rep,name=upload_targets,json=uploadTargets,proto3" json:"upload_targets,omitempty"`                        // 每对象短时 PUT 授权
+	TaskAttemptId        string          `protobuf:"bytes,22,opt,name=task_attempt_id,json=taskAttemptId,proto3" json:"task_attempt_id,omitempty"`                      // 本次真实执行身份，贯穿 Artifact/AnalysisJob
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -89,11 +92,11 @@ func (x *TaskDesc) GetTaskType() uint32 {
 	return 0
 }
 
-func (x *TaskDesc) GetProfilerType() uint32 {
+func (x *TaskDesc) GetProfilerType() TaskKindProfiler {
 	if x != nil {
 		return x.ProfilerType
 	}
-	return 0
+	return TaskKindProfiler_TASK_KIND_PERF_CPU
 }
 
 func (x *TaskDesc) GetSampleArgv() *RecordArgv {
@@ -124,6 +127,7 @@ func (x *TaskDesc) GetTimeoutSec() uint32 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in hotmethod.proto.
 func (x *TaskDesc) GetCosConfig() *CosConfig {
 	if x != nil {
 		return x.CosConfig
@@ -141,6 +145,20 @@ func (x *TaskDesc) GetScriptContent() string {
 func (x *TaskDesc) GetTaskAttemptAuthority() string {
 	if x != nil {
 		return x.TaskAttemptAuthority
+	}
+	return ""
+}
+
+func (x *TaskDesc) GetUploadTargets() []*UploadTarget {
+	if x != nil {
+		return x.UploadTargets
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetTaskAttemptId() string {
+	if x != nil {
+		return x.TaskAttemptId
 	}
 	return ""
 }
@@ -241,9 +259,10 @@ type TaskResult struct {
 	ChildrenPstats []*PidStats            `protobuf:"bytes,6,rep,name=children_pstats,json=childrenPstats,proto3" json:"children_pstats,omitempty"` // 子进程资源时间序列
 	// artifact_type 和 artifact_metadata 用于描述产物的类型和元数据。
 	// Server 收到后写入 artifacts 表。
-	ArtifactType         string `protobuf:"bytes,7,opt,name=artifact_type,json=artifactType,proto3" json:"artifact_type,omitempty"`                           // raw / folded / flamegraph_svg / top_json / ebpf_metrics
-	ArtifactMetadataJson string `protobuf:"bytes,8,opt,name=artifact_metadata_json,json=artifactMetadataJson,proto3" json:"artifact_metadata_json,omitempty"` // JSON 序列化的元数据，含 bucket/object_key/content_type/size_bytes
-	TaskAttemptAuthority string `protobuf:"bytes,9,opt,name=task_attempt_authority,json=taskAttemptAuthority,proto3" json:"task_attempt_authority,omitempty"` // 原样回传 TaskDesc 中的不透明任务尝试授权
+	ArtifactType         string    `protobuf:"bytes,7,opt,name=artifact_type,json=artifactType,proto3" json:"artifact_type,omitempty"`                           // raw / folded / flamegraph_svg / top_json / ebpf_metrics
+	ArtifactMetadataJson string    `protobuf:"bytes,8,opt,name=artifact_metadata_json,json=artifactMetadataJson,proto3" json:"artifact_metadata_json,omitempty"` // JSON 序列化的元数据，含 bucket/object_key/content_type/size_bytes
+	TaskAttemptAuthority string    `protobuf:"bytes,9,opt,name=task_attempt_authority,json=taskAttemptAuthority,proto3" json:"task_attempt_authority,omitempty"` // 原样回传 TaskDesc 中的不透明任务尝试授权
+	ErrorCode            ErrorCode `protobuf:"varint,10,opt,name=error_code,json=errorCode,proto3,enum=mini_drop.ErrorCode" json:"error_code,omitempty"`         // 稳定错误码；文本仅作脱敏补充
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -341,25 +360,34 @@ func (x *TaskResult) GetTaskAttemptAuthority() string {
 	return ""
 }
 
+func (x *TaskResult) GetErrorCode() ErrorCode {
+	if x != nil {
+		return x.ErrorCode
+	}
+	return ErrorCode_ERROR_CODE_NONE
+}
+
 var File_hotmethod_proto protoreflect.FileDescriptor
 
 const file_hotmethod_proto_rawDesc = "" +
 	"\n" +
-	"\x0fhotmethod.proto\x12\tmini_drop\x1a\fcommon.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa4\x03\n" +
+	"\x0fhotmethod.proto\x12\tmini_drop\x1a\fcommon.proto\x1a\x0ferrorcode.proto\x1a\x0etaskkind.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xad\x04\n" +
 	"\bTaskDesc\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12\x1b\n" +
-	"\ttask_type\x18\x02 \x01(\rR\btaskType\x12#\n" +
-	"\rprofiler_type\x18\x03 \x01(\rR\fprofilerType\x126\n" +
+	"\ttask_type\x18\x02 \x01(\rR\btaskType\x12@\n" +
+	"\rprofiler_type\x18\x03 \x01(\x0e2\x1b.mini_drop.TaskKindProfilerR\fprofilerType\x126\n" +
 	"\vsample_argv\x18\x04 \x01(\v2\x15.mini_drop.RecordArgvR\n" +
 	"sampleArgv\x12%\n" +
 	"\x0econtainer_name\x18\x05 \x01(\tR\rcontainerName\x12%\n" +
 	"\x0econtainer_type\x18\x06 \x01(\rR\rcontainerType\x12\x1f\n" +
 	"\vtimeout_sec\x18\a \x01(\rR\n" +
-	"timeoutSec\x123\n" +
+	"timeoutSec\x127\n" +
 	"\n" +
-	"cos_config\x18\b \x01(\v2\x14.mini_drop.CosConfigR\tcosConfig\x12%\n" +
+	"cos_config\x18\b \x01(\v2\x14.mini_drop.CosConfigB\x02\x18\x01R\tcosConfig\x12%\n" +
 	"\x0escript_content\x18\t \x01(\tR\rscriptContent\x124\n" +
-	"\x16task_attempt_authority\x18\x14 \x01(\tR\x14taskAttemptAuthorityJ\x04\b\n" +
+	"\x16task_attempt_authority\x18\x14 \x01(\tR\x14taskAttemptAuthority\x12>\n" +
+	"\x0eupload_targets\x18\x15 \x03(\v2\x17.mini_drop.UploadTargetR\ruploadTargets\x12&\n" +
+	"\x0ftask_attempt_id\x18\x16 \x01(\tR\rtaskAttemptIdJ\x04\b\n" +
 	"\x10\x14\"\x9e\x01\n" +
 	"\n" +
 	"RecordArgv\x12\x0e\n" +
@@ -370,7 +398,7 @@ const file_hotmethod_proto_rawDesc = "" +
 	"\n" +
 	"subprocess\x18\x05 \x01(\bR\n" +
 	"subprocess\x12\x14\n" +
-	"\x05event\x18\x06 \x01(\tR\x05event\"\x8d\x03\n" +
+	"\x05event\x18\x06 \x01(\tR\x05event\"\xc2\x03\n" +
 	"\n" +
 	"TaskResult\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12#\n" +
@@ -382,7 +410,10 @@ const file_hotmethod_proto_rawDesc = "" +
 	"\x0fchildren_pstats\x18\x06 \x03(\v2\x13.mini_drop.PidStatsR\x0echildrenPstats\x12#\n" +
 	"\rartifact_type\x18\a \x01(\tR\fartifactType\x124\n" +
 	"\x16artifact_metadata_json\x18\b \x01(\tR\x14artifactMetadataJson\x124\n" +
-	"\x16task_attempt_authority\x18\t \x01(\tR\x14taskAttemptAuthority2J\n" +
+	"\x16task_attempt_authority\x18\t \x01(\tR\x14taskAttemptAuthority\x123\n" +
+	"\n" +
+	"error_code\x18\n" +
+	" \x01(\x0e2\x14.mini_drop.ErrorCodeR\terrorCode2J\n" +
 	"\tHotmethod\x12=\n" +
 	"\fNotifyResult\x12\x15.mini_drop.TaskResult\x1a\x16.google.protobuf.EmptyB2Z0github.com/jiangyulin1/mini-drop/proto;mini_dropb\x06proto3"
 
@@ -403,24 +434,30 @@ var file_hotmethod_proto_goTypes = []any{
 	(*TaskDesc)(nil),      // 0: mini_drop.TaskDesc
 	(*RecordArgv)(nil),    // 1: mini_drop.RecordArgv
 	(*TaskResult)(nil),    // 2: mini_drop.TaskResult
-	(*CosConfig)(nil),     // 3: mini_drop.CosConfig
-	(*File)(nil),          // 4: mini_drop.File
-	(*PidStats)(nil),      // 5: mini_drop.PidStats
-	(*emptypb.Empty)(nil), // 6: google.protobuf.Empty
+	(TaskKindProfiler)(0), // 3: mini_drop.TaskKindProfiler
+	(*CosConfig)(nil),     // 4: mini_drop.CosConfig
+	(*UploadTarget)(nil),  // 5: mini_drop.UploadTarget
+	(*File)(nil),          // 6: mini_drop.File
+	(*PidStats)(nil),      // 7: mini_drop.PidStats
+	(ErrorCode)(0),        // 8: mini_drop.ErrorCode
+	(*emptypb.Empty)(nil), // 9: google.protobuf.Empty
 }
 var file_hotmethod_proto_depIdxs = []int32{
-	1, // 0: mini_drop.TaskDesc.sample_argv:type_name -> mini_drop.RecordArgv
-	3, // 1: mini_drop.TaskDesc.cos_config:type_name -> mini_drop.CosConfig
-	4, // 2: mini_drop.TaskResult.file:type_name -> mini_drop.File
-	5, // 3: mini_drop.TaskResult.self_pstats:type_name -> mini_drop.PidStats
-	5, // 4: mini_drop.TaskResult.children_pstats:type_name -> mini_drop.PidStats
-	2, // 5: mini_drop.Hotmethod.NotifyResult:input_type -> mini_drop.TaskResult
-	6, // 6: mini_drop.Hotmethod.NotifyResult:output_type -> google.protobuf.Empty
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 0: mini_drop.TaskDesc.profiler_type:type_name -> mini_drop.TaskKindProfiler
+	1, // 1: mini_drop.TaskDesc.sample_argv:type_name -> mini_drop.RecordArgv
+	4, // 2: mini_drop.TaskDesc.cos_config:type_name -> mini_drop.CosConfig
+	5, // 3: mini_drop.TaskDesc.upload_targets:type_name -> mini_drop.UploadTarget
+	6, // 4: mini_drop.TaskResult.file:type_name -> mini_drop.File
+	7, // 5: mini_drop.TaskResult.self_pstats:type_name -> mini_drop.PidStats
+	7, // 6: mini_drop.TaskResult.children_pstats:type_name -> mini_drop.PidStats
+	8, // 7: mini_drop.TaskResult.error_code:type_name -> mini_drop.ErrorCode
+	2, // 8: mini_drop.Hotmethod.NotifyResult:input_type -> mini_drop.TaskResult
+	9, // 9: mini_drop.Hotmethod.NotifyResult:output_type -> google.protobuf.Empty
+	9, // [9:10] is the sub-list for method output_type
+	8, // [8:9] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_hotmethod_proto_init() }
@@ -429,6 +466,8 @@ func file_hotmethod_proto_init() {
 		return
 	}
 	file_common_proto_init()
+	file_errorcode_proto_init()
+	file_taskkind_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

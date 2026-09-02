@@ -168,3 +168,22 @@ def presigned_get_url(bucket: str, object_key: str, expires: int = 3600) -> str:
         object_name=object_key,
         expires=timedelta(seconds=expires),
     )
+
+
+def presigned_put_url(bucket: str, object_key: str, expires: int = 1800) -> str:
+    """Issue an exact-object PUT URL for an Agent collection attempt."""
+    if not bucket:
+        raise ValueError("bucket must not be empty")
+    if not object_key:
+        raise ValueError("object_key must not be empty")
+    if expires <= 0 or expires > 3600:
+        raise ValueError("Agent PUT authorization must be between 1 and 3600 seconds")
+    # The browser-facing public endpoint may be localhost, which is not
+    # reachable from the Agent container. PUT URLs must use the internal
+    # Agent/worker endpoint instead.
+    endpoint = os.getenv("MINIO_AGENT_ENDPOINT", "").strip() or None
+    return _client(endpoint=endpoint).presigned_put_object(
+        bucket_name=bucket,
+        object_name=object_key,
+        expires=timedelta(seconds=expires),
+    )

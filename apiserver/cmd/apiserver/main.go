@@ -55,7 +55,7 @@ func main() {
 	go func() {
 		logger.Info("go api server started",
 			"addr", cfg.ListenAddr,
-			"analysis_engine", cfg.AnalysisEngineURL,
+			"diagnostic_ai_grpc", cfg.DiagnosticAIGRPCAddress,
 		)
 		errCh <- server.ListenAndServe()
 	}()

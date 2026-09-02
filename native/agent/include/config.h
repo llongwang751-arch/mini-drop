@@ -17,9 +17,6 @@ struct Config {
   int heartbeat_sec;
   int max_memory_mb;
   int max_output_mb;
-  std::string minio_endpoint;
-  std::string minio_access;
-  std::string minio_secret;
   std::string minio_bucket;
   std::string result_outbox_dir;
   int result_outbox_max_entries;

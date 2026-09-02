@@ -38,30 +38,38 @@ void require(bool condition, const std::string& message) {
 TaskResult make_result(const std::string& task_id, bool ok,
                        const std::string& error,
                        const std::string& artifact_json,
-                       const std::string& task_attempt_authority = "") {
+                       const std::string& task_attempt_authority = "",
+                       const std::string& task_attempt_id = "",
+                       const std::string& error_code = "") {
   TaskResult result;
   result.task_id = task_id;
   result.ok = ok;
   result.error = error;
   result.artifact_json = artifact_json;
   result.task_attempt_authority = task_attempt_authority;
+  result.task_attempt_id = task_attempt_id;
+  result.error_code = error_code;
   return result;
 }
 
-void test_v2_roundtrip_and_acknowledge() {
+void test_v4_roundtrip_and_acknowledge() {
   TemporaryDirectory directory;
   ResultOutbox outbox(directory.path());
   const auto saved = outbox.enqueue(
-      make_result("task-1", true, "", "{\"artifact\":\"raw\"}", "authority-1"));
+      make_result("task-1", true, "", "{\"artifact\":\"raw\"}",
+                  "authority-1", "attempt-1", "NONE"));
   std::ifstream raw(saved.path, std::ios::binary);
   std::string header(8, '\0');
   raw.read(header.data(), static_cast<std::streamsize>(header.size()));
-  require(header == std::string("MDRES02\0", 8), "v2 header mismatch");
+  require(header == std::string("MDRES04\0", 8), "v4 header mismatch");
   const auto entries = outbox.pending();
   require(entries.size() == 1, "roundtrip entry count");
   require(entries[0].result.task_id == "task-1", "roundtrip task id");
   require(entries[0].result.task_attempt_authority == "authority-1",
           "roundtrip authority");
+  require(entries[0].result.task_attempt_id == "attempt-1",
+          "roundtrip attempt id");
+  require(entries[0].result.error_code == "NONE", "roundtrip error code");
   require(entries[0].result.ok, "roundtrip status");
   require(entries[0].result.artifact_json == "{\"artifact\":\"raw\"}",
           "roundtrip artifact");
@@ -218,7 +226,7 @@ void test_temporary_entry_is_ignored_during_recovery() {
 
 int main() {
   try {
-    test_v2_roundtrip_and_acknowledge();
+    test_v4_roundtrip_and_acknowledge();
     test_same_attempt_replaces_entry();
     test_distinct_attempts_have_distinct_entries();
     test_restart_replays_unacknowledged_entry();

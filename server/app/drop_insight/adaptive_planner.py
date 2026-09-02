@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from server.app.ai_provider import chat_completions, get_ai_settings, is_feature_enabled
+from server.app.logging_utils import log_event
 
 
 SYSTEM_PROMPT = """你是性能诊断假设规划器。基于问题、可信范围、已有证据和用户纠错，
@@ -15,6 +17,7 @@ SYSTEM_PROMPT = """你是性能诊断假设规划器。基于问题、可信范�
 
 def propose_hypothesis_plan(
     *,
+    diagnosis_id: str | None = None,
     query: str,
     target: dict[str, Any],
     category: str,
@@ -24,12 +27,50 @@ def propose_hypothesis_plan(
     user_correction: str | None = None,
     allowed_tools: list[str] | None = None,
     route_priors: list[dict[str, Any]] | None = None,
+    active_skill: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     if not is_feature_enabled("rca"):
         return None
     allowed = list(dict.fromkeys(allowed_tools or [rule_plan["tool_name"]]))
     if rule_plan["tool_name"] not in allowed:
         allowed.append(rule_plan["tool_name"])
+    framework = os.getenv("MINI_DROP_AGENT_FRAMEWORK", "langgraph").strip().lower()
+    if framework in {"langgraph", "langchain", "langchain-langgraph"}:
+        if not diagnosis_id:
+            return None
+        from .diagnosis_agent import DiagnosisAgentContext, plan_with_diagnosis_agent
+
+        settings = get_ai_settings()
+        context = DiagnosisAgentContext(
+            diagnosis_id=diagnosis_id,
+            query=query,
+            target=dict(target),
+            category=category,
+            rule_plan=dict(rule_plan),
+            allowed_tools=tuple(allowed),
+            prior_hypotheses=tuple(prior_hypotheses or []),
+            evidence_summary=tuple(evidence_summary or []),
+            user_correction=user_correction or "",
+            active_skill=dict(active_skill) if active_skill else None,
+            route_priors=tuple(route_priors or []),
+        )
+        try:
+            return plan_with_diagnosis_agent(context, settings)
+        except Exception as exc:
+            # Do not issue a second model request through the legacy client: the
+            # provider may already have accepted the Agent turn. Rules remain
+            # the deterministic fallback for this diagnosis round.
+            log_event(
+                "error",
+                "diagnosis_agent_plan_failed",
+                diagnosis_id=diagnosis_id,
+                framework=framework,
+                error=type(exc).__name__,
+                message=str(exc),
+            )
+            return None
+    if framework not in {"legacy", "legacy-chat-completions"}:
+        return None
     function = {
         "name": "emit_diagnosis_plan",
         "description": "输出受约束、可证伪的性能诊断计划",

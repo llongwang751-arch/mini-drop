@@ -8,8 +8,6 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from sqlalchemy import func
-
 from server.app.database import new_session
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.models import (
@@ -48,6 +46,8 @@ _CAMPAIGN_SOURCE_TOOL = {
 _MATCH_THRESHOLD = 700
 _HYBRID_MATCH_THRESHOLD = 0.35
 _HYBRID_MIN_MARGIN = 0.04
+_RELIABILITY_PRIOR_SUCCESSES = 2.0
+_RELIABILITY_PRIOR_FAILURES = 2.0
 _TOKEN_RE = re.compile(r"[a-z0-9_]+|[\u4e00-\u9fff]+", re.IGNORECASE)
 _SEARCH_STOPWORDS = {
     "a",
@@ -121,7 +121,9 @@ _TOOL_REQUIRED_CAPABILITIES = {
     "start_perf_profile": {"perf_cpu"},
     "start_ebpf_io_profile": {"ebpf_io"},
     "start_pyspy_profile": {"pyspy"},
+    "start_jvm_profile": {"java_async"},
     "collect_database_diagnostics": {"database_lock"},
+    "collect_network_diagnostics": {"network_diagnostics"},
 }
 
 
@@ -612,6 +614,75 @@ def _select_ranked_skill(
     return ranked[0]
 
 
+def _activation_summary(activations: list[DiagnosticSkillActivationModel]) -> dict:
+    """Summarize real reuse outcomes without treating missing feedback as success.
+
+    A small Beta prior keeps one early label from dominating retrieval. PARTIAL is
+    worth half a success; pending activations affect coverage but not reliability.
+    """
+    counts = Counter(str(item.outcome or "PENDING").upper() for item in activations)
+    total = len(activations)
+    correct = counts["CORRECT"]
+    partial = counts["PARTIAL"]
+    wrong = counts["WRONG"]
+    labeled = correct + partial + wrong
+    posterior = (
+        _RELIABILITY_PRIOR_SUCCESSES + correct + 0.5 * partial
+    ) / (
+        _RELIABILITY_PRIOR_SUCCESSES
+        + _RELIABILITY_PRIOR_FAILURES
+        + labeled
+    )
+    return {
+        "activation_count": total,
+        "labeled_outcome_count": labeled,
+        "pending_outcome_count": total - labeled,
+        "correct_outcome_count": correct,
+        "partial_outcome_count": partial,
+        "wrong_outcome_count": wrong,
+        "outcome_coverage": round(labeled / total, 4) if total else 0.0,
+        "observed_success_rate": round(
+            (correct + 0.5 * partial) / labeled, 4
+        ) if labeled else None,
+        "posterior_reliability": round(posterior, 4),
+    }
+
+
+def _rank_with_observed_reliability(
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]],
+    activations: list[DiagnosticSkillActivationModel],
+) -> list[tuple[float, dict, DiagnosticSkillModel]]:
+    """Let production outcomes break close retrieval ties conservatively.
+
+    Text/context similarity still decides whether a Skill is relevant. The
+    reliability factor only nudges eligible candidates by at most +/-20% and
+    therefore cannot bypass category, environment, route or capability gates.
+    """
+    by_skill: dict[str, list[DiagnosticSkillActivationModel]] = {}
+    for activation in activations:
+        by_skill.setdefault(activation.skill_id, []).append(activation)
+    adjusted = []
+    for retrieval_score, reason, skill in ranked:
+        summary = _activation_summary(by_skill.get(skill.id, []))
+        labeled = summary["labeled_outcome_count"]
+        reliability = summary["posterior_reliability"]
+        factor = 1.0 if not labeled else 0.8 + 0.4 * reliability
+        score = retrieval_score * factor
+        adjusted.append((
+            score,
+            {
+                **reason,
+                "retrieval_score_before_reliability": round(retrieval_score, 4),
+                "reliability_factor": round(factor, 4),
+                "posterior_reliability": reliability,
+                "outcome_coverage": summary["outcome_coverage"],
+                "observed_outcomes": labeled,
+            },
+            skill,
+        ))
+    return sorted(adjusted, key=lambda item: (-item[0], item[2].id))
+
+
 def list_skills(*, include_retired: bool = True) -> list[dict]:
     session = new_session()
     try:
@@ -622,27 +693,14 @@ def list_skills(*, include_retired: bool = True) -> list[dict]:
             DiagnosticSkillModel.updated_at.desc(), DiagnosticSkillModel.version.desc()
         ).all()
         activations = session.query(DiagnosticSkillActivationModel).all()
-        activation_stats: dict[str, dict[str, int]] = {}
+        activations_by_skill: dict[str, list[DiagnosticSkillActivationModel]] = {}
         for activation in activations:
-            stats = activation_stats.setdefault(
-                activation.skill_id,
-                {"activation_count": 0, "correct_outcome_count": 0, "wrong_outcome_count": 0},
-            )
-            stats["activation_count"] += 1
-            if activation.outcome == "CORRECT":
-                stats["correct_outcome_count"] += 1
-            elif activation.outcome == "WRONG":
-                stats["wrong_outcome_count"] += 1
+            activations_by_skill.setdefault(activation.skill_id, []).append(activation)
 
         result = []
         for item in rows:
             payload = item.to_dict()
-            payload.update(
-                activation_stats.get(
-                    item.id,
-                    {"activation_count": 0, "correct_outcome_count": 0, "wrong_outcome_count": 0},
-                )
-            )
+            payload.update(_activation_summary(activations_by_skill.get(item.id, [])))
             result.append(payload)
         return result
     finally:
@@ -671,6 +729,11 @@ def get_skill(skill_id: str) -> dict | None:
             .limit(20)
             .all()
         ]
+        result["reuse_metrics"] = _activation_summary(
+            session.query(DiagnosticSkillActivationModel)
+            .filter(DiagnosticSkillActivationModel.skill_id == skill_id)
+            .all()
+        )
         return result
     finally:
         session.close()
@@ -970,6 +1033,14 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
         query = diagnosis.query if diagnosis is not None else str(target.get("query") or "")
         ranking_target = {**target, "_baseline_tool": baseline_tool}
         ranked = _rank_hybrid_skills(skills, category, ranking_target, query)
+        skill_ids = [item[2].id for item in ranked]
+        historical_activations = (
+            session.query(DiagnosticSkillActivationModel)
+            .filter(DiagnosticSkillActivationModel.skill_id.in_(skill_ids))
+            .all()
+            if skill_ids else []
+        )
+        ranked = _rank_with_observed_reliability(ranked, historical_activations)
         selected = _select_ranked_skill(ranked)
         if selected is None:
             return None
@@ -1066,16 +1137,19 @@ def record_activation_outcome(diagnosis_id: str, feedback_label: str) -> None:
             activation.updated_at = timestamp
         session.commit()
         for skill_id in {item.skill_id for item in activations}:
-            total = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-                DiagnosticSkillActivationModel.skill_id == skill_id,
-                DiagnosticSkillActivationModel.outcome.isnot(None),
-            ).scalar() or 0
-            wrong = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-                DiagnosticSkillActivationModel.skill_id == skill_id,
-                DiagnosticSkillActivationModel.outcome == "WRONG",
-            ).scalar() or 0
+            skill_activations = session.query(DiagnosticSkillActivationModel).filter(
+                DiagnosticSkillActivationModel.skill_id == skill_id
+            ).all()
+            summary = _activation_summary(skill_activations)
+            total = summary["labeled_outcome_count"]
+            wrong = summary["wrong_outcome_count"]
+            skill = session.get(DiagnosticSkillModel, skill_id)
+            if skill is not None:
+                metrics = dict(skill.gate_metrics_json or {})
+                metrics["production_reuse"] = summary
+                skill.gate_metrics_json = metrics
+                skill.updated_at = _now()
             if total >= 2 and wrong >= 2 and wrong / total >= 0.5:
-                skill = session.get(DiagnosticSkillModel, skill_id)
                 if skill is not None and skill.status == "ACTIVE":
                     metrics = dict(skill.gate_metrics_json or {})
                     metrics.update({"negative_transfer_count": wrong, "observed_outcomes": total})

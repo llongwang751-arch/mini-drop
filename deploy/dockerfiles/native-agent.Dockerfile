@@ -1,6 +1,8 @@
 FROM ubuntu:22.04 AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG UBUNTU_MIRROR=http://mirrors.aliyun.com/ubuntu
+RUN sed -i "s|http://archive.ubuntu.com/ubuntu|${UBUNTU_MIRROR}|g" /etc/apt/sources.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     libgrpc++-dev \
@@ -13,13 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 COPY proto/ ./proto/
 COPY native/agent/ ./native/agent/
+COPY native/generated/ ./native/generated/
 RUN cmake -S native/agent -B /build -DCMAKE_BUILD_TYPE=Release \
     && cmake --build /build --parallel \
     && ctest --test-dir /build --output-on-failure
 
 FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG UBUNTU_MIRROR=http://mirrors.aliyun.com/ubuntu
+RUN sed -i "s|http://archive.ubuntu.com/ubuntu|${UBUNTU_MIRROR}|g" /etc/apt/sources.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     bpftrace \
     curl \
@@ -35,10 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && cp "$(find /usr/lib -path '*/linux-tools-*/perf' \
        -type f | head -n 1)" \
-       /usr/local/bin/perf \
-    && curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc \
-       -o /usr/local/bin/mc \
-    && chmod +x /usr/local/bin/mc
+       /usr/local/bin/perf
 
 ARG ASYNC_PROFILER_VERSION=4.4
 RUN curl -fsSL \
@@ -52,7 +54,7 @@ RUN curl -fsSL \
 RUN pip3 install --no-cache-dir py-spy==0.4.2
 
 COPY --from=builder /build/mini-drop-native-agent /usr/local/bin/
-COPY agent/mini_drop_agent/collectors/scripts/io_latency.bt /opt/mini-drop/io_latency.bt
+COPY native/agent/io_latency.bt /opt/mini-drop/io_latency.bt
 COPY native/agent/bpftrace_compat.h /opt/mini-drop/bpftrace_compat.h
 
 ENTRYPOINT ["/usr/local/bin/mini-drop-native-agent"]

@@ -25,3 +25,24 @@ func TestCatalogHasUniqueValidKinds(t *testing.T) {
 		t.Fatal("Python-only compatibility collector must not enter the C++ production catalog")
 	}
 }
+
+func TestGeneratedOptionRulesRejectInvalidKnownOptions(t *testing.T) {
+	perf, ok := Lookup("perf_cpu")
+	if !ok {
+		t.Fatal("perf_cpu is missing")
+	}
+	if err := ValidateOptions(perf, map[string]any{
+		"callgraph": "dwarf", "timeout_sec": float64(30),
+	}); err != nil {
+		t.Fatalf("valid options rejected: %v", err)
+	}
+	if err := ValidateOptions(perf, map[string]any{"callgraph": "shell"}); err == nil {
+		t.Fatal("invalid callgraph accepted")
+	}
+	if err := ValidateOptions(perf, map[string]any{"timeout_sec": 30.5}); err == nil {
+		t.Fatal("fractional timeout accepted")
+	}
+	if err := ValidateOptions(perf, map[string]any{"campaign_run_id": "extension"}); err != nil {
+		t.Fatalf("provenance extension rejected: %v", err)
+	}
+}

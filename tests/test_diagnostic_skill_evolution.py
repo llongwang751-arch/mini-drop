@@ -5,8 +5,10 @@ import pytest
 from server.app.database import init_db, new_session, reset_engine
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.drop_insight.skill_evolution import (
+    _activation_summary,
     _match_score,
     _rank_hybrid_skills,
+    _rank_with_observed_reliability,
     apply_active_skill,
     create_candidate_from_diagnosis,
     evaluate_skill,
@@ -381,6 +383,64 @@ def test_hybrid_retrieval_breaks_the_legacy_context_score_tie():
     assert ranked[0][2].id == "skill-cpu-query"
     assert ranked[0][1]["retrieval"] == "HYBRID_BM25_VECTOR"
     assert ranked[0][1]["bm25"] > ranked[1][1]["bm25"]
+
+
+def test_real_reuse_reliability_breaks_close_retrieval_tie_without_bypassing_gates():
+    timestamp = datetime.now(timezone.utc)
+    common = {
+        "category": "CPU_HOTSPOT",
+        "version": 1,
+        "status": "ACTIVE",
+        "source_diagnosis_ids_json": [],
+        "trigger_json": {"environment": "staging", "service": "order-service"},
+        "strategy_json": {"probe_order": ["start_perf_profile"]},
+        "gate_metrics_json": {"eligible": True},
+        "created_by": "reviewer",
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "published_at": timestamp,
+    }
+    reliable = DiagnosticSkillModel(id="skill-reliable", family_key="cpu:reliable", **common)
+    weak = DiagnosticSkillModel(id="skill-weak", family_key="cpu:weak", **common)
+    ranked = [
+        (0.6, {"retrieval": "STRUCTURED_FALLBACK"}, weak),
+        (0.6, {"retrieval": "STRUCTURED_FALLBACK"}, reliable),
+    ]
+    activations = [
+        DiagnosticSkillActivationModel(
+            id=f"activation-good-{index}", skill_id=reliable.id,
+            diagnosis_id=f"diagnosis-good-{index}", match_score=800,
+            match_reason_json={}, baseline_tool="collect_sys_metrics",
+            selected_tool="start_perf_profile", outcome="CORRECT",
+            created_at=timestamp, updated_at=timestamp,
+        )
+        for index in range(3)
+    ] + [
+        DiagnosticSkillActivationModel(
+            id="activation-weak", skill_id=weak.id, diagnosis_id="diagnosis-weak",
+            match_score=800, match_reason_json={}, baseline_tool="collect_sys_metrics",
+            selected_tool="start_perf_profile", outcome="WRONG",
+            created_at=timestamp, updated_at=timestamp,
+        )
+    ]
+
+    adjusted = _rank_with_observed_reliability(ranked, activations)
+
+    assert adjusted[0][2].id == reliable.id
+    assert adjusted[0][1]["posterior_reliability"] > adjusted[1][1]["posterior_reliability"]
+    assert adjusted[0][1]["retrieval_score_before_reliability"] == 0.6
+    summary = _activation_summary(activations[:3])
+    assert summary == {
+        "activation_count": 3,
+        "labeled_outcome_count": 3,
+        "pending_outcome_count": 0,
+        "correct_outcome_count": 3,
+        "partial_outcome_count": 0,
+        "wrong_outcome_count": 0,
+        "outcome_coverage": 1.0,
+        "observed_success_rate": 1.0,
+        "posterior_reliability": 0.7143,
+    }
 
 
 def test_active_skill_advances_through_verified_probe_order():

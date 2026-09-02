@@ -1,6 +1,6 @@
 """Pydantic 数据模型：HTTP API 的请求与响应结构。
 
-gRPC 服务使用 protobuf 消息，此处模型专用于 FastAPI 层。
+对外 Go API 与内部 Python Worker 共享这些任务参数模型。
 """
 
 from __future__ import annotations
@@ -110,8 +110,10 @@ class TaskView(BaseModel):
     duration_sec: int
     status: str  # TaskStatus.value
     status_reason: str
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
     collection_status: str = "QUEUED"
-    analysis_status: str = "NOT_STARTED"
+    analysis_status: str = "PENDING"
     request_params: dict[str, Any]
     created_at: datetime
     started_at: Optional[datetime] = None
@@ -142,38 +144,3 @@ class AuditLogView(BaseModel):
     task_id: Optional[str] = None
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-
-class RCAFeedbackRequest(BaseModel):
-    """用户对 RCA 诊断结果的反馈。"""
-
-    predicted_cause_id: str
-    feedback_label: Literal["correct", "wrong", "partial", "unknown"]
-    corrected_cause_id: Optional[str] = None
-    feedback_note: Optional[str] = None
-
-
-class ScheduleRequest(BaseModel):
-    """Create/update a cron schedule over an immutable task template."""
-
-    name: str = Field(..., min_length=1, max_length=256)
-    cron_expression: str = Field(..., min_length=5, max_length=64)
-    timezone: str = Field(default="Asia/Shanghai", max_length=64)
-    task_template: dict[str, Any] = Field(default_factory=dict)
-    enabled: bool = True
-
-
-class CompositeChild(BaseModel):
-    """One child task template within a composite task."""
-
-    task_template: dict[str, Any]
-    role: Literal["required", "optional"] = "required"
-
-
-class CompositeTaskRequest(BaseModel):
-    """Create a composite task whose children aggregate by strategy."""
-
-    name: str = Field(..., min_length=1, max_length=256)
-    strategy: Literal["ALL_REQUIRED", "BEST_EFFORT", "QUORUM"]
-    required_success_count: Optional[int] = Field(default=None, ge=1)
-    children: list[CompositeChild] = Field(..., min_length=1)

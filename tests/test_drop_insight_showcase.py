@@ -74,6 +74,11 @@ def test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record():
     assert len(report["exploration_nodes"]) >= 7
     assert len(report["exploration_switches"]) >= 3
     assert report["verification"]["status"] == "VERIFIED"
+    assert native["provenance"]["kind"] == "CONTROLLED_REPLAY"
+    assert native["provenance"]["live_collection"] is False
+    decisions = {item["role"]: item["classification"]["decision"] for item in native["evidence"]}
+    assert decisions["SUPPORT"] == "ACCEPT_SUPPORT"
+    assert decisions["COUNTER"] == "ACCEPT_COUNTER"
 
     database = get_showcase_diagnostic_case("showcase-database-lock-chain-003")["native_payload"]
     database_report = database["reports"][0]

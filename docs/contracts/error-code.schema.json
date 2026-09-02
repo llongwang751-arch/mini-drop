@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "codes"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0.0"},
+    "codes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "phase", "retryable", "grpc_code", "user_message_zh"],
+        "properties": {
+          "id": {"type": "integer", "minimum": 0},
+          "name": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+          "phase": {"type": "string", "minLength": 1},
+          "retryable": {"type": "boolean"},
+          "grpc_code": {"type": "string", "pattern": "^[A-Z_]+$"},
+          "user_message_zh": {"type": "string"}
+        }
+      }
+    }
+  }
+}

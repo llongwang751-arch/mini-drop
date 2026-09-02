@@ -52,6 +52,21 @@ ANALYSIS_READY_TYPES = {
 }
 
 
+def analysis_error_code(exc: Exception) -> str:
+    """Project analyzer failures onto the generated stable ErrorCode set."""
+    name = type(exc).__name__.lower()
+    message = str(exc).lower()
+    if "timeout" in name or "timed out" in message:
+        return "ANALYSIS_TIMEOUT"
+    if isinstance(exc, (ValueError, FileNotFoundError, json.JSONDecodeError)):
+        return "ANALYSIS_INPUT_INVALID"
+    if any(token in name or token in message for token in (
+        "s3", "minio", "storage", "connection", "temporarily unavailable",
+    )):
+        return "STORAGE_UNAVAILABLE"
+    return "INTERNAL_ERROR"
+
+
 def artifact_input_checksum(artifacts: list[dict[str, Any]]) -> str:
     """Return a stable checksum used to deduplicate repeated Agent callbacks."""
 
@@ -353,6 +368,10 @@ class AnalysisWorker:
                     marker(int(artifact["id"]), status, reason)
             handler = self.registry.resolve(job.analyzer_type, job.analyzer_version)
             output = handler.analyze(job.task_id, artifacts)
+            # Stop renewals before the terminal transaction clears the lease.
+            # Otherwise a fast completion can race with the heartbeat and make
+            # the next attempt look as if it lost a valid lease.
+            heartbeat.stop()
             if heartbeat.lease_lost:
                 log_event(
                     "warning",
@@ -371,6 +390,7 @@ class AnalysisWorker:
             )
             return ProcessResult(job.id, "SUCCEEDED")
         except Exception as exc:
+            heartbeat.stop()
             if heartbeat.lease_lost:
                 log_event(
                     "warning",
@@ -384,7 +404,7 @@ class AnalysisWorker:
             failed = self.repo.fail_analysis_job(
                 job.id,
                 self.worker_id,
-                error_code=type(exc).__name__.upper(),
+                error_code=analysis_error_code(exc),
                 error_message=str(exc),
                 retry_delay_sec=int(os.getenv("MINI_DROP_ANALYZER_RETRY_DELAY_SEC", "5")),
             )

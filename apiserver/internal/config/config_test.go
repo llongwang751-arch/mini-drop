@@ -22,7 +22,7 @@ func TestValidateProductionRequiresAuth(t *testing.T) {
 
 func TestValidateProductionForbidsDefaultMinIO(t *testing.T) {
 	t.Setenv("MINI_DROP_ENV", "production")
-	cfg := Config{AuthEnabled: true, InternalGatewayToken: "internal-secret", MinIOAccessKey: "mini_drop", MinIOSecretKey: "mini_drop_secret"}
+	cfg := Config{AuthEnabled: true, DiagnosticAIGRPCAddress: "diagnosis-worker:50061", MinIOAccessKey: "mini_drop", MinIOSecretKey: "mini_drop_secret"}
 	if err := validateProduction(cfg); err == nil {
 		t.Fatal("production must reject default MinIO credentials")
 	}
@@ -30,8 +30,9 @@ func TestValidateProductionForbidsDefaultMinIO(t *testing.T) {
 
 func TestValidateProductionAcceptsSecureConfig(t *testing.T) {
 	t.Setenv("MINI_DROP_ENV", "production")
+	t.Setenv("MINIO_AGENT_ENDPOINT", "storage.example.test:9443")
 	cfg := Config{
-		AuthEnabled: true, InternalGatewayToken: "internal-secret",
+		AuthEnabled: true, DiagnosticAIGRPCAddress: "diagnosis-worker:50061",
 		MinIOAccessKey: "real", MinIOSecretKey: "real",
 		ControlGRPCTLS: true, ControlGRPCCAFile: "/certs/ca.crt",
 		ControlGRPCClientCertFile: "/certs/client.crt",
@@ -42,23 +43,28 @@ func TestValidateProductionAcceptsSecureConfig(t *testing.T) {
 	}
 }
 
+func TestValidateProductionRequiresAgentReachableStorageEndpoint(t *testing.T) {
+	t.Setenv("MINI_DROP_ENV", "production")
+	t.Setenv("MINIO_AGENT_ENDPOINT", "")
+	cfg := Config{
+		AuthEnabled: true, DiagnosticAIGRPCAddress: "diagnosis-worker:50061",
+		MinIOAccessKey: "real", MinIOSecretKey: "real",
+		ControlGRPCTLS: true, ControlGRPCCAFile: "/certs/ca.crt",
+		ControlGRPCClientCertFile: "/certs/client.crt",
+		ControlGRPCClientKeyFile:  "/certs/client.key",
+	}
+	if err := validateProduction(cfg); err == nil {
+		t.Fatal("production must reject an implicit internal-only storage endpoint")
+	}
+}
+
 func TestValidateProductionRequiresControlPlaneMutualTLS(t *testing.T) {
 	t.Setenv("MINI_DROP_ENV", "production")
 	cfg := Config{
-		AuthEnabled: true, InternalGatewayToken: "internal-secret",
+		AuthEnabled: true, DiagnosticAIGRPCAddress: "diagnosis-worker:50061",
 		MinIOAccessKey: "real", MinIOSecretKey: "real",
 	}
 	if err := validateProduction(cfg); err == nil {
 		t.Fatal("production must reject an insecure Go to C++ control-plane hop")
-	}
-}
-
-func TestValidateProductionRequiresIndependentGatewayToken(t *testing.T) {
-	t.Setenv("MINI_DROP_ENV", "production")
-	for _, token := range []string{"", "mini-drop-internal-dev"} {
-		cfg := Config{AuthEnabled: true, InternalGatewayToken: token, MinIOAccessKey: "real", MinIOSecretKey: "real"}
-		if err := validateProduction(cfg); err == nil {
-			t.Fatalf("production must reject gateway token %q", token)
-		}
 	}
 }

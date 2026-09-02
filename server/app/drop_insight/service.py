@@ -32,6 +32,7 @@ from server.app.models import (
     ProcessCandidateSnapshotModel,
     TaskAttemptModel,
     TaskModel,
+    TaskUploadAuthorizationModel,
 )
 from server.app.state_machine import now_utc
 
@@ -56,13 +57,14 @@ from .schemas import (
     DiagnosticTimeRange,
 )
 from server.app.schemas import CreateTaskRequest, ProcessIdentityBindingRequest
+from server.app.generated.taskkind_contract import TASK_KINDS
 from server.app.process_attestation import (
     PROCESS_SNAPSHOT_MAX_AGE,
     ProcessIdentityBinding,
 )
 from server.app.sql_repository import SqlRepository
-from server.app.prometheus_metrics import record_evidence_decision
-from server.app.diagnosis.source_mapper import map_hot_functions
+from server.app.storage import presigned_put_url
+from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
 
 
@@ -1783,6 +1785,7 @@ def _replan_from_feedback(
     }
     model_attempted = True
     proposal = propose_hypothesis_plan(
+        diagnosis_id=diagnosis_id,
         query=diagnosis.query,
         target=target,
         category="HUMAN_CORRECTION",
@@ -1930,6 +1933,7 @@ def _replan_from_counter_evidence(
     proposal = None
     if not _REPORT_EFFECT_RECONCILIATION.get():
         proposal = propose_hypothesis_plan(
+            diagnosis_id=diagnosis_id,
             query=diagnosis.query,
             target=target,
             category="COUNTER_EVIDENCE_REPLAN",
@@ -2121,6 +2125,7 @@ def _replan_after_insufficient_evidence(
     proposal = None
     if not _REPORT_EFFECT_RECONCILIATION.get():
         proposal = propose_hypothesis_plan(
+            diagnosis_id=diagnosis_id,
             query=diagnosis.query,
             target=target,
             category="INSUFFICIENT_EVIDENCE_REPLAN",
@@ -3292,6 +3297,64 @@ def _task_matches_request(
     )
 
 
+_TASK_KIND_BY_NAME = {item["name"]: item for item in TASK_KINDS}
+
+
+def _task_upload_object_keys(
+    task_id: str,
+    attempt_id: str,
+    collector_type: str,
+) -> list[str]:
+    kind = _TASK_KIND_BY_NAME.get(collector_type)
+    if kind is None:
+        raise ValueError(f"unknown TaskKind: {collector_type}")
+    prefix = f"tasks/{task_id}/attempts/{attempt_id}/"
+    return [
+        prefix + filename
+        if filename == "manifest.json"
+        else prefix + "raw/" + filename
+        for filename in kind["artifact_filenames"]
+    ]
+
+
+def _issue_task_upload_authorizations(
+    session,
+    task: TaskModel,
+    *,
+    timestamp: datetime,
+) -> None:
+    ttl_seconds = min(
+        3600,
+        max(
+            int(os.getenv("MINI_DROP_UPLOAD_AUTH_TTL_SEC", "1800")),
+            int(task.duration_sec or 0) + 300,
+        ),
+    )
+    attempt_id = f"attempt_{uuid4().hex}"
+    expires_at = timestamp + timedelta(seconds=ttl_seconds)
+    bucket = os.getenv("MINIO_BUCKET", "mini-drop")
+    session.query(TaskUploadAuthorizationModel).filter(
+        TaskUploadAuthorizationModel.task_id == task.id
+    ).delete(synchronize_session=False)
+    for object_key in _task_upload_object_keys(
+        task.id, attempt_id, task.collector_type
+    ):
+        session.add(
+            TaskUploadAuthorizationModel(
+                task_id=task.id,
+                task_attempt_id=attempt_id,
+                object_key=object_key,
+                put_url=presigned_put_url(
+                    bucket,
+                    object_key,
+                    expires=ttl_seconds,
+                ),
+                expires_at=expires_at,
+                created_at=timestamp,
+            )
+        )
+
+
 def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
     session = new_session()
     try:
@@ -3378,6 +3441,11 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
         task = SqlRepository().create_task_in_session(
             session,
             task_request,
+        )
+        _issue_task_upload_authorizations(
+            session,
+            task,
+            timestamp=timestamp,
         )
         model.task_id = task.id
         model.status = "TASK_CREATED"
@@ -3923,6 +3991,7 @@ def run_diagnosis_planner(
     # 模型不可用时保留确定性规则结果，且把来源显式展示给用户。
     model_attempted = True
     proposal = propose_hypothesis_plan(
+        diagnosis_id=diagnosis_id,
         query=diagnosis.query,
         target=target,
         category=plan["category"],
@@ -3930,6 +3999,7 @@ def run_diagnosis_planner(
         prior_hypotheses=[item.to_dict() for item in list_hypotheses(diagnosis_id)],
         allowed_tools=[plan["tool_name"]],
         route_priors=_successful_tool_route_priors(),
+        active_skill=skill_activation,
     )
     if proposal:
         plan["tool_name"] = proposal["tool_name"]
@@ -4013,13 +4083,33 @@ def run_diagnosis_planner(
             requested_by=requested_by,
         )
     return {
-        "planner_kind": "MODEL_ASSISTED" if proposal else "DETERMINISTIC_RULES",
-        "planner_version": plan["planner_version"],
+        "planner_kind": (
+            "LANGGRAPH_AGENT"
+            if proposal and proposal.get("agent_framework")
+            else "MODEL_ASSISTED"
+            if proposal
+            else "DETERMINISTIC_RULES"
+        ),
+        "planner_version": (
+            proposal.get("agent_version", plan["planner_version"])
+            if proposal
+            else plan["planner_version"]
+        ),
         "classification_confidence": plan.get("classification_confidence", 0.9),
         "category": plan["category"],
         "decision_source": source,
         "reasoning_summary": generation_reason,
         "skill_activation": skill_activation,
+        "agent_runtime": (
+            {
+                "framework": proposal.get("agent_framework"),
+                "version": proposal.get("agent_version"),
+                "checkpoint_backend": proposal.get("checkpoint_backend"),
+                "thread_id": diagnosis_id,
+            }
+            if proposal and proposal.get("agent_framework")
+            else None
+        ),
         "hypothesis": hypothesis.to_dict(),
         "tool_call": tool_call.to_dict(),
     }
@@ -4286,11 +4376,6 @@ def import_task_evidence(
                             "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
                         ],
                     }
-            record_evidence_decision(
-                classification["decision"],
-                task.collector_type,
-                artifact.artifact_type,
-            )
             model = DropInsightEvidenceModel(
                 id=evidence_id,
                 diagnosis_id=diagnosis_id,

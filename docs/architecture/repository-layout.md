@@ -2,6 +2,8 @@
 
 仓库按 Drop 复刻指南的运行边界组织。当前处于渐进迁移阶段，Python 兼容实现继续承载尚未迁移的能力。
 
+整体拓扑、核心时序、动态探索树、Skill-RAG、记忆系统和数据关系图见 [`mini-drop-architecture-atlas.md`](./mini-drop-architecture-atlas.md)。
+
 ```text
 mini-drop/
 ├── native/              C++17 核心控制面与原生 Agent

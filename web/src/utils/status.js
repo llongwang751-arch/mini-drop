@@ -1,3 +1,10 @@
+import { TASK_STATUSES } from "../generated/taskStatuses";
+
+const DIMENSION_STATUS_COLOR = new Map(
+  [...TASK_STATUSES.collection, ...TASK_STATUSES.analysis]
+    .map((item) => [item.name, item.color]),
+);
+
 /**
  * 状态相关的公共工具函数。
  *
@@ -12,6 +19,7 @@
  * @returns {"green"|"red"|"blue"|"default"|"gray"}
  */
 export function statusColor(status) {
+  if (DIMENSION_STATUS_COLOR.has(status)) return DIMENSION_STATUS_COLOR.get(status);
   if (status === "DONE" || status === "ONLINE" || status === "SUCCEEDED") return "green";
   if (status === "FAILED" || status === "OFFLINE") return "red";
   if (status === "CANCELLED") return "orange";

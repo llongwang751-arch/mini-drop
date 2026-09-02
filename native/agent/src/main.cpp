@@ -10,6 +10,7 @@
 #include "collector_registry.h"
 #include "process_snapshot.h"
 #include "result_outbox.h"
+#include "error_code_contract.h"
 
 #include <atomic>
 #include <algorithm>
@@ -40,6 +41,8 @@ using mini_drop_native::ResultOutbox;
 using mini_drop_native::load_config;
 using mini_drop_native::ProcessGroupRunner;
 using mini_drop_native::CommandResult;
+using mini_drop_native::authorized_object_key;
+using mini_drop_native::sha256_file;
 using mini_drop_native::upload_artifact;
 using mini_drop_native::CollectorRegistry;
 using mini_drop_native::ProcessSnapshot;
@@ -135,24 +138,242 @@ grpc::ClientContext make_context(const Config& config) {
   return context;
 }
 
+bool safe_identity_component(const std::string& value);
+std::string classify_error_code(const std::string& error);
+bool ensure_private_attempt_work_directory(
+    const Task& task, fs::path& work_directory, std::string& error);
+bool attach_attempt_manifest(
+    const Config& config, const Task& task, TaskResult& result,
+    const fs::path& work_directory, std::string& error_code);
+
 TaskResult execute_task(
     const Config& config,
     const Task& task,
     std::atomic<bool>& cancel_requested) {
+  if (!safe_identity_component(task.id) ||
+      !safe_identity_component(task.task_attempt_id) ||
+      task.task_attempt_authority.empty()) {
+    TaskResult result;
+    result.task_id = task.id;
+    result.task_attempt_id = task.task_attempt_id;
+    result.task_attempt_authority = task.task_attempt_authority;
+    result.error = "task execution identity is missing or unsafe";
+    result.error_code = std::string(mini_drop_contract::kErrorInvalidArgument);
+    return result;
+  }
   static const CollectorRegistry registry = make_default_collector_registry();
   const auto* collector = registry.find(task.profiler_type);
   if (collector == nullptr) {
     TaskResult result;
     result.task_id = task.id;
     result.task_attempt_authority = task.task_attempt_authority;
+    result.task_attempt_id = task.task_attempt_id;
     result.error = "native C++ Agent has no collector plugin for profiler_type=" +
         std::to_string(task.profiler_type);
+    result.error_code = std::string(mini_drop_contract::kErrorTaskKindUnsupported);
+    return result;
+  }
+  fs::path work_directory;
+  std::string work_directory_error;
+  if (!ensure_private_attempt_work_directory(
+          task, work_directory, work_directory_error)) {
+    TaskResult result;
+    result.task_id = task.id;
+    result.task_attempt_authority = task.task_attempt_authority;
+    result.task_attempt_id = task.task_attempt_id;
+    result.error = work_directory_error;
+    result.error_code = std::string(mini_drop_contract::kErrorArtifactPathInvalid);
     return result;
   }
   TaskResult result = collector->collect(config, task, g_stop, cancel_requested);
   result.task_id = task.id;
   result.task_attempt_authority = task.task_attempt_authority;
+  result.task_attempt_id = task.task_attempt_id;
+  if (!result.ok && result.error_code.empty()) {
+    result.error_code = classify_error_code(result.error);
+  }
+  if (result.ok) {
+    std::string manifest_error_code;
+    if (!attach_attempt_manifest(
+            config, task, result, work_directory, manifest_error_code)) {
+      result.ok = false;
+      result.error_code = manifest_error_code;
+    }
+  }
   return result;
+}
+
+bool safe_identity_component(const std::string& value) {
+  if (value.empty() || value == "." || value == "..") return false;
+  return std::all_of(value.begin(), value.end(), [](const unsigned char ch) {
+    return std::isalnum(ch) || ch == '_' || ch == '-' || ch == '.';
+  });
+}
+
+bool ensure_private_attempt_work_directory(
+    const Task& task, fs::path& work_directory, std::string& error) {
+  const fs::path base = "/tmp/mini-drop-native";
+  const fs::path task_directory = base / task.id;
+  work_directory = task_directory / task.task_attempt_id;
+  for (const auto& directory : {base, task_directory, work_directory}) {
+    std::error_code filesystem_error;
+    fs::create_directory(directory, filesystem_error);
+    if (filesystem_error) {
+      error = "cannot create private TaskAttempt work directory: " +
+          filesystem_error.message();
+      return false;
+    }
+    const auto status = fs::symlink_status(directory, filesystem_error);
+    if (filesystem_error || !fs::is_directory(status) || fs::is_symlink(status)) {
+      error = "TaskAttempt work path is not a private directory";
+      return false;
+    }
+    fs::permissions(
+        directory, fs::perms::owner_all, fs::perm_options::replace,
+        filesystem_error);
+    if (filesystem_error) {
+      error = "cannot restrict TaskAttempt work directory permissions: " +
+          filesystem_error.message();
+      return false;
+    }
+  }
+  return true;
+}
+
+bool attach_attempt_manifest(
+    const Config& config, const Task& task, TaskResult& result,
+    const fs::path& work_directory, std::string& error_code) {
+  if (result.artifact_json.size() < 2 || result.artifact_json.front() != '[' ||
+      result.artifact_json.back() != ']') {
+    result.error = "collector returned malformed artifact metadata";
+    error_code = std::string(mini_drop_contract::kErrorResultMalformed);
+    return false;
+  }
+
+  const auto completed_at_unix_ms =
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch()).count();
+  const fs::path manifest_path = work_directory / "manifest.json";
+  std::ostringstream manifest;
+  manifest << "{\"schema_version\":\"mini-drop.attempt-manifest.v1\",";
+  manifest << "\"task_id\":\"" << json_escape(task.id) << "\",";
+  manifest << "\"task_attempt_id\":\""
+           << json_escape(task.task_attempt_id) << "\",";
+  manifest << "\"profiler_type\":" << task.profiler_type << ',';
+  manifest << "\"completed_at_unix_ms\":" << completed_at_unix_ms << ',';
+  manifest << "\"artifacts\":" << result.artifact_json << '}';
+
+  std::ofstream output(manifest_path, std::ios::binary | std::ios::trunc);
+  output << manifest.str();
+  output.flush();
+  if (!output) {
+    result.error = "failed to write TaskAttempt manifest.json";
+    error_code = std::string(mini_drop_contract::kErrorArtifactPathInvalid);
+    return false;
+  }
+  output.close();
+
+  const std::string object_key = authorized_object_key(task, "manifest.json");
+  if (object_key.empty()) {
+    result.error = "missing exact upload target for manifest.json";
+    error_code = std::string(
+        mini_drop_contract::kErrorUploadAuthorizationInvalid);
+    return false;
+  }
+  const std::string digest = sha256_file(manifest_path);
+  if (digest.empty()) {
+    result.error = "failed to compute TaskAttempt manifest SHA-256";
+    error_code = std::string(mini_drop_contract::kErrorArtifactHashFailed);
+    return false;
+  }
+  std::string upload_error;
+  if (!upload_artifact(task, manifest_path, object_key, upload_error)) {
+    result.error = upload_error.empty()
+        ? "failed to upload TaskAttempt manifest.json"
+        : upload_error;
+    error_code = result.error.find("authorization") != std::string::npos
+        ? std::string(mini_drop_contract::kErrorUploadAuthorizationInvalid)
+        : std::string(mini_drop_contract::kErrorUploadFailed);
+    return false;
+  }
+
+  std::error_code size_error;
+  const auto manifest_size = fs::file_size(manifest_path, size_error);
+  if (size_error) {
+    result.error = "failed to inspect TaskAttempt manifest.json";
+    error_code = std::string(mini_drop_contract::kErrorArtifactPathInvalid);
+    return false;
+  }
+
+  result.artifact_json.pop_back();
+  if (result.artifact_json.size() > 1) result.artifact_json.push_back(',');
+  std::ostringstream artifact;
+  artifact << "{\"artifact_type\":\"manifest\",";
+  artifact << "\"filename\":\"manifest.json\",\"bucket\":\""
+           << json_escape(config.minio_bucket) << "\",";
+  artifact << "\"object_key\":\"" << json_escape(object_key) << "\",";
+  artifact << "\"content_type\":\"application/json\",";
+  artifact << "\"size_bytes\":" << manifest_size << ',';
+  artifact << "\"sha256\":\"" << digest << "\",";
+  artifact << "\"manifest\":{\"manifest_version\":"
+              "\"mini-drop.artifact.v1\",\"producer\":\"native-cpp\"},";
+  artifact << "\"metadata\":{\"schema_version\":"
+              "\"mini-drop.attempt-manifest.v1\"}}";
+  result.artifact_json += artifact.str();
+  result.artifact_json.push_back(']');
+  return true;
+}
+
+std::string classify_error_code(const std::string& error) {
+  if (error.find("cancel") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorTaskCanceled);
+  }
+  if (error.find("timed out") != std::string::npos ||
+      error.find("timeout") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorRunnerTimeout);
+  }
+  if (error.find("does not exist") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorTargetNotFound);
+  }
+  if (error.find("not installed") != std::string::npos ||
+      (error.find("tool") != std::string::npos &&
+       error.find("unavailable") != std::string::npos)) {
+    return std::string(mini_drop_contract::kErrorRunnerNotFound);
+  }
+  if (error.find("authorization") != std::string::npos ||
+      error.find("upload target") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorUploadAuthorizationInvalid);
+  }
+  if (error.find("upload") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorUploadFailed);
+  }
+  if (error.find("SHA-256") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorArtifactHashFailed);
+  }
+  if (error.find("duration") != std::string::npos ||
+      error.find("parameters") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorInvalidArgument);
+  }
+  if (error.find("failed (exit=") != std::string::npos ||
+      error.find("record failed") != std::string::npos) {
+    return std::string(mini_drop_contract::kErrorRunnerExitNonzero);
+  }
+  return std::string(mini_drop_contract::kErrorInternalError);
+}
+
+void cleanup_attempt_work_directory(const TaskResult& result) {
+  if (!safe_identity_component(result.task_id) ||
+      !safe_identity_component(result.task_attempt_id)) {
+    return;
+  }
+  const fs::path base = "/tmp/mini-drop-native";
+  const fs::path target = base / result.task_id / result.task_attempt_id;
+  std::error_code error;
+  fs::remove_all(target, error);
+  if (!error) {
+    const fs::path task_dir = base / result.task_id;
+    fs::remove(task_dir, error);  // only removes the now-empty task directory
+  }
 }
 
 void add_auth(grpc::ClientContext& context, const Config& config) {
@@ -199,9 +420,6 @@ bool register_agent(
   add_auth(fetch_context, config);
   if (stub.FetchConfig(&fetch_context, fetch_request, &fetch_response).ok()) {
     const auto& cos = fetch_response.cos_config();
-    if (!cos.endpoint().empty()) config.minio_endpoint = cos.endpoint();
-    if (!cos.access_key().empty()) config.minio_access = cos.access_key();
-    if (!cos.secret_key().empty()) config.minio_secret = cos.secret_key();
     if (!cos.bucket().empty()) config.minio_bucket = cos.bucket();
   }
   std::cout << "{\"level\":\"info\",\"event\":\"agent_registered\","
@@ -268,6 +486,13 @@ bool notify_result(
   mini_drop::TaskResult request;
   request.set_task_id(result.task_id);
   request.set_task_attempt_authority(result.task_attempt_authority);
+  const auto* error_contract = mini_drop_contract::find_error_code(
+      result.ok ? mini_drop_contract::kErrorNone : std::string_view(result.error_code));
+  request.set_error_code(static_cast<mini_drop::ErrorCode>(
+      error_contract == nullptr
+          ? mini_drop_contract::find_error_code(
+                mini_drop_contract::kErrorInternalError)->id
+          : error_contract->id));
   if (result.ok) {
     request.set_artifact_type("raw");
     request.set_artifact_metadata_json(result.artifact_json);
@@ -302,6 +527,14 @@ Task task_from_proto(const mini_drop::TaskDesc& desc) {
   task.event = desc.sample_argv().event();
   task.container_name = desc.container_name();
   task.task_attempt_authority = desc.task_attempt_authority();
+  task.task_attempt_id = desc.task_attempt_id();
+  for (const auto& target : desc.upload_targets()) {
+    if (target.object_key().empty() || target.put_url().empty()) continue;
+    task.upload_targets.emplace(
+        target.object_key(),
+        mini_drop_native::UploadTarget{
+            target.put_url(), target.expires_unix_ms()});
+  }
   return task;
 }
 
@@ -311,7 +544,14 @@ int main() {
   std::signal(SIGINT, on_signal);
   std::signal(SIGTERM, on_signal);
 
-  Config config = load_config();
+  Config config;
+  try {
+    config = load_config();
+  } catch (const std::exception& error) {
+    std::cerr << "{\"level\":\"error\",\"event\":\"agent_config_invalid\","
+              << "\"message\":\"" << json_escape(error.what()) << "\"}\n";
+    return 2;
+  }
   std::shared_ptr<grpc::Channel> channel;
   try {
     channel = create_control_channel(config);
@@ -332,7 +572,9 @@ int main() {
   }
 
   const auto deliver_pending = [&](const TaskResult& result) {
-    return notify_result(*result_stub, config, result);
+    const bool acknowledged = notify_result(*result_stub, config, result);
+    if (acknowledged) cleanup_attempt_work_directory(result);
+    return acknowledged;
   };
   result_outbox.replay(deliver_pending);
 

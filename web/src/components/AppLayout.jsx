@@ -28,7 +28,6 @@ const MENU_ITEMS = [
     children: [
       { key: "/tasks", label: "任务面板" },
       { key: "/schedules", label: "计划任务" },
-      { key: "/composites", label: "复合采集" },
     ],
   },
   {
@@ -37,7 +36,6 @@ const MENU_ITEMS = [
     label: "系统治理",
     children: [
       { key: "/audit", icon: <AuditOutlined />, label: "审计日志" },
-      { key: "/settings", label: "系统设置" },
     ],
   },
 ];
@@ -46,9 +44,7 @@ const PAGE_META = {
   "/ai-diagnosis": ["AI 诊断工作台", "证据驱动的多轮诊断与 Skill 演进"],
   "/tasks": ["任务面板", "采集任务、执行状态与结果入口"],
   "/schedules": ["计划任务", "周期采集与执行策略"],
-  "/composites": ["复合采集", "跨工具采集编排"],
   "/audit": ["审计日志", "关键操作与诊断责任链"],
-  "/settings": ["系统设置", "接入、策略与安全配置"],
 };
 
 function menuSelection(pathname) {
@@ -57,9 +53,7 @@ function menuSelection(pathname) {
     return { selected: "/tasks", parent: "tasks" };
   }
   if (pathname === "/schedules") return { selected: "/schedules", parent: "tasks" };
-  if (pathname === "/composites") return { selected: "/composites", parent: "tasks" };
   if (pathname === "/audit") return { selected: "/audit", parent: "system" };
-  if (pathname === "/settings") return { selected: "/settings", parent: "system" };
   return { selected: "/ai-diagnosis", parent: null };
 }
 

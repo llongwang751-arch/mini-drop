@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"mini-drop/apiserver/internal/cron"
+	"mini-drop/apiserver/internal/taskstatus"
 )
 
 // Schedule is the cron task template persisted in the shared PostgreSQL schema
@@ -249,9 +250,10 @@ func (p *Postgres) FireSchedule(ctx context.Context, scheduleID string, schedule
 			id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
 			status, status_reason, collection_status, analysis_status, request_params,
 			created_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,'QUEUED','NOT_STARTED',$9::jsonb,$10)`,
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,$9,$10,$11::jsonb,$12)`,
 		taskID, name, agentID, targetPID, collectorType, sampleRate, durationSec,
-		"计划任务触发", string(requestParams), now,
+		"计划任务触发", taskstatus.CollectionQueued, taskstatus.AnalysisPending,
+		string(requestParams), now,
 	); err != nil {
 		return "", err
 	}

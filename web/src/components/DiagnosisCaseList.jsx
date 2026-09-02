@@ -24,13 +24,6 @@ const STATUS_META = {
   UNKNOWN: ["default", "状态未知"],
 };
 
-const SOURCE_LABELS = {
-  drop_insight_v2: "Drop Insight",
-  cluster_diagnosis_v1: "集群诊断",
-  legacy_rca: "任务 RCA",
-  controlled_showcase: "复杂案例",
-};
-
 export function caseMatchesFilter(item, filter) {
   const status = item.canonical_status || "UNKNOWN";
   if (filter === "all") return true;
@@ -104,7 +97,7 @@ export default function DiagnosisCaseList({
                 </Paragraph>
                 <Space size={[4, 4]} wrap>
                   <Tag color={statusColor}>{statusLabel}</Tag>
-                  <Tag>{SOURCE_LABELS[item.source] || item.source || "未知来源"}</Tag>
+                  <Tag>Drop Insight V2</Tag>
                 </Space>
                 <Text type="secondary" className="diagnosis-case-time">
                   {displayTime(item.updated_at || item.created_at)}
