@@ -67,34 +67,35 @@ def _managed_schema_head() -> str:
 _MANAGED_SCHEMA_REVISION = _managed_schema_head()
 _MANAGED_SCHEMA_TABLES = {
     "alembic_version",
+    "agents",
+    "agent_metric_snapshots",
+    "process_candidate_snapshots",
+    "process_candidates",
     "tasks",
     "task_attempts",
+    "task_upload_authorizations",
+    "task_status_events",
+    "audit_logs",
     "artifacts",
     "analysis_jobs",
     "analysis_job_input_artifacts",
     "analysis_job_output_artifacts",
-    "agents",
-    "process_candidate_snapshots",
-    "process_candidates",
-    "diagnosis_sessions",
-    "diagnosis_evidence",
-    "diagnosis_evidence_reviews",
-    "diagnosis_conclusion_invalidations",
-    "diagnosis_revalidation_requests",
-    "frozen_diagnosis_artifacts",
-    "diagnosis_artifact_revocations",
-    "diagnosis_artifact_revocation_outbox",
-    "diagnosis_evidence_snapshots",
-    "diagnosis_artifact_outbox",
-    "diagnosis_artifact_evaluations",
-    "agent_runtime_bindings",
-    "agent_runtime_turns",
-    "agent_runtime_events",
+    "outbox_messages",
+    "schedules",
+    "schedule_records",
+    "fix_verifications",
     "drop_insight_sessions",
     "drop_insight_target_discoveries",
     "drop_insight_target_bindings",
+    "drop_insight_events",
+    "drop_insight_hypotheses",
+    "drop_insight_feedback",
+    "drop_insight_evidence",
     "drop_insight_tool_calls",
     "drop_insight_reports",
+    "diagnostic_skills",
+    "diagnostic_skill_evaluations",
+    "diagnostic_skill_activations",
 }
 _MANAGED_PROCESS_COLUMNS = {
     "tasks": {"process_snapshot_id", "process_binding_json"},
@@ -170,6 +171,7 @@ _MANAGED_PROCESS_FOREIGN_KEYS = {
     },
 }
 _MANAGED_TASK_LINEAGE_COLUMNS = {
+    "tasks": {"error_code", "error_message"},
     "task_attempts": {"task_attempt_authority_sha256"},
     "analysis_jobs": {"task_attempt_id"},
     "artifacts": {"task_attempt_id", "analysis_job_id"},
@@ -183,6 +185,9 @@ _MANAGED_TASK_LINEAGE_COLUMNS = {
     },
 }
 _MANAGED_TASK_LINEAGE_INDEXES = {
+    "tasks": {
+        "ix_tasks_error_code": (("error_code",), False),
+    },
     "analysis_jobs": {
         "ix_analysis_jobs_task_attempt_id": (("task_attempt_id",), False),
     },
@@ -265,35 +270,6 @@ _MANAGED_TASK_LINEAGE_FOREIGN_KEYS = {
             ("id", "task_id", "task_attempt_id"),
         ),
     },
-}
-_MANAGED_ARTIFACT_OUTBOX_COLUMNS = {
-    "attempts",
-    "next_attempt_at",
-    "worker_lease_owner",
-    "worker_lease_expires_at",
-    "last_error",
-    "published_at",
-}
-_MANAGED_SNAPSHOT_PROVENANCE_COLUMNS = {
-    "artifact_provenance_json",
-    "analysis_provenance_json",
-}
-_MANAGED_REVOCATION_OUTBOX_INDEXES = {
-    "ix_diagnosis_artifact_revocation_outbox_status",
-    "ix_diagnosis_artifact_revocation_outbox_due",
-    "ix_diagnosis_artifact_revocation_outbox_lease_recovery",
-}
-_MANAGED_RUNTIME_TURN_RECOVERY_COLUMNS = {
-    "recovery_phase",
-    "recovery_owner",
-    "recovery_lease_expires_at",
-    "recovery_fencing_token",
-}
-_MANAGED_RUNTIME_TURN_RECOVERY_INDEXES = {
-    "ix_agent_runtime_turns_recovery_lease",
-}
-_MANAGED_RUNTIME_TURN_RECOVERY_CONSTRAINTS = {
-    "ck_agent_runtime_turn_recovery_phase",
 }
 _MANAGED_DROP_INSIGHT_COLUMNS = {
     "drop_insight_sessions": {
@@ -572,83 +548,6 @@ def init_db() -> None:
                     f"database schema is not migrated; {table_name} "
                     "missing foreign keys: " + rendered
                 )
-        artifact_outbox_columns = {
-            item["name"]
-            for item in inspector.get_columns("diagnosis_artifact_outbox")
-        }
-        missing_columns = sorted(
-            _MANAGED_ARTIFACT_OUTBOX_COLUMNS - artifact_outbox_columns
-        )
-        if missing_columns:
-            raise RuntimeError(
-                "database schema is not migrated; diagnosis_artifact_outbox "
-                "missing columns: " + ", ".join(missing_columns)
-            )
-        snapshot_columns = {
-            item["name"]
-            for item in inspector.get_columns("diagnosis_evidence_snapshots")
-        }
-        missing_snapshot_columns = sorted(
-            _MANAGED_SNAPSHOT_PROVENANCE_COLUMNS - snapshot_columns
-        )
-        if missing_snapshot_columns:
-            raise RuntimeError(
-                "database schema is not migrated; diagnosis_evidence_snapshots "
-                "missing columns: " + ", ".join(missing_snapshot_columns)
-            )
-        revocation_outbox_indexes = {
-            item["name"]
-            for item in inspector.get_indexes(
-                "diagnosis_artifact_revocation_outbox"
-            )
-        }
-        missing_revocation_indexes = sorted(
-            _MANAGED_REVOCATION_OUTBOX_INDEXES - revocation_outbox_indexes
-        )
-        if missing_revocation_indexes:
-            raise RuntimeError(
-                "database schema is not migrated; "
-                "diagnosis_artifact_revocation_outbox missing indexes: "
-                + ", ".join(missing_revocation_indexes)
-            )
-        runtime_turn_columns = {
-            item["name"]
-            for item in inspector.get_columns("agent_runtime_turns")
-        }
-        missing_runtime_turn_columns = sorted(
-            _MANAGED_RUNTIME_TURN_RECOVERY_COLUMNS - runtime_turn_columns
-        )
-        if missing_runtime_turn_columns:
-            raise RuntimeError(
-                "database schema is not migrated; agent_runtime_turns "
-                "missing columns: " + ", ".join(missing_runtime_turn_columns)
-            )
-        runtime_turn_indexes = {
-            item["name"]
-            for item in inspector.get_indexes("agent_runtime_turns")
-        }
-        missing_runtime_turn_indexes = sorted(
-            _MANAGED_RUNTIME_TURN_RECOVERY_INDEXES - runtime_turn_indexes
-        )
-        if missing_runtime_turn_indexes:
-            raise RuntimeError(
-                "database schema is not migrated; agent_runtime_turns "
-                "missing indexes: " + ", ".join(missing_runtime_turn_indexes)
-            )
-        runtime_turn_constraints = {
-            item["name"]
-            for item in inspector.get_check_constraints("agent_runtime_turns")
-        }
-        missing_runtime_turn_constraints = sorted(
-            _MANAGED_RUNTIME_TURN_RECOVERY_CONSTRAINTS
-            - runtime_turn_constraints
-        )
-        if missing_runtime_turn_constraints:
-            raise RuntimeError(
-                "database schema is not migrated; agent_runtime_turns "
-                "missing check constraints: "
-                + ", ".join(missing_runtime_turn_constraints)
-            )
         for table_name, required_columns in _MANAGED_DROP_INSIGHT_COLUMNS.items():
             actual_columns = {
                 item["name"] for item in inspector.get_columns(table_name)
@@ -716,8 +615,6 @@ def init_db() -> None:
         return
     Base.metadata.create_all(bind=engine)
     _upgrade_legacy_schema(engine)
-    _ensure_revocation_outbox_indexes(engine)
-    _ensure_runtime_turn_recovery_index(engine)
     _ensure_report_effect_lease_index(engine)
 
 
@@ -738,95 +635,18 @@ def _ensure_report_effect_lease_index(engine: Engine) -> None:
             ))
 
 
-def _ensure_runtime_turn_recovery_index(engine: Engine) -> None:
-    inspector = inspect(engine)
-    if "agent_runtime_turns" not in inspector.get_table_names():
-        return
-    existing = {
-        item["name"] for item in inspector.get_indexes("agent_runtime_turns")
-    }
-    if "ix_agent_runtime_turns_recovery_lease" not in existing:
-        with engine.begin() as connection:
-            connection.execute(text(
-                "CREATE INDEX ix_agent_runtime_turns_recovery_lease "
-                "ON agent_runtime_turns (status, recovery_lease_expires_at)"
-            ))
-
-
-def _ensure_revocation_outbox_indexes(engine: Engine) -> None:
-    """Keep fresh and legacy SQLite schemas aligned with the managed head."""
-    inspector = inspect(engine)
-    if "diagnosis_artifact_revocation_outbox" not in inspector.get_table_names():
-        return
-    existing = {
-        item["name"]
-        for item in inspector.get_indexes("diagnosis_artifact_revocation_outbox")
-    }
-    statements = {
-        "ix_diagnosis_artifact_revocation_outbox_due": (
-            "CREATE INDEX IF NOT EXISTS "
-            "ix_diagnosis_artifact_revocation_outbox_due "
-            "ON diagnosis_artifact_revocation_outbox "
-            "(status, next_attempt_at)"
-        ),
-        "ix_diagnosis_artifact_revocation_outbox_lease_recovery": (
-            "CREATE INDEX IF NOT EXISTS "
-            "ix_diagnosis_artifact_revocation_outbox_lease_recovery "
-            "ON diagnosis_artifact_revocation_outbox "
-            "(status, worker_lease_expires_at)"
-        ),
-    }
-    missing = [name for name in statements if name not in existing]
-    if missing:
-        with engine.begin() as connection:
-            for name in missing:
-                connection.execute(text(statements[name]))
-
-
 _ADDITIVE_MIGRATIONS = {
     "tasks": {
         "diagnosis_step_id": "VARCHAR(128)",
         "collection_status": "VARCHAR(16) NOT NULL DEFAULT 'QUEUED'",
-        "analysis_status": "VARCHAR(16) NOT NULL DEFAULT 'NOT_STARTED'",
+        "analysis_status": "VARCHAR(16) NOT NULL DEFAULT 'PENDING'",
         "deleted_at": "TIMESTAMP",
         "deleted_by": "VARCHAR(128)",
         "delete_reason": "TEXT",
         "process_snapshot_id": "VARCHAR(128)",
         "process_binding_json": "JSON",
-    },
-    "diagnosis_sessions": {
-        "row_version": "INTEGER NOT NULL DEFAULT 0",
-        # Existing rows may not have a meaningful deadline. Keeping the added
-        # column nullable is safer than inventing a historical deadline.
-        "deadline_at": "TIMESTAMP",
-    },
-    "diagnosis_probe_executions": {
-        "retry_count": "INTEGER NOT NULL DEFAULT 0",
-        "error_code": "VARCHAR(128)",
+        "error_code": "VARCHAR(64)",
         "error_message": "TEXT",
-        "evidence_purpose": "VARCHAR(16) NOT NULL DEFAULT 'VERIFY'",
-        "round_index": "INTEGER NOT NULL DEFAULT 1",
-    },
-    "diagnosis_evidence": {
-        "evidence_role": "VARCHAR(32) NOT NULL DEFAULT 'incident'",
-        "lifecycle_status": "VARCHAR(32) NOT NULL DEFAULT 'ACTIVE'",
-        "trust_status": "VARCHAR(32) NOT NULL DEFAULT 'UNREVIEWED'",
-        "superseded_by": "VARCHAR(128)",
-        "review_revision": "INTEGER NOT NULL DEFAULT 0",
-        "reviewed_at": "TIMESTAMP",
-        "reviewer_id": "VARCHAR(128)",
-    },
-    "diagnosis_evidence_snapshots": {
-        # Unknown historical provenance remains NULL; never infer the latest attempt.
-        "attempt_id": "VARCHAR(128)",
-        "artifact_provenance_json": "JSON",
-        "analysis_provenance_json": "JSON",
-    },
-    "agent_runtime_turns": {
-        "recovery_phase": "VARCHAR(32)",
-        "recovery_owner": "VARCHAR(128)",
-        "recovery_lease_expires_at": "TIMESTAMP",
-        "recovery_fencing_token": "INTEGER NOT NULL DEFAULT 0",
     },
     "drop_insight_sessions": {
         "requested_time_range_json": "JSON",
@@ -897,39 +717,6 @@ def _upgrade_legacy_schema(engine: Engine) -> None:
                     # Keep this inspector snapshot accurate for duplicate
                     # entries in future migration maps.
                     existing.add(column)
-        if "agent_runtime_turns" in tables:
-            runtime_turn_columns = {
-                item["name"]
-                for item in inspect(connection).get_columns(
-                    "agent_runtime_turns"
-                )
-            }
-            if _MANAGED_RUNTIME_TURN_RECOVERY_COLUMNS.issubset(
-                runtime_turn_columns
-            ):
-                connection.execute(text("""
-                    UPDATE agent_runtime_turns
-                    SET recovery_phase = CASE
-                            WHEN runtime_session_id IS NULL
-                                THEN 'NEEDS_BINDING'
-                            ELSE 'SUBMIT_INTENT'
-                        END,
-                        recovery_owner = NULL,
-                        recovery_lease_expires_at = NULL,
-                        recovery_fencing_token =
-                            COALESCE(recovery_fencing_token, 0)
-                    WHERE status IN ('SUBMITTING', 'ACCEPTANCE_UNKNOWN')
-                      AND recovery_phase IS NULL
-                """))
-                connection.execute(text("""
-                    UPDATE agent_runtime_turns
-                    SET recovery_phase = NULL,
-                        recovery_owner = NULL,
-                        recovery_lease_expires_at = NULL,
-                        recovery_fencing_token =
-                            COALESCE(recovery_fencing_token, 0)
-                    WHERE status NOT IN ('SUBMITTING', 'ACCEPTANCE_UNKNOWN')
-                """))
         if "drop_insight_sessions" in tables:
             session_columns = {
                 item["name"]
@@ -1132,24 +919,42 @@ def _upgrade_legacy_schema(engine: Engine) -> None:
             if {"status", "collection_status", "analysis_status"}.issubset(task_columns):
                 connection.execute(text("""
                     UPDATE tasks
+                    SET collection_status = CASE collection_status
+                            WHEN 'COLLECTING' THEN 'RUNNING'
+                            WHEN 'SUCCEEDED' THEN 'COLLECTED'
+                            WHEN 'CANCELLED' THEN 'CANCELED'
+                            ELSE collection_status
+                        END,
+                        analysis_status = CASE analysis_status
+                            WHEN 'NOT_STARTED' THEN 'PENDING'
+                            WHEN 'QUEUED' THEN 'PENDING'
+                            WHEN 'RETRYING' THEN 'RETRY'
+                            WHEN 'SUCCEEDED' THEN 'SUCCESS'
+                            WHEN 'SKIPPED' THEN 'CANCELED'
+                            WHEN 'CANCELLED' THEN 'CANCELED'
+                            ELSE analysis_status
+                        END
+                """))
+                connection.execute(text("""
+                    UPDATE tasks
                     SET collection_status = CASE status
-                            WHEN 'RUNNING' THEN 'COLLECTING'
+                            WHEN 'RUNNING' THEN 'RUNNING'
                             WHEN 'UPLOADING' THEN 'UPLOADING'
-                            WHEN 'ANALYZING' THEN 'SUCCEEDED'
-                            WHEN 'DONE' THEN 'SUCCEEDED'
+                            WHEN 'ANALYZING' THEN 'COLLECTED'
+                            WHEN 'DONE' THEN 'COLLECTED'
                             WHEN 'FAILED' THEN 'FAILED'
-                            WHEN 'CANCELLED' THEN 'CANCELLED'
+                            WHEN 'CANCELLED' THEN 'CANCELED'
                             ELSE collection_status
                         END,
                         analysis_status = CASE status
-                            WHEN 'ANALYZING' THEN 'QUEUED'
-                            WHEN 'DONE' THEN 'SUCCEEDED'
-                            WHEN 'FAILED' THEN 'SKIPPED'
-                            WHEN 'CANCELLED' THEN 'CANCELLED'
+                            WHEN 'ANALYZING' THEN 'PENDING'
+                            WHEN 'DONE' THEN 'SUCCESS'
+                            WHEN 'FAILED' THEN 'CANCELED'
+                            WHEN 'CANCELLED' THEN 'CANCELED'
                             ELSE analysis_status
                         END
                     WHERE collection_status = 'QUEUED'
-                      AND analysis_status = 'NOT_STARTED'
+                      AND analysis_status = 'PENDING'
                       AND status <> 'PENDING'
                 """))
             connection.execute(text(
@@ -1159,41 +964,9 @@ def _upgrade_legacy_schema(engine: Engine) -> None:
             connection.execute(text(
                 "CREATE INDEX IF NOT EXISTS ix_tasks_deleted_at ON tasks (deleted_at)"
             ))
-        if "diagnosis_evidence_snapshots" in tables:
             connection.execute(text(
-                "CREATE INDEX IF NOT EXISTS ix_diagnosis_evidence_snapshots_attempt_id "
-                "ON diagnosis_evidence_snapshots (attempt_id)"
+                "CREATE INDEX IF NOT EXISTS ix_tasks_error_code ON tasks (error_code)"
             ))
-            if engine.dialect.name == "postgresql":
-                invalid = connection.execute(text("""
-                    SELECT snapshot.id
-                    FROM diagnosis_evidence_snapshots AS snapshot
-                    LEFT JOIN task_attempts AS attempt ON attempt.id = snapshot.attempt_id
-                    WHERE snapshot.attempt_id IS NOT NULL
-                      AND (attempt.id IS NULL OR snapshot.task_id IS NULL
-                           OR attempt.task_id <> snapshot.task_id)
-                    LIMIT 1
-                """)).scalar()
-                if invalid is not None:
-                    raise RuntimeError(
-                        "invalid diagnosis evidence snapshot attempt lineage: "
-                        f"{invalid}"
-                    )
-                foreign_keys = inspect(connection).get_foreign_keys(
-                    "diagnosis_evidence_snapshots"
-                )
-                has_attempt_fk = any(
-                    item.get("referred_table") == "task_attempts"
-                    and item.get("constrained_columns") == ["attempt_id"]
-                    for item in foreign_keys
-                )
-                if not has_attempt_fk:
-                    connection.execute(text(
-                        "ALTER TABLE diagnosis_evidence_snapshots "
-                        "ADD CONSTRAINT fk_diagnosis_evidence_snapshots_attempt_id "
-                        "FOREIGN KEY (attempt_id) REFERENCES task_attempts (id)"
-                    ))
-
 
 def new_session() -> Session:
     """返回一个新的数据库会话。调用方负责 close。"""

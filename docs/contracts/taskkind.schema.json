@@ -14,6 +14,7 @@
     "supported_os",
     "supported_arch",
     "requires_capabilities",
+    "artifact_filenames",
     "default_duration_seconds",
     "max_duration_seconds",
     "max_concurrency_per_agent"
@@ -32,5 +33,19 @@
     "max_duration_seconds": { "type": "integer", "minimum": 1 },
     "max_concurrency_per_agent": { "type": "integer", "minimum": 1, "default": 1 },
     "parameter_schema": { "type": "string", "description": "Reference to a parameter JSON Schema." }
+    ,"artifact_filenames": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+      "description": "Exact task-scoped object names the collector may upload."
+    }
+    ,"default_sample_rate": { "type": "integer", "minimum": 1 }
+    ,"max_sample_rate": { "type": "integer", "minimum": 1 }
+    ,"default_event": { "type": "string" }
+    ,"result_label": { "type": "string" }
+    ,"description": { "type": "string" }
+    ,"color": { "type": "string" }
+    ,"flamegraph": { "type": "boolean" }
   }
 }

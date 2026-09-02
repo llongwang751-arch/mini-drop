@@ -1,20 +1,34 @@
 #include "artifact_uploader.h"
 
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <array>
+#include <chrono>
 #include <vector>
 
 namespace mini_drop_native {
 namespace {
 
-std::string normalize_endpoint(std::string endpoint) {
-  if (endpoint.rfind("http://", 0) == 0 ||
-      endpoint.rfind("https://", 0) == 0) {
-    return endpoint;
+std::string curl_config_escape(const std::string& value) {
+  std::string escaped;
+  escaped.reserve(value.size());
+  for (const char ch : value) {
+    if (ch == '\\' || ch == '"') escaped.push_back('\\');
+    escaped.push_back(ch);
   }
-  return "http://" + endpoint;
+  return escaped;
+}
+
+bool write_all(int fd, const std::string& value) {
+  std::size_t offset = 0;
+  while (offset < value.size()) {
+    const auto count = ::write(fd, value.data() + offset, value.size() - offset);
+    if (count <= 0) return false;
+    offset += static_cast<std::size_t>(count);
+  }
+  return true;
 }
 
 bool run_simple_command(const std::vector<std::string>& argv) {
@@ -68,22 +82,69 @@ std::string sha256_file(const std::filesystem::path& local_path) {
       : std::string{};
 }
 
+std::string authorized_object_key(
+    const Task& task, const std::string& filename) {
+  if (filename.empty() || filename.find('/') != std::string::npos ||
+      filename.find('\\') != std::string::npos) {
+    return {};
+  }
+  const std::string suffix = "/" + filename;
+  std::string match;
+  for (const auto& [object_key, target] : task.upload_targets) {
+    if (target.put_url.empty() || object_key.size() < suffix.size() ||
+        object_key.compare(object_key.size() - suffix.size(), suffix.size(), suffix) != 0) {
+      continue;
+    }
+    if (!match.empty()) return {};
+    match = object_key;
+  }
+  return match;
+}
+
 bool upload_artifact(
-    const Config& config,
+    const Task& task,
     const std::filesystem::path& local_path,
     const std::string& object_key,
     std::string& error) {
-  const std::string alias = "mini-drop";
-  if (!run_simple_command({
-          "mc", "alias", "set", alias, normalize_endpoint(config.minio_endpoint),
-          config.minio_access, config.minio_secret})) {
-    error = "MinIO alias configuration failed";
+  const auto target = task.upload_targets.find(object_key);
+  if (target == task.upload_targets.end() || target->second.put_url.empty()) {
+    error = "no task-scoped upload authorization for artifact object";
     return false;
   }
-  const std::string target =
-      alias + "/" + config.minio_bucket + "/" + object_key;
-  if (!run_simple_command({"mc", "cp", local_path.string(), target})) {
-    error = "artifact upload to MinIO failed";
+  const auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+  if (target->second.expires_unix_ms <= now_ms) {
+    error = "task-scoped upload authorization expired";
+    return false;
+  }
+
+  // Keep the signed URL out of argv/process listings. curl reads a mode-0600
+  // one-shot config file which is unlinked immediately after the child exits.
+  std::array<char, 40> config_path{};
+  const std::string pattern = "/tmp/mini-drop-upload-XXXXXX";
+  std::copy(pattern.begin(), pattern.end(), config_path.begin());
+  int fd = ::mkstemp(config_path.data());
+  if (fd < 0 || ::fchmod(fd, S_IRUSR | S_IWUSR) != 0) {
+    if (fd >= 0) ::close(fd);
+    error = "could not create protected upload configuration";
+    return false;
+  }
+  const std::string curl_config =
+      std::string("fail\n" "silent\n" "show-error\n") +
+      // Bounded recovery for transient DNS/connect/5xx failures.  curl keeps
+      // the exact PUT request and signed URL; it never starts a new sample.
+      "retry = 2\n" "retry-all-errors\n" "retry-delay = 1\n" +
+      "connect-timeout = 10\n" +
+      std::string("upload-file = \"") +
+      curl_config_escape(local_path.string()) + "\"\n" +
+      "url = \"" + curl_config_escape(target->second.put_url) + "\"\n";
+  const bool config_written = write_all(fd, curl_config);
+  ::close(fd);
+  const bool uploaded = config_written &&
+      run_simple_command({"curl", "--config", config_path.data()});
+  ::unlink(config_path.data());
+  if (!uploaded) {
+    error = "artifact upload with task-scoped authorization failed";
     return false;
   }
   return true;

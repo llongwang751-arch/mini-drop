@@ -1,0 +1,20 @@
+stateDiagram-v2
+    [*] --> CANDIDATE: VERIFIED 报告自动生成候选
+    CANDIDATE --> CANDIDATE: 评测失败，保留原因并禁止复用
+    CANDIDATE --> ACTIVE: 正例/反例/漂移门禁通过 + 发布审批
+    ACTIVE --> ACTIVE: 相似故障命中并记录 Activation
+    ACTIVE --> QUARANTINED: 错误反馈、负迁移或异常漂移
+    QUARANTINED --> RETIRED: 确认当前版本不可继续使用
+    ACTIVE --> RETIRED: 同 family 新版本发布
+    RETIRED --> ACTIVE: 回滚时恢复上一可用版本
+    QUARANTINED --> CANDIDATE: 修订触发条件、路线或证据门槛
+    RETIRED --> [*]: 保留审计，不参与检索
+
+    note right of CANDIDATE
+      候选包含真实探索树、错路、转向、
+      工具顺序、证据要求和停止条件
+    end note
+    note right of ACTIVE
+      一次诊断可以组合多个兼容 Skill，
+      但每个 Skill 都必须独立通过门禁
+    end note

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from math import comb, sqrt
 from typing import Iterable, Mapping
 
 
@@ -127,6 +128,150 @@ def _average(values: list[float], *, status: str) -> dict:
         "status": status if values else "NOT_MEASURED",
         "sample_count": len(values),
         "value": sum(values) / len(values) if values else None,
+    }
+
+
+def _wilson_interval(successes: int, total: int) -> dict:
+    """Return a two-sided 95% Wilson interval for a binomial proportion."""
+    if total <= 0:
+        return {"status": "NOT_MEASURED", "level": 0.95, "lower": None, "upper": None}
+    z = 1.959963984540054
+    rate = successes / total
+    denominator = 1 + (z * z / total)
+    center = (rate + (z * z / (2 * total))) / denominator
+    margin = (
+        z
+        * sqrt((rate * (1 - rate) / total) + (z * z / (4 * total * total)))
+        / denominator
+    )
+    return {
+        "status": "MEASURED",
+        "method": "WILSON_SCORE",
+        "level": 0.95,
+        "lower": max(0.0, center - margin),
+        "upper": min(1.0, center + margin),
+    }
+
+
+def _paired_exact_sign_test(improved: int, regressed: int) -> dict:
+    """Compare paired pass/fail outcomes without treating ties as evidence."""
+    discordant = improved + regressed
+    if discordant == 0:
+        return {
+            "status": "NOT_MEASURED",
+            "method": "EXACT_PAIRED_SIGN_TEST",
+            "discordant_pairs": 0,
+            "p_value_two_sided": None,
+        }
+    tail = min(improved, regressed)
+    probability = sum(comb(discordant, index) for index in range(tail + 1)) / (2 ** discordant)
+    return {
+        "status": "MEASURED",
+        "method": "EXACT_PAIRED_SIGN_TEST",
+        "discordant_pairs": discordant,
+        "p_value_two_sided": min(1.0, 2 * probability),
+    }
+
+
+def _paired_evidence(baseline: dict, skill_enabled: dict) -> dict:
+    baseline_rows = {row["case_id"]: row for row in baseline["cases"]}
+    skill_rows = {row["case_id"]: row for row in skill_enabled["cases"]}
+    transitions = Counter()
+    family_rows: dict[str, Counter] = {}
+    for case_id, baseline_row in baseline_rows.items():
+        skill_row = skill_rows[case_id]
+        if not baseline_row["passed"] and skill_row["passed"]:
+            transition = "IMPROVED"
+        elif baseline_row["passed"] and not skill_row["passed"]:
+            transition = "REGRESSED"
+        else:
+            transition = "UNCHANGED"
+        transitions[transition] += 1
+        family = str(skill_row["incident_family"])
+        family_counter = family_rows.setdefault(family, Counter())
+        family_counter["total"] += 1
+        family_counter["baseline_passed"] += int(baseline_row["passed"])
+        family_counter["skill_passed"] += int(skill_row["passed"])
+        family_counter[transition.lower()] += 1
+
+    improved = transitions["IMPROVED"]
+    regressed = transitions["REGRESSED"]
+    return {
+        "paired_case_count": len(baseline_rows),
+        "improved": improved,
+        "regressed": regressed,
+        "unchanged": transitions["UNCHANGED"],
+        "baseline_pass_rate_interval": _wilson_interval(
+            int(baseline["passed"]), int(baseline["total"])
+        ),
+        "skill_pass_rate_interval": _wilson_interval(
+            int(skill_enabled["passed"]), int(skill_enabled["total"])
+        ),
+        "paired_test": _paired_exact_sign_test(improved, regressed),
+        "family_breakdown": {
+            family: {
+                "total": counts["total"],
+                "baseline_passed": counts["baseline_passed"],
+                "skill_passed": counts["skill_passed"],
+                "improved": counts["improved"],
+                "regressed": counts["regressed"],
+                "unchanged": counts["unchanged"],
+            }
+            for family, counts in sorted(family_rows.items())
+        },
+        "interpretation_boundary": (
+            "The paired test describes this frozen, purpose-built offline case set. "
+            "The cases are not a random production sample, so the p-value is not a "
+            "production-effect guarantee."
+        ),
+    }
+
+
+def _build_claim_card(baseline: dict, skill_enabled: dict) -> dict:
+    """Render the benchmark result without leaving ratio/percentage ambiguity."""
+    baseline_rate = float(baseline["pass_rate"])
+    skill_rate = float(skill_enabled["pass_rate"])
+    delta_rate = skill_rate - baseline_rate
+    root_cause_status = skill_enabled["metrics"]["root_cause_accuracy"]["status"]
+    duration_status = skill_enabled["metrics"]["average_diagnosis_duration_ms"]["status"]
+    return {
+        "metric_name": "offline_route_and_lifecycle_contract_pass_rate",
+        "baseline": {
+            "passed": baseline["passed"],
+            "total": baseline["total"],
+            "rate": baseline_rate,
+            "percent": round(baseline_rate * 100, 2),
+        },
+        "skill_enabled": {
+            "passed": skill_enabled["passed"],
+            "total": skill_enabled["total"],
+            "rate": skill_rate,
+            "percent": round(skill_rate * 100, 2),
+        },
+        "delta": {
+            "rate": delta_rate,
+            "percentage_points": round(delta_rate * 100, 2),
+        },
+        "supported_claim": (
+            "离线路由与策略生命周期契约通过率从 "
+            f"{baseline_rate * 100:.2f}% 提升到 {skill_rate * 100:.2f}%，"
+            f"增加 {delta_rate * 100:.2f} 个百分点。"
+        ),
+        "measurement_boundary": {
+            "root_cause_accuracy": root_cause_status,
+            "diagnosis_duration_ms": duration_status,
+            "tool_call_count": skill_enabled["metrics"]["average_tool_call_count"]["status"],
+        },
+        "baseline_boundary": (
+            "The 40% baseline is the frozen generic-triage reference policy in the "
+            "benchmark fixture, not the current production planner and not a historical "
+            "online success rate."
+        ),
+        "forbidden_interpretations": [
+            "0.60 是 Skill 启用后的通过率",
+            "根因定位准确率从 40% 提升到 100%",
+            "真实诊断耗时已经得到测量",
+        ],
     }
 
 
@@ -327,8 +472,20 @@ def compare_benchmark_runs(
     )
     baseline_average_calls = baseline_result["metrics"]["average_tool_call_count"]["value"]
     skill_average_calls = skill_result["metrics"]["average_tool_call_count"]["value"]
+    pass_rate_delta = skill_result["pass_rate"] - baseline_result["pass_rate"]
+    paired_evidence = _paired_evidence(baseline_result, skill_result)
     return {
         "benchmark_kind": "DETERMINISTIC_SKILL_EVOLUTION_REPLAY",
+        "comparison_design": {
+            "design": "PAIRED_FROZEN_OFFLINE_CASES",
+            "baseline_policy": "GENERIC_TRIAGE_REFERENCE_V1",
+            "skill_policy": "PUBLISHED_SKILL_ROUTE_WITH_LIFECYCLE_GUARDS",
+            "baseline_is_current_production_planner": False,
+            "oracle_policy": (
+                "The shareable delivery separates public inputs from private oracles; "
+                "this in-repository reference run remains a deterministic contract replay."
+            ),
+        },
         "claim_boundary": (
             "Validates offline routing and lifecycle contracts with projected cost; "
             "real root-cause accuracy and diagnosis duration require a Linux Campaign."
@@ -336,7 +493,8 @@ def compare_benchmark_runs(
         "baseline": baseline_result,
         "skill_enabled": skill_result,
         "delta": {
-            "pass_rate": skill_result["pass_rate"] - baseline_result["pass_rate"],
+            "pass_rate": pass_rate_delta,
+            "pass_rate_percentage_points": round(pass_rate_delta * 100, 2),
             "average_tool_call_count": (
                 skill_average_calls - baseline_average_calls
                 if skill_average_calls is not None and baseline_average_calls is not None
@@ -347,4 +505,6 @@ def compare_benchmark_runs(
                 - baseline_result["metrics"]["negative_transfer_rate"]["value"]
             ),
         },
+        "claim_card": _build_claim_card(baseline_result, skill_result),
+        "paired_evidence": paired_evidence,
     }

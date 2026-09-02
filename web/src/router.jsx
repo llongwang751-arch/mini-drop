@@ -8,9 +8,7 @@ const AuditLogs = lazy(() => import("./pages/AuditLogs"));
 const TaskResult = lazy(() => import("./pages/TaskResult"));
 const AIDiagnosis = lazy(() => import("./pages/AIDiagnosis"));
 const AgentDetail = lazy(() => import("./pages/AgentDetail"));
-const Settings = lazy(() => import("./pages/Settings"));
 const Schedules = lazy(() => import("./pages/Schedules"));
-const Composites = lazy(() => import("./pages/Composites"));
 
 const Lazy = ({ children }) => (
   <Suspense fallback={<Spin size="large" style={{ display: "block", margin: "40px auto" }} />}>
@@ -43,16 +41,8 @@ export default function Router() {
             element={<Lazy><AgentDetail /></Lazy>}
           />
           <Route
-            path="/settings"
-            element={<Lazy><Settings /></Lazy>}
-          />
-          <Route
             path="/schedules"
             element={<Lazy><Schedules /></Lazy>}
-          />
-          <Route
-            path="/composites"
-            element={<Lazy><Composites /></Lazy>}
           />
           {/* Redirect legacy diagnosis routes to the unified AI diagnosis page. */}
           <Route path="/drop-insight" element={<Navigate to="/ai-diagnosis" replace />} />

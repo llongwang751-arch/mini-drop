@@ -4,17 +4,18 @@ version = "0.1.0"
 description = "Mini-Drop: a lightweight Linux performance profiling platform"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi>=0.100",
-    "uvicorn>=0.23",
     "pydantic>=2.0",
     "grpcio>=1.80,<1.81",
     "protobuf>=6.33.5,<7",
     "psycopg[binary]>=3.1",
     "minio>=7.0",
-    "py-spy>=0.3",
     "requests>=2.28",
     "sqlalchemy>=2.0",
     "alembic>=1.13,<2",
+    "langchain>=1.3.14,<1.4",
+    "langgraph>=1.2.10,<1.3",
+    "langchain-deepseek>=1.1,<1.2",
+    "langgraph-checkpoint-postgres>=3.1,<3.2",
 ]
 
 [project.optional-dependencies]
@@ -25,15 +26,17 @@ dev = [
     "grpcio-tools>=1.80,<1.81",
     "loguru>=0.7",
 ]
-
-[project.scripts]
-micro-drop = "server.app.cli:main"
+benchmark = [
+    "duckdb>=1.4,<1.6",
+    "huggingface-hub>=0.30,<2",
+    "numpy>=2,<3",
+]
 
 [tool.setuptools.packages.find]
-include = ["server*", "agent*", "analyzer*"]
+include = ["server*", "analyzer*"]
 exclude = ["web*", "demo*", "deploy*", "docs*", "tests*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--basetemp=tmp/pytest-work"
-cache_dir = "tmp/pytest-cache"
+addopts = "--basetemp=.pytest-work"
+cache_dir = ".pytest-cache"

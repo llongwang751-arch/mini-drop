@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mini-drop.local/contracts/task-parameters/perf_cpu.schema.json",
+  "title": "Mini-Drop perf_cpu task parameters",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "target_pid",
+    "duration_sec",
+    "sample_rate"
+  ],
+  "properties": {
+    "target_pid": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4194304
+    },
+    "duration_sec": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 300,
+      "default": 15
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999,
+      "default": 99
+    },
+    "options": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "timeout_sec": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        },
+        "container_name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "container_type": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "callgraph": {
+          "enum": [
+            "fp",
+            "dwarf",
+            "lbr"
+          ]
+        },
+        "subprocess": {
+          "type": "boolean"
+        }
+      },
+      "default": {}
+    }
+  },
+  "x-task-kind": "perf_cpu",
+  "x-contract-version": "1.0.0"
+}

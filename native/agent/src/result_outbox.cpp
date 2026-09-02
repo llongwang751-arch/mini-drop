@@ -16,6 +16,8 @@ namespace {
 
 constexpr std::array<char, 8> kMagicV1{'M', 'D', 'R', 'E', 'S', '0', '1', '\0'};
 constexpr std::array<char, 8> kMagicV2{'M', 'D', 'R', 'E', 'S', '0', '2', '\0'};
+constexpr std::array<char, 8> kMagicV3{'M', 'D', 'R', 'E', 'S', '0', '3', '\0'};
+constexpr std::array<char, 8> kMagicV4{'M', 'D', 'R', 'E', 'S', '0', '4', '\0'};
 constexpr std::uint64_t kMaxFieldBytes = 64ULL * 1024ULL * 1024ULL;
 
 void append_u64(std::string& output, std::uint64_t value) {
@@ -53,12 +55,14 @@ std::string read_string(const std::string& input, std::size_t& offset) {
 }
 
 std::string serialize(const TaskResult& result) {
-  std::string output(kMagicV2.begin(), kMagicV2.end());
+  std::string output(kMagicV4.begin(), kMagicV4.end());
   output.push_back(result.ok ? '\1' : '\0');
   append_string(output, result.task_id);
   append_string(output, result.error);
   append_string(output, result.artifact_json);
   append_string(output, result.task_attempt_authority);
+  append_string(output, result.task_attempt_id);
+  append_string(output, result.error_code);
   return output;
 }
 
@@ -68,7 +72,9 @@ TaskResult deserialize(const std::string& input) {
   }
   const bool is_v1 = std::equal(kMagicV1.begin(), kMagicV1.end(), input.begin());
   const bool is_v2 = std::equal(kMagicV2.begin(), kMagicV2.end(), input.begin());
-  if (!is_v1 && !is_v2) {
+  const bool is_v3 = std::equal(kMagicV3.begin(), kMagicV3.end(), input.begin());
+  const bool is_v4 = std::equal(kMagicV4.begin(), kMagicV4.end(), input.begin());
+  if (!is_v1 && !is_v2 && !is_v3 && !is_v4) {
     throw std::runtime_error("invalid outbox header");
   }
   std::size_t offset = kMagicV1.size();
@@ -81,8 +87,14 @@ TaskResult deserialize(const std::string& input) {
   result.task_id = read_string(input, offset);
   result.error = read_string(input, offset);
   result.artifact_json = read_string(input, offset);
-  if (is_v2) {
+  if (is_v2 || is_v3 || is_v4) {
     result.task_attempt_authority = read_string(input, offset);
+  }
+  if (is_v3 || is_v4) {
+    result.task_attempt_id = read_string(input, offset);
+  }
+  if (is_v4) {
+    result.error_code = read_string(input, offset);
   }
   if (result.task_id.empty() || offset != input.size()) {
     throw std::runtime_error("invalid outbox payload");

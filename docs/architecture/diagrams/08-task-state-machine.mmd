@@ -1,0 +1,20 @@
+stateDiagram-v2
+    [*] --> PENDING: 创建任务并持久化
+    PENDING --> RUNNING: Control 确认，Agent 开始执行
+    RUNNING --> UPLOADING: Collector 完成
+    UPLOADING --> ANALYZING: RAW 制品校验并登记
+    ANALYZING --> DONE: RESULT 产物与报告完成
+
+    PENDING --> FAILED: 调度失败或身份失效
+    RUNNING --> FAILED: Collector/权限/超时失败
+    UPLOADING --> FAILED: 上传或完整性校验失败
+    ANALYZING --> FAILED: 分析重试耗尽
+
+    PENDING --> CANCELLED: 用户取消
+    RUNNING --> CANCELLED: 协作取消
+    UPLOADING --> CANCELLED: 上传阶段取消
+    ANALYZING --> CANCELLED: 分析阶段取消
+
+    DONE --> [*]
+    FAILED --> [*]
+    CANCELLED --> [*]

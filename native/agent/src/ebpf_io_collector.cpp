@@ -70,7 +70,8 @@ class EbpfIoCollector final : public Collector {
       return result;
     }
 
-    const fs::path output_dir = fs::path("/tmp/mini-drop-native") / task.id;
+    const fs::path output_dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
     fs::create_directories(output_dir);
     const fs::path script_path = output_dir / "io_latency.bt";
     const fs::path raw_path = output_dir / "io_latency.txt";
@@ -139,17 +140,21 @@ class EbpfIoCollector final : public Collector {
       return result;
     }
 
-    const std::string base_key = "tasks/" + task.id + "/";
-    const std::string metrics_key = base_key + "ebpf_metrics.json";
-    const std::string raw_key = base_key + "io_latency.txt";
+    const std::string metrics_key =
+        authorized_object_key(task, "ebpf_metrics.json");
+    const std::string raw_key = authorized_object_key(task, "io_latency.txt");
+    if (metrics_key.empty() || raw_key.empty()) {
+      result.error = "missing exact upload targets for eBPF artifacts";
+      return result;
+    }
     const std::string metrics_digest = sha256_file(metrics_path);
     const std::string raw_digest = sha256_file(raw_path);
     if (metrics_digest.empty() || raw_digest.empty()) {
       result.error = "failed to compute eBPF artifact SHA-256";
       return result;
     }
-    if (!upload_artifact(config, metrics_path, metrics_key, result.error) ||
-        !upload_artifact(config, raw_path, raw_key, result.error)) return result;
+    if (!upload_artifact(task, metrics_path, metrics_key, result.error) ||
+        !upload_artifact(task, raw_path, raw_key, result.error)) return result;
 
     const auto metrics_size = fs::file_size(metrics_path);
     const auto raw_size = fs::file_size(raw_path);
@@ -163,12 +168,13 @@ class EbpfIoCollector final : public Collector {
               << ",\"sha256\":\"" << metrics_digest << "\",";
     artifacts << "\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\",";
     artifacts << "\"task_id\":\"" << escape_json(task.id)
+              << "\",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id)
               << "\",\"artifact_type\":\"ebpf_metrics\",\"object_key\":\""
               << escape_json(metrics_key) << "\",\"content_type\":\"application/json\",";
     artifacts << "\"size_bytes\":" << metrics_size << ",\"sha256\":\""
               << metrics_digest << "\"},";
     artifacts << "\"metadata\":{\"schema_version\":\"ebpf_io.v1\",";
-    artifacts << "\"total_samples\":" << total << ",\"agent_runtime\":\"native-cpp\",";
+    artifacts << "\"total_samples\":" << total << ",\"collector_runtime\":\"native-cpp\",";
     artifacts << "\"collector_plugin\":\"ebpf_io\",\"probe\":\"block tracepoint\"}},";
     artifacts << "{\"artifact_type\":\"ebpf_raw\",\"filename\":\"io_latency.txt\",";
     artifacts << "\"bucket\":\"" << escape_json(config.minio_bucket)
@@ -177,10 +183,11 @@ class EbpfIoCollector final : public Collector {
               << raw_size << ",\"sha256\":\"" << raw_digest << "\",";
     artifacts << "\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\",";
     artifacts << "\"task_id\":\"" << escape_json(task.id)
+              << "\",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id)
               << "\",\"artifact_type\":\"ebpf_raw\",\"object_key\":\""
               << escape_json(raw_key) << "\",\"content_type\":\"text/plain\",";
     artifacts << "\"size_bytes\":" << raw_size << ",\"sha256\":\""
-              << raw_digest << "\"},\"metadata\":{\"agent_runtime\":\"native-cpp\"}}]";
+              << raw_digest << "\"},\"metadata\":{\"collector_runtime\":\"native-cpp\"}}]";
     result.ok = true;
     result.artifact_json = artifacts.str();
     return result;

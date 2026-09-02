@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -46,6 +45,16 @@ func TestReadIdempotencyKeyNormalizesWhitespace(t *testing.T) {
 	}
 }
 
+func TestParseProcessCandidateLimitIsBounded(t *testing.T) {
+	for raw, want := range map[string]int{
+		"": 20, "invalid": 20, "0": 20, "12": 12, "101": 100,
+	} {
+		if got := parseProcessCandidateLimit(raw); got != want {
+			t.Fatalf("raw=%q got=%d want=%d", raw, got, want)
+		}
+	}
+}
+
 func testServer(t *testing.T, auth bool) (*httptest.Server, *httptest.Server) {
 	t.Helper()
 	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -56,9 +65,8 @@ func testServer(t *testing.T, auth bool) (*httptest.Server, *httptest.Server) {
 		w.Header().Set("X-Legacy", "true")
 		_, _ = io.WriteString(w, `{"code":0,"message":"ok","data":{"proxied":true}}`)
 	}))
-	upstream, _ := url.Parse(legacy.URL)
 	handler := New(config.Config{
-		ListenAddr: ":0", LegacyAPIURL: upstream, AuthEnabled: auth, APIKey: "test-key",
+		ListenAddr: ":0", AuthEnabled: auth, APIKey: "test-key",
 	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	return httptest.NewServer(handler), legacy
 }
@@ -80,98 +88,29 @@ func TestNativeHealthAndMe(t *testing.T) {
 	}
 }
 
-func TestProxyPreservesExistingAPI(t *testing.T) {
+func TestTaskKindCatalogIsServedByGo(t *testing.T) {
 	server, legacy := testServer(t, false)
 	defer server.Close()
 	defer legacy.Close()
-	resp, err := http.Get(server.URL + "/api/ai-config")
+
+	resp, err := http.Get(server.URL + "/api/task-kinds")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	if resp.Header.Get("X-Legacy") != "true" {
-		t.Fatal("request did not reach legacy API")
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status=%d", resp.StatusCode)
 	}
-	if resp.Header.Get("X-Request-ID") == "" {
-		t.Fatal("request id not returned")
+	var body struct {
+		Data struct {
+			Items []map[string]any `json:"items"`
+		} `json:"data"`
 	}
-}
-
-func TestProxyReplacesClientGatewayHeaderWithInternalCredential(t *testing.T) {
-	var gotGatewayToken, gotPrincipal string
-	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gotGatewayToken = r.Header.Get("X-Mini-Drop-Gateway-Token")
-		gotPrincipal = r.Header.Get("X-Mini-Drop-Principal")
-		_, _ = io.WriteString(w, `{"code":0}`)
-	}))
-	defer legacy.Close()
-	upstream, _ := url.Parse(legacy.URL)
-	handler := New(config.Config{
-		LegacyAPIURL: upstream, AuthEnabled: true, InternalGatewayToken: "internal-secret",
-		Principals: []config.Principal{{
-			ID: "operator-a", APIKey: "operator-key", Roles: []string{"operator"},
-			AgentIDs: []string{"agent-a"}, ServiceIDs: []string{"service-a"}, Environments: []string{"staging"},
-		}},
-	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	server := httptest.NewServer(handler)
-	defer server.Close()
-
-	req, _ := http.NewRequest(http.MethodGet, server.URL+"/api/ai-config", nil)
-	req.Header.Set("X-API-Key", "operator-key")
-	req.Header.Set("X-Mini-Drop-Gateway-Token", "attacker-controlled")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		t.Fatal(err)
 	}
-	_ = resp.Body.Close()
-	if gotGatewayToken != "internal-secret" || gotPrincipal != "operator-a" {
-		t.Fatalf("unexpected upstream identity: token=%q principal=%q", gotGatewayToken, gotPrincipal)
-	}
-}
-
-func TestRealWorldBenchmarkRoutesAreProxiedToPython(t *testing.T) {
-	var requests []struct {
-		method string
-		path   string
-		body   string
-	}
-	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, _ := io.ReadAll(r.Body)
-		requests = append(requests, struct {
-			method string
-			path   string
-			body   string
-		}{r.Method, r.URL.Path, string(body)})
-		_, _ = io.WriteString(w, `{"code":0}`)
-	}))
-	defer legacy.Close()
-	upstream, _ := url.Parse(legacy.URL)
-	api := httptest.NewServer(New(config.Config{LegacyAPIURL: upstream}, slog.New(slog.NewTextHandler(io.Discard, nil))))
-	defer api.Close()
-
-	resp, err := http.Get(api.URL + "/api/v1/real-world-benchmarks/catalog")
-	if err != nil {
-		t.Fatal(err)
-	}
-	resp.Body.Close()
-	resp, err = http.Post(
-		api.URL+"/api/v1/real-world-benchmarks/runs",
-		"application/json",
-		strings.NewReader(`{"case_id":"case-public-1"}`),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	resp.Body.Close()
-
-	if len(requests) != 2 {
-		t.Fatalf("proxied requests=%d, want 2", len(requests))
-	}
-	if requests[0].method != http.MethodGet || requests[0].path != "/api/v1/real-world-benchmarks/catalog" {
-		t.Fatalf("unexpected catalog request: %#v", requests[0])
-	}
-	if requests[1].method != http.MethodPost || requests[1].path != "/api/v1/real-world-benchmarks/runs" || requests[1].body != `{"case_id":"case-public-1"}` {
-		t.Fatalf("unexpected run request: %#v", requests[1])
+	if len(body.Data.Items) < 8 {
+		t.Fatalf("task kinds=%d", len(body.Data.Items))
 	}
 }
 
@@ -190,40 +129,18 @@ func TestUnknownAPIPathDoesNotCrossLegacyCatchAll(t *testing.T) {
 	}
 }
 
-func TestCompositeRoutesAreProxiedToPython(t *testing.T) {
-	api, legacy := testServer(t, false)
-	defer api.Close()
-	defer legacy.Close()
-
-	// Schedules are now native Go handlers (tested in schedules_test.go);
-	// composite tasks remain proxied to the Python engine.
-	for _, path := range []string{
-		"/api/composite-tasks",
-		"/api/composite-tasks/composite_1/aggregate",
-	} {
-		resp, err := http.Get(api.URL + path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("path %s status=%d, want 200 (proxied to Python)", path, resp.StatusCode)
-		}
-	}
-}
-
 func TestAuthRejectsAndAcceptsAPIKey(t *testing.T) {
 	server, legacy := testServer(t, true)
 	defer server.Close()
 	defer legacy.Close()
 
-	resp, _ := http.Get(server.URL + "/api/ai-config")
+	resp, _ := http.Get(server.URL + "/api/me")
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("unexpected unauthenticated status: %d", resp.StatusCode)
 	}
 	_ = resp.Body.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, server.URL+"/api/ai-config", nil)
+	req, _ := http.NewRequest(http.MethodGet, server.URL+"/api/me", nil)
 	req.Header.Set("X-API-Key", "test-key")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -240,9 +157,8 @@ func TestRBACPrincipalAndResourceScope(t *testing.T) {
 		_, _ = io.WriteString(w, `{"code":0,"message":"ok","data":{}}`)
 	}))
 	defer legacy.Close()
-	upstream, _ := url.Parse(legacy.URL)
 	handler := New(config.Config{
-		ListenAddr: ":0", LegacyAPIURL: upstream, AuthEnabled: true,
+		ListenAddr: ":0", AuthEnabled: true,
 		Principals: []config.Principal{
 			{ID: "reader", APIKey: "reader-key", Roles: []string{"viewer"}, AgentIDs: []string{"agent-a"}},
 			{ID: "operator-a", APIKey: "operator-key", Roles: []string{"operator"}, AgentIDs: []string{"agent-a"}, ServiceIDs: []string{"service-a"}, Environments: []string{"staging"}},
@@ -275,43 +191,20 @@ func TestRBACPrincipalAndResourceScope(t *testing.T) {
 		t.Fatalf("unexpected /me response: status=%d body=%#v", resp.StatusCode, me)
 	}
 
-	resp = request(http.MethodPost, "/api/v1/diagnoses", "reader-key", `{"query":"check cpu"}`)
-	if resp.StatusCode != http.StatusForbidden {
-		t.Fatalf("viewer write status=%d", resp.StatusCode)
-	}
-	_ = resp.Body.Close()
-
-	resp = request(http.MethodPost, "/api/v1/diagnoses", "operator-key", `{"query":"check cpu","context":{"agent_id":"agent-b","service_id":"service-a","environment":"staging"}}`)
-	if resp.StatusCode != http.StatusForbidden {
-		t.Fatalf("out-of-scope diagnosis status=%d", resp.StatusCode)
-	}
-	_ = resp.Body.Close()
-
-	resp = request(http.MethodPost, "/api/v1/diagnoses/diag-1/approvals", "operator-key", `{"step_id":"step-1","decision":"approve"}`)
-	if resp.StatusCode != http.StatusForbidden {
-		t.Fatalf("operator approval status=%d", resp.StatusCode)
-	}
-	_ = resp.Body.Close()
-
-	resp = request(http.MethodPost, "/api/v1/diagnoses/diag-1/approvals", "approver-key", `{"step_id":"step-1","decision":"approve"}`)
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("approver status=%d", resp.StatusCode)
-	}
-	_ = resp.Body.Close()
 }
 
 func TestCompositeEventCursorRoundTrip(t *testing.T) {
-	raw := formatEventCursor(123, 456, 789)
-	taskID, auditID, diagnosisID := parseEventCursor(raw)
-	if taskID != 123 || auditID != 456 || diagnosisID != 789 {
-		t.Fatalf("unexpected cursor values: %d %d %d", taskID, auditID, diagnosisID)
+	raw := formatEventCursor(123, 456)
+	taskID, auditID := parseEventCursor(raw)
+	if taskID != 123 || auditID != 456 {
+		t.Fatalf("unexpected cursor values: %d %d", taskID, auditID)
 	}
 }
 
 func TestLegacyNumericEventCursor(t *testing.T) {
-	taskID, auditID, diagnosisID := parseEventCursor("42")
-	if taskID != 42 || auditID != 0 || diagnosisID != 0 {
-		t.Fatalf("unexpected legacy cursor values: %d %d %d", taskID, auditID, diagnosisID)
+	taskID, auditID := parseEventCursor("42")
+	if taskID != 42 || auditID != 0 {
+		t.Fatalf("unexpected legacy cursor values: %d %d", taskID, auditID)
 	}
 }
 
@@ -346,64 +239,5 @@ func TestSafeDownloadFilename(t *testing.T) {
 	}
 	if got := safeDownloadFilename(""); got != "artifact.bin" {
 		t.Fatalf("unexpected empty fallback: %q", got)
-	}
-}
-
-func TestDiagnosisWriteBoundaryValidatesAndForwards(t *testing.T) {
-	server, legacy := testServer(t, false)
-	defer server.Close()
-	defer legacy.Close()
-
-	bad := []string{
-		`{"query":"x"}`,
-		`{"query":"CPU is high","budget_profile":"unbounded"}`,
-		`{"query":"CPU is high","unknown":true}`,
-		`{"query":"CPU is high","evaluation_oracle":{"root":"secret"}}`,
-		`{"query":"CPU is high","case_id":"` + strings.Repeat("c", 129) + `"}`,
-		`{"query":"CPU is high","baseline_task_ids":["task-1","task-1"]}`,
-		`{"query":"CPU is high","baseline_task_ids":["../task-1"]}`,
-	}
-	for _, payload := range bad {
-		resp, err := http.Post(server.URL+"/api/v1/diagnoses", "application/json", bytes.NewBufferString(payload))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if resp.StatusCode != http.StatusBadRequest {
-			t.Fatalf("invalid command accepted: status=%d payload=%s", resp.StatusCode, payload)
-		}
-		_ = resp.Body.Close()
-	}
-
-	payload := `{"query":"order service CPU is high","case_id":"  case-public-1  ","budget_profile":"production_safe","baseline_task_ids":["task-baseline-1"]}`
-	resp, err := http.Post(server.URL+"/api/v1/diagnoses", "application/json", bytes.NewBufferString(payload))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK || resp.Header.Get("X-Legacy") != "true" {
-		t.Fatalf("valid diagnosis command was not forwarded: status=%d", resp.StatusCode)
-	}
-}
-
-func TestDiagnosisApprovalBoundaryRejectsBroadScope(t *testing.T) {
-	server, legacy := testServer(t, false)
-	defer server.Close()
-	defer legacy.Close()
-	payload := `{"step_id":"step-1","decision":"approve","scope":"all_future"}`
-	resp, err := http.Post(server.URL+"/api/v1/diagnoses/diag-1/approvals", "application/json", bytes.NewBufferString(payload))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Fatalf("broad approval scope accepted: status=%d", resp.StatusCode)
-	}
-}
-
-func TestAIWriteAuditEventTypesFitDatabaseContract(t *testing.T) {
-	for _, eventType := range []string{diagnosisCommandAcceptedEvent, probeApprovalAcceptedEvent} {
-		if len(eventType) > 32 {
-			t.Fatalf("audit event type exceeds audit_logs.event_type varchar(32): %q", eventType)
-		}
 	}
 }

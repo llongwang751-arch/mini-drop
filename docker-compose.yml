@@ -1,15 +1,6 @@
-# Mini-Drop 全栈部署配置
-#
-# 启动: docker compose up -d
-# 停止: docker compose down
-# 查看日志: docker compose logs -f
-#
-# 生产部署前:
-#   1. cp .env.example .env 并填写密钥
-#   2. 设置 MINI_DROP_API_AUTH_ENABLED=1
-#   3. 设置 MINI_DROP_GRPC_AUTH_ENABLED=1
-#   4. 启用 gRPC TLS: MINI_DROP_GRPC_SECURE=1 + 证书
-#   5. 考虑减少 Agent 特权（非生产环境保留 privileged 用于调试）
+# Mini-Drop strict replication topology
+# React -> Go HTTP/SSE -> C++ Control/Agent -> MinIO -> Python workers.
+# Python processes expose no public HTTP API.
 
 services:
   postgres:
@@ -18,20 +9,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-mini_drop}
       POSTGRES_USER: ${POSTGRES_USER:-mini_drop}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mini_drop}
-    expose:
-      - "5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    expose: ["5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mini_drop"]
       interval: 5s
-      retries: 5
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-          cpus: "1.0"
 
   minio:
     image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
@@ -39,91 +24,27 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-mini_drop}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-mini_drop_secret}
-    expose:
-      - "9000"
-      - "9001"
-    volumes:
-      - miniodata:/data
+    expose: ["9000", "9001"]
+    volumes: ["miniodata:/data"]
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-          cpus: "1.0"
 
   migrate:
     build:
       context: .
-      dockerfile: deploy/dockerfiles/server.Dockerfile
-    image: mini-drop-server:local
-    env_file:
-      - .env
+      dockerfile: deploy/dockerfiles/python-worker.Dockerfile
+    image: mini-drop-python-worker:local
+    env_file: [.env]
     command: ["python", "-m", "alembic", "upgrade", "head"]
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres: {condition: service_healthy}
     restart: "no"
-
-  server:
-    image: mini-drop-server:local
-    pull_policy: never
-    # Share the host PID namespace so /api/top-processes can list host processes
-    # for the quick-collection preset PID dropdown (same as the agents).
-    pid: host
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:-minio:9000}
-      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-localhost:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
-      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
-      MINIO_AUTO_CREATE_BUCKET: ${MINIO_AUTO_CREATE_BUCKET:-1}
-      MINI_DROP_API_AUTH_ENABLED: ${MINI_DROP_API_AUTH_ENABLED:-0}
-      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
-      MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}
-      MINI_DROP_INTERNAL_GATEWAY_TOKEN: ${MINI_DROP_INTERNAL_GATEWAY_TOKEN:-mini-drop-internal-dev}
-      MINI_DROP_GRPC_AUTH_ENABLED: ${MINI_DROP_GRPC_AUTH_ENABLED:-0}
-      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
-      MINI_DROP_EMBED_GRPC: "0"
-      MINI_DROP_EMBED_MAINTENANCE: "0"
-      MINI_DROP_SCHEMA_MANAGED: "1"
-      MINI_DROP_OUTBOX_DISPATCH_ENABLED: "1"
-      MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/demo:/workspace-source/native
-      MINI_DROP_CAMPAIGN_TARGET_URL: ${MINI_DROP_CAMPAIGN_TARGET_URL:-http://python-hotspot:8081}
-      MINI_DROP_CAMPAIGN_JAVA_TARGET_URL: ${MINI_DROP_CAMPAIGN_JAVA_TARGET_URL:-http://java-hotspot:7070}
-    volumes:
-      - ${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro
-    expose:
-      - "8191"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8191/api/healthz >/dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-          cpus: "2.0"
 
   control-plane:
     build:
@@ -134,80 +55,33 @@ services:
       NATIVE_CONTROL_LISTEN_ADDR: "0.0.0.0:50051"
       NATIVE_CONTROL_HEALTH_ADDR: "127.0.0.1:50051"
       DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:-minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINI_DROP_GRPC_AUTH_ENABLED: ${MINI_DROP_GRPC_AUTH_ENABLED:-0}
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
+      MINI_DROP_GRPC_SECURE: ${MINI_DROP_GRPC_SECURE:-0}
+      MINI_DROP_GRPC_CERT_FILE: ${MINI_DROP_GRPC_CERT_FILE:-/certs/server.crt}
+      MINI_DROP_GRPC_KEY_FILE: ${MINI_DROP_GRPC_KEY_FILE:-/certs/server.key}
+      MINI_DROP_GRPC_CA_FILE: ${MINI_DROP_GRPC_CA_FILE:-/certs/ca.crt}
+      MINI_DROP_GRPC_REQUIRE_CLIENT_CERT: ${MINI_DROP_GRPC_REQUIRE_CLIENT_CERT:-0}
       AGENT_OFFLINE_TIMEOUT_SEC: ${AGENT_OFFLINE_TIMEOUT_SEC:-30}
       MINI_DROP_CONTROL_MAINTENANCE_SEC: ${MINI_DROP_CONTROL_MAINTENANCE_SEC:-5}
-    expose:
-      - "50051"
+    expose: ["50051"]
+    volumes: ["./deploy/certs:/certs:ro"]
     depends_on:
-      postgres:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "/usr/local/bin/mini-drop-native-control", "--healthcheck"]
       interval: 10s
       timeout: 5s
-      retries: 6
-      start_period: 5s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-          cpus: "1.0"
-
-  # C++ gRPC 控制面灰度实例。默认不替换 Python 50051；通过 profile 启动后，
-  # 可将 NATIVE_AGENT_GRPC_ADDR 指向 native-control-plane:50052 做对照验收。
-  native-control-plane:
-    profiles: ["native-control"]
-    build:
-      context: .
-      dockerfile: deploy/dockerfiles/native-control.Dockerfile
-    environment:
-      NATIVE_CONTROL_LISTEN_ADDR: "0.0.0.0:50052"
-      NATIVE_CONTROL_HEALTH_ADDR: "127.0.0.1:50052"
-      DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:-minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
-      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
-      MINI_DROP_GRPC_AUTH_ENABLED: ${MINI_DROP_GRPC_AUTH_ENABLED:-0}
-      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
-    expose:
-      - "50052"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/mini-drop-native-control", "--healthcheck"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 5s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256m
-          cpus: "1.0"
 
   diagnosis-worker:
-    image: mini-drop-server:local
+    image: mini-drop-python-worker:local
     pull_policy: never
-    env_file:
-      - .env
+    env_file: [.env]
     command: ["python", "-m", "server.app.diagnosis_worker"]
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
@@ -215,302 +89,32 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_PORT: "50061"
       MINI_DROP_DIAGNOSIS_POLL_SEC: ${MINI_DROP_DIAGNOSIS_POLL_SEC:-2}
-      MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS: ${MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS:-1}
-      MINI_DROP_OUTBOX_DISPATCH_ENABLED: "0"
+      MINI_DROP_AGENT_FRAMEWORK: ${MINI_DROP_AGENT_FRAMEWORK:-langgraph}
+      MINI_DROP_AGENT_CHECKPOINT_BACKEND: ${MINI_DROP_AGENT_CHECKPOINT_BACKEND:-postgres}
+      MINI_DROP_AGENT_MEMORY_MAX_MESSAGES: ${MINI_DROP_AGENT_MEMORY_MAX_MESSAGES:-24}
       MINI_DROP_SCHEMA_MANAGED: "1"
-      MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/demo:/workspace-source/native
+      MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/native
+    expose: ["50061"]
     volumes:
-      - ${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro
+      - "${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro"
+      - "./deploy/certs:/certs:ro"
     depends_on:
-      postgres:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "python", "-m", "server.app.diagnosis_worker", "--healthcheck"]
       interval: 10s
       timeout: 5s
-      retries: 6
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 768m
-          cpus: "1.0"
-
-  # Python 兼容 Agent：降级为回滚/本地开发路径，默认栈不启动；
-  # 需要时用 `docker compose --profile python-agent up -d agent`。
-  agent:
-    profiles: ["python-agent"]
-    build:
-      context: .
-      dockerfile: deploy/dockerfiles/agent.Dockerfile
-    environment:
-      AGENT_GRPC_ADDR: control-plane:50051
-      AGENT_ID: ${AGENT_ID:-agent_docker_demo}
-      AGENT_HEARTBEAT_INTERVAL_SEC: ${AGENT_HEARTBEAT_INTERVAL_SEC:-5}
-      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
-      AGENT_UPLOAD_ARTIFACTS: ${AGENT_UPLOAD_ARTIFACTS:-1}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
-      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
-      MINIO_SECURE: ${MINIO_SECURE:-0}
-      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
-      AGENT_RESULT_OUTBOX_MAX_ENTRIES: ${AGENT_RESULT_OUTBOX_MAX_ENTRIES:-256}
-    depends_on:
-      control-plane:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    # 注意: 生产环境应评估是否需要 privileged + host PID
-    # 最小权限方案：仅 cap_add SYS_PTRACE + PERFMON + /proc 只读挂载
-    privileged: true
-    pid: host
-    cap_add:
-      - SYS_PTRACE
-      - PERFMON
-      - SYS_ADMIN
-      - BPF
-      - SYS_RESOURCE
-    security_opt:
-      - no-new-privileges:true
-      - seccomp:unconfined
-    volumes:
-      - /sys/kernel/tracing:/sys/kernel/tracing
-      - /sys/kernel/debug:/sys/kernel/debug
-      - agentoutbox:/var/lib/mini-drop-agent/outbox
-    read_only: false
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-          cpus: "2.0"
-
-  # Go API 编排层：对 Web 提供唯一 REST/SSE 入口。
-  # 业务接口按 strangler pattern 从 Python 逐步迁入 Go；尚未迁移的接口兼容转发。
-  apiserver:
-    build:
-      context: .
-      dockerfile: deploy/dockerfiles/apiserver.Dockerfile
-    env_file:
-      - .env
-    environment:
-      MINI_DROP_API_LISTEN_ADDR: ":8080"
-      MINI_DROP_LEGACY_API_URL: "http://server:8191"
-      DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
-      MINI_DROP_API_AUTH_ENABLED: ${MINI_DROP_API_AUTH_ENABLED:-0}
-      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
-      MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}
-      MINI_DROP_INTERNAL_GATEWAY_TOKEN: ${MINI_DROP_INTERNAL_GATEWAY_TOKEN:-mini-drop-internal-dev}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
-      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
-      MINIO_SECURE: ${MINIO_SECURE:-0}
-    expose:
-      - "8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      server:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/mini-drop-apiserver", "--healthcheck"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 5s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "0.5"
-
-  # 原生 C++ Agent：使用独立 Agent ID，可与 Python Agent 同时在线。
-  # 演示方式：
-  #   docker compose --profile native-agent up -d --build native-agent
-  # C++ 原生 Agent：默认生产路径（对照 Python agent，补充 BPF cap、
-  # tracefs/debugfs 挂载与 outbox 卷以保证 eBPF 与上传能力一致）。
-  native-agent:
-    build:
-      context: .
-      dockerfile: deploy/dockerfiles/native-agent.Dockerfile
-    environment:
-      AGENT_GRPC_ADDR: ${NATIVE_AGENT_GRPC_ADDR:-control-plane:50051}
-      AGENT_ID: ${NATIVE_AGENT_ID:-agent_native_cpp}
-      AGENT_HEARTBEAT_INTERVAL_SEC: ${AGENT_HEARTBEAT_INTERVAL_SEC:-5}
-      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
-      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
-      NATIVE_AGENT_RUNNER_MAX_MEMORY_MB: ${NATIVE_AGENT_RUNNER_MAX_MEMORY_MB:-1024}
-      NATIVE_AGENT_RUNNER_MAX_OUTPUT_MB: ${NATIVE_AGENT_RUNNER_MAX_OUTPUT_MB:-256}
-      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
-      AGENT_RESULT_OUTBOX_MAX_ENTRIES: ${AGENT_RESULT_OUTBOX_MAX_ENTRIES:-256}
-    depends_on:
-      control-plane:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    privileged: true
-    pid: host
-    cap_add:
-      - SYS_PTRACE
-      - PERFMON
-      - SYS_ADMIN
-      - BPF
-      - SYS_RESOURCE
-    security_opt:
-      - no-new-privileges:true
-      - seccomp:unconfined
-    volumes:
-      - /sys/kernel/tracing:/sys/kernel/tracing
-      - /sys/kernel/debug:/sys/kernel/debug
-      - agentoutbox:/var/lib/mini-drop-agent/outbox
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-          cpus: "2.0"
-
-  go-hotspot:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/go-hotspot
-    ports:
-      - "6060:6060"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:6060/health"]
-      interval: 5s
-      timeout: 2s
       retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256m
-          cpus: "1.0"
-
-  cpp-hotspot:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/cpp-hotspot
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "1.0"
-
-  python-hotspot:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/python-hotspot
-    # Share the Linux VM PID namespace with Server/Agent so the PID returned
-    # by /snapshot is the same PID that a real Mini-Drop collector samples.
-    pid: host
-    environment:
-      # Keep the existing profiling demo hot by default.  A real Campaign
-      # explicitly stops it for baseline, injects the fault, then restores it.
-      CPU_HOTSPOT_ACTIVE: ${CPU_HOTSPOT_ACTIVE:-1}
-      DOWNSTREAM_URL: http://downstream-service:8082
-      NETWORK_PROXY_URL: http://network-proxy:8083
-    depends_on:
-      downstream-service:
-        condition: service_healthy
-      network-proxy:
-        condition: service_healthy
-    ports:
-      - "8081:8081"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "1.0"
-
-  downstream-service:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/downstream-service
-    ports:
-      - "8082:8082"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8082/health', timeout=2)"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "0.5"
-
-  network-proxy:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/network-proxy
-    environment:
-      UPSTREAM_URL: http://downstream-service:8082
-    depends_on:
-      downstream-service:
-        condition: service_healthy
-    ports:
-      - "8083:8083"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8083/health', timeout=2)"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "0.5"
-
-  java-hotspot:
-    profiles: ["demo-targets"]
-    build:
-      context: demo/java-hotspot
-    # The returned host_pid must be directly sampleable by the native Agent.
-    pid: host
-    ports:
-      - "7070:7070"
-    healthcheck:
-      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/7070; printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 384m
-          cpus: "1.0"
 
   analyzer:
-    image: mini-drop-server:local
+    image: mini-drop-python-worker:local
     pull_policy: never
-    env_file:
-      - .env
+    env_file: [.env]
     command: ["python", "-m", "server.app.analysis_jobs"]
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
@@ -523,44 +127,109 @@ services:
       MINI_DROP_ANALYZER_MAX_RETRIES: ${MINI_DROP_ANALYZER_MAX_RETRIES:-3}
       MINI_DROP_SCHEMA_MANAGED: "1"
     depends_on:
-      control-plane:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "python", "-m", "server.app.analysis_jobs", "--healthcheck"]
       interval: 10s
       timeout: 5s
-      retries: 6
-      start_period: 10s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-          cpus: "2.0"
+
+  apiserver:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/apiserver.Dockerfile
+    environment:
+      MINI_DROP_API_LISTEN_ADDR: ":8080"
+      MINI_DROP_CONTROL_GRPC_ADDRESS: "control-plane:50051"
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_ADDRESS: "diagnosis-worker:50061"
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME: ${MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME:-diagnosis-worker}
+      MINI_DROP_CONTROL_GRPC_TIMEOUT_MS: ${MINI_DROP_CONTROL_GRPC_TIMEOUT_MS:-3000}
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
+      MINI_DROP_CONTROL_GRPC_TLS: ${MINI_DROP_GRPC_SECURE:-0}
+      MINI_DROP_CONTROL_GRPC_CA_FILE: ${MINI_DROP_GRPC_CA_FILE:-/certs/ca.crt}
+      MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE: ${MINI_DROP_GRPC_CLIENT_CERT_FILE:-/certs/client.crt}
+      MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE: ${MINI_DROP_GRPC_CLIENT_KEY_FILE:-/certs/client.key}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
+      MINI_DROP_API_AUTH_ENABLED: ${MINI_DROP_API_AUTH_ENABLED:-0}
+      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
+      MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+    expose: ["8080"]
+    volumes: ["./deploy/certs:/certs:ro"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      control-plane: {condition: service_healthy}
+      diagnosis-worker: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mini-drop-apiserver", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  native-agent:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/native-agent.Dockerfile
+    image: mini-drop-native-agent:local
+    environment:
+      AGENT_GRPC_ADDR: control-plane:50051
+      AGENT_ID: ${NATIVE_AGENT_ID:-agent_native_cpp}
+      AGENT_HEARTBEAT_INTERVAL_SEC: ${AGENT_HEARTBEAT_INTERVAL_SEC:-5}
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
+      AGENT_GRPC_SECURE: ${MINI_DROP_GRPC_SECURE:-0}
+      AGENT_GRPC_CA_CERT: ${AGENT_GRPC_CA_CERT:-/certs/ca.crt}
+      AGENT_GRPC_CLIENT_CERT: ${AGENT_GRPC_CLIENT_CERT:-/certs/agent.crt}
+      AGENT_GRPC_CLIENT_KEY: ${AGENT_GRPC_CLIENT_KEY:-/certs/agent.key}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-agent/outbox
+    depends_on:
+      control-plane: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    pid: host
+    cap_add: ["SYS_PTRACE", "PERFMON", "BPF", "SYS_RESOURCE"]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      - agentoutbox:/var/lib/mini-drop-agent/outbox
+      - ./deploy/certs:/certs:ro
+    restart: unless-stopped
+
+  # Optional controlled CPU target used by the evidence-gate and Skill benchmark.
+  python-hotspot:
+    profiles: ["demo-target"]
+    build: {context: demo/python-hotspot}
+    pid: host
+    environment: {CPU_HOTSPOT_ACTIVE: "1"}
+    ports: ["8081:8081"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   web:
     build:
       context: .
       dockerfile: deploy/dockerfiles/web.Dockerfile
-    ports:
-      - "80:80"
+    ports: ["80:80"]
     depends_on:
-      apiserver:
-        condition: service_healthy
+      apiserver: {condition: service_healthy}
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 6
-      start_period: 5s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256m
-          cpus: "0.5"
 
 volumes:
   pgdata:

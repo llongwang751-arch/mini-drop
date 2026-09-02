@@ -1,52 +1,55 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,$(if $(wildcard .venv/Scripts/python.exe),.venv/Scripts/python.exe,python))
 
-.PHONY: server agent analyzer test eval coverage lint fmt demo demo-targets native-agent proto deploy deploy-down db-upgrade db-current db-downgrade accept-ebpf accept-backup accept-replicas accept-benchmark
+.PHONY: proto contracts diagnosis-worker analyzer-worker test coverage lint fmt demo-target native-agent skill-benchmark skill-ab-large skill-stability rcaeval-skill-ab quantitative-report deploy deploy-down db-upgrade db-current db-downgrade accept-ebpf accept-backup accept-replicas
 
 proto:
-	cd proto && bash compile.sh
+	$(PYTHON) proto/compile.py
 
-# 导出 OpenAPI 与 TaskKind JSON Schema 版本化契约交付物
 contracts:
-	$(PYTHON) scripts/export_openapi.py
+	$(PYTHON) scripts/generate_taskkind_contracts.py
+	$(PYTHON) scripts/generate_status_contracts.py
+	$(PYTHON) scripts/generate_error_code_contracts.py
 
-server:
-	$(PYTHON) -m server.app.main
+diagnosis-worker:
+	$(PYTHON) -m server.app.diagnosis_worker
 
-agent:
-	$(PYTHON) -m agent.mini_drop_agent.main
-
-analyzer:
-	$(PYTHON) -m analyzer.mini_drop_analyzer.hotmethod_analyzer \
-		--task-id demo_task \
-		--config analyzer/config.example.toml
+analyzer-worker:
+	$(PYTHON) -m server.app.analysis_jobs
 
 test:
 	$(PYTHON) -m pytest tests -v
 
-eval:
-	$(PYTHON) scripts/run_diagnosis_eval.py --output-dir reports/eval
-	$(PYTHON) scripts/diagnosis_benchmark.py campaign --output-dir reports/benchmark/campaign
-
 coverage:
-	$(PYTHON) -m pytest --cov=server --cov=agent --cov=analyzer --cov-report=term-missing tests
+	$(PYTHON) -m pytest --cov=server --cov=analyzer --cov-report=term-missing tests
 
 lint:
-	$(PYTHON) -m compileall server agent analyzer demo
+	$(PYTHON) -m compileall -q server analyzer scripts
 	@echo "[lint] compileall passed"
-	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff check server agent analyzer || echo "[lint] ruff not installed (pip install ruff), skipping"
-	@which mypy >/dev/null 2>&1 && $(PYTHON) -m mypy server agent analyzer --ignore-missing-imports || echo "[lint] mypy not installed (pip install mypy), skipping"
+	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff check server analyzer scripts || echo "[lint] ruff not installed, skipping"
 
 fmt:
-	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff format server agent analyzer demo tests || echo "[fmt] ruff not installed, skipping"
+	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff format server analyzer scripts tests || echo "[fmt] ruff not installed, skipping"
 
-demo:
-	bash demo/demo.sh
-
-demo-targets:
-	docker compose --profile demo-targets up -d --build go-hotspot cpp-hotspot java-hotspot
+demo-target:
+	docker compose --profile demo-target up -d --build python-hotspot
 
 native-agent:
-	docker compose --profile native-agent up -d --build native-agent
+	docker compose up -d --build native-agent
+
+skill-benchmark:
+	$(PYTHON) scripts/run_skill_evolution_benchmark.py
+
+skill-ab-large:
+	$(PYTHON) scripts/run_scaled_skill_ab.py
+
+skill-stability:
+	$(PYTHON) scripts/run_scaled_skill_ab.py --stability-seconds 21600 --stability-iterations 5
+
+rcaeval-skill-ab:
+	$(PYTHON) scripts/run_rcaeval_skill_ab.py --download
+
+quantitative-report:
+	$(PYTHON) scripts/build_quantitative_test_report.py
 
 db-upgrade:
 	$(PYTHON) -m alembic upgrade head
@@ -58,7 +61,7 @@ db-downgrade:
 	$(PYTHON) -m alembic downgrade -1
 
 deploy:
-	docker compose up -d
+	docker compose up -d --build
 
 deploy-down:
 	docker compose down
@@ -71,6 +74,3 @@ accept-backup:
 
 accept-replicas:
 	bash scripts/verify_external_acceptance.sh replicas
-
-accept-benchmark:
-	bash scripts/verify_external_acceptance.sh benchmark

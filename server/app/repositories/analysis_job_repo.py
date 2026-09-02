@@ -5,67 +5,24 @@
 """
 from __future__ import annotations
 
-import json
-import threading
-import time
-
-from server.app.event_bus import notify_task_changed, notify_agent_status
-from collections import deque
-from contextlib import contextmanager
-from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 from uuid import uuid4
 
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import and_, func, or_, text
 from sqlalchemy.orm import Session as OrmSession
 
-from server.app.cron import next_schedule_fire
-from server.app.database import new_session
 from server.app.artifact_integrity import prepare_artifact
 from server.app.models import (
-    AgentMetricSnapshotModel,
-    AgentModel,
-    AnalysisJobModel,
     AnalysisJobInputArtifactModel,
+    AnalysisJobModel,
     AnalysisJobOutputArtifactModel,
     ArtifactModel,
-    AuditLogModel,
-    DiagnosisReportModel,
-    DiagnosisRunModel,
-    DiagnosisToolResultModel,
-    CompositeTaskItemModel,
-    CompositeTaskModel,
-    FixVerificationModel,
-    OutboxMessageModel,
-    RCAFeedbackModel,
-    RCAFeedbackWeightModel,
-    RepairPlanModel,
-    ScheduleModel,
-    ScheduleRecordModel,
-    StatusEventModel,
     TaskAttemptModel,
     TaskModel,
 )
-from server.app.prometheus_metrics import (
-    observe_analysis_job_duration,
-    record_analysis_job,
-    record_composite_created,
-    record_composite_status,
-    record_task_transition,
-)
-from server.app.rca.models import FeedbackPrior
-from server.app.schemas import CreateTaskRequest
-from server.app.state_machine import (
-    AnalysisStatus,
-    Actor,
-    CollectionStatus,
-    StatusEvent,
-    TaskStatus,
-    build_status_event,
-    now_utc,
-)
+from server.app.state_machine import AnalysisStatus, Actor, TaskStatus, now_utc
 
 
 
@@ -166,7 +123,7 @@ class AnalysisJobMixin:
             ))
         task = session.get(TaskModel, task_id)
         if task is not None:
-            task.analysis_status = AnalysisStatus.QUEUED.value
+            task.analysis_status = AnalysisStatus.PENDING.value
         self._write_audit(
             session,
             "ANALYSIS_JOB_ENQUEUED",
@@ -179,7 +136,6 @@ class AnalysisJobMixin:
                 "input_artifact_ids": input_artifact_ids,
             },
         )
-        record_analysis_job("PENDING", analyzer_type)
         return job
 
     def enqueue_analysis_job(
@@ -302,14 +258,17 @@ class AnalysisJobMixin:
                             TaskStatus.FAILED,
                             "分析失败: LEASE_EXPIRED",
                             Actor.ANALYZER,
-                            {"analysis_job_id": job.id},
+                            {
+                                "analysis_job_id": job.id,
+                                "error_code": "ANALYSIS_RETRY_EXHAUSTED",
+                            },
                         )
                 else:
                     job.status = "RETRYING"
                     job.next_run_at = ts
                     task = session.get(TaskModel, job.task_id)
                     if task is not None:
-                        task.analysis_status = AnalysisStatus.RETRYING.value
+                        task.analysis_status = AnalysisStatus.RETRY.value
 
             session.flush()
             job = (
@@ -333,7 +292,6 @@ class AnalysisJobMixin:
             task = session.get(TaskModel, job.task_id)
             if task is not None:
                 task.analysis_status = AnalysisStatus.RUNNING.value
-            record_analysis_job("RUNNING", job.analyzer_type)
             return job
 
     def renew_analysis_job_lease(
@@ -441,14 +399,6 @@ class AnalysisJobMixin:
             job.error_message = None
             job.updated_at = ts
             job.finished_at = ts
-            record_analysis_job("SUCCEEDED", job.analyzer_type)
-            if job.started_at is not None:
-                observe_analysis_job_duration(
-                    (
-                        ts.replace(tzinfo=None)
-                        - job.started_at.replace(tzinfo=None)
-                    ).total_seconds()
-                )
             task = session.get(TaskModel, job.task_id)
             if task is not None and task.status == TaskStatus.ANALYZING.value:
                 self._transition_task_in_session(
@@ -499,9 +449,12 @@ class AnalysisJobMixin:
                         TaskStatus.FAILED,
                         f"分析失败: {job.error_code}",
                         Actor.ANALYZER,
-                        {"analysis_job_id": job.id},
+                        {
+                            "analysis_job_id": job.id,
+                            "analysis_error_code": job.error_code,
+                            "error_code": "ANALYSIS_RETRY_EXHAUSTED",
+                        },
                     )
-                record_analysis_job("DEAD_LETTER", job.analyzer_type)
             else:
                 job.status = "RETRYING"
                 job.status_reason = f"分析失败，等待第 {job.retry_count + 1} 次执行"
@@ -509,8 +462,7 @@ class AnalysisJobMixin:
                 job.next_run_at = ts + timedelta(seconds=delay)
                 task = session.get(TaskModel, job.task_id)
                 if task is not None:
-                    task.analysis_status = AnalysisStatus.RETRYING.value
-                record_analysis_job("RETRYING", job.analyzer_type)
+                    task.analysis_status = AnalysisStatus.RETRY.value
             return job
 
     def replay_analysis_job(self, job_id: str) -> AnalysisJobModel:
@@ -531,7 +483,7 @@ class AnalysisJobMixin:
             job.updated_at = ts
             task = session.get(TaskModel, job.task_id)
             if task is not None:
-                task.analysis_status = AnalysisStatus.QUEUED.value
+                task.analysis_status = AnalysisStatus.PENDING.value
             if (
                 task is not None
                 and task.status == TaskStatus.FAILED.value

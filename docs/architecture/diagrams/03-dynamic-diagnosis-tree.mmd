@@ -1,0 +1,53 @@
+sequenceDiagram
+    autonumber
+    actor User as 用户
+    participant Web as React 诊断台
+    participant API as Go API 网关
+    participant AI as Python 诊断编排器
+    participant Planner as 受约束 Planner
+    participant Tool as 诊断工具 / 采集任务
+    participant DB as PostgreSQL
+    participant Tree as ExplorationTree Builder
+
+    User->>Web: 输入问题并确认目标范围
+    Web->>API: POST /api/v2/diagnoses
+    API->>AI: 白名单代理诊断写接口
+    AI->>DB: 创建 Session、目标绑定、初始 Event
+    AI->>DB: 写入初始 Hypothesis(round=1)
+    DB-->>Web: SSE diagnosis_progress(sequence=1..n)
+    Web->>API: GET /exploration-tree
+    API->>Tree: 按当前持久化事实构建快照
+    Tree->>DB: 读取 Event/Hypothesis/Tool/Evidence/Report
+    Tree-->>Web: revision=最新事件 sequence
+
+    loop 多轮诊断，直到证据充分或停止条件命中
+        AI->>AI: 读取路线先验与可复用 Skill
+        AI->>Planner: 假设、缺失证据、白名单探针、预算
+        Planner-->>AI: 下一探针 + 预期观察 + 反证条件
+        AI->>DB: 写 ToolCall(PENDING) 与进度 Event
+        AI->>Tool: 经能力/风险/预算门禁后执行
+        Tool-->>AI: 工具结果与 provenance
+        AI->>DB: 写 EvidenceEnvelope 与分类结果
+
+        alt 证据支持假设
+            AI->>DB: Hypothesis = SUPPORTED
+        else 证据反驳假设
+            AI->>DB: Hypothesis = REFUTED
+            AI->>DB: 创建下一轮或跨方向 Hypothesis
+        else 证据不足
+            AI->>DB: 保持 OPEN，规划补充取证
+        end
+
+        DB-->>Web: SSE 只发送变化信号和递增游标
+        Web->>API: 立即拉取新树快照
+        API->>Tree: 重建当前树
+        Tree-->>Web: 更高 revision，保留剪枝与转向
+    end
+
+    AI->>DB: 生成 Report + Claim/Evidence 校验
+    AI->>DB: 写修复验证与终止原因
+    opt 报告 VERIFIED 且证据可追溯
+        AI->>DB: 自动生成 CANDIDATE Skill
+    end
+    DB-->>Web: 最终 SSE 事件
+    Web->>API: 获取最终树、报告和 Skill 结果

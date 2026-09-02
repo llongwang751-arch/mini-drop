@@ -8,18 +8,28 @@ from __future__ import annotations
 
 import argparse
 import os
+import socket
 import time
 from collections.abc import Callable
 
 from sqlalchemy import text
 
 from server.app.database import init_db, new_session
-from server.app.diagnosis import DiagnosisOrchestrator
-from server.app.diagnosis.continuous_trigger import ContinuousDiagnosisTrigger
+from server.app.diagnostic_ai_rpc import start_diagnostic_ai_server
 from server.app.drop_insight.service import advance_diagnosis
 from server.app.logging_utils import log_event
-from server.app.models import DropInsightToolCallModel
-from server.app.sql_repository import SqlRepository
+from server.app.models import DropInsightSessionModel, DropInsightToolCallModel
+from server.app.process_attestation import ProcessIdentityBinding
+
+
+def _has_process_binding_authority(target: object) -> bool:
+    if not isinstance(target, dict):
+        return False
+    try:
+        ProcessIdentityBinding.from_mapping(target.get("process_binding"))
+    except (KeyError, TypeError, ValueError):
+        return False
+    return True
 
 
 def _advance_active_drop_insight() -> int:
@@ -32,45 +42,57 @@ def _advance_active_drop_insight() -> int:
     """
 
     with new_session() as session:
-        diagnosis_ids = [
+        diagnosis_ids = []
+        pending_ids = [
             row[0]
             for row in (
                 session.query(DropInsightToolCallModel.diagnosis_id)
                 .filter(
                     DropInsightToolCallModel.task_id.is_not(None),
-                    DropInsightToolCallModel.status.in_(("TASK_CREATED", "RUNNING")),
+                    DropInsightToolCallModel.status.in_(
+                        ("TASK_CREATED", "RUNNING")
+                    ),
                 )
                 .distinct()
                 .all()
             )
         ]
+        for diagnosis_id in pending_ids:
+            diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+            target = diagnosis.target_json if diagnosis is not None else None
+            # Pre-attestation legacy sessions cannot be safely promoted into
+            # evidence. Keep their rows for audit, but do not busy-loop them.
+            if _has_process_binding_authority(target):
+                diagnosis_ids.append(diagnosis_id)
 
     advanced = 0
     for diagnosis_id in diagnosis_ids:
-        result = advance_diagnosis(diagnosis_id)
-        if result and result.get("actions"):
-            advanced += 1
+        try:
+            result = advance_diagnosis(diagnosis_id)
+            if result and result.get("actions"):
+                advanced += 1
+        except Exception as exc:
+            # One stale or malformed diagnosis must not prevent other sessions
+            # from importing terminal tasks in the same polling round.
+            log_event(
+                "error",
+                "diagnosis_worker_session_failed",
+                diagnosis_id=diagnosis_id,
+                error=type(exc).__name__,
+                message=str(exc),
+            )
     return advanced
 
 
 class DiagnosisWorker:
     def __init__(
         self,
-        orchestrator: DiagnosisOrchestrator,
         drop_insight_advancer: Callable[[], int] | None = None,
     ) -> None:
-        self.orchestrator = orchestrator
-        # Lightweight process-isolation tests use a minimal orchestrator double
-        # without a repository. The production orchestrator always owns `repo`.
-        self.continuous_trigger = (
-            ContinuousDiagnosisTrigger(orchestrator)
-            if hasattr(orchestrator, "repo")
-            else None
-        )
         self.drop_insight_advancer = (
             drop_insight_advancer
             if drop_insight_advancer is not None
-            else (_advance_active_drop_insight if hasattr(orchestrator, "repo") else None)
+            else _advance_active_drop_insight
         )
 
     def process_once(self) -> int:
@@ -78,19 +100,12 @@ class DiagnosisWorker:
 
         当前编排器自行遍历活跃会话且不返回计数；Worker 只需要保证每轮调用一次。
         """
-        promoted = 0
-        if (
-            self.continuous_trigger is not None
-            and os.getenv("MINI_DROP_CONTINUOUS_AUTO_DIAGNOSIS", "1") == "1"
-        ):
-            promoted = self.continuous_trigger.scan_once()
-        self.orchestrator.advance_active()
         drop_insight_advanced = (
             self.drop_insight_advancer()
             if self.drop_insight_advancer is not None
             else 0
         )
-        return promoted + drop_insight_advanced
+        return drop_insight_advanced
 
 
 def _healthcheck() -> int:
@@ -102,6 +117,14 @@ def _healthcheck() -> int:
         return 1
 
 
+def _rpc_healthcheck(port: int) -> int:
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=2):
+            return 0
+    except OSError:
+        return 1
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Mini-Drop AI Diagnosis Worker")
     parser.add_argument("--healthcheck", action="store_true")
@@ -109,26 +132,32 @@ def main() -> None:
     args = parser.parse_args()
 
     init_db()
+    rpc_port = int(os.getenv("MINI_DROP_DIAGNOSTIC_AI_GRPC_PORT", "50061"))
     if args.healthcheck:
-        raise SystemExit(_healthcheck())
+        raise SystemExit(_healthcheck() or _rpc_healthcheck(rpc_port))
 
-    worker = DiagnosisWorker(DiagnosisOrchestrator(SqlRepository()))
+    rpc_server = start_diagnostic_ai_server(rpc_port)
+    worker = DiagnosisWorker()
     poll_sec = max(0.2, float(os.getenv("MINI_DROP_DIAGNOSIS_POLL_SEC", "2")))
-    while True:
-        try:
-            advanced = worker.process_once()
-            if advanced:
-                log_event("info", "diagnosis_worker_advanced", count=advanced)
-        except Exception as exc:  # one malformed diagnosis must not terminate the worker
-            log_event(
-                "error",
-                "diagnosis_worker_iteration_failed",
-                error=type(exc).__name__,
-                message=str(exc),
-            )
-        if args.once:
-            return
-        time.sleep(poll_sec)
+    log_event("info", "diagnostic_ai_rpc_started", port=rpc_port)
+    try:
+        while True:
+            try:
+                advanced = worker.process_once()
+                if advanced:
+                    log_event("info", "diagnosis_worker_advanced", count=advanced)
+            except Exception as exc:  # one malformed diagnosis must not terminate the worker
+                log_event(
+                    "error",
+                    "diagnosis_worker_iteration_failed",
+                    error=type(exc).__name__,
+                    message=str(exc),
+                )
+            if args.once:
+                return
+            time.sleep(poll_sec)
+    finally:
+        rpc_server.stop(grace=5).wait(timeout=10)
 
 
 if __name__ == "__main__":

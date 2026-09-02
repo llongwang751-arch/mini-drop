@@ -1,8 +1,7 @@
 // Package cron implements the minimal 5-field cron next-fire computation used
-// by /api/schedules. It is a faithful port of server/app/cron.py so the Go
-// schedule surface and the Python schedule worker agree on the next fire time.
+// by the Go-owned /api/schedules endpoint.
 //
-// Field semantics (matching cron.py):
+// Field semantics:
 //   - * / lists (a,b) / ranges (a-b) / steps (*/n, a-b/n)
 //   - Day-of-week uses 0=Sunday..6=Saturday
 //   - When BOTH day-of-month and day-of-week are restricted, BOTH must match
@@ -94,7 +93,7 @@ func Parse(expression string) (*schedule, error) {
 		return nil, err
 	}
 	// Cron DOW 0=Sunday..6=Saturday equals Go's time.Weekday directly, so no
-	// conversion (Python's cron.py converts to Python weekday 0=Monday).
+	// Convert Go's Sunday=0 weekday value to the cron 0..6 representation.
 	if s.dows, err = parseField(fields[4], 0, 6); err != nil {
 		return nil, err
 	}
@@ -112,7 +111,7 @@ func minValue(values map[int]bool) int {
 	return m
 }
 
-// nextInSet returns (smallest value >= current, wrapped) like cron.py.
+// nextInSet returns the smallest value >= current, wrapping when needed.
 func nextInSet(values map[int]bool, current int) (int, bool) {
 	wrap := minValue(values)
 	best := -1
@@ -136,7 +135,7 @@ func jumpMonth(t time.Time) time.Time {
 }
 
 // NextAfter returns the first matching datetime strictly after moment, in the
-// same location. Mirrors CronSchedule.next_after in cron.py.
+// same location.
 func (s *schedule) NextAfter(moment time.Time) (time.Time, error) {
 	candidate := time.Date(
 		moment.Year(), moment.Month(), moment.Day(), moment.Hour(), moment.Minute(), 0, 0,
@@ -176,7 +175,7 @@ func (s *schedule) NextAfter(moment time.Time) (time.Time, error) {
 }
 
 // NextScheduleFire computes the next cron fire time in the schedule's timezone
-// and normalizes it to UTC for storage. Mirrors next_schedule_fire in cron.py.
+// and normalizes it to UTC for storage.
 func NextScheduleFire(expression, timezoneName string, after time.Time) (time.Time, error) {
 	loc, err := time.LoadLocation(timezoneName)
 	if err != nil {

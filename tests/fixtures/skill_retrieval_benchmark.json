@@ -1,0 +1,216 @@
+{
+  "name": "skill-retrieval-frozen-v1",
+  "dataset_type": "人工标注的冻结离线回归集，不代表生产流量",
+  "skills": [
+    {
+      "id": "skill-cpu-json",
+      "category": "CPU_HOTSPOT",
+      "environment": "staging",
+      "service": "checkout-service",
+      "text": "checkout service CPU hotspot JSON serialization encoder payload",
+      "probe_order": ["start_perf_profile"]
+    },
+    {
+      "id": "skill-cpu-regex",
+      "category": "CPU_HOTSPOT",
+      "environment": "staging",
+      "service": "checkout-service",
+      "text": "checkout service CPU spike regex backtracking coupon validation pattern",
+      "probe_order": ["start_perf_profile"]
+    },
+    {
+      "id": "skill-cpu-allocator",
+      "category": "CPU_HOTSPOT",
+      "environment": "staging",
+      "service": "checkout-service",
+      "text": "checkout service allocator malloc free contention native CPU",
+      "probe_order": ["start_perf_profile"]
+    },
+    {
+      "id": "skill-io-compaction",
+      "category": "IO_LATENCY",
+      "environment": "staging",
+      "service": "order-service",
+      "text": "order service RocksDB compaction write amplification storage latency",
+      "probe_order": ["start_ebpf_io_profile"]
+    },
+    {
+      "id": "skill-io-writeback",
+      "category": "IO_LATENCY",
+      "environment": "staging",
+      "service": "order-service",
+      "text": "order service p99 fsync writeback page cache flush disk queue",
+      "probe_order": ["start_ebpf_io_profile"]
+    },
+    {
+      "id": "skill-io-read",
+      "category": "IO_LATENCY",
+      "environment": "staging",
+      "service": "order-service",
+      "text": "order service random read cache miss read amplification disk latency",
+      "probe_order": ["start_ebpf_io_profile"]
+    },
+    {
+      "id": "skill-db-pool",
+      "category": "DATABASE_LOCK",
+      "environment": "staging",
+      "service": "payment-service",
+      "text": "payment database connection pool exhausted borrow timeout waiting",
+      "probe_order": ["collect_database_diagnostics"]
+    },
+    {
+      "id": "skill-db-deadlock",
+      "category": "DATABASE_LOCK",
+      "environment": "staging",
+      "service": "payment-service",
+      "text": "payment database deadlock circular wait row lock transaction",
+      "probe_order": ["collect_database_diagnostics"]
+    },
+    {
+      "id": "skill-db-long-transaction",
+      "category": "DATABASE_LOCK",
+      "environment": "staging",
+      "service": "payment-service",
+      "text": "payment settlement batch long transaction rollback lock holder",
+      "probe_order": ["collect_database_diagnostics"]
+    },
+    {
+      "id": "skill-network-dns",
+      "category": "NETWORK_DEGRADATION",
+      "environment": "staging",
+      "service": "gateway-service",
+      "text": "gateway DNS resolution slow resolver timeout network latency",
+      "probe_order": ["collect_network_diagnostics"]
+    },
+    {
+      "id": "skill-network-packet-loss",
+      "category": "NETWORK_DEGRADATION",
+      "environment": "staging",
+      "service": "gateway-service",
+      "text": "gateway TCP packet loss retransmission dropped packets network",
+      "probe_order": ["collect_network_diagnostics"]
+    },
+    {
+      "id": "skill-network-tls",
+      "category": "NETWORK_DEGRADATION",
+      "environment": "staging",
+      "service": "gateway-service",
+      "text": "gateway TLS handshake certificate verification timeout",
+      "probe_order": ["collect_network_diagnostics"]
+    }
+  ],
+  "cases": [
+    {
+      "id": "cpu-json",
+      "category": "CPU_HOTSPOT",
+      "query": "checkout serialisation dominates processor time",
+      "target": {"environment": "staging", "service": "checkout-service"},
+      "expected_skill_id": "skill-cpu-json"
+    },
+    {
+      "id": "cpu-regex",
+      "category": "CPU_HOTSPOT",
+      "query": "coupon regex backtracking makes checkout CPU spike",
+      "target": {"environment": "staging", "service": "checkout-service"},
+      "expected_skill_id": "skill-cpu-regex"
+    },
+    {
+      "id": "cpu-allocator",
+      "category": "CPU_HOTSPOT",
+      "query": "native malloc free allocator contention on checkout",
+      "target": {"environment": "staging", "service": "checkout-service"},
+      "expected_skill_id": "skill-cpu-allocator"
+    },
+    {
+      "id": "io-compaction",
+      "category": "IO_LATENCY",
+      "query": "RocksDB background compaction creates write amplification",
+      "target": {"environment": "staging", "service": "order-service"},
+      "expected_skill_id": "skill-io-compaction"
+    },
+    {
+      "id": "io-writeback",
+      "category": "IO_LATENCY",
+      "query": "订单 P99 升高，fsync 后 write-back 队列持续堆积",
+      "target": {"environment": "staging", "service": "order-service"},
+      "expected_skill_id": "skill-io-writeback"
+    },
+    {
+      "id": "io-read",
+      "category": "IO_LATENCY",
+      "query": "random read cache miss and read amplification slow order service",
+      "target": {"environment": "staging", "service": "order-service"},
+      "expected_skill_id": "skill-io-read"
+    },
+    {
+      "id": "db-pool",
+      "category": "DATABASE_LOCK",
+      "query": "payment connection pool borrow timeout and exhausted slots",
+      "target": {"environment": "staging", "service": "payment-service"},
+      "expected_skill_id": "skill-db-pool"
+    },
+    {
+      "id": "db-deadlock",
+      "category": "DATABASE_LOCK",
+      "query": "payment row lock circular wait deadlock detected",
+      "target": {"environment": "staging", "service": "payment-service"},
+      "expected_skill_id": "skill-db-deadlock"
+    },
+    {
+      "id": "db-long-transaction",
+      "category": "DATABASE_LOCK",
+      "query": "settlement batch transaction remains open and owns rollback lock",
+      "target": {"environment": "staging", "service": "payment-service"},
+      "expected_skill_id": "skill-db-long-transaction"
+    },
+    {
+      "id": "network-dns",
+      "category": "NETWORK_DEGRADATION",
+      "query": "gateway resolver DNS lookup is slow and times out",
+      "target": {"environment": "staging", "service": "gateway-service"},
+      "expected_skill_id": "skill-network-dns"
+    },
+    {
+      "id": "network-loss",
+      "category": "NETWORK_DEGRADATION",
+      "query": "TCP retransmission rises with packet loss at gateway",
+      "target": {"environment": "staging", "service": "gateway-service"},
+      "expected_skill_id": "skill-network-packet-loss"
+    },
+    {
+      "id": "network-tls",
+      "category": "NETWORK_DEGRADATION",
+      "query": "certificate verify fails during TLS handshake",
+      "target": {"environment": "staging", "service": "gateway-service"},
+      "expected_skill_id": "skill-network-tls"
+    },
+    {
+      "id": "negative-cpu-network",
+      "category": "CPU_HOTSPOT",
+      "query": "checkout upstream returns 502 after route policy change",
+      "target": {"environment": "staging", "service": "checkout-service"},
+      "expected_skill_id": null
+    },
+    {
+      "id": "negative-io-runtime",
+      "category": "IO_LATENCY",
+      "query": "order JVM full collection pause after class loading",
+      "target": {"environment": "staging", "service": "order-service"},
+      "expected_skill_id": null
+    },
+    {
+      "id": "negative-db-cpu",
+      "category": "DATABASE_LOCK",
+      "query": "payment JSON serialization burns application CPU",
+      "target": {"environment": "staging", "service": "payment-service"},
+      "expected_skill_id": null
+    },
+    {
+      "id": "negative-network-storage",
+      "category": "NETWORK_DEGRADATION",
+      "query": "gateway disk inode metadata scan consumes IOPS",
+      "target": {"environment": "staging", "service": "gateway-service"},
+      "expected_skill_id": null
+    }
+  ]
+}

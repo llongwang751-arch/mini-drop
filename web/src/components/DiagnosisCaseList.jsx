@@ -1,7 +1,7 @@
 import { Alert, Button, Empty, List, Segmented, Space, Tag, Tooltip, Typography } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
-const { Text } = Typography;
+const { Paragraph, Text } = Typography;
 
 export const CASE_FILTERS = [
   { label: "进行中", value: "active" },
@@ -22,12 +22,6 @@ const STATUS_META = {
   FAILED: ["red", "失败"],
   CANCELLED: ["default", "已取消"],
   UNKNOWN: ["default", "状态未知"],
-};
-
-const SOURCE_LABELS = {
-  drop_insight_v2: "Drop Insight",
-  cluster_diagnosis_v1: "集群诊断",
-  legacy_rca: "任务 RCA",
 };
 
 export function caseMatchesFilter(item, filter) {
@@ -86,6 +80,7 @@ export default function DiagnosisCaseList({
         renderItem={(item) => {
           const active = item.selection_key === selectedKey;
           const [statusColor, statusLabel] = STATUS_META[item.canonical_status] || STATUS_META.UNKNOWN;
+          const query = item.query || item.case_id || "未命名诊断";
           return (
             <List.Item className={active ? "diagnosis-case-row is-selected" : "diagnosis-case-row"}>
               <button
@@ -94,12 +89,15 @@ export default function DiagnosisCaseList({
                 aria-current={active ? "true" : undefined}
                 onClick={() => onSelect(item)}
               >
-                <Text ellipsis className="diagnosis-case-query">
-                  {item.query || item.case_id || "未命名诊断"}
-                </Text>
+                <Paragraph
+                  className="diagnosis-case-query"
+                  ellipsis={{ rows: 2, tooltip: query }}
+                >
+                  {query}
+                </Paragraph>
                 <Space size={[4, 4]} wrap>
                   <Tag color={statusColor}>{statusLabel}</Tag>
-                  <Tag>{SOURCE_LABELS[item.source] || item.source || "未知来源"}</Tag>
+                  <Tag>Drop Insight V2</Tag>
                 </Space>
                 <Text type="secondary" className="diagnosis-case-time">
                   {displayTime(item.updated_at || item.created_at)}

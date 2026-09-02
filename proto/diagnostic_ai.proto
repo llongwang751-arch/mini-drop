@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package mini_drop;
+
+option go_package = "mini-drop/apiserver/internal/gen/mini_drop;mini_drop";
+
+// DiagnosticAI is an internal-only boundary between the Go HTTP control plane
+// and the Python diagnosis worker. The browser never talks to this service.
+// Domain payloads stay JSON because diagnosis/Skill schemas evolve faster than
+// the stable collection protocol; method/path routing remains owned by Go.
+service DiagnosticAI {
+  rpc Invoke(DiagnosticAIRequest) returns (DiagnosticAIResponse);
+}
+
+message DiagnosticAIRequest {
+  string method = 1;
+  string path = 2;
+  string query = 3;
+  string body_json = 4;
+  string principal = 5;
+}
+
+message DiagnosticAIResponse {
+  int32 status_code = 1;
+  string body_json = 2;
+}

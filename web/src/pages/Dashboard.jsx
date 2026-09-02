@@ -39,7 +39,7 @@ import {
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { healthz, listAgents, listTasks, deleteTask, cancelTask } from "../api/client";
-import NLPTaskInput from "../components/NLPTaskInput";
+import TaskCreatePanel from "../components/TaskCreatePanel";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
 import usePolling from "../hooks/usePolling";
@@ -331,7 +331,7 @@ export default function Dashboard() {
         render: (_, record) => (
           <Space size={4} wrap>
             <StatusTag status={record.collection_status || record.status} />
-            <StatusTag status={record.analysis_status || "NOT_STARTED"} />
+            <StatusTag status={record.analysis_status || "PENDING"} />
           </Space>
         ),
       },
@@ -498,7 +498,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── NLP 输入 ──────────────────────────────────────── */}
-      <NLPTaskInput
+      <TaskCreatePanel
         onTaskCreated={(taskId) => {
           refresh();
           navigate(`/task/${taskId}`);

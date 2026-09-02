@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+import math
+import re
+from collections import Counter
 from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from sqlalchemy import func
-
 from server.app.database import new_session
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.models import (
@@ -42,6 +44,68 @@ _CAMPAIGN_SOURCE_TOOL = {
     "jvm": "start_jvm_profile",
 }
 _MATCH_THRESHOLD = 700
+_HYBRID_MATCH_THRESHOLD = 0.35
+_HYBRID_MIN_MARGIN = 0.04
+_RELIABILITY_PRIOR_SUCCESSES = 2.0
+_RELIABILITY_PRIOR_FAILURES = 2.0
+_TOKEN_RE = re.compile(r"[a-z0-9_]+|[\u4e00-\u9fff]+", re.IGNORECASE)
+_SEARCH_STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "for",
+    "in",
+    "is",
+    "of",
+    "on",
+    "the",
+    "to",
+    "with",
+    "出现",
+    "发生",
+    "异常",
+    "问题",
+}
+_VECTOR_CONCEPTS = {
+    "cpu": "compute",
+    "hotspot": "compute",
+    "火焰图": "compute",
+    "热点": "compute",
+    "busyloop": "compute",
+    "p99": "latency",
+    "latency": "latency",
+    "尾延迟": "latency",
+    "延迟": "latency",
+    "slow": "latency",
+    "io": "storage",
+    "iops": "storage",
+    "disk": "storage",
+    "磁盘": "storage",
+    "writeback": "storage",
+    "fsync": "storage",
+    "lock": "lock",
+    "mutex": "lock",
+    "futex": "lock",
+    "锁": "lock",
+    "锁等": "lock",
+    "等待": "wait",
+    "queue": "wait",
+    "排队": "wait",
+    "pool": "pool",
+    "连接池": "pool",
+    "connection": "pool",
+    "gc": "runtime",
+    "gil": "runtime",
+    "python": "runtime",
+    "jvm": "runtime",
+    "serialisation": "serialization",
+    "serialization": "serialization",
+    "network": "network",
+    "tcp": "network",
+    "网络": "network",
+    "timeout": "timeout",
+    "超时": "timeout",
+}
 _GENERIC_ROUTE_CATEGORIES = {"SYSTEM_RESOURCE"}
 _SUBSYSTEM_CATEGORY = {
     "cpu": "CPU_HOTSPOT",
@@ -57,7 +121,9 @@ _TOOL_REQUIRED_CAPABILITIES = {
     "start_perf_profile": {"perf_cpu"},
     "start_ebpf_io_profile": {"ebpf_io"},
     "start_pyspy_profile": {"pyspy"},
+    "start_jvm_profile": {"java_async"},
     "collect_database_diagnostics": {"database_lock"},
+    "collect_network_diagnostics": {"network_diagnostics"},
 }
 
 
@@ -352,6 +418,271 @@ def _match_score(skill: DiagnosticSkillModel, category: str, target: dict) -> tu
     return min(score, 1000), reasons
 
 
+def _tokenize_search_text(value: object) -> list[str]:
+    """Tokenize mixed Chinese/English incident text for local retrieval."""
+    tokens: list[str] = []
+    for part in _TOKEN_RE.findall(str(value or "").lower()):
+        if re.fullmatch(r"[\u4e00-\u9fff]+", part):
+            if len(part) == 1:
+                tokens.append(part)
+            else:
+                tokens.extend(part[index : index + 2] for index in range(len(part) - 1))
+                if len(part) <= 8:
+                    tokens.append(part)
+        else:
+            tokens.append(part)
+    return [item for item in tokens if item and item not in _SEARCH_STOPWORDS]
+
+
+def _skill_search_text(skill: DiagnosticSkillModel) -> str:
+    trigger = skill.trigger_json or {}
+    strategy = skill.strategy_json or {}
+    values: list[object] = [
+        trigger.get("source_query"),
+        " ".join(trigger.get("query_terms") or []),
+        trigger.get("service"),
+        skill.category,
+        " ".join(strategy.get("probe_order") or []),
+        " ".join(strategy.get("symptoms") or []),
+    ]
+    exploration = strategy.get("actual_exploration") or {}
+    for node in exploration.get("nodes") or []:
+        values.extend((node.get("label"), node.get("reason")))
+    return " ".join(str(item or "") for item in values)
+
+
+def _bm25_scores(query_tokens: list[str], documents: list[list[str]]) -> list[float]:
+    if not query_tokens or not documents:
+        return [0.0 for _ in documents]
+    document_count = len(documents)
+    average_length = sum(len(item) for item in documents) / max(document_count, 1)
+    document_frequency = Counter()
+    for document in documents:
+        document_frequency.update(set(document))
+    query_frequency = Counter(query_tokens)
+    raw_scores: list[float] = []
+    for document in documents:
+        frequencies = Counter(document)
+        score = 0.0
+        for token, query_count in query_frequency.items():
+            frequency = frequencies.get(token, 0)
+            if frequency == 0:
+                continue
+            inverse_document_frequency = math.log(
+                1 + (document_count - document_frequency[token] + 0.5)
+                / (document_frequency[token] + 0.5)
+            )
+            denominator = frequency + 1.5 * (
+                1 - 0.75 + 0.75 * len(document) / max(average_length, 1)
+            )
+            score += query_count * inverse_document_frequency * frequency * 2.5 / denominator
+        raw_scores.append(score)
+    # Saturate each score independently. Normalizing by the best candidate
+    # made confidence change whenever an unrelated Skill entered the catalog.
+    return [1.0 - math.exp(-item) for item in raw_scores]
+
+
+def _vector_features(tokens: list[str]) -> Counter[str]:
+    """Build deterministic lexical n-gram and domain-concept features.
+
+    This is not a neural embedding. It is a local feature-vector backend that
+    tolerates punctuation, spelling variants and bounded diagnosis synonyms.
+    """
+    features: Counter[str] = Counter()
+    compact_ascii = "".join(token for token in tokens if token.isascii())
+    for token in tokens:
+        features[f"token:{token}"] += 1.0
+        concept = _VECTOR_CONCEPTS.get(token)
+        if concept:
+            features[f"concept:{concept}"] += 3.0
+        if token.isascii() and len(token) >= 4:
+            normalized = re.sub(r"[^a-z0-9]", "", token)
+            for width in (3, 4):
+                for index in range(max(0, len(normalized) - width + 1)):
+                    features[f"char:{normalized[index:index + width]}"] += 0.35
+    # Joining ASCII tokens lets write-back/writeback and similar punctuation
+    # variants meet in vector space without weakening BM25 exact matching.
+    if compact_ascii:
+        for width in (3, 4):
+            for index in range(max(0, len(compact_ascii) - width + 1)):
+                features[f"compact:{compact_ascii[index:index + width]}"] += 0.15
+    return features
+
+
+def _hashed_vector(features: Counter[str], dimensions: int = 512) -> list[float]:
+    """Create a deterministic signed-hashing vector from weighted features."""
+    vector = [0.0] * dimensions
+    for feature, weight in features.items():
+        digest = hashlib.sha256(feature.encode("utf-8")).digest()
+        index = int.from_bytes(digest[:4], "big") % dimensions
+        sign = 1.0 if digest[4] & 1 else -1.0
+        vector[index] += sign * weight
+    norm = math.sqrt(sum(item * item for item in vector))
+    return [item / norm for item in vector] if norm else vector
+
+
+def _vector_similarity(left: list[str], right: list[str]) -> float:
+    if not left or not right:
+        return 0.0
+    left_vector = _hashed_vector(_vector_features(left))
+    right_vector = _hashed_vector(_vector_features(right))
+    return max(0.0, min(1.0, sum(a * b for a, b in zip(left_vector, right_vector))))
+
+
+def _rank_hybrid_skills(
+    skills: list[DiagnosticSkillModel], category: str, target: dict, query: str
+) -> list[tuple[float, dict, DiagnosticSkillModel]]:
+    """Hard-filter incompatible Skills, then rank by BM25 + vector + context."""
+    query_tokens = _tokenize_search_text(query)
+    eligible: list[tuple[DiagnosticSkillModel, int, dict, list[str], bool]] = []
+    baseline_tool = str(target.get("_baseline_tool") or "")
+    for skill in skills:
+        context_score, reasons = _match_score(skill, category, target)
+        if context_score < _MATCH_THRESHOLD:
+            continue
+        compatible, conflict = _route_compatible(category, baseline_tool, target)
+        if not compatible:
+            continue
+        route = (skill.strategy_json or {}).get("probe_order") or []
+        if not any(_tool_available(tool_name, target) for tool_name in route):
+            continue
+        trigger = skill.trigger_json or {}
+        has_retrieval_document = bool(trigger.get("source_query") or trigger.get("query_terms"))
+        eligible.append(
+            (
+                skill,
+                context_score,
+                {**reasons, **conflict},
+                _tokenize_search_text(_skill_search_text(skill)),
+                has_retrieval_document,
+            )
+        )
+    if not eligible:
+        return []
+
+    documents = [item[3] for item in eligible]
+    bm25 = _bm25_scores(query_tokens, documents)
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]] = []
+    for index, (skill, context_score, reasons, document_tokens, has_retrieval_document) in enumerate(eligible):
+        vector_score = _vector_similarity(query_tokens, document_tokens)
+        context = context_score / 1000
+        has_text_signal = bool(query_tokens and document_tokens and has_retrieval_document)
+        score = (
+            0.30 * context + 0.45 * bm25[index] + 0.25 * vector_score
+            if has_text_signal
+            else context
+        )
+        matched_terms = sorted(set(query_tokens).intersection(document_tokens))[:12]
+        ranked.append(
+            (
+                score,
+                {
+                    **reasons,
+                    "retrieval": "HYBRID_BM25_VECTOR" if has_text_signal else "STRUCTURED_FALLBACK",
+                    "bm25": round(bm25[index], 4),
+                    "vector": round(vector_score, 4),
+                    "vector_backend": "HASHED_NGRAM_CONCEPT_VECTOR",
+                    "structured": round(context, 4),
+                    "matched_terms": matched_terms,
+                },
+                skill,
+            )
+        )
+    return sorted(ranked, key=lambda item: (-item[0], item[2].id))
+
+
+def _select_ranked_skill(
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]],
+) -> tuple[float, dict, DiagnosticSkillModel] | None:
+    """Apply the production confidence and ambiguity gates to a ranking."""
+    if not ranked or ranked[0][0] < _HYBRID_MATCH_THRESHOLD:
+        return None
+    if len(ranked) > 1 and ranked[0][1].get("retrieval") == "HYBRID_BM25_VECTOR":
+        total_margin = ranked[0][0] - ranked[1][0]
+        bm25_margin = float(ranked[0][1].get("bm25") or 0) - float(
+            ranked[1][1].get("bm25") or 0
+        )
+        vector_margin = float(ranked[0][1].get("vector") or 0) - float(
+            ranked[1][1].get("vector") or 0
+        )
+        if (
+            total_margin < _HYBRID_MIN_MARGIN
+            and bm25_margin < 0.08
+            and vector_margin < 0.08
+        ):
+            return None
+    return ranked[0]
+
+
+def _activation_summary(activations: list[DiagnosticSkillActivationModel]) -> dict:
+    """Summarize real reuse outcomes without treating missing feedback as success.
+
+    A small Beta prior keeps one early label from dominating retrieval. PARTIAL is
+    worth half a success; pending activations affect coverage but not reliability.
+    """
+    counts = Counter(str(item.outcome or "PENDING").upper() for item in activations)
+    total = len(activations)
+    correct = counts["CORRECT"]
+    partial = counts["PARTIAL"]
+    wrong = counts["WRONG"]
+    labeled = correct + partial + wrong
+    posterior = (
+        _RELIABILITY_PRIOR_SUCCESSES + correct + 0.5 * partial
+    ) / (
+        _RELIABILITY_PRIOR_SUCCESSES
+        + _RELIABILITY_PRIOR_FAILURES
+        + labeled
+    )
+    return {
+        "activation_count": total,
+        "labeled_outcome_count": labeled,
+        "pending_outcome_count": total - labeled,
+        "correct_outcome_count": correct,
+        "partial_outcome_count": partial,
+        "wrong_outcome_count": wrong,
+        "outcome_coverage": round(labeled / total, 4) if total else 0.0,
+        "observed_success_rate": round(
+            (correct + 0.5 * partial) / labeled, 4
+        ) if labeled else None,
+        "posterior_reliability": round(posterior, 4),
+    }
+
+
+def _rank_with_observed_reliability(
+    ranked: list[tuple[float, dict, DiagnosticSkillModel]],
+    activations: list[DiagnosticSkillActivationModel],
+) -> list[tuple[float, dict, DiagnosticSkillModel]]:
+    """Let production outcomes break close retrieval ties conservatively.
+
+    Text/context similarity still decides whether a Skill is relevant. The
+    reliability factor only nudges eligible candidates by at most +/-20% and
+    therefore cannot bypass category, environment, route or capability gates.
+    """
+    by_skill: dict[str, list[DiagnosticSkillActivationModel]] = {}
+    for activation in activations:
+        by_skill.setdefault(activation.skill_id, []).append(activation)
+    adjusted = []
+    for retrieval_score, reason, skill in ranked:
+        summary = _activation_summary(by_skill.get(skill.id, []))
+        labeled = summary["labeled_outcome_count"]
+        reliability = summary["posterior_reliability"]
+        factor = 1.0 if not labeled else 0.8 + 0.4 * reliability
+        score = retrieval_score * factor
+        adjusted.append((
+            score,
+            {
+                **reason,
+                "retrieval_score_before_reliability": round(retrieval_score, 4),
+                "reliability_factor": round(factor, 4),
+                "posterior_reliability": reliability,
+                "outcome_coverage": summary["outcome_coverage"],
+                "observed_outcomes": labeled,
+            },
+            skill,
+        ))
+    return sorted(adjusted, key=lambda item: (-item[0], item[2].id))
+
+
 def list_skills(*, include_retired: bool = True) -> list[dict]:
     session = new_session()
     try:
@@ -362,27 +693,14 @@ def list_skills(*, include_retired: bool = True) -> list[dict]:
             DiagnosticSkillModel.updated_at.desc(), DiagnosticSkillModel.version.desc()
         ).all()
         activations = session.query(DiagnosticSkillActivationModel).all()
-        activation_stats: dict[str, dict[str, int]] = {}
+        activations_by_skill: dict[str, list[DiagnosticSkillActivationModel]] = {}
         for activation in activations:
-            stats = activation_stats.setdefault(
-                activation.skill_id,
-                {"activation_count": 0, "correct_outcome_count": 0, "wrong_outcome_count": 0},
-            )
-            stats["activation_count"] += 1
-            if activation.outcome == "CORRECT":
-                stats["correct_outcome_count"] += 1
-            elif activation.outcome == "WRONG":
-                stats["wrong_outcome_count"] += 1
+            activations_by_skill.setdefault(activation.skill_id, []).append(activation)
 
         result = []
         for item in rows:
             payload = item.to_dict()
-            payload.update(
-                activation_stats.get(
-                    item.id,
-                    {"activation_count": 0, "correct_outcome_count": 0, "wrong_outcome_count": 0},
-                )
-            )
+            payload.update(_activation_summary(activations_by_skill.get(item.id, [])))
             result.append(payload)
         return result
     finally:
@@ -411,6 +729,11 @@ def get_skill(skill_id: str) -> dict | None:
             .limit(20)
             .all()
         ]
+        result["reuse_metrics"] = _activation_summary(
+            session.query(DiagnosticSkillActivationModel)
+            .filter(DiagnosticSkillActivationModel.skill_id == skill_id)
+            .all()
+        )
         return result
     finally:
         session.close()
@@ -503,7 +826,8 @@ def create_candidate_from_diagnosis(diagnosis_id: str, *, created_by: str) -> di
             trigger_json={
                 "environment": target.get("environment") or "*",
                 "service": target.get("service") or "",
-                "query_terms": sorted(set(diagnosis.query.lower().split()))[:20],
+                "source_query": diagnosis.query,
+                "query_terms": list(dict.fromkeys(_tokenize_search_text(diagnosis.query)))[:80],
             },
             strategy_json={
                 "probe_order": route,
@@ -705,13 +1029,23 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
             DiagnosticSkillModel.status == "ACTIVE",
             DiagnosticSkillModel.category == category,
         ).all()
-        ranked = sorted(
-            ((_match_score(skill, category, target), skill) for skill in skills),
-            key=lambda item: item[0][0], reverse=True,
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        query = diagnosis.query if diagnosis is not None else str(target.get("query") or "")
+        ranking_target = {**target, "_baseline_tool": baseline_tool}
+        ranked = _rank_hybrid_skills(skills, category, ranking_target, query)
+        skill_ids = [item[2].id for item in ranked]
+        historical_activations = (
+            session.query(DiagnosticSkillActivationModel)
+            .filter(DiagnosticSkillActivationModel.skill_id.in_(skill_ids))
+            .all()
+            if skill_ids else []
         )
-        if not ranked or ranked[0][0][0] < _MATCH_THRESHOLD:
+        ranked = _rank_with_observed_reliability(ranked, historical_activations)
+        selected = _select_ranked_skill(ranked)
+        if selected is None:
             return None
-        (score, reasons), skill = ranked[0]
+        score_value, reasons, skill = selected
+        score = int(round(score_value * 1000))
         route = (skill.strategy_json or {}).get("probe_order") or []
         completed_tools = {
             item[0]
@@ -733,6 +1067,12 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
         if selected_tool is None:
             return None
         timestamp = _now()
+        application = {
+            "baseline_tool": baseline_tool,
+            "selected_tool": selected_tool,
+            "completed_route_tools": sorted(completed_tools),
+            "applied_at": timestamp.isoformat(),
+        }
         activation = DiagnosticSkillActivationModel(
             id=f"skill_activation_{uuid4().hex}", skill_id=skill.id,
             diagnosis_id=diagnosis_id, match_score=score,
@@ -741,17 +1081,21 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
                 "route": route,
                 "skill_version": skill.version,
                 "completed_route_tools": sorted(completed_tools),
+                "applications": [application],
             },
             baseline_tool=baseline_tool, selected_tool=selected_tool,
             created_at=timestamp, updated_at=timestamp,
         )
         existing = session.query(DiagnosticSkillActivationModel).filter(
-            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id
+            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id,
+            DiagnosticSkillActivationModel.skill_id == skill.id,
         ).first()
         if existing is None:
             session.add(activation)
             session.commit()
         else:
+            previous_reason = dict(existing.match_reason_json or {})
+            applications = list(previous_reason.get("applications") or [])
             existing.match_score = score
             existing.match_reason_json = {
                 **reasons,
@@ -759,7 +1103,10 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
                 "skill_version": skill.version,
                 "completed_route_tools": sorted(completed_tools),
                 "current_selected_tool": selected_tool,
+                "applications": [*applications[-19:], application],
             }
+            existing.baseline_tool = baseline_tool
+            existing.selected_tool = selected_tool
             existing.updated_at = timestamp
             session.commit()
         plan["tool_name"] = selected_tool
@@ -779,31 +1126,37 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
 def record_activation_outcome(diagnosis_id: str, feedback_label: str) -> None:
     session = new_session()
     try:
-        activation = session.query(DiagnosticSkillActivationModel).filter(
+        activations = session.query(DiagnosticSkillActivationModel).filter(
             DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id
-        ).first()
-        if activation is None:
+        ).all()
+        if not activations:
             return
-        activation.outcome = feedback_label.upper()
-        activation.updated_at = _now()
+        timestamp = _now()
+        for activation in activations:
+            activation.outcome = feedback_label.upper()
+            activation.updated_at = timestamp
         session.commit()
-        total = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-            DiagnosticSkillActivationModel.skill_id == activation.skill_id,
-            DiagnosticSkillActivationModel.outcome.isnot(None),
-        ).scalar() or 0
-        wrong = session.query(func.count(DiagnosticSkillActivationModel.id)).filter(
-            DiagnosticSkillActivationModel.skill_id == activation.skill_id,
-            DiagnosticSkillActivationModel.outcome == "WRONG",
-        ).scalar() or 0
-        if total >= 2 and wrong >= 2 and wrong / total >= 0.5:
-            skill = session.get(DiagnosticSkillModel, activation.skill_id)
-            if skill is not None and skill.status == "ACTIVE":
+        for skill_id in {item.skill_id for item in activations}:
+            skill_activations = session.query(DiagnosticSkillActivationModel).filter(
+                DiagnosticSkillActivationModel.skill_id == skill_id
+            ).all()
+            summary = _activation_summary(skill_activations)
+            total = summary["labeled_outcome_count"]
+            wrong = summary["wrong_outcome_count"]
+            skill = session.get(DiagnosticSkillModel, skill_id)
+            if skill is not None:
                 metrics = dict(skill.gate_metrics_json or {})
-                metrics.update({"negative_transfer_count": wrong, "observed_outcomes": total})
+                metrics["production_reuse"] = summary
                 skill.gate_metrics_json = metrics
-                skill.status = "QUARANTINED"
                 skill.updated_at = _now()
-                session.commit()
+            if total >= 2 and wrong >= 2 and wrong / total >= 0.5:
+                if skill is not None and skill.status == "ACTIVE":
+                    metrics = dict(skill.gate_metrics_json or {})
+                    metrics.update({"negative_transfer_count": wrong, "observed_outcomes": total})
+                    skill.gate_metrics_json = metrics
+                    skill.status = "QUARANTINED"
+                    skill.updated_at = _now()
+        session.commit()
     finally:
         session.close()
 

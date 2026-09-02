@@ -1,0 +1,53 @@
+flowchart LR
+    classDef client fill:#EEF6FF,stroke:#2563EB,color:#172033,stroke-width:2px
+    classDef core fill:#EAFBF4,stroke:#0F8A61,color:#172033,stroke-width:2px
+    classDef compat fill:#FFF7E8,stroke:#D89016,color:#172033,stroke-width:2px
+    classDef data fill:#F5F2FF,stroke:#7557C8,color:#172033,stroke-width:2px
+    classDef target fill:#F7F8FA,stroke:#667085,color:#172033,stroke-width:2px
+
+    subgraph UX["访问与展示"]
+        U["用户浏览器"]:::client
+        WEB["React Web<br/>任务、诊断、探索树、结果"]:::client
+        NGINX["Nginx<br/>静态资源与反向代理"]:::client
+        U --> WEB --> NGINX
+    end
+
+    subgraph ENTRY["统一入口与编排"]
+        GO["Go API<br/>鉴权、TaskKind、Agent/PID 校验<br/>任务 API、SSE、产物授权"]:::core
+        PY["Python API / AI Orchestrator<br/>兼容写接口、诊断循环、证据门禁<br/>Skill 与知识检索"]:::compat
+    end
+
+    subgraph NATIVE["原生采集控制面"]
+        CTRL["C++ Control<br/>Agent 注册、心跳、任务队列<br/>取消、结果回调"]:::core
+        AGENT["C++ Agent<br/>Collector Registry、资源限制<br/>进程快照、采集、上传"]:::core
+        HOST["宿主机 / 容器 / 目标进程<br/>perf · eBPF · py-spy · pprof"]:::target
+    end
+
+    subgraph ANALYSIS["离线分析"]
+        WORKER["Python Analyzer Worker<br/>租约领取、解析、报告生成"]:::compat
+    end
+
+    subgraph DATA["持久化与知识"]
+        PG[("PostgreSQL<br/>状态、事件、证据、Skill 元数据")]:::data
+        OBJ[("COS / MinIO<br/>原始制品与分析产物")]:::data
+        KB[("静态诊断知识库<br/>knowledge/")]:::data
+        SK[("版本化 Skill 库<br/>候选、评测、发布、回滚")]:::data
+        LLM["可选 LLM Provider<br/>受约束规划与生成"]:::data
+    end
+
+    NGINX -->|"HTTPS / JSON / SSE"| GO
+    GO -->|"原生任务读写与查询"| PG
+    GO -->|"mTLS gRPC"| CTRL
+    GO -. "白名单兼容路由" .-> PY
+    CTRL <-->|"mTLS gRPC<br/>注册、心跳、拉取、上报"| AGENT
+    AGENT -->|"受控系统调用"| HOST
+    AGENT -->|"上传 RAW / MANIFEST"| OBJ
+    CTRL -->|"状态、尝试、审计"| PG
+    PY --> PG
+    PY --> KB
+    PY --> SK
+    PY -. "可选函数调用" .-> LLM
+    WORKER -->|"领取 AnalysisJob"| PG
+    WORKER <-->|"下载 RAW / 上传 RESULT"| OBJ
+    GO -->|"短期预签名 URL"| OBJ
+    GO -->|"状态事件"| NGINX

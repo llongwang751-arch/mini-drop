@@ -5,11 +5,8 @@ import (
 	"time"
 )
 
-// Expected values are snapshots generated from server/app/cron.py (the single
-// source of truth). Regenerate with:
-//   python -c "from server.app.cron import next_schedule_fire; ..."
-// when cron.py semantics change.
-func TestNextScheduleFireParityWithPython(t *testing.T) {
+// Expected values lock the Go-owned schedule semantics.
+func TestNextScheduleFire(t *testing.T) {
 	utc := time.UTC
 	cases := []struct {
 		name       string

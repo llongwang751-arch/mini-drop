@@ -14,12 +14,9 @@ import {
 import {
   BranchesOutlined,
   ExperimentOutlined,
-  LineChartOutlined,
   ReadOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import CampaignPanel from "./CampaignPanel";
-import RealWorldBenchmarkPanel from "./RealWorldBenchmarkPanel";
 import SkillEvolutionPanel from "./SkillEvolutionPanel";
 import "./EvalPanel.css";
 
@@ -27,9 +24,7 @@ const { Paragraph, Text, Title } = Typography;
 
 const NAV_ITEMS = [
   { label: "评测总览", value: "overview", icon: <ReadOutlined /> },
-  { label: "真实故障", value: "campaign", icon: <ExperimentOutlined /> },
   { label: "Skill 广场", value: "skills", icon: <BranchesOutlined /> },
-  { label: "产品对照", value: "comparison", icon: <LineChartOutlined /> },
 ];
 
 const DIAGNOSIS_STEPS = [
@@ -71,17 +66,16 @@ function OverviewPanel() {
 
       <Card className="eval-plan-card" title="当前验证体系">
         <Row gutter={[24, 18]}>
-          <Col xs={12} lg={6}><Statistic title="真实故障类型" value={4} suffix="类" /></Col>
-          <Col xs={12} lg={6}><Statistic title="参考诊断 Skill" value={8} suffix="个" /></Col>
-          <Col xs={12} lg={6}><Statistic title="Skill 独立难例" value={15} suffix="个" /></Col>
-          <Col xs={12} lg={6}><Statistic title="产品对照对象" value={4} suffix="个" /></Col>
+          <Col xs={12} lg={8}><Statistic title="参考诊断 Skill" value={8} suffix="个" /></Col>
+          <Col xs={12} lg={8}><Statistic title="Skill 独立难例" value={15} suffix="个" /></Col>
+          <Col xs={12} lg={8}><Statistic title="证据门禁" value={3} suffix="类" /></Col>
         </Row>
         <Alert
           className="eval-plan-note"
           type="warning"
           showIcon
           message="回归分数不等于线上正确率"
-          description="页面只保留当前真实故障、Skill 独立难例和同条件产品对照。旧版 10 条静态目录已下线，不再参与展示或请求。"
+          description="页面只展示 Drop Insight V2 的真实诊断过程和 Skill 独立难例。旧版 Campaign、产品对照与静态目录均已下线。"
         />
       </Card>
     </Space>
@@ -91,7 +85,6 @@ function OverviewPanel() {
 export default function EvalPanel() {
   const [section, setSection] = useState("overview");
   const [skillPlazaOpen, setSkillPlazaOpen] = useState(false);
-  const [comparisonOpen, setComparisonOpen] = useState(false);
 
   return (
     <div className="eval-center">
@@ -118,17 +111,12 @@ export default function EvalPanel() {
             setSkillPlazaOpen(true);
             return;
           }
-          if (value === "comparison") {
-            setComparisonOpen(true);
-            return;
-          }
           setSection(value);
         }}
       />
 
       <main className="eval-center-content">
         {section === "overview" && <OverviewPanel />}
-        {section === "campaign" && <CampaignPanel />}
       </main>
       <Modal
         className="skill-plaza-modal"
@@ -141,18 +129,6 @@ export default function EvalPanel() {
         destroyOnHidden
       >
         <SkillEvolutionPanel />
-      </Modal>
-      <Modal
-        className="product-comparison-modal"
-        title="成熟产品与开源项目对照"
-        open={comparisonOpen}
-        onCancel={() => setComparisonOpen(false)}
-        footer={null}
-        width="min(96vw, 1560px)"
-        style={{ top: 20 }}
-        destroyOnHidden
-      >
-        <RealWorldBenchmarkPanel />
       </Modal>
     </div>
   );

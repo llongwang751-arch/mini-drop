@@ -21,8 +21,13 @@ jobs:
           pip install -e ".[dev]"
       - name: Tests
         run: python -m pytest tests -q
+      - name: Generated contract drift
+        run: |
+          python scripts/generate_taskkind_contracts.py --check
+          python scripts/generate_status_contracts.py --check
+          python scripts/generate_error_code_contracts.py --check
       - name: Lint (compileall)
-        run: python -m compileall -q server agent analyzer
+        run: python -m compileall -q server analyzer
 
   go:
     name: Go (apiserver)

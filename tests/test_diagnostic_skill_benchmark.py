@@ -533,7 +533,60 @@ def test_offline_benchmark_reports_baseline_and_skill_enabled_contracts():
     assert result["baseline"]["passed"] == 6
     assert result["skill_enabled"]["passed"] == 15
     assert result["delta"]["pass_rate"] > 0
+    assert result["delta"]["pass_rate_percentage_points"] == 60.0
     assert result["delta"]["average_tool_call_count"] < 0
+
+    claim = result["claim_card"]
+    assert claim["metric_name"] == "offline_route_and_lifecycle_contract_pass_rate"
+    assert claim["baseline"] == {
+        "passed": 6,
+        "total": 15,
+        "rate": 0.4,
+        "percent": 40.0,
+    }
+    assert claim["skill_enabled"] == {
+        "passed": 15,
+        "total": 15,
+        "rate": 1.0,
+        "percent": 100.0,
+    }
+    assert claim["delta"] == {"rate": 0.6, "percentage_points": 60.0}
+    assert claim["measurement_boundary"] == {
+        "root_cause_accuracy": "NOT_MEASURED",
+        "diagnosis_duration_ms": "NOT_MEASURED",
+        "tool_call_count": "PROJECTED",
+    }
+    assert "40.00% 提升到 100.00%" in claim["supported_claim"]
+    assert "not the current production planner" in claim["baseline_boundary"]
+
+    design = result["comparison_design"]
+    assert design["design"] == "PAIRED_FROZEN_OFFLINE_CASES"
+    assert design["baseline_policy"] == "GENERIC_TRIAGE_REFERENCE_V1"
+    assert design["baseline_is_current_production_planner"] is False
+
+    paired = result["paired_evidence"]
+    assert paired["paired_case_count"] == 15
+    assert paired["improved"] == 9
+    assert paired["regressed"] == 0
+    assert paired["unchanged"] == 6
+    assert paired["paired_test"] == {
+        "status": "MEASURED",
+        "method": "EXACT_PAIRED_SIGN_TEST",
+        "discordant_pairs": 9,
+        "p_value_two_sided": 0.00390625,
+    }
+    assert 0.19 < paired["baseline_pass_rate_interval"]["lower"] < 0.20
+    assert 0.64 < paired["baseline_pass_rate_interval"]["upper"] < 0.65
+    assert 0.79 < paired["skill_pass_rate_interval"]["lower"] < 0.80
+    assert paired["skill_pass_rate_interval"]["upper"] == 1.0
+    assert paired["family_breakdown"]["SIMILAR_INCIDENT"] == {
+        "total": 5,
+        "baseline_passed": 0,
+        "skill_passed": 5,
+        "improved": 5,
+        "regressed": 0,
+        "unchanged": 0,
+    }
 
     metrics = result["skill_enabled"]["metrics"]
     assert metrics["root_cause_accuracy"]["status"] == "NOT_MEASURED"

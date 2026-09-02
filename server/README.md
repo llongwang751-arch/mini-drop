@@ -1,5 +1,9 @@
-# Python 兼容控制面、分析与 AI
+# Python Workers
 
-本目录承担尚未迁移的 FastAPI/gRPC 接口、SQLAlchemy 数据模型、状态机、Analyzer Worker、自然语言解析和循证 AI 诊断。
+`server/` 只包含 Python 后台 Worker，不提供公开 HTTP 服务。
 
-Go API 与 C++ 控制面按契约逐项替换这些职责。迁移过程中 Python 服务继续提供兼容路由和回滚路径，不应作为无用旧代码删除。
+- `server.app.diagnosis_worker`：通过私有 gRPC 接收 Go API 的诊断请求，运行 Drop Insight V2、证据门禁和 Skill 演进。
+- `server.app.analysis_jobs`：异步消费 MinIO 原始产物，生成结构化分析结果与派生产物。
+- `server.app.models` / `server.app.sql_repository`：两个 Worker 共用的 SQLAlchemy 持久化层。
+
+公开 HTTP/SSE 入口只有 Go API；采集执行只有 C++ Control/Agent。Python 只承担分析和 AI Worker 职责。

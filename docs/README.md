@@ -26,7 +26,7 @@
 - [系统设计](architecture/system-design.md)：领域对象、状态机、数据流和部署设计。
 - [Drop 复刻指南](architecture/replication-guide.md)：C++ 核心、Go API、Python 分析和 React Web 的目标架构。
 - [跨语言实现状态](architecture/implementation-status.md)：当前已迁移能力、真实链路和剩余迁移边界。
-- [仓库结构](architecture/repository-layout.md)：每个顶层目录的职责与迁移期保留原因。
+- [仓库结构](architecture/repository-layout.md)：每个顶层目录的当前职责、关键文件和推荐阅读顺序。
 - [未完成项](architecture/remaining-work.md)：按复刻指南划分的 P0、P1、P2 后续工作。
 
 ## guides：运行与验收

@@ -53,7 +53,8 @@ class PerfCollector final : public Collector {
       return result;
     }
 
-    const fs::path output_dir = fs::path("/tmp/mini-drop-native") / task.id;
+    const fs::path output_dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
     fs::create_directories(output_dir);
     const fs::path perf_data = output_dir / "perf.data";
     const fs::path stderr_path = output_dir / "perf.stderr";
@@ -98,13 +99,17 @@ class PerfCollector final : public Collector {
       return result;
     }
 
-    const std::string object_key = "tasks/" + task.id + "/perf.data";
+    const std::string object_key = authorized_object_key(task, "perf.data");
+    if (object_key.empty()) {
+      result.error = "missing exact upload target for perf.data";
+      return result;
+    }
     const std::string digest = sha256_file(perf_data);
     if (digest.empty()) {
       result.error = "failed to compute artifact SHA-256";
       return result;
     }
-    if (!upload_artifact(config, perf_data, object_key, result.error)) return result;
+    if (!upload_artifact(task, perf_data, object_key, result.error)) return result;
 
     std::ostringstream artifact;
     artifact << "[{\"artifact_type\":\"raw\",\"filename\":\"perf.data\",";
@@ -116,11 +121,12 @@ class PerfCollector final : public Collector {
     artifact << "\"sha256\":\"" << digest << "\",";
     artifact << "\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\",";
     artifact << "\"task_id\":\"" << escape_json(task.id)
+             << "\",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id)
              << "\",\"artifact_type\":\"raw\",\"object_key\":\""
              << escape_json(object_key) << "\",\"content_type\":\"application/octet-stream\",";
     artifact << "\"size_bytes\":" << size << ",\"sha256\":\""
              << digest << "\"},";
-    artifact << "\"metadata\":{\"agent_runtime\":\"native-cpp\",";
+    artifact << "\"metadata\":{\"collector_runtime\":\"native-cpp\",";
     artifact << "\"collector_plugin\":\"perf_cpu\",\"runner\":\"process-group\",";
     artifact << "\"namespace_mode\":\""
              << (namespace_detected ? "host-pid-mapped" : "host") << "\",";

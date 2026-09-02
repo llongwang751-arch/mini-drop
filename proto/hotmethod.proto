@@ -8,6 +8,8 @@ syntax = "proto3";
 package mini_drop;
 
 import "common.proto";
+import "errorcode.proto";
+import "taskkind.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "github.com/jiangyulin1/mini-drop/proto;mini_drop";
@@ -24,15 +26,17 @@ service Hotmethod {
 message TaskDesc {
   string task_id         = 1;  // 全局唯一任务 ID
   uint32 task_type       = 2;  // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
-  uint32 profiler_type   = 3;  // 采集工具: 0=perf 1=async-profiler 2=pprof 3=py-spy 4=bpftrace 5=smaps 6=sys-metrics 7=continuous-perf 8=database-lock
+  TaskKindProfiler profiler_type = 3;  // 唯一编号来自 contracts/taskkinds.json
   RecordArgv sample_argv = 4;  // 采集参数
   string container_name  = 5;  // 容器/Pod 名称（非容器场景为空）
   uint32 container_type  = 6;  // 容器运行时类型
   uint32 timeout_sec     = 7;  // 任务超时秒数，Agent 应在此时限内完成采集
-  CosConfig cos_config   = 8;  // 对象存储上传凭证（本次任务专用，覆盖全局配置）
+  CosConfig cos_config   = 8 [deprecated = true];  // 仅保留字段号兼容；Agent 不再接受长期密钥
   string script_content         = 9;   // 仅 ScriptExec 类任务使用，存放脚本内容
   reserved 10 to 19;                    // 预留给未来采集器参数
   string task_attempt_authority = 20;  // 不透明的任务尝试授权，Agent 必须原样回传
+  repeated UploadTarget upload_targets = 21;  // 每对象短时 PUT 授权
+  string task_attempt_id = 22;  // 本次真实执行身份，贯穿 Artifact/AnalysisJob
 }
 
 
@@ -61,4 +65,5 @@ message TaskResult {
   string artifact_type               = 7;  // raw / folded / flamegraph_svg / top_json / ebpf_metrics
   string artifact_metadata_json      = 8;  // JSON 序列化的元数据，含 bucket/object_key/content_type/size_bytes
   string task_attempt_authority       = 9;  // 原样回传 TaskDesc 中的不透明任务尝试授权
+  ErrorCode error_code               = 10;  // 稳定错误码；文本仅作脱敏补充
 }

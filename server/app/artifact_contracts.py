@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 
 CONTRACT_VERSION = "1.0.0"
+ATTEMPT_MANIFEST_TYPE = "manifest"
 
 
 @dataclass(frozen=True)
@@ -62,7 +63,9 @@ def _contract(
         collector_type=collector_type,
         analyzer_type=f"collector.{collector_type}",
         analyzer_version=CONTRACT_VERSION,
-        accepted_types=frozenset(accepted),
+        # Every TaskAttempt publishes a standalone manifest beside its raw
+        # artifacts. It is transport/integrity metadata, not analyzer input.
+        accepted_types=frozenset(accepted | {ATTEMPT_MANIFEST_TYPE}),
         required_any=frozenset(required_any),
         analysis_types=frozenset(analysis),
         raw_types=frozenset(raw or set()),

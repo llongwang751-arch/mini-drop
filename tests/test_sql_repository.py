@@ -1,7 +1,4 @@
-"""SQLAlchemy Repository 测试。
-
-使用 SQLite :memory: 后端，验证与 InMemoryRepository 的接口一致性。
-"""
+"""SQLAlchemy repository tests for the retained collection pipeline."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -14,7 +11,6 @@ from server.app.process_attestation import (
     MAX_PROCESS_TEXT_LENGTH,
     ProcessSnapshotState,
 )
-from server.app.repository import InMemoryRepository
 from server.app.schemas import CreateTaskRequest
 from server.app.sql_repository import SqlRepository
 from server.app.state_machine import (
@@ -150,7 +146,7 @@ class TestTaskPersistence:
 
     def test_archive_hides_task_but_retains_artifact_and_ai_evidence(self, repo: SqlRepository):
         from server.app.database import new_session
-        from server.app.models import ArtifactModel, DiagnosisRunModel, TaskModel
+        from server.app.models import ArtifactModel, TaskModel
 
         repo.register_agent(self.AGENT_ID, "h", self.IP)
         task = repo.create_task(CreateTaskRequest(
@@ -162,8 +158,6 @@ class TestTaskPersistence:
             "artifact_type": "raw", "bucket": "mini-drop",
             "object_key": f"tasks/{task.id}/perf.data",
         }])
-        repo.create_diagnosis_run(task.id, "rule-engine-only")
-
         assert repo.delete_task(task.id) is True
         assert task.id not in SqlRepository().tasks
         assert repo.get_task(task.id) is None
@@ -174,7 +168,6 @@ class TestTaskPersistence:
             assert stored is not None
             assert stored.deleted_at is not None
             assert session.query(ArtifactModel).filter_by(task_id=task.id).count() == 1
-            assert session.query(DiagnosisRunModel).filter_by(task_id=task.id).count() == 1
         finally:
             session.close()
         assert any(
@@ -599,26 +592,6 @@ class TestProcessAttestation:
         assert len(candidate.comm) == MAX_PROCESS_TEXT_LENGTH
         assert len(candidate.collector_capabilities) == MAX_PROCESS_CAPABILITIES
 
-    def test_sql_and_memory_snapshot_resolution_match(self, repo: SqlRepository):
-        memory = InMemoryRepository()
-        agent_id = "parity-agent"
-        received_at = datetime(2026, 8, 24, tzinfo=timezone.utc)
-        for target in (repo, memory):
-            target.register_agent(agent_id, "host", "10.0.20.2")
-        snapshot = _process_snapshot(
-            candidates=[_process_candidate(comm="x" * 2000)],
-        )
-        sql_value = repo.record_process_candidate_snapshot(
-            agent_id, snapshot, received_at=received_at
-        )
-        memory_value = memory.record_process_candidate_snapshot(
-            agent_id, snapshot, received_at=received_at
-        )
-        assert sql_value.state == memory_value.state == ProcessSnapshotState.TRUNCATED
-        assert sql_value.authoritative == memory_value.authoritative is False
-        assert sql_value.candidates[0].candidate == memory_value.candidates[0].candidate
-
-
 class TestArtifactPersistence:
     """产物存储持久化。"""
 
@@ -690,68 +663,6 @@ class TestAuditPersistence:
         logs = repo2.audit_logs
         assert len(logs) >= 1
         assert any(l.event_type == "TASK_CREATED" for l in logs)
-
-
-class TestRCAPersistence:
-    """智能归因结果、工具证据和反馈权重持久化。"""
-
-    def test_diagnosis_roundtrip(self, repo: SqlRepository):
-        repo.register_agent("rca_agent", "h", "10.0.6.1")
-        task = repo.create_task(CreateTaskRequest(
-            name="rca-task", agent_id="rca_agent",
-            target_pid=1, collector_type="perf_cpu",
-        ))
-        diagnosis_id = repo.create_diagnosis_run(task.id, "rule-engine-only")
-        repo.add_diagnosis_tool_result(
-            diagnosis_id=diagnosis_id,
-            tool_name="inspect_task_events",
-            status="success",
-            evidence_ref="tool_results.inspect_task_events",
-            input_json={},
-            output_json={"events": [{"created_at": now_utc()}]},
-        )
-        report_id = repo.add_diagnosis_report(
-            diagnosis_id=diagnosis_id,
-            report_json={"summary": "ok"},
-            ranked_causes=[{"cause_id": "cpu_hotspot_recursive", "confidence": 0.7}],
-            confidence=0.7,
-            not_enough_evidence=False,
-        )
-        repo.add_repair_plan(
-            diagnosis_id=diagnosis_id,
-            plan_id="repair_test",
-            cause_id="cpu_hotspot_recursive",
-            risk_level="manual_only",
-            actions=[{"action_id": "a1"}],
-            executed_actions=[],
-            requires_user_confirm=True,
-            status="planned",
-        )
-        repo.finish_diagnosis_run(diagnosis_id, "DONE", "ok", True, 0)
-
-        item = repo.get_diagnosis(diagnosis_id)
-        assert item is not None
-        assert item["run"]["status"] == "DONE"
-        assert item["report"]["id"] == report_id
-        assert item["tool_results"][0]["tool_name"] == "inspect_task_events"
-        assert item["repair_plan"]["id"] == "repair_test"
-
-    def test_feedback_updates_prior(self, repo: SqlRepository):
-        repo.register_agent("feedback_agent", "h", "10.0.6.2")
-        task = repo.create_task(CreateTaskRequest(
-            name="feedback-task", agent_id="feedback_agent",
-            target_pid=1, collector_type="perf_cpu",
-        ))
-        diagnosis_id = repo.create_diagnosis_run(task.id, "rule-engine-only")
-        repo.record_rca_feedback(
-            diagnosis_id=diagnosis_id,
-            task_id=task.id,
-            predicted_cause_id="cpu_hotspot_recursive",
-            feedback_label="correct",
-        )
-        priors = repo.get_feedback_priors()
-        assert priors["cpu_hotspot_recursive"].positive_count == 1
-        assert priors["cpu_hotspot_recursive"].weight_delta > 0
 
 
 class TestTaskCancellationPersistence:
@@ -845,7 +756,7 @@ class TestTaskCancellationPersistence:
 
         persisted = repo.get_task(task.id)
         attempt = repo.get_task_attempts(task.id)[0]
-        assert persisted.collection_status == CollectionStatus.SUCCEEDED.value
-        assert persisted.analysis_status == AnalysisStatus.QUEUED.value
-        assert attempt.status == CollectionStatus.SUCCEEDED.value
+        assert persisted.collection_status == CollectionStatus.COLLECTED.value
+        assert persisted.analysis_status == AnalysisStatus.PENDING.value
+        assert attempt.status == "SUCCEEDED"
         assert attempt.finished_at is not None

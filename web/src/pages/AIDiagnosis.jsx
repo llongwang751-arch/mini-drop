@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Button,
-  Card,
   Input,
   Modal,
   Segmented,
@@ -12,14 +11,25 @@ import {
   Typography,
   message,
 } from "antd";
-import { ExperimentOutlined, ProfileOutlined, RobotOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  BranchesOutlined,
+  DisconnectOutlined,
+  ExperimentOutlined,
+  ProfileOutlined,
+  RobotOutlined,
+  SendOutlined,
+  SyncOutlined,
+  WifiOutlined,
+} from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
+import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import DiagnosisSkillOutcomeCard from "../components/DiagnosisSkillOutcomeCard";
 import EvalPanel from "../components/EvalPanel";
 import MentorComplexShowcase from "../components/MentorComplexShowcase";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
+import useSSE from "../hooks/useSSE";
 import {
   advanceDropInsightOrchestrator,
   clarifyDropInsightDiagnosis,
@@ -29,10 +39,9 @@ import {
   deleteDropInsightDiagnosis,
   evaluateDiagnosticSkill,
   getMentorComplexShowcase,
-  getDiagnosticCase,
   getDropInsightBudget,
   getDropInsightDiagnosis,
-  listDiagnosticCasesPage,
+  getDropInsightExplorationTree,
   listDiagnosticSkillActivations,
   listDiagnosticSkills,
   listDropInsightDiagnoses,
@@ -51,7 +60,18 @@ import "./AIDiagnosis.css";
 const { Paragraph, Text, Title } = Typography;
 
 const TERMINAL = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
-const TERMINAL_CANONICAL = new Set(["COMPLETED", "PARTIAL", "FAILED", "CANCELLED"]);
+const STATUS_LABELS = {
+  CREATED: "等待开始",
+  PLANNING: "构建假设",
+  COLLECTING: "正在取证",
+  ANALYZING: "证据裁决",
+  WAITING_APPROVAL: "等待审批",
+  COMPLETED: "诊断完成",
+  PARTIAL: "证据不足",
+  FAILED: "诊断失败",
+  CANCELLED: "已取消",
+  UNKNOWN: "状态同步中",
+};
 const EMPTY_RESOURCES = {
   hypotheses: [],
   toolCalls: [],
@@ -61,6 +81,7 @@ const EMPTY_RESOURCES = {
   feedback: [],
   budget: null,
   skillActivations: [],
+  explorationTree: null,
 };
 
 function canonicalStatus(status) {
@@ -85,8 +106,8 @@ function selectionKey(source, id) {
   return `${source || "unknown"}:${id}`;
 }
 
-function normalizeCase(item, active = false) {
-  const source = item.source || "drop_insight_v2";
+function normalizeCase(item) {
+  const source = "drop_insight_v2";
   const id = nativeId(item);
   return {
     ...item,
@@ -95,47 +116,6 @@ function normalizeCase(item, active = false) {
     diagnosis_id: item.diagnosis_id || id,
     canonical_status: item.canonical_status || canonicalStatus(item.status),
     selection_key: selectionKey(source, id),
-    active,
-  };
-}
-
-function readHiddenKeys() {
-  try {
-    return new Set(JSON.parse(window.localStorage.getItem("mini-drop-hidden-history") || "[]"));
-  } catch {
-    return new Set();
-  }
-}
-
-function mergeCases(activeRows, historyRows) {
-  const hidden = readHiddenKeys();
-  const merged = new Map();
-  for (const row of historyRows || []) {
-    const normalized = normalizeCase(row, false);
-    if (!hidden.has(normalized.case_id) && !hidden.has(normalized.selection_key)) {
-      merged.set(normalized.selection_key, normalized);
-    }
-  }
-  for (const row of activeRows || []) {
-    const normalized = normalizeCase(row, true);
-    const previous = merged.get(normalized.selection_key) || {};
-    merged.set(normalized.selection_key, { ...previous, ...normalized, active: true });
-  }
-  return [...merged.values()].sort((a, b) =>
-    String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")),
-  );
-}
-
-function asArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function normalizeReport(report) {
-  if (!report) return null;
-  return {
-    ...report,
-    conclusion: report.conclusion || report.root_cause || report.summary || report.content || "该版本未记录结论正文。",
-    confidence: typeof report.confidence === "number" ? report.confidence : 0,
   };
 }
 
@@ -147,53 +127,6 @@ function isVerifiedReport(report) {
   return String(verificationStatus || "").toUpperCase() === "VERIFIED"
     && Array.isArray(evidenceRefs)
     && evidenceRefs.length > 0;
-}
-
-function adaptHistoricalDetail(caseItem, payload) {
-  const native = payload?.native_payload || {};
-  if (caseItem.source === "cluster_diagnosis_v1") {
-    const graph = native.hypothesis_graph || {};
-    const hypotheses = asArray(graph.hypotheses).length ? graph.hypotheses : asArray(graph.nodes);
-    const reports = asArray(native.conclusion_versions).map(normalizeReport).filter(Boolean);
-    return {
-      detail: {
-        ...native,
-        diagnosis_id: caseItem.diagnosis_id,
-        query: native.raw_query || caseItem.query,
-        status: native.status || caseItem.status,
-        target: native.target_scope || caseItem.target,
-      },
-      resources: { ...EMPTY_RESOURCES, hypotheses, evidence: asArray(native.evidence), reports },
-      unavailableSections: [
-        ...(hypotheses.length ? [] : ["候选假设"]),
-        ...(native.evidence?.length ? [] : ["证据"]),
-        ...(reports.length ? [] : ["结论版本"]),
-        "v2 工具调用时间线",
-      ],
-    };
-  }
-  if (caseItem.source === "legacy_rca") {
-    const run = native.run || native;
-    const reports = asArray(native.reports).length
-      ? asArray(native.reports).map(normalizeReport).filter(Boolean)
-      : [normalizeReport(native.report)].filter(Boolean);
-    return {
-      detail: {
-        ...run,
-        diagnosis_id: caseItem.diagnosis_id,
-        query: run.summary || caseItem.query,
-        status: run.status || caseItem.status,
-        target: { task_id: run.task_id },
-      },
-      resources: { ...EMPTY_RESOURCES, reports },
-      unavailableSections: ["候选假设", "结构化证据裁决", "v2 工具调用时间线"],
-    };
-  }
-  return {
-    detail: { ...native, query: native.query || caseItem.query, status: native.status || caseItem.status },
-    resources: { ...EMPTY_RESOURCES },
-    unavailableSections: [],
-  };
 }
 
 function syncCaseQuery(value) {
@@ -213,7 +146,6 @@ export default function AIDiagnosis() {
   const [detail, setDetail] = useState(null);
   const [resources, setResources] = useState(EMPTY_RESOURCES);
   const [resourceErrors, setResourceErrors] = useState([]);
-  const [unavailableSections, setUnavailableSections] = useState([]);
   const [listLoading, setListLoading] = useState(false);
   const [listLoaded, setListLoaded] = useState(false);
   const [listError, setListError] = useState("");
@@ -236,14 +168,15 @@ export default function AIDiagnosis() {
   });
   const requestVersion = useRef(0);
   const advancing = useRef(false);
+  const liveRefreshTimer = useRef(null);
   const selectedIdRef = useRef("");
   const automaticSkillAttempts = useRef(new Set());
   const initialCaseKey = useRef(new URLSearchParams(window.location.search).get("case") || "");
 
   const isExpert = mode === "expert";
-  const selectedId = selectedCase?.source === "drop_insight_v2" ? selectedCase.diagnosis_id : "";
+  const selectedId = selectedCase?.diagnosis_id || "";
   selectedIdRef.current = selectedId;
-  const readOnly = !selectedCase?.active || TERMINAL_CANONICAL.has(selectedCase?.canonical_status);
+  const readOnly = TERMINAL.has(String(selectedCase?.status || "").toUpperCase());
 
   const openMentorShowcase = useCallback(async () => {
     setShowcaseOpen(true);
@@ -305,15 +238,10 @@ export default function AIDiagnosis() {
     setListLoading(true);
     setListError("");
     try {
-      const [activeResult, historyResult] = await Promise.allSettled([
-        listDropInsightDiagnoses(),
-        listDiagnosticCasesPage(),
-      ]);
-      if (activeResult.status === "rejected" && historyResult.status === "rejected") throw activeResult.reason;
-      const activeRows = activeResult.status === "fulfilled" ? activeResult.value : [];
-      const historyPage = historyResult.status === "fulfilled" ? historyResult.value : {};
-      const historyRows = Array.isArray(historyPage) ? historyPage : asArray(historyPage?.items);
-      const nextCases = mergeCases(activeRows, historyRows);
+      const rows = await listDropInsightDiagnoses();
+      const nextCases = (rows || [])
+        .map(normalizeCase)
+        .sort((a, b) => String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")));
       setCases(nextCases);
       setSelectedCase((current) => {
         const requested = current?.selection_key || initialCaseKey.current;
@@ -322,12 +250,9 @@ export default function AIDiagnosis() {
         if (match) initialCaseKey.current = "";
         return match || current;
       });
-      if (activeResult.status === "rejected" || historyResult.status === "rejected") {
-        setListError("部分案例来源暂时不可用，已展示其余记录。");
-      }
     } catch (error) {
       setCases([]);
-      setListError(error?.message || "案例列表加载失败");
+      setListError(error?.message || "诊断列表暂时不可用，请检查服务连接后重试");
     } finally {
       setListLoading(false);
       setListLoaded(true);
@@ -338,6 +263,7 @@ export default function AIDiagnosis() {
     const id = caseItem.diagnosis_id;
     const requests = [
       ["核心详情", getDropInsightDiagnosis(id)],
+      ["实时探索树", getDropInsightExplorationTree(id)],
       ["事件", listDropInsightEvents(id)],
       ["候选假设", listDropInsightHypotheses(id)],
       ["证据", listDropInsightEvidence(id)],
@@ -355,19 +281,19 @@ export default function AIDiagnosis() {
     const value = (index, fallback) => settled[index].status === "fulfilled" ? settled[index].value : fallback;
     setDetail(coreDetail);
     setResources({
-      events: value(1, []),
-      hypotheses: value(2, []),
-      evidence: value(3, []),
-      reports: value(4, []),
-      toolCalls: value(5, []),
-      budget: value(6, null),
-      feedback: value(7, []),
-      skillActivations: value(8, []),
+      explorationTree: value(1, null),
+      events: value(2, []),
+      hypotheses: value(3, []),
+      evidence: value(4, []),
+      reports: value(5, []),
+      toolCalls: value(6, []),
+      budget: value(7, null),
+      feedback: value(8, []),
+      skillActivations: value(9, []),
     });
     setResourceErrors([
       ...settled.flatMap((result, index) => index > 0 && result.status === "rejected" ? [requests[index][0]] : []),
     ]);
-    setUnavailableSections([]);
   }, []);
 
   const loadSelectedDetail = useCallback(async (caseItem) => {
@@ -376,28 +302,13 @@ export default function AIDiagnosis() {
       setDetail(null);
       setResources(EMPTY_RESOURCES);
       setResourceErrors([]);
-      setUnavailableSections([]);
       return;
     }
     const version = ++requestVersion.current;
     setLoading(true);
     setResourceErrors([]);
     try {
-      if (caseItem.source === "drop_insight_v2") {
-        let projectedDetail = null;
-        if (!caseItem.active) {
-          const projected = await getDiagnosticCase(caseItem.case_id);
-          projectedDetail = projected?.native_payload || null;
-        }
-        await loadV2Detail(caseItem, version, projectedDetail);
-      } else {
-        const payload = await getDiagnosticCase(caseItem.case_id);
-        if (version !== requestVersion.current) return;
-        const adapted = adaptHistoricalDetail(caseItem, payload);
-        setDetail(adapted.detail);
-        setResources(adapted.resources);
-        setUnavailableSections(adapted.unavailableSections);
-      }
+      await loadV2Detail(caseItem, version);
     } catch (error) {
       if (version === requestVersion.current) {
         setDetail(null);
@@ -455,8 +366,40 @@ export default function AIDiagnosis() {
     await loadSelectedDetail(selectedCase);
   }, [loadCases, loadSelectedDetail, readOnly, selectedCase, selectedId]);
 
+  const handleDiagnosisProgress = useCallback((event) => {
+    const diagnosisId = event?.diagnosis_id;
+    if (!diagnosisId || diagnosisId !== selectedIdRef.current) return;
+    getDropInsightExplorationTree(diagnosisId)
+      .then((tree) => {
+        if (diagnosisId !== selectedIdRef.current) return;
+        setResources((current) => {
+          const previousRevision = Number(current.explorationTree?.revision || 0);
+          if (Number(tree?.revision || 0) < previousRevision) return current;
+          return { ...current, explorationTree: tree };
+        });
+      })
+      .catch(() => undefined);
+
+    if (liveRefreshTimer.current) window.clearTimeout(liveRefreshTimer.current);
+    liveRefreshTimer.current = window.setTimeout(() => {
+      if (diagnosisId === selectedIdRef.current && selectedCase) {
+        loadSelectedDetail(selectedCase).catch(() => undefined);
+      }
+    }, 220);
+  }, [loadSelectedDetail, selectedCase]);
+
+  const { connected: sseConnected } = useSSE({
+    onDiagnosisProgress: handleDiagnosisProgress,
+    channel: "diagnosis",
+    resourceId: selectedId,
+  });
+
+  useEffect(() => () => {
+    if (liveRefreshTimer.current) window.clearTimeout(liveRefreshTimer.current);
+  }, []);
+
   usePolling(pollSelectedDetail, {
-    interval: 2500,
+    interval: sseConnected ? 10000 : 2500,
     enabled: Boolean(selectedId) && !readOnly,
   });
 
@@ -479,13 +422,7 @@ export default function AIDiagnosis() {
       cancelText: "取消",
       onOk: async () => {
         try {
-          if (item.source === "drop_insight_v2" && item.active) {
-            await deleteDropInsightDiagnosis(item.diagnosis_id);
-          } else {
-            const hidden = readHiddenKeys();
-            hidden.add(item.selection_key);
-            window.localStorage.setItem("mini-drop-hidden-history", JSON.stringify([...hidden]));
-          }
+          await deleteDropInsightDiagnosis(item.diagnosis_id);
           if (selectedCase?.selection_key === item.selection_key) startBlankDiagnosis();
           await loadCases();
           message.success("诊断已归档");
@@ -605,20 +542,63 @@ export default function AIDiagnosis() {
     };
   }, [detail, resources]);
 
+  const canonical = canonicalStatus(detail?.status || selectedCase?.status);
+  const treeStats = resources.explorationTree?.stats || {};
+  const treeRevision = resources.explorationTree?.revision || 0;
+
   return (
-    <div className="ai-diagnosis-workspace">
-      <Card size="small" className="ai-diagnosis-sidebar">
-        <Space direction="vertical" style={{ width: "100%" }}>
-          <Space align="center">
-            <RobotOutlined style={{ fontSize: 18, color: "#722ed1" }} />
-            <Title level={5} style={{ margin: 0 }}>AI 诊断</Title>
-          </Space>
-          <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 4 }}>
-            在一个工作台中追踪问题、假设、证据与结论
+    <div className="ai-diagnosis-page">
+      <header className="diagnosis-command-header">
+        <div>
+          <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · AI DIAGNOSIS</div>
+          <Title level={2}>Drop 负责采集事实，Agent 决定下一步，Skill 只复用已验证路线</Title>
+          <Paragraph>
+            三层通过持久化事件连接：采集成功不等于证据有效，Skill 命中也不等于根因成立。
           </Paragraph>
+        </div>
+        <div className="diagnosis-live-signals">
+          <span className={sseConnected ? "is-online" : "is-offline"}>
+            {sseConnected ? <WifiOutlined /> : <DisconnectOutlined />}
+            {sseConnected ? "实时事件已连接" : "轮询兜底中"}
+          </span>
+          <span><BranchesOutlined /> 树版本 {treeRevision}</span>
+          <span>第 {treeStats.current_round || 0} 轮</span>
+        </div>
+      </header>
+
+      <section className="diagnosis-layer-map" aria-label="Mini-Drop 诊断架构分层">
+        <article>
+          <span className="diagnosis-layer-index">01</span>
+          <div>
+            <Text strong>Drop · 探针与采集底座</Text>
+            <Paragraph>C++ Agent 在目标机执行白名单 Collector，产出 Artifact；它负责拿材料，不负责宣布根因。</Paragraph>
+          </div>
+        </article>
+        <article>
+          <span className="diagnosis-layer-index">02</span>
+          <div>
+            <Text strong>Diagnosis Agent · 调查与受控执行</Text>
+            <Paragraph>诊断 Worker 基于假设和证据选择下一探针；Go API 在能力、权限、风险和预算门禁内创建 Task。</Paragraph>
+          </div>
+        </article>
+        <article>
+          <span className="diagnosis-layer-index">03</span>
+          <div>
+            <Text strong>Skill Memory · 路线记忆</Text>
+            <Paragraph>只保存已验证的工具顺序、证据要求和退出条件；需评测、发布，冲突时退出并回到基线 Planner。</Paragraph>
+          </div>
+        </article>
+      </section>
+
+      <div className="ai-diagnosis-workspace">
+        <aside className="ai-diagnosis-sidebar">
+          <div className="diagnosis-sidebar-heading">
+            <Text strong>诊断中心</Text>
+            <Text type="secondary">案例、验证与 Skill</Text>
+          </div>
           <Segmented
             block
-            options={[{ label: "诊断工作台", value: "workspace" }, { label: "验证中心", value: "evaluation" }]}
+            options={[{ label: "工作台", value: "workspace" }, { label: "验证中心", value: "evaluation" }]}
             value={workspaceView}
             onChange={setWorkspaceView}
           />
@@ -635,53 +615,53 @@ export default function AIDiagnosis() {
               loadError={listError}
             />
           ) : (
-            <Card size="small" style={{ background: "#f7f9fc" }}>
-              <Text strong>方法、测试集与质量门禁在主工作区展示</Text>
-            </Card>
+            <div className="diagnosis-sidebar-note">
+              验证中心统一展示测试集、Skill 门禁、反例和版本回滚。
+            </div>
           )}
-        </Space>
-      </Card>
+        </aside>
 
-      <Card
-        size="small"
-        className="ai-diagnosis-main"
-        style={{ display: "flex", flexDirection: "column" }}
-        title={
-          <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
-            <Text strong ellipsis>
-              {workspaceView === "evaluation" ? "AI 诊断验证中心" : (detail?.query || selectedCase?.query || "新诊断")}
-            </Text>
+        <main className="ai-diagnosis-main">
+          <div className="diagnosis-workbench-toolbar">
+            <div className="diagnosis-case-title">
+              <Text type="secondary">{workspaceView === "evaluation" ? "EVALUATION CENTER" : "ACTIVE DIAGNOSIS"}</Text>
+              <Title level={4}>{workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : (detail?.query || selectedCase?.query || "开始一次新诊断")}</Title>
+            </div>
             {workspaceView === "workspace" && (
               <Space wrap>
-                <Button size="small" icon={<ExperimentOutlined />} onClick={openMentorShowcase}>复杂案例回放</Button>
+                <Button icon={<ExperimentOutlined />} onClick={openMentorShowcase}>复杂案例回放</Button>
                 {selectedCase && <>
-                  {readOnly && <Text type="secondary">只读记录</Text>}
+                  <span className={`diagnosis-status is-${canonical.toLowerCase()}`}>{STATUS_LABELS[canonical]}</span>
                   <Segmented
-                    size="small"
                     value={mode}
                     onChange={(value) => {
                       setMode(value);
                       try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
                     }}
-                    options={[{ label: "简单", value: "simple" }, { label: "专家", value: "expert" }]}
+                    options={[{ label: "简洁", value: "simple" }, { label: "专家", value: "expert" }]}
                   />
-                  {isExpert && <Button size="small" icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>技术细节</Button>}
-                  {!readOnly && <Button size="small" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
+                  {readOnly && <span className="diagnosis-readonly-badge">只读记录</span>}
+                  {isExpert && <Button icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>审计细节</Button>}
+                  {!readOnly && <Button type="primary" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
                 </>}
               </Space>
             )}
-          </Space>
-        }
-      >
-        {workspaceView === "evaluation" ? (
-          <div className="ai-diagnosis-thread"><EvalPanel /></div>
-        ) : (
-          <>
-            <div className="ai-diagnosis-thread">
+          </div>
+
+          {workspaceView === "evaluation" ? (
+            <div className="diagnosis-evaluation-view"><EvalPanel /></div>
+          ) : (
+            <>
               {detail && (
-                <Card size="small" title="调查进度" style={{ marginBottom: 12, background: "#fafcff" }}>
-                  <Steps size="small" responsive current={diagnosisProcess.current} status={detail.status === "FAILED" ? "error" : "process"} items={diagnosisProcess.items} />
-                </Card>
+                <div className="diagnosis-stage-rail">
+                  <Steps
+                    size="small"
+                    responsive={false}
+                    current={diagnosisProcess.current}
+                    status={detail.status === "FAILED" ? "error" : "process"}
+                    items={diagnosisProcess.items}
+                  />
+                </div>
               )}
               {resourceErrors.length > 0 && (
                 <Alert
@@ -692,49 +672,82 @@ export default function AIDiagnosis() {
                   action={<Button size="small" onClick={() => loadSelectedDetail(selectedCase)}>重试</Button>}
                 />
               )}
+
               <Spin spinning={loading}>
-                <ChatThread
-                  detail={detail}
-                  hypotheses={resources.hypotheses}
-                  toolCalls={resources.toolCalls}
-                  evidence={resources.evidence}
-                  reports={resources.reports}
-                  events={resources.events}
-                  mode={mode}
-                  readOnly={readOnly}
-                  unavailableSections={unavailableSections}
-                  onApproveTool={(id) => decideTool(id, true)}
-                  onRejectTool={(id) => decideTool(id, false)}
-                  onUpdateToolArgs={handleUpdateToolArgs}
-                  onClarify={handleClarify}
-                  clarifying={clarifying}
-                  feedback={resources.feedback}
-                  onSubmitFeedback={handleSubmitFeedback}
-                  feedbackSubmitting={feedbackSubmitting}
-                  skillActivations={resources.skillActivations}
-                />
-                <DiagnosisSkillOutcomeCard
-                  skill={sourceSkill}
-                  evaluating={skillEvaluating || skillGenerating}
-                  onEvaluate={handleEvaluateSkill}
-                  onOpenPlaza={() => setWorkspaceView("evaluation")}
-                />
+                <div className={`diagnosis-workbench-grid ${detail ? "has-diagnosis" : "is-empty"}`}>
+                  <section className="diagnosis-narrative-panel">
+                    <ChatThread
+                      detail={detail}
+                      hypotheses={resources.hypotheses}
+                      toolCalls={resources.toolCalls}
+                      evidence={resources.evidence}
+                      reports={resources.reports}
+                      events={resources.events}
+                      mode={mode}
+                      readOnly={readOnly}
+                      unavailableSections={[]}
+                      onApproveTool={(id) => decideTool(id, true)}
+                      onRejectTool={(id) => decideTool(id, false)}
+                      onUpdateToolArgs={handleUpdateToolArgs}
+                      onClarify={handleClarify}
+                      clarifying={clarifying}
+                      feedback={resources.feedback}
+                      onSubmitFeedback={handleSubmitFeedback}
+                      feedbackSubmitting={feedbackSubmitting}
+                      skillActivations={resources.skillActivations}
+                    />
+                    <DiagnosisSkillOutcomeCard
+                      skill={sourceSkill}
+                      evaluating={skillEvaluating || skillGenerating}
+                      onEvaluate={handleEvaluateSkill}
+                      onOpenPlaza={() => setWorkspaceView("evaluation")}
+                    />
+                  </section>
+
+                  <aside className="diagnosis-tree-panel">
+                    {detail ? (
+                      <>
+                        <ActualExplorationTree
+                          tree={resources.explorationTree}
+                          hypotheses={resources.hypotheses}
+                          toolCalls={resources.toolCalls}
+                          report={[...(resources.reports || [])].reverse()[0] || null}
+                        />
+                        <div className="diagnosis-last-event">
+                          <span className="live-tree-pulse" />
+                          <div>
+                            <b>最近一次树更新</b>
+                            <small>{resources.explorationTree?.last_event?.event_type || "等待诊断事件"}</small>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="diagnosis-tree-empty">
+                        <BranchesOutlined />
+                        <b>探索画布已就绪</b>
+                        <span>提交问题后，候选假设会先出现，随后工具、证据、剪枝和根因路径逐步长出来。</span>
+                      </div>
+                    )}
+                  </aside>
+                </div>
               </Spin>
-            </div>
-            <Space.Compact style={{ marginTop: 12, width: "100%" }}>
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onPressEnter={startNew}
-                placeholder="描述问题，例如：订单服务最近 5 分钟 CPU 飙高，请定位原因…"
-                disabled={sending}
-                size="large"
-              />
-              <Button type="primary" icon={<SendOutlined />} onClick={startNew} loading={sending} size="large">发送</Button>
-            </Space.Compact>
-          </>
-        )}
-      </Card>
+
+              <div className="diagnosis-composer">
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onPressEnter={startNew}
+                  placeholder="描述问题，例如：订单服务最近 5 分钟 CPU 与 P99 同时升高，请定位根因"
+                  disabled={sending}
+                  size="large"
+                  aria-label="描述诊断问题"
+                />
+                <Button type="primary" icon={<SendOutlined />} onClick={startNew} loading={sending} size="large">开始诊断</Button>
+              </div>
+            </>
+          )}
+        </main>
+      </div>
 
       <TechnicalDetailDrawer
         open={detailOpen}

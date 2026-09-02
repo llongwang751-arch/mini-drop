@@ -1,0 +1,37 @@
+flowchart TB
+    classDef input fill:#EEF6FF,stroke:#2563EB,color:#172033,stroke-width:2px
+    classDef branch fill:#F5F2FF,stroke:#7557C8,color:#172033,stroke-width:2px
+    classDef gate fill:#FFF7E8,stroke:#D89016,color:#172033,stroke-width:2px
+    classDef success fill:#EAFBF4,stroke:#0F8A61,color:#172033,stroke-width:2px
+    classDef reject fill:#FFF0F0,stroke:#CF3F4A,color:#172033,stroke-width:2px
+
+    Q["当前诊断 Query<br/>症状、服务、环境、疑似子系统"]:::input
+    C[("ACTIVE Skill Catalog<br/>trigger + strategy + actual_exploration")]:::input
+    N["中英混合分词<br/>英文 token + 中文二元词"]:::input
+    F{"硬过滤"}:::gate
+
+    Q --> N
+    C --> F
+    N --> F
+    F -->|"类别、环境、路线兼容<br/>采集能力、非隔离版本"| S["候选 Skill 集"]:::input
+    F -->|"无候选"| FALLBACK["回退到普通多轮 Planner"]:::reject
+
+    S --> A["结构化上下文分<br/>category / environment / service<br/>权重 30%"]:::branch
+    S --> B["BM25 词法分<br/>精确指标、函数、系统调用<br/>权重 45%"]:::branch
+    S --> V["512 维特征向量余弦分<br/>字符 n-gram + 有限诊断概念<br/>权重 25%"]:::branch
+
+    A --> M["加权融合<br/>score = .30S + .45B + .25V"]:::input
+    B --> M
+    V --> M
+    M --> SORT["稳定排序<br/>总分降序，Skill ID 破同分"]:::input
+    SORT --> T{"置信门槛<br/>Top1 ≥ 0.35?"}:::gate
+    T -->|否| FALLBACK
+    T -->|是| GAP{"歧义门槛<br/>总分差 ≥ .04<br/>或单路差 ≥ .08?"}:::gate
+    GAP -->|否，候选过近| FALLBACK
+    GAP -->|是| SAFE{"执行前安全门禁<br/>能力、预算、审批、反证规则"}:::gate
+    SAFE -->|拒绝| FALLBACK
+    SAFE -->|通过| APPLY["复用 probe_order<br/>保留停止条件与反证规则"]:::success
+    APPLY --> LOG["记录 Activation<br/>结构分、BM25、向量分、命中词<br/>版本、工具路线与最终结果"]:::success
+    LOG --> FEEDBACK{"结果反馈"}:::gate
+    FEEDBACK -->|正确| KEEP["累计正确复用"]:::success
+    FEEDBACK -->|错误或漂移| QUAR["隔离当前版本<br/>回滚上一 ACTIVE 版本"]:::reject

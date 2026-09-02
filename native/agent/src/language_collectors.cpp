@@ -61,7 +61,8 @@ TaskResult run_file_collector(
     result.error = "task sampling parameters exceed native runner policy";
     return result;
   }
-  const fs::path output_dir = fs::path("/tmp/mini-drop-native") / task.id;
+  const fs::path output_dir =
+      fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
   fs::create_directories(output_dir);
   const fs::path artifact_path = output_dir / filename;
   const fs::path stderr_path = output_dir / (collector + ".stderr");
@@ -99,13 +100,17 @@ TaskResult run_file_collector(
         std::to_string(command_result.exit_code) + "): " + first_line(stderr_path);
     return result;
   }
-  const std::string object_key = "tasks/" + task.id + "/" + filename;
+  const std::string object_key = authorized_object_key(task, filename);
+  if (object_key.empty()) {
+    result.error = "missing exact upload target for " + filename;
+    return result;
+  }
   const std::string digest = sha256_file(artifact_path);
   if (digest.empty()) {
     result.error = "failed to compute artifact SHA-256";
     return result;
   }
-  if (!upload_artifact(config, artifact_path, object_key, result.error)) return result;
+  if (!upload_artifact(task, artifact_path, object_key, result.error)) return result;
   const auto size = fs::file_size(artifact_path);
   std::ostringstream artifact;
   artifact << "[{\"artifact_type\":\"" << escape_json(artifact_type)
@@ -117,12 +122,13 @@ TaskResult run_file_collector(
            << ",\"sha256\":\"" << digest << "\""
            << ",\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\""
            << ",\"task_id\":\"" << escape_json(task.id) << "\""
+           << ",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id) << "\""
            << ",\"artifact_type\":\"" << escape_json(artifact_type)
            << "\",\"object_key\":\""
            << escape_json(object_key) << "\",\"content_type\":\""
            << escape_json(content_type) << "\",\"size_bytes\":" << size
            << ",\"sha256\":\"" << digest << "\"}"
-           << ",\"metadata\":{\"agent_runtime\":\"native-cpp\","
+           << ",\"metadata\":{\"collector_runtime\":\"native-cpp\","
            << "\"collector_plugin\":\"" << escape_json(collector)
            << "\",\"contract_version\":\"1.0.0\"}}]";
   result.ok = true;
@@ -140,7 +146,8 @@ class PySpyCollector final : public Collector {
         !executable_exists("/usr/bin/py-spy")) {
       return {task.id, false, "py-spy is not installed in native Agent image", ""};
     }
-    const fs::path output = fs::path("/tmp/mini-drop-native") / task.id / "pyspy-speedscope.json";
+    const fs::path output = fs::path("/tmp/mini-drop-native") / task.id /
+        task.task_attempt_id / "pyspy-speedscope.json";
     return run_file_collector(config, task, stop, cancel, name(),
         "pyspy-speedscope.json", "application/json",
         {"py-spy", "record", "--pid", std::to_string(task.pid), "--rate",
@@ -195,7 +202,8 @@ class GoPprofCollector final : public Collector {
     }
     const std::string separator = base.find('?') == std::string::npos ? "?" : "&";
     const std::string url = base + separator + "seconds=" + std::to_string(task.duration);
-    const fs::path output = fs::path("/tmp/mini-drop-native") / task.id / "go-cpu.pprof";
+    const fs::path output = fs::path("/tmp/mini-drop-native") / task.id /
+        task.task_attempt_id / "go-cpu.pprof";
     return run_file_collector(config, task, stop, cancel, name(),
         "go-cpu.pprof", "application/octet-stream",
         {"curl", "--fail", "--silent", "--show-error", "--max-time",

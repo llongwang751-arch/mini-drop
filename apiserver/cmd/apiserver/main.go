@@ -18,7 +18,7 @@ import (
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--healthcheck" {
 		client := &http.Client{Timeout: 3 * time.Second}
-		resp, err := client.Get("http://127.0.0.1:8080/healthz")
+		resp, err := client.Get("http://127.0.0.1:8080/readyz")
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if resp != nil {
 				_ = resp.Body.Close()
@@ -55,7 +55,7 @@ func main() {
 	go func() {
 		logger.Info("go api server started",
 			"addr", cfg.ListenAddr,
-			"upstream", cfg.LegacyAPIURL,
+			"diagnostic_ai_grpc", cfg.DiagnosticAIGRPCAddress,
 		)
 		errCh <- server.ListenAndServe()
 	}()

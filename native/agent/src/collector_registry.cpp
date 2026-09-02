@@ -1,4 +1,5 @@
 #include "collector_registry.h"
+#include "taskkind_contract.h"
 
 #include <stdexcept>
 
@@ -7,6 +8,10 @@ namespace mini_drop_native {
 void CollectorRegistry::add(std::unique_ptr<Collector> collector) {
   if (!collector) throw std::invalid_argument("collector is null");
   const int type = collector->profiler_type();
+  const auto* contract = mini_drop_contract::find_by_name(collector->name());
+  if (contract == nullptr || contract->profiler_type != type) {
+    throw std::invalid_argument("collector does not match generated TaskKind contract");
+  }
   if (collectors_.count(type) != 0) {
     throw std::invalid_argument("duplicate collector profiler type");
   }

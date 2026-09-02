@@ -53,13 +53,18 @@ TaskResult upload_json(const Config& config, const Task& task,
                        const std::string& artifact_type) {
   TaskResult result;
   result.task_id = task.id;
-  const std::string object_key = "tasks/" + task.id + "/" + path.filename().string();
+  const std::string object_key =
+      authorized_object_key(task, path.filename().string());
+  if (object_key.empty()) {
+    result.error = "missing exact upload target for " + path.filename().string();
+    return result;
+  }
   const std::string digest = sha256_file(path);
   if (digest.empty()) {
     result.error = "failed to compute artifact SHA-256";
     return result;
   }
-  if (!upload_artifact(config, path, object_key, result.error)) return result;
+  if (!upload_artifact(task, path, object_key, result.error)) return result;
   const auto size = fs::file_size(path);
   std::ostringstream artifacts;
   artifacts << "[{\"artifact_type\":\"" << artifact_type
@@ -70,11 +75,12 @@ TaskResult upload_json(const Config& config, const Task& task,
             << ",\"sha256\":\"" << digest << "\""
             << ",\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\""
             << ",\"task_id\":\"" << escape_json(task.id) << "\""
+            << ",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id) << "\""
             << ",\"artifact_type\":\"" << escape_json(artifact_type) << "\""
             << ",\"object_key\":\"" << escape_json(object_key) << "\""
             << ",\"content_type\":\"application/json\",\"size_bytes\":" << size
             << ",\"sha256\":\"" << digest << "\"}"
-            << ",\"metadata\":{\"agent_runtime\":\"native-cpp\","
+            << ",\"metadata\":{\"collector_runtime\":\"native-cpp\","
             << "\"collector_plugin\":\"" << collector
             << "\",\"contract_version\":\"1.0.0\"}}]";
   result.ok = true;
@@ -103,7 +109,8 @@ class MemoryCollector final : public Collector {
       const std::atomic<bool>& stop, std::atomic<bool>& cancel) const override {
     TaskResult result;
     if (!validate(task, result)) return result;
-    const fs::path dir = fs::path("/tmp/mini-drop-native") / task.id;
+    const fs::path dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
     fs::create_directories(dir);
     const fs::path output_path = dir / "memory.json";
     std::ofstream output(output_path);
@@ -139,7 +146,8 @@ class SysMetricsCollector final : public Collector {
       const std::atomic<bool>& stop, std::atomic<bool>& cancel) const override {
     TaskResult result;
     if (!validate(task, result)) return result;
-    const fs::path dir = fs::path("/tmp/mini-drop-native") / task.id;
+    const fs::path dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
     fs::create_directories(dir);
     const fs::path output_path = dir / "sys_metrics.json";
     const fs::path proc = fs::path("/proc") / std::to_string(task.pid);
@@ -180,7 +188,8 @@ class ContinuousPerfCollector final : public Collector {
       const std::atomic<bool>& stop, std::atomic<bool>& cancel) const override {
     TaskResult result;
     if (!validate(task, result)) return result;
-    const fs::path dir = fs::path("/tmp/mini-drop-native") / task.id;
+    const fs::path dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
     fs::create_directories(dir);
     const fs::path perf_data = dir / "continuous-perf.data";
     const fs::path stderr_path = dir / "continuous-perf.stderr";
@@ -198,13 +207,18 @@ class ContinuousPerfCollector final : public Collector {
           "continuous perf failed: " + read_text(stderr_path).substr(0, 300);
       return result;
     }
-    const std::string object_key = "tasks/" + task.id + "/continuous-perf.data";
+    const std::string object_key =
+        authorized_object_key(task, "continuous-perf.data");
+    if (object_key.empty()) {
+      result.error = "missing exact upload target for continuous-perf.data";
+      return result;
+    }
     const std::string digest = sha256_file(perf_data);
     if (digest.empty()) {
       result.error = "failed to compute artifact SHA-256";
       return result;
     }
-    if (!upload_artifact(config, perf_data, object_key, result.error)) return result;
+    if (!upload_artifact(task, perf_data, object_key, result.error)) return result;
     const auto size = fs::file_size(perf_data);
     std::ostringstream artifacts;
     artifacts << "[{\"artifact_type\":\"continuous_raw\","
@@ -215,10 +229,11 @@ class ContinuousPerfCollector final : public Collector {
               << ",\"sha256\":\"" << digest << "\""
               << ",\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\""
               << ",\"task_id\":\"" << escape_json(task.id) << "\""
+              << ",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id) << "\""
               << ",\"artifact_type\":\"continuous_raw\",\"object_key\":\""
               << escape_json(object_key) << "\",\"content_type\":\"application/octet-stream\""
               << ",\"size_bytes\":" << size << ",\"sha256\":\"" << digest << "\"}"
-              << ",\"metadata\":{\"agent_runtime\":\"native-cpp\","
+              << ",\"metadata\":{\"collector_runtime\":\"native-cpp\","
               << "\"collector_plugin\":\"continuous_perf\",\"window_seconds\":"
               << task.duration << ",\"contract_version\":\"1.0.0\"}}]";
     result.ok = true;

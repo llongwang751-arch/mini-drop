@@ -22,7 +22,7 @@ export default function ConclusionCard({ report }) {
   return (
     <Card
       size="small"
-      style={{ marginBottom: 10, background: "rgba(82,196,26,0.06)" }}
+      className="diagnosis-conclusion-card"
       title={
         <Space>
           <TrophyOutlined />
@@ -35,9 +35,7 @@ export default function ConclusionCard({ report }) {
           <Tag color={confidence >= 0.6 ? "green" : "orange"}>
             置信度 {(confidence * 100).toFixed(0)}%
           </Tag>
-          {verificationStatus && (
-            <Tag color={verColor}>反证门禁:{verificationStatus}</Tag>
-          )}
+          {verificationStatus && <Tag color={verColor}>证据门禁 {verificationStatus}</Tag>}
         </Space>
         <Progress
           percent={Math.round(confidence * 100)}
@@ -47,7 +45,7 @@ export default function ConclusionCard({ report }) {
         <SafeMarkdown>{report.conclusion}</SafeMarkdown>
         {(report.evidence_refs?.length > 0 || report.counter_evidence_refs?.length > 0) && (
           <Text type="secondary" style={{ fontSize: 12 }}>
-            支持证据：{report.evidence_refs?.join("、") || "无"}
+            引用支持证据：{report.evidence_refs?.join("、") || "无"}
             {report.counter_evidence_refs?.length > 0 &&
               `；反证：${report.counter_evidence_refs.join("、")}`}
           </Text>

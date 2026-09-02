@@ -23,6 +23,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -166,8 +167,10 @@ class TaskModel(Base):
     duration_sec = Column(Integer, default=15)
     status = Column(String(16), nullable=False)
     status_reason = Column(Text, default="")
+    error_code = Column(String(64), nullable=True, index=True)
+    error_message = Column(Text, nullable=True)
     collection_status = Column(String(16), nullable=False, default="QUEUED")
-    analysis_status = Column(String(16), nullable=False, default="NOT_STARTED")
+    analysis_status = Column(String(16), nullable=False, default="PENDING")
     request_params = Column(JSON, default=dict)
     process_snapshot_id = Column(
         String(128),
@@ -180,6 +183,9 @@ class TaskModel(Base):
     idempotency_key = Column(String(128), nullable=True)
     creator_id = Column(String(128), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
     started_at = Column(DateTime(timezone=True), nullable=True)
     finished_at = Column(DateTime(timezone=True), nullable=True)
     deleted_at = Column(DateTime(timezone=True), nullable=True, index=True)
@@ -199,12 +205,15 @@ class TaskModel(Base):
             "duration_sec": self.duration_sec,
             "status": self.status,
             "status_reason": self.status_reason or "",
+            "error_code": self.error_code,
+            "error_message": self.error_message,
             "collection_status": self.collection_status or "QUEUED",
-            "analysis_status": self.analysis_status or "NOT_STARTED",
+            "analysis_status": self.analysis_status or "PENDING",
             "request_params": self.request_params or {},
             "process_snapshot_id": self.process_snapshot_id,
             "process_binding": self.process_binding_json,
             "created_at": self.created_at,
+            "updated_at": self.updated_at,
             "started_at": self.started_at,
             "finished_at": self.finished_at,
             "deleted_at": self.deleted_at,
@@ -252,6 +261,37 @@ class TaskAttemptModel(Base):
         }
 
 
+class TaskUploadAuthorizationModel(Base):
+    """Short-lived, task-attempt-scoped MinIO upload authorization."""
+
+    __tablename__ = "task_upload_authorizations"
+    __table_args__ = (
+        UniqueConstraint(
+            "task_id",
+            "task_attempt_id",
+            "object_key",
+            name="uq_task_upload_authorization_object",
+        ),
+        Index(
+            "ix_task_upload_authorizations_task_expiry",
+            "task_id",
+            "task_attempt_id",
+            "expires_at",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(
+        String(128), ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False,
+    )
+    task_attempt_id = Column(String(128), nullable=False)
+    object_key = Column(String(512), nullable=False)
+    put_url = Column(Text, nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+
+
 class StatusEventModel(Base):
     __tablename__ = "task_status_events"
 
@@ -265,13 +305,17 @@ class StatusEventModel(Base):
     created_at = Column(DateTime(timezone=True), nullable=False)
 
     def to_dict(self) -> dict:
+        metadata = self.meta_json or {}
         return {
+            "sequence": self.id,
             "task_id": self.task_id,
+            "task_attempt_id": metadata.get("task_attempt_id"),
             "from_status": self.from_status,
             "to_status": self.to_status,
             "reason": self.reason,
             "actor": self.actor,
-            "metadata": self.meta_json or {},
+            "source": self.actor,
+            "metadata": metadata,
             "created_at": self.created_at,
         }
 
@@ -797,7 +841,11 @@ class DiagnosticSkillEvaluationModel(Base):
 class DiagnosticSkillActivationModel(Base):
     __tablename__ = "diagnostic_skill_activations"
     __table_args__ = (
-        UniqueConstraint("diagnosis_id", name="uq_diagnostic_skill_activation_diagnosis"),
+        UniqueConstraint(
+            "diagnosis_id",
+            "skill_id",
+            name="uq_diagnostic_skill_activation_diagnosis_skill",
+        ),
     )
 
     id = Column(String(128), primary_key=True)
@@ -1072,36 +1120,6 @@ class ScheduleRecordModel(Base):
     created_at = Column(DateTime(timezone=True), nullable=False)
 
 
-class CompositeTaskModel(Base):
-    """A parent task that aggregates child task outcomes by strategy."""
-
-    __tablename__ = "composite_tasks"
-
-    id = Column(String(128), primary_key=True)
-    name = Column(String(256), nullable=False)
-    strategy = Column(String(32), nullable=False)  # ALL_REQUIRED / BEST_EFFORT / QUORUM
-    required_success_count = Column(Integer, nullable=True)
-    status = Column(String(32), nullable=False)
-    created_by = Column(String(128), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class CompositeTaskItemModel(Base):
-    """One child task of a composite, with its role and observed status."""
-
-    __tablename__ = "composite_task_items"
-
-    id = Column(String(128), primary_key=True)
-    composite_id = Column(String(128), nullable=False, index=True)
-    task_id = Column(String(128), nullable=True)
-    role = Column(String(16), nullable=False)  # required / optional
-    sort_order = Column(Integer, nullable=False)
-    status = Column(String(32), nullable=False)
-    error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-
 class FixVerificationModel(Base):
     """Before/after fix verification: apply fix -> re-test -> VERIFIED/REJECTED."""
 
@@ -1118,135 +1136,6 @@ class FixVerificationModel(Base):
     comparison_json = Column(JSON, nullable=True)
     created_by = Column(String(128), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False)
-
-
-# ── 智能归因 ───────────────────────────────────────────────────
-
-
-class DiagnosisRunModel(Base):
-    __tablename__ = "diagnosis_runs"
-
-    id = Column(String(128), primary_key=True)
-    task_id = Column(String(128), ForeignKey("tasks.id"), nullable=False, index=True)
-    status = Column(String(32), nullable=False)
-    model_name = Column(String(64), nullable=False)
-    summary = Column(Text, default="")
-    validated = Column(Integer, default=0)
-    retry_count = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    finished_at = Column(DateTime(timezone=True), nullable=True)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "task_id": self.task_id,
-            "status": self.status,
-            "model_name": self.model_name,
-            "summary": self.summary or "",
-            "validated": bool(self.validated),
-            "retry_count": self.retry_count,
-            "created_at": self.created_at,
-            "finished_at": self.finished_at,
-        }
-
-
-class DiagnosisToolResultModel(Base):
-    __tablename__ = "diagnosis_tool_results"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    diagnosis_id = Column(String(128), ForeignKey("diagnosis_runs.id"), nullable=False, index=True)
-    tool_name = Column(String(64), nullable=False)
-    status = Column(String(32), nullable=False)
-    evidence_ref = Column(String(128), nullable=False)
-    input_json = Column(JSON, default=dict)
-    output_json = Column(JSON, default=dict)
-    error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "tool_name": self.tool_name,
-            "status": self.status,
-            "evidence_ref": self.evidence_ref,
-            "input": self.input_json or {},
-            "output": self.output_json or {},
-            "error_message": self.error_message,
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisReportModel(Base):
-    __tablename__ = "diagnosis_reports"
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(String(128), ForeignKey("diagnosis_runs.id"), nullable=False, index=True)
-    report_json = Column(JSON, default=dict)
-    ranked_causes_json = Column(JSON, default=list)
-    confidence = Column(Integer, default=0)
-    not_enough_evidence = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "report": self.report_json or {},
-            "ranked_causes": self.ranked_causes_json or [],
-            "confidence": (self.confidence or 0) / 1000,
-            "not_enough_evidence": bool(self.not_enough_evidence),
-            "created_at": self.created_at,
-        }
-
-
-class RepairPlanModel(Base):
-    __tablename__ = "repair_plans"
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(String(128), ForeignKey("diagnosis_runs.id"), nullable=False, index=True)
-    cause_id = Column(String(128), nullable=False)
-    risk_level = Column(String(32), nullable=False)
-    actions_json = Column(JSON, default=list)
-    executed_actions_json = Column(JSON, default=list)
-    requires_user_confirm = Column(Integer, default=1)
-    status = Column(String(32), nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "cause_id": self.cause_id,
-            "risk_level": self.risk_level,
-            "actions": self.actions_json or [],
-            "executed_actions": self.executed_actions_json or [],
-            "requires_user_confirm": bool(self.requires_user_confirm),
-            "status": self.status,
-            "created_at": self.created_at,
-        }
-
-
-class RCAFeedbackModel(Base):
-    __tablename__ = "rca_feedback"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    diagnosis_id = Column(String(128), ForeignKey("diagnosis_runs.id"), nullable=False, index=True)
-    task_id = Column(String(128), nullable=False, index=True)
-    predicted_cause_id = Column(String(128), nullable=False)
-    feedback_label = Column(String(32), nullable=False)
-    corrected_cause_id = Column(String(128), nullable=True)
-    feedback_note = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class RCAFeedbackWeightModel(Base):
-    __tablename__ = "rca_feedback_weights"
-
-    candidate_id = Column(String(128), primary_key=True)
-    positive_count = Column(Integer, default=0)
-    negative_count = Column(Integer, default=0)
-    partial_count = Column(Integer, default=0)
-    weight_delta = Column(Integer, default=0)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
 
 
 # ── Agent 指标快照 ───────────────────────────────────────────────
@@ -1275,795 +1164,4 @@ class AgentMetricSnapshotModel(Base):
             "write_kb_s": self.write_kb_s,
             "children_count": self.children_count,
             "created_at": self.created_at,
-        }
-
-
-# ── AI 集群诊断控制层 ────────────────────────────────────────────
-
-
-class ContinuousDiagnosisTriggerModel(Base):
-    """Idempotency record for profiler anomaly -> AI diagnosis promotion."""
-
-    __tablename__ = "continuous_diagnosis_triggers"
-    __table_args__ = (
-        UniqueConstraint("task_id", name="uq_continuous_diagnosis_trigger_task"),
-    )
-
-    id = Column(String(128), primary_key=True)
-    task_id = Column(String(128), ForeignKey("tasks.id"), nullable=False, index=True)
-    artifact_id = Column(Integer, ForeignKey("artifacts.id"), nullable=False)
-    detector_version = Column(String(64), nullable=False)
-    status = Column(String(32), nullable=False, index=True)
-    score_json = Column(JSON, default=dict)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=True, index=True,
-    )
-    error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "trigger_id": self.id,
-            "task_id": self.task_id,
-            "artifact_id": self.artifact_id,
-            "detector_version": self.detector_version,
-            "status": self.status,
-            "score": self.score_json or {},
-            "diagnosis_id": self.diagnosis_id,
-            "error_message": self.error_message,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
-
-
-class TopologySnapshotModel(Base):
-    """诊断创建时冻结的服务/实例/宿主机拓扑。"""
-
-    __tablename__ = "topology_snapshots"
-
-    id = Column(String(128), primary_key=True)
-    effective_at = Column(DateTime(timezone=True), nullable=False)
-    generated_at = Column(DateTime(timezone=True), nullable=False)
-    nodes_json = Column(JSON, default=list)
-    edges_json = Column(JSON, default=list)
-    source_versions_json = Column(JSON, default=dict)
-    confidence_summary_json = Column(JSON, default=dict)
-
-    def to_dict(self) -> dict:
-        return {
-            "snapshot_id": self.id,
-            "effective_at": self.effective_at,
-            "generated_at": self.generated_at,
-            "nodes": self.nodes_json or [],
-            "edges": self.edges_json or [],
-            "source_versions": self.source_versions_json or {},
-            "confidence_summary": self.confidence_summary_json or {},
-        }
-
-
-class DiagnosisSessionModel(Base):
-    """独立于单个采集 Task 的、可恢复的诊断工作流。"""
-
-    __tablename__ = "diagnosis_sessions"
-
-    id = Column(String(128), primary_key=True)
-    case_id = Column(String(128), nullable=True, index=True)
-    creator_id = Column(String(128), nullable=False)
-    raw_query = Column(Text, nullable=False)
-    normalized_intent_json = Column(JSON, default=dict)
-    target_scope_json = Column(JSON, default=dict)
-    requested_time_range_json = Column(JSON, default=dict)
-    effective_time_range_json = Column(JSON, default=dict)
-    topology_snapshot_id = Column(
-        String(128), ForeignKey("topology_snapshots.id"), nullable=True, index=True,
-    )
-    baseline_snapshot_id = Column(String(128), nullable=True)
-    status = Column(String(32), nullable=False)
-    policy_profile = Column(String(64), nullable=False)
-    risk_budget_json = Column(JSON, default=dict)
-    resource_budget_json = Column(JSON, default=dict)
-    budget_used_json = Column(JSON, default=dict)
-    hypothesis_graph_json = Column(JSON, default=dict)
-    child_task_ids_json = Column(JSON, default=list)
-    conclusion_versions_json = Column(JSON, default=list)
-    model_version = Column(String(128), nullable=False)
-    planner_version = Column(String(64), nullable=False)
-    lease_owner = Column(String(128), nullable=True)
-    lease_until = Column(DateTime(timezone=True), nullable=True)
-    row_version = Column(Integer, nullable=False, default=0)
-    deadline_at = Column(DateTime(timezone=True), nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "diagnosis_id": self.id,
-            "case_id": self.case_id,
-            "creator_id": self.creator_id,
-            "raw_query": self.raw_query,
-            "normalized_intent": self.normalized_intent_json or {},
-            "target_scope": self.target_scope_json or {},
-            "requested_time_range": self.requested_time_range_json or {},
-            "effective_time_range": self.effective_time_range_json or {},
-            "topology_snapshot_id": self.topology_snapshot_id,
-            "baseline_snapshot_id": self.baseline_snapshot_id,
-            "status": self.status,
-            "policy_profile": self.policy_profile,
-            "risk_budget": self.risk_budget_json or {},
-            "resource_budget": self.resource_budget_json or {},
-            "budget_used": self.budget_used_json or {},
-            "hypothesis_graph": self.hypothesis_graph_json or {},
-            "child_task_ids": self.child_task_ids_json or [],
-            "conclusion_versions": self.conclusion_versions_json or [],
-            "model_version": self.model_version,
-            "planner_version": self.planner_version,
-            "lease_owner": self.lease_owner,
-            "lease_until": self.lease_until,
-            "row_version": self.row_version,
-            "deadline_at": self.deadline_at,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
-
-
-class AgentRuntimeBindingModel(Base):
-    __tablename__ = "agent_runtime_bindings"
-
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), primary_key=True,
-    )
-    runtime_type = Column(String(32), nullable=False)
-    runtime_version = Column(String(64), nullable=False)
-    runtime_session_id = Column(String(128), nullable=False)
-    runtime_generation = Column(Integer, nullable=False, default=1)
-    status = Column(String(32), nullable=False, default="READY")
-    last_event_seq = Column(Integer, nullable=False, default=0)
-    last_context_snapshot_id = Column(String(128), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "diagnosis_id": self.diagnosis_id,
-            "runtime_type": self.runtime_type,
-            "runtime_version": self.runtime_version,
-            "runtime_session_id": self.runtime_session_id,
-            "runtime_generation": self.runtime_generation,
-            "status": self.status,
-            "last_event_seq": self.last_event_seq,
-            "last_context_snapshot_id": self.last_context_snapshot_id,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
-
-
-class AgentRuntimeTurnModel(Base):
-    __tablename__ = "agent_runtime_turns"
-    __table_args__ = (
-        UniqueConstraint(
-            "diagnosis_id", "client_command_id",
-            name="uq_agent_runtime_turn_command",
-        ),
-        UniqueConstraint(
-            "diagnosis_id", "turn_id", name="uq_agent_runtime_turn_identity",
-        ),
-        CheckConstraint(
-            "recovery_phase IS NULL OR recovery_phase IN "
-            "('NEEDS_BINDING', 'SUBMIT_INTENT')",
-            name="ck_agent_runtime_turn_recovery_phase",
-        ),
-        Index(
-            "ix_agent_runtime_turns_recovery_lease",
-            "status",
-            "recovery_lease_expires_at",
-        ),
-    )
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    turn_id = Column(String(128), nullable=False)
-    runtime_session_id = Column(String(128), nullable=True)
-    runtime_generation = Column(Integer, nullable=False)
-    user_message = Column(Text, nullable=False)
-    requested_mode = Column(String(40), nullable=True)
-    side_effect_policy = Column(String(24), nullable=True)
-    actor_id = Column(String(128), nullable=True)
-    client_command_id = Column(String(128), nullable=False)
-    status = Column(String(32), nullable=False, default="SUBMITTING")
-    recovery_phase = Column(String(32), nullable=True)
-    recovery_owner = Column(String(128), nullable=True)
-    recovery_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
-    recovery_fencing_token = Column(Integer, nullable=False, default=0)
-    accepted_mode = Column(String(32), nullable=True)
-    detail = Column(Text, nullable=True)
-    final_message_json = Column(JSON, nullable=True)
-    sealed_at = Column(DateTime(timezone=True), nullable=True)
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "diagnosis_id": self.diagnosis_id,
-            "turn_id": self.turn_id,
-            "runtime_session_id": self.runtime_session_id,
-            "runtime_generation": self.runtime_generation,
-            "user_message": self.user_message,
-            "requested_mode": self.requested_mode,
-            "side_effect_policy": self.side_effect_policy,
-            "actor_id": self.actor_id,
-            "client_command_id": self.client_command_id,
-            "status": self.status,
-            "recovery_phase": self.recovery_phase,
-            "recovery_owner": self.recovery_owner,
-            "recovery_lease_expires_at": self.recovery_lease_expires_at,
-            "recovery_fencing_token": self.recovery_fencing_token,
-            "accepted_mode": self.accepted_mode,
-            "detail": self.detail,
-            "final_message": self.final_message_json,
-            "sealed_at": self.sealed_at,
-            "completed_at": self.completed_at,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
-
-
-class AgentRuntimeEventModel(Base):
-    __tablename__ = "agent_runtime_events"
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ["diagnosis_id", "turn_id"],
-            ["agent_runtime_turns.diagnosis_id", "agent_runtime_turns.turn_id"],
-            name="fk_agent_runtime_events_turn",
-        ),
-        UniqueConstraint(
-            "diagnosis_id", "turn_id", "runtime_generation", "event_seq",
-            name="uq_agent_runtime_event_sequence",
-        ),
-        UniqueConstraint(
-            "diagnosis_id", "event_id", name="uq_agent_runtime_event_identity",
-        ),
-    )
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    event_id = Column(String(128), nullable=False)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    turn_id = Column(String(128), nullable=False)
-    runtime_generation = Column(Integer, nullable=False)
-    event_seq = Column(Integer, nullable=False)
-    event_type = Column(String(64), nullable=False)
-    payload_json = Column(JSON, nullable=False, default=dict)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "event_id": self.event_id,
-            "diagnosis_id": self.diagnosis_id,
-            "turn_id": self.turn_id,
-            "runtime_generation": self.runtime_generation,
-            "event_seq": self.event_seq,
-            "event_type": self.event_type,
-            "payload": self.payload_json or {},
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisEventModel(Base):
-    __tablename__ = "diagnosis_events"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    event_type = Column(String(64), nullable=False)
-    from_status = Column(String(32), nullable=True)
-    to_status = Column(String(32), nullable=False)
-    payload_json = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "event_type": self.event_type,
-            "from_status": self.from_status,
-            "to_status": self.to_status,
-            "payload": self.payload_json or {},
-            "created_at": self.created_at,
-        }
-
-
-class ProbeExecutionModel(Base):
-    """一次受控探针计划/审批/执行记录；step id 同时作为幂等键。"""
-
-    __tablename__ = "diagnosis_probe_executions"
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    probe_id = Column(String(128), nullable=False)
-    target_json = Column(JSON, default=dict)
-    parameters_json = Column(JSON, default=dict)
-    reason = Column(Text, nullable=False)
-    risk_level = Column(String(8), nullable=False)
-    status = Column(String(32), nullable=False)
-    requires_approval = Column(Integer, default=0)
-    evidence_purpose = Column(String(16), nullable=False, default="VERIFY")
-    round_index = Column(Integer, nullable=False, default=1)
-    task_id = Column(String(128), ForeignKey("tasks.id"), nullable=True, index=True)
-    approved_by = Column(String(128), nullable=True)
-    approved_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-    retry_count = Column(Integer, nullable=False, default=0)
-    error_code = Column(String(128), nullable=True)
-    error_message = Column(Text, nullable=True)
-
-    def to_dict(self) -> dict:
-        return {
-            "step_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "probe_id": self.probe_id,
-            "target": self.target_json or {},
-            "parameters": self.parameters_json or {},
-            "reason": self.reason,
-            "risk_level": self.risk_level,
-            "status": self.status,
-            "requires_approval": bool(self.requires_approval),
-            "evidence_purpose": self.evidence_purpose or "VERIFY",
-            "round_index": self.round_index or 1,
-            "task_id": self.task_id,
-            "approved_by": self.approved_by,
-            "approved_at": self.approved_at,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-            "retry_count": self.retry_count,
-            "error_code": self.error_code,
-            "error_message": self.error_message,
-        }
-
-
-class DiagnosisOutboxModel(Base):
-    """Transactional intent to create the one Task belonging to a probe step."""
-
-    __tablename__ = "diagnosis_task_outbox"
-
-    id = Column(String(160), primary_key=True)
-    diagnosis_id = Column(String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True)
-    step_id = Column(String(128), ForeignKey("diagnosis_probe_executions.id"), nullable=False, unique=True)
-    status = Column(String(32), nullable=False, default="PENDING")
-    attempt = Column(Integer, nullable=False, default=0)
-    last_error = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class DiagnosisEvidenceModel(Base):
-    """可追溯到 Task/Artifact 的不可变证据摘要。"""
-
-    __tablename__ = "diagnosis_evidence"
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    source_type = Column(String(32), nullable=False)
-    source_system = Column(String(64), nullable=False)
-    evidence_role = Column(String(32), nullable=False, default="incident")
-    target_json = Column(JSON, default=dict)
-    event_time_range_json = Column(JSON, default=dict)
-    ingestion_time = Column(DateTime(timezone=True), nullable=False)
-    query_or_probe = Column(String(256), nullable=False)
-    raw_artifact_ref = Column(String(512), nullable=True)
-    derived_artifact_ref = Column(String(512), nullable=True)
-    derivation_version = Column(String(64), nullable=False)
-    observed_value_json = Column(JSON, default=dict)
-    baseline_value_json = Column(JSON, default=dict)
-    anomaly_score_json = Column(JSON, default=dict)
-    data_quality_json = Column(JSON, default=dict)
-    integrity_hash = Column(String(80), nullable=False)
-    claim_links_json = Column(JSON, default=list)
-    lifecycle_status = Column(String(32), nullable=False, default="ACTIVE")
-    trust_status = Column(String(32), nullable=False, default="UNREVIEWED")
-    superseded_by = Column(
-        String(128), ForeignKey("diagnosis_evidence.id"), nullable=True,
-    )
-    review_revision = Column(Integer, nullable=False, default=0)
-    reviewed_at = Column(DateTime(timezone=True), nullable=True)
-    reviewer_id = Column(String(128), nullable=True)
-
-    def to_dict(self) -> dict:
-        return {
-            "evidence_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "source_type": self.source_type,
-            "source_system": self.source_system,
-            "evidence_role": self.evidence_role,
-            "target": self.target_json or {},
-            "event_time_range": self.event_time_range_json or {},
-            "ingestion_time": self.ingestion_time,
-            "query_or_probe": self.query_or_probe,
-            "raw_artifact_ref": self.raw_artifact_ref,
-            "derived_artifact_ref": self.derived_artifact_ref,
-            "derivation_version": self.derivation_version,
-            "observed_value": self.observed_value_json or {},
-            "baseline_value": self.baseline_value_json or {},
-            "anomaly_score": self.anomaly_score_json or {},
-            "data_quality": self.data_quality_json or {},
-            "integrity_hash": self.integrity_hash,
-            "claim_links": self.claim_links_json or [],
-            "lifecycle_status": self.lifecycle_status,
-            "trust_status": self.trust_status,
-            "superseded_by": self.superseded_by,
-            "review_revision": self.review_revision,
-            "reviewed_at": self.reviewed_at,
-            "reviewer_id": self.reviewer_id,
-        }
-
-
-class DiagnosisEvidenceReviewModel(Base):
-    __tablename__ = "diagnosis_evidence_reviews"
-
-    id = Column(String(200), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    evidence_id = Column(
-        String(128), ForeignKey("diagnosis_evidence.id"), nullable=False, index=True,
-    )
-    revision = Column(Integer, nullable=False)
-    lifecycle_status = Column(String(32), nullable=False)
-    trust_status = Column(String(32), nullable=False)
-    superseded_by = Column(
-        String(128), ForeignKey("diagnosis_evidence.id"), nullable=True,
-    )
-    reviewer_id = Column(String(128), nullable=False)
-    reason = Column(Text, nullable=False, default="")
-    reviewed_at = Column(DateTime(timezone=True), nullable=False)
-
-    __table_args__ = (
-        UniqueConstraint(
-            "evidence_id", "revision", name="uq_diagnosis_evidence_review_revision",
-        ),
-    )
-
-    def to_dict(self) -> dict:
-        return {
-            "review_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "evidence_id": self.evidence_id,
-            "revision": self.revision,
-            "lifecycle_status": self.lifecycle_status,
-            "trust_status": self.trust_status,
-            "superseded_by": self.superseded_by,
-            "reviewer_id": self.reviewer_id,
-            "reason": self.reason,
-            "reviewed_at": self.reviewed_at,
-        }
-
-
-class DiagnosisEvidenceSnapshotModel(Base):
-    """一次采集轮次形成的不可变证据集合。
-
-    Snapshot 只保存证据引用和采集上下文，不复制原始采集结果。这样既能
-    追溯 incident/baseline/peer/verification 的时间窗口，又不会出现两份
-    原始数据相互漂移。
-    """
-
-    __tablename__ = "diagnosis_evidence_snapshots"
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    round_index = Column(Integer, nullable=False, default=1)
-    evidence_role = Column(String(32), nullable=False, default="incident")
-    captured_at = Column(DateTime(timezone=True), nullable=False)
-    time_range_json = Column(JSON, default=dict)
-    target_json = Column(JSON, default=dict)
-    workload_identity_json = Column(JSON, default=dict)
-    deployment_version = Column(String(128), nullable=True)
-    host_fingerprint_json = Column(JSON, default=dict)
-    collector = Column(String(64), nullable=False)
-    collector_version = Column(String(64), nullable=True)
-    task_id = Column(String(128), ForeignKey("tasks.id"), nullable=True, index=True)
-    attempt_id = Column(
-        String(128), ForeignKey("task_attempts.id"), nullable=True, index=True,
-    )
-    evidence_refs_json = Column(JSON, default=list)
-    artifact_refs_json = Column(JSON, default=list)
-    artifact_provenance_json = Column(JSON, nullable=True)
-    analysis_provenance_json = Column(JSON, nullable=True)
-    baseline_ref = Column(String(128), nullable=True)
-    quality_json = Column(JSON, default=dict)
-    integrity_hash = Column(String(80), nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "snapshot_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "round_index": self.round_index,
-            "evidence_role": self.evidence_role,
-            "captured_at": self.captured_at,
-            "time_range": self.time_range_json or {},
-            "target": self.target_json or {},
-            "workload_identity": self.workload_identity_json or {},
-            "deployment_version": self.deployment_version,
-            "host_fingerprint": self.host_fingerprint_json or {},
-            "collector": self.collector,
-            "collector_version": self.collector_version,
-            "task_id": self.task_id,
-            "attempt_id": self.attempt_id,
-            "task_attempt_id": self.attempt_id,
-            "evidence_refs": self.evidence_refs_json or [],
-            "artifact_refs": self.artifact_refs_json or [],
-            "artifact_provenance": self.artifact_provenance_json or [],
-            "analysis_provenance": self.analysis_provenance_json or [],
-            "baseline_ref": self.baseline_ref,
-            "quality": self.quality_json or {},
-            "integrity_hash": self.integrity_hash,
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisConclusionInvalidationModel(Base):
-    __tablename__ = "diagnosis_conclusion_invalidations"
-    __table_args__ = (
-        UniqueConstraint(
-            "diagnosis_id", "conclusion_hash", "evidence_id", "review_revision",
-            name="uq_diagnosis_conclusion_invalidation_identity",
-        ),
-    )
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    conclusion_hash = Column(String(80), nullable=False, index=True)
-    evidence_id = Column(String(128), ForeignKey("diagnosis_evidence.id"), nullable=False)
-    review_revision = Column(Integer, nullable=False)
-    reason = Column(Text, nullable=False, default="")
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "invalidation_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "conclusion_hash": self.conclusion_hash,
-            "evidence_id": self.evidence_id,
-            "review_revision": self.review_revision,
-            "reason": self.reason,
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisRevalidationRequestModel(Base):
-    __tablename__ = "diagnosis_revalidation_requests"
-    __table_args__ = (
-        UniqueConstraint(
-            "diagnosis_id", "conclusion_hash", "evidence_id", "review_revision",
-            name="uq_diagnosis_revalidation_request_identity",
-        ),
-    )
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    conclusion_hash = Column(String(80), nullable=False)
-    evidence_id = Column(String(128), ForeignKey("diagnosis_evidence.id"), nullable=False)
-    review_revision = Column(Integer, nullable=False)
-    status = Column(String(32), nullable=False, default="PENDING", index=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class DiagnosisArtifactRevocationModel(Base):
-    __tablename__ = "diagnosis_artifact_revocations"
-    __table_args__ = (
-        UniqueConstraint(
-            "artifact_id", "evidence_id", "review_revision",
-            name="uq_diagnosis_artifact_revocation_identity",
-        ),
-    )
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    artifact_id = Column(
-        String(128), ForeignKey("frozen_diagnosis_artifacts.id"), nullable=False, index=True,
-    )
-    artifact_hash = Column(String(80), nullable=False)
-    conclusion_hash = Column(String(80), nullable=False)
-    evidence_id = Column(String(128), ForeignKey("diagnosis_evidence.id"), nullable=False)
-    review_revision = Column(Integer, nullable=False)
-    reason = Column(Text, nullable=False, default="")
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "revocation_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "artifact_id": self.artifact_id,
-            "artifact_hash": self.artifact_hash,
-            "conclusion_hash": self.conclusion_hash,
-            "evidence_id": self.evidence_id,
-            "review_revision": self.review_revision,
-            "reason": self.reason,
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisArtifactRevocationOutboxModel(Base):
-    __tablename__ = "diagnosis_artifact_revocation_outbox"
-    __table_args__ = (
-        Index(
-            "ix_diagnosis_artifact_revocation_outbox_due",
-            "status", "next_attempt_at",
-        ),
-        Index(
-            "ix_diagnosis_artifact_revocation_outbox_lease_recovery",
-            "status", "worker_lease_expires_at",
-        ),
-    )
-
-    id = Column(String(160), primary_key=True)
-    revocation_id = Column(
-        String(128), ForeignKey("diagnosis_artifact_revocations.id"),
-        nullable=False, unique=True,
-    )
-    status = Column(String(32), nullable=False, default="PENDING", index=True)
-    attempts = Column(Integer, nullable=False, default=0)
-    next_attempt_at = Column(DateTime(timezone=True), nullable=False)
-    worker_lease_owner = Column(String(128), nullable=True)
-    worker_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
-    last_error = Column(Text, nullable=True)
-    published_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class FrozenDiagnosisArtifactModel(Base):
-    """Canonical terminal diagnosis output consumed by a separate evaluator."""
-
-    __tablename__ = "frozen_diagnosis_artifacts"
-    __table_args__ = (
-        UniqueConstraint("diagnosis_id", name="uq_frozen_diagnosis_artifact_diagnosis"),
-    )
-
-    id = Column(String(128), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    schema_version = Column(String(32), nullable=False)
-    terminal_status = Column(String(32), nullable=False)
-    canonical_json = Column(Text, nullable=False)
-    artifact_hash = Column(String(80), nullable=False, unique=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        import json
-
-        return {
-            "artifact_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "schema_version": self.schema_version,
-            "terminal_status": self.terminal_status,
-            "payload": json.loads(self.canonical_json),
-            "canonical_json": self.canonical_json,
-            "artifact_hash": self.artifact_hash,
-            "created_at": self.created_at,
-        }
-
-
-class DiagnosisArtifactOutboxModel(Base):
-    """Transactional notification that a frozen diagnosis artifact is ready."""
-
-    __tablename__ = "diagnosis_artifact_outbox"
-
-    id = Column(String(160), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    artifact_id = Column(
-        String(128), ForeignKey("frozen_diagnosis_artifacts.id"), nullable=False, unique=True,
-    )
-    artifact_hash = Column(String(80), nullable=False)
-    status = Column(String(32), nullable=False, default="PENDING", index=True)
-    attempts = Column(Integer, nullable=False, default=0)
-    next_attempt_at = Column(DateTime(timezone=True), nullable=False)
-    worker_lease_owner = Column(String(128), nullable=True)
-    worker_lease_expires_at = Column(DateTime(timezone=True), nullable=True)
-    last_error = Column(Text, nullable=True)
-    published_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-
-class DiagnosisEvaluationModel(Base):
-    """Evaluator-owned result; never folded back into diagnosis state."""
-
-    __tablename__ = "diagnosis_artifact_evaluations"
-    __table_args__ = (
-        UniqueConstraint(
-            "artifact_id", "artifact_hash", "evaluator_version",
-            name="uq_diagnosis_artifact_evaluation_identity",
-        ),
-    )
-
-    id = Column(String(160), primary_key=True)
-    artifact_id = Column(
-        String(128), ForeignKey("frozen_diagnosis_artifacts.id"), nullable=False, index=True,
-    )
-    artifact_hash = Column(String(80), nullable=False)
-    evaluator_version = Column(String(64), nullable=False)
-    status = Column(String(32), nullable=False)
-    failure_code = Column(String(64), nullable=True)
-    result_json = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "evaluation_id": self.id,
-            "artifact_id": self.artifact_id,
-            "artifact_hash": self.artifact_hash,
-            "evaluator_version": self.evaluator_version,
-            "status": self.status,
-            "failure_code": self.failure_code,
-            "result": self.result_json or {},
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
-
-
-class DiagnosisNodeRunModel(Base):
-    """显式诊断流水线节点的可恢复运行记录。"""
-
-    __tablename__ = "diagnosis_node_runs"
-    __table_args__ = (UniqueConstraint("diagnosis_id", "node_name", name="uq_diagnosis_node_name"),)
-
-    id = Column(String(256), primary_key=True)
-    diagnosis_id = Column(
-        String(128), ForeignKey("diagnosis_sessions.id"), nullable=False, index=True,
-    )
-    node_name = Column(String(64), nullable=False, index=True)
-    sequence = Column(Integer, nullable=False)
-    status = Column(String(32), nullable=False)
-    attempt = Column(Integer, nullable=False, default=0)
-    input_refs_json = Column(JSON, default=list)
-    output_refs_json = Column(JSON, default=list)
-    metrics_json = Column(JSON, default=dict)
-    error_code = Column(String(128), nullable=True)
-    error_message = Column(Text, nullable=True)
-    implementation_version = Column(String(64), nullable=False)
-    started_at = Column(DateTime(timezone=True), nullable=True)
-    finished_at = Column(DateTime(timezone=True), nullable=True)
-    updated_at = Column(DateTime(timezone=True), nullable=False)
-
-    def to_dict(self) -> dict:
-        return {
-            "node_run_id": self.id,
-            "diagnosis_id": self.diagnosis_id,
-            "node_name": self.node_name,
-            "sequence": self.sequence,
-            "status": self.status,
-            "attempt": self.attempt,
-            "input_refs": self.input_refs_json or [],
-            "output_refs": self.output_refs_json or [],
-            "metrics": self.metrics_json or {},
-            "error_code": self.error_code,
-            "error_message": self.error_message,
-            "implementation_version": self.implementation_version,
-            "started_at": self.started_at,
-            "finished_at": self.finished_at,
-            "updated_at": self.updated_at,
         }

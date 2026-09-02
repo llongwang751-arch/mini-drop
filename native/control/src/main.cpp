@@ -1,23 +1,38 @@
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
 
 #include "healthcheck.grpc.pb.h"
 #include "hotmethod.grpc.pb.h"
 #include "init.grpc.pb.h"
+#include "control.grpc.pb.h"
+#include "taskkind_contract.h"
+#include "status_contract.h"
+#include "error_code_contract.h"
 
 #include <google/protobuf/empty.pb.h>
 #include <nlohmann/json.hpp>
+#include <openssl/crypto.h>
+#include <openssl/rand.h>
+#include <openssl/sha.h>
 #include <pqxx/pqxx>
 
 #include <algorithm>
+#include <array>
+#include <cctype>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <random>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 using json = nlohmann::json;
@@ -58,16 +73,34 @@ std::string random_id(const std::string& prefix) {
   return out.str();
 }
 
-std::string stable_checksum(const std::string& input) {
-  std::uint64_t hash = 1469598103934665603ULL;
-  for (const unsigned char ch : input) {
-    hash ^= ch;
-    hash *= 1099511628211ULL;
+std::string hex_bytes(const unsigned char* input, std::size_t size) {
+  constexpr char digits[] = "0123456789abcdef";
+  std::string output(size * 2, '0');
+  for (std::size_t index = 0; index < size; ++index) {
+    output[index * 2] = digits[(input[index] >> 4) & 0x0f];
+    output[index * 2 + 1] = digits[input[index] & 0x0f];
   }
-  std::ostringstream part;
-  part << std::hex << std::setw(16) << std::setfill('0') << hash;
-  const std::string value = part.str();
-  return value + value + value + value;
+  return output;
+}
+
+std::string random_task_attempt_authority() {
+  std::array<unsigned char, 32> bytes{};
+  if (RAND_bytes(bytes.data(), static_cast<int>(bytes.size())) != 1) {
+    throw std::runtime_error("secure task-attempt authority generation failed");
+  }
+  return hex_bytes(bytes.data(), bytes.size());
+}
+
+std::string sha256_hex(const std::string& input) {
+  std::array<unsigned char, SHA256_DIGEST_LENGTH> digest{};
+  SHA256(reinterpret_cast<const unsigned char*>(input.data()), input.size(),
+         digest.data());
+  return hex_bytes(digest.data(), digest.size());
+}
+
+bool secure_equal(const std::string& left, const std::string& right) {
+  return left.size() == right.size() && !left.empty() &&
+      CRYPTO_memcmp(left.data(), right.data(), left.size()) == 0;
 }
 
 struct Config {
@@ -75,30 +108,301 @@ struct Config {
   std::string database_url;
   std::string grpc_token;
   bool auth_enabled;
-  std::string minio_endpoint;
-  std::string minio_access;
-  std::string minio_secret;
+  bool grpc_secure;
+  std::string grpc_cert_file;
+  std::string grpc_key_file;
+  std::string grpc_ca_file;
+  std::string grpc_client_cert_file;
+  std::string grpc_client_key_file;
+  bool grpc_require_client_cert;
+  std::string grpc_api_client_identity;
   std::string minio_bucket;
-  bool distribute_credentials;
   int agent_offline_timeout_sec;
   int maintenance_interval_sec;
+  int process_snapshot_retention;
+  int process_snapshot_max_age_sec;
 };
 
 Config load_config() {
-  return Config{
-      env_or("NATIVE_CONTROL_LISTEN_ADDR", "0.0.0.0:50052"),
+  Config config{
+      env_or("NATIVE_CONTROL_LISTEN_ADDR", "0.0.0.0:50051"),
       normalize_database_url(env_or(
           "DATABASE_URL", "postgresql://mini_drop:mini_drop@postgres:5432/mini_drop")),
       env_or("MINI_DROP_GRPC_TOKEN", ""),
       env_bool("MINI_DROP_GRPC_AUTH_ENABLED"),
-      env_or("MINIO_AGENT_ENDPOINT", env_or("MINIO_ENDPOINT", "minio:9000")),
-      env_or("MINIO_ACCESS_KEY", ""),
-      env_or("MINIO_SECRET_KEY", ""),
+      env_bool("MINI_DROP_GRPC_SECURE"),
+      env_or("MINI_DROP_GRPC_CERT_FILE", ""),
+      env_or("MINI_DROP_GRPC_KEY_FILE", ""),
+      env_or("MINI_DROP_GRPC_CA_FILE", ""),
+      env_or("MINI_DROP_GRPC_CLIENT_CERT_FILE", ""),
+      env_or("MINI_DROP_GRPC_CLIENT_KEY_FILE", ""),
+      env_bool("MINI_DROP_GRPC_REQUIRE_CLIENT_CERT"),
+      env_or("MINI_DROP_GRPC_API_CLIENT_IDENTITY", "mini-drop-control-client"),
       env_or("MINIO_BUCKET", "mini-drop"),
-      env_bool("MINI_DROP_GRPC_DISTRIBUTE_MINIO_CREDENTIALS") &&
-          env_bool("MINI_DROP_GRPC_SECURE"),
       env_int("AGENT_OFFLINE_TIMEOUT_SEC", 30),
-      env_int("MINI_DROP_CONTROL_MAINTENANCE_SEC", 5)};
+      env_int("MINI_DROP_CONTROL_MAINTENANCE_SEC", 5),
+      std::min(10000, std::max(2, env_int(
+          "MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT", 120))),
+      env_int("MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC", 30)};
+  std::string environment = env_or("MINI_DROP_ENV", "dev");
+  std::transform(environment.begin(), environment.end(), environment.begin(), ::tolower);
+  if (environment == "production") {
+    if (!config.auth_enabled || config.grpc_token.empty()) {
+      throw std::runtime_error(
+          "production requires non-empty gRPC token authentication");
+    }
+    if (!config.grpc_secure || !config.grpc_require_client_cert ||
+        config.grpc_ca_file.empty()) {
+      throw std::runtime_error(
+          "production requires gRPC mTLS with verified client certificates");
+    }
+    if (config.grpc_api_client_identity.empty()) {
+      throw std::runtime_error(
+          "production requires MINI_DROP_GRPC_API_CLIENT_IDENTITY");
+    }
+  }
+  return config;
+}
+
+std::string bounded_text(std::string value, std::size_t max_length = 1024) {
+  value.erase(std::remove(value.begin(), value.end(), '\0'), value.end());
+  if (value.size() > max_length) value.resize(max_length);
+  return value;
+}
+
+std::int64_t bounded_u64(std::uint64_t value) {
+  const auto maximum = static_cast<std::uint64_t>(
+      std::numeric_limits<std::int64_t>::max());
+  return static_cast<std::int64_t>(std::min(value, maximum));
+}
+
+void persist_process_snapshot(
+    pqxx::work& tx,
+    const Config& config,
+    const std::string& agent_id,
+    const mini_drop::ProcessCandidateSnapshot& snapshot) {
+  constexpr int kMaxCandidates = 256;
+  constexpr int kMaxCapabilities = 16;
+
+  bool invalid = snapshot.candidates_size() > kMaxCandidates;
+  const bool truncated = snapshot.truncated() || invalid;
+  const std::string boot_id = bounded_text(snapshot.boot_id());
+  const std::string error = bounded_text(snapshot.error());
+  if (snapshot.generation() >
+          static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()) ||
+      snapshot.observed_at_unix_ms() >
+          static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) {
+    invalid = true;
+  }
+
+  struct CandidateRow {
+    int pid;
+    std::int64_t process_start_ticks;
+    std::int64_t pid_namespace_inode;
+    int namespace_pid;
+    std::string executable_identity;
+    std::string comm;
+    std::string cgroup;
+    std::string service_hint;
+    std::string instance_hint;
+    std::string collector_capabilities;
+  };
+  std::vector<CandidateRow> candidates;
+  candidates.reserve(std::min(snapshot.candidates_size(), kMaxCandidates));
+  std::unordered_set<std::string> identities;
+  for (int index = 0;
+       index < snapshot.candidates_size() && index < kMaxCandidates;
+       ++index) {
+    const auto& candidate = snapshot.candidates(index);
+    const std::string executable_identity =
+        bounded_text(candidate.executable_identity());
+    const bool candidate_valid =
+        candidate.pid() > 0 &&
+        candidate.pid() <= static_cast<std::uint32_t>(
+            std::numeric_limits<int>::max()) &&
+        candidate.process_start_ticks() > 0 &&
+        candidate.process_start_ticks() <= static_cast<std::uint64_t>(
+            std::numeric_limits<std::int64_t>::max()) &&
+        candidate.pid_namespace_inode() > 0 &&
+        candidate.pid_namespace_inode() <= static_cast<std::uint64_t>(
+            std::numeric_limits<std::int64_t>::max()) &&
+        candidate.namespace_pid() > 0 &&
+        candidate.namespace_pid() <= static_cast<std::uint32_t>(
+            std::numeric_limits<int>::max()) &&
+        !executable_identity.empty();
+    if (!candidate_valid) {
+      invalid = true;
+      continue;
+    }
+
+    std::ostringstream identity;
+    identity << candidate.pid() << ':' << candidate.process_start_ticks()
+             << ':' << candidate.pid_namespace_inode() << ':'
+             << candidate.namespace_pid() << ':' << executable_identity;
+    if (!identities.insert(identity.str()).second) {
+      invalid = true;
+      continue;
+    }
+
+    json capabilities = json::array();
+    if (candidate.collector_capabilities_size() > kMaxCapabilities) {
+      invalid = true;
+    }
+    for (int capability_index = 0;
+         capability_index < candidate.collector_capabilities_size() &&
+         capability_index < kMaxCapabilities;
+         ++capability_index) {
+      capabilities.push_back(bounded_text(
+          candidate.collector_capabilities(capability_index), 64));
+    }
+    candidates.push_back(CandidateRow{
+        static_cast<int>(candidate.pid()),
+        bounded_u64(candidate.process_start_ticks()),
+        bounded_u64(candidate.pid_namespace_inode()),
+        static_cast<int>(candidate.namespace_pid()),
+        executable_identity,
+        bounded_text(candidate.comm()),
+        bounded_text(candidate.cgroup()),
+        bounded_text(candidate.service_hint()),
+        bounded_text(candidate.instance_hint()),
+        capabilities.dump()});
+  }
+
+  std::string state;
+  if (!error.empty()) {
+    state = "failed";
+  } else if (truncated) {
+    state = "truncated";
+  } else if (!snapshot.complete() || invalid || snapshot.generation() == 0 ||
+             boot_id.empty()) {
+    state = "partial";
+  } else if (candidates.empty()) {
+    state = "complete-empty";
+  } else {
+    state = "complete-populated";
+  }
+  const bool authoritative =
+      state == "complete-empty" || state == "complete-populated";
+  const std::string snapshot_id = random_id("psnap_");
+  tx.exec_params(
+      "INSERT INTO process_candidate_snapshots("
+      "id,agent_id,generation,boot_id,observed_at_unix_ms,complete,truncated,"
+      "error,state,authoritative,received_at) "
+      "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())",
+      snapshot_id, agent_id, bounded_u64(snapshot.generation()), boot_id,
+      bounded_u64(snapshot.observed_at_unix_ms()), snapshot.complete(),
+      truncated, error, state, authoritative);
+  for (const auto& candidate : candidates) {
+    tx.exec_params(
+        "INSERT INTO process_candidates("
+        "snapshot_id,agent_id,pid,process_start_ticks,pid_namespace_inode,"
+        "namespace_pid,executable_identity,comm,cgroup,service_hint,"
+        "instance_hint,collector_capabilities) "
+        "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::json)",
+        snapshot_id, agent_id, candidate.pid, candidate.process_start_ticks,
+        candidate.pid_namespace_inode, candidate.namespace_pid,
+        candidate.executable_identity, candidate.comm, candidate.cgroup,
+        candidate.service_hint, candidate.instance_hint,
+        candidate.collector_capabilities);
+  }
+
+  tx.exec_params(
+      "DELETE FROM process_candidate_snapshots s WHERE s.id IN ("
+      "SELECT id FROM process_candidate_snapshots WHERE agent_id=$1 "
+      "ORDER BY received_at DESC,id DESC OFFSET $2 LIMIT 100) "
+      "AND NOT EXISTS (SELECT 1 FROM tasks t WHERE t.process_snapshot_id=s.id) "
+      "AND NOT EXISTS (SELECT 1 FROM drop_insight_target_bindings b "
+      "WHERE b.process_snapshot_id=s.id)",
+      agent_id, config.process_snapshot_retention);
+}
+
+bool process_binding_matches_latest(
+    pqxx::work& tx,
+    const Config& config,
+    const std::string& agent_id,
+    int target_pid,
+    const std::string& binding_json) {
+  try {
+    const json binding = json::parse(binding_json);
+    if (binding.value("agent_id", std::string{}) != agent_id ||
+        binding.value("pid", 0) != target_pid) {
+      return false;
+    }
+    const auto matches = tx.exec_params(
+        "WITH latest AS ("
+        "SELECT id,agent_id,boot_id,authoritative,received_at "
+        "FROM process_candidate_snapshots WHERE agent_id=$1 "
+        "ORDER BY received_at DESC,id DESC LIMIT 1) "
+        "SELECT count(*) FROM latest l JOIN process_candidates p "
+        "ON p.snapshot_id=l.id WHERE l.authoritative=true "
+        "AND l.received_at >= now()-($9::int * interval '1 second') "
+        "AND p.pid=$2 AND l.boot_id=$3 AND p.process_start_ticks=$4 "
+        "AND p.pid_namespace_inode=$5 AND p.namespace_pid=$6 "
+        "AND p.executable_identity=$7 AND l.agent_id=$8",
+        agent_id, target_pid, binding.at("boot_id").get<std::string>(),
+        binding.at("process_start_ticks").get<std::int64_t>(),
+        binding.at("pid_namespace_inode").get<std::int64_t>(),
+        binding.at("namespace_pid").get<int>(),
+        binding.at("executable_identity").get<std::string>(),
+        binding.at("agent_id").get<std::string>(),
+        config.process_snapshot_max_age_sec);
+    return !matches.empty() && matches[0][0].as<int>() == 1;
+  } catch (...) {
+    return false;
+  }
+}
+
+std::string read_file(const std::string& path) {
+  if (path.empty()) return "";
+  std::ifstream input(path, std::ios::binary);
+  if (!input) throw std::runtime_error("cannot read TLS file: " + path);
+  std::ostringstream content;
+  content << input.rdbuf();
+  return content.str();
+}
+
+std::shared_ptr<grpc::ServerCredentials> server_credentials(const Config& config) {
+  if (!config.grpc_secure) return grpc::InsecureServerCredentials();
+  if (config.grpc_cert_file.empty() || config.grpc_key_file.empty()) {
+    throw std::runtime_error(
+        "MINI_DROP_GRPC_CERT_FILE and MINI_DROP_GRPC_KEY_FILE are required");
+  }
+  grpc::SslServerCredentialsOptions options;
+  options.pem_key_cert_pairs.push_back({
+      read_file(config.grpc_key_file), read_file(config.grpc_cert_file)});
+  if (config.grpc_require_client_cert) {
+    if (config.grpc_ca_file.empty()) {
+      throw std::runtime_error(
+          "MINI_DROP_GRPC_CA_FILE is required when client certificates are required");
+    }
+    options.pem_root_certs = read_file(config.grpc_ca_file);
+    options.client_certificate_request =
+        GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_AND_VERIFY;
+  }
+  return grpc::SslServerCredentials(options);
+}
+
+std::shared_ptr<grpc::Channel> health_channel(const Config& config) {
+  const std::string address =
+      env_or("NATIVE_CONTROL_HEALTH_ADDR", "127.0.0.1:50051");
+  if (!config.grpc_secure) {
+    return grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
+  }
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = read_file(config.grpc_ca_file);
+  if (!config.grpc_client_cert_file.empty() && !config.grpc_client_key_file.empty()) {
+    options.pem_cert_chain = read_file(config.grpc_client_cert_file);
+    options.pem_private_key = read_file(config.grpc_client_key_file);
+  } else if (config.grpc_require_client_cert) {
+    throw std::runtime_error(
+        "control healthcheck requires MINI_DROP_GRPC_CLIENT_CERT_FILE and key");
+  }
+  grpc::ChannelArguments arguments;
+  const std::string server_name =
+      env_or("NATIVE_CONTROL_HEALTH_TLS_SERVER_NAME", "");
+  if (!server_name.empty()) arguments.SetSslTargetNameOverride(server_name);
+  return grpc::CreateCustomChannel(
+      address, grpc::SslCredentials(options), arguments);
 }
 
 void run_maintenance(const Config config) {
@@ -148,6 +452,40 @@ class ServiceBase {
     return grpc::Status::OK;
   }
 
+  bool peer_identity_matches(
+      grpc::ServerContext* context, const std::string& expected) const {
+    if (!config_.grpc_require_client_cert) return true;
+    const auto auth = context->auth_context();
+    if (!auth || !auth->IsPeerAuthenticated()) return false;
+    for (const auto& identity : auth->GetPeerIdentity()) {
+      if (std::string(identity.data(), identity.length()) == expected) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  grpc::Status authorize_agent(
+      grpc::ServerContext* context, const std::string& agent_id) const {
+    if (const auto status = authorize(context); !status.ok()) return status;
+    if (agent_id.empty() || !peer_identity_matches(context, agent_id)) {
+      return grpc::Status(
+          grpc::StatusCode::PERMISSION_DENIED,
+          "mTLS identity is not authorized for this agent_id");
+    }
+    return grpc::Status::OK;
+  }
+
+  grpc::Status authorize_control(grpc::ServerContext* context) const {
+    if (const auto status = authorize(context); !status.ok()) return status;
+    if (!peer_identity_matches(context, config_.grpc_api_client_identity)) {
+      return grpc::Status(
+          grpc::StatusCode::PERMISSION_DENIED,
+          "mTLS identity is not authorized for Control service");
+    }
+    return grpc::Status::OK;
+  }
+
   pqxx::connection database() const { return pqxx::connection(config_.database_url); }
   const Config& config_;
 };
@@ -160,7 +498,7 @@ class InitService final : public mini_drop::InitAgent::Service, private ServiceB
       grpc::ServerContext* context,
       const mini_drop::RegisterAgentRequest* request,
       mini_drop::RegisterAgentResponse* response) override {
-    if (const auto status = authorize(context); !status.ok()) return status;
+    if (const auto status = authorize_agent(context, request->agent_id()); !status.ok()) return status;
     try {
       auto connection = database();
       pqxx::work tx(connection);
@@ -194,30 +532,104 @@ class InitService final : public mini_drop::InitAgent::Service, private ServiceB
 
   grpc::Status FetchConfig(
       grpc::ServerContext* context,
-      const mini_drop::FetchConfigRequest*,
+      const mini_drop::FetchConfigRequest* request,
       mini_drop::FetchConfigResponse* response) override {
-    if (const auto status = authorize(context); !status.ok()) return status;
+    if (const auto status = authorize_agent(context, request->agent_id()); !status.ok()) return status;
     auto* cos = response->mutable_cos_config();
-    cos->set_endpoint(config_.minio_endpoint);
     cos->set_bucket(config_.minio_bucket);
-    if (config_.distribute_credentials) {
-      cos->set_access_key(config_.minio_access);
-      cos->set_secret_key(config_.minio_secret);
-    }
     return grpc::Status::OK;
   }
 };
 
 int profiler_type(const std::string& collector) {
-  if (collector == "java_async") return 1;
-  if (collector == "go_pprof") return 2;
-  if (collector == "pyspy") return 3;
-  if (collector == "ebpf_io") return 4;
-  if (collector == "memory_smaps") return 5;
-  if (collector == "sys_metrics") return 6;
-  if (collector == "continuous_perf") return 7;
-  return 0;
+  const auto* contract = mini_drop_contract::find_by_name(collector);
+  if (contract == nullptr) throw std::invalid_argument("unknown TaskKind: " + collector);
+  return contract->profiler_type;
 }
+
+class ControlService final : public mini_drop::Control::Service, private ServiceBase {
+ public:
+  explicit ControlService(const Config& config) : ServiceBase(config) {}
+
+  grpc::Status CreateTask(
+      grpc::ServerContext* context,
+      const mini_drop::CreateTaskRequest* request,
+      mini_drop::CreateTaskResponse* response) override {
+    if (const auto status = authorize_control(context); !status.ok()) return status;
+    if (request->task_id().empty() || request->target_ip().empty() ||
+        !request->has_task_desc() || request->task_desc().task_id() != request->task_id()) {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                          "task_id, target and consistent TaskDesc are required");
+    }
+    try {
+      auto connection = database();
+      pqxx::work tx(connection);
+      const auto rows = tx.exec_params(
+          "SELECT t.status,a.status FROM tasks t JOIN agents a ON a.id=t.agent_id "
+          "WHERE t.id=$1 AND (a.id=$2 OR a.ip_addr=$2) FOR UPDATE OF t",
+          request->task_id(), request->target_ip());
+      if (rows.empty()) {
+        return grpc::Status(grpc::StatusCode::NOT_FOUND,
+                            "persisted task or target agent not found");
+      }
+      const std::string task_status = rows[0][0].as<std::string>();
+      const std::string agent_status = rows[0][1].as<std::string>();
+      if (agent_status != "ONLINE") {
+        return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION,
+                            "target agent is not online");
+      }
+      if (task_status != "PENDING" && task_status != "RUNNING") {
+        return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION,
+                            "task is not dispatchable");
+      }
+      tx.exec_params(
+          "UPDATE tasks SET status_reason=$2,updated_at=now() WHERE id=$1",
+          request->task_id(), "C++ Control.CreateTask 已确认调度");
+      const auto request_id_header =
+          context->client_metadata().find("x-request-id");
+      const std::string request_id =
+          request_id_header == context->client_metadata().end()
+              ? ""
+              : std::string(request_id_header->second.data(),
+                            request_id_header->second.length());
+      const json metadata = {
+          {"served_by", "cpp-control"}, {"request_id", request_id}};
+      tx.exec_params(
+          "INSERT INTO audit_logs(event_type,message,task_id,metadata,created_at) "
+          "VALUES('TASK_DISPATCH_CONFIRMED',$1,$2,$3::jsonb,now())",
+          "C++ 控制面确认任务可调度", request->task_id(), metadata.dump());
+      tx.commit();
+      response->set_task_id(request->task_id());
+      response->set_status(task_status);
+      return grpc::Status::OK;
+    } catch (const std::exception& error) {
+      return grpc::Status(grpc::StatusCode::INTERNAL, error.what());
+    }
+  }
+
+  grpc::Status StatAgent(
+      grpc::ServerContext* context,
+      const mini_drop::StatAgentRequest* request,
+      mini_drop::StatAgentResponse* response) override {
+    if (const auto status = authorize_control(context); !status.ok()) return status;
+    if (request->agent_id().empty()) {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "agent_id is required");
+    }
+    try {
+      auto connection = database();
+      pqxx::read_transaction tx(connection);
+      const auto rows = tx.exec_params(
+          "SELECT status FROM agents WHERE id=$1", request->agent_id());
+      if (rows.empty()) {
+        return grpc::Status(grpc::StatusCode::NOT_FOUND, "agent not found");
+      }
+      response->set_agent_status(rows[0][0].as<std::string>());
+      return grpc::Status::OK;
+    } catch (const std::exception& error) {
+      return grpc::Status(grpc::StatusCode::INTERNAL, error.what());
+    }
+  }
+};
 
 class HealthService final : public mini_drop::HealthCheck::Service, private ServiceBase {
  public:
@@ -227,7 +639,7 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       grpc::ServerContext* context,
       const mini_drop::HealthCheckRequest* request,
       mini_drop::HealthCheckResponse* response) override {
-    if (const auto status = authorize(context); !status.ok()) return status;
+    if (const auto status = authorize_agent(context, request->agent_id()); !status.ok()) return status;
     response->set_status(mini_drop::HealthCheckResponse::SERVING);
     try {
       auto connection = database();
@@ -236,9 +648,20 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
           "UPDATE agents SET ip_addr=CASE WHEN $2='' THEN ip_addr ELSE $2 END,status='ONLINE',"
           "last_heartbeat_at=now(),updated_at=now() WHERE id=$1",
           request->agent_id(), request->ip_addr());
+      if (request->has_process_candidate_snapshot()) {
+        persist_process_snapshot(
+            tx, config_, request->agent_id(),
+            request->process_candidate_snapshot());
+      }
 
       if (request->busy()) {
         if (!request->active_task_id().empty()) {
+          tx.exec_params(
+              "UPDATE tasks SET collection_status=$2,updated_at=now() "
+              "WHERE id=$1 AND status='RUNNING' AND collection_status=$3",
+              request->active_task_id(),
+              mini_drop_contract::kCollectionRunning.data(),
+              mini_drop_contract::kCollectionDelivered.data());
           const auto rows = tx.exec_params(
               "SELECT status,status_reason FROM tasks WHERE id=$1",
               request->active_task_id());
@@ -253,7 +676,8 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       }
 
       const auto tasks = tx.exec_params(
-          "SELECT id,target_pid,collector_type,sample_rate,duration_sec,request_params "
+          "SELECT id,target_pid,collector_type,sample_rate,duration_sec,request_params,"
+          "COALESCE(process_binding_json,'{}'::json)::text "
           "FROM tasks WHERE agent_id=$1 AND status='PENDING' "
           "ORDER BY created_at ASC FOR UPDATE SKIP LOCKED LIMIT 1",
           request->agent_id());
@@ -265,28 +689,111 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       const auto row = tasks[0];
       const std::string task_id = row[0].as<std::string>();
       const std::string collector = row[2].as<std::string>();
+      const auto* kind_contract = mini_drop_contract::find_by_name(collector);
+      if (kind_contract == nullptr) {
+        throw std::runtime_error("unknown TaskKind in persisted task: " + collector);
+      }
+      if (!process_binding_matches_latest(
+              tx, config_, request->agent_id(), row[1].as<int>(),
+              row[6].as<std::string>())) {
+        tx.exec_params(
+            "UPDATE tasks SET status='FAILED',status_reason=$2,"
+            "collection_status='FAILED',analysis_status='CANCELED',"
+            "error_code=$3,error_message=$2,"
+            "finished_at=now(),updated_at=now() WHERE id=$1",
+            task_id, "目标进程身份已变化或快照过期",
+            std::string(mini_drop_contract::kErrorTargetIdentityChanged));
+        tx.exec_params(
+            "INSERT INTO task_status_events("
+            "task_id,from_status,to_status,reason,actor,metadata,created_at) "
+            "VALUES($1,'PENDING','FAILED',$2,'server',$3::jsonb,now())",
+            task_id, "目标进程身份已变化或快照过期",
+            (json{{"served_by", "cpp-control"}, {"error_code",
+                std::string(mini_drop_contract::kErrorTargetIdentityChanged)}}).dump());
+        tx.commit();
+        return grpc::Status::OK;
+      }
+
+      const auto upload_authorizations = tx.exec_params(
+          "SELECT object_key,put_url,"
+          "(EXTRACT(EPOCH FROM expires_at)*1000)::bigint,task_attempt_id "
+          "FROM task_upload_authorizations "
+          "WHERE task_id=$1 AND used_at IS NULL AND expires_at>now() "
+          "ORDER BY object_key ASC FOR UPDATE",
+          task_id);
+      if (static_cast<int>(upload_authorizations.size()) !=
+          kind_contract->artifact_count) {
+        tx.exec_params(
+            "UPDATE tasks SET status='FAILED',status_reason=$2,"
+            "collection_status='FAILED',analysis_status='CANCELED',"
+            "error_code=$3,error_message=$2,"
+            "finished_at=now(),updated_at=now() WHERE id=$1",
+            task_id, "任务缺少完整、有效的短时对象上传授权",
+            std::string(mini_drop_contract::kErrorUploadAuthorizationInvalid));
+        tx.exec_params(
+            "INSERT INTO task_status_events("
+            "task_id,from_status,to_status,reason,actor,metadata,created_at) "
+            "VALUES($1,'PENDING','FAILED',$2,'server',$3::jsonb,now())",
+            task_id, "任务缺少完整、有效的短时对象上传授权",
+            (json{{"served_by", "cpp-control"}, {"error_code",
+                std::string(mini_drop_contract::kErrorUploadAuthorizationInvalid)}}).dump());
+        tx.commit();
+        return grpc::Status::OK;
+      }
+      const std::string attempt_id =
+          upload_authorizations[0][3].as<std::string>();
+      const std::string attempt_prefix =
+          "tasks/" + task_id + "/attempts/" + attempt_id + "/";
+      const std::string raw_object_prefix = attempt_prefix + "raw/";
+      const std::string manifest_object_key = attempt_prefix + "manifest.json";
+      const auto is_expected_object_key = [&](const std::string& object_key) {
+        if (object_key == manifest_object_key) {
+          return mini_drop_contract::is_artifact_filename(
+              kind_contract->profiler_type, "manifest.json");
+        }
+        if (object_key.rfind(raw_object_prefix, 0) != 0) return false;
+        const std::string filename = object_key.substr(raw_object_prefix.size());
+        return filename.find('/') == std::string::npos &&
+            filename.find('\\') == std::string::npos &&
+            mini_drop_contract::is_artifact_filename(
+                kind_contract->profiler_type, filename);
+      };
+      for (const auto& upload : upload_authorizations) {
+        const std::string object_key = upload[0].as<std::string>();
+        if (upload[3].as<std::string>() != attempt_id ||
+            !is_expected_object_key(object_key)) {
+          throw std::runtime_error(
+              "task upload authorization has invalid attempt lineage");
+        }
+      }
+
       tx.exec_params(
-          "UPDATE tasks SET status='RUNNING',status_reason=$2,collection_status='RUNNING',"
+          "UPDATE tasks SET status='RUNNING',status_reason=$2,collection_status='DELIVERED',"
           "started_at=COALESCE(started_at,now()) WHERE id=$1",
           task_id, "C++ 控制面下发任务");
       tx.exec_params(
           "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
           "VALUES($1,'PENDING','RUNNING',$2,'server',$3::jsonb,now())",
-          task_id, "C++ 控制面下发任务", R"({"served_by":"cpp-control"})");
+          task_id, "C++ 控制面下发任务",
+          (json{{"served_by", "cpp-control"},
+                {"task_attempt_id", attempt_id}}).dump());
 
       // Persist one concrete execution for every claimed logical task.  AI
       // evidence must point to this attempt instead of trusting a task row
       // without execution provenance.
+      const std::string attempt_authority = random_task_attempt_authority();
       tx.exec_params(
           "INSERT INTO task_attempts(id,task_id,attempt_no,agent_id,status,reason,"
-          "lease_expires_at,metadata_json,created_at,started_at) "
+          "lease_expires_at,metadata_json,task_attempt_authority_sha256,"
+          "created_at,started_at) "
           "VALUES($2::varchar,$1::varchar,"
           "(SELECT COALESCE(MAX(attempt_no),0)+1 FROM task_attempts "
           " WHERE task_id=$1::varchar),$3::varchar,'RUNNING',$4::text,"
-          "now()+make_interval(secs => $5::integer),$6::jsonb,now(),now())",
-          task_id, random_id("attempt_"), request->agent_id(),
+          "now()+make_interval(secs => $5::integer),$6::jsonb,$7,now(),now())",
+          task_id, attempt_id, request->agent_id(),
           "C++ control plane dispatched collection attempt",
-          row[4].as<int>() + 30, R"({"served_by":"cpp-control"})");
+          row[4].as<int>() + 30, R"({"served_by":"cpp-control"})",
+          sha256_hex(attempt_authority));
 
       json options = json::object();
       try {
@@ -297,10 +804,24 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       response->set_pending(true);
       auto* desc = response->mutable_task_desc();
       desc->set_task_id(task_id);
-      desc->set_profiler_type(profiler_type(collector));
+      desc->set_task_attempt_authority(attempt_authority);
+      desc->set_task_attempt_id(attempt_id);
+      desc->set_profiler_type(
+          static_cast<mini_drop::TaskKindProfiler>(profiler_type(collector)));
       desc->set_timeout_sec(options.value("timeout_sec", row[4].as<int>() + 30));
       desc->set_container_name(options.value("container_name", std::string{}));
       desc->set_container_type(options.value("container_type", 0));
+      for (const auto& upload : upload_authorizations) {
+        const std::string object_key = upload[0].as<std::string>();
+        if (!is_expected_object_key(object_key)) {
+          throw std::runtime_error(
+              "task upload authorization escaped task object prefix");
+        }
+        auto* target = desc->add_upload_targets();
+        target->set_object_key(object_key);
+        target->set_put_url(upload[1].as<std::string>());
+        target->set_expires_unix_ms(upload[2].as<std::int64_t>());
+      }
       auto* sample = desc->mutable_sample_argv();
       sample->set_pid(row[1].as<int>());
       sample->set_hz(row[3].as<int>());
@@ -335,45 +856,80 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
       auto connection = database();
       pqxx::work tx(connection);
       const auto tasks = tx.exec_params(
-          "SELECT status,collector_type FROM tasks WHERE id=$1 FOR UPDATE", request->task_id());
+          "SELECT status,collector_type,agent_id FROM tasks WHERE id=$1 FOR UPDATE", request->task_id());
       if (tasks.empty()) {
         return grpc::Status(grpc::StatusCode::NOT_FOUND, "task not found");
       }
       const std::string current = tasks[0][0].as<std::string>();
       const std::string collector = tasks[0][1].as<std::string>();
+      const std::string agent_id = tasks[0][2].as<std::string>();
+      if (const auto status = authorize_agent(context, agent_id); !status.ok()) {
+        return status;
+      }
+      const auto attempts = tx.exec_params(
+          "SELECT id,task_attempt_authority_sha256 FROM task_attempts "
+          "WHERE task_id=$1 ORDER BY attempt_no DESC LIMIT 1",
+          request->task_id());
+      if (attempts.empty() || attempts[0][1].is_null() ||
+          request->task_attempt_authority().empty() ||
+          !secure_equal(
+              attempts[0][1].as<std::string>(),
+              sha256_hex(request->task_attempt_authority()))) {
+        return grpc::Status(
+            grpc::StatusCode::PERMISSION_DENIED,
+            "invalid or stale task-attempt authority");
+      }
+      const std::string attempt_id = attempts[0][0].as<std::string>();
       if (current == "CANCELLED" || current == "ANALYZING" || current == "DONE" || current == "FAILED") {
         tx.commit();
         return grpc::Status::OK;
       }
-      if (!request->error_message().empty()) {
+      const auto fail_attempt = [&](std::string error_code,
+                                    std::string message) -> grpc::Status {
+        message = message.substr(0, 1024);
+        if (mini_drop_contract::find_error_code(error_code) == nullptr ||
+            error_code == mini_drop_contract::kErrorNone) {
+          error_code = std::string(mini_drop_contract::kErrorInternalError);
+        }
+        const json metadata = {
+            {"served_by", "cpp-control"}, {"error_code", error_code},
+            {"task_attempt_id", attempt_id}};
         tx.exec_params(
             "UPDATE tasks SET status='FAILED',status_reason=$2,collection_status='FAILED',"
-            "analysis_status='NOT_STARTED',finished_at=now() WHERE id=$1",
-            request->task_id(), request->error_message().substr(0, 1024));
+            "analysis_status='CANCELED',error_code=$3,error_message=$2,"
+            "finished_at=now() WHERE id=$1",
+            request->task_id(), message, error_code);
         tx.exec_params(
             "UPDATE task_attempts SET status='FAILED',reason=$2,finished_at=now(),"
-            "metadata_json=$3::json "
-            "WHERE id=(SELECT id FROM task_attempts WHERE task_id=$1 "
-            "ORDER BY attempt_no DESC LIMIT 1)",
-            request->task_id(), request->error_message().substr(0, 1024),
-            R"({"served_by":"cpp-control"})");
+            "metadata_json=$3::json WHERE id=$1",
+            attempt_id, message, metadata.dump());
         tx.exec_params(
             "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
             "VALUES($1,$2,'FAILED',$3,'agent',$4::jsonb,now())",
-            request->task_id(), current, request->error_message().substr(0, 1024),
-            R"({"served_by":"cpp-control"})");
+            request->task_id(), current, message, metadata.dump());
         tx.commit();
         return grpc::Status::OK;
+      };
+      if (!request->error_message().empty()) {
+        const auto* contract = mini_drop_contract::find_error_code(
+            static_cast<int>(request->error_code()));
+        return fail_attempt(
+            contract == nullptr
+                ? std::string(mini_drop_contract::kErrorInternalError)
+                : std::string(contract->name),
+            request->error_message());
       }
 
       tx.exec_params(
-          "UPDATE tasks SET status='UPLOADING',status_reason=$2 WHERE id=$1",
+          "UPDATE tasks SET status='UPLOADING',status_reason=$2,"
+          "collection_status='UPLOADING' WHERE id=$1",
           request->task_id(), "C++ 控制面接收采集产物");
       tx.exec_params(
           "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
           "VALUES($1,$2,'UPLOADING',$3,'agent',$4::jsonb,now())",
           request->task_id(), current, "C++ 控制面接收采集产物",
-          R"({"served_by":"cpp-control"})");
+          (json{{"served_by", "cpp-control"},
+                {"task_attempt_id", attempt_id}}).dump());
 
       json artifacts = json::array();
       try {
@@ -390,14 +946,24 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
         const std::string object_key = artifact.value(
             "object_key", artifact.value("cos_key", std::string{}));
         if (object_key.empty()) continue;
+        const auto authorized = tx.exec_params(
+            "UPDATE task_upload_authorizations SET used_at=COALESCE(used_at,now()) "
+            "WHERE task_id=$1 AND task_attempt_id=$2 AND object_key=$3 RETURNING id",
+            request->task_id(), attempt_id, object_key);
+        if (authorized.empty()) {
+          return grpc::Status(
+              grpc::StatusCode::PERMISSION_DENIED,
+              "artifact object is outside task-scoped upload authorization");
+        }
         const auto inserted = tx.exec_params(
-            "INSERT INTO artifacts(task_id,artifact_type,bucket,object_key,filename,local_path,"
+            "INSERT INTO artifacts(task_id,task_attempt_id,artifact_type,bucket,object_key,filename,local_path,"
             "content_type,size_bytes,sha256,manifest_json,integrity_status,integrity_reason,metadata,created_at) "
-            "VALUES($1,$2,$3,$4,$5,NULL,$6,$7,NULLIF($8,''),$9::json,"
-            "CASE WHEN length($8)=64 THEN 'DECLARED' ELSE 'LEGACY_UNVERIFIED' END,"
-            "CASE WHEN length($8)=64 THEN 'Agent supplied SHA-256; awaiting Analyzer verification' "
-            "ELSE 'Agent did not supply SHA-256' END,$10::json,now()) RETURNING id",
-            request->task_id(), artifact.value("artifact_type", std::string{"raw"}),
+            "VALUES($1,$2,$3,$4,$5,$6,NULL,$7,$8,NULLIF($9,''),$10::json,"
+            "CASE WHEN length($9)=64 THEN 'DECLARED' ELSE 'LEGACY_UNVERIFIED' END,"
+            "CASE WHEN length($9)=64 THEN 'Agent supplied SHA-256; awaiting Analyzer verification' "
+            "ELSE 'Agent did not supply SHA-256' END,$11::json,now()) RETURNING id",
+            request->task_id(), attempt_id,
+            artifact.value("artifact_type", std::string{"raw"}),
             artifact.value("bucket", config_.minio_bucket), object_key,
             artifact.value("filename", std::string{}),
             artifact.value("content_type", std::string{"application/octet-stream"}),
@@ -407,7 +973,9 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
         artifact_ids.push_back(inserted[0][0].as<int>());
       }
       if (artifact_ids.empty()) {
-        throw std::runtime_error("collector result contains no valid artifacts");
+        return fail_attempt(
+            std::string(mini_drop_contract::kErrorResultMalformed),
+            "collector result contains no valid artifacts");
       }
 
       tx.exec_params(
@@ -419,7 +987,7 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
           R"({"served_by":"cpp-control"})");
 
       const std::string metadata = artifacts.dump();
-      const std::string checksum = stable_checksum(metadata);
+      const std::string checksum = sha256_hex(metadata);
       const std::string job_id = random_id("analysis_");
       // Route to the collector-aware analyzer contract so the Python
       // Analyzer validates the artifact set and (for perf/pprof/pyspy)
@@ -427,26 +995,37 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
       const std::string analyzer_type =
           collector.empty() ? "artifact-set" : ("collector." + collector);
       const std::string analyzer_version = "1.0.0";
-      const std::string key = request->task_id() + ":" + analyzer_type + ":" + analyzer_version + ":" + checksum;
+      const std::string key = request->task_id() + ":" + attempt_id + ":" +
+          analyzer_type + ":" + analyzer_version + ":" + checksum;
       json ids = artifact_ids;
       tx.exec_params(
-          "INSERT INTO analysis_jobs(id,task_id,analyzer_type,analyzer_version,input_checksum,"
+          "INSERT INTO analysis_jobs(id,task_id,task_attempt_id,analyzer_type,analyzer_version,input_checksum,"
           "input_artifact_ids_json,idempotency_key,status,status_reason,retry_count,max_retries,next_run_at,"
           "output_artifact_ids_json,created_at,updated_at) "
-          "VALUES($1,$2,$7,$8,$3,$4::jsonb,$5,'PENDING',$6,0,3,now(),'[]'::jsonb,now(),now()) "
-          "ON CONFLICT(idempotency_key) DO NOTHING",
-          job_id, request->task_id(), checksum, ids.dump(), key,
+          "VALUES($1,$2,$3,$8,$9,$4,$5::jsonb,$6,'PENDING',$7,0,3,now(),'[]'::jsonb,now(),now()) "
+          "ON CONFLICT(idempotency_key) DO UPDATE SET updated_at=excluded.updated_at "
+          "RETURNING id",
+          job_id, request->task_id(), attempt_id, checksum, ids.dump(), key,
           "C++ 控制面已持久化采集产物，等待 Python Analyzer",
           analyzer_type, analyzer_version);
+      for (const int artifact_id : artifact_ids) {
+        tx.exec_params(
+            "INSERT INTO analysis_job_input_artifacts("
+            "analysis_job_id,artifact_id,task_id,task_attempt_id,created_at) "
+            "VALUES((SELECT id FROM analysis_jobs WHERE idempotency_key=$1),$2,$3,$4,now()) "
+            "ON CONFLICT(analysis_job_id,artifact_id) DO NOTHING",
+            key, artifact_id, request->task_id(), attempt_id);
+      }
       tx.exec_params(
-          "UPDATE tasks SET status='ANALYZING',status_reason=$2,collection_status='SUCCEEDED',"
-          "analysis_status='QUEUED' WHERE id=$1",
+          "UPDATE tasks SET status='ANALYZING',status_reason=$2,collection_status='COLLECTED',"
+          "analysis_status='PENDING' WHERE id=$1",
           request->task_id(), "产物已记录，等待 Python Analyzer");
       tx.exec_params(
           "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
           "VALUES($1,'UPLOADING','ANALYZING',$2,'server',$3::jsonb,now())",
           request->task_id(), "产物已记录，等待 Python Analyzer",
-          R"({"served_by":"cpp-control"})");
+          (json{{"served_by", "cpp-control"},
+                {"task_attempt_id", attempt_id}}).dump());
       tx.commit();
       return grpc::Status::OK;
     } catch (const std::exception& error) {
@@ -458,24 +1037,44 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
 }  // namespace
 
 int main(int argc, char** argv) {
-  const Config config = load_config();
+  Config config;
+  try {
+    config = load_config();
+  } catch (const std::exception& error) {
+    std::cerr << R"({"level":"error","event":"control_config_invalid","error":")"
+              << error.what() << R"("})" << std::endl;
+    return 2;
+  }
   if (argc > 1 && std::string(argv[1]) == "--healthcheck") {
-    auto channel = grpc::CreateChannel(
-        env_or("NATIVE_CONTROL_HEALTH_ADDR", "127.0.0.1:50052"),
-        grpc::InsecureChannelCredentials());
-    const bool ready = channel->WaitForConnected(
-        std::chrono::system_clock::now() + std::chrono::seconds(3));
-    return ready ? 0 : 1;
+    try {
+      auto channel = health_channel(config);
+      const bool ready = channel->WaitForConnected(
+          std::chrono::system_clock::now() + std::chrono::seconds(3));
+      return ready ? 0 : 1;
+    } catch (const std::exception& error) {
+      std::cerr << R"({"level":"error","event":"control_health_tls_failed","error":")"
+                << error.what() << R"("})" << std::endl;
+      return 1;
+    }
   }
 
   InitService init(config);
   HealthService health(config);
   ResultService result(config);
+  ControlService control(config);
   grpc::ServerBuilder builder;
-  builder.AddListeningPort(config.listen_addr, grpc::InsecureServerCredentials());
+  try {
+    grpc::EnableDefaultHealthCheckService(true);
+    builder.AddListeningPort(config.listen_addr, server_credentials(config));
+  } catch (const std::exception& error) {
+    std::cerr << R"({"level":"error","event":"control_tls_init_failed","error":")"
+              << error.what() << R"("})" << std::endl;
+    return 2;
+  }
   builder.RegisterService(&init);
   builder.RegisterService(&health);
   builder.RegisterService(&result);
+  builder.RegisterService(&control);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   if (!server) {
     std::cerr << R"({"level":"error","event":"control_start_failed"})" << std::endl;

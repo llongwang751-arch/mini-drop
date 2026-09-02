@@ -13,12 +13,16 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"mini-drop/apiserver/internal/errorcode"
+	"mini-drop/apiserver/internal/taskstatus"
 )
 
 var (
 	ErrNotFound            = errors.New("not found")
 	ErrConflict            = errors.New("conflict")
 	ErrIdempotencyConflict = errors.New("idempotency key replayed with different parameters")
+	ErrTargetUnavailable   = errors.New("target process is absent, stale, or ambiguous")
 )
 
 var cancellableStatuses = map[string]bool{
@@ -51,6 +55,20 @@ type CreateTask struct {
 	Options        map[string]any
 	CreatorID      string
 	IdempotencyKey string
+	ProcessBinding ProcessBinding
+}
+
+type ProcessBinding struct {
+	AgentID            string    `json:"agent_id"`
+	PID                int       `json:"pid"`
+	BootID             string    `json:"boot_id"`
+	ProcessStartTicks  int64     `json:"process_start_ticks"`
+	PIDNamespaceInode  int64     `json:"pid_namespace_inode"`
+	NamespacePID       int       `json:"namespace_pid"`
+	ExecutableIdentity string    `json:"executable_identity"`
+	ProcessSnapshotID  string    `json:"process_snapshot_id"`
+	SnapshotGeneration int64     `json:"snapshot_generation"`
+	SnapshotReceivedAt time.Time `json:"snapshot_received_at"`
 }
 
 type Artifact struct {
@@ -72,14 +90,17 @@ type Artifact struct {
 }
 
 type StatusEvent struct {
-	ID         int64          `json:"-"`
-	TaskID     string         `json:"task_id"`
-	FromStatus *string        `json:"from_status"`
-	ToStatus   string         `json:"to_status"`
-	Reason     string         `json:"reason"`
-	Actor      string         `json:"actor"`
-	Metadata   map[string]any `json:"metadata"`
-	CreatedAt  time.Time      `json:"created_at"`
+	ID            int64          `json:"-"`
+	Sequence      int64          `json:"sequence"`
+	TaskID        string         `json:"task_id"`
+	TaskAttemptID *string        `json:"task_attempt_id"`
+	FromStatus    *string        `json:"from_status"`
+	ToStatus      string         `json:"to_status"`
+	Reason        string         `json:"reason"`
+	Actor         string         `json:"actor"`
+	Source        string         `json:"source"`
+	Metadata      map[string]any `json:"metadata"`
+	CreatedAt     time.Time      `json:"created_at"`
 }
 
 type AuditEvent struct {
@@ -92,34 +113,65 @@ type AuditEvent struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 
-type DiagnosisEvent struct {
-	ID          int64          `json:"-"`
-	DiagnosisID string         `json:"diagnosis_id"`
-	EventType   string         `json:"event_type"`
-	FromStatus  *string        `json:"from_status"`
-	ToStatus    *string        `json:"to_status"`
-	Payload     map[string]any `json:"payload"`
-	CreatedAt   time.Time      `json:"created_at"`
+type DropInsightEvent struct {
+	Sequence int64          `json:"sequence"`
+	Payload  map[string]any `json:"payload"`
 }
 
-type DiagnosticCase struct {
-	CaseID             string         `json:"case_id"`
-	DiagnosisID        string         `json:"diagnosis_id"`
-	Source             string         `json:"source"`
-	Strategy           string         `json:"strategy"`
-	Query              string         `json:"query"`
-	Status             string         `json:"status"`
-	CanonicalStatus    string         `json:"canonical_status"`
-	Target             map[string]any `json:"target"`
-	TimeRange          map[string]any `json:"time_range"`
-	Budget             map[string]any `json:"budget"`
-	HypothesisCount    int            `json:"hypothesis_count"`
-	EvidenceCount      int            `json:"evidence_count"`
-	ReportVersionCount int            `json:"report_version_count"`
-	TaskIDs            []any          `json:"task_ids"`
-	CreatedAt          time.Time      `json:"created_at"`
-	UpdatedAt          time.Time      `json:"updated_at"`
-	LegacyLinks        map[string]any `json:"legacy_links"`
+type ProcessCandidateSnapshot struct {
+	SnapshotID    string
+	AgentID       string
+	State         string
+	Authoritative bool
+	ReceivedAt    time.Time
+	Fresh         bool
+	Items         []map[string]any
+}
+
+type AgentCapability struct {
+	Exists    bool
+	Online    bool
+	Supported bool
+}
+
+type TaskUploadAuthorization struct {
+	TaskAttemptID string
+	ObjectKey     string
+	PutURL        string
+	ExpiresAt     time.Time
+}
+
+func (p *Postgres) ReplaceTaskUploadAuthorizations(
+	ctx context.Context, taskID string, items []TaskUploadAuthorization,
+) error {
+	if taskID == "" || len(items) == 0 {
+		return errors.New("task upload authorizations require a task and at least one object")
+	}
+	tx, err := p.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	if _, err := tx.Exec(ctx,
+		`DELETE FROM task_upload_authorizations WHERE task_id=$1`, taskID,
+	); err != nil {
+		return err
+	}
+	for _, item := range items {
+		if item.TaskAttemptID == "" || item.ObjectKey == "" || item.PutURL == "" || !item.ExpiresAt.After(time.Now().UTC()) {
+			return errors.New("invalid task upload authorization")
+		}
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO task_upload_authorizations(
+				task_id,task_attempt_id,object_key,put_url,expires_at,created_at
+			) VALUES($1,$2,$3,$4,$5,$6)`,
+			taskID, item.TaskAttemptID, item.ObjectKey, item.PutURL,
+			item.ExpiresAt, time.Now().UTC(),
+		); err != nil {
+			return err
+		}
+	}
+	return tx.Commit(ctx)
 }
 
 // RecordControlCommand persists the accepted control-plane intent without
@@ -158,431 +210,6 @@ func (p *Postgres) Ping(ctx context.Context) error {
 	return p.pool.Ping(ctx)
 }
 
-func (p *Postgres) ListDiagnosisSessions(
-	ctx context.Context, page Page,
-) ([]map[string]any, int, error) {
-	var total int
-	if err := p.pool.QueryRow(ctx, `SELECT count(*) FROM diagnosis_sessions`).Scan(&total); err != nil {
-		return nil, 0, err
-	}
-	rows, err := p.pool.Query(ctx, `
-		SELECT id,case_id,creator_id,raw_query,normalized_intent_json,target_scope_json,
-		       requested_time_range_json,effective_time_range_json,topology_snapshot_id,
-		       baseline_snapshot_id,status,policy_profile,risk_budget_json,
-		       resource_budget_json,budget_used_json,hypothesis_graph_json,
-		       child_task_ids_json,conclusion_versions_json,
-		       model_version,planner_version,lease_owner,lease_until,row_version,
-		       deadline_at,created_at,updated_at
-		FROM diagnosis_sessions ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-		page.Limit, page.Offset)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
-	items := make([]map[string]any, 0, page.Limit)
-	for rows.Next() {
-		item, scanErr := scanDiagnosisSession(rows.Scan)
-		if scanErr != nil {
-			return nil, 0, scanErr
-		}
-		items = append(items, item)
-	}
-	return items, total, rows.Err()
-}
-
-func (p *Postgres) GetDiagnosticCase(ctx context.Context, caseID string) (map[string]any, error) {
-	session, err := p.getDiagnosisSession(ctx, caseID)
-	if err == nil {
-		return p.getClusterDiagnosticCase(ctx, session)
-	}
-	if !errors.Is(err, ErrNotFound) {
-		return nil, err
-	}
-	insight, err := p.getInsightDiagnosticCase(ctx, caseID)
-	if err == nil {
-		return insight, nil
-	}
-	if !errors.Is(err, ErrNotFound) {
-		return nil, err
-	}
-	return p.getLegacyDiagnosticCase(ctx, caseID)
-}
-
-func (p *Postgres) getDiagnosisSession(ctx context.Context, diagnosisID string) (map[string]any, error) {
-	row := p.pool.QueryRow(ctx, `
-		SELECT id,case_id,creator_id,raw_query,normalized_intent_json,target_scope_json,
-		       requested_time_range_json,effective_time_range_json,topology_snapshot_id,
-		       baseline_snapshot_id,status,policy_profile,risk_budget_json,
-		       resource_budget_json,budget_used_json,hypothesis_graph_json,
-		       child_task_ids_json,conclusion_versions_json,
-		       model_version,planner_version,lease_owner,lease_until,row_version,
-		       deadline_at,created_at,updated_at
-		FROM diagnosis_sessions WHERE id=$1`, diagnosisID)
-	item, err := scanDiagnosisSession(row.Scan)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrNotFound
-	}
-	return item, err
-}
-
-func (p *Postgres) getClusterDiagnosticCase(
-	ctx context.Context, session map[string]any,
-) (map[string]any, error) {
-	id, _ := session["diagnosis_id"].(string)
-	events, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'id',id,'diagnosis_id',diagnosis_id,'event_type',event_type,
-		  'from_status',from_status,'to_status',to_status,'payload',COALESCE(payload_json,'{}'::json),
-		  'created_at',created_at)
-		FROM diagnosis_events WHERE diagnosis_id=$1 ORDER BY id ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	probes, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'step_id',id,'diagnosis_id',diagnosis_id,'probe_id',probe_id,
-		  'target',COALESCE(target_json,'{}'::json),'parameters',COALESCE(parameters_json,'{}'::json),
-		  'reason',reason,'risk_level',risk_level,'status',status,
-		  'requires_approval',(requires_approval<>0),'evidence_purpose',evidence_purpose,
-		  'round_index',round_index,'task_id',task_id,'approved_by',approved_by,
-		  'approved_at',approved_at,'created_at',created_at,'updated_at',updated_at,
-		  'retry_count',retry_count,'error_code',error_code,'error_message',error_message)
-		FROM diagnosis_probe_executions WHERE diagnosis_id=$1 ORDER BY created_at ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	evidence, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'evidence_id',id,'diagnosis_id',diagnosis_id,'source_type',source_type,
-		  'source_system',source_system,'evidence_role',evidence_role,
-		  'target',COALESCE(target_json,'{}'::json),'event_time_range',COALESCE(event_time_range_json,'{}'::json),
-		  'ingestion_time',ingestion_time,'query_or_probe',query_or_probe,
-		  'raw_artifact_ref',raw_artifact_ref,'derived_artifact_ref',derived_artifact_ref,
-		  'derivation_version',derivation_version,'observed_value',COALESCE(observed_value_json,'{}'::json),
-		  'baseline_value',COALESCE(baseline_value_json,'{}'::json),'anomaly_score',COALESCE(anomaly_score_json,'{}'::json),
-		  'data_quality',COALESCE(data_quality_json,'{}'::json),'integrity_hash',integrity_hash,
-		  'claim_links',COALESCE(claim_links_json,'[]'::json))
-		FROM diagnosis_evidence WHERE diagnosis_id=$1 ORDER BY ingestion_time ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	snapshots, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'snapshot_id',id,'diagnosis_id',diagnosis_id,'round_index',round_index,
-		  'evidence_role',evidence_role,'captured_at',captured_at,
-		  'time_range',COALESCE(time_range_json,'{}'::json),'target',COALESCE(target_json,'{}'::json),
-		  'workload_identity',COALESCE(workload_identity_json,'{}'::json),
-		  'deployment_version',deployment_version,'host_fingerprint',COALESCE(host_fingerprint_json,'{}'::json),
-		  'collector',collector,'collector_version',collector_version,'task_id',task_id,
-		  'attempt_id',attempt_id,'task_attempt_id',attempt_id,'evidence_refs',COALESCE(evidence_refs_json,'[]'::json),
-		  'artifact_refs',COALESCE(artifact_refs_json,'[]'::json),'baseline_ref',baseline_ref,
-		  'quality',COALESCE(quality_json,'{}'::json),'integrity_hash',integrity_hash,'created_at',created_at)
-		FROM diagnosis_evidence_snapshots WHERE diagnosis_id=$1 ORDER BY captured_at ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	pipeline, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'node_run_id',id,'diagnosis_id',diagnosis_id,'node_name',node_name,
-		  'sequence',sequence,'status',status,'attempt',attempt,
-		  'input_refs',COALESCE(input_refs_json,'[]'::json),'output_refs',COALESCE(output_refs_json,'[]'::json),
-		  'metrics',COALESCE(metrics_json,'{}'::json),'error_code',error_code,'error_message',error_message,
-		  'implementation_version',implementation_version,'started_at',started_at,
-		  'finished_at',finished_at,'updated_at',updated_at)
-		FROM diagnosis_node_runs WHERE diagnosis_id=$1 ORDER BY sequence ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-
-	native := cloneMap(session)
-	native["events"] = events
-	native["probes"] = probes
-	native["coverage"] = buildCoverage(probes)
-	native["evidence"] = evidence
-	native["evidence_snapshots"] = snapshots
-	native["pipeline_nodes"] = pipeline
-	native["latest_conclusion"] = latestItem(session["conclusion_versions"])
-	native["topology_snapshot"] = nil
-	if snapshotID := stringValue(session["topology_snapshot_id"]); snapshotID != "" {
-		topology, topologyErr := p.queryJSONObject(ctx, `
-			SELECT jsonb_build_object(
-			  'snapshot_id',id,'effective_at',effective_at,'generated_at',generated_at,
-			  'nodes',COALESCE(nodes_json,'[]'::json),'edges',COALESCE(edges_json,'[]'::json),
-			  'source_versions',COALESCE(source_versions_json,'{}'::json),
-			  'confidence_summary',COALESCE(confidence_summary_json,'{}'::json))
-			FROM topology_snapshots WHERE id=$1`, snapshotID)
-		if topologyErr != nil && !errors.Is(topologyErr, ErrNotFound) {
-			return nil, topologyErr
-		}
-		if topologyErr == nil {
-			native["topology_snapshot"] = topology
-		}
-	}
-	caseValue := clusterCaseFromSession(session, len(evidence))
-	result := diagnosticCaseMap(caseValue)
-	result["native_payload"] = native
-	return result, nil
-}
-
-func (p *Postgres) getInsightDiagnosticCase(ctx context.Context, diagnosisID string) (map[string]any, error) {
-	row := p.pool.QueryRow(ctx, `
-		SELECT id,query,target_json,time_range_json,mode,budget_json,status,version,
-		       clarification_questions_json,created_at,updated_at,
-		       (SELECT count(*) FROM drop_insight_hypotheses h WHERE h.diagnosis_id=s.id),
-		       (SELECT count(*) FROM drop_insight_evidence e WHERE e.diagnosis_id=s.id),
-		       (SELECT count(*) FROM drop_insight_reports r WHERE r.diagnosis_id=s.id)
-		FROM drop_insight_sessions s WHERE id=$1`, diagnosisID)
-	var id, query, mode, status string
-	var target, timeRange, budget, questions []byte
-	var version, hypothesisCount, evidenceCount, reportCount int
-	var createdAt, updatedAt time.Time
-	if err := row.Scan(
-		&id, &query, &target, &timeRange, &mode, &budget, &status, &version,
-		&questions, &createdAt, &updatedAt, &hypothesisCount, &evidenceCount, &reportCount,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		}
-		return nil, err
-	}
-	native := map[string]any{
-		"diagnosis_id": id, "query": query, "target": jsonMap(target),
-		"time_range": jsonMap(timeRange), "mode": mode, "budget": jsonMap(budget),
-		"status": status, "version": version, "clarification_questions": jsonArray(questions),
-		"created_at": createdAt, "updated_at": updatedAt,
-	}
-	caseValue := DiagnosticCase{
-		CaseID: id, DiagnosisID: id, Source: "drop_insight_v2", Strategy: "EVIDENCE_HYPOTHESIS",
-		Query: query, Status: status, CanonicalStatus: canonicalDiagnosisStatus(status),
-		Target: jsonMap(target), TimeRange: jsonMap(timeRange),
-		Budget: jsonMap(budget), HypothesisCount: hypothesisCount, EvidenceCount: evidenceCount,
-		ReportVersionCount: reportCount, TaskIDs: []any{}, CreatedAt: createdAt, UpdatedAt: updatedAt,
-		LegacyLinks: map[string]any{
-			"detail": "/api/v2/diagnoses/" + id, "events": "/api/v2/diagnoses/" + id + "/events",
-		},
-	}
-	result := diagnosticCaseMap(caseValue)
-	result["native_payload"] = native
-	return result, nil
-}
-
-func (p *Postgres) getLegacyDiagnosticCase(ctx context.Context, diagnosisID string) (map[string]any, error) {
-	row := p.pool.QueryRow(ctx, `
-		SELECT r.id,r.task_id,r.status,r.model_name,COALESCE(r.summary,''),
-		       (r.validated<>0),r.retry_count,r.created_at,r.finished_at,
-		       (SELECT count(*) FROM diagnosis_tool_results t WHERE t.diagnosis_id=r.id),
-		       (SELECT count(*) FROM diagnosis_reports p WHERE p.diagnosis_id=r.id)
-		FROM diagnosis_runs r WHERE r.id=$1`, diagnosisID)
-	var id, taskID, status, modelName, summary string
-	var validated bool
-	var retryCount, evidenceCount, reportCount int
-	var createdAt time.Time
-	var finishedAt *time.Time
-	if err := row.Scan(
-		&id, &taskID, &status, &modelName, &summary, &validated, &retryCount,
-		&createdAt, &finishedAt, &evidenceCount, &reportCount,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		}
-		return nil, err
-	}
-	updatedAt := createdAt
-	if finishedAt != nil {
-		updatedAt = *finishedAt
-	}
-	toolResults, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'tool_name',tool_name,'status',status,'evidence_ref',evidence_ref,
-		  'input',COALESCE(input_json,'{}'::json),'output',COALESCE(output_json,'{}'::json),
-		  'error_message',error_message,'created_at',created_at)
-		FROM diagnosis_tool_results WHERE diagnosis_id=$1 ORDER BY id ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	reports, err := p.queryJSONRows(ctx, `
-		SELECT jsonb_build_object(
-		  'id',id,'diagnosis_id',diagnosis_id,'report',COALESCE(report_json,'{}'::json),
-		  'ranked_causes',COALESCE(ranked_causes_json,'[]'::json),
-		  'confidence',confidence,'not_enough_evidence',(not_enough_evidence<>0),
-		  'created_at',created_at)
-		FROM diagnosis_reports WHERE diagnosis_id=$1 ORDER BY created_at ASC`, id)
-	if err != nil {
-		return nil, err
-	}
-	caseValue := legacyDiagnosticCase(
-		id, taskID, status, summary, evidenceCount, reportCount, createdAt, updatedAt,
-	)
-	result := diagnosticCaseMap(caseValue)
-	result["native_payload"] = map[string]any{
-		"run": map[string]any{
-			"id": id, "task_id": taskID, "status": status, "model_name": modelName,
-			"summary": summary, "validated": validated, "retry_count": retryCount,
-			"created_at": createdAt, "finished_at": finishedAt,
-		},
-		"tool_results": toolResults,
-		"reports":      reports,
-	}
-	return result, nil
-}
-
-func (p *Postgres) ListContinuousDiagnosisTriggers(
-	ctx context.Context, page Page,
-) ([]map[string]any, int, error) {
-	var total int
-	if err := p.pool.QueryRow(ctx, `SELECT count(*) FROM continuous_diagnosis_triggers`).Scan(&total); err != nil {
-		return nil, 0, err
-	}
-	rows, err := p.pool.Query(ctx, `
-		SELECT id,task_id,artifact_id,detector_version,status,score_json,
-		       diagnosis_id,error_message,created_at,updated_at
-		FROM continuous_diagnosis_triggers
-		ORDER BY created_at DESC LIMIT $1 OFFSET $2`, page.Limit, page.Offset)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
-	items := make([]map[string]any, 0, page.Limit)
-	for rows.Next() {
-		var id, taskID, detectorVersion, status string
-		var artifactID int64
-		var score []byte
-		var diagnosisID, errorMessage *string
-		var createdAt, updatedAt time.Time
-		if err := rows.Scan(
-			&id, &taskID, &artifactID, &detectorVersion, &status, &score,
-			&diagnosisID, &errorMessage, &createdAt, &updatedAt,
-		); err != nil {
-			return nil, 0, err
-		}
-		items = append(items, map[string]any{
-			"trigger_id": id, "task_id": taskID, "artifact_id": artifactID,
-			"detector_version": detectorVersion, "status": status,
-			"score": decodeJSON(score, map[string]any{}), "diagnosis_id": diagnosisID,
-			"error_message": errorMessage, "created_at": createdAt, "updated_at": updatedAt,
-		})
-	}
-	return items, total, rows.Err()
-}
-
-func (p *Postgres) ListDiagnosticCases(ctx context.Context) ([]DiagnosticCase, error) {
-	clusterRows, err := p.pool.Query(ctx, `
-		SELECT id,raw_query,status,normalized_intent_json,target_scope_json,
-		       requested_time_range_json,effective_time_range_json,policy_profile,
-		       risk_budget_json,resource_budget_json,budget_used_json,
-		       hypothesis_graph_json,child_task_ids_json,conclusion_versions_json,
-		       created_at,updated_at,
-		       (SELECT count(*) FROM diagnosis_evidence e WHERE e.diagnosis_id=s.id)
-		FROM diagnosis_sessions s`)
-	if err != nil {
-		return nil, err
-	}
-	items := make([]DiagnosticCase, 0)
-	for clusterRows.Next() {
-		var id, query, status, policy string
-		var normalized, target, requestedRange, effectiveRange []byte
-		var risk, resource, used, graph, taskIDs, conclusions []byte
-		var createdAt, updatedAt time.Time
-		var evidenceCount int
-		if err := clusterRows.Scan(
-			&id, &query, &status, &normalized, &target, &requestedRange, &effectiveRange,
-			&policy, &risk, &resource, &used, &graph, &taskIDs, &conclusions,
-			&createdAt, &updatedAt, &evidenceCount,
-		); err != nil {
-			clusterRows.Close()
-			return nil, err
-		}
-		intent := jsonMap(normalized)
-		strategy, _ := intent["analysis_strategy"].(string)
-		if strategy == "" {
-			strategy = "CLUSTER_TOPOLOGY"
-		}
-		graphValue := jsonMap(graph)
-		items = append(items, DiagnosticCase{
-			CaseID: id, DiagnosisID: id, Source: "cluster_diagnosis_v1",
-			Strategy: strategy, Query: query, Status: status,
-			CanonicalStatus: canonicalDiagnosisStatus(status), Target: jsonMap(target),
-			TimeRange:       firstNonEmptyMap(jsonMap(effectiveRange), jsonMap(requestedRange)),
-			Budget:          map[string]any{"policy_profile": policy, "risk": jsonMap(risk), "resource": jsonMap(resource), "used": jsonMap(used)},
-			HypothesisCount: countJSONArray(graphValue, "hypotheses", "nodes"),
-			EvidenceCount:   evidenceCount, ReportVersionCount: len(jsonArray(conclusions)),
-			TaskIDs: jsonArray(taskIDs), CreatedAt: createdAt, UpdatedAt: updatedAt,
-			LegacyLinks: map[string]any{"detail": "/api/v1/diagnoses/" + id},
-		})
-	}
-	if err := clusterRows.Err(); err != nil {
-		clusterRows.Close()
-		return nil, err
-	}
-	clusterRows.Close()
-
-	insightRows, err := p.pool.Query(ctx, `
-		SELECT s.id,s.query,s.status,s.target_json,s.time_range_json,s.budget_json,
-		       s.created_at,s.updated_at,
-		       (SELECT count(*) FROM drop_insight_hypotheses h WHERE h.diagnosis_id=s.id),
-		       (SELECT count(*) FROM drop_insight_evidence e WHERE e.diagnosis_id=s.id),
-		       (SELECT count(*) FROM drop_insight_reports r WHERE r.diagnosis_id=s.id),
-		       COALESCE((SELECT json_agg(t.task_id) FILTER (WHERE t.task_id IS NOT NULL)
-		                 FROM drop_insight_tool_calls t WHERE t.diagnosis_id=s.id),'[]'::json)
-		FROM drop_insight_sessions s`)
-	if err != nil {
-		return nil, err
-	}
-	defer insightRows.Close()
-	for insightRows.Next() {
-		var id, query, status string
-		var target, timeRange, budget, taskIDs []byte
-		var createdAt, updatedAt time.Time
-		var hypothesisCount, evidenceCount, reportCount int
-		if err := insightRows.Scan(
-			&id, &query, &status, &target, &timeRange, &budget, &createdAt, &updatedAt,
-			&hypothesisCount, &evidenceCount, &reportCount, &taskIDs,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, DiagnosticCase{
-			CaseID: id, DiagnosisID: id, Source: "drop_insight_v2", Strategy: "EVIDENCE_HYPOTHESIS",
-			Query: query, Status: status, CanonicalStatus: canonicalDiagnosisStatus(status),
-			Target: jsonMap(target), TimeRange: jsonMap(timeRange),
-			Budget: jsonMap(budget), HypothesisCount: hypothesisCount, EvidenceCount: evidenceCount,
-			ReportVersionCount: reportCount, TaskIDs: jsonArray(taskIDs), CreatedAt: createdAt,
-			UpdatedAt: updatedAt, LegacyLinks: map[string]any{
-				"detail": "/api/v2/diagnoses/" + id, "events": "/api/v2/diagnoses/" + id + "/events",
-			},
-		})
-	}
-	if err := insightRows.Err(); err != nil {
-		return nil, err
-	}
-	insightRows.Close()
-
-	legacyRows, err := p.pool.Query(ctx, `
-		SELECT r.id,r.task_id,r.status,COALESCE(r.summary,''),r.created_at,
-		       COALESCE(r.finished_at,r.created_at),
-		       (SELECT count(*) FROM diagnosis_tool_results t WHERE t.diagnosis_id=r.id),
-		       (SELECT count(*) FROM diagnosis_reports p WHERE p.diagnosis_id=r.id)
-		FROM diagnosis_runs r`)
-	if err != nil {
-		return nil, err
-	}
-	defer legacyRows.Close()
-	for legacyRows.Next() {
-		var id, taskID, status, summary string
-		var createdAt, updatedAt time.Time
-		var evidenceCount, reportCount int
-		if err := legacyRows.Scan(
-			&id, &taskID, &status, &summary, &createdAt, &updatedAt,
-			&evidenceCount, &reportCount,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, legacyDiagnosticCase(
-			id, taskID, status, summary, evidenceCount, reportCount, createdAt, updatedAt,
-		))
-	}
-	return items, legacyRows.Err()
-}
-
 func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bool, error) {
 	var agentExists bool
 	if err := p.pool.QueryRow(ctx,
@@ -602,6 +229,15 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 	})
 	if err != nil {
 		return "", false, err
+	}
+	processBinding, err := json.Marshal(input.ProcessBinding)
+	if err != nil {
+		return "", false, err
+	}
+	if input.ProcessBinding.ProcessSnapshotID == "" ||
+		input.ProcessBinding.AgentID != input.AgentID ||
+		input.ProcessBinding.PID != input.TargetPID {
+		return "", false, ErrTargetUnavailable
 	}
 
 	if input.IdempotencyKey != "" {
@@ -637,11 +273,13 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 		INSERT INTO tasks (
 			id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
 			status, status_reason, collection_status, analysis_status, request_params,
-			creator_id, idempotency_key, created_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,'QUEUED','NOT_STARTED',$9::jsonb,$10,$11,$12)`,
+			creator_id, idempotency_key, process_snapshot_id, process_binding_json, created_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,$9,$10,$11::jsonb,$12,$13,$14,$15::json,$16)`,
 		taskID, input.Name, input.AgentID, input.TargetPID, input.CollectorType,
-		input.SampleRate, input.DurationSec, "Go API 创建任务", string(requestParams),
-		creatorID, idemKey, now,
+		input.SampleRate, input.DurationSec, "Go API 创建任务",
+		taskstatus.CollectionQueued, taskstatus.AnalysisPending, string(requestParams),
+		creatorID, idemKey, input.ProcessBinding.ProcessSnapshotID,
+		string(processBinding), now,
 	); err != nil {
 		if input.IdempotencyKey != "" && isUniqueViolation(err) {
 			// A concurrent replica won the idempotency race; reconcile instead of failing.
@@ -775,6 +413,147 @@ func (p *Postgres) ListAgents(ctx context.Context, page Page) ([]map[string]any,
 	return items, total, rows.Err()
 }
 
+func (p *Postgres) AgentSupportsCollector(
+	ctx context.Context, agentID, collector string,
+) (AgentCapability, error) {
+	var status string
+	var rawCapabilities []byte
+	err := p.pool.QueryRow(ctx, `
+		SELECT status,capabilities FROM agents WHERE id=$1`, agentID,
+	).Scan(&status, &rawCapabilities)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return AgentCapability{}, nil
+	}
+	if err != nil {
+		return AgentCapability{}, err
+	}
+	var capabilities []string
+	if err := json.Unmarshal(rawCapabilities, &capabilities); err != nil {
+		return AgentCapability{}, fmt.Errorf("decode Agent capabilities: %w", err)
+	}
+	supported := false
+	for _, item := range capabilities {
+		if item == collector {
+			supported = true
+			break
+		}
+	}
+	return AgentCapability{
+		Exists: true, Online: status == "ONLINE", Supported: supported,
+	}, nil
+}
+
+func (p *Postgres) ResolveFreshProcessCandidate(
+	ctx context.Context, agentID string, pid int, maxAge time.Duration,
+) (ProcessBinding, error) {
+	maxAgeSeconds := int(maxAge / time.Second)
+	if maxAgeSeconds < 1 {
+		maxAgeSeconds = 30
+	}
+	rows, err := p.pool.Query(ctx, `
+		WITH latest AS (
+			SELECT id,agent_id,generation,boot_id,received_at,authoritative
+			FROM process_candidate_snapshots
+			WHERE agent_id=$1
+			ORDER BY received_at DESC,id DESC
+			LIMIT 1
+		)
+		SELECT l.agent_id,p.pid,l.boot_id,p.process_start_ticks,
+		       p.pid_namespace_inode,p.namespace_pid,p.executable_identity,
+		       l.id,l.generation,l.received_at
+		FROM latest l
+		JOIN process_candidates p ON p.snapshot_id=l.id
+		WHERE l.authoritative=true
+		  AND l.received_at >= now()-($3::int * interval '1 second')
+		  AND p.pid=$2
+		ORDER BY p.id
+		LIMIT 2`, agentID, pid, maxAgeSeconds)
+	if err != nil {
+		return ProcessBinding{}, err
+	}
+	defer rows.Close()
+	bindings := make([]ProcessBinding, 0, 2)
+	for rows.Next() {
+		var binding ProcessBinding
+		if err := rows.Scan(
+			&binding.AgentID, &binding.PID, &binding.BootID,
+			&binding.ProcessStartTicks, &binding.PIDNamespaceInode,
+			&binding.NamespacePID, &binding.ExecutableIdentity,
+			&binding.ProcessSnapshotID, &binding.SnapshotGeneration,
+			&binding.SnapshotReceivedAt,
+		); err != nil {
+			return ProcessBinding{}, err
+		}
+		bindings = append(bindings, binding)
+	}
+	if err := rows.Err(); err != nil {
+		return ProcessBinding{}, err
+	}
+	if len(bindings) != 1 {
+		return ProcessBinding{}, ErrTargetUnavailable
+	}
+	return bindings[0], nil
+}
+
+// LatestProcessCandidates projects the newest Agent-attested process snapshot.
+// It deliberately reads the latest snapshot even when that snapshot is
+// partial: falling back to an older authoritative snapshot could resurrect a
+// PID that has already exited or been reused.
+func (p *Postgres) LatestProcessCandidates(
+	ctx context.Context, agentID string, limit int, maxAge time.Duration,
+) (ProcessCandidateSnapshot, error) {
+	rows, err := p.pool.Query(ctx, `
+		WITH latest AS (
+			SELECT id,agent_id,state,authoritative,received_at
+			FROM process_candidate_snapshots
+			WHERE agent_id=$1
+			ORDER BY received_at DESC,id DESC
+			LIMIT 1
+		)
+		SELECT l.id,l.agent_id,l.state,l.authoritative,l.received_at,
+		       COALESCE(p.pid,0),COALESCE(p.comm,''),
+		       COALESCE(p.service_hint,''),COALESCE(p.instance_hint,''),
+		       COALESCE(p.collector_capabilities,'[]'::json)
+		FROM latest l
+		LEFT JOIN process_candidates p ON p.snapshot_id=l.id
+		ORDER BY CASE WHEN COALESCE(p.service_hint,'')<>'' THEN 0 ELSE 1 END,
+		         COALESCE(p.comm,''),COALESCE(p.pid,0)
+		LIMIT $2`, agentID, limit)
+	if err != nil {
+		return ProcessCandidateSnapshot{}, err
+	}
+	defer rows.Close()
+
+	result := ProcessCandidateSnapshot{AgentID: agentID, Items: []map[string]any{}}
+	for rows.Next() {
+		var pid int
+		var comm, serviceHint, instanceHint string
+		var capabilities []byte
+		if err := rows.Scan(
+			&result.SnapshotID, &result.AgentID, &result.State,
+			&result.Authoritative, &result.ReceivedAt, &pid, &comm,
+			&serviceHint, &instanceHint, &capabilities,
+		); err != nil {
+			return ProcessCandidateSnapshot{}, err
+		}
+		if pid > 0 {
+			result.Items = append(result.Items, map[string]any{
+				"pid": pid, "comm": comm, "service_hint": serviceHint,
+				"instance_hint":          instanceHint,
+				"collector_capabilities": decodeJSON(capabilities, []any{}),
+			})
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return ProcessCandidateSnapshot{}, err
+	}
+	if !result.ReceivedAt.IsZero() {
+		age := time.Since(result.ReceivedAt)
+		result.Fresh = age >= -5*time.Second && age <= maxAge
+	}
+	return result, nil
+}
+
 func (p *Postgres) ListTasks(ctx context.Context, page Page) ([]map[string]any, int, error) {
 	search := strings.TrimSpace(page.Search)
 	searchPattern := "%" + search + "%"
@@ -801,7 +580,8 @@ func (p *Postgres) ListTasks(ctx context.Context, page Page) ([]map[string]any, 
 	}
 	query := `
 		SELECT id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
-		       status, status_reason, collection_status, analysis_status, request_params,
+		       status, status_reason, collection_status, analysis_status,
+		       error_code,error_message,request_params,
 		       created_at, started_at, finished_at
 		FROM tasks
 		WHERE deleted_at IS NULL AND ($1 = '' OR name ILIKE $2 OR id ILIKE $2)
@@ -826,7 +606,8 @@ func (p *Postgres) ListTasks(ctx context.Context, page Page) ([]map[string]any, 
 func (p *Postgres) GetTask(ctx context.Context, taskID string) (map[string]any, error) {
 	row := p.pool.QueryRow(ctx, `
 		SELECT id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
-		       status, status_reason, collection_status, analysis_status, request_params,
+		       status, status_reason, collection_status, analysis_status,
+		       error_code,error_message,request_params,
 		       created_at, started_at, finished_at
 		FROM tasks WHERE id = $1 AND deleted_at IS NULL`, taskID)
 	item, err := scanTask(row.Scan)
@@ -864,16 +645,18 @@ func (p *Postgres) CancelTask(ctx context.Context, taskID, reason string) (map[s
 		return nil, fmt.Errorf("%w: task status %s is terminal", ErrConflict, status)
 	}
 	now := time.Now().UTC()
-	nextCollection := "CANCELLED"
-	nextAnalysis := "SKIPPED"
-	if collectionStatus == "SUCCEEDED" {
+	nextCollection := taskstatus.CollectionCanceled
+	nextAnalysis := taskstatus.AnalysisCanceled
+	if collectionStatus == taskstatus.CollectionCollected {
 		nextCollection = collectionStatus
-		nextAnalysis = "CANCELLED"
+		nextAnalysis = taskstatus.AnalysisCanceled
 	}
 	if _, err := tx.Exec(ctx, `
 		UPDATE tasks SET status='CANCELLED', status_reason=$2,
-		collection_status=$3, analysis_status=$4, finished_at=$5
-		WHERE id=$1`, taskID, reason, nextCollection, nextAnalysis, now); err != nil {
+		collection_status=$3, analysis_status=$4, error_code=$5,
+		error_message=$2, finished_at=$6
+		WHERE id=$1`, taskID, reason, nextCollection, nextAnalysis,
+		string(errorcode.TaskCanceled), now); err != nil {
 		return nil, err
 	}
 	metadata, _ := json.Marshal(map[string]any{
@@ -1210,37 +993,39 @@ func (p *Postgres) LatestAuditEventID(ctx context.Context) (int64, error) {
 	return id, err
 }
 
-func (p *Postgres) ListDiagnosisEventsAfter(
-	ctx context.Context, afterID int64, limit int,
-) ([]DiagnosisEvent, error) {
+func (p *Postgres) ListDropInsightEventsAfter(
+	ctx context.Context, diagnosisID string, afterSequence int64, limit int,
+) ([]DropInsightEvent, error) {
 	rows, err := p.pool.Query(ctx, `
-		SELECT id,diagnosis_id,event_type,from_status,to_status,payload_json,created_at
-		FROM diagnosis_events WHERE id>$1 ORDER BY id ASC LIMIT $2`, afterID, limit)
+		SELECT id,sequence,event_type,actor,payload_json,occurred_at
+		FROM drop_insight_events
+		WHERE diagnosis_id=$1 AND sequence>$2
+		ORDER BY sequence ASC LIMIT $3`, diagnosisID, afterSequence, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := make([]DiagnosisEvent, 0)
+	items := make([]DropInsightEvent, 0)
 	for rows.Next() {
-		var item DiagnosisEvent
-		var payload []byte
-		if err := rows.Scan(
-			&item.ID, &item.DiagnosisID, &item.EventType, &item.FromStatus,
-			&item.ToStatus, &payload, &item.CreatedAt,
-		); err != nil {
+		var id, eventType, actor string
+		var sequence int64
+		var raw []byte
+		var occurredAt time.Time
+		if err := rows.Scan(&id, &sequence, &eventType, &actor, &raw, &occurredAt); err != nil {
 			return nil, err
 		}
-		decoded := decodeJSON(payload, map[string]any{})
-		item.Payload, _ = decoded.(map[string]any)
-		items = append(items, item)
+		decoded := decodeJSON(raw, map[string]any{})
+		payload, _ := decoded.(map[string]any)
+		items = append(items, DropInsightEvent{
+			Sequence: sequence,
+			Payload: map[string]any{
+				"event_id": id, "diagnosis_id": diagnosisID, "sequence": sequence,
+				"event_type": eventType, "actor": actor, "payload": payload,
+				"occurred_at": occurredAt,
+			},
+		})
 	}
 	return items, rows.Err()
-}
-
-func (p *Postgres) LatestDiagnosisEventID(ctx context.Context) (int64, error) {
-	var id int64
-	err := p.pool.QueryRow(ctx, `SELECT COALESCE(MAX(id),0) FROM diagnosis_events`).Scan(&id)
-	return id, err
 }
 
 func scanStatusEvents(rows pgx.Rows) ([]StatusEvent, error) {
@@ -1256,6 +1041,11 @@ func scanStatusEvents(rows pgx.Rows) ([]StatusEvent, error) {
 		}
 		decoded := decodeJSON(metadata, map[string]any{})
 		item.Metadata, _ = decoded.(map[string]any)
+		item.Sequence = item.ID
+		item.Source = item.Actor
+		if value, ok := item.Metadata["task_attempt_id"].(string); ok && value != "" {
+			item.TaskAttemptID = &value
+		}
 		items = append(items, item)
 	}
 	return items, rows.Err()
@@ -1294,54 +1084,17 @@ func (p *Postgres) ListAuditLogs(ctx context.Context, page Page) ([]map[string]a
 
 type scanner func(dest ...any) error
 
-func scanDiagnosisSession(scan scanner) (map[string]any, error) {
-	var id, creatorID, rawQuery, status, policyProfile, modelVersion, plannerVersion string
-	var caseID, topologySnapshotID, baselineSnapshotID, leaseOwner *string
-	var normalizedIntent, targetScope, requestedRange, effectiveRange []byte
-	var riskBudget, resourceBudget, budgetUsed, hypothesisGraph []byte
-	var childTaskIDs, conclusionVersions []byte
-	var leaseUntil *time.Time
-	var rowVersion int
-	var deadlineAt, createdAt, updatedAt time.Time
-	if err := scan(
-		&id, &caseID, &creatorID, &rawQuery, &normalizedIntent, &targetScope,
-		&requestedRange, &effectiveRange, &topologySnapshotID, &baselineSnapshotID,
-		&status, &policyProfile, &riskBudget, &resourceBudget, &budgetUsed,
-		&hypothesisGraph, &childTaskIDs, &conclusionVersions,
-		&modelVersion, &plannerVersion, &leaseOwner, &leaseUntil, &rowVersion,
-		&deadlineAt, &createdAt, &updatedAt,
-	); err != nil {
-		return nil, err
-	}
-	return map[string]any{
-		"diagnosis_id": id, "case_id": caseID, "creator_id": creatorID, "raw_query": rawQuery,
-		"normalized_intent":    decodeJSON(normalizedIntent, map[string]any{}),
-		"target_scope":         decodeJSON(targetScope, map[string]any{}),
-		"requested_time_range": decodeJSON(requestedRange, map[string]any{}),
-		"effective_time_range": decodeJSON(effectiveRange, map[string]any{}),
-		"topology_snapshot_id": topologySnapshotID, "baseline_snapshot_id": baselineSnapshotID,
-		"status": status, "policy_profile": policyProfile,
-		"risk_budget":         decodeJSON(riskBudget, map[string]any{}),
-		"resource_budget":     decodeJSON(resourceBudget, map[string]any{}),
-		"budget_used":         decodeJSON(budgetUsed, map[string]any{}),
-		"hypothesis_graph":    decodeJSON(hypothesisGraph, map[string]any{}),
-		"child_task_ids":      decodeJSON(childTaskIDs, []any{}),
-		"conclusion_versions": decodeJSON(conclusionVersions, []any{}),
-		"model_version":       modelVersion, "planner_version": plannerVersion,
-		"lease_owner": leaseOwner, "lease_until": leaseUntil, "row_version": rowVersion,
-		"deadline_at": deadlineAt, "created_at": createdAt, "updated_at": updatedAt,
-	}, nil
-}
-
 func scanTask(scan scanner) (map[string]any, error) {
 	var id, name, agentID, collectorType, status, reason, collectionStatus, analysisStatus string
 	var targetPID, sampleRate, durationSec int
 	var requestParams []byte
+	var errorCode, errorMessage *string
 	var createdAt time.Time
 	var startedAt, finishedAt *time.Time
 	if err := scan(
 		&id, &name, &agentID, &targetPID, &collectorType, &sampleRate, &durationSec,
-		&status, &reason, &collectionStatus, &analysisStatus, &requestParams,
+		&status, &reason, &collectionStatus, &analysisStatus,
+		&errorCode, &errorMessage, &requestParams,
 		&createdAt, &startedAt, &finishedAt,
 	); err != nil {
 		return nil, err
@@ -1350,8 +1103,10 @@ func scanTask(scan scanner) (map[string]any, error) {
 		"id": id, "name": name, "agent_id": agentID, "target_pid": targetPID,
 		"collector_type": collectorType, "sample_rate": sampleRate, "duration_sec": durationSec,
 		"status": status, "status_reason": reason, "collection_status": collectionStatus,
-		"analysis_status": analysisStatus, "request_params": decodeJSON(requestParams, map[string]any{}),
-		"created_at": createdAt, "started_at": startedAt, "finished_at": finishedAt,
+		"analysis_status": analysisStatus, "error_code": errorCode,
+		"error_message":  errorMessage,
+		"request_params": decodeJSON(requestParams, map[string]any{}),
+		"created_at":     createdAt, "started_at": startedAt, "finished_at": finishedAt,
 	}, nil
 }
 
@@ -1364,191 +1119,6 @@ func decodeJSON(raw []byte, fallback any) any {
 		return fallback
 	}
 	return value
-}
-
-func jsonMap(raw []byte) map[string]any {
-	value, _ := decodeJSON(raw, map[string]any{}).(map[string]any)
-	if value == nil {
-		return map[string]any{}
-	}
-	return value
-}
-
-func jsonArray(raw []byte) []any {
-	value, _ := decodeJSON(raw, []any{}).([]any)
-	if value == nil {
-		return []any{}
-	}
-	return value
-}
-
-func firstNonEmptyMap(values ...map[string]any) map[string]any {
-	for _, value := range values {
-		if len(value) > 0 {
-			return value
-		}
-	}
-	return map[string]any{}
-}
-
-func countJSONArray(value map[string]any, keys ...string) int {
-	for _, key := range keys {
-		if items, ok := value[key].([]any); ok {
-			return len(items)
-		}
-	}
-	return 0
-}
-
-func (p *Postgres) queryJSONRows(ctx context.Context, query string, args ...any) ([]map[string]any, error) {
-	rows, err := p.pool.Query(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := make([]map[string]any, 0)
-	for rows.Next() {
-		var raw []byte
-		if err := rows.Scan(&raw); err != nil {
-			return nil, err
-		}
-		items = append(items, jsonMap(raw))
-	}
-	return items, rows.Err()
-}
-
-func (p *Postgres) queryJSONObject(ctx context.Context, query string, args ...any) (map[string]any, error) {
-	var raw []byte
-	if err := p.pool.QueryRow(ctx, query, args...).Scan(&raw); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		}
-		return nil, err
-	}
-	return jsonMap(raw), nil
-}
-
-func cloneMap(source map[string]any) map[string]any {
-	result := make(map[string]any, len(source))
-	for key, value := range source {
-		result[key] = value
-	}
-	return result
-}
-
-func latestItem(value any) any {
-	items, ok := value.([]any)
-	if !ok || len(items) == 0 {
-		return nil
-	}
-	return items[len(items)-1]
-}
-
-func buildCoverage(probes []map[string]any) []map[string]any {
-	statusMap := map[string]string{
-		"READY": "QUEUED", "PLANNED": "PLANNED", "SCHEDULED": "SCHEDULED",
-		"RUNNING": "RUNNING", "COMPLETED": "COMPLETED", "FAILED": "FAILED",
-		"TIMED_OUT": "TIMED_OUT", "UNAVAILABLE": "UNAVAILABLE", "REJECTED": "REJECTED",
-		"REJECTED_POLICY": "REJECTED", "WAITING_APPROVAL": "WAITING_APPROVAL", "SKIPPED": "SKIPPED",
-	}
-	items := make([]map[string]any, 0, len(probes))
-	for _, probe := range probes {
-		target := ""
-		if targetMap, ok := probe["target"].(map[string]any); ok {
-			target = stringValue(targetMap["instance_id"])
-		}
-		status := stringValue(probe["status"])
-		if mapped, ok := statusMap[status]; ok {
-			status = mapped
-		}
-		items = append(items, map[string]any{
-			"target": target, "requirement": probe["probe_id"], "status": status,
-			"step_id": probe["step_id"], "task_id": probe["task_id"], "error_code": probe["error_code"],
-		})
-	}
-	return items
-}
-
-func clusterCaseFromSession(session map[string]any, evidenceCount int) DiagnosticCase {
-	id := stringValue(session["diagnosis_id"])
-	intent, _ := session["normalized_intent"].(map[string]any)
-	strategy := stringValue(intent["analysis_strategy"])
-	if strategy == "" {
-		strategy = "CLUSTER_TOPOLOGY"
-	}
-	target, _ := session["target_scope"].(map[string]any)
-	effective, _ := session["effective_time_range"].(map[string]any)
-	requested, _ := session["requested_time_range"].(map[string]any)
-	risk, _ := session["risk_budget"].(map[string]any)
-	resource, _ := session["resource_budget"].(map[string]any)
-	used, _ := session["budget_used"].(map[string]any)
-	graph, _ := session["hypothesis_graph"].(map[string]any)
-	conclusions, _ := session["conclusion_versions"].([]any)
-	taskIDs, _ := session["child_task_ids"].([]any)
-	createdAt, _ := session["created_at"].(time.Time)
-	updatedAt, _ := session["updated_at"].(time.Time)
-	return DiagnosticCase{
-		CaseID: id, DiagnosisID: id, Source: "cluster_diagnosis_v1", Strategy: strategy,
-		Query: stringValue(session["raw_query"]), Status: stringValue(session["status"]),
-		CanonicalStatus: canonicalDiagnosisStatus(stringValue(session["status"])),
-		Target:          target, TimeRange: firstNonEmptyMap(effective, requested),
-		Budget: map[string]any{
-			"policy_profile": session["policy_profile"], "risk": risk, "resource": resource, "used": used,
-		},
-		HypothesisCount: countJSONArray(graph, "hypotheses", "nodes"), EvidenceCount: evidenceCount,
-		ReportVersionCount: len(conclusions), TaskIDs: taskIDs, CreatedAt: createdAt, UpdatedAt: updatedAt,
-		LegacyLinks: map[string]any{"detail": "/api/v1/diagnoses/" + id},
-	}
-}
-
-func legacyDiagnosticCase(
-	id, taskID, status, summary string,
-	evidenceCount, reportCount int,
-	createdAt, updatedAt time.Time,
-) DiagnosticCase {
-	return DiagnosticCase{
-		CaseID: id, DiagnosisID: id, Source: "legacy_rca", Strategy: "RULE_LLM_RCA",
-		Query: summary, Status: status, CanonicalStatus: canonicalDiagnosisStatus(status),
-		Target: map[string]any{"task_id": taskID}, TimeRange: map[string]any{},
-		Budget: map[string]any{}, HypothesisCount: 0, EvidenceCount: evidenceCount,
-		ReportVersionCount: reportCount, TaskIDs: []any{taskID}, CreatedAt: createdAt,
-		UpdatedAt: updatedAt, LegacyLinks: map[string]any{
-			"detail": "/api/diagnoses/" + id,
-			"task":   "/api/tasks/" + taskID,
-		},
-	}
-}
-
-func canonicalDiagnosisStatus(native string) string {
-	switch strings.ToUpper(strings.TrimSpace(native)) {
-	case "CREATED", "PENDING", "UNDERSTANDING", "NEEDS_CLARIFICATION", "NEEDS_SCOPE_CONFIRMATION":
-		return "CREATED"
-	case "PLANNING", "HYPOTHESIZING", "PLAN_READY":
-		return "PLANNING"
-	case "COLLECTING", "RUNNING", "EXECUTING", "PROBING":
-		return "COLLECTING"
-	case "ANALYZING", "REPORTING", "VERIFYING":
-		return "ANALYZING"
-	case "WAITING_APPROVAL", "WAITING_FOR_APPROVAL", "APPROVAL_REQUIRED":
-		return "WAITING_APPROVAL"
-	case "COMPLETED", "DONE", "SUCCEEDED":
-		return "COMPLETED"
-	case "PARTIAL_COMPLETED", "PARTIAL", "INSUFFICIENT_EVIDENCE":
-		return "PARTIAL"
-	case "FAILED", "ERROR", "TIMED_OUT":
-		return "FAILED"
-	case "CANCELLED", "CANCELED":
-		return "CANCELLED"
-	default:
-		return "UNKNOWN"
-	}
-}
-
-func diagnosticCaseMap(value DiagnosticCase) map[string]any {
-	raw, _ := json.Marshal(value)
-	result := map[string]any{}
-	_ = json.Unmarshal(raw, &result)
-	return result
 }
 
 func newTaskID() (string, error) {

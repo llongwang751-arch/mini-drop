@@ -14,6 +14,9 @@ def _load_demo_module():
 
 
 def test_memory_stop_releases_buffers_and_trims_linux_heap(monkeypatch):
+    # Importing the demo creates its process-wide CPU fault singleton. Keep it
+    # idle in this memory-only unit test so it cannot starve later test files.
+    monkeypatch.setenv("CPU_HOTSPOT_ACTIVE", "0")
     module = _load_demo_module()
     fault = module.MemoryFault()
     fault._buffers = [bytearray(1024)]

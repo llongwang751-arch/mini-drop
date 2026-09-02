@@ -65,11 +65,6 @@ const VERIFIED_SKILL_RESULTS = {
   durationStatus: "待真实环境采集",
 };
 
-const DEMO_TARGETS = {
-  baseline: { duration: 150, toolCalls: 5 },
-  enabled: { duration: 60, toolCalls: 2 },
-};
-
 const REPOSITORY_BRANCH = "release/unified-ai-diagnosis-20260821";
 const REPOSITORY_SKILL_ROOT = `https://github.com/llongwang751-arch/mini-drop/tree/${REPOSITORY_BRANCH}/skills`;
 
@@ -305,7 +300,7 @@ export default function SkillEvolutionPanel() {
           type="warning"
           showIcon
           message="发布门禁和效果评测是两件事"
-          description="三类门禁用于阻止明显不安全的候选发布；独立难例集用于比较启用 Skill 前后的根因准确率、反例拒绝率、工具调用数、诊断耗时、负迁移、隔离和回滚。测试案例与来源诊断严格分离，避免拿训练样本给自己打分。"
+          description="三类门禁用于阻止明显不安全的候选发布；冻结离线集比较启用 Skill 前后的路由契约、反例拒绝、推演工具调用、负迁移、隔离和回滚。它不测线上根因准确率或真实诊断耗时，测试案例也与来源诊断严格分离。"
         />
         <div className="skill-benchmark-grid">
           {INDEPENDENT_BENCHMARK.map((item) => (
@@ -325,9 +320,9 @@ export default function SkillEvolutionPanel() {
           />
           <div className="skill-result-grid">
             <div className="skill-result-metric">
-              <Text type="secondary">独立难例通过率</Text>
+              <Text type="secondary">离线路由与生命周期契约通过率</Text>
               <b><del>{VERIFIED_SKILL_RESULTS.baseline.passRate}%</del> → {VERIFIED_SKILL_RESULTS.enabled.passRate}%</b>
-              <span>{VERIFIED_SKILL_RESULTS.baseline.passed}/{VERIFIED_SKILL_RESULTS.baseline.total} → {VERIFIED_SKILL_RESULTS.enabled.passed}/{VERIFIED_SKILL_RESULTS.enabled.total}</span>
+              <span>{VERIFIED_SKILL_RESULTS.baseline.passed}/{VERIFIED_SKILL_RESULTS.baseline.total} → {VERIFIED_SKILL_RESULTS.enabled.passed}/{VERIFIED_SKILL_RESULTS.enabled.total}，提升 60 个百分点</span>
             </div>
             <div className="skill-result-metric">
               <Text type="secondary">离线回放平均工具调用（推演）</Text>
@@ -352,7 +347,7 @@ export default function SkillEvolutionPanel() {
             <div className="skill-result-metric skill-result-metric-muted">
               <Text type="secondary">平均诊断耗时</Text>
               <b>{VERIFIED_SKILL_RESULTS.durationStatus}</b>
-              <span>需接入在线 Campaign 时间戳</span>
+              <span>需接入 Linux 故障注入的真实时间戳</span>
             </div>
           </div>
           <div className="skill-proof-rounds">
@@ -373,16 +368,9 @@ export default function SkillEvolutionPanel() {
               <div><Text strong>版本、隔离与回滚</Text><Text>候选 v1 经门禁发布；错误反馈触发隔离；新版本失效后 1/1 回滚并恢复。</Text></div>
             </div>
           </div>
-          <Alert
-            className="skill-demo-target"
-            showIcon
-            type="warning"
-            message="汇报演示目标（非当前实测）"
-            description={`第一轮目标 ${DEMO_TARGETS.baseline.toolCalls} 次工具 / ${DEMO_TARGETS.baseline.duration} 秒；Skill 命中后目标 ${DEMO_TARGETS.enabled.toolCalls} 次工具 / ${DEMO_TARGETS.enabled.duration} 秒。正式汇报前需用真实 Campaign 时间戳替换。`}
-          />
         </Card>
         <Text className="skill-benchmark-boundary" type="secondary">
-          当前仓库提供确定性离线回放；真实根因准确率和实际耗时仍需在 Linux 故障 Campaign 中，用基线、故障、恢复三段快照复核。
+          40% → 100% 指冻结离线路由与生命周期契约通过率，不是根因准确率，也不是 40% → 60%。真实根因准确率和实际耗时仍需在 Linux 故障 Campaign 中，用基线、故障、恢复三段快照复核。
         </Text>
       </Card>
       <div className="skill-plaza-toolbar">
@@ -435,7 +423,13 @@ export default function SkillEvolutionPanel() {
                     <Descriptions.Item label="停止规则">{skill.strategy?.stop_rule || "-"}</Descriptions.Item>
                     <Descriptions.Item label="真实复用">{skill.activation_count || 0} 次</Descriptions.Item>
                     <Descriptions.Item label="反馈结果">
-                      正确 {skill.correct_outcome_count || 0} / 错误 {skill.wrong_outcome_count || 0}
+                      正确 {skill.correct_outcome_count || 0} / 部分正确 {skill.partial_outcome_count || 0} / 错误 {skill.wrong_outcome_count || 0}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="反馈覆盖率">
+                      {Math.round(Number(skill.outcome_coverage || 0) * 100)}%
+                    </Descriptions.Item>
+                    <Descriptions.Item label="复用可信度">
+                      {Math.round(Number(skill.posterior_reliability ?? 0.5) * 100)}%
                     </Descriptions.Item>
                   </Descriptions>
                   <Progress
