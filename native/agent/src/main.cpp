@@ -1,3 +1,10 @@
+// Mini-Drop data-plane Agent.
+//
+// One instance runs on each Linux worker. Its loop registers with Control,
+// publishes process snapshots and resource metrics, pulls a validated TaskDesc,
+// executes a whitelisted Collector, uploads artifacts, and reports the result.
+// Keep authority checks in this process: a browser- or model-supplied PID alone
+// is never enough to attach to a process.
 #include <grpcpp/grpcpp.h>
 
 #include "healthcheck.grpc.pb.h"
@@ -161,6 +168,17 @@ TaskResult execute_task(
     result.error_code = std::string(mini_drop_contract::kErrorInvalidArgument);
     return result;
   }
+  if (task.max_cpu_percent < 1 || task.max_cpu_percent > 100 ||
+      task.max_memory_mb < 64 || task.max_output_mb < 1 ||
+      task.max_duration < task.duration) {
+    TaskResult result;
+    result.task_id = task.id;
+    result.task_attempt_id = task.task_attempt_id;
+    result.task_attempt_authority = task.task_attempt_authority;
+    result.error = "task resource budget is invalid or below requested duration";
+    result.error_code = std::string(mini_drop_contract::kErrorInvalidArgument);
+    return result;
+  }
   static const CollectorRegistry registry = make_default_collector_registry();
   const auto* collector = registry.find(task.profiler_type);
   if (collector == nullptr) {
@@ -185,7 +203,13 @@ TaskResult execute_task(
     result.error_code = std::string(mini_drop_contract::kErrorArtifactPathInvalid);
     return result;
   }
-  TaskResult result = collector->collect(config, task, g_stop, cancel_requested);
+  Config effective_config = config;
+  effective_config.max_memory_mb = std::min(
+      config.max_memory_mb, task.max_memory_mb);
+  effective_config.max_output_mb = std::min(
+      config.max_output_mb, task.max_output_mb);
+  TaskResult result = collector->collect(
+      effective_config, task, g_stop, cancel_requested);
   result.task_id = task.id;
   result.task_attempt_authority = task.task_attempt_authority;
   result.task_attempt_id = task.task_attempt_id;
@@ -259,6 +283,7 @@ bool attach_attempt_manifest(
   manifest << "\"task_id\":\"" << json_escape(task.id) << "\",";
   manifest << "\"task_attempt_id\":\""
            << json_escape(task.task_attempt_id) << "\",";
+  manifest << "\"traceparent\":\"" << json_escape(task.traceparent) << "\",";
   manifest << "\"profiler_type\":" << task.profiler_type << ',';
   manifest << "\"completed_at_unix_ms\":" << completed_at_unix_ms << ',';
   manifest << "\"artifacts\":" << result.artifact_json << '}';
@@ -318,7 +343,13 @@ bool attach_attempt_manifest(
   artifact << "\"manifest\":{\"manifest_version\":"
               "\"mini-drop.artifact.v1\",\"producer\":\"native-cpp\"},";
   artifact << "\"metadata\":{\"schema_version\":"
-              "\"mini-drop.attempt-manifest.v1\"}}";
+              "\"mini-drop.attempt-manifest.v1\",\"traceparent\":\""
+           << json_escape(task.traceparent) << "\",\"trace_id\":\""
+           << json_escape(
+                  task.traceparent.size() == 55
+                      ? task.traceparent.substr(3, 32)
+                      : std::string{})
+           << "\"}}";
   result.artifact_json += artifact.str();
   result.artifact_json.push_back(']');
   return true;
@@ -517,17 +548,80 @@ Task task_from_proto(const mini_drop::TaskDesc& desc) {
   Task task;
   task.id = desc.task_id();
   task.profiler_type = static_cast<int>(desc.profiler_type());
-  task.pid = desc.sample_argv().pid();
-  task.hz = static_cast<int>(desc.sample_argv().hz());
-  task.duration = static_cast<int>(desc.sample_argv().duration());
+  if (desc.has_sample_argv()) {
+    task.pid = desc.sample_argv().pid();
+    task.hz = static_cast<int>(desc.sample_argv().hz());
+    task.duration = static_cast<int>(desc.sample_argv().duration());
+    task.callgraph = desc.sample_argv().callgraph();
+    task.event = desc.sample_argv().event();
+  }
+  if (desc.has_perf()) {
+    const auto& payload = desc.perf();
+    task.pid = payload.pid();
+    task.hz = static_cast<int>(payload.hz());
+    task.duration = static_cast<int>(payload.duration_sec());
+    task.callgraph = payload.callgraph();
+    task.event = payload.event();
+  } else if (desc.has_async_profiler()) {
+    const auto& payload = desc.async_profiler();
+    task.pid = payload.pid();
+    task.duration = static_cast<int>(payload.duration_sec());
+    task.event = payload.event();
+  } else if (desc.has_pprof()) {
+    const auto& payload = desc.pprof();
+    task.pid = payload.pid();
+    task.duration = static_cast<int>(payload.duration_sec());
+    task.event = payload.endpoint();
+  } else if (desc.has_ebpf()) {
+    const auto& payload = desc.ebpf();
+    task.pid = payload.pid();
+    task.duration = static_cast<int>(payload.duration_sec());
+    task.event = payload.device();
+  } else if (desc.has_pyspy()) {
+    const auto& payload = desc.pyspy();
+    task.pid = payload.pid();
+    task.hz = static_cast<int>(payload.hz());
+    task.duration = static_cast<int>(payload.duration_sec());
+  } else if (desc.has_memory_smaps()) {
+    const auto& payload = desc.memory_smaps();
+    task.pid = payload.pid();
+    task.duration = static_cast<int>(payload.duration_sec());
+  } else if (desc.has_system_metrics()) {
+    const auto& payload = desc.system_metrics();
+    task.pid = payload.pid();
+    task.duration = static_cast<int>(payload.duration_sec());
+  } else if (desc.has_continuous_perf()) {
+    const auto& payload = desc.continuous_perf();
+    task.pid = payload.pid();
+    task.hz = static_cast<int>(payload.hz());
+    task.duration = static_cast<int>(payload.duration_sec());
+    task.callgraph = payload.callgraph();
+    task.event = payload.event();
+    task.window_seconds = static_cast<int>(payload.window_seconds());
+    task.trigger_cpu_percent = static_cast<int>(payload.trigger_cpu_percent());
+    task.trigger_consecutive_samples = static_cast<int>(payload.trigger_consecutive_samples());
+    task.trigger_wait_seconds = static_cast<int>(payload.trigger_wait_seconds());
+    task.retention_tier = payload.retention_tier();
+  }
   task.timeout = desc.timeout_sec() > 0
                      ? static_cast<int>(desc.timeout_sec())
                      : task.duration + 30;
-  task.callgraph = desc.sample_argv().callgraph();
-  task.event = desc.sample_argv().event();
+  if (desc.has_resource_budget()) {
+    task.max_cpu_percent = static_cast<int>(
+        desc.resource_budget().max_cpu_percent());
+    task.max_memory_mb = static_cast<int>(
+        desc.resource_budget().max_memory_mb());
+    task.max_output_mb = static_cast<int>(
+        desc.resource_budget().max_output_mb());
+    task.max_duration = static_cast<int>(
+        desc.resource_budget().max_duration_sec());
+  } else {
+    task.max_duration = task.duration;
+  }
   task.container_name = desc.container_name();
   task.task_attempt_authority = desc.task_attempt_authority();
   task.task_attempt_id = desc.task_attempt_id();
+  task.traceparent = desc.traceparent();
   for (const auto& target : desc.upload_targets()) {
     if (target.object_key().empty() || target.put_url().empty()) continue;
     task.upload_targets.emplace(
@@ -584,6 +678,7 @@ int main() {
   std::atomic<bool> cancel_requested{false};
   std::atomic<bool> worker_running{false};
   std::string active_task_id;
+  std::string active_traceparent;
 
   const CollectorRegistry collector_registry = make_default_collector_registry();
   const std::vector<std::string> collector_capabilities =
@@ -605,10 +700,12 @@ int main() {
         }
         std::cout << "{\"level\":\"info\",\"event\":\"task_finished\","
                   << "\"task_id\":\"" << json_escape(completed->task_id)
+                  << "\",\"traceparent\":\"" << json_escape(active_traceparent)
                   << "\",\"ok\":" << (completed->ok ? "true" : "false")
                   << "}\n";
         completed.reset();
         active_task_id.clear();
+        active_traceparent.clear();
         worker_running.store(false);
         cancel_requested.store(false);
       }
@@ -628,6 +725,7 @@ int main() {
           !response->task_desc().task_id().empty()) {
         const Task task = task_from_proto(response->task_desc());
         active_task_id = task.id;
+        active_traceparent = task.traceparent;
         worker_running.store(true);
         worker = std::thread([&, task]() {
           TaskResult result = execute_task(config, task, cancel_requested);
@@ -636,6 +734,7 @@ int main() {
         });
         std::cout << "{\"level\":\"info\",\"event\":\"task_started\","
                   << "\"task_id\":\"" << json_escape(task.id) << "\","
+                  << "\"traceparent\":\"" << json_escape(task.traceparent) << "\","
                   << "\"pid\":" << task.pid << "}\n";
       }
     }

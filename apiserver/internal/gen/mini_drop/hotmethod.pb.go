@@ -30,22 +30,36 @@ const (
 // TaskDesc 描述一次采集任务的完整参数。
 // 嵌入在 HealthCheckResponse 中，Agent 心跳时拉取。
 type TaskDesc struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                                    // 全局唯一任务 ID
-	TaskType      uint32                 `protobuf:"varint,2,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`                                             // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
-	ProfilerType  TaskKindProfiler       `protobuf:"varint,3,opt,name=profiler_type,json=profilerType,proto3,enum=mini_drop.TaskKindProfiler" json:"profiler_type,omitempty"` // 唯一编号来自 contracts/taskkinds.json
-	SampleArgv    *RecordArgv            `protobuf:"bytes,4,opt,name=sample_argv,json=sampleArgv,proto3" json:"sample_argv,omitempty"`                                        // 采集参数
-	ContainerName string                 `protobuf:"bytes,5,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`                               // 容器/Pod 名称（非容器场景为空）
-	ContainerType uint32                 `protobuf:"varint,6,opt,name=container_type,json=containerType,proto3" json:"container_type,omitempty"`                              // 容器运行时类型
-	TimeoutSec    uint32                 `protobuf:"varint,7,opt,name=timeout_sec,json=timeoutSec,proto3" json:"timeout_sec,omitempty"`                                       // 任务超时秒数，Agent 应在此时限内完成采集
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	TaskId       string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                                    // 全局唯一任务 ID
+	TaskType     uint32                 `protobuf:"varint,2,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`                                             // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
+	ProfilerType TaskKindProfiler       `protobuf:"varint,3,opt,name=profiler_type,json=profilerType,proto3,enum=mini_drop.TaskKindProfiler" json:"profiler_type,omitempty"` // 唯一编号来自 contracts/taskkinds.json
+	// Deprecated: Marked as deprecated in hotmethod.proto.
+	SampleArgv    *RecordArgv `protobuf:"bytes,4,opt,name=sample_argv,json=sampleArgv,proto3" json:"sample_argv,omitempty"`           // N-1 兼容；新任务使用 typed payload
+	ContainerName string      `protobuf:"bytes,5,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`  // 容器/Pod 名称（非容器场景为空）
+	ContainerType uint32      `protobuf:"varint,6,opt,name=container_type,json=containerType,proto3" json:"container_type,omitempty"` // 容器运行时类型
+	TimeoutSec    uint32      `protobuf:"varint,7,opt,name=timeout_sec,json=timeoutSec,proto3" json:"timeout_sec,omitempty"`          // 任务超时秒数，Agent 应在此时限内完成采集
 	// Deprecated: Marked as deprecated in hotmethod.proto.
 	CosConfig            *CosConfig      `protobuf:"bytes,8,opt,name=cos_config,json=cosConfig,proto3" json:"cos_config,omitempty"`                                     // 仅保留字段号兼容；Agent 不再接受长期密钥
 	ScriptContent        string          `protobuf:"bytes,9,opt,name=script_content,json=scriptContent,proto3" json:"script_content,omitempty"`                         // 仅 ScriptExec 类任务使用，存放脚本内容
 	TaskAttemptAuthority string          `protobuf:"bytes,20,opt,name=task_attempt_authority,json=taskAttemptAuthority,proto3" json:"task_attempt_authority,omitempty"` // 不透明的任务尝试授权，Agent 必须原样回传
 	UploadTargets        []*UploadTarget `protobuf:"bytes,21,rep,name=upload_targets,json=uploadTargets,proto3" json:"upload_targets,omitempty"`                        // 每对象短时 PUT 授权
 	TaskAttemptId        string          `protobuf:"bytes,22,opt,name=task_attempt_id,json=taskAttemptId,proto3" json:"task_attempt_id,omitempty"`                      // 本次真实执行身份，贯穿 Artifact/AnalysisJob
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	ResourceBudget       *ResourceBudget `protobuf:"bytes,23,opt,name=resource_budget,json=resourceBudget,proto3" json:"resource_budget,omitempty"`                     // 每任务上限，Agent 取本地与任务预算的较小值
+	Traceparent          string          `protobuf:"bytes,24,opt,name=traceparent,proto3" json:"traceparent,omitempty"`                                                 // 经控制面校验的 W3C Trace Context，不参与执行授权
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*TaskDesc_Perf
+	//	*TaskDesc_AsyncProfiler
+	//	*TaskDesc_Pprof
+	//	*TaskDesc_Ebpf
+	//	*TaskDesc_Pyspy
+	//	*TaskDesc_MemorySmaps
+	//	*TaskDesc_SystemMetrics
+	//	*TaskDesc_ContinuousPerf
+	Payload       isTaskDesc_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TaskDesc) Reset() {
@@ -99,6 +113,7 @@ func (x *TaskDesc) GetProfilerType() TaskKindProfiler {
 	return TaskKindProfiler_TASK_KIND_PERF_CPU
 }
 
+// Deprecated: Marked as deprecated in hotmethod.proto.
 func (x *TaskDesc) GetSampleArgv() *RecordArgv {
 	if x != nil {
 		return x.SampleArgv
@@ -163,6 +178,788 @@ func (x *TaskDesc) GetTaskAttemptId() string {
 	return ""
 }
 
+func (x *TaskDesc) GetResourceBudget() *ResourceBudget {
+	if x != nil {
+		return x.ResourceBudget
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetTraceparent() string {
+	if x != nil {
+		return x.Traceparent
+	}
+	return ""
+}
+
+func (x *TaskDesc) GetPayload() isTaskDesc_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetPerf() *PerfTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_Perf); ok {
+			return x.Perf
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetAsyncProfiler() *AsyncProfilerTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_AsyncProfiler); ok {
+			return x.AsyncProfiler
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetPprof() *PprofTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_Pprof); ok {
+			return x.Pprof
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetEbpf() *EbpfTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_Ebpf); ok {
+			return x.Ebpf
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetPyspy() *PySpyTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_Pyspy); ok {
+			return x.Pyspy
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetMemorySmaps() *MemorySmapsTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_MemorySmaps); ok {
+			return x.MemorySmaps
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetSystemMetrics() *SystemMetricsTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_SystemMetrics); ok {
+			return x.SystemMetrics
+		}
+	}
+	return nil
+}
+
+func (x *TaskDesc) GetContinuousPerf() *ContinuousPerfTask {
+	if x != nil {
+		if x, ok := x.Payload.(*TaskDesc_ContinuousPerf); ok {
+			return x.ContinuousPerf
+		}
+	}
+	return nil
+}
+
+type isTaskDesc_Payload interface {
+	isTaskDesc_Payload()
+}
+
+type TaskDesc_Perf struct {
+	Perf *PerfTask `protobuf:"bytes,30,opt,name=perf,proto3,oneof"`
+}
+
+type TaskDesc_AsyncProfiler struct {
+	AsyncProfiler *AsyncProfilerTask `protobuf:"bytes,31,opt,name=async_profiler,json=asyncProfiler,proto3,oneof"`
+}
+
+type TaskDesc_Pprof struct {
+	Pprof *PprofTask `protobuf:"bytes,32,opt,name=pprof,proto3,oneof"`
+}
+
+type TaskDesc_Ebpf struct {
+	Ebpf *EbpfTask `protobuf:"bytes,33,opt,name=ebpf,proto3,oneof"`
+}
+
+type TaskDesc_Pyspy struct {
+	Pyspy *PySpyTask `protobuf:"bytes,34,opt,name=pyspy,proto3,oneof"`
+}
+
+type TaskDesc_MemorySmaps struct {
+	MemorySmaps *MemorySmapsTask `protobuf:"bytes,35,opt,name=memory_smaps,json=memorySmaps,proto3,oneof"`
+}
+
+type TaskDesc_SystemMetrics struct {
+	SystemMetrics *SystemMetricsTask `protobuf:"bytes,36,opt,name=system_metrics,json=systemMetrics,proto3,oneof"`
+}
+
+type TaskDesc_ContinuousPerf struct {
+	ContinuousPerf *ContinuousPerfTask `protobuf:"bytes,37,opt,name=continuous_perf,json=continuousPerf,proto3,oneof"`
+}
+
+func (*TaskDesc_Perf) isTaskDesc_Payload() {}
+
+func (*TaskDesc_AsyncProfiler) isTaskDesc_Payload() {}
+
+func (*TaskDesc_Pprof) isTaskDesc_Payload() {}
+
+func (*TaskDesc_Ebpf) isTaskDesc_Payload() {}
+
+func (*TaskDesc_Pyspy) isTaskDesc_Payload() {}
+
+func (*TaskDesc_MemorySmaps) isTaskDesc_Payload() {}
+
+func (*TaskDesc_SystemMetrics) isTaskDesc_Payload() {}
+
+func (*TaskDesc_ContinuousPerf) isTaskDesc_Payload() {}
+
+// ResourceBudget 是单个任务的硬上限，不是性能目标。
+type ResourceBudget struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	MaxCpuPercent  uint32                 `protobuf:"varint,1,opt,name=max_cpu_percent,json=maxCpuPercent,proto3" json:"max_cpu_percent,omitempty"`
+	MaxMemoryMb    uint32                 `protobuf:"varint,2,opt,name=max_memory_mb,json=maxMemoryMb,proto3" json:"max_memory_mb,omitempty"`
+	MaxOutputMb    uint32                 `protobuf:"varint,3,opt,name=max_output_mb,json=maxOutputMb,proto3" json:"max_output_mb,omitempty"`
+	MaxDurationSec uint32                 `protobuf:"varint,4,opt,name=max_duration_sec,json=maxDurationSec,proto3" json:"max_duration_sec,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ResourceBudget) Reset() {
+	*x = ResourceBudget{}
+	mi := &file_hotmethod_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceBudget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceBudget) ProtoMessage() {}
+
+func (x *ResourceBudget) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceBudget.ProtoReflect.Descriptor instead.
+func (*ResourceBudget) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ResourceBudget) GetMaxCpuPercent() uint32 {
+	if x != nil {
+		return x.MaxCpuPercent
+	}
+	return 0
+}
+
+func (x *ResourceBudget) GetMaxMemoryMb() uint32 {
+	if x != nil {
+		return x.MaxMemoryMb
+	}
+	return 0
+}
+
+func (x *ResourceBudget) GetMaxOutputMb() uint32 {
+	if x != nil {
+		return x.MaxOutputMb
+	}
+	return 0
+}
+
+func (x *ResourceBudget) GetMaxDurationSec() uint32 {
+	if x != nil {
+		return x.MaxDurationSec
+	}
+	return 0
+}
+
+type PerfTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	Hz            uint32                 `protobuf:"varint,2,opt,name=hz,proto3" json:"hz,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,3,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	Callgraph     string                 `protobuf:"bytes,4,opt,name=callgraph,proto3" json:"callgraph,omitempty"`
+	Event         string                 `protobuf:"bytes,5,opt,name=event,proto3" json:"event,omitempty"`
+	Subprocess    bool                   `protobuf:"varint,6,opt,name=subprocess,proto3" json:"subprocess,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PerfTask) Reset() {
+	*x = PerfTask{}
+	mi := &file_hotmethod_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PerfTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PerfTask) ProtoMessage() {}
+
+func (x *PerfTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PerfTask.ProtoReflect.Descriptor instead.
+func (*PerfTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PerfTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *PerfTask) GetHz() uint32 {
+	if x != nil {
+		return x.Hz
+	}
+	return 0
+}
+
+func (x *PerfTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *PerfTask) GetCallgraph() string {
+	if x != nil {
+		return x.Callgraph
+	}
+	return ""
+}
+
+func (x *PerfTask) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *PerfTask) GetSubprocess() bool {
+	if x != nil {
+		return x.Subprocess
+	}
+	return false
+}
+
+type AsyncProfilerTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,2,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	Event         string                 `protobuf:"bytes,3,opt,name=event,proto3" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AsyncProfilerTask) Reset() {
+	*x = AsyncProfilerTask{}
+	mi := &file_hotmethod_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AsyncProfilerTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AsyncProfilerTask) ProtoMessage() {}
+
+func (x *AsyncProfilerTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AsyncProfilerTask.ProtoReflect.Descriptor instead.
+func (*AsyncProfilerTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AsyncProfilerTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *AsyncProfilerTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *AsyncProfilerTask) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+type PprofTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,2,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	Endpoint      string                 `protobuf:"bytes,3,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PprofTask) Reset() {
+	*x = PprofTask{}
+	mi := &file_hotmethod_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PprofTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PprofTask) ProtoMessage() {}
+
+func (x *PprofTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PprofTask.ProtoReflect.Descriptor instead.
+func (*PprofTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *PprofTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *PprofTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *PprofTask) GetEndpoint() string {
+	if x != nil {
+		return x.Endpoint
+	}
+	return ""
+}
+
+type EbpfTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,2,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	Device        string                 `protobuf:"bytes,3,opt,name=device,proto3" json:"device,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EbpfTask) Reset() {
+	*x = EbpfTask{}
+	mi := &file_hotmethod_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EbpfTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EbpfTask) ProtoMessage() {}
+
+func (x *EbpfTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EbpfTask.ProtoReflect.Descriptor instead.
+func (*EbpfTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EbpfTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *EbpfTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *EbpfTask) GetDevice() string {
+	if x != nil {
+		return x.Device
+	}
+	return ""
+}
+
+type PySpyTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	Hz            uint32                 `protobuf:"varint,2,opt,name=hz,proto3" json:"hz,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,3,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	Subprocess    bool                   `protobuf:"varint,4,opt,name=subprocess,proto3" json:"subprocess,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PySpyTask) Reset() {
+	*x = PySpyTask{}
+	mi := &file_hotmethod_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PySpyTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PySpyTask) ProtoMessage() {}
+
+func (x *PySpyTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PySpyTask.ProtoReflect.Descriptor instead.
+func (*PySpyTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PySpyTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *PySpyTask) GetHz() uint32 {
+	if x != nil {
+		return x.Hz
+	}
+	return 0
+}
+
+func (x *PySpyTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *PySpyTask) GetSubprocess() bool {
+	if x != nil {
+		return x.Subprocess
+	}
+	return false
+}
+
+type MemorySmapsTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,2,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	IntervalMs    uint32                 `protobuf:"varint,3,opt,name=interval_ms,json=intervalMs,proto3" json:"interval_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemorySmapsTask) Reset() {
+	*x = MemorySmapsTask{}
+	mi := &file_hotmethod_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemorySmapsTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemorySmapsTask) ProtoMessage() {}
+
+func (x *MemorySmapsTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemorySmapsTask.ProtoReflect.Descriptor instead.
+func (*MemorySmapsTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *MemorySmapsTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *MemorySmapsTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *MemorySmapsTask) GetIntervalMs() uint32 {
+	if x != nil {
+		return x.IntervalMs
+	}
+	return 0
+}
+
+type SystemMetricsTask struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	DurationSec   uint32                 `protobuf:"varint,2,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	IntervalMs    uint32                 `protobuf:"varint,3,opt,name=interval_ms,json=intervalMs,proto3" json:"interval_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SystemMetricsTask) Reset() {
+	*x = SystemMetricsTask{}
+	mi := &file_hotmethod_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SystemMetricsTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SystemMetricsTask) ProtoMessage() {}
+
+func (x *SystemMetricsTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SystemMetricsTask.ProtoReflect.Descriptor instead.
+func (*SystemMetricsTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SystemMetricsTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *SystemMetricsTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *SystemMetricsTask) GetIntervalMs() uint32 {
+	if x != nil {
+		return x.IntervalMs
+	}
+	return 0
+}
+
+type ContinuousPerfTask struct {
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	Pid                       int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	Hz                        uint32                 `protobuf:"varint,2,opt,name=hz,proto3" json:"hz,omitempty"`
+	DurationSec               uint32                 `protobuf:"varint,3,opt,name=duration_sec,json=durationSec,proto3" json:"duration_sec,omitempty"`
+	WindowSeconds             uint32                 `protobuf:"varint,4,opt,name=window_seconds,json=windowSeconds,proto3" json:"window_seconds,omitempty"`
+	Callgraph                 string                 `protobuf:"bytes,5,opt,name=callgraph,proto3" json:"callgraph,omitempty"`
+	Event                     string                 `protobuf:"bytes,6,opt,name=event,proto3" json:"event,omitempty"`
+	TriggerCpuPercent         uint32                 `protobuf:"varint,7,opt,name=trigger_cpu_percent,json=triggerCpuPercent,proto3" json:"trigger_cpu_percent,omitempty"`
+	TriggerConsecutiveSamples uint32                 `protobuf:"varint,8,opt,name=trigger_consecutive_samples,json=triggerConsecutiveSamples,proto3" json:"trigger_consecutive_samples,omitempty"`
+	TriggerWaitSeconds        uint32                 `protobuf:"varint,9,opt,name=trigger_wait_seconds,json=triggerWaitSeconds,proto3" json:"trigger_wait_seconds,omitempty"`
+	RetentionTier             string                 `protobuf:"bytes,10,opt,name=retention_tier,json=retentionTier,proto3" json:"retention_tier,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *ContinuousPerfTask) Reset() {
+	*x = ContinuousPerfTask{}
+	mi := &file_hotmethod_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContinuousPerfTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContinuousPerfTask) ProtoMessage() {}
+
+func (x *ContinuousPerfTask) ProtoReflect() protoreflect.Message {
+	mi := &file_hotmethod_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContinuousPerfTask.ProtoReflect.Descriptor instead.
+func (*ContinuousPerfTask) Descriptor() ([]byte, []int) {
+	return file_hotmethod_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ContinuousPerfTask) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetHz() uint32 {
+	if x != nil {
+		return x.Hz
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetDurationSec() uint32 {
+	if x != nil {
+		return x.DurationSec
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetWindowSeconds() uint32 {
+	if x != nil {
+		return x.WindowSeconds
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetCallgraph() string {
+	if x != nil {
+		return x.Callgraph
+	}
+	return ""
+}
+
+func (x *ContinuousPerfTask) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *ContinuousPerfTask) GetTriggerCpuPercent() uint32 {
+	if x != nil {
+		return x.TriggerCpuPercent
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetTriggerConsecutiveSamples() uint32 {
+	if x != nil {
+		return x.TriggerConsecutiveSamples
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetTriggerWaitSeconds() uint32 {
+	if x != nil {
+		return x.TriggerWaitSeconds
+	}
+	return 0
+}
+
+func (x *ContinuousPerfTask) GetRetentionTier() string {
+	if x != nil {
+		return x.RetentionTier
+	}
+	return ""
+}
+
 // RecordArgv 采集器的命令行参数。
 type RecordArgv struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -178,7 +975,7 @@ type RecordArgv struct {
 
 func (x *RecordArgv) Reset() {
 	*x = RecordArgv{}
-	mi := &file_hotmethod_proto_msgTypes[1]
+	mi := &file_hotmethod_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -190,7 +987,7 @@ func (x *RecordArgv) String() string {
 func (*RecordArgv) ProtoMessage() {}
 
 func (x *RecordArgv) ProtoReflect() protoreflect.Message {
-	mi := &file_hotmethod_proto_msgTypes[1]
+	mi := &file_hotmethod_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -203,7 +1000,7 @@ func (x *RecordArgv) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordArgv.ProtoReflect.Descriptor instead.
 func (*RecordArgv) Descriptor() ([]byte, []int) {
-	return file_hotmethod_proto_rawDescGZIP(), []int{1}
+	return file_hotmethod_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RecordArgv) GetHz() uint32 {
@@ -269,7 +1066,7 @@ type TaskResult struct {
 
 func (x *TaskResult) Reset() {
 	*x = TaskResult{}
-	mi := &file_hotmethod_proto_msgTypes[2]
+	mi := &file_hotmethod_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -281,7 +1078,7 @@ func (x *TaskResult) String() string {
 func (*TaskResult) ProtoMessage() {}
 
 func (x *TaskResult) ProtoReflect() protoreflect.Message {
-	mi := &file_hotmethod_proto_msgTypes[2]
+	mi := &file_hotmethod_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -294,7 +1091,7 @@ func (x *TaskResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskResult.ProtoReflect.Descriptor instead.
 func (*TaskResult) Descriptor() ([]byte, []int) {
-	return file_hotmethod_proto_rawDescGZIP(), []int{2}
+	return file_hotmethod_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *TaskResult) GetTaskId() string {
@@ -371,12 +1168,12 @@ var File_hotmethod_proto protoreflect.FileDescriptor
 
 const file_hotmethod_proto_rawDesc = "" +
 	"\n" +
-	"\x0fhotmethod.proto\x12\tmini_drop\x1a\fcommon.proto\x1a\x0ferrorcode.proto\x1a\x0etaskkind.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xad\x04\n" +
+	"\x0fhotmethod.proto\x12\tmini_drop\x1a\fcommon.proto\x1a\x0ferrorcode.proto\x1a\x0etaskkind.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xed\b\n" +
 	"\bTaskDesc\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12\x1b\n" +
 	"\ttask_type\x18\x02 \x01(\rR\btaskType\x12@\n" +
-	"\rprofiler_type\x18\x03 \x01(\x0e2\x1b.mini_drop.TaskKindProfilerR\fprofilerType\x126\n" +
-	"\vsample_argv\x18\x04 \x01(\v2\x15.mini_drop.RecordArgvR\n" +
+	"\rprofiler_type\x18\x03 \x01(\x0e2\x1b.mini_drop.TaskKindProfilerR\fprofilerType\x12:\n" +
+	"\vsample_argv\x18\x04 \x01(\v2\x15.mini_drop.RecordArgvB\x02\x18\x01R\n" +
 	"sampleArgv\x12%\n" +
 	"\x0econtainer_name\x18\x05 \x01(\tR\rcontainerName\x12%\n" +
 	"\x0econtainer_type\x18\x06 \x01(\rR\rcontainerType\x12\x1f\n" +
@@ -387,8 +1184,74 @@ const file_hotmethod_proto_rawDesc = "" +
 	"\x0escript_content\x18\t \x01(\tR\rscriptContent\x124\n" +
 	"\x16task_attempt_authority\x18\x14 \x01(\tR\x14taskAttemptAuthority\x12>\n" +
 	"\x0eupload_targets\x18\x15 \x03(\v2\x17.mini_drop.UploadTargetR\ruploadTargets\x12&\n" +
-	"\x0ftask_attempt_id\x18\x16 \x01(\tR\rtaskAttemptIdJ\x04\b\n" +
-	"\x10\x14\"\x9e\x01\n" +
+	"\x0ftask_attempt_id\x18\x16 \x01(\tR\rtaskAttemptId\x12B\n" +
+	"\x0fresource_budget\x18\x17 \x01(\v2\x19.mini_drop.ResourceBudgetR\x0eresourceBudget\x12 \n" +
+	"\vtraceparent\x18\x18 \x01(\tR\vtraceparent\x12)\n" +
+	"\x04perf\x18\x1e \x01(\v2\x13.mini_drop.PerfTaskH\x00R\x04perf\x12E\n" +
+	"\x0easync_profiler\x18\x1f \x01(\v2\x1c.mini_drop.AsyncProfilerTaskH\x00R\rasyncProfiler\x12,\n" +
+	"\x05pprof\x18  \x01(\v2\x14.mini_drop.PprofTaskH\x00R\x05pprof\x12)\n" +
+	"\x04ebpf\x18! \x01(\v2\x13.mini_drop.EbpfTaskH\x00R\x04ebpf\x12,\n" +
+	"\x05pyspy\x18\" \x01(\v2\x14.mini_drop.PySpyTaskH\x00R\x05pyspy\x12?\n" +
+	"\fmemory_smaps\x18# \x01(\v2\x1a.mini_drop.MemorySmapsTaskH\x00R\vmemorySmaps\x12E\n" +
+	"\x0esystem_metrics\x18$ \x01(\v2\x1c.mini_drop.SystemMetricsTaskH\x00R\rsystemMetrics\x12H\n" +
+	"\x0fcontinuous_perf\x18% \x01(\v2\x1d.mini_drop.ContinuousPerfTaskH\x00R\x0econtinuousPerfB\t\n" +
+	"\apayloadJ\x04\b\n" +
+	"\x10\x14\"\xaa\x01\n" +
+	"\x0eResourceBudget\x12&\n" +
+	"\x0fmax_cpu_percent\x18\x01 \x01(\rR\rmaxCpuPercent\x12\"\n" +
+	"\rmax_memory_mb\x18\x02 \x01(\rR\vmaxMemoryMb\x12\"\n" +
+	"\rmax_output_mb\x18\x03 \x01(\rR\vmaxOutputMb\x12(\n" +
+	"\x10max_duration_sec\x18\x04 \x01(\rR\x0emaxDurationSec\"\xa3\x01\n" +
+	"\bPerfTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x0e\n" +
+	"\x02hz\x18\x02 \x01(\rR\x02hz\x12!\n" +
+	"\fduration_sec\x18\x03 \x01(\rR\vdurationSec\x12\x1c\n" +
+	"\tcallgraph\x18\x04 \x01(\tR\tcallgraph\x12\x14\n" +
+	"\x05event\x18\x05 \x01(\tR\x05event\x12\x1e\n" +
+	"\n" +
+	"subprocess\x18\x06 \x01(\bR\n" +
+	"subprocess\"^\n" +
+	"\x11AsyncProfilerTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12!\n" +
+	"\fduration_sec\x18\x02 \x01(\rR\vdurationSec\x12\x14\n" +
+	"\x05event\x18\x03 \x01(\tR\x05event\"\\\n" +
+	"\tPprofTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12!\n" +
+	"\fduration_sec\x18\x02 \x01(\rR\vdurationSec\x12\x1a\n" +
+	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"W\n" +
+	"\bEbpfTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12!\n" +
+	"\fduration_sec\x18\x02 \x01(\rR\vdurationSec\x12\x16\n" +
+	"\x06device\x18\x03 \x01(\tR\x06device\"p\n" +
+	"\tPySpyTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x0e\n" +
+	"\x02hz\x18\x02 \x01(\rR\x02hz\x12!\n" +
+	"\fduration_sec\x18\x03 \x01(\rR\vdurationSec\x12\x1e\n" +
+	"\n" +
+	"subprocess\x18\x04 \x01(\bR\n" +
+	"subprocess\"g\n" +
+	"\x0fMemorySmapsTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12!\n" +
+	"\fduration_sec\x18\x02 \x01(\rR\vdurationSec\x12\x1f\n" +
+	"\vinterval_ms\x18\x03 \x01(\rR\n" +
+	"intervalMs\"i\n" +
+	"\x11SystemMetricsTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12!\n" +
+	"\fduration_sec\x18\x02 \x01(\rR\vdurationSec\x12\x1f\n" +
+	"\vinterval_ms\x18\x03 \x01(\rR\n" +
+	"intervalMs\"\xfd\x02\n" +
+	"\x12ContinuousPerfTask\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x0e\n" +
+	"\x02hz\x18\x02 \x01(\rR\x02hz\x12!\n" +
+	"\fduration_sec\x18\x03 \x01(\rR\vdurationSec\x12%\n" +
+	"\x0ewindow_seconds\x18\x04 \x01(\rR\rwindowSeconds\x12\x1c\n" +
+	"\tcallgraph\x18\x05 \x01(\tR\tcallgraph\x12\x14\n" +
+	"\x05event\x18\x06 \x01(\tR\x05event\x12.\n" +
+	"\x13trigger_cpu_percent\x18\a \x01(\rR\x11triggerCpuPercent\x12>\n" +
+	"\x1btrigger_consecutive_samples\x18\b \x01(\rR\x19triggerConsecutiveSamples\x120\n" +
+	"\x14trigger_wait_seconds\x18\t \x01(\rR\x12triggerWaitSeconds\x12%\n" +
+	"\x0eretention_tier\x18\n" +
+	" \x01(\tR\rretentionTier\"\x9e\x01\n" +
 	"\n" +
 	"RecordArgv\x12\x0e\n" +
 	"\x02hz\x18\x01 \x01(\rR\x02hz\x12\x1a\n" +
@@ -429,35 +1292,53 @@ func file_hotmethod_proto_rawDescGZIP() []byte {
 	return file_hotmethod_proto_rawDescData
 }
 
-var file_hotmethod_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_hotmethod_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_hotmethod_proto_goTypes = []any{
-	(*TaskDesc)(nil),      // 0: mini_drop.TaskDesc
-	(*RecordArgv)(nil),    // 1: mini_drop.RecordArgv
-	(*TaskResult)(nil),    // 2: mini_drop.TaskResult
-	(TaskKindProfiler)(0), // 3: mini_drop.TaskKindProfiler
-	(*CosConfig)(nil),     // 4: mini_drop.CosConfig
-	(*UploadTarget)(nil),  // 5: mini_drop.UploadTarget
-	(*File)(nil),          // 6: mini_drop.File
-	(*PidStats)(nil),      // 7: mini_drop.PidStats
-	(ErrorCode)(0),        // 8: mini_drop.ErrorCode
-	(*emptypb.Empty)(nil), // 9: google.protobuf.Empty
+	(*TaskDesc)(nil),           // 0: mini_drop.TaskDesc
+	(*ResourceBudget)(nil),     // 1: mini_drop.ResourceBudget
+	(*PerfTask)(nil),           // 2: mini_drop.PerfTask
+	(*AsyncProfilerTask)(nil),  // 3: mini_drop.AsyncProfilerTask
+	(*PprofTask)(nil),          // 4: mini_drop.PprofTask
+	(*EbpfTask)(nil),           // 5: mini_drop.EbpfTask
+	(*PySpyTask)(nil),          // 6: mini_drop.PySpyTask
+	(*MemorySmapsTask)(nil),    // 7: mini_drop.MemorySmapsTask
+	(*SystemMetricsTask)(nil),  // 8: mini_drop.SystemMetricsTask
+	(*ContinuousPerfTask)(nil), // 9: mini_drop.ContinuousPerfTask
+	(*RecordArgv)(nil),         // 10: mini_drop.RecordArgv
+	(*TaskResult)(nil),         // 11: mini_drop.TaskResult
+	(TaskKindProfiler)(0),      // 12: mini_drop.TaskKindProfiler
+	(*CosConfig)(nil),          // 13: mini_drop.CosConfig
+	(*UploadTarget)(nil),       // 14: mini_drop.UploadTarget
+	(*File)(nil),               // 15: mini_drop.File
+	(*PidStats)(nil),           // 16: mini_drop.PidStats
+	(ErrorCode)(0),             // 17: mini_drop.ErrorCode
+	(*emptypb.Empty)(nil),      // 18: google.protobuf.Empty
 }
 var file_hotmethod_proto_depIdxs = []int32{
-	3, // 0: mini_drop.TaskDesc.profiler_type:type_name -> mini_drop.TaskKindProfiler
-	1, // 1: mini_drop.TaskDesc.sample_argv:type_name -> mini_drop.RecordArgv
-	4, // 2: mini_drop.TaskDesc.cos_config:type_name -> mini_drop.CosConfig
-	5, // 3: mini_drop.TaskDesc.upload_targets:type_name -> mini_drop.UploadTarget
-	6, // 4: mini_drop.TaskResult.file:type_name -> mini_drop.File
-	7, // 5: mini_drop.TaskResult.self_pstats:type_name -> mini_drop.PidStats
-	7, // 6: mini_drop.TaskResult.children_pstats:type_name -> mini_drop.PidStats
-	8, // 7: mini_drop.TaskResult.error_code:type_name -> mini_drop.ErrorCode
-	2, // 8: mini_drop.Hotmethod.NotifyResult:input_type -> mini_drop.TaskResult
-	9, // 9: mini_drop.Hotmethod.NotifyResult:output_type -> google.protobuf.Empty
-	9, // [9:10] is the sub-list for method output_type
-	8, // [8:9] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	12, // 0: mini_drop.TaskDesc.profiler_type:type_name -> mini_drop.TaskKindProfiler
+	10, // 1: mini_drop.TaskDesc.sample_argv:type_name -> mini_drop.RecordArgv
+	13, // 2: mini_drop.TaskDesc.cos_config:type_name -> mini_drop.CosConfig
+	14, // 3: mini_drop.TaskDesc.upload_targets:type_name -> mini_drop.UploadTarget
+	1,  // 4: mini_drop.TaskDesc.resource_budget:type_name -> mini_drop.ResourceBudget
+	2,  // 5: mini_drop.TaskDesc.perf:type_name -> mini_drop.PerfTask
+	3,  // 6: mini_drop.TaskDesc.async_profiler:type_name -> mini_drop.AsyncProfilerTask
+	4,  // 7: mini_drop.TaskDesc.pprof:type_name -> mini_drop.PprofTask
+	5,  // 8: mini_drop.TaskDesc.ebpf:type_name -> mini_drop.EbpfTask
+	6,  // 9: mini_drop.TaskDesc.pyspy:type_name -> mini_drop.PySpyTask
+	7,  // 10: mini_drop.TaskDesc.memory_smaps:type_name -> mini_drop.MemorySmapsTask
+	8,  // 11: mini_drop.TaskDesc.system_metrics:type_name -> mini_drop.SystemMetricsTask
+	9,  // 12: mini_drop.TaskDesc.continuous_perf:type_name -> mini_drop.ContinuousPerfTask
+	15, // 13: mini_drop.TaskResult.file:type_name -> mini_drop.File
+	16, // 14: mini_drop.TaskResult.self_pstats:type_name -> mini_drop.PidStats
+	16, // 15: mini_drop.TaskResult.children_pstats:type_name -> mini_drop.PidStats
+	17, // 16: mini_drop.TaskResult.error_code:type_name -> mini_drop.ErrorCode
+	11, // 17: mini_drop.Hotmethod.NotifyResult:input_type -> mini_drop.TaskResult
+	18, // 18: mini_drop.Hotmethod.NotifyResult:output_type -> google.protobuf.Empty
+	18, // [18:19] is the sub-list for method output_type
+	17, // [17:18] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_hotmethod_proto_init() }
@@ -468,13 +1349,23 @@ func file_hotmethod_proto_init() {
 	file_common_proto_init()
 	file_errorcode_proto_init()
 	file_taskkind_proto_init()
+	file_hotmethod_proto_msgTypes[0].OneofWrappers = []any{
+		(*TaskDesc_Perf)(nil),
+		(*TaskDesc_AsyncProfiler)(nil),
+		(*TaskDesc_Pprof)(nil),
+		(*TaskDesc_Ebpf)(nil),
+		(*TaskDesc_Pyspy)(nil),
+		(*TaskDesc_MemorySmaps)(nil),
+		(*TaskDesc_SystemMetrics)(nil),
+		(*TaskDesc_ContinuousPerf)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_hotmethod_proto_rawDesc), len(file_hotmethod_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

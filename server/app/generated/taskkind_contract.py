@@ -60,11 +60,12 @@ TASK_KINDS = json.loads(r'''[
     "parameter_schema": "docs/contracts/task-parameters/java_async.schema.json",
     "artifact_filenames": [
       "java-flamegraph.html",
+      "jvm-gc-metrics.json",
       "manifest.json"
     ],
     "default_event": "cpu",
     "result_label": "async-profiler Java 火焰图",
-    "description": "采集 JVM 进程 CPU 调用栈并生成可浏览火焰图。",
+    "description": "采集 JVM 调用栈，并在受支持的目标上同时记录同窗 GC/堆计数器。",
     "color": "magenta",
     "flamegraph": true
   },
@@ -252,18 +253,19 @@ TASK_KINDS = json.loads(r'''[
     ],
     "supports_container": true,
     "default_duration_seconds": 60,
-    "max_duration_seconds": 600,
+    "max_duration_seconds": 86400,
     "default_sample_rate": 49,
     "max_sample_rate": 999,
     "max_concurrency_per_agent": 1,
     "parameter_schema": "docs/contracts/task-parameters/continuous_perf.schema.json",
     "artifact_filenames": [
-      "continuous-perf.data",
+      "continuous-perf.tar",
+      "continuous-summary.json",
       "manifest.json"
     ],
     "default_event": "cpu-cycles",
     "result_label": "按窗口切分的火焰图 + 趋势",
-    "description": "周期采集多个时间窗口，观察热点随时间变化。",
+    "description": "最长 24 小时按窗口轮转采集，支持 CPU 哨兵触发、输出配额和保留层级，观察热点随时间变化。",
     "color": "cyan",
     "flamegraph": true
   }

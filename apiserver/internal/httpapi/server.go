@@ -1,3 +1,9 @@
+// Package httpapi is Mini-Drop's only public backend surface.
+//
+// Browser requests terminate here. The package authenticates and authorizes
+// them, persists task intent, delegates collection to C++ Control over gRPC,
+// delegates diagnosis to the private Python worker, and streams durable events
+// back to the browser. It deliberately does not run collectors itself.
 package httpapi
 
 import (
@@ -47,6 +53,11 @@ type Server struct {
 	cfg             config.Config
 	logger          *slog.Logger
 	requestID       atomic.Uint64
+	httpRequests    atomic.Uint64
+	httpErrors      atomic.Uint64
+	httpInFlight    atomic.Int64
+	httpDurationUS  atomic.Uint64
+	httpResponses   [6]atomic.Uint64
 	repo            *repository.Postgres
 	store           objectstore.Store
 	control         mini_drop.ControlClient
@@ -153,7 +164,10 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 	mux.HandleFunc("GET /readyz", s.readiness)
 	mux.HandleFunc("GET /healthz", s.readiness)
 	mux.HandleFunc("GET /api/healthz", s.readiness)
+	mux.HandleFunc("POST /api/auth/session", s.createBrowserSession)
+	mux.HandleFunc("DELETE /api/auth/session", s.deleteBrowserSession)
 	mux.HandleFunc("GET /api/me", s.me)
+	mux.HandleFunc("GET /api/metrics", s.metrics)
 	mux.HandleFunc("GET /api/task-kinds", s.listTaskKinds)
 	if s.repo != nil {
 		mux.HandleFunc("GET /api/agents", s.listAgents)
@@ -180,7 +194,41 @@ func New(cfg config.Config, logger *slog.Logger, repositories ...*repository.Pos
 	mux.HandleFunc("GET /api/v2/diagnoses/{diagnosis_id}/events/stream", s.streamDropInsightEvents)
 	mux.HandleFunc("/api/v2", s.invokeDiagnosticAI)
 	mux.HandleFunc("/api/v2/{rest...}", s.invokeDiagnosticAI)
-	return s.accessLog(s.requestTrace(s.auth(mux)))
+	return s.securityHeaders(s.accessLog(s.requestTrace(s.auth(mux))))
+}
+
+func browserSessionCookie(r *http.Request, value string, maxAge int) *http.Cookie {
+	secure := r.TLS != nil || strings.EqualFold(
+		strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")), "https",
+	)
+	return &http.Cookie{
+		Name:     "mini_drop_api_key",
+		Value:    value,
+		Path:     "/api",
+		MaxAge:   maxAge,
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteStrictMode,
+	}
+}
+
+// createBrowserSession converts an already authenticated API request into a
+// short-lived, HttpOnly same-origin session. Native EventSource cannot attach
+// X-API-Key, so SSE uses this cookie while ordinary REST requests keep using
+// the explicit header.
+func (s *Server) createBrowserSession(w http.ResponseWriter, r *http.Request) {
+	provided := credentialFromRequest(r)
+	if provided == "" || s.authenticatePrincipal(provided) == nil {
+		writeAPI(w, http.StatusUnauthorized, 1401, "访问认证失败", nil)
+		return
+	}
+	http.SetCookie(w, browserSessionCookie(r, provided, 8*60*60))
+	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{"expires_in": 8 * 60 * 60})
+}
+
+func (s *Server) deleteBrowserSession(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, browserSessionCookie(r, "", -1))
+	writeAPI(w, http.StatusOK, 0, "ok", map[string]any{"cleared": true})
 }
 
 func (s *Server) invokeDiagnosticAI(w http.ResponseWriter, r *http.Request) {
@@ -202,6 +250,12 @@ func (s *Server) invokeDiagnosticAI(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	if token := strings.TrimSpace(s.cfg.ControlGRPCToken); token != "" {
 		ctx = metadata.AppendToOutgoingContext(ctx, "x-mini-drop-grpc-token", token)
+	}
+	if requestID := strings.TrimSpace(r.Header.Get("X-Request-ID")); requestID != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", requestID)
+	}
+	if traceparent := strings.TrimSpace(r.Header.Get("Traceparent")); traceparent != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "traceparent", traceparent)
 	}
 	response, err := s.diagnosticAI.Invoke(ctx, &mini_drop.DiagnosticAIRequest{
 		Method:    r.Method,
@@ -281,13 +335,21 @@ func (s *Server) streamDropInsightEvents(w http.ResponseWriter, r *http.Request)
 }
 
 type createTaskRequest struct {
-	Name          string         `json:"name"`
-	AgentID       string         `json:"agent_id"`
-	TargetPID     int            `json:"target_pid"`
-	CollectorType string         `json:"collector_type"`
-	SampleRate    int            `json:"sample_rate"`
-	DurationSec   int            `json:"duration_sec"`
-	Options       map[string]any `json:"options"`
+	Name           string              `json:"name"`
+	AgentID        string              `json:"agent_id"`
+	TargetPID      int                 `json:"target_pid"`
+	CollectorType  string              `json:"collector_type"`
+	SampleRate     int                 `json:"sample_rate"`
+	DurationSec    int                 `json:"duration_sec"`
+	Options        map[string]any      `json:"options"`
+	ResourceBudget *taskResourceBudget `json:"resource_budget,omitempty"`
+}
+
+type taskResourceBudget struct {
+	MaxCPUPercent  int `json:"max_cpu_percent"`
+	MaxMemoryMB    int `json:"max_memory_mb"`
+	MaxOutputMB    int `json:"max_output_mb"`
+	MaxDurationSec int `json:"max_duration_sec"`
 }
 
 type cancelTaskRequest struct {
@@ -317,6 +379,122 @@ func validateIdempotencyKey(key string) error {
 		return errors.New("idempotency key must not contain whitespace")
 	}
 	return nil
+}
+
+func normalizeTaskResourceBudget(
+	budget *taskResourceBudget,
+	durationSec int,
+	maxDurationSec int,
+) (*taskResourceBudget, error) {
+	if budget == nil {
+		budget = &taskResourceBudget{}
+	}
+	normalized := *budget
+	if normalized.MaxCPUPercent == 0 {
+		normalized.MaxCPUPercent = 50
+	}
+	if normalized.MaxMemoryMB == 0 {
+		normalized.MaxMemoryMB = 1024
+	}
+	if normalized.MaxOutputMB == 0 {
+		normalized.MaxOutputMB = 256
+	}
+	if normalized.MaxDurationSec == 0 {
+		normalized.MaxDurationSec = durationSec
+	}
+	if normalized.MaxCPUPercent < 1 || normalized.MaxCPUPercent > 100 {
+		return nil, errors.New("max_cpu_percent 必须在 1 到 100 之间")
+	}
+	if normalized.MaxMemoryMB < 64 || normalized.MaxMemoryMB > 65536 {
+		return nil, errors.New("max_memory_mb 必须在 64 到 65536 之间")
+	}
+	if normalized.MaxOutputMB < 1 || normalized.MaxOutputMB > 4096 {
+		return nil, errors.New("max_output_mb 必须在 1 到 4096 之间")
+	}
+	if normalized.MaxDurationSec < durationSec || normalized.MaxDurationSec > maxDurationSec {
+		return nil, errors.New("max_duration_sec 必须覆盖采集时长且不超过 TaskKind 上限")
+	}
+	return &normalized, nil
+}
+
+func optionString(options map[string]any, name, fallback string) string {
+	value, ok := options[name].(string)
+	if !ok || strings.TrimSpace(value) == "" {
+		return fallback
+	}
+	return value
+}
+
+func optionInt(options map[string]any, name string, fallback int) int {
+	switch value := options[name].(type) {
+	case float64:
+		return int(value)
+	case int:
+		return value
+	default:
+		return fallback
+	}
+}
+
+func optionBool(options map[string]any, name string) bool {
+	value, _ := options[name].(bool)
+	return value
+}
+
+func applyTypedTaskPayload(desc *mini_drop.TaskDesc, input createTaskRequest) {
+	pid := int32(input.TargetPID)
+	duration := uint32(input.DurationSec)
+	hz := uint32(input.SampleRate)
+	switch input.CollectorType {
+	case "perf_cpu":
+		desc.Payload = &mini_drop.TaskDesc_Perf{Perf: &mini_drop.PerfTask{
+			Pid: pid, Hz: hz, DurationSec: duration,
+			Callgraph:  optionString(input.Options, "callgraph", "fp"),
+			Event:      optionString(input.Options, "event", "cpu-cycles"),
+			Subprocess: optionBool(input.Options, "subprocess"),
+		}}
+	case "java_async":
+		desc.Payload = &mini_drop.TaskDesc_AsyncProfiler{AsyncProfiler: &mini_drop.AsyncProfilerTask{
+			Pid: pid, DurationSec: duration,
+			Event: optionString(input.Options, "event", "cpu"),
+		}}
+	case "go_pprof":
+		desc.Payload = &mini_drop.TaskDesc_Pprof{Pprof: &mini_drop.PprofTask{
+			Pid: pid, DurationSec: duration,
+			Endpoint: optionString(input.Options, "pprof_url", "http://go-hotspot:6060/debug/pprof/profile"),
+		}}
+	case "ebpf_io":
+		desc.Payload = &mini_drop.TaskDesc_Ebpf{Ebpf: &mini_drop.EbpfTask{
+			Pid: pid, DurationSec: duration,
+			Device: optionString(input.Options, "device", ""),
+		}}
+	case "pyspy":
+		desc.Payload = &mini_drop.TaskDesc_Pyspy{Pyspy: &mini_drop.PySpyTask{
+			Pid: pid, Hz: hz, DurationSec: duration,
+			Subprocess: optionBool(input.Options, "subprocess"),
+		}}
+	case "memory_smaps":
+		desc.Payload = &mini_drop.TaskDesc_MemorySmaps{MemorySmaps: &mini_drop.MemorySmapsTask{
+			Pid: pid, DurationSec: duration,
+			IntervalMs: uint32(optionInt(input.Options, "interval_ms", 1000)),
+		}}
+	case "sys_metrics":
+		desc.Payload = &mini_drop.TaskDesc_SystemMetrics{SystemMetrics: &mini_drop.SystemMetricsTask{
+			Pid: pid, DurationSec: duration,
+			IntervalMs: uint32(optionInt(input.Options, "interval_ms", 1000)),
+		}}
+	case "continuous_perf":
+		desc.Payload = &mini_drop.TaskDesc_ContinuousPerf{ContinuousPerf: &mini_drop.ContinuousPerfTask{
+			Pid: pid, Hz: hz, DurationSec: duration,
+			WindowSeconds:             uint32(optionInt(input.Options, "window_seconds", input.DurationSec)),
+			Callgraph:                 optionString(input.Options, "callgraph", "fp"),
+			Event:                     optionString(input.Options, "event", "cpu-cycles"),
+			TriggerCpuPercent:         uint32(optionInt(input.Options, "trigger_cpu_percent", 0)),
+			TriggerConsecutiveSamples: uint32(optionInt(input.Options, "trigger_consecutive_samples", 3)),
+			TriggerWaitSeconds:        uint32(optionInt(input.Options, "trigger_wait_seconds", 0)),
+			RetentionTier:             optionString(input.Options, "retention_tier", "standard"),
+		}}
+	}
 }
 
 func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
@@ -405,12 +583,26 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		writeAPI(w, http.StatusBadRequest, 1400, "采集器 options 不符合参数契约: "+err.Error(), nil)
 		return
 	}
+	budget, err := normalizeTaskResourceBudget(input.ResourceBudget, input.DurationSec, kind.MaxDurationSec)
+	if err != nil {
+		writeAPI(w, http.StatusBadRequest, 1400, "resource_budget 不符合策略: "+err.Error(), nil)
+		return
+	}
+	input.ResourceBudget = budget
 	taskID, replayed, err := s.repo.CreateTask(r.Context(), repository.CreateTask{
 		Name: input.Name, AgentID: input.AgentID, TargetPID: input.TargetPID,
 		CollectorType: input.CollectorType, SampleRate: input.SampleRate,
 		DurationSec: input.DurationSec, Options: input.Options,
+		ResourceBudget: map[string]any{
+			"max_cpu_percent":  budget.MaxCPUPercent,
+			"max_memory_mb":    budget.MaxMemoryMB,
+			"max_output_mb":    budget.MaxOutputMB,
+			"max_duration_sec": budget.MaxDurationSec,
+		},
 		CreatorID: principal.ID, IdempotencyKey: idempotencyKey,
 		ProcessBinding: processBinding,
+		TraceParent:    r.Header.Get("Traceparent"),
+		TraceID:        r.Header.Get("X-Trace-ID"),
 	})
 	if errors.Is(err, repository.ErrNotFound) {
 		writeAPI(w, http.StatusNotFound, 1404, "目标 Agent 不存在", nil)
@@ -475,19 +667,30 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		if requestID := r.Header.Get("X-Request-ID"); requestID != "" {
 			ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", requestID)
 		}
+		if traceparent := r.Header.Get("Traceparent"); traceparent != "" {
+			ctx = metadata.AppendToOutgoingContext(ctx, "traceparent", traceparent)
+		}
+		desc := &mini_drop.TaskDesc{
+			TaskId:       taskID,
+			ProfilerType: mini_drop.TaskKindProfiler(kind.ProfilerType),
+			SampleArgv: &mini_drop.RecordArgv{
+				Hz:       uint32(input.SampleRate),
+				Duration: uint64(input.DurationSec),
+				Pid:      int32(input.TargetPID),
+			},
+			TimeoutSec: uint32(input.DurationSec + 30),
+			ResourceBudget: &mini_drop.ResourceBudget{
+				MaxCpuPercent:  uint32(budget.MaxCPUPercent),
+				MaxMemoryMb:    uint32(budget.MaxMemoryMB),
+				MaxOutputMb:    uint32(budget.MaxOutputMB),
+				MaxDurationSec: uint32(budget.MaxDurationSec),
+			},
+		}
+		applyTypedTaskPayload(desc, input)
 		response, dispatchErr := s.control.CreateTask(ctx, &mini_drop.CreateTaskRequest{
 			TargetIp: input.AgentID,
 			TaskId:   taskID,
-			TaskDesc: &mini_drop.TaskDesc{
-				TaskId:       taskID,
-				ProfilerType: mini_drop.TaskKindProfiler(kind.ProfilerType),
-				SampleArgv: &mini_drop.RecordArgv{
-					Hz:       uint32(input.SampleRate),
-					Duration: uint64(input.DurationSec),
-					Pid:      int32(input.TargetPID),
-				},
-				TimeoutSec: uint32(input.DurationSec + 30),
-			},
+			TaskDesc: desc,
 		})
 		if dispatchErr != nil {
 			_ = s.repo.RecordControlCommand(
@@ -1167,6 +1370,42 @@ func (s *Server) me(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Server) metrics(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	_, _ = fmt.Fprintf(
+		w,
+		"# HELP mini_drop_http_requests_total Total HTTP requests observed by this API process.\n"+
+			"# TYPE mini_drop_http_requests_total counter\n"+
+			"mini_drop_http_requests_total %d\n"+
+			"# HELP mini_drop_http_errors_total HTTP responses with status 500 or greater.\n"+
+			"# TYPE mini_drop_http_errors_total counter\n"+
+			"mini_drop_http_errors_total %d\n"+
+			"# HELP mini_drop_http_responses_total HTTP responses grouped by status class.\n"+
+			"# TYPE mini_drop_http_responses_total counter\n"+
+			"mini_drop_http_responses_total{class=\"2xx\"} %d\n"+
+			"mini_drop_http_responses_total{class=\"3xx\"} %d\n"+
+			"mini_drop_http_responses_total{class=\"4xx\"} %d\n"+
+			"mini_drop_http_responses_total{class=\"5xx\"} %d\n"+
+			"# HELP mini_drop_http_request_duration_seconds Total request duration observed by this API process.\n"+
+			"# TYPE mini_drop_http_request_duration_seconds summary\n"+
+			"mini_drop_http_request_duration_seconds_sum %.6f\n"+
+			"mini_drop_http_request_duration_seconds_count %d\n"+
+			"# HELP mini_drop_http_in_flight Requests currently executing in this API process.\n"+
+			"# TYPE mini_drop_http_in_flight gauge\n"+
+			"mini_drop_http_in_flight %d\n",
+		s.httpRequests.Load(),
+		s.httpErrors.Load(),
+		s.httpResponses[2].Load(),
+		s.httpResponses[3].Load(),
+		s.httpResponses[4].Load(),
+		s.httpResponses[5].Load(),
+		float64(s.httpDurationUS.Load())/1_000_000,
+		s.httpRequests.Load(),
+		s.httpInFlight.Load(),
+	)
+}
+
 func (s *Server) auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/livez" || r.URL.Path == "/readyz" ||
@@ -1183,17 +1422,7 @@ func (s *Server) auth(next http.Handler) http.Handler {
 			)))
 			return
 		}
-		provided := strings.TrimSpace(r.Header.Get("X-API-Key"))
-		if provided == "" {
-			if cookie, err := r.Cookie("mini_drop_api_key"); err == nil {
-				provided = cookie.Value
-			}
-		}
-		if provided == "" {
-			if bearer := r.Header.Get("Authorization"); strings.HasPrefix(bearer, "Bearer ") {
-				provided = strings.TrimSpace(strings.TrimPrefix(bearer, "Bearer "))
-			}
-		}
+		provided := credentialFromRequest(r)
 		principal := s.authenticatePrincipal(provided)
 		if principal == nil {
 			writeAPI(w, http.StatusUnauthorized, 1401, "访问认证失败", nil)
@@ -1201,8 +1430,14 @@ func (s *Server) auth(next http.Handler) http.Handler {
 		}
 		if isMutatingMethod(r.Method) && !strings.HasPrefix(r.URL.Path, "/api/auth/") {
 			approvalPath := strings.HasSuffix(r.URL.Path, "/approvals")
+			skillGovernancePath := strings.HasPrefix(r.URL.Path, "/api/v2/diagnostic-skills/") &&
+				(strings.HasSuffix(r.URL.Path, "/campaign") ||
+					strings.HasSuffix(r.URL.Path, "/publish"))
+			experimentApprovalPath := strings.HasPrefix(
+				r.URL.Path, "/api/v2/diagnostic-experiments/",
+			) && strings.HasSuffix(r.URL.Path, "/approve")
 			allowed := hasAnyRole(principal, "operator", "admin")
-			if approvalPath {
+			if approvalPath || skillGovernancePath || experimentApprovalPath {
 				allowed = hasAnyRole(principal, "approver", "admin")
 			}
 			if !allowed {
@@ -1213,6 +1448,21 @@ func (s *Server) auth(next http.Handler) http.Handler {
 		attachPrincipalHeaders(r, principal)
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), principalContextKey{}, principal)))
 	})
+}
+
+func credentialFromRequest(r *http.Request) string {
+	provided := strings.TrimSpace(r.Header.Get("X-API-Key"))
+	if provided == "" {
+		if cookie, err := r.Cookie("mini_drop_api_key"); err == nil {
+			provided = strings.TrimSpace(cookie.Value)
+		}
+	}
+	if provided == "" {
+		if bearer := r.Header.Get("Authorization"); strings.HasPrefix(bearer, "Bearer ") {
+			provided = strings.TrimSpace(strings.TrimPrefix(bearer, "Bearer "))
+		}
+	}
+	return provided
 }
 
 func (s *Server) authenticatePrincipal(provided string) *requestPrincipal {
@@ -1351,21 +1601,96 @@ func (s *Server) requestTrace(next http.Handler) http.Handler {
 		}
 		r.Header.Set("X-Request-ID", requestID)
 		w.Header().Set("X-Request-ID", requestID)
+
+		traceID, flags, valid := parseTraceparent(r.Header.Get("Traceparent"))
+		if !valid {
+			traceID = randomTraceHex(16)
+			flags = "01"
+		}
+		traceparent := "00-" + traceID + "-" + randomTraceHex(8) + "-" + flags
+		r.Header.Set("Traceparent", traceparent)
+		r.Header.Set("X-Trace-ID", traceID)
+		w.Header().Set("Traceparent", traceparent)
+		w.Header().Set("X-Trace-ID", traceID)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func parseTraceparent(value string) (traceID, flags string, ok bool) {
+	parts := strings.Split(strings.ToLower(strings.TrimSpace(value)), "-")
+	if len(parts) != 4 || parts[0] != "00" || len(parts[1]) != 32 ||
+		len(parts[2]) != 16 || len(parts[3]) != 2 {
+		return "", "", false
+	}
+	traceBytes, traceErr := hex.DecodeString(parts[1])
+	spanBytes, spanErr := hex.DecodeString(parts[2])
+	_, flagsErr := hex.DecodeString(parts[3])
+	if traceErr != nil || spanErr != nil || flagsErr != nil ||
+		allZero(traceBytes) || allZero(spanBytes) {
+		return "", "", false
+	}
+	return parts[1], parts[3], true
+}
+
+func allZero(value []byte) bool {
+	for _, item := range value {
+		if item != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func randomTraceHex(size int) string {
+	value := make([]byte, size)
+	if _, err := rand.Read(value); err == nil && !allZero(value) {
+		return hex.EncodeToString(value)
+	}
+	// Correlation must never make a valid request unavailable. The normal path
+	// above is cryptographic; this fallback only handles entropy-source failure.
+	fallback := fmt.Sprintf("%032x%016x", time.Now().UTC().UnixNano(), size)
+	return fallback[len(fallback)-size*2:]
+}
+
+// securityHeaders protects clients that connect to the Go API directly rather
+// than through the production web proxy. API responses can contain sensitive
+// diagnostic evidence, so they must not be cached by browsers or intermediaries.
+func (s *Server) securityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/api" {
+			w.Header().Set("Cache-Control", "no-store")
+		}
 		next.ServeHTTP(w, r)
 	})
 }
 
 func (s *Server) accessLog(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.httpInFlight.Add(1)
+		defer s.httpInFlight.Add(-1)
 		started := time.Now()
 		recorder := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(recorder, r)
+		duration := time.Since(started)
+		s.httpRequests.Add(1)
+		if class := recorder.status / 100; class >= 1 && class <= 5 {
+			s.httpResponses[class].Add(1)
+		}
+		if micros := duration.Microseconds(); micros > 0 {
+			s.httpDurationUS.Add(uint64(micros))
+		}
+		if recorder.status >= http.StatusInternalServerError {
+			s.httpErrors.Add(1)
+		}
 		s.logger.Info("http request",
 			"request_id", r.Header.Get("X-Request-ID"),
+			"trace_id", r.Header.Get("X-Trace-ID"),
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", recorder.status,
-			"duration_ms", time.Since(started).Milliseconds(),
+			"duration_ms", duration.Milliseconds(),
 		)
 	})
 }

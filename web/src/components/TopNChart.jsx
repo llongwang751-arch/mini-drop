@@ -1,9 +1,18 @@
 import { useMemo } from "react";
 import { Empty, Skeleton } from "antd";
-import ReactEChartsCore from "echarts-for-react/lib/core";
+import ReactEChartsCoreImport from "echarts-for-react/lib/core";
 import echarts from "../lib/echarts";
 import { COLORS } from "../theme";
 import { escapeHtml } from "../utils/html";
+
+// echarts-for-react/lib/core is CommonJS. Depending on the bundler and chunk
+// boundary it can arrive as Component, { default: Component }, or
+// { default: { default: Component } }. React rejects the object variants as an
+// element type, so unwrap every interop layer before rendering.
+let ReactEChartsCore = ReactEChartsCoreImport;
+for (let depth = 0; depth < 3 && typeof ReactEChartsCore !== "function"; depth += 1) {
+  ReactEChartsCore = ReactEChartsCore?.default;
+}
 
 /**
  * 热力渐变色：低占比冷色 → 高占比暖色。

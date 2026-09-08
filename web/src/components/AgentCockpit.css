@@ -1,0 +1,419 @@
+.agent-cockpit {
+  border: 1px solid #dbe7f5;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 72%);
+  box-shadow: 0 8px 24px rgba(31, 78, 121, 0.06);
+  overflow: hidden;
+}
+
+.agent-cockpit-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px 10px;
+}
+
+.agent-cockpit-heading .ant-typography {
+  margin-bottom: 0;
+}
+
+.agent-cockpit-heading p.ant-typography {
+  margin-top: 4px;
+  color: #718096;
+  font-size: 12px;
+}
+
+.agent-cockpit-safe-icon {
+  color: #16a36a;
+}
+
+.agent-cockpit-runtime {
+  min-height: 39px;
+  padding: 8px 16px;
+  border-top: 1px solid #e8f0f8;
+  border-bottom: 1px solid #e8f0f8;
+  background: #f3f8fe;
+}
+
+.agent-cockpit-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.agent-cockpit-connection-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d48806;
+  box-shadow: 0 0 0 3px rgba(212, 136, 6, 0.12);
+}
+
+.agent-cockpit-connection.is-connected {
+  color: #16875d;
+}
+
+.agent-cockpit-connection.is-connected .agent-cockpit-connection-dot {
+  background: #21b47e;
+  box-shadow: 0 0 0 3px rgba(33, 180, 126, 0.12);
+}
+
+.agent-cockpit-connection.is-fallback {
+  color: #9a6700;
+}
+
+.agent-cockpit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: #e8f0f8;
+}
+
+.agent-cockpit-card {
+  min-width: 0;
+  min-height: 108px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 14px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #14213d;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.agent-cockpit-card:hover {
+  position: relative;
+  z-index: 1;
+  background: #f6faff;
+  box-shadow: inset 0 -3px 0 #2f6fea;
+}
+
+.agent-cockpit-card:focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 3px solid rgba(47, 111, 234, 0.28);
+  outline-offset: -3px;
+}
+
+.agent-cockpit-card:active {
+  transform: translateY(1px);
+}
+
+.agent-cockpit-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #2f6fea;
+  background: #edf4ff;
+  font-size: 15px;
+}
+
+.agent-cockpit-card.is-evidence .agent-cockpit-card-icon,
+.agent-cockpit-card.is-rag .agent-cockpit-card-icon,
+.agent-cockpit-card.is-evaluation .agent-cockpit-card-icon {
+  color: #16875d;
+  background: #e9f8f2;
+}
+
+.agent-cockpit-card.is-lats .agent-cockpit-card-icon {
+  color: #7048b8;
+  background: #f1ebff;
+}
+
+.agent-cockpit-card-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-cockpit-card-copy small {
+  color: #65758b;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.agent-cockpit-card-copy b {
+  margin-top: 3px;
+  color: #13213c;
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.agent-cockpit-card-copy em {
+  display: -webkit-box;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #8090a5;
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.agent-cockpit-modal .ant-modal-body {
+  max-height: min(72vh, 720px);
+  overflow: auto;
+  padding-top: 14px;
+}
+
+.agent-cockpit-modal .ant-table-cell {
+  vertical-align: top;
+}
+
+.agent-cockpit-timeline {
+  margin-top: 14px;
+}
+
+.agent-cockpit-retrieval-match .ant-list-item-meta-description {
+  color: inherit;
+}
+
+.agent-cockpit-retrieval-excerpt.ant-typography {
+  max-width: 72ch;
+  margin: 0;
+  color: #334761;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.agent-cockpit-eval-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agent-cockpit-eval-grid article {
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid #e2eaf4;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+.agent-cockpit-eval-grid b {
+  margin: 4px 0;
+  color: #153d78;
+  font-size: 24px;
+}
+
+.agent-cockpit-eval-grid small {
+  color: #77879c;
+  line-height: 1.4;
+}
+
+.agent-cockpit-lats-loop {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.agent-cockpit-lats-loop > span {
+  display: flex;
+  min-width: 0;
+  min-height: 60px;
+  align-items: center;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  color: #65758b;
+  background: #fafbfd;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.agent-cockpit-lats-loop > span b {
+  display: inline-flex;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #62758d;
+  background: #e9eef5;
+}
+
+.agent-cockpit-lats-loop > span.is-past {
+  color: #31664e;
+  border-color: #cce7d9;
+  background: #f4fbf7;
+}
+
+.agent-cockpit-lats-loop > span.is-current {
+  color: #153d78;
+  border-color: #73a4ee;
+  background: #edf4ff;
+  box-shadow: 0 0 0 3px rgba(47, 111, 234, .12);
+  font-weight: 700;
+}
+
+.agent-cockpit-lats-loop > span.is-current b {
+  color: #fff;
+  background: #2f6fea;
+}
+
+.agent-cockpit-lats-section,
+.agent-cockpit-existing-budget {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e0e8f2;
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.agent-cockpit-lats-section .ant-typography,
+.agent-cockpit-existing-budget .ant-typography {
+  margin: 0;
+}
+
+.agent-cockpit-lats-score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agent-cockpit-lats-score-grid article {
+  display: grid;
+  gap: 3px;
+  padding: 11px;
+  border: 1px solid #d7e3f2;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.agent-cockpit-lats-score-grid small { color: #718198; }
+.agent-cockpit-lats-score-grid b { color: #173f79; font-size: 19px; font-variant-numeric: tabular-nums; }
+
+.agent-cockpit-lats-path {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-cockpit-lats-path li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
+  border-left: 3px solid #d48806;
+  border-radius: 0 8px 8px 0;
+  background: #fffaf0;
+}
+
+.agent-cockpit-lats-path li > span {
+  display: inline-flex;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #815a00;
+  background: #ffe6a6;
+  font-weight: 700;
+}
+
+.agent-cockpit-lats-path li > div { display: grid; min-width: 0; gap: 3px; }
+.agent-cockpit-lats-path li code { overflow: hidden; text-overflow: ellipsis; }
+
+.agent-cockpit-lats-budget-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agent-cockpit-lats-budget-item {
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #dfe7f1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.agent-cockpit-lats-budget-item > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agent-memory-preferences {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agent-memory-preferences label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #dfe7f1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+@media (max-width: 1280px) {
+  .agent-cockpit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-cockpit-lats-loop { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .agent-cockpit-heading {
+    flex-direction: column;
+  }
+
+  .agent-cockpit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-cockpit-eval-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-cockpit-lats-loop,
+  .agent-cockpit-lats-score-grid,
+  .agent-cockpit-lats-budget-grid,
+  .agent-memory-preferences { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 440px) {
+  .agent-cockpit-grid,
+  .agent-cockpit-eval-grid,
+  .agent-cockpit-lats-loop,
+  .agent-cockpit-lats-score-grid,
+  .agent-cockpit-lats-budget-grid,
+  .agent-memory-preferences {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-cockpit-card {
+    transition: none;
+  }
+}

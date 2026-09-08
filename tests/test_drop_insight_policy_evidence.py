@@ -31,6 +31,25 @@ def test_policy_requires_human_approval_for_perf():
     assert result["decision"] == "REQUIRE_APPROVAL"
 
 
+def test_autonomous_session_pre_authorizes_registered_perf_only():
+    result = evaluate_tool_call(
+        "start_perf_profile",
+        {"agent_id": "agent-a", "pid": 123, "duration_seconds": 15, "sample_rate": 99},
+        policy_context(session_pre_authorized=True),
+    )
+    assert result["decision"] == "ALLOW"
+    assert {item["name"]: item["result"] for item in result["checks"]}[
+        "HUMAN_APPROVAL"
+    ] == "SESSION_PREAUTHORIZED"
+
+    wrong_target = evaluate_tool_call(
+        "start_perf_profile",
+        {"agent_id": "agent-a", "pid": 999, "duration_seconds": 15, "sample_rate": 99},
+        policy_context(session_pre_authorized=True),
+    )
+    assert wrong_target["decision"] == "DENY"
+
+
 def test_policy_denies_unknown_argument_and_out_of_scope_agent():
     unknown = evaluate_tool_call(
         "get_agent_status",

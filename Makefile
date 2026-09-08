@@ -1,6 +1,6 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,$(if $(wildcard .venv/Scripts/python.exe),.venv/Scripts/python.exe,python))
 
-.PHONY: proto contracts diagnosis-worker analyzer-worker test coverage lint fmt demo-target native-agent skill-benchmark skill-ab-large skill-stability rcaeval-skill-ab quantitative-report deploy deploy-down db-upgrade db-current db-downgrade accept-ebpf accept-backup accept-replicas
+.PHONY: proto contracts diagnosis-worker analyzer-worker test coverage lint fmt demo-target native-agent gperftools-bridge diagnosis-benchmark-v2 profile-aggregation-benchmark deploy deploy-down db-upgrade db-current db-downgrade accept-ebpf accept-backup accept-replicas
 
 proto:
 	$(PYTHON) proto/compile.py
@@ -36,20 +36,16 @@ demo-target:
 native-agent:
 	docker compose up -d --build native-agent
 
-skill-benchmark:
-	$(PYTHON) scripts/run_skill_evolution_benchmark.py
+gperftools-bridge:
+	cmake -S native/gperftools_bridge -B build/gperftools-bridge -DCMAKE_BUILD_TYPE=Release
+	cmake --build build/gperftools-bridge --parallel
 
-skill-ab-large:
-	$(PYTHON) scripts/run_scaled_skill_ab.py
+diagnosis-benchmark-v2:
+	$(PYTHON) scripts/generate_diagnosis_benchmark_v2.py
+	$(PYTHON) scripts/run_diagnosis_benchmark_v2.py
 
-skill-stability:
-	$(PYTHON) scripts/run_scaled_skill_ab.py --stability-seconds 21600 --stability-iterations 5
-
-rcaeval-skill-ab:
-	$(PYTHON) scripts/run_rcaeval_skill_ab.py --download
-
-quantitative-report:
-	$(PYTHON) scripts/build_quantitative_test_report.py
+profile-aggregation-benchmark:
+	$(PYTHON) scripts/benchmark_profile_aggregation.py
 
 db-upgrade:
 	$(PYTHON) -m alembic upgrade head

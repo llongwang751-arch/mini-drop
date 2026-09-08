@@ -7,6 +7,7 @@ import {
   Descriptions,
   Empty,
   message,
+  Modal,
   Row,
   Select,
   Skeleton,
@@ -35,6 +36,7 @@ import {
 } from "../api/client";
 import FlamegraphViewer from "../components/FlamegraphViewer";
 import TopNChart from "../components/TopNChart";
+import CallGraphViewer from "../components/CallGraphViewer";
 import EBPFHistogram from "../components/EBPFHistogram";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
@@ -43,8 +45,81 @@ import usePolling from "../hooks/usePolling";
 import echarts from "../lib/echarts";
 import { isTaskActive } from "../utils/status";
 import { collectorMeta } from "../utils/collectors";
+import { formatMetric, normalizeSysMetrics } from "../utils/sysMetrics";
+
+/**
+ * 单个 Task 的可观测结果页：基本信息和时间线来自 PostgreSQL，产物正文来自 MinIO。
+ * 不同 Collector 复用同一任务外壳，再按 artifact_type 选择火焰图、直方图、趋势图
+ * 或原始文件下载组件。采集状态与分析状态必须分开阅读。
+ */
 import { COLORS, SPACING } from "../theme";
 import styles from "./TaskResult.module.css";
+
+const PROFILE_ARTIFACT_TYPES = new Set([
+  "flamegraph_json",
+  "flamegraph_svg",
+  "java_flamegraph_html",
+  "top_json",
+]);
+
+function parseObject(value) {
+  if (value && typeof value === "object") return value;
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function detectProfileQualityIssue(task, artifacts = []) {
+  const profileArtifacts = artifacts.filter((item) => PROFILE_ARTIFACT_TYPES.has(item.artifact_type));
+  const reason = parseObject(task?.status_reason)
+    || parseObject(task?.analysis_error)
+    || parseObject(task?.error_message);
+  const reasonCode = String(reason?.reason_code || "").toUpperCase();
+  if (["NO_PERF_SAMPLES", "NO_FOLDED_STACKS", "NO_PROFILE_SAMPLES", "UNUSABLE_PROFILE"].includes(reasonCode)) {
+    return {
+      code: reasonCode,
+      message: reason?.message || "本次性能采样没有形成可渲染的有效样本",
+      action: reason?.action || "确认目标 PID 在采样窗口内有负载，并检查 perf 权限、采样时长与调用栈模式后重新采集。",
+    };
+  }
+  for (const artifact of profileArtifacts) {
+    const metadata = parseObject(artifact.metadata) || parseObject(artifact.metadata_json) || {};
+    const quality = parseObject(metadata.profile_quality) || {};
+    const status = String(quality.status || "").toUpperCase();
+    const count = metadata.sample_count ?? quality.sample_count;
+    if ((status && status !== "USABLE") || (count != null && Number(count) <= 0)) {
+      return {
+        code: quality.reason_code || "NO_PROFILE_SAMPLES",
+        message: quality.message || "Analyzer 明确标记本次 profile 不可用（有效样本为 0）",
+        action: quality.action || "确认目标进程仍在运行并产生负载，适当延长采集时长后重新采集。",
+      };
+    }
+  }
+  const flameJson = profileArtifacts.find((item) => item.artifact_type === "flamegraph_json");
+  const flameSvg = profileArtifacts.find((item) => item.artifact_type === "flamegraph_svg");
+  const topJson = profileArtifacts.find((item) => item.artifact_type === "top_json");
+  if ((flameJson && Number(flameJson.size_bytes || 0) <= 2)
+    || (flameSvg && Number(flameSvg.size_bytes || 0) <= 128 && topJson && Number(topJson.size_bytes || 0) <= 2)) {
+    return {
+      code: "EMPTY_PROFILE_ARTIFACT",
+      message: "产物记录存在，但文件不含可渲染的采样数据，不能把它展示为火焰图",
+      action: "确认 PID、采样权限和负载状态后重新采集；空产物不会进入 AI 证据链。",
+    };
+  }
+  return null;
+}
+
+function readableTaskEventReason(reason, collectorType) {
+  const text = String(reason || "");
+  if (collectorType === "sys_metrics" && text.includes("sys_metrics.v2 契约验证")) {
+    return "系统指标产物已完成契约校验；该历史任务实际为 sys_metrics.v1，页面已兼容读取";
+  }
+  return text;
+}
 
 export default function TaskResult() {
   const { taskId } = useParams();
@@ -58,6 +133,7 @@ export default function TaskResult() {
   const [artifacts, setArtifacts] = useState([]);
   const [analysis, setAnalysis] = useState({ top: [], svg: "", hasFlameJson: false });
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [profileIssue, setProfileIssue] = useState(null);
   const [selectedContinuousIndex, setSelectedContinuousIndex] = useState(null);
   const [downloadingArtifact, setDownloadingArtifact] = useState("");
   const [recreating, setRecreating] = useState(false);
@@ -90,6 +166,8 @@ export default function TaskResult() {
 
       // 内联加载分析产物
       const resp = artifactResp || [];
+      const nextProfileIssue = detectProfileQualityIssue(taskResp, resp);
+      setProfileIssue(nextProfileIssue);
       setAnalysisLoading(true);
       const hasTop = resp.some((item) => item.artifact_type === "top_json");
       const hasFlameJson = resp.some((item) => item.artifact_type === "flamegraph_json");
@@ -99,11 +177,11 @@ export default function TaskResult() {
       if (hasTop) {
         try { next.top = await getTaskArtifactContent(taskId, "top_json"); } catch { next.top = []; }
       }
-      if (hasFlameJson) { next.hasFlameJson = true; }
-      if (hasSvg && !hasFlameJson) {
+      if (hasFlameJson && !nextProfileIssue) { next.hasFlameJson = true; }
+      if (hasSvg && !hasFlameJson && !nextProfileIssue) {
         try { const c = await getTaskArtifactContent(taskId, "flamegraph_svg"); next.svg = c.text || ""; } catch { next.svg = ""; }
       }
-      if (hasJavaHtml) { next.hasJavaHtml = true; }
+      if (hasJavaHtml && !nextProfileIssue) { next.hasJavaHtml = true; }
       setAnalysis(next);
       setAnalysisLoading(false);
 
@@ -122,10 +200,15 @@ export default function TaskResult() {
   // 任务活跃时每 5 秒自动刷新
   const isActive = isTaskActive(task?.status);
   const taskCollector = collectorMeta(task?.collector_type);
+  const taskStatusReason = readableTaskEventReason(
+    task?.status_reason,
+    task?.collector_type,
+  );
   usePolling(loadAll, { interval: 5000, enabled: isActive });
 
   // ── 产物提取 ──────────────────────────────────────────
   const topArtifact = artifacts.find((item) => item.artifact_type === "top_json");
+  const callGraphArtifact = artifacts.find((item) => item.artifact_type === "callgraph_json");
   const flameArtifact = artifacts.find(
     (item) =>
       item.artifact_type === "flamegraph_svg" ||
@@ -162,7 +245,10 @@ export default function TaskResult() {
   const continuousFlameArtifacts = artifacts.filter(
     (item) => item.artifact_type === "continuous_flamegraph_json"
   );
-  const hasFlameOrTop = Boolean(flameArtifact || topArtifact);
+  const continuousCallGraphArtifacts = artifacts.filter(
+    (item) => item.artifact_type === "continuous_callgraph_json"
+  );
+  const hasFlameOrTop = Boolean(!profileIssue && (flameArtifact || topArtifact));
   const hasContinuousAnalysis = continuousFlameArtifacts.length > 0;
   const hasPrimaryAnalysis = Boolean(hasFlameOrTop || ebpfArtifact || hasContinuousAnalysis);
   const hasDedicatedVisualization = Boolean(
@@ -400,9 +486,9 @@ export default function TaskResult() {
             description={
               task.status === "FAILED"
                 ? task.collection_status === "COLLECTED"
-                  ? `采集产物已成功保存，Analyzer 失败：${task.status_reason || "未提供失败原因"}。可重放分析任务，无需重新采集。`
-                  : `采集失败原因：${task.status_reason || "未提供失败原因"}`
-                : `${taskCollector.description}${task.status_reason ? ` 当前状态：${task.status_reason}` : ""}`
+                  ? `采集产物已成功保存，Analyzer 失败：${taskStatusReason || "未提供失败原因"}。可重放分析任务，无需重新采集。`
+                  : `采集失败原因：${taskStatusReason || "未提供失败原因"}`
+                : `${taskCollector.description}${taskStatusReason ? ` 当前状态：${taskStatusReason}` : ""}`
             }
             action={
               task.status === "FAILED" && task.collection_status !== "COLLECTED" ? (
@@ -433,7 +519,7 @@ export default function TaskResult() {
                         <StatusTag status={event.to_status} />
                       </Typography.Text>
                       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                        {event.reason}
+                        {readableTaskEventReason(event.reason, task?.collector_type)}
                       </Typography.Text>
                     </Space>
                   ),
@@ -473,7 +559,19 @@ export default function TaskResult() {
         }
         size="small"
       >
-        {hasPrimaryAnalysis ? (
+        {profileIssue ? (
+          <Alert
+            type="error"
+            showIcon
+            message={`无法生成可信火焰图 · ${profileIssue.code}`}
+            description={<Space direction="vertical" size={4}><span>{profileIssue.message}</span><span>{profileIssue.action}</span></Space>}
+            action={isActive ? null : (
+              <Button type="primary" icon={<RedoOutlined />} loading={recreating} onClick={recreateTask}>
+                重新采集有效样本
+              </Button>
+            )}
+          />
+        ) : hasPrimaryAnalysis ? (
           hasFlameOrTop ? (
             <Row gutter={SPACING.lg}>
               {/* 火焰图 */}
@@ -563,7 +661,7 @@ export default function TaskResult() {
                 ? "任务运行中，分析产物将在完成后生成…"
                 : hasDedicatedVisualization
                 ? `“${taskCollector.resultLabel}”已在下方专属卡片展示`
-                : `未生成“${taskCollector.resultLabel}”${task?.status_reason ? `：${task.status_reason}` : ""}`
+                : `未生成“${taskCollector.resultLabel}”${taskStatusReason ? `：${taskStatusReason}` : ""}`
             }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           >
@@ -638,7 +736,7 @@ export default function TaskResult() {
                   width: 100,
                   render: (value) => (
                     <Tag color={value ? "green" : "red"}>
-                      {value ? "OK" : "FAILED"}
+                      {value ? "成功" : "失败"}
                     </Tag>
                   ),
                 },
@@ -658,9 +756,34 @@ export default function TaskResult() {
                 />
               </div>
             )}
+            {continuousCallGraphArtifacts.length > 0 && selectedContinuousIndex !== null && (
+              <div style={{ marginTop: 12 }}>
+                <Typography.Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
+                  当前窗口调用关系图
+                </Typography.Text>
+                <CallGraphViewer
+                  taskId={taskId}
+                  artifactType="continuous_callgraph_json"
+                  artifactIndex={selectedContinuousIndex}
+                  height={420}
+                />
+              </div>
+            )}
           </div>
         )}
       </Card>
+
+      {callGraphArtifact && (
+        <Card title="调用关系图 · 调用方 → 被调用方（Caller → Callee）" size="small">
+          <Alert
+            type="info"
+            showIcon
+            message="节点大小表示累计样本，蓝色节点含自身样本；拖动、缩放或悬停可查看调用边"
+            style={{ marginBottom: 12 }}
+          />
+          <CallGraphViewer taskId={taskId} />
+        </Card>
+      )}
 
       {/* Java 火焰图 HTML */}
       {javaHtmlArtifact && (
@@ -759,7 +882,7 @@ function SysMetricsView({ taskId, artifact }) {
     (async () => {
       try {
         const content = await getTaskArtifactContent(taskId, "sys_metrics");
-        if (!cancelled) setData(content || artifact.metadata);
+        if (!cancelled) setData(normalizeSysMetrics(content, artifact.metadata));
       } catch {
         if (!cancelled) setData(null);
       } finally {
@@ -770,13 +893,13 @@ function SysMetricsView({ taskId, artifact }) {
   }, [taskId]);
 
   useEffect(() => {
-    if (!data?.summary || !chartRef.current) return;
+    if (!data?.summary || data.compatibility_mode || !chartRef.current) return;
 
     const inst = echarts.init(chartRef.current);
     const s = data.summary;
 
     inst.setOption({
-        title: { text: "System Metrics Dashboard", left: "center", textStyle: { fontSize: 13 } },
+        title: { text: "系统指标总览", left: "center", textStyle: { fontSize: 13 } },
         tooltip: {},
         grid: [
           { left: "8%", top: "8%", width: "20%", height: "38%" },
@@ -834,7 +957,16 @@ function SysMetricsView({ taskId, artifact }) {
   }, [data]);
 
   if (loading) return <Skeleton.Input active block style={{ height: 400, borderRadius: 8 }} />;
-  if (!data?.summary) return <Empty description="无系统指标数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  if (!data?.summary) {
+    return (
+      <Alert
+        type="warning"
+        showIcon
+        message="系统指标产物无法解析"
+        description="任务虽然完成，但产物既不符合当前汇总结构，也不包含可恢复的历史采样点。请下载原始产物核对契约版本。"
+      />
+    );
+  }
 
   const s = data.summary;
   const trends = {
@@ -842,19 +974,53 @@ function SysMetricsView({ taskId, artifact }) {
     thread: { increasing: ["red", "线程 ↑"], decreasing: ["green", "线程 ↓"], stable: ["blue", "线程 →"] },
   };
 
+  if (data.compatibility_mode === "SYS_METRICS_V1_DERIVED") {
+    const columns = [
+      { title: "时间", dataIndex: "offset_sec", render: (value) => `${value} 秒` },
+      { title: "进程 RSS", dataIndex: "rss_mb", render: (value) => formatMetric(value, " MB") },
+      { title: "线程数", dataIndex: "threads", render: (value) => formatMetric(value) },
+      { title: "文件描述符", dataIndex: "fd_count", render: (value) => formatMetric(value) },
+    ];
+    return (
+      <Space direction="vertical" size={12} style={{ width: "100%" }}>
+        <Alert
+          type="info"
+          showIcon
+          message="已恢复历史系统指标"
+          description="该任务使用 sys_metrics.v1，只采集了进程 RSS、线程和文件描述符。CPU、负载、I/O 与网络未被采集，因此明确显示为“未采集”，不会伪造为 0。"
+        />
+        <Descriptions bordered size="small" column={{ xs: 1, sm: 2, lg: 5 }}>
+          <Descriptions.Item label="有效样本">{data.sample_count}</Descriptions.Item>
+          <Descriptions.Item label="当前 RSS">{formatMetric(s.vmrss_mb, " MB")}</Descriptions.Item>
+          <Descriptions.Item label="RSS 峰值">{formatMetric(s.vmrss_mb_max, " MB")}</Descriptions.Item>
+          <Descriptions.Item label="当前线程">{formatMetric(s.thread_count)}</Descriptions.Item>
+          <Descriptions.Item label="当前 FD">{formatMetric(s.fd_count)}</Descriptions.Item>
+        </Descriptions>
+        <Table
+          rowKey={(row) => String(row.offset_sec)}
+          columns={columns}
+          dataSource={data.samples}
+          pagination={false}
+          size="small"
+          scroll={{ x: 520, y: 320 }}
+        />
+      </Space>
+    );
+  }
+
   return (
     <div>
       <Space style={{ marginBottom: 8 }} wrap>
         <Tag>样本: {data.sample_count}</Tag>
-        <Tag>CPU sys: {s.avg_cpu_sys_pct}%</Tag>
-        <Tag>iowait: {s.avg_cpu_iowait_pct}%</Tag>
+        <Tag>系统态 CPU: {formatMetric(s.avg_cpu_sys_pct, "%")}</Tag>
+        <Tag>I/O 等待: {formatMetric(s.avg_cpu_iowait_pct, "%")}</Tag>
         <Tag color={trends.thread[s.thread_trend]?.[0] || "default"}>
           {trends.thread[s.thread_trend]?.[1] || s.thread_trend}: {s.thread_count}
         </Tag>
         <Tag color={trends.fd[s.fd_trend]?.[0] || "default"}>
           {trends.fd[s.fd_trend]?.[1] || s.fd_trend}: {s.fd_count}
         </Tag>
-        <Tag>ctx/s: {s.ctx_nonvoluntary_rate}/s</Tag>
+        <Tag>非自愿上下文切换: {formatMetric(s.ctx_nonvoluntary_rate, "/秒")}</Tag>
       </Space>
       <div ref={chartRef} style={{ width: "100%", height: 420 }} />
     </div>

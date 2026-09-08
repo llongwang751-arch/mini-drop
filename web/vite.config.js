@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => {
   },
   build: {
     outDir: "dist",
-    // Ant Design and its rc-* runtime form one tightly coupled vendor graph.
-    // Keep that cacheable graph intact; its minified size is ~1 MB (~320 KB gzip).
-    chunkSizeWarningLimit: 1100,
+    // Keep the budget low enough to catch accidental eager imports. Ant Design
+    // is intentionally left to the bundler so lazy routes retain their own UI code.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         entryFileNames: "assets/[name]-[hash].js",
@@ -30,11 +30,8 @@ export default defineConfig(({ mode }) => {
           const modulePath = id.replaceAll("\\", "/");
           if (!modulePath.includes("/node_modules/")) return undefined;
           if (/\/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(modulePath)) return "react";
-          if (modulePath.includes("/node_modules/echarts-for-react/")) return "echarts-react";
-          if (modulePath.includes("/node_modules/echarts/")) return "echarts";
           if (modulePath.includes("/node_modules/d3-flame-graph/")) return "flamegraph";
           if (/\/node_modules\/(d3|d3-[^/]+|internmap)\//.test(modulePath)) return "d3";
-          if (/\/node_modules\/(antd|@ant-design\/[^/]+|@rc-component\/[^/]+|rc-[^/]+)\//.test(modulePath)) return "antd";
           if (modulePath.includes("/node_modules/axios/")) return "axios";
           return undefined;
         },

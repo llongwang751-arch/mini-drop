@@ -52,9 +52,13 @@ export default function ScopeCard({
   const requestRef = useRef(0);
   const editingRef = useRef(false);
   const pendingDraftRef = useRef(null);
+  const hasLockedTimeRange = Boolean(initialTimeRange?.start && initialTimeRange?.end);
   const visibleQuestions = useMemo(
-    () => (questions || []).filter((item) => !SERVER_RESOLVED_QUESTIONS.has(item.question_id)),
-    [questions],
+    () => (questions || []).filter((item) => (
+      !SERVER_RESOLVED_QUESTIONS.has(item.question_id)
+      && !(hasLockedTimeRange && item.question_id === "time_range")
+    )),
+    [hasLockedTimeRange, questions],
   );
   const required = useMemo(() => new Set(visibleQuestions.map((item) => item.question_id)), [visibleQuestions]);
   const draftStorageKey = `mini-drop-scope-draft:${diagnosisId || draftKey}`;
@@ -215,13 +219,7 @@ export default function ScopeCard({
       message.error("请先从当前诊断的有效候选中确认目标");
       return;
     }
-    const start = new Date(values.start);
-    const end = new Date(values.end);
-    if (end <= start) {
-      message.error("结束时间必须晚于开始时间");
-      return;
-    }
-    await onClarify({
+    const payload = {
       expected_version: diagnosisVersion,
       target: {
         service: values.service.trim(),
@@ -229,8 +227,21 @@ export default function ScopeCard({
         binding_id: selectedCandidate.binding_id,
         discovery_id: discoveryId,
       },
-      time_range: { start: start.toISOString(), end: end.toISOString(), timezone: "Asia/Shanghai" },
-    });
+    };
+    if (!hasLockedTimeRange) {
+      const start = new Date(values.start);
+      const end = new Date(values.end);
+      if (end <= start) {
+        message.error("结束时间必须晚于开始时间");
+        return;
+      }
+      payload.time_range = {
+        start: start.toISOString(),
+        end: end.toISOString(),
+        timezone: "Asia/Shanghai",
+      };
+    }
+    await onClarify(payload);
     removeDraft();
     message.success("范围已确认，AI 开始生成可证伪假设和取证计划");
   }
@@ -256,6 +267,14 @@ export default function ScopeCard({
           <Button icon={<ReloadOutlined />} onClick={retryDiscovery} loading={discoveryStatus === "LOADING"}>重新发现目标</Button>
         </Space>
         <Alert type="info" showIcon message="目标由当前诊断的服务端发现结果确定" description="服务和环境用于理解业务；目标候选只暴露服务端签发的不可编辑绑定，不公开底层 Agent/PID 权限信息；时间窗用于保证证据与故障发生时间一致。" />
+        {hasLockedTimeRange && (
+          <Alert
+            type="success"
+            showIcon
+            message="诊断时间窗已锁定"
+            description="服务端已经建立证据时间窗。本次只确认目标，页面不会重新提交或改写时间窗。"
+          />
+        )}
         {discoveryStatus === "LOADING" && <Alert type="info" showIcon message="正在发现当前诊断可用的安全目标…" />}
         {statusMessage && <Alert type={statusMessage.type} showIcon message={statusMessage.message} description={reason || undefined} />}
         {selectionMessage && <Alert type={eligibleCandidates.length > 0 ? "success" : "warning"} showIcon message={selectionMessage} description={reason || undefined} />}
@@ -309,10 +328,12 @@ export default function ScopeCard({
                 />
               </Col>
             )}
-            <Col xs={24} md={12}><Form.Item name="start" label="开始时间" rules={[{ required: true, message: "请选择开始时间" }]}><Input type="datetime-local" /></Form.Item></Col>
-            <Col xs={24} md={12}><Form.Item name="end" label="结束时间" rules={[{ required: true, message: "请选择结束时间" }]}><Input type="datetime-local" /></Form.Item></Col>
+            <Col xs={24} md={12}><Form.Item name="start" label="开始时间" rules={[{ required: true, message: "请选择开始时间" }]}><Input type="datetime-local" disabled={hasLockedTimeRange} /></Form.Item></Col>
+            <Col xs={24} md={12}><Form.Item name="end" label="结束时间" rules={[{ required: true, message: "请选择结束时间" }]}><Input type="datetime-local" disabled={hasLockedTimeRange} /></Form.Item></Col>
           </Row>
-          <Button type="primary" htmlType="submit" loading={submitting} disabled={!canSubmit}>确认范围并开始取证</Button>
+          <Button type="primary" htmlType="submit" loading={submitting} disabled={!canSubmit}>
+            {hasLockedTimeRange ? "确认目标并开始取证" : "确认范围并开始取证"}
+          </Button>
         </Form>
       </Space>
     </Card>

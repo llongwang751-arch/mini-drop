@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import json
 import time
 
 import pytest
@@ -16,7 +17,12 @@ from server.app.analysis_jobs import (
     default_analyzer_registry,
     enqueue_artifact_analysis,
 )
-from server.app.artifact_contracts import COLLECTOR_CONTRACTS, ArtifactContractError
+from server.app.artifact_contracts import (
+    COLLECTOR_CONTRACTS,
+    ArtifactContractError,
+    ArtifactQualityError,
+)
+from server.app.analyzer_runner import AnalyzerQualityError
 from server.app.database import init_db, new_session, reset_engine
 from server.app.models import AnalysisJobModel, Base
 from server.app.schemas import CreateTaskRequest
@@ -125,12 +131,20 @@ def test_analyzer_registry_is_version_aware():
 def test_each_collector_contract_has_a_versioned_analyzer(
     collector_type: str,
     artifact_type: str,
+    monkeypatch,
 ):
     contract = COLLECTOR_CONTRACTS[collector_type]
     handler = default_analyzer_registry().resolve(
         contract.analyzer_type,
         contract.analyzer_version,
     )
+    if collector_type == "java_async":
+        monkeypatch.setattr(
+            "server.app.analysis_jobs.analyze_java_flamegraph_artifacts",
+            lambda *_args, **_kwargs: {
+                7: {"sample_count": 120, "top_functions": [{"name": "Hotspot", "percent": 80.0}]}
+            },
+        )
 
     output = handler.analyze(
         "task-contract",
@@ -139,6 +153,45 @@ def test_each_collector_contract_has_a_versioned_analyzer(
 
     assert output.existing_artifact_ids == [7]
     assert collector_type in handler.analyzer_type
+
+
+def test_analysis_job_can_enrich_existing_output_metadata(repo: SqlRepository):
+    task = _analyzing_task(repo, "java_async")
+    attempt, artifact_ids = _add_attempt_artifacts(
+        repo,
+        task.id,
+        [{
+            "artifact_type": "java_flamegraph_html",
+            "object_key": f"tasks/{task.id}/java-flamegraph.html",
+            "metadata": {"collector_plugin": "java_async"},
+        }],
+    )
+    job = repo.enqueue_analysis_job(
+        task.id,
+        task_attempt_id=attempt.id,
+        analyzer_type="collector.java_async",
+        analyzer_version="1.0.0",
+        input_checksum="7" * 64,
+        input_artifact_ids=artifact_ids,
+    )
+    assert repo.claim_analysis_job("java-worker") is not None
+
+    repo.complete_analysis_job(
+        job.id,
+        "java-worker",
+        output_artifact_ids=artifact_ids,
+        artifact_metadata_updates={
+            artifact_ids[0]: {
+                "sample_count": 120,
+                "profile_event": "alloc",
+                "top_functions": [{"name": "Hotspot.allocate", "percent": 75.0}],
+            }
+        },
+    )
+
+    artifact = repo.get_artifacts(task.id)[0]
+    assert artifact["metadata"]["sample_count"] == 120
+    assert artifact["metadata"]["profile_event"] == "alloc"
 
 
 def test_attempt_manifest_is_transport_metadata_not_analyzer_input():
@@ -150,6 +203,37 @@ def test_attempt_manifest_is_transport_metadata_not_analyzer_input():
 
     assert artifact_types == {"sys_metrics", "manifest"}
     assert "manifest" not in contract.analysis_types
+
+
+def test_profile_contract_rejects_explicit_zero_sample_analysis_artifact():
+    contract = COLLECTOR_CONTRACTS["perf_cpu"]
+
+    with pytest.raises(ArtifactQualityError) as exc:
+        contract.validate([{
+            "id": 7,
+            "artifact_type": "flamegraph_json",
+            "size_bytes": 36,
+            "metadata": {
+                "sample_count": 0,
+                "profile_quality": {
+                    "status": "UNUSABLE",
+                    "reason_code": "NO_PROFILE_SAMPLES",
+                },
+            },
+        }])
+
+    payload = json.loads(str(exc.value))
+    assert payload["failure_kind"] == "SAMPLE_QUALITY"
+    assert payload["reason_code"] == "NO_PROFILE_SAMPLES"
+
+
+def test_profile_contract_keeps_legacy_unknown_quality_compatible():
+    contract = COLLECTOR_CONTRACTS["go_pprof"]
+
+    assert contract.validate([{
+        "id": 7,
+        "artifact_type": "flamegraph_json",
+    }]) == {"flamegraph_json"}
 
 
 def test_collector_contract_rejects_wrong_artifact_type():
@@ -269,6 +353,58 @@ def test_failure_retries_then_enters_dead_letter(repo: SqlRepository, monkeypatc
     assert failed_task.collection_status == "COLLECTED"
     assert failed_task.analysis_status == "FAILED"
     assert repo.get_task_attempts(task.id)[0].status == "SUCCEEDED"
+
+
+class _EmptyProfileAnalyzer:
+    analyzer_type = "empty-profile-test"
+    version = "1.0.0"
+
+    def analyze(self, task_id: str, artifacts: list[dict]) -> AnalyzerOutput:
+        raise AnalyzerQualityError(
+            "NO_PERF_SAMPLES",
+            "perf.data contains no samples",
+            "run the target under load and collect again",
+            details={"sample_count": 0},
+        )
+
+
+def test_empty_profile_quality_failure_cannot_complete_parent_task(
+    repo: SqlRepository,
+    monkeypatch,
+):
+    task = _analyzing_task(repo)
+    attempt, artifact_ids = _add_attempt_artifacts(repo, task.id, [{
+        "artifact_type": "raw",
+        "filename": "perf.data",
+        "object_key": "tasks/empty/perf.data",
+    }])
+    job = repo.enqueue_analysis_job(
+        task.id,
+        task_attempt_id=attempt.id,
+        analyzer_type="empty-profile-test",
+        analyzer_version="1.0.0",
+        input_checksum="f" * 64,
+        input_artifact_ids=artifact_ids,
+        max_retries=0,
+    )
+    registry = AnalyzerRegistry()
+    registry.register(_EmptyProfileAnalyzer())
+    monkeypatch.setenv("MINI_DROP_ANALYZER_RETRY_DELAY_SEC", "0")
+
+    result = AnalysisWorker(
+        repo,
+        worker_id="empty-profile-worker",
+        registry=registry,
+    ).process_once()
+
+    assert result is not None and result.status == "DEAD_LETTER"
+    failed_job = repo.get_analysis_job(job.id)
+    assert failed_job.error_code == "ANALYSIS_INPUT_INVALID"
+    assert json.loads(failed_job.error_message)["reason_code"] == "NO_PERF_SAMPLES"
+    failed_task = repo.get_task(task.id)
+    assert failed_task.status == TaskStatus.FAILED.value
+    assert failed_task.collection_status == "COLLECTED"
+    assert failed_task.analysis_status == "FAILED"
 
 
 def test_expired_lease_is_recovered_by_another_worker(repo: SqlRepository):

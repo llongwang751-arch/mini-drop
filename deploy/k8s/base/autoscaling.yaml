@@ -1,0 +1,47 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: apiserver}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: apiserver}
+  minReplicas: 2
+  maxReplicas: 8
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 70}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: diagnosis-worker}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: diagnosis-worker}
+  minReplicas: 2
+  maxReplicas: 6
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 70}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: analyzer}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: analyzer}
+  minReplicas: 2
+  maxReplicas: 12
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 75}

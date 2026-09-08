@@ -1,91 +1,71 @@
 # AI 诊断 Go 接口边界
 
-## 1. 为什么把入口治理和领域推理解耦
+## 当前边界
 
-AI 诊断不是普通 CRUD。创建诊断后还会经历意图解析、范围确认、假设生成、工具选择、风险审批、采集、证据归一化、反证和报告校验。把这些逻辑一次性改写成另一种语言，风险高且难以证明行为一致。
+Go API 是唯一公开 HTTP/SSE 入口。浏览器只访问 `/api/**`；Python Diagnosis Worker
+不监听公网 HTTP，而是接收 Go 发送的私有 `DiagnosticAI.Invoke` gRPC 信封。
 
-因此本阶段采用“稳定控制面 + 专业分析面”的边界：
-
-| 职责 | 当前实现 | 原因 |
+| 路径 | 所有者 | 作用 |
 |---|---|---|
-| 会话列表、持续触发记录、统一案例列表与详情 | Go + PostgreSQL | 高频只读、无副作用、便于扩容 |
-| 诊断创建与探针审批的入口校验、预算、安全策略和审计 | Go | 统一外部写边界，拒绝越权或不完整命令 |
-| 假设推进、模型和工具调用、证据闭环 | Python | 保留成熟的分析库和领域编排逻辑 |
-| 任务与产物控制 API | Go | 已完成事务化迁移 |
-| 原始性能数据分析 | Python Analyzer | 适合数据处理与 AI 生态 |
+| `/api/tasks/**` | Go | Task、Attempt、Artifact 和取消/归档 |
+| `/api/schedules/**` | Go | 周期任务 CRUD、手动触发和执行记录 |
+| `/api/events/stream` | Go | 平台持久化事件流 |
+| `/api/v2/diagnoses/{id}/events/stream` | Go | 从 PostgreSQL 投影 AI 会话事件 |
+| 其余 `/api/v2/**` | Go 入口 + Python 领域服务 | Go 鉴权、限流和透传；Python 推理与证据编排 |
 
-## 2. Go 原生接口
+`apiserver/internal/httpapi/server.go` 注册公开路由；
+`server/app/diagnostic_ai_rpc.py` 是 `/api/v2` 的私有 RPC 分发表；
+`docs/contracts/openapi.v1.json` 只记录这两处代码实际支持的路径。
 
-### `GET /api/v1/diagnoses`
+## 创建自主诊断
 
-直接分页读取集群诊断会话，不触发状态推进，不申请诊断租约。
+```http
+POST /api/v2/diagnoses
+Content-Type: application/json
+X-API-Key: ...
 
-参数：
-
-- `limit`：默认 100，范围 1～1000；
-- `offset`：默认 0，不允许负数。
-
-### `GET /api/v1/continuous-diagnosis-triggers`
-
-读取“持续采样异常被提升为 AI 诊断”的幂等记录，包括检测器版本、异常评分、来源任务和生成的诊断 ID。
-
-### `GET /api/diagnostic-cases`
-
-合并两套仍然保留的 AI 路径：
-
-- `cluster_diagnosis_v1`：多实例、同宿主机和上下游范围诊断；
-- `drop_insight_v2`：证据—假设—反证—报告工作流。
-
-统一结果按 `updated_at` 倒序分页，并保留 `legacy_links`，旧页面和旧接口仍可继续使用。
-
-### `GET /api/diagnostic-cases/{case_id}`
-
-由 Go 直接组装统一详情：
-
-- 集群诊断返回事件、拓扑快照、探针、覆盖矩阵、证据、证据快照、流水线节点和最新结论；
-- Drop Insight 返回原生会话快照及统一统计字段；
-- 查询不会领取租约、推进状态或初始化缺失节点；
-- 响应中的 `served_by=go-apiserver` 可作为运行时路由证据。
-
-历史 Python 详情会在读取旧会话时补建流水线节点，这种“GET 产生写入”的兼容行为没有迁入 Go。Go 只返回数据库中已经存在的事实快照。
-
-## 3. 不在本阶段迁移的接口
-
-- `GET /api/v1/diagnoses/{diagnosis_id}`（旧接口仍包含兼容性的推进语义）
-- `/api/v2/diagnoses/**` 下的假设、证据、报告、工具调用和编排写接口
-
-`POST /api/v1/diagnoses` 与 `POST /api/v1/diagnoses/{diagnosis_id}/approvals` 已由 Go 接管入口治理。Go 使用严格 JSON Schema、1 MiB 请求上限、预算/策略白名单和单次审批范围校验；通过后写控制命令审计，再转交 Python 领域引擎。新页面应优先使用统一详情接口；旧详情接口待调用方完成切换后再拆除“GET 推进状态”的历史兼容行为。
-
-## 4. 人工门禁的正确语义
-
-以下状态不是“正在运行”，而是“暂停等待人”：
-
-- `NEEDS_SCOPE_CONFIRMATION`：目标服务、实例、Agent 或 PID 信息不足；
-- `WAITING_APPROVAL`：存在需要人工批准的中风险探针。
-
-后台 Worker 不应反复获取租约或改写更新时间。系统现在从候选扫描阶段就排除它们，避免数据库写放大、虚假实时更新和 SSE 噪声。
-
-## 5. 验收命令
-
-```powershell
-# 查看 Go 原生诊断会话列表
-docker compose exec -T web sh -lc "wget -qO- 'http://apiserver:8080/api/v1/diagnoses?limit=2&offset=0'"
-
-# 查看持续采样异常触发记录
-docker compose exec -T web sh -lc "wget -qO- 'http://apiserver:8080/api/v1/continuous-diagnosis-triggers?limit=10&offset=0'"
-
-# 查看统一案例
-docker compose exec -T web sh -lc "wget -qO- 'http://apiserver:8080/api/diagnostic-cases?limit=10&offset=0'"
-
-# 查看统一详情（把 CASE_ID 换成列表返回的 case_id）
-docker compose exec -T web sh -lc "wget -qO- 'http://apiserver:8080/api/diagnostic-cases/CASE_ID'"
+{
+  "query": "checkout 服务 CPU 持续升高",
+  "mode": "AUTONOMOUS",
+  "target": {
+    "agent_id": "agent-prod-01",
+    "pid": 12345
+  }
+}
 ```
 
-四个响应的 `data.served_by` 应为 `go-apiserver`。
+`AUTONOMOUS` 表示用户在会话范围内预授权中风险只读取证。Worker 会自动启动计划、创建 ToolCall、
+等待 Task/Analyzer、吸收 Evidence 并继续下一轮。它不等于任意执行：目标不一致、Agent 无能力、
+参数越界、预算不足或 R3 操作仍会被 Policy 拒绝。
 
-## 6. 下一阶段
+`ASSISTED` 使用相同推理闭环，但中风险 ToolCall 会停在 `WAITING_APPROVAL`，由用户逐步决定。
 
-1. 让前端诊断详情统一消费 `/api/diagnostic-cases/{case_id}`；
-2. 逐步把旧 `GET /api/v1/diagnoses/{id}` 的状态推进语义移交给 Worker；
-3. 补充统一查询契约的端到端测试和时间格式归一化；
-4. 在原生 Ubuntu 22.04 完成 eBPF IO 异常 `DONE` 验收。
+## 查询与事件
+
+- `GET /api/v2/diagnoses`：会话列表；
+- `GET /api/v2/diagnoses/{id}`：单会话事实快照；
+- `GET /api/v2/diagnoses/{id}/events`：持久化事件列表；
+- `GET /api/v2/diagnoses/{id}/events/stream?after=N`：支持断点续传的 SSE；
+- `GET /api/v2/diagnoses/{id}/exploration-tree`：由事实表投影的探索树；
+- `GET /api/v2/diagnoses/{id}/budget`：本次会话资源消耗。
+
+完整路径以 OpenAPI 为准。不存在 `/api/v1/diagnoses`、`/api/diagnostic-cases` 或
+`/api/composite-tasks` 的兼容入口；文档和测试不得再把这些旧接口写成当前能力。
+
+## 可靠性语义
+
+- Go 创建 Task 时使用 `Idempotency-Key` 和数据库唯一约束防重；
+- Go Scheduler 轮询到期计划，计划槽位唯一键阻止多副本重复触发；
+- Diagnosis Worker 使用租约推进会话，并在同一循环投递 Outbox；
+- PostgreSQL 环境由 `pg_notify('mini_drop_events', payload)` 唤醒订阅者；
+- SQLite 只用于本地测试，Outbox 日志充当可观察的本地 sink。
+
+## 最小验收
+
+```powershell
+python -m pytest tests/test_contracts.py tests/test_diagnostic_ai_rpc.py -q
+go test ./...
+```
+
+容器验收还要从 Go 入口创建会话，证明响应头 `X-Mini-Drop-AI-Transport: grpc`，并核对
+Task、Attempt、Artifact、AnalysisJob、Evidence 和报告引用。直接调用 Python 函数不算入口验收。

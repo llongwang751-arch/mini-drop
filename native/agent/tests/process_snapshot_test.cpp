@@ -156,6 +156,16 @@ void test_incomplete_immutable_identity_is_rejected() {
   require(snapshot.candidates.empty(), "incomplete immutable identity was included");
 }
 
+void test_missing_executable_identity_is_rejected() {
+  TemporaryProc proc;
+  proc.add_process(200, 1, 2000, 4026532000ULL, 200);
+  fs::remove(proc.path() / "200/exe");
+
+  const ProcessSnapshot snapshot = collect_process_snapshot({}, proc.path(), 256, 100);
+  require(snapshot.complete, "missing executable made scan fail");
+  require(snapshot.candidates.empty(), "missing executable identity was included");
+}
+
 void test_truncated_snapshot_is_distinct() {
   TemporaryProc proc;
   proc.add_process(200, 1, 2000, 4026532000ULL, 200);
@@ -188,6 +198,7 @@ int main() {
     test_empty_snapshot_is_complete();
     test_agent_and_collector_descendants_are_excluded();
     test_incomplete_immutable_identity_is_rejected();
+    test_missing_executable_identity_is_rejected();
     test_truncated_snapshot_is_distinct();
     test_failed_snapshot_is_distinct_and_bounded();
   } catch (const std::exception& error) {

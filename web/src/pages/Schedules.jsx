@@ -170,7 +170,7 @@ export default function Schedules() {
   ];
 
   return (
-    <Card title="计划任务 (Schedule / Cron)">
+    <Card title="计划任务（Cron 定时规则）">
       <Button
         type="primary"
         icon={<PlusOutlined />}

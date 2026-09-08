@@ -1,4 +1,5 @@
 import { Tag } from "antd";
+import { diagnosticStatusLabel } from "../utils/diagnosisDisplay";
 import { statusColor } from "../utils/status";
 
 /**
@@ -11,7 +12,7 @@ import { statusColor } from "../utils/status";
 export default function StatusTag({ status, style }) {
   return (
     <Tag color={statusColor(status)} style={style}>
-      {status}
+      {diagnosticStatusLabel(status, "状态未知")}
     </Tag>
   );
 }

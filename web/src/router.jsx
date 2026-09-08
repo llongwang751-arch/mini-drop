@@ -2,8 +2,15 @@ import { Suspense, lazy } from "react";
 import { Spin } from "antd";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
-import Dashboard from "./pages/Dashboard";
 
+/**
+ * 浏览器路由只负责“URL -> 页面组件”的映射，不在这里取业务数据。
+ *
+ * 阅读顺序：先看 AppLayout 了解全局导航和鉴权，再从下面的 path 找到具体页面。
+ * 页面使用 lazy 按需加载，因此首次打开 AI 诊断时不会同时下载任务详情等代码。
+ */
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AuditLogs = lazy(() => import("./pages/AuditLogs"));
 const TaskResult = lazy(() => import("./pages/TaskResult"));
 const AIDiagnosis = lazy(() => import("./pages/AIDiagnosis"));
@@ -23,7 +30,7 @@ export default function Router() {
         <Route element={<AppLayout />}>
           {/* AI diagnosis is the default entry; collection tasks live at /tasks. */}
           <Route path="/" element={<Navigate to="/ai-diagnosis" replace />} />
-          <Route path="/tasks" element={<Dashboard />} />
+          <Route path="/tasks" element={<Lazy><Dashboard /></Lazy>} />
           <Route
             path="/audit"
             element={<Lazy><AuditLogs /></Lazy>}

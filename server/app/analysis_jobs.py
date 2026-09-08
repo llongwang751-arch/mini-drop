@@ -13,12 +13,14 @@ import os
 import socket
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from sqlalchemy import text
 
 from server.app.analyzer_runner import (
+    analyze_continuous_perf_bundle,
+    analyze_java_flamegraph_artifacts,
     analyze_pprof_artifacts,
     analyze_raw_perf_artifacts,
     analyze_speedscope_artifacts,
@@ -31,6 +33,11 @@ from server.app.artifact_contracts import (
 )
 from server.app.database import init_db, new_session
 from server.app.logging_utils import log_event
+from server.app.metric_analyzers import (
+    analyze_ebpf_io_artifacts,
+    analyze_memory_artifacts,
+    analyze_sys_metrics_artifacts,
+)
 from server.app.sql_repository import SqlRepository
 
 ANALYZER_TYPE = "artifact-set"
@@ -40,11 +47,14 @@ ANALYSIS_READY_TYPES = {
     "flamegraph_json",
     "flamegraph_svg",
     "top_json",
+    "callgraph_json",
     "ebpf_metrics",
     "continuous_summary",
     "continuous_flamegraph_json",
     "continuous_top_json",
+    "continuous_callgraph_json",
     "java_flamegraph_html",
+    "jvm_gc_metrics",
     "memory_json",
     "pprof_raw",
     "sys_metrics",
@@ -137,6 +147,7 @@ class AnalyzerOutput:
     reason: str
     artifacts: list[dict[str, Any]]
     existing_artifact_ids: list[int]
+    artifact_metadata_updates: dict[int, dict[str, Any]] = field(default_factory=dict)
 
 
 class AnalyzerHandler(Protocol):
@@ -233,10 +244,18 @@ class CollectorContractAnalyzer:
                 [],
             )
 
-        if self.contract.collector_type == "continuous_perf" and not artifact_types.intersection(
-            self.contract.analysis_types
+        if (
+            self.contract.collector_type == "continuous_perf"
+            and artifact_types.intersection({"continuous_bundle", "continuous_raw"})
+            and not artifact_types.intersection({
+                "continuous_flamegraph_json", "continuous_top_json", "continuous_callgraph_json"
+            })
         ):
-            generated = analyze_raw_perf_artifacts(task_id, artifacts, allow_remote=True)
+            generated = (
+                analyze_continuous_perf_bundle(task_id, artifacts, allow_remote=True)
+                if "continuous_bundle" in artifact_types
+                else analyze_raw_perf_artifacts(task_id, artifacts, allow_remote=True)
+            )
             if not generated:
                 raise RuntimeError(
                     "continuous_perf: 原始 perf.data 未能生成窗口火焰图和热点结果"
@@ -245,11 +264,12 @@ class CollectorContractAnalyzer:
                 "flamegraph_json": "continuous_flamegraph_json",
                 "flamegraph_svg": "continuous_flamegraph_svg",
                 "top_json": "continuous_top_json",
+                "callgraph_json": "continuous_callgraph_json",
             }
             converted = []
             for artifact in generated:
-                mapped_type = type_mapping.get(artifact.get("artifact_type"))
-                if not mapped_type:
+                mapped_type = type_mapping.get(artifact.get("artifact_type"), artifact.get("artifact_type"))
+                if not mapped_type.startswith("continuous_"):
                     continue
                 artifact["artifact_type"] = mapped_type
                 metadata = dict(artifact.get("metadata") or {})
@@ -257,7 +277,7 @@ class CollectorContractAnalyzer:
                     "collector_type": self.contract.collector_type,
                     "analyzer_type": self.analyzer_type,
                     "analyzer_version": self.version,
-                    "window_index": 0,
+                    "window_index": metadata.get("window_index", 0),
                 })
                 artifact["metadata"] = metadata
                 converted.append(artifact)
@@ -266,7 +286,7 @@ class CollectorContractAnalyzer:
             return AnalyzerOutput(
                 "持续采样原始栈已生成窗口火焰图与 TopN 热点",
                 converted,
-                [],
+                ready_ids,
             )
 
         if self.contract.collector_type in ("go_pprof", "pyspy") and not artifact_types.intersection(
@@ -293,6 +313,44 @@ class CollectorContractAnalyzer:
                 f"{self.contract.collector_type} 原始栈已生成火焰图与 TopN 热点",
                 generated,
                 [],
+            )
+
+        if self.contract.collector_type == "java_async":
+            updates = analyze_java_flamegraph_artifacts(
+                artifacts,
+                allow_remote=True,
+            )
+            if not updates:
+                raise RuntimeError("java_async: HTML 火焰图未能提取样本与函数帧")
+            return AnalyzerOutput(
+                _collector_done_reason(self.contract.collector_type),
+                [],
+                ready_ids,
+                updates,
+            )
+
+        structured_metric_analyzers = {
+            "sys_metrics": analyze_sys_metrics_artifacts,
+            "memory_smaps": analyze_memory_artifacts,
+            "ebpf_io": analyze_ebpf_io_artifacts,
+        }
+        structured_analyzer = structured_metric_analyzers.get(
+            self.contract.collector_type
+        )
+        if structured_analyzer is not None:
+            updates = structured_analyzer(artifacts, allow_remote=True)
+            for artifact_id, metadata in updates.items():
+                metadata.update({
+                    "collector_type": self.contract.collector_type,
+                    "analyzer_type": self.analyzer_type,
+                    "analyzer_version": self.version,
+                })
+                updates[artifact_id] = metadata
+            return AnalyzerOutput(
+                _collector_done_reason(self.contract.collector_type),
+                [],
+                ready_ids,
+                updates,
             )
 
         if not ready_ids:
@@ -346,7 +404,6 @@ class AnalysisWorker:
             lease_sec=self.lease_sec,
             interval_sec=self.heartbeat_interval_sec,
         )
-        heartbeat.start()
         try:
             if not job.task_attempt_id:
                 raise ValueError("AnalysisJob has no exact TaskAttempt lineage")
@@ -367,6 +424,12 @@ class AnalysisWorker:
                 if callable(marker) and artifact.get("id") is not None:
                     marker(int(artifact["id"]), status, reason)
             handler = self.registry.resolve(job.analyzer_type, job.analyzer_version)
+            # Input validation and integrity updates are bounded database work.
+            # Start the background renewer only around the potentially long
+            # analyzer call. This avoids sharing SQLite StaticPool's single
+            # connection between the test's main and heartbeat threads while
+            # preserving immediate renewal before expensive processing.
+            heartbeat.start()
             output = handler.analyze(job.task_id, artifacts)
             # Stop renewals before the terminal transaction clears the lease.
             # Otherwise a fast completion can race with the heartbeat and make
@@ -386,6 +449,7 @@ class AnalysisWorker:
                 self.worker_id,
                 output_artifacts=output.artifacts,
                 output_artifact_ids=output.existing_artifact_ids,
+                artifact_metadata_updates=output.artifact_metadata_updates,
                 reason=output.reason,
             )
             return ProcessResult(job.id, "SUCCEEDED")
@@ -441,6 +505,7 @@ class _AnalysisLeaseHeartbeat:
         self.interval_sec = interval_sec
         self._stop = threading.Event()
         self._lost = threading.Event()
+        self._started = False
         self._thread = threading.Thread(
             target=self._run,
             name=f"analysis-lease-{job_id[:24]}",
@@ -452,11 +517,15 @@ class _AnalysisLeaseHeartbeat:
         return self._lost.is_set()
 
     def start(self) -> None:
+        if self._started:
+            return
+        self._started = True
         self._thread.start()
 
     def stop(self) -> None:
         self._stop.set()
-        self._thread.join(timeout=max(1.0, self.interval_sec * 2))
+        if self._started:
+            self._thread.join(timeout=max(1.0, self.interval_sec * 2))
 
     def _run(self) -> None:
         # Renew once immediately after claim. Waiting for the first interval
@@ -499,7 +568,11 @@ def _done_reason(artifacts: list[dict[str, Any]]) -> str:
     if "continuous_summary" in types:
         return "持续采样窗口分析已生成"
     if "java_flamegraph_html" in types:
-        return "Java 火焰图已生成"
+        return (
+            "Java 火焰图与同窗 JVM 计数器已生成"
+            if "jvm_gc_metrics" in types
+            else "Java 火焰图已生成"
+        )
     if "pprof_raw" in types:
         return "pprof 采集数据已验证"
     return "Analyzer Worker 已验证可视化分析结果"
@@ -511,10 +584,10 @@ def _collector_done_reason(collector_type: str) -> str:
         "ebpf_io": "eBPF IO 延迟分布已通过产物契约验证",
         "pyspy": "Python 用户态火焰图已通过产物契约验证",
         "continuous_perf": "持续采样窗口与时间轴摘要已通过产物契约验证",
-        "java_async": "Java async-profiler 火焰图已通过产物契约验证",
+        "java_async": "Java async-profiler 火焰图与可用 JVM 计数器已通过产物契约验证",
         "go_pprof": "Go pprof 数据已通过产物契约验证",
         "memory_smaps": "进程内存趋势已通过产物契约验证",
-        "sys_metrics": "系统多维指标已通过 sys_metrics.v2 契约验证",
+        "sys_metrics": "系统指标产物已完成兼容契约校验",
         "database_lock": "数据库锁等待证据已通过 database_lock.v1 契约验证",
     }
     return reasons[collector_type]

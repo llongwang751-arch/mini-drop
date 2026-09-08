@@ -39,11 +39,17 @@ services:
       dockerfile: deploy/dockerfiles/python-worker.Dockerfile
     image: mini-drop-python-worker:local
     env_file: [.env]
-    command: ["python", "-m", "alembic", "upgrade", "head"]
+    command:
+      ["sh", "-c", "python -m alembic upgrade head && python scripts/bootstrap_object_store.py"]
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-mini_drop_secret}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
     depends_on:
       postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
     restart: "no"
 
   control-plane:
@@ -91,11 +97,23 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
       MINI_DROP_DIAGNOSTIC_AI_GRPC_PORT: "50061"
       MINI_DROP_DIAGNOSIS_POLL_SEC: ${MINI_DROP_DIAGNOSIS_POLL_SEC:-2}
+      MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC: ${MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC:-300}
       MINI_DROP_AGENT_FRAMEWORK: ${MINI_DROP_AGENT_FRAMEWORK:-langgraph}
       MINI_DROP_AGENT_CHECKPOINT_BACKEND: ${MINI_DROP_AGENT_CHECKPOINT_BACKEND:-postgres}
       MINI_DROP_AGENT_MEMORY_MAX_MESSAGES: ${MINI_DROP_AGENT_MEMORY_MAX_MESSAGES:-24}
+      MINI_DROP_AGENT_MEMORY_MAX_TOKENS: ${MINI_DROP_AGENT_MEMORY_MAX_TOKENS:-12000}
+      MINI_DROP_AGENT_MEMORY_KEEP_TOKENS: ${MINI_DROP_AGENT_MEMORY_KEEP_TOKENS:-6000}
+      # The diagnosis UI can only operate the allow-listed demo workload.  If
+      # the demo-target profile is not running, the plaza reports UNREACHABLE
+      # and never falls back to arbitrary commands or production targets.
+      MINI_DROP_FAULT_LAB_URL: ${MINI_DROP_FAULT_LAB_URL:-http://python-hotspot:8081}
+      MINI_DROP_FAULT_LAB_GO_URL: ${MINI_DROP_FAULT_LAB_GO_URL:-http://go-hotspot:6060}
+      MINI_DROP_FAULT_LAB_JAVA_URL: ${MINI_DROP_FAULT_LAB_JAVA_URL:-http://java-hotspot:8082}
+      MINI_DROP_FAULT_LAB_CPP_URL: ${MINI_DROP_FAULT_LAB_CPP_URL:-http://cpp-hotspot:8084}
       MINI_DROP_SCHEMA_MANAGED: "1"
-      MINI_DROP_SOURCE_ROOTS: /workspace-source/server:/workspace-source/native
+      # Prefer the controlled demo workload before platform sources so common
+      # symbols such as `_run` map to the profiled target during local E2E.
+      MINI_DROP_SOURCE_ROOTS: /workspace-source/demo/python-hotspot:/workspace-source/demo/go-hotspot:/workspace-source/demo/java-hotspot:/workspace-source/demo/cpp-hotspot:/workspace-source/server:/workspace-source/native
     expose: ["50061"]
     volumes:
       - "${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro"
@@ -141,12 +159,14 @@ services:
     build:
       context: .
       dockerfile: deploy/dockerfiles/apiserver.Dockerfile
+    group_add: ["0"]
     environment:
       MINI_DROP_API_LISTEN_ADDR: ":8080"
       MINI_DROP_CONTROL_GRPC_ADDRESS: "control-plane:50051"
       MINI_DROP_DIAGNOSTIC_AI_GRPC_ADDRESS: "diagnosis-worker:50061"
       MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME: ${MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME:-diagnosis-worker}
       MINI_DROP_CONTROL_GRPC_TIMEOUT_MS: ${MINI_DROP_CONTROL_GRPC_TIMEOUT_MS:-3000}
+      MINI_DROP_SCHEDULE_POLL_SEC: ${MINI_DROP_SCHEDULE_POLL_SEC:-5}
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:-}
       MINI_DROP_CONTROL_GRPC_TLS: ${MINI_DROP_GRPC_SECURE:-0}
       MINI_DROP_CONTROL_GRPC_CA_FILE: ${MINI_DROP_GRPC_CA_FILE:-/certs/ca.crt}
@@ -209,10 +229,47 @@ services:
     profiles: ["demo-target"]
     build: {context: demo/python-hotspot}
     pid: host
-    environment: {CPU_HOTSPOT_ACTIVE: "1"}
+    # Faults start only through the allow-listed Fault Plaza and auto-stop.
+    # Keeping the process idle by default makes baseline vs incident visible.
+    environment: {CPU_HOTSPOT_ACTIVE: "0"}
     ports: ["8081:8081"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  go-hotspot:
+    profiles: ["demo-target", "collector-matrix"]
+    build: {context: demo/go-hotspot}
+    pid: host
+    ports: ["8084:6060"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:6060/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  java-hotspot:
+    profiles: ["demo-target", "collector-matrix"]
+    build:
+      context: .
+      dockerfile: demo/java-hotspot/Dockerfile
+    pid: host
+    ports: ["8082:8082"]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8082'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  cpp-hotspot:
+    profiles: ["demo-target", "collector-matrix"]
+    build: {context: demo/cpp-hotspot}
+    pid: host
+    ports: ["8083:8084"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8084/health"]
       interval: 5s
       timeout: 3s
       retries: 10

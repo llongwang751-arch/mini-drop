@@ -31,3 +31,22 @@ def test_memory_stop_releases_buffers_and_trims_linux_heap(monkeypatch):
     assert fault._target_bytes == 0
     assert fault._enabled.is_set() is False
     assert calls == [True]
+
+
+def test_demo_sets_a_stable_linux_process_name_for_agent_discovery(monkeypatch):
+    monkeypatch.setenv("CPU_HOTSPOT_ACTIVE", "0")
+    module = _load_demo_module()
+    calls = []
+
+    class FakeLibc:
+        @staticmethod
+        def prctl(*args):
+            calls.append(args)
+            return 0
+
+    monkeypatch.setattr(module.sys, "platform", "linux")
+    monkeypatch.setattr(module.ctypes, "CDLL", lambda _name: FakeLibc())
+
+    assert module._set_linux_process_name("python-hotspot") is True
+    assert calls[0][0] == 15  # Linux PR_SET_NAME
+    assert calls[0][1].value == b"python-hotspot"

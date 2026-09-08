@@ -358,6 +358,13 @@ class DropInsightSessionModel(Base):
     requested_time_range_json = Column(JSON, default=dict)
     effective_time_range_json = Column(JSON, default=dict)
     mode = Column(String(32), nullable=False)
+    skill_policy = Column(
+        String(16), nullable=False, default="AUTO", server_default="AUTO"
+    )
+    created_by = Column(
+        String(128), nullable=False, default="system:internal",
+        server_default="system:internal", index=True,
+    )
     budget_json = Column(JSON, default=dict)
     status = Column(String(32), nullable=False)
     version = Column(Integer, nullable=False, default=1)
@@ -380,6 +387,8 @@ class DropInsightSessionModel(Base):
             ),
             "effective_time_range": self.effective_time_range_json or {},
             "mode": self.mode,
+            "skill_policy": self.skill_policy or "AUTO",
+            "created_by": self.created_by or "system:internal",
             "budget": self.budget_json or {},
             "status": self.status,
             "version": self.version,
@@ -873,6 +882,215 @@ class DiagnosticSkillActivationModel(Base):
             "baseline_tool": self.baseline_tool,
             "selected_tool": self.selected_tool,
             "outcome": self.outcome,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
+
+class DiagnosticExperimentModel(Base):
+    """Persisted randomized Skill experiment with a human rollout gate."""
+
+    __tablename__ = "diagnostic_experiments"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('DRAFT', 'RUNNING', 'PAUSED', "
+            "'ROLLOUT_RECOMMENDED', 'APPROVED', 'STOPPED')",
+            name="ck_diagnostic_experiment_status",
+        ),
+        CheckConstraint(
+            "treatment_ratio_bps >= 0 AND treatment_ratio_bps <= 10000",
+            name="ck_diagnostic_experiment_ratio",
+        ),
+        CheckConstraint(
+            "alpha > 0 AND alpha < 1",
+            name="ck_diagnostic_experiment_alpha",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    name = Column(String(256), nullable=False)
+    status = Column(String(32), nullable=False, default="DRAFT", index=True)
+    assignment_salt = Column(String(128), nullable=False)
+    assignment_salt_sha256 = Column(String(64), nullable=False)
+    treatment_ratio_bps = Column(Integer, nullable=False, default=5000)
+    minimum_labeled_per_arm = Column(Integer, nullable=False, default=30)
+    minimum_effect_ppm = Column(Integer, nullable=False, default=50_000)
+    alpha = Column(Float, nullable=False, default=0.05)
+    primary_metric = Column(
+        String(64), nullable=False, default="ROOT_CAUSE_ACCURACY"
+    )
+    guardrails_json = Column(JSON, nullable=False, default=dict)
+    recommendation_json = Column(JSON, nullable=False, default=dict)
+    created_by = Column(String(128), nullable=False)
+    approved_by = Column(String(128), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "experiment_id": self.id,
+            "name": self.name,
+            "status": self.status,
+            "assignment_salt_sha256": self.assignment_salt_sha256,
+            "treatment_ratio": self.treatment_ratio_bps / 10_000,
+            "minimum_labeled_per_arm": self.minimum_labeled_per_arm,
+            "minimum_effect_percentage_points": self.minimum_effect_ppm / 10_000,
+            "alpha": self.alpha,
+            "primary_metric": self.primary_metric,
+            "guardrails": self.guardrails_json or {},
+            "recommendation": self.recommendation_json or {},
+            "created_by": self.created_by,
+            "approved_by": self.approved_by,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "approved_at": self.approved_at,
+        }
+
+
+class DiagnosticExperimentAssignmentModel(Base):
+    """One immutable arm assignment attached to one real diagnosis."""
+
+    __tablename__ = "diagnostic_experiment_assignments"
+    __table_args__ = (
+        UniqueConstraint(
+            "experiment_id", "diagnosis_id",
+            name="uq_diagnostic_experiment_assignment_diagnosis",
+        ),
+        CheckConstraint(
+            "arm IN ('AUTO', 'DISABLED')",
+            name="ck_diagnostic_experiment_assignment_arm",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    experiment_id = Column(
+        String(128), ForeignKey("diagnostic_experiments.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    diagnosis_id = Column(
+        String(128), ForeignKey("drop_insight_sessions.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    unit_hash = Column(String(64), nullable=False, index=True)
+    stratum = Column(String(128), nullable=False, default="default")
+    arm = Column(String(16), nullable=False)
+    assigned_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "assignment_id": self.id,
+            "experiment_id": self.experiment_id,
+            "diagnosis_id": self.diagnosis_id,
+            "unit_hash": self.unit_hash,
+            "stratum": self.stratum,
+            "arm": self.arm,
+            "assigned_at": self.assigned_at,
+        }
+
+
+class DiagnosticExperimentObservationModel(Base):
+    """Human/Oracle outcome plus automatically derived operational fields."""
+
+    __tablename__ = "diagnostic_experiment_observations"
+    __table_args__ = (
+        UniqueConstraint(
+            "assignment_id", name="uq_diagnostic_experiment_observation_assignment"
+        ),
+        CheckConstraint(
+            "outcome_source IN ('HUMAN', 'CONTROLLED_ORACLE')",
+            name="ck_diagnostic_experiment_outcome_source",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    assignment_id = Column(
+        String(128),
+        ForeignKey("diagnostic_experiment_assignments.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    root_cause_correct = Column(Boolean, nullable=False)
+    outcome_source = Column(String(32), nullable=False)
+    safety_violation_count = Column(Integer, nullable=False, default=0)
+    notes = Column(Text, nullable=True)
+    metadata_json = Column(JSON, nullable=False, default=dict)
+    recorded_by = Column(String(128), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "observation_id": self.id,
+            "assignment_id": self.assignment_id,
+            "root_cause_correct": self.root_cause_correct,
+            "outcome_source": self.outcome_source,
+            "safety_violation_count": self.safety_violation_count,
+            "notes": self.notes,
+            "metadata": self.metadata_json or {},
+            "recorded_by": self.recorded_by,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
+
+class DiagnosticExperimentMetricModel(Base):
+    """Append-only aggregate snapshot used for long-term drift monitoring."""
+
+    __tablename__ = "diagnostic_experiment_metrics"
+
+    id = Column(String(128), primary_key=True)
+    experiment_id = Column(
+        String(128), ForeignKey("diagnostic_experiments.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    metrics_json = Column(JSON, nullable=False)
+    created_by = Column(String(128), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, index=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "metric_id": self.id,
+            "experiment_id": self.experiment_id,
+            "metrics": self.metrics_json or {},
+            "created_by": self.created_by,
+            "created_at": self.created_at,
+        }
+
+
+class OperatorPreferenceMemoryModel(Base):
+    """Explicit, principal-owned preference memory; never an authority source."""
+
+    __tablename__ = "operator_preference_memories"
+    __table_args__ = (
+        UniqueConstraint(
+            "principal_id", "project_scope", "memory_key",
+            name="uq_operator_preference_memory_scope",
+        ),
+        CheckConstraint(
+            "status IN ('ACTIVE', 'DELETED')",
+            name="ck_operator_preference_memory_status",
+        ),
+    )
+
+    id = Column(String(128), primary_key=True)
+    principal_id = Column(String(128), nullable=False, index=True)
+    project_scope = Column(String(128), nullable=False, default="*")
+    memory_key = Column(String(64), nullable=False)
+    value_json = Column(JSON, nullable=False)
+    source = Column(String(32), nullable=False, default="EXPLICIT_USER")
+    status = Column(String(16), nullable=False, default="ACTIVE")
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "memory_id": self.id,
+            "principal_id": self.principal_id,
+            "project_scope": self.project_scope,
+            "memory_key": self.memory_key,
+            "value": self.value_json,
+            "source": self.source,
+            "status": self.status,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }

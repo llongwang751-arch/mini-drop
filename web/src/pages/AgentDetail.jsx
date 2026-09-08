@@ -292,7 +292,7 @@ export default function AgentDetail() {
               <Descriptions.Item label="状态">
                 <StatusTag status={agent.status} />
               </Descriptions.Item>
-              <Descriptions.Item label="Hostname">{agent.hostname}</Descriptions.Item>
+              <Descriptions.Item label="主机名（Hostname）">{agent.hostname}</Descriptions.Item>
               <Descriptions.Item label="IP">{agent.ip_addr}</Descriptions.Item>
               <Descriptions.Item label="版本">{agent.version || "0.1.0"}</Descriptions.Item>
               <Descriptions.Item label="OS">{agent.os_info || "unknown"}</Descriptions.Item>

@@ -225,6 +225,25 @@ describe("ScopeCard secure target discovery", () => {
     expect(payload.target).not.toHaveProperty("pid");
   });
 
+  it("does not resubmit an immutable server time range", async () => {
+    const onClarify = vi.fn().mockResolvedValue(undefined);
+    renderCard({
+      onClarify,
+      questions: [{ question_id: "time_range", prompt: "请重新选择时间窗" }],
+      initialTimeRange: { start: "2026-09-05T10:00:31Z", end: "2026-09-05T10:05:45Z" },
+    });
+    await screen.findByText("诊断时间窗已锁定");
+    await fillRequiredScope();
+
+    expect(screen.queryByText("请重新选择时间窗")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("开始时间")).toBeDisabled();
+    expect(screen.getByLabelText("结束时间")).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "确认目标并开始取证" }));
+
+    await waitFor(() => expect(onClarify).toHaveBeenCalledTimes(1));
+    expect(onClarify.mock.calls[0][0]).not.toHaveProperty("time_range");
+  });
+
   it("ignores a late discovery response after switching diagnoses", async () => {
     const first = deferred();
     api.getDropInsightTargetCandidates.mockImplementation((id) => {

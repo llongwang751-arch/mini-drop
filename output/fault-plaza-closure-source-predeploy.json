@@ -1,0 +1,1112 @@
+{
+  "schema": "mini-drop.fault-plaza-diagnosis-closure.v1",
+  "generated_at": "2026-09-08T02:08:46.753606+00:00",
+  "health": {
+    "dependencies": {
+      "control_plane": "healthy",
+      "database": "healthy",
+      "diagnostic_ai": "healthy"
+    },
+    "language": "go",
+    "service": "mini-drop-apiserver"
+  },
+  "authentication": "X-API-Key_FROM_ENV_REDACTED",
+  "fault_plaza_scenario_count": 21,
+  "selected_count": 1,
+  "passed_count": 1,
+  "failed_count": 0,
+  "passed": true,
+  "results": [
+    {
+      "scenario_id": "source-hotspot",
+      "title": "Python 源码热点",
+      "runtime": "Python",
+      "root_cause_oracle": "source-hotspot",
+      "decisive_collector": "pyspy",
+      "started": true,
+      "diagnosis_chain_verified": true,
+      "cleanup_verified": true,
+      "passed": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 58019,
+        "comm": "python-hotspot"
+      },
+      "diagnosis": {
+        "diagnosis_id": "insight_daec1a89d2404515832fd88415fad6fe",
+        "query_sha256": "3155218bae67eb6fbb6d9d6eeba8835a35bd9ab76db2caa3f563d6873247b904",
+        "policy": "AUTO",
+        "status": "COMPLETED",
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 58019
+        },
+        "scope_fingerprint": "fd9fcb7b0118900001465acf4152535e61bd5b4d6fede257e23eb318e5b26e17",
+        "planner": {
+          "kind": "DETERMINISTIC_RULES",
+          "category": "PYTHON_RUNTIME"
+        },
+        "tool_route": [
+          "start_pyspy_profile",
+          "collect_sys_metrics",
+          "start_perf_profile",
+          "start_continuous_profile"
+        ],
+        "tool_route_observations": [
+          {
+            "tool_call_id": "toolcall_ef61275f03c848e1a77e255e95af6bfb",
+            "tool_name": "start_pyspy_profile",
+            "task_id": "task_20260908_020645_d6d23f",
+            "tool_call_status": "COMPLETED",
+            "task_status": "DONE",
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS"
+          },
+          {
+            "tool_call_id": "toolcall_fdf9f3c688524962b230b15640a52026",
+            "tool_name": "collect_sys_metrics",
+            "task_id": "task_20260908_020710_62ee55",
+            "tool_call_status": "COMPLETED",
+            "task_status": "DONE",
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS"
+          },
+          {
+            "tool_call_id": "toolcall_dc2e8b8ee7ca430cae1000266b1d8c30",
+            "tool_name": "start_perf_profile",
+            "task_id": "task_20260908_020737_85df48",
+            "tool_call_status": "COMPLETED",
+            "task_status": "DONE",
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS"
+          },
+          {
+            "tool_call_id": "toolcall_f1715c4a097441ebb02b9aba465f30d3",
+            "tool_name": "start_continuous_profile",
+            "task_id": "task_20260908_020806_025914",
+            "tool_call_status": "COMPLETED",
+            "task_status": "DONE",
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS"
+          }
+        ],
+        "expected_profile_match": {
+          "expected_collector": "pyspy",
+          "expected_collector_found": true,
+          "expected_collector_done": true,
+          "expected_hot_function": "",
+          "expected_hot_function_found": false,
+          "supporting_evidence_found": true,
+          "report_cites_supporting_evidence": true
+        },
+        "tool_calls": [
+          {
+            "tool_call_id": "toolcall_ef61275f03c848e1a77e255e95af6bfb",
+            "hypothesis_id": "hyp_25029bfcd96e4a20a5f541f0138fed16",
+            "tool_name": "start_pyspy_profile",
+            "task_id": "task_20260908_020645_d6d23f",
+            "status": "COMPLETED",
+            "policy_decision": "ALLOW"
+          },
+          {
+            "tool_call_id": "toolcall_fdf9f3c688524962b230b15640a52026",
+            "hypothesis_id": "hyp_a21fd7c1e7b143e7b48eef5fe1c400c8",
+            "tool_name": "collect_sys_metrics",
+            "task_id": "task_20260908_020710_62ee55",
+            "status": "COMPLETED",
+            "policy_decision": "ALLOW"
+          },
+          {
+            "tool_call_id": "toolcall_dc2e8b8ee7ca430cae1000266b1d8c30",
+            "hypothesis_id": "hyp_6fbf0e76b8aa4d608351b44a304e20df",
+            "tool_name": "start_perf_profile",
+            "task_id": "task_20260908_020737_85df48",
+            "status": "COMPLETED",
+            "policy_decision": "ALLOW"
+          },
+          {
+            "tool_call_id": "toolcall_f1715c4a097441ebb02b9aba465f30d3",
+            "hypothesis_id": "hyp_4e37840632d741f7b44b31efbd072ec8",
+            "tool_name": "start_continuous_profile",
+            "task_id": "task_20260908_020806_025914",
+            "status": "COMPLETED",
+            "policy_decision": "ALLOW"
+          }
+        ],
+        "tasks": [
+          {
+            "task_id": "task_20260908_020645_d6d23f",
+            "collector_type": "pyspy",
+            "status": "DONE",
+            "status_reason": "pyspy 原始栈已生成火焰图与 TopN 热点",
+            "error_code": null,
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS",
+            "event_count": 5,
+            "attempts": [
+              {
+                "id": "attempt_eb49bc15157f408aa26671eac8eb9a16",
+                "status": "SUCCEEDED",
+                "started_at": "2026-09-08T02:06:47.458499Z",
+                "finished_at": "2026-09-08T02:07:02.623539Z"
+              }
+            ],
+            "artifacts": [
+              {
+                "id": 837,
+                "artifact_type": "raw",
+                "size_bytes": 96266,
+                "sha256": "6fc57df0c4a5f0b8b29b438b14487270174588f1b38fe01229642fd985ef4ca2",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 838,
+                "artifact_type": "manifest",
+                "size_bytes": 1102,
+                "sha256": "78fe7b34b11d725f99bd1602e3adb990d7ab1376f85921a5802f22130220ccf4",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 839,
+                "artifact_type": "flamegraph_json",
+                "size_bytes": 1007,
+                "sha256": "2dd475925485f5981d450112e7b3dc3a1f11eb6a01c337d3b81e36da744ef450",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2968
+              },
+              {
+                "id": 840,
+                "artifact_type": "top_json",
+                "size_bytes": 741,
+                "sha256": "6ad6d52b0f640e4dd496d1fdda8e1a06b8517dea0324750c3cfa12a6ecfac287",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2968
+              }
+            ]
+          },
+          {
+            "task_id": "task_20260908_020710_62ee55",
+            "collector_type": "sys_metrics",
+            "status": "DONE",
+            "status_reason": "系统指标产物已完成兼容契约校验",
+            "error_code": null,
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS",
+            "event_count": 5,
+            "attempts": [
+              {
+                "id": "attempt_907e65ddb98f4c15980927039818a260",
+                "status": "SUCCEEDED",
+                "started_at": "2026-09-08T02:07:12.780874Z",
+                "finished_at": "2026-09-08T02:07:27.995735Z"
+              }
+            ],
+            "artifacts": [
+              {
+                "id": 841,
+                "artifact_type": "sys_metrics",
+                "size_bytes": 934,
+                "sha256": "1b5025fb1b74dc847560cda03cdd6e6365cdbe83508059758e41247122314483",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 842,
+                "artifact_type": "manifest",
+                "size_bytes": 1105,
+                "sha256": "994ba798279466ea1c320458586df35125238619fcd7158536e9d8f4e660063c",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              }
+            ]
+          },
+          {
+            "task_id": "task_20260908_020737_85df48",
+            "collector_type": "perf_cpu",
+            "status": "DONE",
+            "status_reason": "perf CPU 原始栈已生成火焰图与 TopN 热点",
+            "error_code": null,
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS",
+            "event_count": 5,
+            "attempts": [
+              {
+                "id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+                "status": "SUCCEEDED",
+                "started_at": "2026-09-08T02:07:38.146531Z",
+                "finished_at": "2026-09-08T02:07:58.423403Z"
+              }
+            ],
+            "artifacts": [
+              {
+                "id": 843,
+                "artifact_type": "raw",
+                "size_bytes": 175644,
+                "sha256": "f5c15cba869b35ed69016cdcf1cb6dc3a4c2ccc1338b7e8fa0519a68a707d3ca",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 844,
+                "artifact_type": "manifest",
+                "size_bytes": 1268,
+                "sha256": "bd0a674daa2a1f928e3f992e1e27d8dc1135f4b4d0fa1f214eb9bb13d753dd15",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 845,
+                "artifact_type": "flamegraph_json",
+                "size_bytes": 1187,
+                "sha256": "e150fd89255f91cea691798f891fbc6021084a77b1053147a73c5d205ab343a3",
+                "integrity_status": "VERIFIED",
+                "sample_count": 1340
+              },
+              {
+                "id": 846,
+                "artifact_type": "flamegraph_svg",
+                "size_bytes": 17405,
+                "sha256": "148459a078a92451280ef8ca6cc07dabdebc639a264bc5a694ec1844741a100b",
+                "integrity_status": "VERIFIED",
+                "sample_count": 1340
+              },
+              {
+                "id": 847,
+                "artifact_type": "top_json",
+                "size_bytes": 327,
+                "sha256": "d0bba86e7588db3679130a6a12a3086afa05201c182e0b11636ccea62ff81af0",
+                "integrity_status": "VERIFIED",
+                "sample_count": 1340
+              },
+              {
+                "id": 848,
+                "artifact_type": "callgraph_json",
+                "size_bytes": 896,
+                "sha256": "f3cf475faaaa2cf4adeee53a37bb6feee914b82a9d89730a3fc85cb4fecc9d53",
+                "integrity_status": "VERIFIED",
+                "sample_count": 1340
+              },
+              {
+                "id": 849,
+                "artifact_type": "suggestions_md",
+                "size_bytes": 60,
+                "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+                "integrity_status": "VERIFIED",
+                "sample_count": 1340
+              }
+            ]
+          },
+          {
+            "task_id": "task_20260908_020806_025914",
+            "collector_type": "continuous_perf",
+            "status": "DONE",
+            "status_reason": "持续采样原始栈已生成窗口火焰图与 TopN 热点",
+            "error_code": null,
+            "collection_status": "COLLECTED",
+            "analysis_status": "SUCCESS",
+            "event_count": 5,
+            "attempts": [
+              {
+                "id": "attempt_01468e6e51474618b37921e00a7df562",
+                "status": "SUCCEEDED",
+                "started_at": "2026-09-08T02:08:08.555501Z",
+                "finished_at": "2026-09-08T02:08:44.090237Z"
+              }
+            ],
+            "artifacts": [
+              {
+                "id": 850,
+                "artifact_type": "continuous_bundle",
+                "size_bytes": 327680,
+                "sha256": "3ffcb6474f8384c8c9b92da83b5632dafd9b7ab452bb932e2dd95ed1860858dd",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 851,
+                "artifact_type": "continuous_summary",
+                "size_bytes": 449,
+                "sha256": "d64af88cfb844c3844c05b7d60299205ee113a8ad122c262204074331d6bb59e",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 852,
+                "artifact_type": "manifest",
+                "size_bytes": 1299,
+                "sha256": "bdb0a5ade54913a3a5dd3727e3f9f3a52423a38cd450b7aa3678c6c224c91f07",
+                "integrity_status": "VERIFIED",
+                "sample_count": 0
+              },
+              {
+                "id": 853,
+                "artifact_type": "continuous_flamegraph_json",
+                "size_bytes": 1236,
+                "sha256": "4664f58a9030fafb1d3886bc0316506af4a9a3c21c6dfef5237954a2dc1d8937",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2545
+              },
+              {
+                "id": 854,
+                "artifact_type": "continuous_flamegraph_svg",
+                "size_bytes": 17597,
+                "sha256": "1d294afd4ad820c11fa3c86b544f802a7f978825f715260ae4d48c435d181054",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2545
+              },
+              {
+                "id": 855,
+                "artifact_type": "continuous_top_json",
+                "size_bytes": 329,
+                "sha256": "38cb9a468d789aff5c1100b6202a92bbbafe3ca17d4266fe7a978d225caaae84",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2545
+              },
+              {
+                "id": 856,
+                "artifact_type": "continuous_callgraph_json",
+                "size_bytes": 900,
+                "sha256": "20d44c2adfa77f3d8beddb50a05599b6d8e25de2ab6b2e967d9ba50344b835a9",
+                "integrity_status": "VERIFIED",
+                "sample_count": 2545
+              }
+            ]
+          }
+        ],
+        "profile": {
+          "artifact_contract_verified": true,
+          "verified_artifact_count": 4,
+          "verified_artifact_types": [
+            "flamegraph_json",
+            "manifest",
+            "raw",
+            "top_json"
+          ],
+          "expected_hot_function": null,
+          "expected_hot_function_found": null,
+          "expected_collector": "pyspy",
+          "expected_collector_found": true,
+          "expected_collector_done": true,
+          "match_status": "EXPECTED_HOT_FUNCTION_NOT_FOUND"
+        },
+        "evidence": [
+          {
+            "evidence_id": "ev_task_task_20260908_020645_d6d23f_837",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020645_d6d23f",
+            "task_attempt_id": "attempt_eb49bc15157f408aa26671eac8eb9a16",
+            "artifact_id": "837",
+            "artifact_sha256": "6fc57df0c4a5f0b8b29b438b14487270174588f1b38fe01229642fd985ef4ca2",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020645_d6d23f_838",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020645_d6d23f",
+            "task_attempt_id": "attempt_eb49bc15157f408aa26671eac8eb9a16",
+            "artifact_id": "838",
+            "artifact_sha256": "78fe7b34b11d725f99bd1602e3adb990d7ab1376f85921a5802f22130220ccf4",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020645_d6d23f_839",
+            "role": "SUPPORT",
+            "task_id": "task_20260908_020645_d6d23f",
+            "task_attempt_id": "attempt_eb49bc15157f408aa26671eac8eb9a16",
+            "artifact_id": "839",
+            "artifact_sha256": "2dd475925485f5981d450112e7b3dc3a1f11eb6a01c337d3b81e36da744ef450",
+            "analysis_job_id": "analysis_a2a0386dba0ed157",
+            "quality_level": "HIGH",
+            "sample_count": 2968,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_SUPPORT",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020645_d6d23f_840",
+            "role": "SUPPORT",
+            "task_id": "task_20260908_020645_d6d23f",
+            "task_attempt_id": "attempt_eb49bc15157f408aa26671eac8eb9a16",
+            "artifact_id": "840",
+            "artifact_sha256": "6ad6d52b0f640e4dd496d1fdda8e1a06b8517dea0324750c3cfa12a6ecfac287",
+            "analysis_job_id": "analysis_a2a0386dba0ed157",
+            "quality_level": "HIGH",
+            "sample_count": 2968,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_SUPPORT",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020710_62ee55_841",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020710_62ee55",
+            "task_attempt_id": "attempt_907e65ddb98f4c15980927039818a260",
+            "artifact_id": "841",
+            "artifact_sha256": "1b5025fb1b74dc847560cda03cdd6e6365cdbe83508059758e41247122314483",
+            "analysis_job_id": "analysis_d526bb0c4da6bd24",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_LIMITED",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020710_62ee55_842",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020710_62ee55",
+            "task_attempt_id": "attempt_907e65ddb98f4c15980927039818a260",
+            "artifact_id": "842",
+            "artifact_sha256": "994ba798279466ea1c320458586df35125238619fcd7158536e9d8f4e660063c",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_843",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "843",
+            "artifact_sha256": "f5c15cba869b35ed69016cdcf1cb6dc3a4c2ccc1338b7e8fa0519a68a707d3ca",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_844",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "844",
+            "artifact_sha256": "bd0a674daa2a1f928e3f992e1e27d8dc1135f4b4d0fa1f214eb9bb13d753dd15",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_845",
+            "role": "COUNTER",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "845",
+            "artifact_sha256": "e150fd89255f91cea691798f891fbc6021084a77b1053147a73c5d205ab343a3",
+            "analysis_job_id": "analysis_ef2a6b391df922da",
+            "quality_level": "HIGH",
+            "sample_count": 1340,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_COUNTER",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_846",
+            "role": "COUNTER",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "846",
+            "artifact_sha256": "148459a078a92451280ef8ca6cc07dabdebc639a264bc5a694ec1844741a100b",
+            "analysis_job_id": "analysis_ef2a6b391df922da",
+            "quality_level": "HIGH",
+            "sample_count": 1340,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_COUNTER",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_847",
+            "role": "COUNTER",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "847",
+            "artifact_sha256": "d0bba86e7588db3679130a6a12a3086afa05201c182e0b11636ccea62ff81af0",
+            "analysis_job_id": "analysis_ef2a6b391df922da",
+            "quality_level": "HIGH",
+            "sample_count": 1340,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_COUNTER",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_848",
+            "role": "COUNTER",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "848",
+            "artifact_sha256": "f3cf475faaaa2cf4adeee53a37bb6feee914b82a9d89730a3fc85cb4fecc9d53",
+            "analysis_job_id": "analysis_ef2a6b391df922da",
+            "quality_level": "HIGH",
+            "sample_count": 1340,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_COUNTER",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020737_85df48_849",
+            "role": "COUNTER",
+            "task_id": "task_20260908_020737_85df48",
+            "task_attempt_id": "attempt_70665e0419e04bd5965f4e08fba99c0c",
+            "artifact_id": "849",
+            "artifact_sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+            "analysis_job_id": "analysis_ef2a6b391df922da",
+            "quality_level": "HIGH",
+            "sample_count": 1340,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_COUNTER",
+            "can_support_conclusion": true
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_850",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "850",
+            "artifact_sha256": "3ffcb6474f8384c8c9b92da83b5632dafd9b7ab452bb932e2dd95ed1860858dd",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_851",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "851",
+            "artifact_sha256": "d64af88cfb844c3844c05b7d60299205ee113a8ad122c262204074331d6bb59e",
+            "analysis_job_id": "analysis_cde7abc6501eb496",
+            "quality_level": "HIGH",
+            "sample_count": 1,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_NEUTRAL",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_852",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "852",
+            "artifact_sha256": "bdb0a5ade54913a3a5dd3727e3f9f3a52423a38cd450b7aa3678c6c224c91f07",
+            "analysis_job_id": "",
+            "quality_level": "LOW",
+            "sample_count": 0,
+            "analyzer_validated": false,
+            "classification": "REJECT",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_853",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "853",
+            "artifact_sha256": "4664f58a9030fafb1d3886bc0316506af4a9a3c21c6dfef5237954a2dc1d8937",
+            "analysis_job_id": "analysis_cde7abc6501eb496",
+            "quality_level": "HIGH",
+            "sample_count": 2545,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_NEUTRAL",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_854",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "854",
+            "artifact_sha256": "1d294afd4ad820c11fa3c86b544f802a7f978825f715260ae4d48c435d181054",
+            "analysis_job_id": "analysis_cde7abc6501eb496",
+            "quality_level": "HIGH",
+            "sample_count": 2545,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_NEUTRAL",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_855",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "855",
+            "artifact_sha256": "38cb9a468d789aff5c1100b6202a92bbbafe3ca17d4266fe7a978d225caaae84",
+            "analysis_job_id": "analysis_cde7abc6501eb496",
+            "quality_level": "HIGH",
+            "sample_count": 2545,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_NEUTRAL",
+            "can_support_conclusion": false
+          },
+          {
+            "evidence_id": "ev_task_task_20260908_020806_025914_856",
+            "role": "NEUTRAL",
+            "task_id": "task_20260908_020806_025914",
+            "task_attempt_id": "attempt_01468e6e51474618b37921e00a7df562",
+            "artifact_id": "856",
+            "artifact_sha256": "20d44c2adfa77f3d8beddb50a05599b6d8e25de2ab6b2e967d9ba50344b835a9",
+            "analysis_job_id": "analysis_cde7abc6501eb496",
+            "quality_level": "HIGH",
+            "sample_count": 2545,
+            "analyzer_validated": true,
+            "classification": "ACCEPT_NEUTRAL",
+            "can_support_conclusion": false
+          }
+        ],
+        "reports": [
+          {
+            "report_id": "report_40b6e3c3e1350540f9df8b8cd883bd5d",
+            "hypothesis_id": "hyp_4e37840632d741f7b44b31efbd072ec8",
+            "confidence": 0.0,
+            "evidence_refs": [],
+            "counter_evidence_refs": [],
+            "effects_status": "APPLIED"
+          },
+          {
+            "report_id": "report_4fc078294deefa8f1cabb207e28fc7d1",
+            "hypothesis_id": "hyp_6fbf0e76b8aa4d608351b44a304e20df",
+            "confidence": 0.0,
+            "evidence_refs": [],
+            "counter_evidence_refs": [
+              "ev_task_task_20260908_020737_85df48_845",
+              "ev_task_task_20260908_020737_85df48_846",
+              "ev_task_task_20260908_020737_85df48_847",
+              "ev_task_task_20260908_020737_85df48_848",
+              "ev_task_task_20260908_020737_85df48_849"
+            ],
+            "effects_status": "APPLIED"
+          },
+          {
+            "report_id": "report_f9cdcdbbacec79829756e6985dd2ca1c",
+            "hypothesis_id": "hyp_a21fd7c1e7b143e7b48eef5fe1c400c8",
+            "confidence": 0.0,
+            "evidence_refs": [],
+            "counter_evidence_refs": [],
+            "effects_status": "APPLIED"
+          },
+          {
+            "report_id": "report_7e57751b11be8e53851f6158a13ac77a",
+            "hypothesis_id": "hyp_25029bfcd96e4a20a5f541f0138fed16",
+            "confidence": 0.75,
+            "evidence_refs": [
+              "ev_task_task_20260908_020645_d6d23f_839",
+              "ev_task_task_20260908_020645_d6d23f_840"
+            ],
+            "counter_evidence_refs": [],
+            "effects_status": "APPLIED"
+          }
+        ],
+        "exploration": {
+          "minimum_rounds_required": 3,
+          "round_indexes": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "round_count": 4,
+          "hypothesis_count": 12,
+          "exact_duplicate_lats_event_count": 0,
+          "lats_event_count": 39
+        },
+        "skill_activations": [
+          {
+            "activation_id": "skill_activation_773174e7257444c7bde8b9b6e567b3b4",
+            "skill_id": "builtin_cpu_hotspot_diagnosis_15536b5ac179",
+            "match_score": 0.742,
+            "baseline_tool": "start_continuous_profile",
+            "selected_tool": "start_continuous_profile",
+            "match_reason": {
+              "category": "correction_candidate",
+              "requested_category": "COUNTER_EVIDENCE_REPLAN",
+              "skill_category": "CPU_HOTSPOT",
+              "environment": "wildcard",
+              "category_correction": {
+                "from": "COUNTER_EVIDENCE_REPLAN",
+                "to": "CPU_HOTSPOT",
+                "guard": "STRONG_TEXT_SIGNAL"
+              },
+              "retrieval": "HYBRID_BM25_VECTOR",
+              "bm25": 0.998,
+              "vector": 0.7159,
+              "vector_backend": "HASHED_NGRAM_CONCEPT_VECTOR",
+              "structured": 0.38,
+              "matched_terms": [
+                "cpu",
+                "热点",
+                "证据",
+                "诊断"
+              ],
+              "retrieval_score_before_reliability": 0.7421,
+              "reliability_factor": 1.0,
+              "posterior_reliability": 0.5,
+              "outcome_coverage": 0.0,
+              "observed_outcomes": 0,
+              "route": [
+                "collect_sys_metrics",
+                "start_perf_profile",
+                "start_continuous_profile"
+              ],
+              "skill_version": 2,
+              "completed_route_tools": [
+                "collect_sys_metrics",
+                "start_perf_profile",
+                "start_pyspy_profile"
+              ],
+              "current_selected_tool": "start_continuous_profile",
+              "applications": [
+                {
+                  "trace_key": "4:COUNTER_EVIDENCE_REPLAN",
+                  "round_index": 4,
+                  "phase": "COUNTER_EVIDENCE_REPLAN",
+                  "state": "SWITCHED",
+                  "baseline_tool": "start_continuous_profile",
+                  "selected_tool": "start_continuous_profile",
+                  "selected_route_index": 3,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "collect_sys_metrics",
+                    "start_perf_profile",
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "collect_sys_metrics",
+                    "start_perf_profile",
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "COUNTER_EVIDENCE_REPLAN",
+                  "category_after": "CPU_HOTSPOT",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:08:00.043671+00:00"
+                }
+              ],
+              "reuse_trace": [
+                {
+                  "trace_key": "4:COUNTER_EVIDENCE_REPLAN",
+                  "round_index": 4,
+                  "phase": "COUNTER_EVIDENCE_REPLAN",
+                  "state": "SWITCHED",
+                  "baseline_tool": "start_continuous_profile",
+                  "selected_tool": "start_continuous_profile",
+                  "selected_route_index": 3,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "collect_sys_metrics",
+                    "start_perf_profile",
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "collect_sys_metrics",
+                    "start_perf_profile",
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "COUNTER_EVIDENCE_REPLAN",
+                  "category_after": "CPU_HOTSPOT",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:08:00.043671+00:00"
+                }
+              ],
+              "skill_instructions": {
+                "schema": "mini-drop.repository-skill-instructions.v1",
+                "name": "cpu-hotspot-diagnosis",
+                "summary": "对 Linux 进程 CPU 持续升高进行循证诊断，区分用户态热点、内核开销、锁竞争与证据不足。",
+                "body": "# CPU 热点循证诊断\n\n## 目标\n回答“CPU 为什么升高”，并用基线、故障、恢复三个时间窗验证结论，而不是只凭一次火焰图猜测。\n\n## 输入契约\n- 必填：`agent_id`、`pid`、`environment`、`start_time`、`end_time`。\n- 可选：服务名、发布版本、请求量、历史基线窗口。\n- PID 必须属于所选 Agent；故障时间窗必须覆盖用户看到的异常。\n\n## 适用与停止条件\n- 适用：目标进程 CPU 持续升高、吞吐下降或延迟上升。\n- PID 已退出、样本为空、采集器降级或时间窗错位时停止归因，返回“证据不足”。\n- 只有主机 CPU 高、目标进程 CPU 不高时，转查噪声邻居或系统负载。\n\n## 取证顺序\n1. 采集主机与目标进程 CPU，确认异常与目标 PID 同窗出现。\n2. 受控执行 perf 采样，生成火焰图、热点函数 TopN 和用户态/内核态占比。\n3. 检查样本是否集中在少数业务函数，并检查 syscall、锁等待和调度开销等反证。\n4. 停止故障或应用修复后重复采集，确认 CPU 与热点占比回落。\n\n## 结论门槛\n- 用户态热点：目标进程 CPU 同窗升高，热点函数样本集中，并在恢复窗显著回落。\n- 内核开销：内核调用链占比显著，且与 I/O、网络或内存行为一致。\n- 锁竞争：锁相关栈、线程等待和上下文切换同时异常。\n- 不满足闭环时必须拒答，不把“CPU 高”直接写成“代码热点”。\n\n## 必需证据与反证\n- 支持证据：CPU 时间序列、perf 栈样本、热点 TopN、恢复窗复测。\n- 反证：热点分散、样本主要来自内核、目标 PID CPU 正常、恢复后热点未变化。\n\n## 安全边界\n- 只调用注册过的只读采集工具。\n- perf 必须审批并限制频率与持续时间。\n- 不自动重启进程、不修改业务参数、不执行任意命令。\n\n## 输出契约\n必须输出 `root_cause`、`confidence`、`evidence_refs`、`counter_evidence_refs`、`limitations` 和 `next_action`。每条结论必须能跳转到原始任务、快照或产物。\n\n## 回归门禁\n- 相似正例可以复用取证顺序；syscall、锁等待等误导反例不得套用代码热点结论。\n- perf 不可用时降级并降低置信度，不伪造调用栈。\n- 必须比较基线、故障、恢复三阶段，旧版本误迁移时隔离当前版本。",
+                "sections": {
+                  "目标": "回答“CPU 为什么升高”，并用基线、故障、恢复三个时间窗验证结论，而不是只凭一次火焰图猜测。",
+                  "输入契约": "- 必填：`agent_id`、`pid`、`environment`、`start_time`、`end_time`。\n- 可选：服务名、发布版本、请求量、历史基线窗口。\n- PID 必须属于所选 Agent；故障时间窗必须覆盖用户看到的异常。",
+                  "适用与停止条件": "- 适用：目标进程 CPU 持续升高、吞吐下降或延迟上升。\n- PID 已退出、样本为空、采集器降级或时间窗错位时停止归因，返回“证据不足”。\n- 只有主机 CPU 高、目标进程 CPU 不高时，转查噪声邻居或系统负载。",
+                  "取证顺序": "1. 采集主机与目标进程 CPU，确认异常与目标 PID 同窗出现。\n2. 受控执行 perf 采样，生成火焰图、热点函数 TopN 和用户态/内核态占比。\n3. 检查样本是否集中在少数业务函数，并检查 syscall、锁等待和调度开销等反证。\n4. 停止故障或应用修复后重复采集，确认 CPU 与热点占比回落。",
+                  "结论门槛": "- 用户态热点：目标进程 CPU 同窗升高，热点函数样本集中，并在恢复窗显著回落。\n- 内核开销：内核调用链占比显著，且与 I/O、网络或内存行为一致。\n- 锁竞争：锁相关栈、线程等待和上下文切换同时异常。\n- 不满足闭环时必须拒答，不把“CPU 高”直接写成“代码热点”。",
+                  "必需证据与反证": "- 支持证据：CPU 时间序列、perf 栈样本、热点 TopN、恢复窗复测。\n- 反证：热点分散、样本主要来自内核、目标 PID CPU 正常、恢复后热点未变化。",
+                  "安全边界": "- 只调用注册过的只读采集工具。\n- perf 必须审批并限制频率与持续时间。\n- 不自动重启进程、不修改业务参数、不执行任意命令。",
+                  "输出契约": "必须输出 `root_cause`、`confidence`、`evidence_refs`、`counter_evidence_refs`、`limitations` 和 `next_action`。每条结论必须能跳转到原始任务、快照或产物。",
+                  "回归门禁": "- 相似正例可以复用取证顺序；syscall、锁等待等误导反例不得套用代码热点结论。\n- perf 不可用时降级并降低置信度，不伪造调用栈。\n- 必须比较基线、故障、恢复三阶段，旧版本误迁移时隔离当前版本。"
+                },
+                "content_sha256": "0e89309a3b4dbd2255038cf79a3c8235646c53500e505c391aa44c3a1b437b4f",
+                "loaded_sections": [
+                  "目标",
+                  "输入契约",
+                  "适用与停止条件",
+                  "取证顺序",
+                  "结论门槛",
+                  "必需证据与反证",
+                  "安全边界",
+                  "输出契约",
+                  "回归门禁"
+                ],
+                "source_path": "skills/cpu-hotspot-diagnosis/SKILL.md",
+                "source_sha256": "0e89309a3b4dbd2255038cf79a3c8235646c53500e505c391aa44c3a1b437b4f",
+                "load_mode": "FULL_SKILL_MD",
+                "trust": "REPOSITORY_REVIEWED",
+                "is_evidence": false,
+                "execution_policy": "ROUTE_PRIOR_WITH_SERVER_GATES"
+              }
+            }
+          },
+          {
+            "activation_id": "skill_activation_ee0bc17c544e47acbfb870bcd70f4977",
+            "skill_id": "builtin_python_runtime_diagnosis_961d2854a861",
+            "match_score": 0.861,
+            "baseline_tool": "start_perf_profile",
+            "selected_tool": "start_perf_profile",
+            "match_reason": {
+              "category": "correction_candidate",
+              "requested_category": "INSUFFICIENT_EVIDENCE_REPLAN",
+              "skill_category": "PYTHON_RUNTIME",
+              "environment": "wildcard",
+              "category_correction": {
+                "from": "INSUFFICIENT_EVIDENCE_REPLAN",
+                "to": "PYTHON_RUNTIME",
+                "guard": "STRONG_TEXT_SIGNAL"
+              },
+              "retrieval": "HYBRID_BM25_VECTOR",
+              "bm25": 0.9978,
+              "vector": 0.5718,
+              "vector_backend": "HASHED_NGRAM_CONCEPT_VECTOR",
+              "structured": 0.38,
+              "matched_terms": [
+                "cpu",
+                "python",
+                "热点",
+                "诊断"
+              ],
+              "retrieval_score_before_reliability": 0.706,
+              "reliability_factor": 1.0,
+              "posterior_reliability": 0.5,
+              "outcome_coverage": 0.0,
+              "observed_outcomes": 0,
+              "continuity_guard": "PERSISTED_ROUTE_HAS_REMAINING_SAFE_TOOL",
+              "route": [
+                "start_pyspy_profile",
+                "collect_sys_metrics",
+                "start_perf_profile"
+              ],
+              "skill_version": 2,
+              "completed_route_tools": [
+                "collect_sys_metrics",
+                "start_pyspy_profile"
+              ],
+              "current_selected_tool": "start_perf_profile",
+              "applications": [
+                {
+                  "trace_key": "1:INITIAL_PLAN",
+                  "round_index": 1,
+                  "phase": "INITIAL_PLAN",
+                  "state": "ACTIVATED",
+                  "baseline_tool": "start_pyspy_profile",
+                  "selected_tool": "start_pyspy_profile",
+                  "selected_route_index": 1,
+                  "route_length": 3,
+                  "completed_route_tools": [],
+                  "attempted_tools": [],
+                  "category_before": "PYTHON_RUNTIME",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": false,
+                  "applied_at": "2026-09-08T02:06:38.565404+00:00"
+                },
+                {
+                  "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+                  "round_index": 2,
+                  "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "state": "REUSED",
+                  "baseline_tool": "collect_sys_metrics",
+                  "selected_tool": "collect_sys_metrics",
+                  "selected_route_index": 2,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:07:03.689985+00:00"
+                },
+                {
+                  "trace_key": "3:INSUFFICIENT_EVIDENCE_REPLAN",
+                  "round_index": 3,
+                  "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "state": "REUSED",
+                  "baseline_tool": "start_perf_profile",
+                  "selected_tool": "start_perf_profile",
+                  "selected_route_index": 3,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "collect_sys_metrics",
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "collect_sys_metrics",
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:07:30.331491+00:00"
+                }
+              ],
+              "reuse_trace": [
+                {
+                  "trace_key": "1:INITIAL_PLAN",
+                  "round_index": 1,
+                  "phase": "INITIAL_PLAN",
+                  "state": "ACTIVATED",
+                  "baseline_tool": "start_pyspy_profile",
+                  "selected_tool": "start_pyspy_profile",
+                  "selected_route_index": 1,
+                  "route_length": 3,
+                  "completed_route_tools": [],
+                  "attempted_tools": [],
+                  "category_before": "PYTHON_RUNTIME",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": false,
+                  "applied_at": "2026-09-08T02:06:38.565404+00:00"
+                },
+                {
+                  "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+                  "round_index": 2,
+                  "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "state": "REUSED",
+                  "baseline_tool": "collect_sys_metrics",
+                  "selected_tool": "collect_sys_metrics",
+                  "selected_route_index": 2,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:07:03.689985+00:00"
+                },
+                {
+                  "trace_key": "3:INSUFFICIENT_EVIDENCE_REPLAN",
+                  "round_index": 3,
+                  "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "state": "REUSED",
+                  "baseline_tool": "start_perf_profile",
+                  "selected_tool": "start_perf_profile",
+                  "selected_route_index": 3,
+                  "route_length": 3,
+                  "completed_route_tools": [
+                    "collect_sys_metrics",
+                    "start_pyspy_profile"
+                  ],
+                  "attempted_tools": [
+                    "collect_sys_metrics",
+                    "start_pyspy_profile"
+                  ],
+                  "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+                  "category_after": "PYTHON_RUNTIME",
+                  "category_corrected": true,
+                  "applied_at": "2026-09-08T02:07:30.331491+00:00"
+                }
+              ],
+              "skill_instructions": {
+                "schema": "mini-drop.repository-skill-instructions.v1",
+                "name": "python-runtime-diagnosis",
+                "summary": "对 Python 进程 CPU 持续升高、GIL 竞争、协程阻塞与用户态热点进行循证诊断。",
+                "body": "# Python Runtime 循证诊断\n\n## 目标\n区分 Python 用户态热点、GIL 或线程调度问题、事件循环阻塞与系统层开销，并生成可回溯到采集任务和原始栈的结论。\n\n## 输入契约\n- 必填：`agent_id`、受服务端快照证明的进程绑定、`environment`、`start_time`、`end_time`。\n- 可选：服务名、Python 版本、发布版本、吞吐和历史基线窗口。\n- 不接受模型自行猜测的 PID；进程启动时间、PID namespace、可执行文件身份和 Agent 必须与最新快照一致。\n\n## 适用与停止条件\n- 适用：Python 服务 CPU 持续升高、吞吐下降、延迟升高、疑似 GIL 竞争或 busy loop。\n- PID 已退出、py-spy 无法附加、样本量不足、时间窗错位或产物完整性失败时停止归因。\n- Python 栈没有热点但系统 CPU 仍高时，转入 perf 或系统指标路径，不把未知内核开销归因给 Python 代码。\n\n## 取证顺序\n1. 使用 py-spy 对已证明身份的目标进程做短时只读采样，生成 speedscope、火焰图和 TopN。\n2. 检查样本量、热点集中度、线程分布、GIL 相关栈和事件循环调用链。\n3. 必要时补采系统指标，确认目标进程 CPU 与故障时间窗一致。\n4. Python 栈不能解释现象时，受控降级到 perf 以区分用户态、内核态和调度开销。\n5. 修复或关闭故障开关后复测，验证热点占比、CPU 或延迟是否回落。\n\n## 结论门槛\n- 用户态热点：有效样本集中在少数 Python 函数，且函数、文件、行号可定位。\n- GIL 或线程竞争：多个线程的等待/运行分布和相关栈共同支持，不能仅凭“多线程”下结论。\n- 事件循环阻塞：主要样本稳定落在同步阻塞或长耗时回调，并与延迟窗口一致。\n- 只有一次采样且没有恢复窗时，必须在报告中保留限制，不把相关性包装成修复已验证。\n\n## 必需证据与反证\n- 支持证据：原始 speedscope、样本总量、TopN、火焰图、目标身份绑定和时间窗。\n- 反证：样本均匀、热点在解释器外、目标进程 CPU 正常、修复后热点不回落或采集错误率过高。\n\n## 安全边界\n- 只调用注册过的只读采集工具，不执行任意 Shell、代码修改、重启或业务参数变更。\n- py-spy、perf 的持续时间、采样率、并发、主机数和产物大小必须同时通过会话预算与 Agent 本地预算。\n- 采集产物只能上传到 task/attempt 作用域的短期授权对象键。\n\n## 输出契约\n必须输出 `root_cause`、`confidence`、`evidence_refs`、`counter_evidence_refs`、`limitations` 和 `next_action`；函数级结论必须引用已验证的 TopN 或火焰图 Evidence。\n\n## 回归门禁\n- Python CPU 正例应优先选择 py-spy，并能从真实 Artifact 生成 Evidence 和报告。\n- 内核热点、IO 等误导反例不得套用 Python 用户态热点结论。\n- py-spy 不可用时允许受控降级到 perf，但必须降低置信度并记录降级原因。\n- 进程身份漂移、空样本、Hash/Schema 失败或工具调用失败时，不得把该证据计为支持。",
+                "sections": {
+                  "目标": "区分 Python 用户态热点、GIL 或线程调度问题、事件循环阻塞与系统层开销，并生成可回溯到采集任务和原始栈的结论。",
+                  "输入契约": "- 必填：`agent_id`、受服务端快照证明的进程绑定、`environment`、`start_time`、`end_time`。\n- 可选：服务名、Python 版本、发布版本、吞吐和历史基线窗口。\n- 不接受模型自行猜测的 PID；进程启动时间、PID namespace、可执行文件身份和 Agent 必须与最新快照一致。",
+                  "适用与停止条件": "- 适用：Python 服务 CPU 持续升高、吞吐下降、延迟升高、疑似 GIL 竞争或 busy loop。\n- PID 已退出、py-spy 无法附加、样本量不足、时间窗错位或产物完整性失败时停止归因。\n- Python 栈没有热点但系统 CPU 仍高时，转入 perf 或系统指标路径，不把未知内核开销归因给 Python 代码。",
+                  "取证顺序": "1. 使用 py-spy 对已证明身份的目标进程做短时只读采样，生成 speedscope、火焰图和 TopN。\n2. 检查样本量、热点集中度、线程分布、GIL 相关栈和事件循环调用链。\n3. 必要时补采系统指标，确认目标进程 CPU 与故障时间窗一致。\n4. Python 栈不能解释现象时，受控降级到 perf 以区分用户态、内核态和调度开销。\n5. 修复或关闭故障开关后复测，验证热点占比、CPU 或延迟是否回落。",
+                  "结论门槛": "- 用户态热点：有效样本集中在少数 Python 函数，且函数、文件、行号可定位。\n- GIL 或线程竞争：多个线程的等待/运行分布和相关栈共同支持，不能仅凭“多线程”下结论。\n- 事件循环阻塞：主要样本稳定落在同步阻塞或长耗时回调，并与延迟窗口一致。\n- 只有一次采样且没有恢复窗时，必须在报告中保留限制，不把相关性包装成修复已验证。",
+                  "必需证据与反证": "- 支持证据：原始 speedscope、样本总量、TopN、火焰图、目标身份绑定和时间窗。\n- 反证：样本均匀、热点在解释器外、目标进程 CPU 正常、修复后热点不回落或采集错误率过高。",
+                  "安全边界": "- 只调用注册过的只读采集工具，不执行任意 Shell、代码修改、重启或业务参数变更。\n- py-spy、perf 的持续时间、采样率、并发、主机数和产物大小必须同时通过会话预算与 Agent 本地预算。\n- 采集产物只能上传到 task/attempt 作用域的短期授权对象键。",
+                  "输出契约": "必须输出 `root_cause`、`confidence`、`evidence_refs`、`counter_evidence_refs`、`limitations` 和 `next_action`；函数级结论必须引用已验证的 TopN 或火焰图 Evidence。",
+                  "回归门禁": "- Python CPU 正例应优先选择 py-spy，并能从真实 Artifact 生成 Evidence 和报告。\n- 内核热点、IO 等误导反例不得套用 Python 用户态热点结论。\n- py-spy 不可用时允许受控降级到 perf，但必须降低置信度并记录降级原因。\n- 进程身份漂移、空样本、Hash/Schema 失败或工具调用失败时，不得把该证据计为支持。"
+                },
+                "content_sha256": "d79274bddd491010888d8ba037c6d0a02f7eae0bd2b34038fc0c8771341851de",
+                "loaded_sections": [
+                  "目标",
+                  "输入契约",
+                  "适用与停止条件",
+                  "取证顺序",
+                  "结论门槛",
+                  "必需证据与反证",
+                  "安全边界",
+                  "输出契约",
+                  "回归门禁"
+                ],
+                "source_path": "skills/python-runtime-diagnosis/SKILL.md",
+                "source_sha256": "d79274bddd491010888d8ba037c6d0a02f7eae0bd2b34038fc0c8771341851de",
+                "load_mode": "FULL_SKILL_MD",
+                "trust": "REPOSITORY_REVIEWED",
+                "is_evidence": false,
+                "execution_policy": "ROUTE_PRIOR_WITH_SERVER_GATES"
+              }
+            }
+          }
+        ],
+        "event_count": 92,
+        "last_event_sequence": 92,
+        "tree_version": 92,
+        "tree_node_count": 41,
+        "budget": {
+          "limits": {
+            "max_duration_seconds": 300,
+            "max_tool_calls": 12,
+            "min_diagnosis_rounds": 3,
+            "max_diagnosis_rounds": 4,
+            "max_concurrent_tasks": 3,
+            "max_hosts": 1,
+            "max_artifact_bytes": 524288000,
+            "max_risk_level": "R2",
+            "lats_top_k": 3,
+            "max_lats_iterations": null,
+            "lats_exploration_constant": 1.4142135623730951,
+            "lats_selection_policy": "UCT",
+            "lats_value_lambda": 0.5
+          },
+          "used": {
+            "tool_calls": 4,
+            "task_duration_seconds": 75,
+            "artifact_bytes": 647432,
+            "hosts": 1
+          },
+          "reserved": {
+            "duration_seconds": 0,
+            "artifact_bytes": 0,
+            "concurrent_tasks": 0,
+            "hosts": 0
+          },
+          "remaining": {
+            "tool_calls": 8,
+            "duration_seconds": 225,
+            "artifact_bytes": 523640568,
+            "hosts": 0
+          }
+        }
+      }
+    }
+  ],
+  "truth_boundary": "Each PASS is a fresh live controlled fault with persisted Diagnosis/Task/Attempt/Artifact/Evidence/Report lineage and verified cleanup. This report is not the 540-case deterministic replay and does not claim production traffic accuracy. Any failed row remains failed.",
+  "report_sha256": "b9a8cdcef3c4214c08e287de28aa98ea6df86baeada21210bd5082ccbc93c131"
+}

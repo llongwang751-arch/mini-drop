@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Col,
+  Descriptions,
   Empty,
   Row,
   Skeleton,
@@ -21,6 +22,7 @@ import { collectorMeta } from "../utils/collectors";
 import EBPFHistogram from "./EBPFHistogram";
 import FlamegraphViewer from "./FlamegraphViewer";
 import TopNChart from "./TopNChart";
+import { formatMetric, normalizeSysMetrics } from "../utils/sysMetrics";
 
 function artifactIndex(artifact) {
   return artifact?.metadata?.window_index ?? null;
@@ -34,6 +36,7 @@ export default function TaskVisualizationPreview({ taskId }) {
   const [top, setTop] = useState([]);
   const [embeddedDocument, setEmbeddedDocument] = useState("");
   const [ebpfData, setEbpfData] = useState(null);
+  const [sysMetrics, setSysMetrics] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +49,7 @@ export default function TaskVisualizationPreview({ taskId }) {
       setTop([]);
       setEmbeddedDocument("");
       setEbpfData(null);
+      setSysMetrics(null);
       try {
         const [taskData, artifactItems] = await Promise.all([
           getTask(taskId),
@@ -83,6 +87,13 @@ export default function TaskVisualizationPreview({ taskId }) {
               .catch(() => { if (!cancelled) setEbpfData(null); }),
           );
         }
+        if (types.has("sys_metrics")) {
+          contentJobs.push(
+            getTaskArtifactContent(taskId, "sys_metrics")
+              .then((value) => { if (!cancelled) setSysMetrics(normalizeSysMetrics(value)); })
+              .catch(() => { if (!cancelled) setSysMetrics(null); }),
+          );
+        }
         await Promise.all(contentJobs);
       } catch (err) {
         if (!cancelled) setError(err.message);
@@ -110,7 +121,7 @@ export default function TaskVisualizationPreview({ taskId }) {
     (item) => item.artifact_type === "continuous_flamegraph_json",
   );
   const hasInlineVisualization = Boolean(
-    flameArtifact || continuousArtifact || embeddedDocument || top.length || ebpfData,
+    flameArtifact || continuousArtifact || embeddedDocument || top.length || ebpfData || sysMetrics,
   );
 
   return (
@@ -166,6 +177,31 @@ export default function TaskVisualizationPreview({ taskId }) {
       )}
 
       {ebpfData && <EBPFHistogram data={ebpfData} height={320} />}
+
+      {sysMetrics?.summary && (
+        <Space direction="vertical" size={8} style={{ width: "100%" }}>
+          {sysMetrics.compatibility_mode && (
+            <Alert
+              type="info"
+              showIcon
+              message="已兼容读取历史系统指标"
+              description="本次产物实际包含 RSS、线程和文件描述符；CPU、负载与网络在该版本中未采集。"
+            />
+          )}
+          <Descriptions bordered size="small" column={{ xs: 1, md: 4 }}>
+            <Descriptions.Item label="有效样本">{sysMetrics.sample_count}</Descriptions.Item>
+            <Descriptions.Item label="进程 RSS">
+              {formatMetric(sysMetrics.summary.vmrss_mb, " MB")}
+            </Descriptions.Item>
+            <Descriptions.Item label="线程数">
+              {formatMetric(sysMetrics.summary.thread_count)}
+            </Descriptions.Item>
+            <Descriptions.Item label="文件描述符">
+              {formatMetric(sysMetrics.summary.fd_count)}
+            </Descriptions.Item>
+          </Descriptions>
+        </Space>
+      )}
 
       {!hasInlineVisualization && (
         <Empty

@@ -35,6 +35,7 @@ def map_hot_functions(
     symbols: Iterable[str],
     *,
     roots: list[Path] | None = None,
+    language_hint: str | None = None,
     max_files: int = 300,
     max_file_bytes: int = 1_000_000,
 ) -> dict:
@@ -46,6 +47,7 @@ def map_hot_functions(
     """
 
     source_roots = roots if roots is not None else configured_source_roots()
+    language_filter = _normalize_language_hint(language_hint)
     normalized = [_normalize_symbol(item) for item in symbols]
     targets = {item for item in normalized if item}
     mappings: list[dict] = []
@@ -68,12 +70,14 @@ def map_hot_functions(
             resolved = path.resolve()
             if not resolved.is_relative_to(safe_root):
                 continue
+            language = _language_for(resolved)
+            if language_filter is not None and language != language_filter:
+                continue
             scanned += 1
             try:
                 if resolved.stat().st_size > max_file_bytes:
                     continue
                 source = resolved.read_text(encoding="utf-8")
-                language = _language_for(resolved)
                 nodes = _source_function_nodes(source, language, str(resolved))
             except (OSError, UnicodeError, SyntaxError):
                 continue
@@ -83,7 +87,7 @@ def map_hot_functions(
                 simple_name = qualname.rsplit(".", 1)[-1].rsplit("::", 1)[-1]
                 matched = {
                     symbol for symbol in targets
-                    if _symbol_matches(symbol, qualname, simple_name)
+                    if _symbol_matches(symbol, qualname, simple_name, language=language)
                 }
                 for symbol in matched:
                     mappings.append({
@@ -102,11 +106,28 @@ def map_hot_functions(
 
     return {
         "configured_roots": len(source_roots),
+        "language_filter": language_filter,
         "scanned_files": scanned,
         "scanned_by_language": scanned_by_language,
         "mappings": mappings,
         "unresolved_symbols": sorted(targets),
     }
+
+
+def _normalize_language_hint(value: str | None) -> str | None:
+    aliases = {
+        "python": "python",
+        "py": "python",
+        "go": "go",
+        "golang": "go",
+        "java": "java",
+        "jvm": "java",
+        "ruby": "ruby",
+        "cpp": "cpp",
+        "c++": "cpp",
+        "c": "cpp",
+    }
+    return aliases.get(str(value or "").strip().casefold())
 
 
 def _normalize_symbol(value: str) -> str:
@@ -418,16 +439,34 @@ def _native_review_signals(body: str, language: str) -> list[str]:
     return sorted(signals)
 
 
-def _symbol_matches(symbol: str, qualname: str, simple_name: str) -> bool:
-    canonical_symbol = symbol.replace("·", ".").replace("$", ".")
+def _symbol_matches(
+    symbol: str,
+    qualname: str,
+    simple_name: str,
+    *,
+    language: str,
+) -> bool:
+    canonical_symbol = (
+        symbol.replace("·", ".")
+        .replace("$", ".")
+        .replace("/", ".")
+        .replace("::", ".")
+    )
     canonical_qualname = qualname.replace("::", ".")
+    if canonical_symbol == simple_name:
+        return True
+    if canonical_symbol == canonical_qualname:
+        return True
+    if "." in canonical_qualname and canonical_symbol.endswith(f".{canonical_qualname}"):
+        return True
+
+    # Go, Python and Ruby profilers commonly prefix a package/module to a
+    # top-level function. Java and C/C++ qualified symbols must retain their
+    # class/namespace identity: matching only the last token would map a JVM
+    # frame such as ``java/lang/Thread.run`` to an unrelated native ``run``.
     return (
-        canonical_symbol == simple_name
-        or canonical_symbol == qualname
-        or canonical_symbol == canonical_qualname
-        or canonical_symbol.endswith(f".{canonical_qualname}")
-        or canonical_symbol.endswith(f"::{simple_name}")
-        or canonical_symbol.endswith(f".{simple_name}")
+        language in {"go", "python", "ruby"}
+        and canonical_symbol.endswith(f".{simple_name}")
     )
 
 

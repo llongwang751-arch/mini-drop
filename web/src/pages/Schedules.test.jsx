@@ -38,7 +38,7 @@ describe("Schedules page", () => {
   it("renders an empty state when no schedules exist", async () => {
     api.listSchedules.mockResolvedValue([]);
     render(<Schedules />);
-    await waitFor(() => expect(screen.getByText("计划任务 (Schedule / Cron)")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("计划任务（Cron 定时规则）")).toBeInTheDocument());
   });
 
   it("opens the creation drawer from the primary action", async () => {

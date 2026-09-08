@@ -1,0 +1,415 @@
+# Mini-Drop multi-machine control plane.
+# Run this file only on the Control host; remote Linux machines run
+# docker-compose.worker.yml or the systemd unit.
+
+name: mini-drop-control
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mini_drop}
+      POSTGRES_USER: ${POSTGRES_USER:-mini_drop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the control env file}
+    expose: ["5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mini_drop}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  minio:
+    image: ${MINIO_IMAGE:-minio/minio:RELEASE.2025-04-08T15-41-24Z}
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY in the control env file}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY in the control env file}
+    ports:
+      - "${CONTROL_INTERNAL_BIND_ADDRESS:-127.0.0.1}:${CONTROL_MINIO_PORT:-9000}:9000"
+      # The host-networked interview Agent receives upload URLs pointing at
+      # 127.0.0.1:19000.  Keep this second listener loopback-only; remote
+      # Workers reach the same endpoint through their existing SSH tunnels.
+      - "127.0.0.1:${INTERVIEW_DEMO_MINIO_PORT:-19000}:9000"
+    expose: ["9001"]
+    volumes: ["miniodata:/data"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/python-worker.Dockerfile
+      args:
+        DEBIAN_MIRROR: ${DEBIAN_MIRROR:-}
+        DEBIAN_SECURITY_MIRROR: ${DEBIAN_SECURITY_MIRROR:-}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
+    image: mini-drop-python-worker:local
+    command: ["sh", "-c", "python -m alembic upgrade head && python scripts/bootstrap_object_store.py"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+    depends_on:
+      postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    restart: "no"
+
+  control-plane:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/native-control.Dockerfile
+      args:
+        UBUNTU_MIRROR: ${UBUNTU_MIRROR:-http://mirrors.aliyun.com/ubuntu}
+    image: mini-drop-native-control:local
+    environment:
+      MINI_DROP_ENV: production
+      NATIVE_CONTROL_LISTEN_ADDR: "0.0.0.0:50051"
+      NATIVE_CONTROL_HEALTH_ADDR: "127.0.0.1:50051"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_GRPC_AUTH_ENABLED: "1"
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN in the control env file}
+      MINI_DROP_GRPC_SECURE: "1"
+      MINI_DROP_GRPC_CERT_FILE: /certs/server.crt
+      MINI_DROP_GRPC_KEY_FILE: /certs/server.key
+      MINI_DROP_GRPC_CA_FILE: /certs/ca.crt
+      MINI_DROP_GRPC_CLIENT_CERT_FILE: /certs/client.crt
+      MINI_DROP_GRPC_CLIENT_KEY_FILE: /certs/client.key
+      MINI_DROP_GRPC_REQUIRE_CLIENT_CERT: "1"
+      MINI_DROP_GRPC_API_CLIENT_IDENTITY: ${MINI_DROP_GRPC_API_CLIENT_IDENTITY:-mini-drop-control-client}
+      AGENT_OFFLINE_TIMEOUT_SEC: ${AGENT_OFFLINE_TIMEOUT_SEC:-30}
+      MINI_DROP_CONTROL_MAINTENANCE_SEC: ${MINI_DROP_CONTROL_MAINTENANCE_SEC:-5}
+      MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT: ${MINI_DROP_PROCESS_SNAPSHOT_RETENTION_PER_AGENT:-120}
+      MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC: ${MINI_DROP_PROCESS_SNAPSHOT_MAX_AGE_SEC:-30}
+      # The interview Agent uses host networking, so Go pprof must be signed
+      # with the loopback-only published endpoint instead of Docker DNS.
+      MINI_DROP_GO_PPROF_ENDPOINT: ${MINI_DROP_GO_PPROF_ENDPOINT:-http://127.0.0.1:16060/debug/pprof/profile}
+    ports:
+      - "${CONTROL_INTERNAL_BIND_ADDRESS:-127.0.0.1}:${CONTROL_GRPC_PORT:-50051}:50051"
+    volumes:
+      - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
+    depends_on:
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mini-drop-native-control", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  diagnosis-worker:
+    image: mini-drop-python-worker:local
+    pull_policy: never
+    command: ["python", "-m", "server.app.diagnosis_worker"]
+    environment:
+      MINI_DROP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      # Drop Insight creates Task upload authorizations inside this worker.
+      # Sign those URLs with the endpoint reachable by both remote Agents and
+      # the host-network interview Agent, rather than Docker-only `minio:9000`.
+      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:?set Worker-reachable MINIO_AGENT_ENDPOINT without http://}
+      MINIO_AGENT_SECURE: ${MINIO_AGENT_SECURE:-0}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_PORT: "50061"
+      MINI_DROP_DIAGNOSIS_POLL_SEC: ${MINI_DROP_DIAGNOSIS_POLL_SEC:-2}
+      MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC: ${MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC:-300}
+      MINI_DROP_AGENT_FRAMEWORK: ${MINI_DROP_AGENT_FRAMEWORK:-langgraph}
+      MINI_DROP_AGENT_CHECKPOINT_BACKEND: ${MINI_DROP_AGENT_CHECKPOINT_BACKEND:-postgres}
+      MINI_DROP_AGENT_MEMORY_MAX_MESSAGES: ${MINI_DROP_AGENT_MEMORY_MAX_MESSAGES:-24}
+      MINI_DROP_AGENT_MEMORY_MAX_TOKENS: ${MINI_DROP_AGENT_MEMORY_MAX_TOKENS:-12000}
+      MINI_DROP_AGENT_MEMORY_KEEP_TOKENS: ${MINI_DROP_AGENT_MEMORY_KEEP_TOKENS:-6000}
+      MINI_DROP_AUTO_SCOPE_RETRY_SEC: ${MINI_DROP_AUTO_SCOPE_RETRY_SEC:-15}
+      # Optional URL of the isolated, allow-listed demo workload.  Keep this
+      # unset in production unless an interview/demo fault lab is deployed.
+      MINI_DROP_FAULT_LAB_URL: ${MINI_DROP_FAULT_LAB_URL:-}
+      MINI_DROP_FAULT_LAB_GO_URL: ${MINI_DROP_FAULT_LAB_GO_URL:-}
+      MINI_DROP_FAULT_LAB_JAVA_URL: ${MINI_DROP_FAULT_LAB_JAVA_URL:-}
+      MINI_DROP_FAULT_LAB_CPP_URL: ${MINI_DROP_FAULT_LAB_CPP_URL:-}
+      MINI_DROP_SCHEMA_MANAGED: "1"
+      MINI_DROP_SOURCE_ROOTS: /workspace-source/demo/python-hotspot:/workspace-source/demo/go-hotspot:/workspace-source/demo/java-hotspot:/workspace-source/demo/cpp-hotspot:/workspace-source/server:/workspace-source/native
+      MINI_DROP_GRPC_AUTH_ENABLED: "1"
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
+      MINI_DROP_GRPC_SECURE: "1"
+      MINI_DROP_GRPC_CERT_FILE: /certs/server.crt
+      MINI_DROP_GRPC_KEY_FILE: /certs/server.key
+      MINI_DROP_GRPC_CA_FILE: /certs/ca.crt
+      MINI_DROP_GRPC_REQUIRE_CLIENT_CERT: "1"
+      MINI_DROP_AI_ENABLED: ${MINI_DROP_AI_ENABLED:-off}
+      MINI_DROP_AI_PROVIDER: ${MINI_DROP_AI_PROVIDER:-deepseek}
+      MINI_DROP_AI_BASE_URL: ${MINI_DROP_AI_BASE_URL:-https://api.deepseek.com}
+      MINI_DROP_AI_API_KEY: ${MINI_DROP_AI_API_KEY:-}
+      MINI_DROP_AI_MODEL: ${MINI_DROP_AI_MODEL:-deepseek-chat}
+      MINI_DROP_NLP_ENABLED: ${MINI_DROP_NLP_ENABLED:-false}
+      MINI_DROP_RCA_ENABLED: ${MINI_DROP_RCA_ENABLED:-false}
+      MINI_DROP_SUMMARIZE_ENABLED: ${MINI_DROP_SUMMARIZE_ENABLED:-false}
+    expose: ["50061"]
+    volumes:
+      - "${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro"
+      - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
+    depends_on:
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-m", "server.app.diagnosis_worker", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  analyzer:
+    image: mini-drop-python-worker:local
+    pull_policy: never
+    command: ["python", "-m", "server.app.analysis_jobs"]
+    environment:
+      MINI_DROP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINI_DROP_ANALYZER_POLL_SEC: ${MINI_DROP_ANALYZER_POLL_SEC:-1}
+      MINI_DROP_ANALYZER_LEASE_SEC: ${MINI_DROP_ANALYZER_LEASE_SEC:-120}
+      MINI_DROP_ANALYZER_MAX_RETRIES: ${MINI_DROP_ANALYZER_MAX_RETRIES:-3}
+      MINI_DROP_SCHEMA_MANAGED: "1"
+    depends_on:
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-m", "server.app.analysis_jobs", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  apiserver:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/apiserver.Dockerfile
+      args:
+        ALPINE_MIRROR: ${ALPINE_MIRROR:-}
+    image: mini-drop-apiserver:local
+    group_add: ["0"]
+    environment:
+      MINI_DROP_ENV: production
+      MINI_DROP_API_LISTEN_ADDR: ":8080"
+      MINI_DROP_CONTROL_GRPC_ADDRESS: control-plane:50051
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_ADDRESS: diagnosis-worker:50061
+      MINI_DROP_CONTROL_GRPC_SERVER_NAME: control-plane
+      MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME: diagnosis-worker
+      MINI_DROP_CONTROL_GRPC_TIMEOUT_MS: ${MINI_DROP_CONTROL_GRPC_TIMEOUT_MS:-3000}
+      MINI_DROP_SCHEDULE_POLL_SEC: ${MINI_DROP_SCHEDULE_POLL_SEC:-5}
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
+      MINI_DROP_CONTROL_GRPC_TLS: "1"
+      MINI_DROP_CONTROL_GRPC_CA_FILE: /certs/ca.crt
+      MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE: /certs/client.crt
+      MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE: /certs/client.key
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mini_drop}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mini_drop}
+      MINI_DROP_API_AUTH_ENABLED: "1"
+      MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
+      MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_AGENT_ENDPOINT: ${MINIO_AGENT_ENDPOINT:?set Worker-reachable MINIO_AGENT_ENDPOINT without http://}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      MINIO_SECURE: "0"
+      MINIO_AGENT_SECURE: ${MINIO_AGENT_SECURE:-0}
+      MINI_DROP_UPLOAD_AUTH_TTL_SEC: ${MINI_DROP_UPLOAD_AUTH_TTL_SEC:-1800}
+    expose: ["8080"]
+    volumes:
+      - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
+    depends_on:
+      postgres: {condition: service_healthy}
+      control-plane: {condition: service_healthy}
+      diagnosis-worker: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mini-drop-apiserver", "--healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Opt-in interview workload.  The process stays idle until the allow-listed
+  # Fault Plaza starts a bounded scenario, then automatically returns to idle.
+  # It has no host port: only diagnosis-worker can call its internal HTTP API.
+  python-hotspot:
+    profiles: ["interview-demo"]
+    build: {context: demo/python-hotspot}
+    image: mini-drop-python-hotspot:local
+    environment:
+      CPU_HOTSPOT_ACTIVE: "0"
+    expose: ["8081"]
+    read_only: true
+    tmpfs: ["/tmp:size=192m,mode=1777"]
+    cpus: ${INTERVIEW_DEMO_CPU_LIMIT:-1.0}
+    mem_limit: ${INTERVIEW_DEMO_MEMORY_LIMIT:-512m}
+    pids_limit: ${INTERVIEW_DEMO_PIDS_LIMIT:-128}
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # The following runtime-specific labs are also idle by default.  Each one
+  # exposes only an internal, allow-listed control API and auto-stops every
+  # injected fault, so the browser never receives a generic command surface.
+  go-hotspot:
+    profiles: ["interview-demo"]
+    build: {context: demo/go-hotspot}
+    image: mini-drop-go-hotspot:local
+    expose: ["6060"]
+    ports:
+      - "127.0.0.1:${INTERVIEW_DEMO_GO_PPROF_PORT:-16060}:6060"
+    read_only: true
+    tmpfs: ["/tmp:size=64m,mode=1777"]
+    cpus: ${INTERVIEW_DEMO_GO_CPU_LIMIT:-0.65}
+    # The injected heap is capped at 128 MiB; leave bounded headroom for the
+    # Go runtime and pprof so the demo proves growth instead of being OOM-killed.
+    mem_limit: ${INTERVIEW_DEMO_GO_MEMORY_LIMIT:-192m}
+    pids_limit: ${INTERVIEW_DEMO_GO_PIDS_LIMIT:-64}
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:6060/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  java-hotspot:
+    profiles: ["interview-demo"]
+    build:
+      context: .
+      dockerfile: demo/java-hotspot/Dockerfile
+    image: mini-drop-java-hotspot:local
+    expose: ["8082"]
+    read_only: true
+    tmpfs: ["/tmp:size=96m,mode=1777"]
+    cpus: ${INTERVIEW_DEMO_JAVA_CPU_LIMIT:-0.65}
+    # Xmx=256 MiB plus a 96 MiB controlled direct-buffer fault and JVM native
+    # memory exceeded 384 MiB in the full live campaign. Keep enough bounded
+    # headroom so this scenario measures off-heap growth instead of an OOM
+    # restart that invalidates the immutable process binding.
+    mem_limit: ${INTERVIEW_DEMO_JAVA_MEMORY_LIMIT:-512m}
+    pids_limit: ${INTERVIEW_DEMO_JAVA_PIDS_LIMIT:-128}
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8082'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  cpp-hotspot:
+    profiles: ["interview-demo"]
+    build: {context: demo/cpp-hotspot}
+    image: mini-drop-cpp-hotspot:local
+    expose: ["8084"]
+    read_only: true
+    tmpfs: ["/tmp:size=128m,mode=1777"]
+    cpus: ${INTERVIEW_DEMO_CPP_CPU_LIMIT:-0.65}
+    mem_limit: ${INTERVIEW_DEMO_CPP_MEMORY_LIMIT:-192m}
+    pids_limit: ${INTERVIEW_DEMO_CPP_PIDS_LIMIT:-96}
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8084/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # This Agent shares the Control host PID namespace so evidence is collected
+  # from the live python-hotspot process rather than replayed fixtures.  Its
+  # mTLS certificate CN must exactly equal INTERVIEW_DEMO_AGENT_ID.
+  demo-agent:
+    profiles: ["interview-demo"]
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/native-agent.Dockerfile
+      args:
+        UBUNTU_MIRROR: ${UBUNTU_MIRROR:-http://mirrors.aliyun.com/ubuntu}
+    image: mini-drop-native-agent:local
+    network_mode: host
+    pid: host
+    environment:
+      MINI_DROP_ENV: production
+      AGENT_ID: ${INTERVIEW_DEMO_AGENT_ID:-control-interview-demo-agent}
+      AGENT_IP_ADDR: 127.0.0.1
+      AGENT_GRPC_ADDR: 127.0.0.1:${CONTROL_GRPC_PORT:-50051}
+      AGENT_HEARTBEAT_INTERVAL_SEC: ${AGENT_HEARTBEAT_INTERVAL_SEC:-5}
+      AGENT_GRPC_SECURE: "1"
+      AGENT_GRPC_CA_CERT: /certs/ca.crt
+      AGENT_GRPC_CLIENT_CERT: /certs/agent.crt
+      AGENT_GRPC_CLIENT_KEY: /certs/agent.key
+      AGENT_GRPC_TLS_SERVER_NAME: 127.0.0.1
+      MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN:?set MINI_DROP_GRPC_TOKEN in the control env file}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mini-drop}
+      AGENT_RESULT_OUTBOX_DIR: /var/lib/mini-drop-interview-agent/outbox
+      AGENT_RESULT_OUTBOX_MAX_ENTRIES: ${AGENT_RESULT_OUTBOX_MAX_ENTRIES:-256}
+      NATIVE_AGENT_RUNNER_MAX_MEMORY_MB: ${INTERVIEW_DEMO_RUNNER_MAX_MEMORY_MB:-768}
+      NATIVE_AGENT_RUNNER_MAX_OUTPUT_MB: ${INTERVIEW_DEMO_RUNNER_MAX_OUTPUT_MB:-128}
+    cap_add: ["SYS_PTRACE", "PERFMON", "BPF", "SYS_RESOURCE"]
+    security_opt:
+      - "no-new-privileges:true"
+      - "apparmor:unconfined"
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      - interviewdemoagentoutbox:/var/lib/mini-drop-interview-agent/outbox
+      - "${INTERVIEW_DEMO_AGENT_CERT_DIR:-./deploy/certs/control/agents/control-interview-demo-agent}:/certs:ro"
+    depends_on:
+      control-plane: {condition: service_healthy}
+      minio: {condition: service_healthy}
+      python-hotspot: {condition: service_healthy}
+      go-hotspot: {condition: service_healthy}
+      java-hotspot: {condition: service_healthy}
+      cpp-hotspot: {condition: service_healthy}
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/web.Dockerfile
+      args:
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
+    image: mini-drop-web:local
+    ports:
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTP_PORT:-80}:80"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/nginx/control-tls.conf:/etc/nginx/conf.d/default.conf:ro
+      - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
+    depends_on:
+      apiserver: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate -q --spider https://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  miniodata:
+  interviewdemoagentoutbox:

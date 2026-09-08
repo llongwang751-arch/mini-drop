@@ -22,6 +22,10 @@ import subprocess
 from pathlib import Path
 
 
+QUALITY_ERROR_CODE = "ANALYSIS_INPUT_INVALID"
+QUALITY_FAILURE_KIND = "SAMPLE_QUALITY"
+
+
 # ---------------------------------------------------------------------------
 # 主入口
 # ---------------------------------------------------------------------------
@@ -49,12 +53,37 @@ def main() -> None:
     ok, err = _perf_script(perf_data, script_path)
     if not ok:
         _fail(f"perf script 失败: {err}")
+    if not _has_non_whitespace(script_path):
+        _fail_quality(
+            "NO_PERF_SAMPLES",
+            "perf.data 未包含可供火焰图分析的采样事件",
+            "确认目标进程在采样期间仍存活且正在承载负载；适当延长采样时长，"
+            "并检查 perf_event_paranoid/CAP_PERFMON 后重新采集。",
+            details={
+                "perf_data_bytes": perf_data.stat().st_size,
+                "perf_script_bytes": script_path.stat().st_size,
+            },
+        )
 
     # 2. stackcollapse → 折叠栈
     collapsed_path = output_dir / "collapsed.txt"
     ok, err = _stackcollapse(script_path, collapsed_path)
     if not ok:
         _fail(f"stackcollapse 失败: {err}")
+
+    quality = _folded_stack_quality(collapsed_path)
+    if quality["sample_count"] <= 0 or quality["valid_stack_lines"] <= 0:
+        _fail_quality(
+            "NO_FOLDED_STACKS",
+            "perf 事件存在，但没有得到可渲染的正样本调用栈",
+            "确认采集命令启用了调用栈（perf record -g），并检查 unwind/帧指针、"
+            "符号权限和 stackcollapse 输入格式后重新采集。",
+            details={
+                **quality,
+                "perf_script_bytes": script_path.stat().st_size,
+                "collapsed_bytes": collapsed_path.stat().st_size,
+            },
+        )
 
     # 3. flamegraph.pl → fallback SVG
     svg_path = output_dir / "flamegraph.svg"
@@ -70,6 +99,14 @@ def main() -> None:
     tree_text = json.dumps(flame_tree, separators=(",", ":"), ensure_ascii=False)
     tree_path.write_text(tree_text)
 
+    # 4b. 同一份折叠栈再生成调用关系图。火焰图回答“时间落在哪条栈上”，
+    # 调用图回答“谁调用谁”，两者不能互相替代。
+    call_graph = _build_call_graph(collapsed_path)
+    call_graph_path = output_dir / "callgraph.json"
+    call_graph_path.write_text(
+        json.dumps(call_graph, separators=(",", ":"), ensure_ascii=False)
+    )
+
     # 5. 规则引擎 → suggestions
     suggestions = _match_rules(top_n)
     sugg_path = output_dir / "suggestions.md"
@@ -79,11 +116,18 @@ def main() -> None:
         "task_id": task_id,
         "status": "SUCCESS",
         "summary": suggestions.split("\n")[0] if suggestions else "分析完成",
+        "sample_count": quality["sample_count"],
+        "profile_quality": {
+            "status": "USABLE",
+            "reason_code": "OK",
+            "valid_stack_lines": quality["valid_stack_lines"],
+        },
         "top_functions": top_n[:5],
         "output_files": {
             "flamegraph_json": str(tree_path),
             "flamegraph_svg": str(svg_path),
             "top_json": str(top_path),
+            "callgraph_json": str(call_graph_path),
             "suggestions_md": str(sugg_path),
         },
     }
@@ -93,6 +137,46 @@ def main() -> None:
 def _fail(msg: str) -> None:
     print(json.dumps({"status": "FAILED", "error": msg}))
     raise SystemExit(1)
+
+
+def _fail_quality(
+    reason_code: str,
+    message: str,
+    action_hint: str,
+    *,
+    details: dict | None = None,
+) -> None:
+    """Emit a stable, machine-readable sample-quality failure.
+
+    ``perf script`` and the FlameGraph Perl tools deliberately return zero for
+    an input that contains no samples.  That is a valid command execution but
+    not a usable profile.  The structured payload lets the worker persist an
+    actionable reason instead of registering empty result artifacts.
+    """
+
+    print(json.dumps({
+        "status": "FAILED",
+        "error_code": QUALITY_ERROR_CODE,
+        "failure_kind": QUALITY_FAILURE_KIND,
+        "reason_code": reason_code,
+        "message": message,
+        "action_hint": action_hint,
+        "details": details or {},
+    }, ensure_ascii=False, separators=(",", ":")))
+    raise SystemExit(2)
+
+
+def _has_non_whitespace(path: Path) -> bool:
+    """Check a potentially large analyzer intermediate without loading it all."""
+
+    try:
+        with path.open("rb") as stream:
+            while chunk := stream.read(64 * 1024):
+                if chunk.strip():
+                    return True
+    except OSError:
+        return False
+    return False
 
 
 def _load_output_dir(config_path: Path) -> str:
@@ -215,6 +299,44 @@ def _fallback_svg(msg: str) -> str:
 MAX_TREE_DEPTH = 50
 
 
+def _folded_stack_quality(collapsed: Path) -> dict[str, int]:
+    """Return conservative quality counters for folded-stack input.
+
+    Only a non-empty stack with a strictly positive integer weight represents
+    a renderable observation.  Blank, malformed, zero and negative rows must
+    never inflate the flame-tree root or make an empty capture look usable.
+    """
+
+    sample_count = 0
+    valid_stack_lines = 0
+    malformed_lines = 0
+    with collapsed.open("r", encoding="utf-8", errors="replace") as stream:
+        for raw_line in stream:
+            line = raw_line.rstrip()
+            if not line:
+                continue
+            if " " not in line:
+                malformed_lines += 1
+                continue
+            stack, _, count_str = line.rpartition(" ")
+            try:
+                count = int(count_str)
+            except ValueError:
+                malformed_lines += 1
+                continue
+            frames = [frame.strip() for frame in stack.split(";") if frame.strip()]
+            if count <= 0 or not frames:
+                malformed_lines += 1
+                continue
+            sample_count += count
+            valid_stack_lines += 1
+    return {
+        "sample_count": sample_count,
+        "valid_stack_lines": valid_stack_lines,
+        "malformed_lines": malformed_lines,
+    }
+
+
 def _parse_top(collapsed: Path, limit: int = 20) -> list[dict]:
     """从折叠栈文本解析 TopN 热点函数。
 
@@ -232,11 +354,12 @@ def _parse_top(collapsed: Path, limit: int = 20) -> list[dict]:
                 count = int(count_str)
             except ValueError:
                 continue
+            funcs = [func.strip() for func in stack.split(";") if func.strip()]
+            if count <= 0 or not funcs:
+                continue
             total += count
-            for func in stack.split(";"):
-                func = func.strip()
-                if func:
-                    counter[func] = counter.get(func, 0) + count
+            for func in funcs:
+                counter[func] = counter.get(func, 0) + count
 
     entries = sorted(counter.items(), key=lambda kv: kv[1], reverse=True)[:limit]
     return [
@@ -263,11 +386,10 @@ def _build_flame_tree(collapsed: Path) -> dict:
                 count = int(count_str)
             except ValueError:
                 continue
-            root["value"] += count
-
             funcs = [f.strip() for f in stack.split(";") if f.strip()]
-            if not funcs:
+            if count <= 0 or not funcs:
                 continue
+            root["value"] += count
 
             depth = min(len(funcs), MAX_TREE_DEPTH)
             for i in range(depth):
@@ -286,6 +408,73 @@ def _build_flame_tree(collapsed: Path) -> dict:
                 node_map[prefix]["value"] += count
 
     return root
+
+
+def _build_call_graph(collapsed: Path, limit_nodes: int = 120) -> dict:
+    """Build a bounded caller/callee graph from folded stacks.
+
+    ``inclusive_samples`` counts every stack containing the frame, while
+    ``self_samples`` counts only leaf samples.  Edges are directed caller ->
+    callee and deduplicated across all stacks.  Keeping the hottest bounded
+    node set prevents a single noisy profile from freezing the browser.
+    """
+    inclusive: dict[str, int] = {}
+    self_samples: dict[str, int] = {}
+    edges: dict[tuple[str, str], int] = {}
+    total = 0
+    with collapsed.open("r", encoding="utf-8") as fh:
+        for line in fh:
+            if " " not in line:
+                continue
+            stack, _, count_str = line.rstrip().rpartition(" ")
+            try:
+                count = int(count_str)
+            except ValueError:
+                continue
+            frames = [frame.strip() for frame in stack.split(";") if frame.strip()]
+            if not frames or count <= 0:
+                continue
+            total += count
+            self_samples[frames[-1]] = self_samples.get(frames[-1], 0) + count
+            for frame in set(frames):
+                inclusive[frame] = inclusive.get(frame, 0) + count
+            for caller, callee in zip(frames, frames[1:]):
+                if caller != callee:
+                    key = (caller, callee)
+                    edges[key] = edges.get(key, 0) + count
+
+    hottest = sorted(inclusive, key=lambda name: (-inclusive[name], name))[:limit_nodes]
+    retained = set(hottest)
+    nodes = [
+        {
+            "id": name,
+            "name": name,
+            "inclusive_samples": inclusive[name],
+            "self_samples": self_samples.get(name, 0),
+            "percent": round(inclusive[name] / total * 100, 2) if total else 0,
+        }
+        for name in hottest
+    ]
+    links = [
+        {
+            "source": caller,
+            "target": callee,
+            "samples": samples,
+            "percent": round(samples / total * 100, 2) if total else 0,
+        }
+        for (caller, callee), samples in sorted(
+            edges.items(), key=lambda item: (-item[1], item[0])
+        )
+        if caller in retained and callee in retained
+    ]
+    return {
+        "schema_version": "perf_callgraph.v1",
+        "total_samples": total,
+        "truncated": len(inclusive) > limit_nodes,
+        "node_limit": limit_nodes,
+        "nodes": nodes,
+        "links": links,
+    }
 
 
 # ---------------------------------------------------------------------------

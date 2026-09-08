@@ -70,6 +70,7 @@ printf '%s\n' \
 openssl x509 -req -in "$CERT_DIR/agent.csr" -CA "$CERT_DIR/ca.crt" -CAkey "$CERT_DIR/ca.key" \
   -CAcreateserial -out "$CERT_DIR/agent.crt" -days 825 -sha256 -extfile "$CERT_DIR/agent.ext"
 chmod 600 "$CERT_DIR"/*.key
+chmod 640 "$CERT_DIR/client.key"
 chmod 644 "$CERT_DIR"/*.crt
 
 echo "generated CA, server/API certificates and Agent certificate for $AGENT_ID in $CERT_DIR"

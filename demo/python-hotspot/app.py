@@ -20,7 +20,39 @@ import threading
 import time
 from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib import request as urllib_request
+
+
+APP_METRICS_PATH = Path(
+    os.getenv("MINI_DROP_APP_METRICS_PATH", "/tmp/mini-drop-app-metrics.json")
+)
+
+
+def _bounded_duration_seconds(value: float | None) -> float:
+    """Keep every direct lab call finite even if it bypasses the web API."""
+
+    return min(max(float(value or 60), 15.0), 300.0)
+
+
+def _set_linux_process_name(name: str) -> bool:
+    """Give the demo process a stable ``comm`` value for host-side discovery.
+
+    Docker container names are not guaranteed to appear in ``/proc/<pid>/comm``.
+    The native Agent discovers processes from the host namespace, so set the
+    Linux task name explicitly instead of asking auto-scope to guess among the
+    other Python services on the same machine. Linux limits this value to 15
+    bytes plus the terminating null byte.
+    """
+
+    if not sys.platform.startswith("linux"):
+        return False
+    encoded = name.encode("utf-8")[:15]
+    try:
+        libc = ctypes.CDLL(None)
+        return libc.prctl(15, ctypes.c_char_p(encoded), 0, 0, 0) == 0
+    except (AttributeError, OSError):
+        return False
 
 
 def _trim_process_heap() -> bool:
@@ -53,16 +85,16 @@ class CpuFault:
         self._last_cpu = time.process_time()
         self._thread = threading.Thread(target=self._run, name="cpu-hotspot", daemon=True)
         self._thread.start()
-        if os.getenv("CPU_HOTSPOT_ACTIVE", "1") == "1":
+        # Interview demos must be idle after every deploy/restart. A fault is
+        # enabled only through the allow-listed fault-plaza API and auto-stops.
+        if os.getenv("CPU_HOTSPOT_ACTIVE", "0") == "1":
             self.start()
 
     def start(self, duration_seconds: float | None = None) -> None:
         with self._lock:
             self._started_at = time.time()
-            self._deadline = (
-                time.monotonic() + duration_seconds
-                if duration_seconds and duration_seconds > 0
-                else None
+            self._deadline = time.monotonic() + _bounded_duration_seconds(
+                duration_seconds
             )
         self._enabled.set()
 
@@ -157,10 +189,8 @@ class SourceHotspotFault:
 
     def start(self, duration_seconds: float | None = None) -> None:
         with self._lock:
-            self._deadline = (
-                time.monotonic() + duration_seconds
-                if duration_seconds and duration_seconds > 0
-                else None
+            self._deadline = time.monotonic() + _bounded_duration_seconds(
+                duration_seconds
             )
             self._samples.clear()
         self._enabled.set()
@@ -245,10 +275,8 @@ class MemoryFault:
         bounded_mb = min(max(int(megabytes), 16), 256)
         with self._lock:
             self._target_bytes = bounded_mb * 1024 * 1024
-            self._deadline = (
-                time.monotonic() + duration_seconds
-                if duration_seconds and duration_seconds > 0
-                else None
+            self._deadline = time.monotonic() + _bounded_duration_seconds(
+                duration_seconds
             )
         self._enabled.set()
 
@@ -319,10 +347,8 @@ class IoFault:
 
     def start(self, duration_seconds: float | None = None) -> None:
         with self._lock:
-            self._deadline = (
-                time.monotonic() + duration_seconds
-                if duration_seconds and duration_seconds > 0
-                else None
+            self._deadline = time.monotonic() + _bounded_duration_seconds(
+                duration_seconds
             )
             self._bytes_written = 0
         self._enabled.set()
@@ -412,7 +438,7 @@ class NoisyNeighborFault:
 
     def start(self, duration_seconds: float | None = None) -> None:
         self.stop()
-        seconds = max(float(duration_seconds or 8), 2.0)
+        seconds = _bounded_duration_seconds(duration_seconds)
         code = (
             "import hashlib,time; end=time.time()+%r; data=b'noisy-neighbor'; i=0\n"
             "while time.time()<end:\n"
@@ -480,7 +506,9 @@ class RateFault:
     def start(self, duration_seconds: float | None = None) -> None:
         self.stop()
         with self._lock:
-            self._deadline = time.monotonic() + max(float(duration_seconds or 8), 2.0)
+            self._deadline = time.monotonic() + _bounded_duration_seconds(
+                duration_seconds
+            )
             self._offered = self._completed = self._rejected = 0
             self._latency_total_ms = 0.0
             self._started = time.monotonic()
@@ -617,6 +645,75 @@ def _snapshot() -> dict[str, object]:
     }
 
 
+_APPLICATION_METRIC_FIELDS = {
+    "timestamp",
+    "pid",
+    "host_pid",
+    "boot_id",
+    "process_cpu_percent",
+    "operation_count",
+    "source_profile_samples",
+    "hot_function_samples",
+    "process_rss_mb",
+    "retained_memory_mb",
+    "io_workload_bytes",
+    "process_write_bytes",
+    "peer_pid",
+    "peer_cpu_ticks",
+    "peer_boot_id",
+    "target_boot_id",
+    "same_host_verified",
+    "load_offered_rps",
+    "load_completed_rps",
+    "load_rejected_requests",
+    "load_queue_depth",
+    "load_latency_ms",
+    "queue_offered_rps",
+    "queue_completed_rps",
+    "queue_rejected_requests",
+    "queue_queue_depth",
+    "queue_latency_ms",
+    "producer_rate",
+    "consumer_rate",
+    "queue_lag",
+}
+
+
+def _application_metrics_snapshot() -> dict[str, object]:
+    """Publish measurements without exposing the fault switch as an oracle."""
+
+    snapshot = _snapshot()
+    metrics = {
+        key: value
+        for key, value in snapshot.items()
+        if key in _APPLICATION_METRIC_FIELDS
+    }
+    return {
+        "schema_version": "mini-drop.application-metrics.v1",
+        "runtime": "python",
+        "captured_at_unix_ms": int(time.time() * 1000),
+        **metrics,
+    }
+
+
+def _publish_application_metrics() -> None:
+    temporary = APP_METRICS_PATH.with_name(APP_METRICS_PATH.name + ".tmp")
+    while True:
+        try:
+            payload = json.dumps(
+                _application_metrics_snapshot(),
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )
+            temporary.write_text(payload, encoding="utf-8")
+            os.replace(temporary, APP_METRICS_PATH)
+        except OSError:
+            # Telemetry is optional for the demo process itself. The Agent
+            # records the missing channel as a limitation instead of guessing.
+            pass
+        time.sleep(0.2)
+
+
 class ControlHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802 - stdlib callback name
         if self.path == "/health":
@@ -751,4 +848,10 @@ class ControlHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    _set_linux_process_name("python-hotspot")
+    threading.Thread(
+        target=_publish_application_metrics,
+        name="application-metrics",
+        daemon=True,
+    ).start()
     ThreadingHTTPServer(("0.0.0.0", 8081), ControlHandler).serve_forever()

@@ -1,4 +1,9 @@
 import { Card, Tag, Space, Typography } from "antd";
+import {
+  chineseDiagnosticText,
+  diagnosticStatusLabel,
+} from "../utils/diagnosisDisplay";
+import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
 
 const { Text } = Typography;
 
@@ -22,7 +27,8 @@ const HYPOTHESIS_STATUS_LABELS = {
  * 主假设（第一条）展开期望观察与证伪条件。
  */
 export default function PlannerBlock({ classification, hypotheses = [] }) {
-  const rounds = [...new Set((hypotheses || []).map((item) => item.round_index || 1))];
+  const mergedHypotheses = mergeSemanticHypotheses(hypotheses);
+  const rounds = [...new Set(mergedHypotheses.map((item) => item.first_round || 1))];
   const sourceLabels = {
     MODEL: ["AI 生成", "purple"],
     MODEL_REPLAN: ["AI 重新规划", "purple"],
@@ -43,25 +49,33 @@ export default function PlannerBlock({ classification, hypotheses = [] }) {
         </Space>
         {rounds.map((round) => (
           <div key={`round-${round}`} style={{ borderTop: "1px solid #eee", paddingTop: 8 }}>
-            <Tag color={round > 1 ? "magenta" : "geekblue"}>第 {round} 轮诊断</Tag>
-            {(hypotheses || []).filter((item) => (item.round_index || 1) === round).map((h, index) => {
+            <Tag color={round > 1 ? "magenta" : "geekblue"}>第 {round} 轮首次提出</Tag>
+            {mergedHypotheses
+              .filter((item) => (item.first_round || 1) === round)
+              .map((h, index) => {
           const isPrimary = index === 0;
           const statusColor = HYPOTHESIS_STATUS_COLORS[h.status] || "default";
-          const statusLabel = HYPOTHESIS_STATUS_LABELS[h.status] || h.status;
+          const statusLabel = HYPOTHESIS_STATUS_LABELS[h.status] || diagnosticStatusLabel(h.status);
           const [sourceLabel, sourceColor] = sourceLabels[h.source] || [h.source || "来源未知", "default"];
+          const isUnknown = h.source === "SYSTEM_FALLBACK" || /OTHER\s*\/\s*UNKNOWN/i.test(h.statement || "");
           return (
             <div key={h.hypothesis_id || index} style={{ padding: "4px 0" }}>
               <Space wrap>
                 <Text strong={isPrimary} style={{ fontSize: 13 }}>
                   {isPrimary ? "主假设：" : "备选假设："}
                 </Text>
-                <Text style={{ fontSize: 13 }}>{h.statement}</Text>
+                <Text style={{ fontSize: 13 }}>
+                  {isUnknown ? "其他尚未识别的原因" : chineseDiagnosticText(h.statement)}
+                </Text>
                 <Tag color={statusColor}>{statusLabel}</Tag>
                 <Tag color={sourceColor}>{sourceLabel}</Tag>
-                {h.statement.includes("OTHER/UNKNOWN") && <Tag>兜底</Tag>}
+                {isUnknown && <Tag>开放探索兜底</Tag>}
+                {h.round_indices?.length > 1 && (
+                  <Tag color="cyan">跨轮合并：第 {h.round_indices.join("、")} 轮</Tag>
+                )}
               </Space>
               {h.generation_reason && (
-                <div><Text type="secondary" style={{ fontSize: 12 }}>决策依据：{h.generation_reason}</Text></div>
+                <div><Text type="secondary" style={{ fontSize: 12 }}>决策依据：{chineseDiagnosticText(h.generation_reason)}</Text></div>
               )}
               {isPrimary && (h.expected_observations?.length > 0 || h.falsification_criteria?.length > 0) && (
                 <div style={{ marginTop: 6, marginLeft: 4 }}>
@@ -73,7 +87,7 @@ export default function PlannerBlock({ classification, hypotheses = [] }) {
                       <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {(h.expected_observations || []).map((item, i) => (
                           <li key={i}>
-                            <Text style={{ fontSize: 12 }}>{item}</Text>
+                            <Text style={{ fontSize: 12 }}>{chineseDiagnosticText(item)}</Text>
                           </li>
                         ))}
                       </ul>
@@ -87,7 +101,7 @@ export default function PlannerBlock({ classification, hypotheses = [] }) {
                       <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {(h.falsification_criteria || []).map((item, i) => (
                           <li key={i}>
-                            <Text style={{ fontSize: 12 }}>{item}</Text>
+                            <Text style={{ fontSize: 12 }}>{chineseDiagnosticText(item)}</Text>
                           </li>
                         ))}
                       </ul>

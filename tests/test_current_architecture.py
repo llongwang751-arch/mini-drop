@@ -10,7 +10,6 @@ def test_removed_implementations_do_not_return() -> None:
         "server/app/grpc_server.py",
         "server/app/diagnosis",
         "server/app/rca",
-        "server/app/agent_runtime",
         "agent/mini_drop_agent",
         "agent_runtime/pi-sidecar",
         "docker-compose.python-control.yml",
@@ -53,7 +52,11 @@ def test_ai_worker_contract_and_skill_pipeline_are_present() -> None:
         "server/app/drop_insight/evidence.py",
         "server/app/drop_insight/exploration_tree.py",
         "server/app/drop_insight/skill_evolution.py",
-        "scripts/run_skill_evolution_benchmark.py",
+        "server/app/agent_runtime/runtime.py",
+        "server/app/agent_runtime/harness.py",
+        "server/app/agent_runtime/themes.py",
+        "server/app/agent_runtime/context.py",
+        "server/app/agent_runtime/memory.py",
     )
     for relative_path in required_paths:
         assert (ROOT / relative_path).is_file(), relative_path

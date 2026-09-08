@@ -34,18 +34,20 @@ _RESULT_TYPES = {
     "flamegraph_json",
     "flamegraph_svg",
     "top_json",
+    "callgraph_json",
     "suggestions_md",
     "ebpf_metrics",
     "continuous_summary",
     "continuous_flamegraph_json",
     "continuous_flamegraph_svg",
     "continuous_top_json",
+    "continuous_callgraph_json",
     "java_flamegraph_html",
     "memory_json",
     "sys_metrics",
     "database_locks_json",
 }
-_RAW_TYPES = {"raw", "ebpf_raw", "pprof_raw", "continuous_window"}
+_RAW_TYPES = {"raw", "ebpf_raw", "pprof_raw", "continuous_bundle", "continuous_window"}
 
 
 def classify_family(artifact_type: str | None) -> str:

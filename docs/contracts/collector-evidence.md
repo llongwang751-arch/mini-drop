@@ -18,18 +18,20 @@ Agent 上传的文件不都等于“可以支撑结论的证据”。例如：
 Collector 输出 -> Analyzer 校验/转换 -> Evidence Adapter 质量判定
 ```
 
-## 2. 当前八类契约
+## 2. 当前八类任务采集契约与一个 C++ opt-in 桥接器
 
 | Collector | Analyzer Type | 必要产物 | 可作为分析结果的产物 |
 |---|---|---|---|
-| `perf_cpu` | `collector.perf_cpu` | raw 或火焰图/TopN | flamegraph JSON/SVG、TopN、建议 |
+| `perf_cpu` | `collector.perf_cpu` | raw 或火焰图/TopN | flamegraph JSON/SVG、TopN、调用图、建议 |
 | `ebpf_io` | `collector.ebpf_io` | `ebpf_metrics` | IO 延迟分布 |
 | `pyspy` | `collector.pyspy` | `flamegraph_svg` | Python 火焰图 |
-| `continuous_perf` | `collector.continuous_perf` | `continuous_summary` | 时间窗摘要、火焰图、TopN |
+| `continuous_perf` | `collector.continuous_perf` | Bundle、raw 或 summary | 时间窗摘要、窗口火焰图、TopN、调用图 |
 | `java_async` | `collector.java_async` | `java_flamegraph_html` | Java 火焰图 |
 | `go_pprof` | `collector.go_pprof` | `pprof_raw` | pprof 原始数据、SVG |
 | `memory_smaps` | `collector.memory_smaps` | `memory_json` | 内存趋势 |
 | `sys_metrics` | `collector.sys_metrics` | `sys_metrics` | `sys_metrics.v2` 指标 |
+
+`native/gperftools_bridge` 是受限 C/C++ 环境的独立 opt-in 工具，还不是一个可由普通 TaskKind 自动选择的完整 Analyzer 契约。它要求应用链接/预加载 libprofiler、设置 `CPUPROFILE` 和 `CPUPROFILESIGNAL`，并由同 UID 非 root 身份触发。完成 Linux 容器验收和 gperftools profile 到统一火焰图的转换前，不能把“桥接器存在”表述为端到端 C++ 采集已完成。
 
 契约外产物、缺少必要产物都会让 AnalysisJob 重试；持续失败后进入死信，不会把父任务伪装成成功。
 
@@ -56,12 +58,9 @@ Collector 输出 -> Analyzer 校验/转换 -> Evidence Adapter 质量判定
 
 ## 4. 可观测性
 
-`/api/metrics` 暴露：
-
-- `mini_drop_analysis_jobs_by_status`：从数据库实时汇总，跨 Server/Worker 进程可靠；
-- `mini_drop_analysis_jobs_total`：当前进程观察到的生命周期事件；
-- `mini_drop_analysis_job_duration_seconds`：Worker 本地处理耗时；
-- `mini_drop_ai_evidence_decisions_total`：AI 证据接受、受限、拒绝计数。
+Go `/api/metrics` 使用 Prometheus 文本格式暴露当前 API 进程的请求总数、5xx 总数和在途请求数。
+AnalysisJob 状态、任务事件、Evidence 判定和 Outbox 状态仍需从 PostgreSQL、审计接口与结构化日志
+核对；跨组件业务指标和 OpenTelemetry Trace 仍是后续缺口。
 
 ## 5. 扩展新采集器
 
@@ -72,4 +71,3 @@ Collector 输出 -> Analyzer 校验/转换 -> Evidence Adapter 质量判定
 3. 在 Evidence Adapter 声明最低样本阈值；
 4. 增加正常产物与错误产物契约测试；
 5. 在真实 Linux 环境验证一次成功和一次异常路径。
-

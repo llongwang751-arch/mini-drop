@@ -1,8 +1,15 @@
 import { useMemo } from "react";
 import { Empty, Skeleton, Space, Tag, Typography } from "antd";
-import ReactEChartsCore from "echarts-for-react/lib/core";
+import ReactEChartsCoreImport from "echarts-for-react/lib/core";
 import echarts from "../lib/echarts";
 import { COLORS } from "../theme";
+
+// See TopNChart: unwrap all CommonJS/ESM interop layers emitted by the
+// production bundler before passing the component to React.
+let ReactEChartsCore = ReactEChartsCoreImport;
+for (let depth = 0; depth < 3 && typeof ReactEChartsCore !== "function"; depth += 1) {
+  ReactEChartsCore = ReactEChartsCore?.default;
+}
 
 /**
  * 解析 "\[start, end)" 格式的 histogram key，返回数值区间中点。

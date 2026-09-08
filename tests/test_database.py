@@ -374,6 +374,7 @@ def test_init_db_upgrades_legacy_drop_insight_contract(monkeypatch, tmp_path):
     assert {
         "requested_time_range_json",
         "effective_time_range_json",
+        "skill_policy",
     } <= session_columns
     tool_call_columns = {
         item["name"]

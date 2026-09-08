@@ -48,7 +48,11 @@ def assess_artifact_evidence(
         contract is not None and artifact_type in contract.analysis_types
     )
     sample_count, known = extract_sample_count(metadata, collector_type)
-    minimum = MINIMUM_SAMPLES.get(collector_type, 100)
+    minimum = (
+        2
+        if artifact_type == "jvm_gc_metrics"
+        else MINIMUM_SAMPLES.get(collector_type, 100)
+    )
     limitations: list[str] = []
     if not schema_valid:
         limitations.append("该产物是原始文件或不属于已注册的诊断证据类型")
@@ -58,6 +62,13 @@ def assess_artifact_evidence(
         limitations.append("采集器未提供可核验的样本数量")
     elif sample_count < minimum:
         limitations.append(f"样本数不足 {minimum}")
+    analyzer_limitations = metadata.get("analysis_limitations")
+    if isinstance(analyzer_limitations, list):
+        limitations.extend(
+            str(item).strip()
+            for item in analyzer_limitations
+            if isinstance(item, str) and item.strip()
+        )
     return ArtifactEvidenceAssessment(
         schema_valid=schema_valid,
         analyzer_validated=analyzer_validated,

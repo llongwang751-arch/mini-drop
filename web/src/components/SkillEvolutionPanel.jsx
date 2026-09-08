@@ -40,30 +40,17 @@ const FILTER_OPTIONS = [
   { label: "已隔离", value: "QUARANTINED" },
 ];
 
-const INDEPENDENT_BENCHMARK = [
-  { key: "SIMILAR_INCIDENT", label: "相似事故", count: 5, purpose: "验证能否缩短已知问题的取证路径" },
-  { key: "MISLEADING_INCIDENT", label: "误导反例", count: 4, purpose: "验证不会因为表面症状相似而误用 Skill" },
-  { key: "ENVIRONMENT_DRIFT", label: "环境漂移", count: 2, purpose: "验证采集能力或环境变化时能够降级" },
-  { key: "WRONG_FEEDBACK", label: "错误反馈", count: 2, purpose: "验证负迁移会触发自动隔离" },
-  { key: "VERSION_ROLLBACK", label: "版本回滚", count: 1, purpose: "验证新版本失效后可恢复上一版" },
-  { key: "CONTAMINATED_EVIDENCE", label: "污染证据", count: 1, purpose: "验证缺失来源或校验失败的证据不能生成 Skill" },
-];
+const BENCHMARK_REPORT_URL = "/report-assets/skill-evolution/benchmark-report.json";
 
-// These values come from the checked-in deterministic replay report. Keep the
-// source visible in the UI so they are not confused with live production data.
-const VERIFIED_SKILL_RESULTS = {
-  source: "artifacts/skill-evolution/benchmark-report.json",
-  baseline: { passed: 6, total: 15, passRate: 40, averageToolCalls: 2.33 },
-  enabled: { passed: 15, total: 15, passRate: 100, averageToolCalls: 1.27 },
-  similarIncidents: { passed: 5, total: 5 },
-  counterExamples: { passed: 4, total: 4 },
-  environmentDrift: { passed: 2, total: 2 },
-  wrongTransferRate: { baseline: 6.7, enabled: 0 },
-  rollback: { passed: 1, total: 1 },
-  quarantine: { passed: 1, total: 1 },
-  regression: { passed: 11, total: 11 },
-  durationStatus: "待真实环境采集",
+const BENCHMARK_FAMILY = {
+  POSITIVE_REUSE: { label: "新措辞相似事故", purpose: "验证生产检索能否选择正确的已发布 Skill" },
+  MISLEADING_OR_UNDERSPECIFIED: { label: "误导与信息不足", purpose: "验证表面相似或信息不足时不会强行复用" },
+  CAPABILITY_OR_ENVIRONMENT_DRIFT: { label: "能力与环境漂移", purpose: "验证探针不可用或环境变化时安全降级" },
 };
+
+function percent(value) {
+  return Math.round(Number(value || 0) * 1000) / 10;
+}
 
 const REPOSITORY_BRANCH = "release/unified-ai-diagnosis-20260821";
 const REPOSITORY_SKILL_ROOT = `https://github.com/llongwang751-arch/mini-drop/tree/${REPOSITORY_BRANCH}/skills`;
@@ -141,6 +128,15 @@ const BUILTIN_SKILLS = [
     evidence: "重传率或丢包变化、对端耗时、恢复后请求延迟回落",
     scenario: "跨节点调用抖动、连接重置或丢包导致 P95/P99 延迟升高",
   },
+  {
+    id: "python-runtime-diagnosis",
+    name: "Python 运行时热点诊断",
+    category: "运行时",
+    description: "优先使用用户态 Python 栈采样，在无法使用 perf 时仍能识别 GIL、协程和解释器热点。",
+    route: ["运行时识别", "用户态采样", "Python 调用栈", "优化后复测"],
+    evidence: "Python 栈样本、热点函数占比、优化前后对照",
+    scenario: "Python 服务 CPU 升高、协程阻塞或 GIL 竞争，但宿主机未授予 perf 权限",
+  },
 ];
 
 const CATEGORY_LABEL = {
@@ -158,6 +154,8 @@ export default function SkillEvolutionPanel() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [benchmark, setBenchmark] = useState(null);
+  const [benchmarkError, setBenchmarkError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -174,6 +172,25 @@ export default function SkillEvolutionPanel() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    let active = true;
+    fetch(BENCHMARK_REPORT_URL, { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((report) => {
+        if (report?.schema !== "mini-drop.skill-reuse-report.v2") {
+          throw new Error("报告 schema 不受支持");
+        }
+        if (active) setBenchmark(report);
+      })
+      .catch((error) => {
+        if (active) setBenchmarkError(error.message || "离线评测报告读取失败");
+      });
+    return () => { active = false; };
+  }, []);
 
   async function openDetail(skillId) {
     if (details[skillId]) return;
@@ -204,6 +221,11 @@ export default function SkillEvolutionPanel() {
     () => statusFilter === "ALL" ? skills : skills.filter((item) => item.status === statusFilter),
     [skills, statusFilter],
   );
+  const benchmarkFamilies = Object.entries(benchmark?.family_results || {});
+  const baselineRate = percent(benchmark?.baseline_no_skill?.accuracy);
+  const enabledRate = percent(benchmark?.skill_enabled?.accuracy);
+  const positiveRate = percent(benchmark?.skill_enabled?.positive_reuse_rate);
+  const rejectionRate = percent(benchmark?.skill_enabled?.negative_rejection_rate);
 
   return (
     <Card
@@ -236,9 +258,9 @@ export default function SkillEvolutionPanel() {
       <Card className="skill-overview-card" size="small" title="已验证能力概览">
         <Row gutter={[12, 12]}>
           <Col xs={12} md={6}><Statistic title="内置诊断流程" value={BUILTIN_SKILLS.length} suffix="个" /></Col>
-          <Col xs={12} md={6}><Statistic title="独立难例通过" value={VERIFIED_SKILL_RESULTS.enabled.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.enabled.total}`} valueStyle={{ color: "#087a5b" }} /></Col>
-          <Col xs={12} md={6}><Statistic title="相似事故复用" value={VERIFIED_SKILL_RESULTS.similarIncidents.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.similarIncidents.total}`} valueStyle={{ color: "#1677ff" }} /></Col>
-          <Col xs={12} md={6}><Statistic title="纵向回归通过" value={VERIFIED_SKILL_RESULTS.regression.passed} suffix={`/ ${VERIFIED_SKILL_RESULTS.regression.total}`} /></Col>
+          <Col xs={12} md={6}><Statistic title="新提示词案例" value={benchmark?.dataset?.case_count ?? "—"} suffix={benchmark ? "个" : ""} valueStyle={{ color: "#087a5b" }} /></Col>
+          <Col xs={12} md={6}><Statistic title="Skill 路由准确率" value={benchmark ? enabledRate : "—"} suffix={benchmark ? "%" : ""} valueStyle={{ color: "#1677ff" }} /></Col>
+          <Col xs={12} md={6}><Statistic title="安全拒绝率" value={benchmark ? rejectionRate : "—"} suffix={benchmark ? "%" : ""} /></Col>
         </Row>
         <div className="skill-runtime-strip">
           <Text>
@@ -247,7 +269,7 @@ export default function SkillEvolutionPanel() {
           <Text type="secondary">
             这里为当前数据库实时状态；显示 0 只表示本实例尚未从真实诊断生成策略，不代表内置流程或离线评测不存在。
           </Text>
-          <Text type="secondary">离线报告：<Text code>{VERIFIED_SKILL_RESULTS.source}</Text></Text>
+          <Text type="secondary">离线报告：<Text code>{BENCHMARK_REPORT_URL}</Text></Text>
         </div>
       </Card>
       <Steps
@@ -262,7 +284,7 @@ export default function SkillEvolutionPanel() {
           { title: "监控回滚", description: "负迁移自动隔离" },
         ]}
       />
-      <Card className="builtin-skill-card" size="small" title="内置参考 Skill · 8 个可演示案例，可直接查看源码">
+      <Card className="builtin-skill-card" size="small" title={`内置参考 Skill · ${BUILTIN_SKILLS.length} 条可复用路线`}>
         <Paragraph type="secondary">
           这些是仓库自带的诊断流程模板，用来说明 Skill 在页面和代码中如何落地。它们不会冒充已通过真实故障评测的运行时 Skill；只有下方由真实诊断生成并通过门禁的策略，才能发布复用。
         </Paragraph>
@@ -295,82 +317,83 @@ export default function SkillEvolutionPanel() {
           ))}
         </div>
       </Card>
-      <Card className="skill-benchmark-card" size="small" title="独立难例评测 · 15 个未参与技能生成的案例">
+      <Card className="skill-benchmark-card" size="small" title={`盲测路线评测 · ${benchmark?.dataset?.case_count ?? "读取中"} 个新提示词案例`}>
         <Alert
           type="warning"
           showIcon
           message="发布门禁和效果评测是两件事"
-          description="三类门禁用于阻止明显不安全的候选发布；冻结离线集比较启用 Skill 前后的路由契约、反例拒绝、推演工具调用、负迁移、隔离和回滚。它不测线上根因准确率或真实诊断耗时，测试案例也与来源诊断严格分离。"
+          description="公开题面与私有标准答案（Oracle）分离，固定种子生成后直接调用生产混合检索和兼容性门禁。它只测路线记忆的选择与拒绝，不把 Skill 命中冒充根因证据，也不测线上诊断耗时。"
         />
+        {benchmarkError && <Alert type="error" showIcon message="离线报告不可用，页面不会显示替代数字" description={benchmarkError} />}
         <div className="skill-benchmark-grid">
-          {INDEPENDENT_BENCHMARK.map((item) => (
-            <div className="skill-benchmark-item" key={item.key}>
-              <div><b>{item.count}</b><span>例</span></div>
-              <Text strong>{item.label}</Text>
-              <Text type="secondary">{item.purpose}</Text>
+          {benchmarkFamilies.map(([key, result]) => (
+            <div className="skill-benchmark-item" key={key}>
+              <div><b>{result.total}</b><span>例</span></div>
+              <Text strong>{BENCHMARK_FAMILY[key]?.label || key}</Text>
+              <Text type="secondary">{BENCHMARK_FAMILY[key]?.purpose || "路线评测案例"}</Text>
             </div>
           ))}
         </div>
-        <Card className="skill-result-card" size="small" type="inner" title="已验证效果 · 启用 Skill 前后对照">
+        {benchmark && <Card className="skill-result-card" size="small" type="inner" title="已验证效果 · 无 Skill 与启用 Skill 对照">
           <Alert
             showIcon
             type="success"
-            message="下面是仓库评测报告中的确定性回放结果，不是手填演示数字"
-            description={<>报告来源：<Text code>{VERIFIED_SKILL_RESULTS.source}</Text>。诊断耗时尚未接入真实环境埋点，因此不把演示目标冒充实测。</>}
+            message="数字由仓库脚本调用当前生产路由代码生成，页面只读取报告"
+            description={<>数据集版本 <Text code>{benchmark.dataset.version}</Text>，合并哈希 <Text code>{benchmark.dataset.combined_sha256}</Text>。旧测试集未参与生成或计分。</>}
           />
           <div className="skill-result-grid">
             <div className="skill-result-metric">
-              <Text type="secondary">离线路由与生命周期契约通过率</Text>
-              <b><del>{VERIFIED_SKILL_RESULTS.baseline.passRate}%</del> → {VERIFIED_SKILL_RESULTS.enabled.passRate}%</b>
-              <span>{VERIFIED_SKILL_RESULTS.baseline.passed}/{VERIFIED_SKILL_RESULTS.baseline.total} → {VERIFIED_SKILL_RESULTS.enabled.passed}/{VERIFIED_SKILL_RESULTS.enabled.total}，提升 60 个百分点</span>
+              <Text type="secondary">全部案例路由准确率</Text>
+              <b><del>{baselineRate}%</del> → {enabledRate}%</b>
+              <span>{benchmark.baseline_no_skill.correct}/{benchmark.baseline_no_skill.total} → {benchmark.skill_enabled.correct}/{benchmark.skill_enabled.total}</span>
             </div>
             <div className="skill-result-metric">
-              <Text type="secondary">离线回放平均工具调用（推演）</Text>
-              <b>{VERIFIED_SKILL_RESULTS.baseline.averageToolCalls} → {VERIFIED_SKILL_RESULTS.enabled.averageToolCalls}</b>
-              <span>平均减少 45.7%</span>
+              <Text type="secondary">新措辞相似事故正确复用</Text>
+              <b>{positiveRate}%</b>
+              <span>{benchmark.skill_enabled.positive_correct}/{benchmark.skill_enabled.positive_total} 选择正确路线</span>
             </div>
             <div className="skill-result-metric">
-              <Text type="secondary">错误经验迁移率</Text>
-              <b>{VERIFIED_SKILL_RESULTS.wrongTransferRate.baseline}% → {VERIFIED_SKILL_RESULTS.wrongTransferRate.enabled}%</b>
-              <span>误导反例 {VERIFIED_SKILL_RESULTS.counterExamples.passed}/{VERIFIED_SKILL_RESULTS.counterExamples.total} 正确拒绝</span>
+              <Text type="secondary">反例与漂移安全拒绝</Text>
+              <b>{rejectionRate}%</b>
+              <span>{benchmark.skill_enabled.negative_correct}/{benchmark.skill_enabled.negative_total} 未错误激活</span>
             </div>
             <div className="skill-result-metric">
-              <Text type="secondary">技能升级回归</Text>
-              <b>{VERIFIED_SKILL_RESULTS.regression.passed}/{VERIFIED_SKILL_RESULTS.regression.total}</b>
-              <span>隔离与回滚均为 1/1</span>
+              <Text type="secondary">错误激活率</Text>
+              <b>{percent(benchmark.skill_enabled.false_activation_rate)}%</b>
+              <span>{benchmark.skill_enabled.false_activations} 个案例触发失败，逐例结果保存在报告</span>
             </div>
             <div className="skill-result-metric">
-              <Text type="secondary">相似事故复用</Text>
-              <b>{VERIFIED_SKILL_RESULTS.similarIncidents.passed}/{VERIFIED_SKILL_RESULTS.similarIncidents.total}</b>
-              <span>相似但不完全相同的独立案例</span>
+              <Text type="secondary">生产检索实现</Text>
+              <b>BM25 + 向量 + 门禁</b>
+              <span>同一套选择函数，不维护页面专用判题逻辑</span>
             </div>
             <div className="skill-result-metric skill-result-metric-muted">
-              <Text type="secondary">平均诊断耗时</Text>
-              <b>{VERIFIED_SKILL_RESULTS.durationStatus}</b>
-              <span>需接入 Linux 故障注入的真实时间戳</span>
+              <Text type="secondary">真实根因准确率 / 诊断耗时</Text>
+              <b>需 Linux 实机诊断验证（Campaign）</b>
+              <span>离线路由报告明确不覆盖这两项</span>
             </div>
           </div>
           <div className="skill-proof-rounds">
             <div className="skill-proof-round">
-              <Tag color="default">第 1 轮</Tag>
-              <div><Text strong>无技能基线</Text><Text>15 个难例通过 6 个，离线推演平均调用 {VERIFIED_SKILL_RESULTS.baseline.averageToolCalls} 个工具。</Text></div>
+              <Tag color="default">数据边界</Tag>
+              <div><Text strong>公开题面 / 私有答案</Text><Text>案例 ID 对齐，答案不进入公开输入，哈希写入报告。</Text></div>
             </div>
             <div className="skill-proof-round">
-              <Tag color="success">第 2 轮</Tag>
-              <div><Text strong>相似事故自动复用</Text><Text>5/5 正确定位，离线推演平均工具调用降至 {VERIFIED_SKILL_RESULTS.enabled.averageToolCalls} 次。</Text></div>
+              <Tag color="success">正例</Tag>
+              <div><Text strong>跨措辞复用</Text><Text>{benchmark.skill_enabled.positive_correct}/{benchmark.skill_enabled.positive_total} 个新提示词正例选择正确 Skill。</Text></div>
             </div>
             <div className="skill-proof-round">
-              <Tag color="warning">第 3 轮</Tag>
-              <div><Text strong>相似症状、不同根因</Text><Text>4/4 正确拒绝旧 Skill；环境漂移 2/2 正确降级。</Text></div>
+              <Tag color="warning">负例</Tag>
+              <div><Text strong>误导与漂移</Text><Text>{benchmark.skill_enabled.negative_correct}/{benchmark.skill_enabled.negative_total} 个案例安全拒绝复用。</Text></div>
             </div>
             <div className="skill-proof-round">
-              <Tag color="blue">生命周期</Tag>
-              <div><Text strong>版本、隔离与回滚</Text><Text>候选 v1 经门禁发布；错误反馈触发隔离；新版本失效后 1/1 回滚并恢复。</Text></div>
+              <Tag color="blue">复现</Tag>
+              <div><Text strong>固定生成器与生产代码</Text><Text>运行 make diagnosis-benchmark-v2 可重建数据和报告。</Text></div>
             </div>
           </div>
-        </Card>
+        </Card>}
         <Text className="skill-benchmark-boundary" type="secondary">
-          40% → 100% 指冻结离线路由与生命周期契约通过率，不是根因准确率，也不是 40% → 60%。真实根因准确率和实际耗时仍需在 Linux 故障 Campaign 中，用基线、故障、恢复三段快照复核。
+          当前数字只表示 Skill 路线记忆的选择与拒绝能力。真实根因准确率和实际耗时仍需在 Linux 实机故障验证（Campaign）中，用基线、故障、恢复三段快照复核。
         </Text>
       </Card>
       <div className="skill-plaza-toolbar">
@@ -442,7 +465,7 @@ export default function SkillEvolutionPanel() {
                       type="warning"
                       showIcon
                       message="当前通过的是发布前契约门禁"
-                      description="它验证匹配、拒绝误用和环境降级逻辑，不等于已经通过真实故障 Campaign。发布后仍需用独立故障集比较准确率、工具调用数和诊断耗时。"
+                      description="它验证匹配、拒绝误用和环境降级逻辑，不等于已经通过真实故障验证（Campaign）。发布后仍需用独立故障集比较准确率、工具调用数和诊断耗时。"
                     />
                   )}
                   {detail?.evaluations?.map((item) => (

@@ -53,9 +53,12 @@ type CreateTask struct {
 	SampleRate     int
 	DurationSec    int
 	Options        map[string]any
+	ResourceBudget map[string]any
 	CreatorID      string
 	IdempotencyKey string
 	ProcessBinding ProcessBinding
+	TraceParent    string
+	TraceID        string
 }
 
 type ProcessBinding struct {
@@ -226,6 +229,11 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 		"name": input.Name, "agent_id": input.AgentID, "target_pid": input.TargetPID,
 		"collector_type": input.CollectorType, "sample_rate": input.SampleRate,
 		"duration_sec": input.DurationSec, "options": input.Options,
+		"resource_budget": input.ResourceBudget,
+		"_trace": map[string]string{
+			"traceparent": input.TraceParent,
+			"trace_id":    input.TraceID,
+		},
 	})
 	if err != nil {
 		return "", false, err
@@ -366,6 +374,10 @@ func sameTaskRequest(a, b []byte) bool {
 	if json.Unmarshal(a, &am) != nil || json.Unmarshal(b, &bm) != nil {
 		return false
 	}
+	// A retry with the same idempotency key belongs to the original Task even
+	// though the HTTP request has a newly generated child span.
+	delete(am, "_trace")
+	delete(bm, "_trace")
 	ca, errA := json.Marshal(am)
 	cb, errB := json.Marshal(bm)
 	if errA != nil || errB != nil {

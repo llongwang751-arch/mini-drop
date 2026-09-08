@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <sstream>
 #include <vector>
@@ -34,6 +35,33 @@ std::string first_line(const fs::path& path) {
   std::string line;
   std::getline(input, line);
   return line;
+}
+
+std::string bounded_json_object(const fs::path& path) {
+  std::ifstream input(path, std::ios::binary);
+  if (!input) return "";
+  std::ostringstream buffer;
+  char chunk[4096];
+  std::size_t total = 0;
+  while (input && total <= 1024 * 1024) {
+    input.read(chunk, sizeof(chunk));
+    const auto count = static_cast<std::size_t>(input.gcount());
+    total += count;
+    if (total > 1024 * 1024) return "";
+    buffer.write(chunk, static_cast<std::streamsize>(count));
+  }
+  std::string value = buffer.str();
+  const auto first = value.find_first_not_of(" \t\r\n");
+  const auto last = value.find_last_not_of(" \t\r\n");
+  if (first == std::string::npos || value[first] != '{' || value[last] != '}') {
+    return "";
+  }
+  return value.substr(first, last - first + 1);
+}
+
+long long unix_time_millis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 bool executable_exists(const std::string& path) {
@@ -182,11 +210,70 @@ class AsyncProfilerCollector final : public Collector {
     const fs::path target_output = fs::path("/tmp") / target_filename;
     const fs::path source_after_command =
         fs::path("/proc") / std::to_string(task.pid) / "root/tmp" / target_filename;
-    return run_file_collector(config, task, stop, cancel, name(),
+    const std::string event =
+        task.event == "alloc" || task.event == "lock" || task.event == "wall"
+            ? task.event
+            : "cpu";
+    const fs::path metrics_source =
+        fs::path("/proc") / std::to_string(task.pid) /
+        "root/tmp/mini-drop-jvm-metrics.json";
+    const std::string metrics_before = bounded_json_object(metrics_source);
+    const long long metrics_before_ms = unix_time_millis();
+    TaskResult result = run_file_collector(config, task, stop, cancel, name(),
         "java-flamegraph.html", "text/html; charset=utf-8",
-        {binary, "-d", std::to_string(task.duration), "-e", "cpu", "-o",
+        {binary, "-d", std::to_string(task.duration), "-e", event, "-o",
          "flamegraph", "-f", target_output.string(), std::to_string(task.pid)},
         source_after_command, "java_flamegraph_html");
+    if (!result.ok || metrics_before.empty()) return result;
+
+    const std::string metrics_after = bounded_json_object(metrics_source);
+    const long long metrics_after_ms = unix_time_millis();
+    if (metrics_after.empty()) return result;
+    const fs::path output_dir =
+        fs::path("/tmp/mini-drop-native") / task.id / task.task_attempt_id;
+    const fs::path metrics_path = output_dir / "jvm-gc-metrics.json";
+    std::ofstream metrics(metrics_path);
+    metrics << "{\"schema_version\":\"jvm_gc_metrics.v1\""
+            << ",\"event\":\"" << escape_json(event) << "\""
+            << ",\"before_captured_at_unix_ms\":" << metrics_before_ms
+            << ",\"after_captured_at_unix_ms\":" << metrics_after_ms
+            << ",\"before\":" << metrics_before
+            << ",\"after\":" << metrics_after << '}';
+    metrics.close();
+    if (!metrics || fs::file_size(metrics_path) == 0) return result;
+
+    const std::string object_key = authorized_object_key(task, "jvm-gc-metrics.json");
+    if (object_key.empty()) return result;
+    const std::string digest = sha256_file(metrics_path);
+    if (digest.empty()) return result;
+    std::string upload_error;
+    if (!upload_artifact(task, metrics_path, object_key, upload_error)) return result;
+
+    const auto size = fs::file_size(metrics_path);
+    std::ostringstream artifact;
+    artifact << "{\"artifact_type\":\"jvm_gc_metrics\""
+             << ",\"filename\":\"jvm-gc-metrics.json\""
+             << ",\"bucket\":\"" << escape_json(config.minio_bucket) << "\""
+             << ",\"object_key\":\"" << escape_json(object_key) << "\""
+             << ",\"content_type\":\"application/json\""
+             << ",\"size_bytes\":" << size
+             << ",\"sha256\":\"" << digest << "\""
+             << ",\"manifest\":{\"schema_version\":\"mini-drop.artifact.v1\""
+             << ",\"task_id\":\"" << escape_json(task.id) << "\""
+             << ",\"task_attempt_id\":\"" << escape_json(task.task_attempt_id) << "\""
+             << ",\"artifact_type\":\"jvm_gc_metrics\""
+             << ",\"object_key\":\"" << escape_json(object_key) << "\""
+             << ",\"content_type\":\"application/json\""
+             << ",\"size_bytes\":" << size
+             << ",\"sha256\":\"" << digest << "\"}"
+             << ",\"metadata\":{\"collector_runtime\":\"native-cpp\""
+             << ",\"collector_plugin\":\"java_async\""
+             << ",\"contract_version\":\"1.0.0\"}}";
+    if (!result.artifact_json.empty() && result.artifact_json.back() == ']') {
+      result.artifact_json.pop_back();
+      result.artifact_json += "," + artifact.str() + "]";
+    }
+    return result;
   }
 };
 

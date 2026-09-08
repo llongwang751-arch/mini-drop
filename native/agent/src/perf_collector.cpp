@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -74,16 +75,21 @@ class PerfCollector final : public Collector {
       }
     }
 
-    const std::vector<std::string> command = {
+    const std::string requested_event =
+        task.event.empty() ? "cpu-cycles:u" : task.event;
+    auto perf_command = [&](const std::string& event, const fs::path& output,
+                            int duration) {
+      return std::vector<std::string>{
         "perf", "record", "--all-user", "-F", std::to_string(task.hz),
         "-g", "--call-graph", task.callgraph.empty() ? "fp" : task.callgraph,
-        "-e", task.event.empty() ? "cpu-cycles:u" : task.event,
-        "-p", std::to_string(task.pid), "-o", perf_data.string(),
-        "--", "sleep", std::to_string(task.duration)};
+        "-e", event, "-p", std::to_string(task.pid), "-o", output.string(),
+        "--", "sleep", std::to_string(duration)};
+    };
 
     ProcessGroupRunner runner(config, stop_requested);
-    const CommandResult command_result = runner.run(
-        command, std::max(task.timeout, task.duration + 15), stderr_path,
+    CommandResult command_result = runner.run(
+        perf_command(requested_event, perf_data, task.duration),
+        std::max(task.timeout, task.duration + 15), stderr_path,
         cancel_requested);
     if (command_result.cancelled) {
       result.error = "task cancelled; collector process group terminated";
@@ -97,6 +103,38 @@ class PerfCollector final : public Collector {
       result.error = "perf record failed (exit=" +
           std::to_string(command_result.exit_code) + "): " + first_line(stderr_path);
       return result;
+    }
+
+    // Hardware cycles can legally produce a header-only perf.data on some
+    // virtual machines even though `perf record` exits with status 0.  Such a
+    // file used to reach the analyzer and fail as ANALYSIS_INPUT_INVALID.  For
+    // the default cycles event only, make one bounded, real re-collection with
+    // the portable software cpu-clock event.  We keep this as an explicit
+    // recovery path and record it in artifact metadata; custom events are
+    // never silently replaced.
+    std::string recorded_event = requested_event;
+    bool software_event_recovery = false;
+    constexpr std::uintmax_t kHeaderOnlyThresholdBytes = 16 * 1024;
+    if (fs::file_size(perf_data) < kHeaderOnlyThresholdBytes &&
+        (requested_event == "cpu-cycles" || requested_event == "cpu-cycles:u")) {
+      const int retry_duration = std::min(task.duration, 15);
+      const fs::path retry_data = output_dir / "perf-retry.data";
+      const fs::path retry_stderr = output_dir / "perf-retry.stderr";
+      command_result = runner.run(
+          perf_command("cpu-clock:u", retry_data, retry_duration),
+          std::max(task.timeout, retry_duration + 15), retry_stderr,
+          cancel_requested);
+      if (command_result.cancelled || command_result.timed_out ||
+          command_result.exit_code != 0 || !fs::exists(retry_data) ||
+          fs::file_size(retry_data) < kHeaderOnlyThresholdBytes) {
+        result.error = "perf produced no samples; cpu-clock recovery failed: " +
+            first_line(retry_stderr);
+        return result;
+      }
+      fs::remove(perf_data);
+      fs::rename(retry_data, perf_data);
+      recorded_event = "cpu-clock:u";
+      software_event_recovery = true;
     }
 
     const std::string object_key = authorized_object_key(task, "perf.data");
@@ -131,7 +169,11 @@ class PerfCollector final : public Collector {
     artifact << "\"namespace_mode\":\""
              << (namespace_detected ? "host-pid-mapped" : "host") << "\",";
     artifact << "\"host_pid\":" << task.pid << ",\"namespace_pid\":"
-             << namespace_pid << ",\"contract_version\":\"1.0.0\"}}]";
+             << namespace_pid << ",\"requested_event\":\""
+             << escape_json(requested_event) << "\",\"recorded_event\":\""
+             << escape_json(recorded_event) << "\",\"software_event_recovery\":"
+             << (software_event_recovery ? "true" : "false")
+             << ",\"contract_version\":\"1.0.0\"}}]";
     result.ok = true;
     result.artifact_json = artifact.str();
     return result;

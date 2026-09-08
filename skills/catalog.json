@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0",
+  "skills": [
+    {
+      "slug": "cpu-hotspot-diagnosis",
+      "category": "CPU_HOTSPOT",
+      "probe_order": ["collect_sys_metrics", "start_perf_profile", "start_continuous_profile"],
+      "query_terms": ["cpu", "热点", "火焰图", "load high", "busy loop"]
+    },
+    {
+      "slug": "cpp-runtime-diagnosis",
+      "category": "CPU_HOTSPOT",
+      "probe_order": ["start_perf_profile", "collect_sys_metrics", "start_continuous_profile"],
+      "query_terms": ["c++", "cpp", "cxx", "原生进程", "原生二进制", "perf", "mutex", "futex", "syscall"],
+      "required_query_terms_any": ["c++", "cpp", "cxx", "原生进程", "原生二进制"]
+    },
+    {
+      "slug": "dependency-latency-diagnosis",
+      "category": "DOWNSTREAM_DEPENDENCY",
+      "probe_order": ["collect_sys_metrics"],
+      "query_terms": ["下游", "依赖", "rpc", "upstream", "downstream", "p99"]
+    },
+    {
+      "slug": "fd-leak-diagnosis",
+      "category": "FD_LEAK",
+      "probe_order": ["collect_sys_metrics"],
+      "query_terms": ["fd", "文件描述符", "too many open files", "socket leak"]
+    },
+    {
+      "slug": "gc-pressure-diagnosis",
+      "category": "JVM_GC",
+      "probe_order": ["collect_sys_metrics", "collect_memory_profile", "start_jvm_profile"],
+      "query_terms": ["jvm", "gc", "full gc", "垃圾回收", "heap"]
+    },
+    {
+      "slug": "go-runtime-diagnosis",
+      "category": "GO_RUNTIME",
+      "probe_order": ["collect_go_profile", "collect_sys_metrics", "start_perf_profile"],
+      "query_terms": ["go", "golang", "pprof", "goroutine", "调度", "运行时", "网络等待"]
+    },
+    {
+      "slug": "io-latency-diagnosis",
+      "category": "IO_LATENCY",
+      "probe_order": ["collect_sys_metrics", "start_ebpf_io_profile"],
+      "query_terms": ["io", "iops", "磁盘", "fsync", "writeback", "长尾"]
+    },
+    {
+      "slug": "lock-contention-diagnosis",
+      "category": "LOCK_CONTENTION",
+      "probe_order": ["collect_sys_metrics", "start_perf_profile"],
+      "query_terms": ["锁竞争", "mutex", "futex", "自旋锁", "上下文切换"]
+    },
+    {
+      "slug": "memory-growth-diagnosis",
+      "category": "MEMORY_PRESSURE",
+      "probe_order": ["collect_sys_metrics", "collect_memory_profile"],
+      "query_terms": ["内存", "rss", "pss", "swap", "oom", "memory leak"]
+    },
+    {
+      "slug": "network-degradation-diagnosis",
+      "category": "NETWORK_DEGRADATION",
+      "probe_order": ["collect_sys_metrics"],
+      "query_terms": ["网络", "丢包", "重传", "rtt", "timeout", "tcp"]
+    },
+    {
+      "slug": "python-runtime-diagnosis",
+      "category": "PYTHON_RUNTIME",
+      "probe_order": ["start_pyspy_profile", "collect_sys_metrics", "start_perf_profile"],
+      "query_terms": ["python", "py-spy", "gil", "协程", "事件循环", "用户态热点", "busy loop"]
+    },
+    {
+      "slug": "queue-backlog-diagnosis",
+      "category": "QUEUE_CONGESTION",
+      "probe_order": ["collect_sys_metrics", "start_perf_profile"],
+      "query_terms": ["队列", "堆积", "积压", "生产消费", "backlog", "consumer", "排队延迟"]
+    },
+    {
+      "slug": "same-host-contention-diagnosis",
+      "category": "NOISY_NEIGHBOR",
+      "probe_order": ["collect_sys_metrics", "start_perf_profile"],
+      "query_terms": ["噪声邻居", "同机争抢", "宿主机", "资源竞争", "noisy neighbor", "run queue"]
+    }
+  ]
+}

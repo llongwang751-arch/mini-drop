@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyzer
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector:
+    matchLabels: {app.kubernetes.io/name: analyzer}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: analyzer}
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: {app.kubernetes.io/name: analyzer}
+      containers:
+        - name: analyzer
+          image: mini-drop-python-worker:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "server.app.analysis_jobs"]
+          envFrom:
+            - configMapRef: {name: mini-drop-runtime}
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: {name: mini-drop-runtime, key: DATABASE_URL_PYTHON}
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef: {name: mini-drop-runtime, key: MINIO_ACCESS_KEY}
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef: {name: mini-drop-runtime, key: MINIO_SECRET_KEY}
+          readinessProbe:
+            exec: {command: ["python", "-m", "server.app.analysis_jobs", "--healthcheck"]}
+            periodSeconds: 5
+          livenessProbe:
+            exec: {command: ["python", "-m", "server.app.analysis_jobs", "--healthcheck"]}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "2", memory: 2Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: ["ALL"]}

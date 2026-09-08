@@ -42,6 +42,7 @@ type Config struct {
 	MinIOSecure                bool
 	MinIOAgentSecure           bool
 	MinIOUploadAuthTTLSeconds  int
+	SchedulePollSeconds        int
 }
 
 func Load() (Config, error) {
@@ -83,6 +84,7 @@ func Load() (Config, error) {
 		MinIOSecure:                minioSecure,
 		MinIOAgentSecure:           truthyDefault(os.Getenv("MINIO_AGENT_SECURE"), minioSecure),
 		MinIOUploadAuthTTLSeconds:  envInt("MINI_DROP_UPLOAD_AUTH_TTL_SEC", 1800),
+		SchedulePollSeconds:        envInt("MINI_DROP_SCHEDULE_POLL_SEC", 5),
 	}
 	if err := validateProduction(cfg); err != nil {
 		return Config{}, err

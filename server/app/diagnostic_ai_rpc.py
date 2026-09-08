@@ -21,19 +21,41 @@ import grpc
 from pydantic import ValidationError
 
 from server.app.drop_insight.exploration_tree import get_live_exploration_tree
+from server.app.drop_insight.diagnosis_agent import get_agent_runtime_status
+from server.app.drop_insight.fault_plaza import (
+    FaultPlazaError,
+    get_fault_plaza,
+    start_fault_scenario,
+    stop_fault_scenario,
+)
+from server.app.drop_insight.frozen_replay_showcase import (
+    FrozenReplayShowcaseNotFound,
+    get_frozen_replay_catalog,
+    start_frozen_replay_run,
+)
 from server.app.drop_insight.schemas import (
     AddEvidenceRequest,
+    ApproveDiagnosticExperimentRequest,
+    AssignDiagnosticExperimentRequest,
     ClarifyDiagnosisRequest,
+    CreateDiagnosticExperimentRequest,
     CreateDiagnosisRequestV2,
     CreateHypothesisRequest,
     CreateToolCallRequest,
     DecideToolCallRequest,
+    DeleteOperatorPreferenceRequest,
     GenerateReportRequest,
     ImportTaskEvidenceRequest,
+    InterveneDiagnosisRequest,
     PreviewToolCallRequest,
+    PutOperatorPreferenceRequest,
     QuarantineDiagnosticSkillRequest,
+    RecordDiagnosticExperimentOutcomeRequest,
+    RecordSkillCampaignValidationRequest,
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
+    StartFaultScenarioRequest,
+    StartFrozenReplayRequest,
     UpdateToolCallArgumentsRequest,
     VerifyFixRequest,
 )
@@ -50,11 +72,14 @@ from server.app.drop_insight.service import (
     get_budget_usage,
     get_diagnosis,
     import_task_evidence,
+    intervene_diagnosis,
     list_evidence,
     list_events,
+    list_knowledge_retrievals,
     list_feedback,
     list_fix_verifications,
     list_hypotheses,
+    list_diagnosis_interventions,
     list_reports,
     list_tool_calls,
     list_diagnoses,
@@ -66,6 +91,20 @@ from server.app.drop_insight.service import (
     verify_diagnosis_fix,
 )
 from server.app.drop_insight.showcase import get_mentor_complex_showcase
+from server.app.drop_insight.operator_memory import (
+    delete_operator_preference,
+    list_operator_preferences,
+    put_operator_preference,
+)
+from server.app.drop_insight.skill_experiments import (
+    approve_experiment_rollout,
+    assign_experiment_diagnosis,
+    create_experiment,
+    evaluate_experiment,
+    list_experiments,
+    record_experiment_outcome,
+    summarize_experiment,
+)
 from server.app.drop_insight.skill_evolution import (
     create_candidate_from_diagnosis,
     evaluate_skill,
@@ -74,11 +113,12 @@ from server.app.drop_insight.skill_evolution import (
     list_skills,
     publish_skill,
     quarantine_skill,
+    record_campaign_validation,
     rollback_skill,
 )
 from server.app.drop_insight.tools import TOOLS
 from server.app.generated import diagnostic_ai_pb2, diagnostic_ai_pb2_grpc
-from server.app.logging_utils import log_event
+from server.app.logging_utils import bind_traceparent, log_event, reset_traceparent
 
 
 @dataclass(frozen=True)
@@ -125,10 +165,147 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
     principal = principal.strip() or "local-anonymous"
     params = parse_qs(query, keep_blank_values=False)
 
+    if method == "GET" and path == "/agent-runtime/status":
+        return _ok(get_agent_runtime_status())
     if method == "GET" and path == "/showcases/mentor-complex":
         return _ok(get_mentor_complex_showcase())
+    if method == "GET" and path == "/showcases/fault-plaza":
+        return _ok(get_fault_plaza())
+    if method == "GET" and path == "/showcases/lats-replays":
+        return _ok(get_frozen_replay_catalog())
+    ids = _match(path, r"/showcases/lats-replays/([^/]+)/runs")
+    if ids and method == "POST":
+        request = StartFrozenReplayRequest.model_validate(_body(raw_body))
+        try:
+            value = start_frozen_replay_run(
+                ids[0], request.client_run_id, principal=principal
+            )
+        except FrozenReplayShowcaseNotFound as exc:
+            return _error(404, str(exc))
+        return _ok(value, status=201 if value.get("created") else 200)
+    ids = _match(path, r"/showcases/fault-plaza/([^/]+)/(start|stop)")
+    if ids and method == "POST":
+        scenario_id, action = ids
+        try:
+            if action == "start":
+                request = StartFaultScenarioRequest.model_validate(_body(raw_body))
+                return _ok(start_fault_scenario(scenario_id, request.duration_seconds))
+            if _body(raw_body):
+                raise ValueError("stop request body must be empty")
+            return _ok(stop_fault_scenario(scenario_id))
+        except FaultPlazaError as exc:
+            return _error(503, str(exc))
     if method == "GET" and path == "/diagnostic-tools":
         return _ok({"items": TOOLS})
+
+    if path == "/operator-memories":
+        if method == "GET":
+            scope = (params.get("project_scope") or [None])[0]
+            return _ok(
+                _items(
+                    list_operator_preferences(
+                        principal,
+                        project_scope=scope,
+                    )
+                )
+            )
+        if method == "PUT":
+            request = PutOperatorPreferenceRequest.model_validate(_body(raw_body))
+            return _ok(
+                put_operator_preference(
+                    principal,
+                    project_scope=request.project_scope,
+                    memory_key=request.memory_key,
+                    value=request.value,
+                ).to_dict()
+            )
+        if method == "DELETE":
+            request = DeleteOperatorPreferenceRequest.model_validate(
+                _body(raw_body)
+            )
+            return _ok(
+                {
+                    "deleted": delete_operator_preference(
+                        principal,
+                        project_scope=request.project_scope,
+                        memory_key=request.memory_key,
+                    )
+                }
+            )
+
+    if path == "/diagnostic-experiments":
+        if method == "GET":
+            return _ok(_items(list_experiments()))
+        if method == "POST":
+            request = CreateDiagnosticExperimentRequest.model_validate(
+                _body(raw_body)
+            )
+            return _ok(
+                create_experiment(request, created_by=principal).to_dict(),
+                status=201,
+            )
+
+    ids = _match(path, r"/diagnostic-experiments/([^/]+)")
+    if ids and method == "GET":
+        value = summarize_experiment(ids[0])
+        return (
+            _ok(value)
+            if value is not None
+            else _error(404, "diagnostic experiment not found")
+        )
+
+    ids = _match(
+        path,
+        r"/diagnostic-experiments/([^/]+)/(assign|evaluate|approve)",
+    )
+    if ids and method == "POST":
+        experiment_id, action = ids
+        if action == "assign":
+            request = AssignDiagnosticExperimentRequest.model_validate(
+                _body(raw_body)
+            )
+            value = assign_experiment_diagnosis(
+                experiment_id,
+                request,
+                principal=principal,
+            )
+        elif action == "evaluate":
+            if _body(raw_body):
+                raise ValueError("evaluate request body must be empty")
+            value = evaluate_experiment(experiment_id, evaluated_by=principal)
+        else:
+            request = ApproveDiagnosticExperimentRequest.model_validate(
+                _body(raw_body)
+            )
+            value = approve_experiment_rollout(
+                experiment_id,
+                approved_by=principal,
+                reason=request.reason,
+            )
+        if value is None:
+            return _error(404, "diagnostic experiment not found")
+        return _ok(value.to_dict() if hasattr(value, "to_dict") else value)
+
+    ids = _match(
+        path,
+        r"/diagnostic-experiments/([^/]+)/diagnoses/([^/]+)/outcome",
+    )
+    if ids and method == "POST":
+        request = RecordDiagnosticExperimentOutcomeRequest.model_validate(
+            _body(raw_body)
+        )
+        value = record_experiment_outcome(
+            ids[0],
+            ids[1],
+            request,
+            recorded_by=principal,
+        )
+        return (
+            _ok(value.to_dict())
+            if value is not None
+            else _error(404, "diagnostic experiment assignment not found")
+        )
+
     if method == "GET" and path == "/diagnostic-skills":
         return _ok(_items(list_skills()))
 
@@ -136,12 +313,21 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
     if ids and method == "GET":
         value = get_skill(ids[0])
         return _ok(value) if value is not None else _error(404, "diagnostic skill not found")
-    ids = _match(path, r"/diagnostic-skills/([^/]+)/(evaluate|publish|quarantine|rollback)")
+    ids = _match(path, r"/diagnostic-skills/([^/]+)/(evaluate|campaign|publish|quarantine|rollback)")
     if ids and method == "POST":
         skill_id, action = ids
         payload = _body(raw_body)
         if action == "evaluate":
             return _ok(evaluate_skill(skill_id))
+        if action == "campaign":
+            request = RecordSkillCampaignValidationRequest.model_validate(payload)
+            return _ok(
+                record_campaign_validation(
+                    skill_id,
+                    request.model_dump(mode="json"),
+                    recorded_by=principal,
+                )
+            )
         if action == "publish":
             return _ok(publish_skill(skill_id))
         if action == "rollback":
@@ -154,7 +340,10 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
             return _ok(_items(list_diagnoses()))
         if method == "POST":
             request = CreateDiagnosisRequestV2.model_validate(_body(raw_body))
-            return _ok(create_diagnosis(request).to_dict(), status=201)
+            return _ok(
+                create_diagnosis(request, created_by=principal).to_dict(),
+                status=201,
+            )
 
     ids = _match(path, r"/diagnoses/([^/]+)")
     if ids:
@@ -175,6 +364,12 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
         if get_diagnosis(ids[0]) is None:
             return _error(404, "Drop Insight diagnosis not found")
         return _ok([value.to_dict() for value in list_events(ids[0])])
+
+    ids = _match(path, r"/diagnoses/([^/]+)/retrievals")
+    if ids and method == "GET":
+        if get_diagnosis(ids[0]) is None:
+            return _error(404, "Drop Insight diagnosis not found")
+        return _ok(list_knowledge_retrievals(ids[0]))
 
     ids = _match(path, r"/diagnoses/([^/]+)/exploration-tree")
     if ids and method == "GET":
@@ -231,6 +426,17 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
             request = SubmitDiagnosisFeedbackRequest.model_validate(_body(raw_body))
             value = submit_diagnosis_feedback(ids[0], request, created_by=principal)
             return _ok(value.to_dict()) if value else _error(404, "Drop Insight diagnosis not found")
+
+    ids = _match(path, r"/diagnoses/([^/]+)/interventions")
+    if ids:
+        if method == "GET":
+            if get_diagnosis(ids[0]) is None:
+                return _error(404, "Drop Insight diagnosis not found")
+            return _ok(_items(list_diagnosis_interventions(ids[0])))
+        if method == "POST":
+            request = InterveneDiagnosisRequest.model_validate(_body(raw_body))
+            value = intervene_diagnosis(ids[0], request, created_by=principal)
+            return _ok(value) if value else _error(404, "Drop Insight diagnosis not found")
 
     ids = _match(path, r"/diagnoses/([^/]+)/tool-calls/preview")
     if ids and method == "POST":
@@ -309,6 +515,7 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
 
 class DiagnosticAIService(diagnostic_ai_pb2_grpc.DiagnosticAIServicer):
     def Invoke(self, request, context):  # noqa: N802 - generated gRPC contract
+        metadata = dict(context.invocation_metadata())
         if os.getenv("MINI_DROP_GRPC_AUTH_ENABLED", "0").strip().lower() in {
             "1",
             "true",
@@ -316,34 +523,37 @@ class DiagnosticAIService(diagnostic_ai_pb2_grpc.DiagnosticAIServicer):
             "on",
         }:
             expected = os.getenv("MINI_DROP_GRPC_TOKEN", "")
-            metadata = dict(context.invocation_metadata())
             supplied = metadata.get("x-mini-drop-grpc-token", "")
             if not expected or not secrets.compare_digest(expected, supplied):
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, "invalid internal gRPC token")
+        trace_token = bind_traceparent(metadata.get("traceparent", ""))
         try:
-            result = dispatch(
-                request.method,
-                request.path,
-                request.query,
-                request.body_json,
-                request.principal,
+            try:
+                result = dispatch(
+                    request.method,
+                    request.path,
+                    request.query,
+                    request.body_json,
+                    request.principal,
+                )
+            except (ValueError, ValidationError, json.JSONDecodeError) as exc:
+                result = _error(422 if isinstance(exc, ValidationError) else 409, str(exc))
+            except Exception as exc:
+                log_event(
+                    "error",
+                    "diagnostic_ai_rpc_failed",
+                    method=request.method,
+                    path=request.path,
+                    error=type(exc).__name__,
+                    message=str(exc),
+                )
+                result = _error(500, "AI diagnosis worker failed")
+            return diagnostic_ai_pb2.DiagnosticAIResponse(
+                status_code=result.status,
+                body_json=json.dumps(result.body, ensure_ascii=False, default=str),
             )
-        except (ValueError, ValidationError, json.JSONDecodeError) as exc:
-            result = _error(422 if isinstance(exc, ValidationError) else 409, str(exc))
-        except Exception as exc:
-            log_event(
-                "error",
-                "diagnostic_ai_rpc_failed",
-                method=request.method,
-                path=request.path,
-                error=type(exc).__name__,
-                message=str(exc),
-            )
-            result = _error(500, "AI diagnosis worker failed")
-        return diagnostic_ai_pb2.DiagnosticAIResponse(
-            status_code=result.status,
-            body_json=json.dumps(result.body, ensure_ascii=False, default=str),
-        )
+        finally:
+            reset_traceparent(trace_token)
 
 
 def add_diagnostic_ai_service(server: grpc.Server) -> None:

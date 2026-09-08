@@ -1,22 +1,39 @@
 import { Card, Tag, Space, Typography } from "antd";
 import { SafetyCertificateOutlined } from "@ant-design/icons";
+import {
+  chineseDiagnosticText,
+  diagnosticToolLabel,
+  evidenceDecisionLabel,
+  evidenceRoleLabel,
+  isKnownDiagnosticTool,
+  isKnownEvidenceDecision,
+  isKnownEvidenceRole,
+} from "../utils/diagnosisDisplay";
 
 const { Text } = Typography;
 
 const ROLE_LABELS = {
-  SUPPORT: ["green", "支持"],
-  COUNTER: ["red", "反证"],
-  NEUTRAL: ["blue", "中性"],
-  UNVERIFIED_EXTERNAL: ["default", "外部未验证"],
+  SUPPORT: "green",
+  SUPPORTS: "green",
+  SUPPORTED: "green",
+  COUNTER: "red",
+  COUNTERS: "red",
+  REFUTES: "red",
+  CONTROL: "cyan",
+  NEUTRAL: "blue",
+  UNVERIFIED_EXTERNAL: "default",
 };
 
-const DECISION_LABELS = {
-  ACCEPT_SUPPORT: ["green", "采信为支持证据"],
-  ACCEPT_COUNTER: ["red", "采信为反证"],
-  ACCEPT_NEUTRAL: ["blue", "采信为中性观察"],
-  ACCEPT_LIMITED: ["gold", "有限采信"],
-  REJECT: ["default", "门禁拒绝"],
-  REJECT_LOW_QUALITY: ["default", "低质量拒绝"],
+const DECISION_COLORS = {
+  ACCEPT: "green",
+  ACCEPTED: "green",
+  ACCEPT_SUPPORT: "green",
+  ACCEPT_COUNTER: "red",
+  ACCEPT_NEUTRAL: "blue",
+  ACCEPT_LIMITED: "gold",
+  USABLE: "green",
+  REJECT: "default",
+  REJECT_LOW_QUALITY: "default",
 };
 
 /**
@@ -24,7 +41,9 @@ const DECISION_LABELS = {
  * 源码位置（file:line，若分析器产出）。
  */
 export default function EvidenceCard({ evidence }) {
-  const [roleColor, roleLabel] = ROLE_LABELS[evidence.role] || ["default", evidence.role || "证据"];
+  const roleCode = String(evidence.role || "").toUpperCase();
+  const roleColor = ROLE_LABELS[roleCode] || "default";
+  const roleLabel = evidenceRoleLabel(evidence.role);
   const envelope = evidence.envelope || {};
   const source = envelope.source || {};
   const topFunctions = envelope.observation?.metadata?.top_functions || [];
@@ -34,7 +53,13 @@ export default function EvidenceCard({ evidence }) {
     || envelope.summary
     || evidence.summary;
   const decision = evidence.classification?.decision;
-  const [decisionColor, decisionLabel] = DECISION_LABELS[decision] || ["default", decision];
+  const decisionCode = String(decision || "").toUpperCase();
+  const decisionColor = DECISION_COLORS[decisionCode] || "default";
+  const hasUnknownProtocolCode = (
+    !isKnownEvidenceRole(evidence.role)
+    || (decision && !isKnownEvidenceDecision(decision))
+    || (source.tool_name && !isKnownDiagnosticTool(source.tool_name))
+  );
 
   return (
     <Card size="small" className={`diagnosis-evidence-card is-${String(evidence.role || "unknown").toLowerCase()}`} title={null}>
@@ -43,11 +68,11 @@ export default function EvidenceCard({ evidence }) {
           <SafetyCertificateOutlined />
           <Tag color={roleColor}>{roleLabel}</Tag>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            {source.tool_name || "未知采集器"}
+            {source.tool_name ? diagnosticToolLabel(source.tool_name) : "未知采集器"}
           </Text>
-          {decision && <Tag color={decisionColor}>{decisionLabel}</Tag>}
+          {decision && <Tag color={decisionColor}>{evidenceDecisionLabel(decision)}</Tag>}
         </Space>
-        {summary && <Text>{summary}</Text>}
+        {summary && <Text>{chineseDiagnosticText(summary)}</Text>}
         {top && (
           <div>
             <Text strong>{top.name}</Text>
@@ -62,6 +87,16 @@ export default function EvidenceCard({ evidence }) {
           </div>
         )}
         <Text type="secondary" className="diagnosis-evidence-id">证据 {evidence.evidence_id}</Text>
+        {hasUnknownProtocolCode && (
+          <details className="diagnosis-protocol-details">
+            <summary>查看技术详情</summary>
+            <Space direction="vertical" size={2} style={{ width: "100%", marginTop: 6 }}>
+              <Text type="secondary">原始证据角色：<Text code>{evidence.role || "未返回"}</Text></Text>
+              {decision && <Text type="secondary">原始门禁码：<Text code>{decision}</Text></Text>}
+              {source.tool_name && <Text type="secondary">原始工具标识：<Text code>{source.tool_name}</Text></Text>}
+            </Space>
+          </details>
+        )}
       </Space>
     </Card>
   );

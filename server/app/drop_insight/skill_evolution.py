@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import re
 from collections import Counter
@@ -10,7 +11,9 @@ from uuid import uuid4
 from pydantic import ValidationError
 from server.app.database import new_session
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
+from server.app.drop_insight.schemas import RecordSkillCampaignValidationRequest
 from server.app.models import (
+    AgentModel,
     DiagnosticSkillActivationModel,
     DiagnosticSkillEvaluationModel,
     DiagnosticSkillModel,
@@ -28,6 +31,9 @@ _TOOL_CATEGORY = {
     "start_ebpf_io_profile": "IO_LATENCY",
     "collect_sys_metrics": "SYSTEM_RESOURCE",
     "start_jvm_profile": "JVM_GC",
+    "collect_memory_profile": "MEMORY_PRESSURE",
+    "collect_go_profile": "GO_RUNTIME",
+    "start_continuous_profile": "CPU_HOTSPOT",
     "collect_database_diagnostics": "DATABASE_LOCK",
     "collect_network_diagnostics": "NETWORK_DEGRADATION",
 }
@@ -42,12 +48,20 @@ _CAMPAIGN_SOURCE_TOOL = {
     "py-spy": "start_pyspy_profile",
     "ebpf_io": "start_ebpf_io_profile",
     "jvm": "start_jvm_profile",
+    "memory_smaps": "collect_memory_profile",
+    "go_pprof": "collect_go_profile",
+    "continuous_perf": "start_continuous_profile",
 }
 _MATCH_THRESHOLD = 700
 _HYBRID_MATCH_THRESHOLD = 0.35
 _HYBRID_MIN_MARGIN = 0.04
+_EXPLICIT_QUERY_ANCHOR_BONUS = 0.30
+_CROSS_CATEGORY_MIN_BM25 = 0.22
+_CROSS_CATEGORY_MIN_VECTOR = 0.12
 _RELIABILITY_PRIOR_SUCCESSES = 2.0
 _RELIABILITY_PRIOR_FAILURES = 2.0
+_CAMPAIGN_CASE_KIND = "CROSS_ENVIRONMENT_CAMPAIGN"
+_CAMPAIGN_MAX_FALSE_ACTIVATION_RATE = 0.05
 _TOKEN_RE = re.compile(r"[a-z0-9_]+|[\u4e00-\u9fff]+", re.IGNORECASE)
 _SEARCH_STOPWORDS = {
     "a",
@@ -113,6 +127,8 @@ _SUBSYSTEM_CATEGORY = {
     "storage": "IO_LATENCY",
     "io": "IO_LATENCY",
     "jvm": "JVM_GC",
+    "memory": "MEMORY_PRESSURE",
+    "go": "GO_RUNTIME",
     "database": "DATABASE_LOCK",
     "network": "NETWORK_DEGRADATION",
 }
@@ -122,6 +138,9 @@ _TOOL_REQUIRED_CAPABILITIES = {
     "start_ebpf_io_profile": {"ebpf_io"},
     "start_pyspy_profile": {"pyspy"},
     "start_jvm_profile": {"java_async"},
+    "collect_memory_profile": {"memory_smaps"},
+    "collect_go_profile": {"go_pprof"},
+    "start_continuous_profile": {"continuous_perf"},
     "collect_database_diagnostics": {"database_lock"},
     "collect_network_diagnostics": {"network_diagnostics"},
 }
@@ -136,6 +155,21 @@ def _category_for_route(route: list[str]) -> str:
         if tool_name in _TOOL_CATEGORY:
             return _TOOL_CATEGORY[tool_name]
     return "GENERAL"
+
+
+def _skill_version_fingerprint(skill: DiagnosticSkillModel) -> str:
+    payload = {
+        "skill_id": skill.id,
+        "family_key": skill.family_key,
+        "category": skill.category,
+        "version": skill.version,
+        "trigger": skill.trigger_json or {},
+        "strategy": skill.strategy_json or {},
+    }
+    canonical = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _family_key(category: str, target: dict) -> str:
@@ -391,16 +425,22 @@ def _validate_report_evidence(session, diagnosis_id: str, report: DropInsightRep
 
 def _match_score(skill: DiagnosticSkillModel, category: str, target: dict) -> tuple[int, dict]:
     trigger = skill.trigger_json or {}
-    if skill.category != category:
-        return 0, {"category": "mismatch"}
-    score = 650
-    reasons = {"category": "exact"}
+    category_exact = skill.category == category
+    # The rule planner's category is a useful prior, not a trusted fact.  Keep
+    # a sizeable exact-category advantage while allowing strong Skill text to
+    # recover from an upstream classification error.
+    score = 650 if category_exact else 300
+    reasons = {
+        "category": "exact" if category_exact else "correction_candidate",
+        "requested_category": category,
+        "skill_category": skill.category,
+    }
     required_environment = str(trigger.get("environment") or "*").lower()
     actual_environment = str(target.get("environment") or "*").lower()
     if required_environment not in {"", "*"}:
         if actual_environment != required_environment:
-            return 300, {
-                "category": "exact",
+            return 0, {
+                **reasons,
                 "environment": "drift",
                 "required": required_environment,
                 "actual": actual_environment,
@@ -415,6 +455,11 @@ def _match_score(skill: DiagnosticSkillModel, category: str, target: dict) -> tu
     if service and actual_service and service == actual_service:
         score += 100
         reasons["service"] = "exact"
+    elif service and actual_service:
+        # Service affinity is deliberately soft: a reviewed generic route may
+        # transfer, but an incident learned from one service must not receive
+        # the exact-service boost elsewhere.
+        reasons["service"] = "different"
     return min(score, 1000), reasons
 
 
@@ -449,6 +494,31 @@ def _skill_search_text(skill: DiagnosticSkillModel) -> str:
     for node in exploration.get("nodes") or []:
         values.extend((node.get("label"), node.get("reason")))
     return " ".join(str(item or "") for item in values)
+
+
+def _matching_query_anchors(query: str, anchors: list[object]) -> list[str]:
+    """Return explicit runtime anchors present in the raw user query.
+
+    Token retrieval intentionally tolerates punctuation and partial lexical
+    overlap. Runtime-specific Skills need a stronger boundary: ``C++`` must
+    survive punctuation normalization, while ASCII aliases such as ``cpp``
+    must match a whole token rather than an arbitrary substring.
+    """
+
+    normalized_query = str(query or "").casefold()
+    matched: list[str] = []
+    for raw_anchor in anchors:
+        anchor = str(raw_anchor or "").strip().casefold()
+        if not anchor:
+            continue
+        if re.fullmatch(r"[a-z0-9_]+", anchor):
+            pattern = rf"(?<![a-z0-9_]){re.escape(anchor)}(?![a-z0-9_])"
+            present = re.search(pattern, normalized_query) is not None
+        else:
+            present = anchor in normalized_query
+        if present:
+            matched.append(anchor)
+    return list(dict.fromkeys(matched))
 
 
 def _bm25_scores(query_tokens: list[str], documents: list[list[str]]) -> list[float]:
@@ -532,22 +602,49 @@ def _vector_similarity(left: list[str], right: list[str]) -> float:
 def _rank_hybrid_skills(
     skills: list[DiagnosticSkillModel], category: str, target: dict, query: str
 ) -> list[tuple[float, dict, DiagnosticSkillModel]]:
-    """Hard-filter incompatible Skills, then rank by BM25 + vector + context."""
+    """Hard-filter incompatible Skills, then rank by BM25 + vector + context.
+
+    A reviewed Skill may classify an otherwise UNKNOWN request, but it cannot
+    overwrite a concrete symptom category selected by the baseline planner.
+    That boundary prevents a strong runtime token such as ``C++`` from turning
+    an explicit I/O incident into a CPU diagnosis.
+    """
     query_tokens = _tokenize_search_text(query)
-    eligible: list[tuple[DiagnosticSkillModel, int, dict, list[str], bool]] = []
+    eligible: list[
+        tuple[DiagnosticSkillModel, int, dict, list[str], bool, bool]
+    ] = []
     baseline_tool = str(target.get("_baseline_tool") or "")
     for skill in skills:
         context_score, reasons = _match_score(skill, category, target)
-        if context_score < _MATCH_THRESHOLD:
+        category_exact = skill.category == category
+        if not category_exact and category != "UNKNOWN":
             continue
-        compatible, conflict = _route_compatible(category, baseline_tool, target)
+        if reasons.get("environment") == "drift":
+            continue
+        if category_exact and context_score < _MATCH_THRESHOLD:
+            continue
+        # Cross-category recovery is restricted to UNKNOWN. Once the baseline
+        # has a concrete category, its tool/domain boundary stays authoritative.
+        compatible, conflict = _route_compatible(
+            skill.category,
+            baseline_tool if category_exact else "",
+            target,
+        )
         if not compatible:
             continue
         route = (skill.strategy_json or {}).get("probe_order") or []
         if not any(_tool_available(tool_name, target) for tool_name in route):
             continue
         trigger = skill.trigger_json or {}
+        query_anchors = list(trigger.get("required_query_terms_any") or [])
+        matched_anchors = _matching_query_anchors(query, query_anchors)
+        if query_anchors and not matched_anchors:
+            continue
+        if matched_anchors:
+            reasons = {**reasons, "query_anchor": matched_anchors}
         has_retrieval_document = bool(trigger.get("source_query") or trigger.get("query_terms"))
+        if not category_exact and not (query_tokens and has_retrieval_document):
+            continue
         eligible.append(
             (
                 skill,
@@ -555,6 +652,7 @@ def _rank_hybrid_skills(
                 {**reasons, **conflict},
                 _tokenize_search_text(_skill_search_text(skill)),
                 has_retrieval_document,
+                category_exact,
             )
         )
     if not eligible:
@@ -563,7 +661,14 @@ def _rank_hybrid_skills(
     documents = [item[3] for item in eligible]
     bm25 = _bm25_scores(query_tokens, documents)
     ranked: list[tuple[float, dict, DiagnosticSkillModel]] = []
-    for index, (skill, context_score, reasons, document_tokens, has_retrieval_document) in enumerate(eligible):
+    for index, (
+        skill,
+        context_score,
+        reasons,
+        document_tokens,
+        has_retrieval_document,
+        category_exact,
+    ) in enumerate(eligible):
         vector_score = _vector_similarity(query_tokens, document_tokens)
         context = context_score / 1000
         has_text_signal = bool(query_tokens and document_tokens and has_retrieval_document)
@@ -572,7 +677,28 @@ def _rank_hybrid_skills(
             if has_text_signal
             else context
         )
+        matched_anchors = list(reasons.get("query_anchor") or [])
+        if matched_anchors:
+            # An explicit runtime identity is a structured routing signal, not
+            # incident evidence. It may prioritize the matching route while
+            # the later Evidence gate still decides whether the cause holds.
+            score = min(1.0, score + _EXPLICIT_QUERY_ANCHOR_BONUS)
         matched_terms = sorted(set(query_tokens).intersection(document_tokens))[:12]
+        if not category_exact:
+            if (
+                not matched_terms
+                or bm25[index] < _CROSS_CATEGORY_MIN_BM25
+                or vector_score < _CROSS_CATEGORY_MIN_VECTOR
+            ):
+                continue
+            reasons = {
+                **reasons,
+                "category_correction": {
+                    "from": category,
+                    "to": skill.category,
+                    "guard": "STRONG_TEXT_SIGNAL",
+                },
+            }
         ranked.append(
             (
                 score,
@@ -919,7 +1045,12 @@ def evaluate_skill(skill_id: str) -> dict:
             ("ENVIRONMENT_DRIFT", drift_pass, 1000 if drift_pass else 0, {"match_score": drift_score, "expected": "FALLBACK"}),
         ]
         session.query(DiagnosticSkillEvaluationModel).filter(
-            DiagnosticSkillEvaluationModel.skill_id == skill_id
+            DiagnosticSkillEvaluationModel.skill_id == skill_id,
+            DiagnosticSkillEvaluationModel.case_kind.in_([
+                "POSITIVE_REPLAY",
+                "MISLEADING_NEGATIVE",
+                "ENVIRONMENT_DRIFT",
+            ]),
         ).delete(synchronize_session=False)
         timestamp = _now()
         for kind, passed, score, details in cases:
@@ -945,6 +1076,106 @@ def evaluate_skill(skill_id: str) -> dict:
     return get_skill(skill_id) or {}
 
 
+def record_campaign_validation(
+    skill_id: str,
+    campaign: dict,
+    *,
+    recorded_by: str,
+) -> dict:
+    """Persist an immutable cross-environment campaign result for a Skill.
+
+    The caller supplies observations, not the admission decision.  This
+    service derives pass/fail and binds the result to the exact immutable Skill
+    version so an old campaign cannot authorize a modified strategy.
+    """
+
+    request = RecordSkillCampaignValidationRequest.model_validate(campaign)
+    normalized = request.model_dump(mode="json")
+    normalized["environment_fingerprints"] = sorted(
+        {value.strip() for value in request.environment_fingerprints}
+    )
+    normalized["collector_kinds"] = sorted(
+        {value.strip() for value in request.collector_kinds if value.strip()}
+    )
+    if not normalized["collector_kinds"]:
+        raise ValueError("campaign must cover at least one collector kind")
+
+    session = new_session()
+    try:
+        skill = session.get(DiagnosticSkillModel, skill_id)
+        if skill is None:
+            raise ValueError("skill not found")
+        if skill.status != "CANDIDATE":
+            raise ValueError("only a CANDIDATE skill can receive campaign validation")
+
+        fingerprint = _skill_version_fingerprint(skill)
+        pass_rate = request.passed_cases / request.total_cases
+        passed = bool(
+            request.passed_cases == request.total_cases
+            and request.false_activation_rate
+            <= _CAMPAIGN_MAX_FALSE_ACTIVATION_RATE
+            and request.policy_violation_count == 0
+        )
+        details = {
+            **normalized,
+            "recorded_by": recorded_by.strip() or "unknown",
+            "skill_version_fingerprint": fingerprint,
+            "pass_rate": round(pass_rate, 6),
+            "max_false_activation_rate": _CAMPAIGN_MAX_FALSE_ACTIVATION_RATE,
+        }
+
+        existing = (
+            session.query(DiagnosticSkillEvaluationModel)
+            .filter(
+                DiagnosticSkillEvaluationModel.skill_id == skill_id,
+                DiagnosticSkillEvaluationModel.case_kind == _CAMPAIGN_CASE_KIND,
+            )
+            .order_by(DiagnosticSkillEvaluationModel.created_at.desc())
+            .all()
+        )
+        same_campaign = next(
+            (
+                item
+                for item in existing
+                if (item.details_json or {}).get("campaign_id")
+                == request.campaign_id
+            ),
+            None,
+        )
+        if same_campaign is not None:
+            if (same_campaign.details_json or {}) != details:
+                raise ValueError("campaign_id already exists with different evidence")
+            return get_skill(skill_id) or {}
+
+        timestamp = _now()
+        session.add(
+            DiagnosticSkillEvaluationModel(
+                id=f"skill_eval_{uuid4().hex}",
+                skill_id=skill_id,
+                case_kind=_CAMPAIGN_CASE_KIND,
+                diagnosis_id=None,
+                passed=passed,
+                score=int(round(pass_rate * 1000)),
+                details_json=details,
+                created_at=timestamp,
+            )
+        )
+        metrics = dict(skill.gate_metrics_json or {})
+        metrics["campaign_validation"] = {
+            "campaign_id": request.campaign_id,
+            "passed": passed,
+            "pass_rate": round(pass_rate, 6),
+            "environment_count": len(normalized["environment_fingerprints"]),
+            "report_sha256": request.report_sha256.lower(),
+        }
+        skill.gate_metrics_json = metrics
+        skill.updated_at = timestamp
+        session.commit()
+        return get_skill(skill_id) or {}
+    finally:
+        session.close()
+
+
 def publish_skill(skill_id: str) -> dict:
     session = new_session()
     try:
@@ -953,6 +1184,24 @@ def publish_skill(skill_id: str) -> dict:
             raise ValueError("skill not found")
         if not (skill.gate_metrics_json or {}).get("eligible"):
             raise ValueError("技能尚未通过正例、误导反例和环境漂移门禁")
+        campaign = (
+            session.query(DiagnosticSkillEvaluationModel)
+            .filter(
+                DiagnosticSkillEvaluationModel.skill_id == skill_id,
+                DiagnosticSkillEvaluationModel.case_kind == _CAMPAIGN_CASE_KIND,
+            )
+            .order_by(DiagnosticSkillEvaluationModel.created_at.desc())
+            .first()
+        )
+        if campaign is None:
+            raise ValueError("技能尚未登记跨环境 Campaign 评测，不能发布")
+        if not campaign.passed:
+            raise ValueError("最新跨环境 Campaign 评测未通过，不能发布")
+        campaign_details = campaign.details_json or {}
+        if campaign_details.get("skill_version_fingerprint") != _skill_version_fingerprint(skill):
+            raise ValueError("Campaign 评测与当前 Skill 版本不匹配")
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", str(campaign_details.get("report_sha256") or "")):
+            raise ValueError("Campaign 评测缺少有效报告摘要")
         timestamp = _now()
         session.query(DiagnosticSkillModel).filter(
             DiagnosticSkillModel.family_key == skill.family_key,
@@ -1017,21 +1266,213 @@ def rollback_skill(skill_id: str) -> dict:
         session.close()
 
 
-def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dict) -> dict | None:
-    baseline_tool = plan["tool_name"]
-    compatible, _ = _route_compatible(category, baseline_tool, target)
-    if not compatible:
-        return None
+def _upsert_reuse_trace(existing: list[dict], step: dict) -> list[dict]:
+    """Keep one deterministic Skill decision per diagnosis round and phase."""
+
+    trace_key = str(step.get("trace_key") or "")
+    previous = next(
+        (
+            dict(item)
+            for item in existing
+            if str((item or {}).get("trace_key") or "") == trace_key
+        ),
+        None,
+    )
+    if previous is not None:
+        previous_state = str(previous.get("state") or "").upper()
+        next_state = str(step.get("state") or "").upper()
+        # Retrying the same idempotent planner phase must not rewrite the
+        # historical first activation into a synthetic reuse.  Terminal route
+        # transitions still win because they explain why execution stopped.
+        if previous_state in {"ACTIVATED", "SWITCHED"} and next_state == "REUSED":
+            step = {
+                **step,
+                "state": previous_state,
+                "applied_at": previous.get("applied_at") or step.get("applied_at"),
+            }
+    retained = [
+        dict(item)
+        for item in existing
+        if str((item or {}).get("trace_key") or "") != trace_key
+    ]
+    retained.append(step)
+    retained.sort(
+        key=lambda item: (
+            int(item.get("round_index") or 0),
+            str(item.get("phase") or ""),
+            str(item.get("trace_key") or ""),
+        )
+    )
+    return retained[-32:]
+
+
+def _no_skill_decision(
+    *,
+    state: str,
+    exit_reason: str,
+    round_index: int | None,
+    phase: str,
+    category: str,
+    baseline_tool: str,
+    skill: DiagnosticSkillModel | None = None,
+    reuse_step: dict | None = None,
+    reuse_trace: list[dict] | None = None,
+    skill_instructions: dict | None = None,
+) -> dict:
+    skill_category = skill.category if skill is not None else None
+    skill_name = (
+        skill_instructions.get("name")
+        if isinstance(skill_instructions, dict)
+        else skill.family_key if skill is not None else None
+    )
+    load_mode = (
+        skill_instructions.get("load_mode")
+        if isinstance(skill_instructions, dict)
+        else (
+            "REPOSITORY_INSTRUCTION_REJECTED"
+            if skill is not None
+            and (skill.trigger_json or {}).get("repository_builtin") is True
+            else "STRUCTURED_STRATEGY_ONLY" if skill is not None else None
+        )
+    )
+    return {
+        "applied": False,
+        "state": state,
+        "exit_reason": exit_reason,
+        "skill_id": skill.id if skill is not None else None,
+        "skill_name": skill_name,
+        "version": skill.version if skill is not None else None,
+        "category": skill_category,
+        "skill_category": skill_category,
+        "baseline_category": category,
+        "selected_category": skill_category,
+        "requested_category": category,
+        "baseline_tool": baseline_tool,
+        "selected_tool": None,
+        "round_index": round_index,
+        "phase": str(phase or "PLANNER").strip().upper()[:64],
+        "reuse_step": reuse_step,
+        "reuse_trace": reuse_trace or [],
+        "skill_instructions": skill_instructions,
+        "load_mode": load_mode,
+    }
+
+
+def get_persisted_skill_context(
+    diagnosis_id: str,
+    *,
+    skill_id: str | None = None,
+) -> dict | None:
+    """Return the exact Skill context previously persisted for a diagnosis.
+
+    This lets later planners keep stop/refutation instructions after the route
+    has no remaining executable tool, without manufacturing another
+    activation.  The payload is the immutable snapshot used at activation,
+    not a fresh unchecked file read.
+    """
 
     session = new_session()
     try:
-        skills = session.query(DiagnosticSkillModel).filter(
-            DiagnosticSkillModel.status == "ACTIVE",
-            DiagnosticSkillModel.category == category,
-        ).all()
+        query = session.query(DiagnosticSkillActivationModel).filter(
+            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id
+        )
+        if skill_id is not None:
+            query = query.filter(DiagnosticSkillActivationModel.skill_id == skill_id)
+        activation = query.order_by(
+            DiagnosticSkillActivationModel.updated_at.desc(),
+            DiagnosticSkillActivationModel.created_at.desc(),
+        ).first()
+        if activation is None:
+            return None
+        reason = dict(activation.match_reason_json or {})
+        skill = session.get(DiagnosticSkillModel, activation.skill_id)
+        instructions = reason.get("skill_instructions")
+        selected_category = reason.get("skill_category") or (
+            skill.category if skill else None
+        )
+        return {
+            "activation_id": activation.id,
+            "skill_id": activation.skill_id,
+            "skill_name": (
+                instructions.get("name")
+                if isinstance(instructions, dict)
+                else skill.family_key if skill else None
+            ),
+            "version": reason.get("skill_version") or (skill.version if skill else None),
+            "category": selected_category,
+            "skill_category": selected_category,
+            "baseline_category": reason.get("requested_category"),
+            "selected_category": selected_category,
+            "match_score": activation.match_score / 1000,
+            "baseline_tool": activation.baseline_tool,
+            "selected_tool": activation.selected_tool,
+            "probe_order": list(reason.get("route") or []),
+            "skill_instructions": instructions,
+            "load_mode": (
+                instructions.get("load_mode")
+                if isinstance(instructions, dict)
+                else "STRUCTURED_STRATEGY_ONLY" if skill else None
+            ),
+            "reuse_trace": list(
+                reason.get("reuse_trace") or reason.get("applications") or []
+            ),
+            "outcome": activation.outcome,
+        }
+    finally:
+        session.close()
+
+
+def apply_active_skill(
+    diagnosis_id: str,
+    category: str,
+    plan: dict,
+    target: dict,
+    *,
+    round_index: int | None = None,
+    phase: str = "INITIAL_PLAN",
+    attempted_tools: list[str] | set[str] | tuple[str, ...] | None = None,
+    available_tools: list[str] | set[str] | tuple[str, ...] | None = None,
+    reuse_existing: bool = True,
+    return_decision: bool = False,
+) -> dict | None:
+    """Retrieve a route Skill and persist an auditable per-round application.
+
+    ``category`` is a planner prior rather than a hard fact.  Strong lexical
+    evidence may select a Skill from another category, while environment,
+    explicit query anchors, target subsystem and collector availability remain
+    hard gates.  Repository Markdown is hash-verified before it enters the
+    trusted model context.
+    """
+
+    baseline_tool = plan["tool_name"]
+    session = new_session()
+    try:
+        skills = (
+            session.query(DiagnosticSkillModel)
+            .filter(DiagnosticSkillModel.status == "ACTIVE")
+            .all()
+        )
         diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
         query = diagnosis.query if diagnosis is not None else str(target.get("query") or "")
         ranking_target = {**target, "_baseline_tool": baseline_tool}
+        if "collector_capabilities" not in ranking_target:
+            agent_id = str(
+                ranking_target.get("agent_id")
+                or ((diagnosis.target_json or {}).get("agent_id") if diagnosis else "")
+                or ""
+            )
+            agent = session.get(AgentModel, agent_id) if agent_id else None
+            if agent is not None:
+                ranking_target["collector_capabilities"] = list(agent.capabilities or [])
+
+        existing_activations = (
+            session.query(DiagnosticSkillActivationModel)
+            .filter(DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id)
+            .all()
+        )
+        existing_skill_ids = {item.skill_id for item in existing_activations}
+        if not reuse_existing and existing_skill_ids:
+            skills = [item for item in skills if item.id not in existing_skill_ids]
         ranked = _rank_hybrid_skills(skills, category, ranking_target, query)
         skill_ids = [item[2].id for item in ranked]
         historical_activations = (
@@ -1041,83 +1482,458 @@ def apply_active_skill(diagnosis_id: str, category: str, plan: dict, target: dic
             if skill_ids else []
         )
         ranked = _rank_with_observed_reliability(ranked, historical_activations)
-        selected = _select_ranked_skill(ranked)
+        # A diagnosis that already activated a reviewed Skill should finish the
+        # remaining safe route before ordinary re-ranking can move it to an
+        # unrelated family.  Re-ranking is still used as a hard eligibility
+        # gate (environment, runtime anchors and collector availability), while
+        # ``reuse_existing=False`` remains the explicit escape hatch for
+        # counter-evidence or human-directed direction changes.
+        persisted_route_selection = None
+        normalized_phase_hint = str(phase or "PLANNER").strip().upper()[:64]
+        try:
+            is_follow_up_round = int(round_index or 1) > 1
+        except (TypeError, ValueError):
+            is_follow_up_round = normalized_phase_hint != "INITIAL_PLAN"
+        is_follow_up_round = (
+            is_follow_up_round or normalized_phase_hint != "INITIAL_PLAN"
+        )
+        if reuse_existing and existing_activations and is_follow_up_round:
+            completed_for_continuity = {
+                item.tool_name
+                for item in session.query(DropInsightToolCallModel)
+                .filter(
+                    DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                    DropInsightToolCallModel.status == "COMPLETED",
+                )
+                .all()
+            }
+            excluded_for_continuity = completed_for_continuity.union(
+                str(item) for item in (attempted_tools or []) if str(item)
+            )
+            explicit_available_for_continuity = (
+                {str(item) for item in available_tools if str(item)}
+                if available_tools is not None
+                else None
+            )
+            ranked_by_skill_id = {item[2].id: item for item in ranked}
+            active_skills_by_id = {item.id: item for item in skills}
+            ordered_existing = sorted(
+                existing_activations,
+                key=lambda item: (item.updated_at, item.created_at, item.id),
+                reverse=True,
+            )
+            for existing_activation in ordered_existing:
+                ranked_existing = ranked_by_skill_id.get(
+                    existing_activation.skill_id
+                )
+                if ranked_existing is None:
+                    # New cross-category activation is forbidden once the
+                    # planner has a concrete category. An already activated
+                    # route is different: a fallback replan may temporarily
+                    # use another category while the reviewed route still has
+                    # safe steps left. Re-check its original hard gates and
+                    # allow continuity without treating it as a new match.
+                    existing_skill = active_skills_by_id.get(
+                        existing_activation.skill_id
+                    )
+                    if existing_skill is None:
+                        continue
+                    context_score, continuity_reason = _match_score(
+                        existing_skill,
+                        existing_skill.category,
+                        ranking_target,
+                    )
+                    if (
+                        context_score < _MATCH_THRESHOLD
+                        or continuity_reason.get("environment") == "drift"
+                    ):
+                        continue
+                    compatible, conflict = _route_compatible(
+                        existing_skill.category,
+                        "",
+                        ranking_target,
+                    )
+                    if not compatible:
+                        continue
+                    ranked_existing = (
+                        context_score / 1000,
+                        {
+                            **continuity_reason,
+                            **conflict,
+                            "retrieval": "PERSISTED_ROUTE_CONTINUITY",
+                        },
+                        existing_skill,
+                    )
+                existing_skill = ranked_existing[2]
+                existing_route = list(
+                    (existing_skill.strategy_json or {}).get("probe_order") or []
+                )
+                has_remaining_route = any(
+                    tool_name not in excluded_for_continuity
+                    and _tool_available(tool_name, ranking_target)
+                    and (
+                        explicit_available_for_continuity is None
+                        or tool_name in explicit_available_for_continuity
+                    )
+                    for tool_name in existing_route
+                )
+                if not has_remaining_route:
+                    continue
+                continuity_score = max(
+                    ranked_existing[0],
+                    existing_activation.match_score / 1000,
+                )
+                persisted_route_selection = (
+                    continuity_score,
+                    {
+                        **ranked_existing[1],
+                        "continuity_guard": (
+                            "PERSISTED_ROUTE_HAS_REMAINING_SAFE_TOOL"
+                        ),
+                    },
+                    existing_skill,
+                )
+                break
+        if reuse_existing and existing_skill_ids:
+            ranked = sorted(
+                (
+                    (
+                        min(1.0, score + (0.05 if skill.id in existing_skill_ids else 0.0)),
+                        {
+                            **reason,
+                            "existing_activation_bonus": (
+                                0.05 if skill.id in existing_skill_ids else 0.0
+                            ),
+                        },
+                        skill,
+                    )
+                    for score, reason, skill in ranked
+                ),
+                key=lambda item: (-item[0], item[2].id),
+            )
+        selected = persisted_route_selection or _select_ranked_skill(ranked)
         if selected is None:
-            return None
+            if existing_activations:
+                previous = max(
+                    existing_activations,
+                    key=lambda item: (item.updated_at, item.created_at, item.id),
+                )
+                previous_skill = session.get(DiagnosticSkillModel, previous.skill_id)
+                previous_reason = dict(previous.match_reason_json or {})
+                previous_trace = list(
+                    previous_reason.get("reuse_trace")
+                    or previous_reason.get("applications")
+                    or []
+                )
+                try:
+                    deviated_round = max(
+                        1,
+                        int(round_index or len(previous_trace) + 1),
+                    )
+                except (TypeError, ValueError):
+                    deviated_round = len(previous_trace) + 1
+                normalized_phase = str(phase or "PLANNER").strip().upper()[:64]
+                completed_tools = {
+                    item.tool_name
+                    for item in session.query(DropInsightToolCallModel)
+                    .filter(
+                        DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                        DropInsightToolCallModel.status == "COMPLETED",
+                    )
+                    .all()
+                }
+                excluded_tools = completed_tools.union(
+                    str(item) for item in (attempted_tools or []) if str(item)
+                )
+                explicit_available = (
+                    {str(item) for item in available_tools if str(item)}
+                    if available_tools is not None
+                    else None
+                )
+                previous_route = list(previous_reason.get("route") or [])
+                remaining_route = [
+                    tool_name
+                    for tool_name in previous_route
+                    if tool_name not in excluded_tools
+                    and _tool_available(tool_name, ranking_target)
+                    and (
+                        explicit_available is None
+                        or tool_name in explicit_available
+                    )
+                ]
+                if not reuse_existing:
+                    exit_state = "DEVIATED"
+                    exit_reason = "PREVIOUS_SKILL_EXCLUDED_BY_REPLAN"
+                elif previous_route and not remaining_route:
+                    # Retrieval may have hard-filtered the old Skill before
+                    # route selection (for example after the runtime
+                    # capability set changed).  Preserve its already trusted
+                    # stop/refutation context and explicitly close the route.
+                    exit_state = "EXHAUSTED"
+                    exit_reason = "NO_REMAINING_AVAILABLE_ROUTE_TOOL"
+                else:
+                    exit_state = "DEVIATED"
+                    exit_reason = "SKILL_NO_LONGER_ELIGIBLE_OR_UNAMBIGUOUS"
+                exit_step = {
+                    "trace_key": f"{deviated_round}:{normalized_phase}",
+                    "round_index": deviated_round,
+                    "phase": normalized_phase,
+                    "state": exit_state,
+                    "baseline_tool": baseline_tool,
+                    "selected_tool": None,
+                    "completed_route_tools": sorted(completed_tools),
+                    "attempted_tools": sorted(excluded_tools),
+                    "category_before": category,
+                    "category_after": (
+                        previous_skill.category if previous_skill is not None else None
+                    ),
+                    "category_corrected": bool(
+                        previous_skill is not None
+                        and previous_skill.category != category
+                    ),
+                    "exit_reason": exit_reason,
+                    "applied_at": _now().isoformat(),
+                }
+                persisted_trace = _upsert_reuse_trace(previous_trace, exit_step)
+                previous.match_reason_json = {
+                    **previous_reason,
+                    "current_selected_tool": None,
+                    "reuse_trace": persisted_trace,
+                    "applications": persisted_trace,
+                }
+                previous.updated_at = _now()
+                session.commit()
+                if return_decision:
+                    return _no_skill_decision(
+                        state=exit_state,
+                        exit_reason=exit_reason,
+                        round_index=deviated_round,
+                        phase=normalized_phase,
+                        category=category,
+                        baseline_tool=baseline_tool,
+                        skill=previous_skill,
+                        reuse_step=exit_step,
+                        reuse_trace=persisted_trace,
+                        skill_instructions=previous_reason.get("skill_instructions"),
+                    )
+            if not return_decision:
+                return None
+            return _no_skill_decision(
+                state="NOT_MATCHED",
+                exit_reason=(
+                    "NO_ELIGIBLE_SKILL"
+                    if not ranked
+                    else "BELOW_THRESHOLD_OR_AMBIGUOUS"
+                ),
+                round_index=round_index,
+                phase=phase,
+                category=category,
+                baseline_tool=baseline_tool,
+            )
         score_value, reasons, skill = selected
         score = int(round(score_value * 1000))
         route = (skill.strategy_json or {}).get("probe_order") or []
-        completed_tools = {
-            item[0]
-            for item in session.query(DropInsightToolCallModel.tool_name)
+        completed_calls = (
+            session.query(DropInsightToolCallModel)
             .filter(
                 DropInsightToolCallModel.diagnosis_id == diagnosis_id,
                 DropInsightToolCallModel.status == "COMPLETED",
             )
+            .order_by(DropInsightToolCallModel.created_at.asc())
             .all()
-        }
+        )
+        completed_tools = {item.tool_name for item in completed_calls}
+        excluded_tools = completed_tools.union(
+            str(item) for item in (attempted_tools or []) if str(item)
+        )
+        explicit_available = (
+            {str(item) for item in available_tools if str(item)}
+            if available_tools is not None
+            else None
+        )
+        inferred_round = len(completed_calls) + 1
+        try:
+            reuse_round = max(1, int(round_index or inferred_round))
+        except (TypeError, ValueError):
+            reuse_round = inferred_round
+        normalized_phase = str(phase or "PLANNER").strip().upper()[:64]
+        skill_instructions = None
+        if (skill.trigger_json or {}).get("repository_builtin") is True:
+            from .builtin_skills import load_repository_skill_instructions
+
+            try:
+                skill_instructions = load_repository_skill_instructions(skill)
+            except (OSError, ValueError, UnicodeError):
+                # A repository body that no longer matches its seeded digest is
+                # not safe model context.  Fall back to the baseline planner.
+                if not return_decision:
+                    return None
+                return _no_skill_decision(
+                    state="REJECTED",
+                    exit_reason="REPOSITORY_INSTRUCTION_INTEGRITY_FAILED",
+                    round_index=reuse_round,
+                    phase=normalized_phase,
+                    category=category,
+                    baseline_tool=baseline_tool,
+                    skill=skill,
+                )
         selected_tool = next(
             (
                 tool_name
                 for tool_name in route
-                if tool_name not in completed_tools and _tool_available(tool_name, target)
+                if tool_name not in excluded_tools
+                and _tool_available(tool_name, ranking_target)
+                and (explicit_available is None or tool_name in explicit_available)
             ),
             None,
         )
         if selected_tool is None:
-            return None
+            exit_step = {
+                "trace_key": f"{reuse_round}:{normalized_phase}",
+                "round_index": reuse_round,
+                "phase": normalized_phase,
+                "state": "EXHAUSTED",
+                "baseline_tool": baseline_tool,
+                "selected_tool": None,
+                "completed_route_tools": sorted(completed_tools),
+                "attempted_tools": sorted(excluded_tools),
+                "category_before": category,
+                "category_after": skill.category,
+                "category_corrected": skill.category != category,
+                "exit_reason": "NO_REMAINING_AVAILABLE_ROUTE_TOOL",
+                "applied_at": _now().isoformat(),
+            }
+            existing = next(
+                (item for item in existing_activations if item.skill_id == skill.id),
+                None,
+            )
+            reuse_trace: list[dict] = []
+            if existing is not None:
+                previous_reason = dict(existing.match_reason_json or {})
+                reuse_trace = _upsert_reuse_trace(
+                    list(
+                        previous_reason.get("reuse_trace")
+                        or previous_reason.get("applications")
+                        or []
+                    ),
+                    exit_step,
+                )
+                existing.match_reason_json = {
+                    **previous_reason,
+                    "current_selected_tool": None,
+                    "reuse_trace": reuse_trace,
+                    "applications": reuse_trace,
+                }
+                existing.updated_at = _now()
+                session.commit()
+            if not return_decision:
+                return None
+            return _no_skill_decision(
+                state="EXHAUSTED",
+                exit_reason="NO_REMAINING_AVAILABLE_ROUTE_TOOL",
+                round_index=reuse_round,
+                phase=normalized_phase,
+                category=category,
+                baseline_tool=baseline_tool,
+                skill=skill,
+                reuse_step=exit_step,
+                reuse_trace=reuse_trace,
+                skill_instructions=skill_instructions,
+            )
+
         timestamp = _now()
-        application = {
+        route_index = route.index(selected_tool) + 1
+        existing = next(
+            (item for item in existing_activations if item.skill_id == skill.id),
+            None,
+        )
+        activation_state = (
+            "REUSED"
+            if existing is not None
+            else "SWITCHED"
+            if existing_activations
+            else "ACTIVATED"
+        )
+        reuse_step = {
+            "trace_key": f"{reuse_round}:{normalized_phase}",
+            "round_index": reuse_round,
+            "phase": normalized_phase,
+            "state": activation_state,
             "baseline_tool": baseline_tool,
             "selected_tool": selected_tool,
+            "selected_route_index": route_index,
+            "route_length": len(route),
             "completed_route_tools": sorted(completed_tools),
+            "attempted_tools": sorted(excluded_tools),
+            "category_before": category,
+            "category_after": skill.category,
+            "category_corrected": skill.category != category,
             "applied_at": timestamp.isoformat(),
+        }
+        previous_reason = dict(existing.match_reason_json or {}) if existing else {}
+        previous_trace = list(
+            previous_reason.get("reuse_trace")
+            or previous_reason.get("applications")
+            or []
+        )
+        reuse_trace = _upsert_reuse_trace(previous_trace, reuse_step)
+        persisted_reason = {
+            **reasons,
+            "route": route,
+            "skill_version": skill.version,
+            "skill_category": skill.category,
+            "completed_route_tools": sorted(completed_tools),
+            "current_selected_tool": selected_tool,
+            "applications": reuse_trace,
+            "reuse_trace": reuse_trace,
+            "skill_instructions": skill_instructions,
         }
         activation = DiagnosticSkillActivationModel(
             id=f"skill_activation_{uuid4().hex}", skill_id=skill.id,
             diagnosis_id=diagnosis_id, match_score=score,
-            match_reason_json={
-                **reasons,
-                "route": route,
-                "skill_version": skill.version,
-                "completed_route_tools": sorted(completed_tools),
-                "applications": [application],
-            },
+            match_reason_json=persisted_reason,
             baseline_tool=baseline_tool, selected_tool=selected_tool,
             created_at=timestamp, updated_at=timestamp,
         )
-        existing = session.query(DiagnosticSkillActivationModel).filter(
-            DiagnosticSkillActivationModel.diagnosis_id == diagnosis_id,
-            DiagnosticSkillActivationModel.skill_id == skill.id,
-        ).first()
         if existing is None:
             session.add(activation)
             session.commit()
         else:
-            previous_reason = dict(existing.match_reason_json or {})
-            applications = list(previous_reason.get("applications") or [])
             existing.match_score = score
-            existing.match_reason_json = {
-                **reasons,
-                "route": route,
-                "skill_version": skill.version,
-                "completed_route_tools": sorted(completed_tools),
-                "current_selected_tool": selected_tool,
-                "applications": [*applications[-19:], application],
-            }
+            existing.match_reason_json = persisted_reason
             existing.baseline_tool = baseline_tool
             existing.selected_tool = selected_tool
             existing.updated_at = timestamp
             session.commit()
         plan["tool_name"] = selected_tool
         return {
+            "applied": True,
+            "state": activation_state,
             "skill_id": skill.id,
+            "skill_name": (
+                skill_instructions.get("name")
+                if isinstance(skill_instructions, dict)
+                else skill.family_key
+            ),
             "version": skill.version,
             "match_score": score / 1000,
             "match_reason": reasons,
+            "category": skill.category,
+            "baseline_category": category,
+            "selected_category": skill.category,
             "baseline_tool": baseline_tool,
             "selected_tool": selected_tool,
             "probe_order": route,
+            "skill_category": skill.category,
+            "category_correction": reasons.get("category_correction"),
+            "skill_instructions": skill_instructions,
+            "load_mode": (
+                skill_instructions.get("load_mode")
+                if isinstance(skill_instructions, dict)
+                else "STRUCTURED_STRATEGY_ONLY"
+            ),
+            "reuse_step": reuse_step,
+            "reuse_trace": reuse_trace,
         }
     finally:
         session.close()

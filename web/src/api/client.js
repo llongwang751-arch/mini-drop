@@ -48,6 +48,10 @@ const ERROR_TRANSLATIONS = [
   [/task has no artifacts/i, "该采集任务没有任何产物"],
   [/diagnosis version conflict/i, "诊断状态已变化，请刷新后重试"],
   [/diagnosis session CAS conflict/i, "诊断状态已变化，请刷新后重试"],
+  [
+    /requested diagnosis time range is immutable once established/i,
+    "诊断时间窗已经锁定。请保留原时间窗，只补充服务和目标信息",
+  ],
   [/end must be later than start/i, "结束时间必须晚于开始时间"],
   [/JSON Pointer must start with/i, "证据引用格式不正确"],
   [/diagnostic case not found/i, "诊断案例不存在"],
@@ -123,7 +127,27 @@ export function setStoredApiKey(token) {
 }
 
 export async function saveApiKey(token) {
-  setStoredApiKey((token || "").trim());
+  const normalized = (token || "").trim();
+  const previous = getStoredApiKey();
+  setStoredApiKey(normalized);
+  try {
+    if (normalized) {
+      await api.post("/auth/session");
+    } else {
+      await api.delete("/auth/session").catch(() => undefined);
+    }
+  } catch (error) {
+    setStoredApiKey(previous);
+    throw error;
+  }
+  window.dispatchEvent(new CustomEvent("mini-drop:credentials-changed"));
+}
+
+/** Ensure native EventSource can authenticate through an HttpOnly cookie. */
+export async function syncBrowserSession() {
+  if (!getStoredApiKey()) return false;
+  await api.post("/auth/session");
+  return true;
 }
 
 export function healthz() {
@@ -189,6 +213,42 @@ export function getTaskArtifactContent(taskId, artifactType, params = {}) {
   });
 }
 
+/**
+ * Fetch a JSON artifact without letting Axios parse it on the UI thread.
+ * Large visualizations can hand the returned text to a Web Worker.
+ */
+export async function getTaskArtifactContentText(taskId, artifactType, params = {}) {
+  const token = getStoredApiKey();
+  try {
+    const response = await axios.get(
+      `/api/tasks/${encodeURIComponent(taskId)}/artifacts/${encodeURIComponent(artifactType)}/content`,
+      {
+        params,
+        responseType: "text",
+        transformResponse: [(value) => value],
+        timeout: 30000,
+        withCredentials: false,
+        headers: token ? { "X-API-Key": token } : {},
+      },
+    );
+    return response.data;
+  } catch (err) {
+    if (err.response?.status === 401) {
+      throw new Error("访问认证失败：请在右上角填写 Mini-Drop API Key 并点击保存");
+    }
+    let detail = err.message || "无法加载诊断产物";
+    const rawBody = err.response?.data;
+    if (typeof rawBody === "string" && rawBody.length < 64 * 1024) {
+      try {
+        detail = JSON.parse(rawBody)?.message || detail;
+      } catch {
+        detail = rawBody || detail;
+      }
+    }
+    throw new Error(translateError(detail));
+  }
+}
+
 export async function downloadTaskArtifact(taskId, artifactType, params = {}) {
   const token = getStoredApiKey();
   const response = await axios.get(
@@ -252,6 +312,10 @@ export function getMetrics() {
 
 // ── Drop Insight v2 ──────────────────────────────────────────────
 
+export function getAgentRuntimeStatus() {
+  return api.get("/v2/agent-runtime/status");
+}
+
 export function createDropInsightDiagnosis(payload) {
   return api.post("/v2/diagnoses", payload);
 }
@@ -270,6 +334,10 @@ export function getDropInsightDiagnosis(diagnosisId) {
 
 export function listDropInsightEvents(diagnosisId) {
   return api.get(`/v2/diagnoses/${diagnosisId}/events`);
+}
+
+export function listDropInsightRetrievals(diagnosisId) {
+  return api.get(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/retrievals`);
 }
 
 export function getDropInsightExplorationTree(diagnosisId) {
@@ -383,6 +451,111 @@ export function listDropInsightFeedback(diagnosisId) {
 
 export function submitDropInsightFeedback(diagnosisId, payload) {
   return api.post(`/v2/diagnoses/${diagnosisId}/feedback`, payload);
+}
+
+export function listDropInsightInterventions(diagnosisId) {
+  return api
+    .get(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/interventions`)
+    .then(itemsOf);
+}
+
+export function submitDropInsightIntervention(diagnosisId, payload) {
+  return api.post(
+    `/v2/diagnoses/${encodeURIComponent(diagnosisId)}/interventions`,
+    payload,
+  );
+}
+
+export function getFaultPlaza() {
+  return api.get("/v2/showcases/fault-plaza");
+}
+
+export function startFaultPlazaScenario(scenarioId, durationSeconds) {
+  return api.post(
+    `/v2/showcases/fault-plaza/${encodeURIComponent(scenarioId)}/start`,
+    { duration_seconds: durationSeconds },
+  );
+}
+
+export function stopFaultPlazaScenario(scenarioId) {
+  return api.post(
+    `/v2/showcases/fault-plaza/${encodeURIComponent(scenarioId)}/stop`,
+    {},
+  );
+}
+
+// ── Persisted Skill experiments and explicit operator memory ────────
+
+export function listDiagnosticExperiments() {
+  return api.get("/v2/diagnostic-experiments").then(itemsOf);
+}
+
+export function createDiagnosticExperiment(payload) {
+  return api.post("/v2/diagnostic-experiments", payload);
+}
+
+export function getDiagnosticExperiment(experimentId) {
+  return api.get(
+    `/v2/diagnostic-experiments/${encodeURIComponent(experimentId)}`,
+  );
+}
+
+export function assignDiagnosticExperiment(experimentId, payload) {
+  return api.post(
+    `/v2/diagnostic-experiments/${encodeURIComponent(experimentId)}/assign`,
+    payload,
+  );
+}
+
+export function recordDiagnosticExperimentOutcome(
+  experimentId,
+  diagnosisId,
+  payload,
+) {
+  return api.post(
+    `/v2/diagnostic-experiments/${encodeURIComponent(experimentId)}`
+      + `/diagnoses/${encodeURIComponent(diagnosisId)}/outcome`,
+    payload,
+  );
+}
+
+export function evaluateDiagnosticExperiment(experimentId) {
+  return api.post(
+    `/v2/diagnostic-experiments/${encodeURIComponent(experimentId)}/evaluate`,
+    {},
+  );
+}
+
+export function approveDiagnosticExperiment(experimentId, reason) {
+  return api.post(
+    `/v2/diagnostic-experiments/${encodeURIComponent(experimentId)}/approve`,
+    { reason },
+  );
+}
+
+export function listOperatorMemories(projectScope = "*") {
+  return api
+    .get("/v2/operator-memories", { params: { project_scope: projectScope } })
+    .then(itemsOf);
+}
+
+export function putOperatorMemory(payload) {
+  return api.put("/v2/operator-memories", payload);
+}
+
+export function deleteOperatorMemory(payload) {
+  return api.delete("/v2/operator-memories", { data: payload });
+}
+
+export function getLatsReplayShowcases() {
+  return api.get("/v2/showcases/lats-replays");
+}
+
+export function runLatsReplayShowcase(scenarioId, clientRunId) {
+  return api.post(
+    `/v2/showcases/lats-replays/${encodeURIComponent(scenarioId)}/runs`,
+    { client_run_id: clientRunId },
+  );
 }
 
 export function listDiagnosticSkills() {

@@ -2,6 +2,16 @@ import { useState } from "react";
 import { Card, Tag, Space, Button, Typography, Spin, Modal, Form, InputNumber, message } from "antd";
 import { CheckOutlined, CloseOutlined, EditOutlined, ExperimentOutlined } from "@ant-design/icons";
 import TaskVisualizationPreview from "./TaskVisualizationPreview";
+import {
+  chineseDiagnosticText,
+  diagnosticErrorText,
+  diagnosticStatusLabel,
+  diagnosticToolLabel,
+  isKnownDiagnosticStatus,
+  isKnownDiagnosticTool,
+  isKnownPolicyDecision,
+  policyDecisionLabel,
+} from "../utils/diagnosisDisplay";
 
 const { Text } = Typography;
 
@@ -18,21 +28,18 @@ const STATUS_COLORS = {
 
 const RISK_COLORS = { R0: "default", R1: "blue", R2: "volcano", R3: "red" };
 
-const TOOL_LABELS = {
-  get_agent_status: "查询 Agent 状态",
-  collect_sys_metrics: "采集系统指标",
-  start_perf_profile: "perf CPU 采样",
-  start_ebpf_io_profile: "eBPF I/O 采样",
-  start_pyspy_profile: "py-spy Python 采样",
-};
-
 // 与 server/app/drop_insight/tools.py 保持一致的工具元数据。
 const TOOL_META = {
   get_agent_status: { description: "读取 Agent 心跳、能力与资源开销", risk: "R0" },
   collect_sys_metrics: { description: "采集主机与目标进程的低开销系统指标", risk: "R1" },
+  collect_database_diagnostics: { description: "只读采集 PostgreSQL 锁等待、阻塞关系与事务等待时长", risk: "R1" },
   start_perf_profile: { description: "对指定 Linux PID 执行 CPU Profile，识别热点函数", risk: "R2" },
-  start_ebpf_io_profile: { description: "采集内核块设备 IO 延迟分布，确认 I/O 争抢", risk: "R2" },
+  start_ebpf_io_profile: { description: "采集内核块设备 I/O 延迟分布，确认 I/O 争抢", risk: "R2" },
   start_pyspy_profile: { description: "用 py-spy 采集 Python 用户态调用栈，定位热点", risk: "R2" },
+  start_jvm_profile: { description: "用 async-profiler 采集 JVM CPU 调用栈", risk: "R2" },
+  collect_memory_profile: { description: "采集目标进程的 RSS、PSS 与 Swap 内存指标", risk: "R1" },
+  collect_go_profile: { description: "从已登记的 pprof 端点采集 Go CPU Profile", risk: "R2" },
+  start_continuous_profile: { description: "分窗口连续采集 perf 数据，用于比较热点漂移", risk: "R2" },
 };
 
 /** 把人话参数渲染成一句可读描述（方案 §6.2：目标/时长/采样率/风险）。 */
@@ -63,11 +70,36 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
   const args = tool.arguments_json || {};
   const meta = TOOL_META[tool.tool_name] || {};
   const isExpert = mode === "expert";
+  const canEditDuration = Object.hasOwn(TOOL_META, tool.tool_name) && tool.tool_name !== "get_agent_status";
+  const canEditSampleRate = [
+    "start_perf_profile",
+    "start_pyspy_profile",
+    "start_jvm_profile",
+    "collect_go_profile",
+    "start_continuous_profile",
+  ].includes(tool.tool_name);
+  const hasEditableArguments = canEditDuration || canEditSampleRate;
+  const rawError = String(tool.error_message || "").trim();
+  const displayedError = rawError ? diagnosticErrorText(rawError) : "";
+  const hasUnknownProtocolCode = (
+    !isKnownDiagnosticTool(tool.tool_name)
+    || !isKnownDiagnosticStatus(status)
+    || (tool.policy_decision && !isKnownPolicyDecision(tool.policy_decision))
+  );
 
   async function handleSaveArgs(values) {
     setSaving(true);
     try {
-      const next = { ...args, ...values };
+      // Agent/PID 来自服务端签发的安全目标绑定。人工审批只能收窄采样参数，
+      // 不能借由修改 Tool Call 把探针转向另一个 Agent 或进程。
+      const permitted = {};
+      if (canEditDuration && values.duration_seconds != null) {
+        permitted.duration_seconds = values.duration_seconds;
+      }
+      if (canEditSampleRate && values.sample_rate != null) {
+        permitted.sample_rate = values.sample_rate;
+      }
+      const next = { ...args, ...permitted };
       for (const key of Object.keys(next)) {
         if (typeof next[key] === "number" && Number.isNaN(next[key])) delete next[key];
       }
@@ -75,7 +107,7 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
       message.success("参数已更新");
       setEditOpen(false);
     } catch (err) {
-      message.error(err.message);
+      message.error(diagnosticErrorText(err?.message, "参数更新失败，请稍后重试"));
     } finally {
       setSaving(false);
     }
@@ -87,16 +119,16 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
         <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
           <Space wrap>
             <ExperimentOutlined />
-            <Text strong>{TOOL_LABELS[tool.tool_name] || tool.tool_name}</Text>
-            <Tag color={STATUS_COLORS[status] || "default"}>{status}</Tag>
+            <Text strong>{diagnosticToolLabel(tool.tool_name)}</Text>
+            <Tag color={STATUS_COLORS[status] || "default"}>{diagnosticStatusLabel(status, "状态未知")}</Tag>
             {meta.risk && <Tag color={RISK_COLORS[meta.risk] || "default"}>{meta.risk}</Tag>}
-            {tool.policy_decision && <Tag>{tool.policy_decision}</Tag>}
+            {tool.policy_decision && <Tag>{policyDecisionLabel(tool.policy_decision)}</Tag>}
           </Space>
           {needsApproval && !readOnly && (
             <Space>
-              <Button size="small" icon={<EditOutlined />} onClick={() => setEditOpen(true)}>
+              {hasEditableArguments && <Button size="small" icon={<EditOutlined />} onClick={() => setEditOpen(true)}>
                 修改参数
-              </Button>
+              </Button>}
               <Button
                 size="small"
                 type="primary"
@@ -128,14 +160,7 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
         )}
         {tool.policy_reason && needsApproval && (
           <Text type="secondary" style={{ fontSize: 12 }}>
-            原因：{tool.policy_reason}
-          </Text>
-        )}
-
-        {/* 原始参数 JSON 仅专家模式展示 */}
-        {isExpert && Object.keys(args).length > 0 && (
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            原始参数：{JSON.stringify(args)}
+            原因：{chineseDiagnosticText(tool.policy_reason)}
           </Text>
         )}
 
@@ -152,8 +177,38 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
         )}
         {tool.error_message && (
           <Text type="danger" style={{ fontSize: 12 }}>
-            {tool.error_message}
+            {displayedError}
           </Text>
+        )}
+
+        {/* 原始工具标识、协议状态、参数与未翻译错误只在折叠的专家详情中出现。 */}
+        {isExpert && (Object.keys(args).length > 0 || hasUnknownProtocolCode || rawError) && (
+          <details className="diagnosis-protocol-details">
+            <summary>查看技术详情</summary>
+            <Space direction="vertical" size={2} style={{ width: "100%", marginTop: 6 }}>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                工具标识：<Text code>{tool.tool_name || "未返回"}</Text>
+              </Text>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                原始状态：<Text code>{status || "未返回"}</Text>
+              </Text>
+              {tool.policy_decision && (
+                <Text type="secondary" style={{ fontSize: 11 }}>
+                  原始策略码：<Text code>{tool.policy_decision}</Text>
+                </Text>
+              )}
+              {Object.keys(args).length > 0 && (
+                <Text type="secondary" style={{ fontSize: 11, overflowWrap: "anywhere" }}>
+                  原始参数：{JSON.stringify(args)}
+                </Text>
+              )}
+              {rawError && rawError !== displayedError && (
+                <Text type="secondary" style={{ fontSize: 11, overflowWrap: "anywhere" }}>
+                  原始错误：{rawError}
+                </Text>
+              )}
+            </Space>
+          </details>
         )}
       </Space>
 
@@ -169,7 +224,6 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
           form={editForm}
           layout="vertical"
           initialValues={{
-            pid: args.pid,
             duration_seconds: args.duration_seconds,
             sample_rate: args.sample_rate,
           }}
@@ -177,15 +231,22 @@ export default function ToolCallCard({ tool, onApprove, onReject, onUpdateArgs, 
         >
           {tool.tool_name !== "get_agent_status" && (
             <>
-              <Form.Item name="pid" label="目标 PID">
-                <InputNumber min={1} max={4194304} style={{ width: "100%" }} />
+              <Form.Item label="安全目标（不可修改）">
+                <Text code>
+                  {args.agent_id || "未知 Agent"}{args.pid ? ` · PID ${args.pid}` : ""}
+                </Text>
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Agent 与 PID 已由服务端绑定；如需更换目标，请回到诊断范围重新选择。
+                  </Text>
+                </div>
               </Form.Item>
               <Form.Item name="duration_seconds" label="时长（秒）">
                 <InputNumber min={1} max={60} style={{ width: "100%" }} />
               </Form.Item>
             </>
           )}
-          {(tool.tool_name === "start_perf_profile" || tool.tool_name === "start_pyspy_profile") && (
+          {canEditSampleRate && (
             <Form.Item name="sample_rate" label="采样率（Hz）">
               <InputNumber min={1} max={999} style={{ width: "100%" }} />
             </Form.Item>

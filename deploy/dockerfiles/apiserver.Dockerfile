@@ -11,7 +11,11 @@ RUN CGO_ENABLED=0 GOOS=linux go test ./... \
     && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/mini-drop-apiserver ./cmd/apiserver
 
 FROM alpine:3.21
-RUN apk add --no-cache ca-certificates
+ARG ALPINE_MIRROR=""
+RUN if [ -n "$ALPINE_MIRROR" ]; then \
+        sed -i "s@https\?://dl-cdn.alpinelinux.org/alpine@${ALPINE_MIRROR}@g" /etc/apk/repositories; \
+    fi \
+    && apk add --no-cache ca-certificates
 USER 65532:65532
 COPY --from=build /out/mini-drop-apiserver /usr/local/bin/mini-drop-apiserver
 EXPOSE 8080

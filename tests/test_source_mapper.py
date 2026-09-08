@@ -108,6 +108,31 @@ def test_maps_java_nested_class_symbol(tmp_path: Path) -> None:
     assert mapping["review_signals"] == ["loop"]
 
 
+def test_java_runtime_symbol_cannot_match_unrelated_cpp_short_name(tmp_path: Path) -> None:
+    (tmp_path / "process_runner.cpp").write_text(
+        "int ProcessRunner::run() {\n"
+        "    return 0;\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Hotspot.java").write_text(
+        "class Hotspot {\n"
+        "    void run() {}\n"
+        "}\n",
+        encoding="utf-8",
+    )
+
+    result = map_hot_functions(
+        ["java/lang/Thread.run"],
+        roots=[tmp_path],
+        language_hint="JAVA",
+    )
+
+    assert result["language_filter"] == "java"
+    assert result["mappings"] == []
+    assert result["unresolved_symbols"] == ["java/lang/Thread.run"]
+
+
 def test_maps_ruby_method_extent(tmp_path: Path) -> None:
     (tmp_path / "email_server.rb").write_text(
         "def send_email(message)\n"

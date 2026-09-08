@@ -32,6 +32,22 @@
   box-shadow: 10px 0 28px rgba(7, 20, 38, 0.08);
 }
 
+.mobileSider {
+  position: fixed !important;
+  left: 0;
+  z-index: 60;
+}
+
+.mobileNavBackdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  padding: 0;
+  background: rgba(7, 20, 38, 0.48);
+  border: 0;
+  cursor: pointer;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -294,6 +310,7 @@
   }
 
   .content {
+    min-height: calc(100dvh - 80px);
     padding: 12px;
     border-radius: 9px;
   }

@@ -7,11 +7,22 @@ silently treating every uploaded file as equivalent evidence.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 
 
 CONTRACT_VERSION = "1.0.0"
 ATTEMPT_MANIFEST_TYPE = "manifest"
+PROFILE_ANALYSIS_TYPES = frozenset({
+    "flamegraph_json",
+    "flamegraph_svg",
+    "top_json",
+    "callgraph_json",
+    "continuous_flamegraph_json",
+    "continuous_flamegraph_svg",
+    "continuous_top_json",
+    "continuous_callgraph_json",
+})
 
 
 @dataclass(frozen=True)
@@ -44,11 +55,86 @@ class CollectorArtifactContract:
                 f"{self.collector_type}: 缺少必要产物，至少需要 "
                 f"{sorted(self.required_any)} 之一"
             )
+        _validate_profile_analysis_quality(self.collector_type, artifacts)
         return artifact_types
 
 
 class ArtifactContractError(ValueError):
     """Collector output does not satisfy its declared versioned contract."""
+
+
+class ArtifactQualityError(ArtifactContractError):
+    """An explicitly empty profile result must not satisfy the contract."""
+
+    def __init__(self, collector_type: str, artifact_type: str, reason_code: str) -> None:
+        self.payload = {
+            "error_code": "ANALYSIS_INPUT_INVALID",
+            "failure_kind": "SAMPLE_QUALITY",
+            "reason_code": reason_code,
+            "message": (
+                f"{collector_type}: {artifact_type} 不含可用采样，不能登记为分析成功"
+            ),
+            "action_hint": "确认目标进程有负载并检查采样权限、时长和调用栈模式后重新采集。",
+        }
+        super().__init__(self.payload["message"])
+
+    def __str__(self) -> str:
+        return json.dumps(self.payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def _validate_profile_analysis_quality(
+    collector_type: str,
+    artifacts: list[dict],
+) -> None:
+    """Reject only explicit unusable signals; preserve legacy unknown quality."""
+
+    for item in artifacts:
+        artifact_type = str(item.get("artifact_type") or "")
+        if artifact_type not in PROFILE_ANALYSIS_TYPES:
+            continue
+        size_bytes = None
+        if "size_bytes" in item:
+            try:
+                size_bytes = int(item.get("size_bytes"))
+            except (TypeError, ValueError):
+                pass
+        if size_bytes is not None and size_bytes <= 0:
+            raise ArtifactQualityError(
+                collector_type,
+                artifact_type,
+                "EMPTY_ANALYSIS_ARTIFACT",
+            )
+
+        metadata = (
+            item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+        )
+        quality = (
+            metadata.get("profile_quality")
+            if isinstance(metadata.get("profile_quality"), dict)
+            else {}
+        )
+        quality_status = str(quality.get("status") or "").upper()
+        if quality_status and quality_status != "USABLE":
+            raise ArtifactQualityError(
+                collector_type,
+                artifact_type,
+                str(quality.get("reason_code") or "UNUSABLE_PROFILE"),
+            )
+        if "sample_count" in metadata:
+            try:
+                sample_count = int(metadata.get("sample_count"))
+            except (TypeError, ValueError):
+                raise ArtifactQualityError(
+                    collector_type,
+                    artifact_type,
+                    "INVALID_SAMPLE_COUNT",
+                )
+            if sample_count <= 0:
+                raise ArtifactQualityError(
+                    collector_type,
+                    artifact_type,
+                    "NO_PROFILE_SAMPLES",
+                )
 
 
 def _contract(
@@ -80,10 +166,11 @@ COLLECTOR_CONTRACTS: dict[str, CollectorArtifactContract] = {
             "flamegraph_json",
             "flamegraph_svg",
             "top_json",
+            "callgraph_json",
             "suggestions_md",
         },
         required_any={"raw", "flamegraph_json", "flamegraph_svg", "top_json"},
-        analysis={"flamegraph_json", "flamegraph_svg", "top_json", "suggestions_md"},
+        analysis={"flamegraph_json", "flamegraph_svg", "top_json", "callgraph_json", "suggestions_md"},
         raw={"raw"},
     ),
     "ebpf_io": _contract(
@@ -103,27 +190,30 @@ COLLECTOR_CONTRACTS: dict[str, CollectorArtifactContract] = {
     "continuous_perf": _contract(
         "continuous_perf",
         accepted={
+            "continuous_bundle",
             "continuous_raw",
             "continuous_window",
             "continuous_summary",
             "continuous_flamegraph_json",
             "continuous_flamegraph_svg",
             "continuous_top_json",
+            "continuous_callgraph_json",
         },
-        required_any={"continuous_raw", "continuous_summary"},
+        required_any={"continuous_bundle", "continuous_raw", "continuous_summary"},
         analysis={
             "continuous_summary",
             "continuous_flamegraph_json",
             "continuous_flamegraph_svg",
             "continuous_top_json",
+            "continuous_callgraph_json",
         },
-        raw={"continuous_raw", "continuous_window"},
+        raw={"continuous_bundle", "continuous_raw", "continuous_window"},
     ),
     "java_async": _contract(
         "java_async",
-        accepted={"java_flamegraph_html"},
+        accepted={"java_flamegraph_html", "jvm_gc_metrics"},
         required_any={"java_flamegraph_html"},
-        analysis={"java_flamegraph_html"},
+        analysis={"java_flamegraph_html", "jvm_gc_metrics"},
     ),
     "go_pprof": _contract(
         "go_pprof",

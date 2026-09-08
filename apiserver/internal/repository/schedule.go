@@ -15,9 +15,7 @@ import (
 	"mini-drop/apiserver/internal/taskstatus"
 )
 
-// Schedule is the cron task template persisted in the shared PostgreSQL schema
-// (server/app/models.py ScheduleModel). The Python schedule worker owns firing;
-// this surface only creates/updates/reads schedules and their trigger records.
+// Schedule is the cron task template persisted in the shared PostgreSQL schema.
 type Schedule struct {
 	ID             string         `json:"id"`
 	Name           string         `json:"name"`
@@ -152,6 +150,42 @@ func (p *Postgres) ListSchedules(ctx context.Context) ([]Schedule, error) {
 		}
 		_ = json.Unmarshal(tmpl, &s.TaskTemplate)
 		out = append(out, s)
+	}
+	return out, rows.Err()
+}
+
+// ListDueSchedules returns immutable firing slots. FireSchedule advances each
+// slot transactionally, so multiple API replicas may poll this query safely.
+func (p *Postgres) ListDueSchedules(ctx context.Context, now time.Time, limit int) ([]Schedule, error) {
+	if limit < 1 {
+		limit = 1
+	}
+	rows, err := p.pool.Query(ctx, `
+		SELECT id, name, cron_expression, timezone, task_template_json, enabled,
+		       next_run_at, created_at, updated_at
+		FROM schedules
+		WHERE enabled = TRUE AND next_run_at <= $1
+		ORDER BY next_run_at ASC
+		LIMIT $2`, now.UTC(), limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Schedule
+	for rows.Next() {
+		var schedule Schedule
+		var template []byte
+		if err := rows.Scan(
+			&schedule.ID, &schedule.Name, &schedule.CronExpression,
+			&schedule.Timezone, &template, &schedule.Enabled,
+			&schedule.NextRunAt, &schedule.CreatedAt, &schedule.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(template, &schedule.TaskTemplate); err != nil {
+			return nil, fmt.Errorf("decode schedule %s template: %w", schedule.ID, err)
+		}
+		out = append(out, schedule)
 	}
 	return out, rows.Err()
 }

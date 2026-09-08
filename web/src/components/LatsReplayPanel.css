@@ -1,0 +1,70 @@
+.lats-replay-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #d9d3f4;
+  border-radius: 12px;
+  color: #182035;
+  background:
+    radial-gradient(circle at 92% 0, rgba(91, 70, 197, 0.11), transparent 34%),
+    linear-gradient(145deg, #f8f7ff 0%, #ffffff 68%);
+}
+
+.lats-replay-heading,
+.lats-replay-card-head,
+.lats-replay-last-run {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lats-replay-heading h4.ant-typography { margin: 0; color: #24204f; }
+.lats-replay-heading p.ant-typography { max-width: 56rem; margin: 6px 0 0; color: #5d6377; }
+.lats-replay-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #fff;
+  background: #5b46c5;
+}
+
+.lats-replay-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lats-replay-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #dedaf2;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.lats-replay-card:hover { border-color: #aaa0df; box-shadow: 0 7px 18px rgba(54, 42, 120, 0.08); }
+.lats-replay-card-head p.ant-typography { margin: 4px 0 0; color: #626a7e; line-height: 1.65; }
+.lats-replay-card > .ant-btn { align-self: flex-start; min-height: 44px; margin-top: auto; }
+.lats-replay-facts { display: grid; gap: 8px; margin: 12px 0 16px; }
+.lats-replay-facts > div { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: 10px; }
+.lats-replay-facts dt { color: #777d91; font-size: 12px; }
+.lats-replay-facts dd { margin: 0; color: #30384f; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.lats-replay-loading { min-height: 150px; padding: 12px; }
+.lats-replay-last-run {
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid #e4e0f5;
+}
+
+@media (max-width: 800px) {
+  .lats-replay-grid { grid-template-columns: 1fr; }
+  .lats-replay-heading { align-items: stretch; flex-direction: column; }
+  .lats-replay-heading > .ant-btn { align-self: flex-start; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lats-replay-card { transition: none; }
+}

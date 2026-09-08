@@ -1,3 +1,10 @@
+"""Drop Insight 领域服务：把一次 AI 调查推进成可审计的持久化状态机。
+
+这个文件是诊断主链路的业务权威，不是 HTTP handler，也不是自由执行的 Agent。
+它负责目标绑定、假设、策略与预算门禁、工具调用、Evidence 准入、报告和反馈；
+模型只能提出选择，真正的权限、状态迁移和副作用都在这里复核并写入数据库。
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -8,11 +15,13 @@ from contextvars import ContextVar
 from datetime import datetime, timedelta, timezone
 from typing import NoReturn
 from uuid import uuid4
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 
 from server.app.database import new_session
+from server.app.agent_runtime.retrieval import build_retrieval_trace
 from server.app.models import (
     AgentModel,
     AnalysisJobModel,
@@ -34,12 +43,13 @@ from server.app.models import (
     TaskModel,
     TaskUploadAuthorizationModel,
 )
-from server.app.state_machine import now_utc
+from server.app.state_machine import Actor, TaskStatus, now_utc
 
 from .evidence import EvidenceEnvelope, calibrate_confidence, classify_evidence
 from .artifact_evidence import assess_artifact_evidence
 from .claim_verifier import verify_report_claims
 from .policy import PolicyContext, evaluate_tool_call
+from .tools import TOOLS, TOOL_TO_COLLECTOR
 from server.app.artifact_contracts import CONTRACT_VERSION
 from .schemas import (
     AddEvidenceRequest,
@@ -51,6 +61,7 @@ from .schemas import (
     DecideToolCallRequest,
     GenerateReportRequest,
     ImportTaskEvidenceRequest,
+    InterveneDiagnosisRequest,
     PreviewToolCallRequest,
     RunPlannerRequest,
     SubmitDiagnosisFeedbackRequest,
@@ -66,6 +77,20 @@ from server.app.sql_repository import SqlRepository
 from server.app.storage import presigned_put_url
 from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
+from .lats import (
+    LATSConfig,
+    execution_semantics,
+    hypothesis_path,
+    order_progressive_frontier,
+    prepare_candidates,
+    reflection_from_outcome,
+    replay_search_events,
+    reward_from_outcome,
+    select_puct_candidate,
+    stable_candidate_key,
+    termination_decision,
+)
+from .rounds import report_execution_rounds
 
 
 logger = logging.getLogger(__name__)
@@ -103,13 +128,20 @@ _AUTO_SCOPE_ALIASES = {
 }
 
 _DATABASE_QUERY_TOKENS = (
-    "数据库锁", "锁等待", "deadlock", "mysql lock", "postgres lock", "db lock",
+    "数据库锁", "deadlock", "mysql lock", "postgres lock", "db lock",
 )
 
 
 def _is_database_query(query: str) -> bool:
     lowered = query.casefold()
-    return any(token in lowered for token in _DATABASE_QUERY_TOKENS)
+    if any(token in lowered for token in _DATABASE_QUERY_TOKENS):
+        return True
+    # “锁等待”也会出现在 JVM/C++ 诊断的反证描述里。只有查询同时明确
+    # 提到数据库或数据库引擎时，才允许它把自动发现范围收窄到数据库。
+    return "锁等待" in lowered and any(
+        marker in lowered
+        for marker in ("数据库", "mysql", "postgres", "database", " db ")
+    )
 
 
 def _scope_questions(target: dict | None, time_range: dict | None) -> list[dict]:
@@ -197,26 +229,96 @@ def _auto_scope_score(query: str, candidate: dict) -> int:
     return score
 
 
+def _explicit_process_name(query: str) -> str | None:
+    match = re.search(
+        r"(?:进程名(?:为|是)?|process(?:\s+name)?(?:\s+is|\s*[:=])?)\s*"
+        r"([a-z][a-z0-9_.-]{0,127})",
+        query.casefold(),
+    )
+    return match.group(1) if match else None
+
+
 def _auto_scope_service_filter(query: str) -> str | None:
     """Extract an explicit machine-style service name, when the user gave one."""
 
-    specific = sorted(
-        (token for token in _auto_scope_tokens(query) if "-" in token or "." in token),
-        key=lambda token: (-len(token), token),
-    )
-    if specific:
-        return specific[0]
+    # An explicit process name must be resolved against the process snapshot,
+    # not converted into a service filter.  More importantly, free-form dotted
+    # tokens such as ``FileChannel.force`` are method names, not necessarily
+    # service identities.  Treating every dotted token as a service used to
+    # turn an otherwise valid Java diagnosis into an EMPTY discovery forever.
+    if _explicit_process_name(query):
+        return None
     if _is_database_query(query):
         return os.getenv("MINI_DROP_DATABASE_SERVICE", "mini-drop-postgres").strip() or None
+
+    lowered = query.casefold()
+    explicit_service_patterns = (
+        r"(?:服务名|service(?:\s+name)?)\s*(?:为|是|[:=])?\s*"
+        r"([a-z][a-z0-9_.-]{0,127})",
+        r"([a-z][a-z0-9_.-]{0,127})\s*(?:服务|service)\b",
+    )
+    for pattern in explicit_service_patterns:
+        match = re.search(pattern, lowered)
+        if match:
+            return match.group(1)
     return None
 
 
-def _select_auto_scope_candidate(query: str, discovery: dict) -> dict | None:
+def _auto_scope_capability_score(query: str, candidate: dict) -> int:
+    lowered = query.casefold()
+    capabilities = {
+        str(value).casefold()
+        for value in (candidate.get("collector_capabilities") or [])
+    }
+    score = 0
+    requested = (
+        (("cpu", "负载", "系统"), {"sys_metrics", "perf_cpu", "continuous_perf"}),
+        (("内存", "memory", "rss", "oom"), {"memory_smaps", "sys_metrics"}),
+        (("磁盘", "disk", "io", "i/o"), {"ebpf_io", "sys_metrics"}),
+        (("python", "py-spy"), {"pyspy"}),
+        (("java", "jvm"), {"java_async"}),
+        (("golang", "go ", "pprof"), {"go_pprof"}),
+    )
+    for keywords, expected in requested:
+        if any(keyword in lowered for keyword in keywords):
+            score += 8 * len(capabilities.intersection(expected))
+    identity = " ".join(
+        str(candidate.get(key) or "")
+        for key in ("service", "instance", "process")
+    ).casefold()
+    if "mini-drop" in identity or "drop_agent" in identity or "drop-agent" in identity:
+        score += 6
+    elif "agent" in identity:
+        score += 3
+    return score
+
+
+def _select_auto_scope_candidate(
+    query: str,
+    discovery: dict,
+    *,
+    diagnosis_id: str | None = None,
+) -> dict | None:
     candidates = [item for item in discovery.get("candidates", []) if item.get("eligible")]
     if len(candidates) == 1:
         return candidates[0]
     if not candidates:
         return None
+
+    # An explicit process name is part of the user's scope authority.  When it
+    # identifies one fresh eligible candidate, bind it before asking the model
+    # to rank unrelated processes.  This keeps autonomous scope selection
+    # deterministic for requests such as “进程名为 java”, while ambiguous
+    # duplicate process names still fall through to the normal scorer/model.
+    requested_process = _explicit_process_name(query)
+    if requested_process:
+        exact_matches = [
+            item
+            for item in candidates
+            if str(item.get("process") or "").casefold() == requested_process
+        ]
+        if len(exact_matches) == 1:
+            return exact_matches[0]
     if _is_database_query(query):
         postgres = [
             item for item in candidates
@@ -227,15 +329,44 @@ def _select_auto_scope_candidate(query: str, discovery: dict) -> dict | None:
             return sorted(
                 postgres, key=lambda item: str(item.get("binding_id") or "")
             )[0]
+
+    if diagnosis_id:
+        try:
+            from server.app.ai_provider import get_ai_settings
+            from .diagnosis_agent import select_scope_with_diagnosis_agent
+
+            settings = get_ai_settings()
+            if settings.nlp_enabled and settings.api_key:
+                selected = select_scope_with_diagnosis_agent(
+                    diagnosis_id=diagnosis_id,
+                    query=query,
+                    candidates=candidates,
+                    settings=settings,
+                )
+                if selected is not None:
+                    return selected
+        except Exception:
+            logger.exception(
+                "AI scope selection failed; using deterministic safe fallback",
+                extra={"diagnosis_id": diagnosis_id},
+            )
+
     ranked = sorted(
-        ((_auto_scope_score(query, item), item) for item in candidates),
-        key=lambda pair: (-pair[0], str(pair[1].get("binding_id") or "")),
+        (
+            (
+                _auto_scope_score(query, item),
+                _auto_scope_capability_score(query, item),
+                item,
+            )
+            for item in candidates
+        ),
+        key=lambda row: (-row[0], -row[1], str(row[2].get("binding_id") or "")),
     )
-    top_score, top = ranked[0]
-    runner_up = ranked[1][0] if len(ranked) > 1 else -1
-    if top_score >= 20 and top_score > runner_up:
-        return top
-    return None
+    # Autonomous mode must make progress without asking the operator to
+    # transcribe Agent/PID details. Every row is already an opaque, fresh,
+    # server-attested binding; this tie-break only chooses among existing
+    # authority and cannot widen it.
+    return ranked[0][2]
 
 
 def _default_auto_scope_range(query: str, *, timestamp: datetime) -> DiagnosticTimeRange:
@@ -647,7 +778,11 @@ def _auto_resolve_diagnosis_scope(diagnosis_id: str, query: str) -> None:
         )
         if not discovery or discovery.get("status") not in {"READY", "AMBIGUOUS"}:
             return
-        selected = _select_auto_scope_candidate(query, discovery)
+        selected = _select_auto_scope_candidate(
+            query,
+            discovery,
+            diagnosis_id=diagnosis_id,
+        )
         if selected is None:
             return
         timestamp = now_utc()
@@ -688,7 +823,56 @@ def _auto_resolve_diagnosis_scope(diagnosis_id: str, query: str) -> None:
                 raise
 
 
-def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionModel:
+def resolve_diagnosis_scope_autonomously(diagnosis_id: str) -> bool:
+    """Retry safe scope discovery for an autonomous session.
+
+    This makes scope acquisition part of the server runtime instead of a
+    browser-owned form. Retries are rate-limited by the latest persisted
+    discovery so an unavailable Agent cannot create a hot loop.
+    """
+
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if (
+            diagnosis is None
+            or diagnosis.deleted_at is not None
+            or diagnosis.mode != "AUTONOMOUS"
+            or diagnosis.status != "NEEDS_CLARIFICATION"
+        ):
+            return False
+        retry_seconds = max(
+            5,
+            int(os.getenv("MINI_DROP_AUTO_SCOPE_RETRY_SEC", "15")),
+        )
+        latest = (
+            session.query(DropInsightTargetDiscoveryModel)
+            .filter(DropInsightTargetDiscoveryModel.diagnosis_id == diagnosis_id)
+            .order_by(DropInsightTargetDiscoveryModel.created_at.desc())
+            .first()
+        )
+        if latest is not None and (
+            now_utc() - _as_utc(latest.created_at)
+        ) < timedelta(seconds=retry_seconds):
+            return False
+        query = diagnosis.query
+    finally:
+        session.close()
+
+    _auto_resolve_diagnosis_scope(diagnosis_id, query)
+    verification = new_session()
+    try:
+        diagnosis = verification.get(DropInsightSessionModel, diagnosis_id)
+        return bool(diagnosis and diagnosis.status != "NEEDS_CLARIFICATION")
+    finally:
+        verification.close()
+
+
+def create_diagnosis(
+    payload: CreateDiagnosisRequestV2,
+    *,
+    created_by: str = "system:internal",
+) -> DropInsightSessionModel:
     target_json = payload.target.model_dump(mode="json")
     time_range_json = payload.time_range.model_dump(mode="json") if payload.time_range else {}
     questions = _scope_questions(target_json, time_range_json)
@@ -704,6 +888,8 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         requested_time_range_json=time_range_json,
         effective_time_range_json={},
         mode=payload.mode,
+        skill_policy=payload.skill_policy,
+        created_by=created_by.strip() or "system:internal",
         budget_json=payload.budget.model_dump(mode="json"),
         status=status,
         version=1,
@@ -717,7 +903,11 @@ def create_diagnosis(payload: CreateDiagnosisRequestV2) -> DropInsightSessionMod
         sequence=1,
         event_type="diagnosis.created",
         actor="USER",
-        payload_json={"status": status},
+        payload_json={
+            "status": status,
+            "skill_policy": payload.skill_policy,
+            "created_by": created_by.strip() or "system:internal",
+        },
         occurred_at=timestamp,
     )
     session = new_session()
@@ -748,6 +938,57 @@ def _utc_iso(value: datetime) -> str:
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _time_range_boundary_utc(value, timezone_name: str) -> datetime:
+    """Parse one API boundary using the declared zone for offset-less values."""
+
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if not isinstance(value, datetime):
+        raise ValueError("diagnosis time range boundary must be a datetime")
+    if value.tzinfo is None:
+        try:
+            value = value.replace(tzinfo=ZoneInfo(timezone_name))
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError(f"unknown diagnosis timezone: {timezone_name}") from exc
+    return value.astimezone(timezone.utc)
+
+
+def _diagnostic_time_ranges_equivalent(submitted: dict, established: dict) -> bool:
+    """Compare an immutable range by meaning instead of JSON formatting.
+
+    Browsers commonly round ``datetime-local`` controls to a minute while the
+    server persists seconds and microseconds.  A repeated confirmation of the
+    same displayed minute is idempotent; moving either boundary to a different
+    minute remains a real (and rejected) range change.
+    """
+
+    try:
+        submitted_model = DiagnosticTimeRange.model_validate(submitted)
+        established_model = DiagnosticTimeRange.model_validate(established)
+        submitted_zone = submitted_model.timezone
+        established_zone = established_model.timezone
+
+        def same_boundary(submitted_value: datetime, established_value: datetime) -> bool:
+            left = _time_range_boundary_utc(submitted_value, submitted_zone)
+            right = _time_range_boundary_utc(established_value, established_zone)
+            if left == right:
+                return True
+            # HTML minute controls erase seconds.  Only the submitted side is
+            # allowed to request this tolerance, so arbitrary second-precision
+            # edits are never silently accepted.
+            if submitted_value.second == 0 and submitted_value.microsecond == 0:
+                return left.replace(second=0, microsecond=0) == right.replace(
+                    second=0, microsecond=0
+                )
+            return False
+
+        return same_boundary(
+            submitted_model.start, established_model.start
+        ) and same_boundary(submitted_model.end, established_model.end)
+    except (TypeError, ValueError):
+        return False
 
 
 def open_effective_time_range(
@@ -895,6 +1136,151 @@ def list_diagnoses() -> list[DropInsightSessionModel]:
         session.close()
 
 
+_ACTIVE_AUTONOMOUS_DIAGNOSIS_STATUSES = {
+    "NEEDS_CLARIFICATION",
+    "UNDERSTANDING",
+    "PLANNING",
+    "HYPOTHESIZING",
+    "COLLECTING_EVIDENCE",
+}
+
+
+def expire_stale_autonomous_diagnoses(
+    *,
+    timestamp: datetime | None = None,
+) -> list[str]:
+    """Cancel autonomous sessions that exceeded their wall-clock budget.
+
+    Task-duration accounting alone cannot bound time spent waiting in the
+    Agent queue. Without a session deadline, a Worker restart could revive
+    days-old diagnoses and let them compete with a fresh incident after the
+    original observation window had already closed.
+    """
+
+    checked_at = timestamp or now_utc()
+    lookup = new_session()
+    try:
+        diagnosis_ids = [
+            row[0]
+            for row in (
+                lookup.query(DropInsightSessionModel.id)
+                .filter(
+                    DropInsightSessionModel.mode == "AUTONOMOUS",
+                    DropInsightSessionModel.deleted_at.is_(None),
+                    DropInsightSessionModel.status.in_(
+                        _ACTIVE_AUTONOMOUS_DIAGNOSIS_STATUSES
+                    ),
+                )
+                .all()
+            )
+        ]
+    finally:
+        lookup.close()
+
+    expired: list[str] = []
+    repository = SqlRepository()
+    for diagnosis_id in diagnosis_ids:
+        session = new_session()
+        try:
+            diagnosis = _lock_diagnosis(session, diagnosis_id)
+            if (
+                diagnosis is None
+                or diagnosis.mode != "AUTONOMOUS"
+                or diagnosis.status not in _ACTIVE_AUTONOMOUS_DIAGNOSIS_STATUSES
+            ):
+                continue
+            budget = dict(diagnosis.budget_json or {})
+            max_duration_seconds = max(
+                10,
+                min(1800, int(budget.get("max_duration_seconds") or 300)),
+            )
+            age_seconds = (
+                _as_utc(checked_at) - _as_utc(diagnosis.created_at)
+            ).total_seconds()
+            if age_seconds <= max_duration_seconds:
+                continue
+
+            reason = "诊断会话超过端到端时长预算，停止陈旧采集与后续规划"
+            tool_calls = (
+                session.query(DropInsightToolCallModel)
+                .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
+                .all()
+            )
+            for tool_call in tool_calls:
+                task = (
+                    session.get(TaskModel, tool_call.task_id)
+                    if tool_call.task_id
+                    else None
+                )
+                if task is not None and task.status in {
+                    TaskStatus.PENDING.value,
+                    TaskStatus.RUNNING.value,
+                    TaskStatus.UPLOADING.value,
+                    TaskStatus.ANALYZING.value,
+                }:
+                    repository._transition_task_in_session(
+                        session,
+                        task.id,
+                        TaskStatus.CANCELLED,
+                        reason,
+                        Actor.SCHEDULE,
+                        {
+                            "error_code": "DIAGNOSIS_DEADLINE_EXCEEDED",
+                            "diagnosis_id": diagnosis_id,
+                        },
+                    )
+                if tool_call.status in {
+                    "PROPOSED",
+                    "PENDING_APPROVAL",
+                    "APPROVED",
+                    "TASK_CREATED",
+                    "RUNNING",
+                }:
+                    tool_call.status = "CANCELLED"
+                    tool_call.result_json = {
+                        **dict(tool_call.result_json or {}),
+                        "error": "diagnosis_deadline_exceeded",
+                        "reason": reason,
+                    }
+                    tool_call.executed_at = tool_call.executed_at or checked_at
+                    tool_call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+                    tool_call.terminal_processed_at = checked_at
+                    _release_budget_reservation(
+                        tool_call,
+                        timestamp=checked_at,
+                        reason="diagnosis_deadline_exceeded",
+                    )
+
+            _cas_session_update(
+                session,
+                diagnosis,
+                status="CANCELLED",
+                timestamp=checked_at,
+            )
+            _append_event(
+                session,
+                diagnosis_id,
+                "diagnosis.expired",
+                "SYSTEM",
+                {
+                    "status": "CANCELLED",
+                    "reason": "wall_clock_budget_exhausted",
+                    "max_duration_seconds": max_duration_seconds,
+                    "age_seconds": int(age_seconds),
+                },
+                checked_at,
+                effect_key=f"diagnosis:{diagnosis_id}:wall-clock-expired",
+            )
+            session.commit()
+            expired.append(diagnosis_id)
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+    return expired
+
+
 def delete_diagnosis(
     diagnosis_id: str,
     *,
@@ -934,6 +1320,87 @@ def list_events(diagnosis_id: str) -> list[DropInsightEventModel]:
             .order_by(DropInsightEventModel.sequence.asc())
             .all()
         )
+    finally:
+        session.close()
+
+
+def list_knowledge_retrievals(diagnosis_id: str) -> list[dict]:
+    """Project only this diagnosis's persisted knowledge retrieval traces."""
+
+    session = new_session()
+    try:
+        events = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type == "planner.knowledge_retrieved",
+            )
+            .order_by(DropInsightEventModel.sequence.asc())
+            .all()
+        )
+        result: list[dict] = []
+        for event in events:
+            payload = dict(event.payload_json or {})
+            trace = dict(payload.get("retrieval_trace") or {})
+            result.append(
+                {
+                    "event_id": event.id,
+                    "diagnosis_id": event.diagnosis_id,
+                    "sequence": event.sequence,
+                    "phase": payload.get("phase"),
+                    "round_index": payload.get("round_index"),
+                    "retrieval_trace": trace,
+                    "occurred_at": event.occurred_at,
+                }
+            )
+        return result
+    finally:
+        session.close()
+
+
+def _record_planner_knowledge_retrieval(
+    diagnosis_id: str,
+    *,
+    query: str,
+    category: str,
+    phase: str,
+    effect_key: str,
+    user_correction: str = "",
+    round_index: int | None = None,
+) -> dict:
+    """Retrieve first, then persist the non-Evidence planner input exactly once."""
+
+    retrieval_query = "\n".join(
+        value
+        for value in (str(query or "").strip(), category, user_correction.strip())
+        if value
+    )
+    trace = build_retrieval_trace(retrieval_query)
+    session = new_session()
+    try:
+        if session.get(DropInsightSessionModel, diagnosis_id) is None:
+            return trace
+        _append_event(
+            session,
+            diagnosis_id,
+            "planner.knowledge_retrieved",
+            "SYSTEM",
+            {
+                "phase": phase,
+                "round_index": round_index,
+                "retrieval_trace": trace,
+                # Keep this explicit in the durable event so consumers cannot
+                # silently relabel a knowledge match as incident Evidence.
+                "knowledge_is_evidence": False,
+            },
+            now_utc(),
+            effect_key=effect_key,
+        )
+        session.commit()
+        return trace
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -1164,6 +1631,100 @@ def list_evidence(diagnosis_id: str) -> list[DropInsightEvidenceModel]:
         session.close()
 
 
+def _diagnosis_round_contract(
+    session,
+    diagnosis: DropInsightSessionModel,
+    *,
+    include_hypothesis_id: str | None = None,
+    include_round_index: int | None = None,
+) -> dict[str, object]:
+    """Return the server-enforced minimum-round progress for real reports.
+
+    Merely expanding several hypotheses does not satisfy the contract. A round
+    counts only after a report has been persisted for a selected hypothesis,
+    which means at least one real observation reached the Evidence Gate. LATS
+    may backtrack to a sibling born in an older tree depth; its monotonic
+    ``lats.node_selected.iteration`` remains the real execution round.
+    ``include_hypothesis_id`` accounts for the report currently being built
+    before it is flushed. ``include_round_index`` remains a legacy fallback for
+    callers without a hypothesis identity.
+    """
+
+    budget = diagnosis.budget_json or {}
+    maximum = max(1, int(budget.get("max_diagnosis_rounds", 6)))
+    minimum = min(
+        4,
+        maximum,
+        max(1, int(budget.get("min_diagnosis_rounds", 1))),
+    )
+    report_rows = (
+        session.query(
+            DropInsightHypothesisModel.id,
+            DropInsightHypothesisModel.round_index,
+        )
+        .join(
+            DropInsightReportModel,
+            DropInsightReportModel.hypothesis_id
+            == DropInsightHypothesisModel.id,
+        )
+        .filter(DropInsightReportModel.diagnosis_id == diagnosis.id)
+        .distinct()
+        .all()
+    )
+    birth_rounds = {
+        str(hypothesis_id): max(1, int(round_index or 1))
+        for hypothesis_id, round_index in report_rows
+    }
+    if include_hypothesis_id:
+        birth_rounds.setdefault(
+            include_hypothesis_id,
+            max(1, int(include_round_index or 1)),
+        )
+    events = (
+        session.query(DropInsightEventModel)
+        .filter(
+            DropInsightEventModel.diagnosis_id == diagnosis.id,
+            DropInsightEventModel.event_type == "lats.node_selected",
+        )
+        .order_by(DropInsightEventModel.sequence.asc())
+        .all()
+    )
+    report_hypothesis_ids = [str(row[0]) for row in report_rows]
+    if include_hypothesis_id:
+        report_hypothesis_ids.append(include_hypothesis_id)
+    observed = report_execution_rounds(
+        events,
+        report_hypothesis_ids,
+        birth_rounds,
+    )
+    if include_hypothesis_id is None and include_round_index is not None:
+        observed.add(int(include_round_index))
+    return {
+        "minimum": minimum,
+        "observed": len(observed),
+        "round_indexes": sorted(observed),
+        "satisfied": len(observed) >= minimum,
+    }
+
+
+def _report_round_contract_snapshot(diagnosis_id: str) -> dict[str, object]:
+    """Read durable execution-round progress outside an existing transaction."""
+
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if diagnosis is None:
+            return {
+                "minimum": 1,
+                "observed": 0,
+                "round_indexes": [],
+                "satisfied": False,
+            }
+        return _diagnosis_round_contract(session, diagnosis)
+    finally:
+        session.close()
+
+
 def generate_report(
     diagnosis_id: str,
     payload: GenerateReportRequest,
@@ -1245,24 +1806,37 @@ def generate_report(
             }
         )
         if not support_refs:
-            limitations.append("No accepted supporting evidence; conclusion is not established.")
+            limitations.append("没有通过证据门禁的支持证据，当前不能建立根因结论。")
         elif not verification["has_independent_counter_or_control"]:
             limitations.append(
                 "缺少独立反证或对照证据；结论已完成，但仍应在修复复测中补充独立验证。"
             )
 
         source_symbols = _extract_source_symbols(supporting + counter)
-        verification["source_context"] = map_hot_functions(source_symbols)
+        verification["source_context"] = map_hot_functions(
+            source_symbols,
+            language_hint=_diagnosis_runtime_family(diagnosis),
+        )
 
         conclusion = _derive_report_conclusion(
             hypothesis.statement,
             support_refs=support_refs,
             counter_refs=counter_refs,
+            supporting=[
+                item for item in supporting if item.evidence_id in support_refs
+            ],
+            verification_status=verification["status"],
         )
         assumptions = ["结论仅适用于当前诊断目标与时间窗口"]
         next_actions = _derive_next_actions(
             support_refs=support_refs,
             counter_refs=counter_refs,
+        )
+        round_contract = _diagnosis_round_contract(
+            session,
+            diagnosis,
+            include_hypothesis_id=hypothesis.id,
+            include_round_index=hypothesis.round_index,
         )
 
         timestamp = now_utc()
@@ -1299,12 +1873,21 @@ def generate_report(
         else:
             hypothesis.status = "INCONCLUSIVE"
         hypothesis.updated_at = timestamp
+        # A report is a branch observation, not automatically the terminal
+        # state of the whole Agent session.  Non-verified and partially
+        # verified reports stay non-terminal while report effects synchronously
+        # decide whether to widen/replan or truly stop the search.  This avoids
+        # a visible INSUFFICIENT_EVIDENCE/COMPLETED flash that a browser poller
+        # could mistake for the final result.
         next_status = (
             "COMPLETED"
-            if support_refs and confidence >= 0.6
+            if (
+                support_refs
+                and confidence >= 0.6
+                and verification["status"] == "VERIFIED"
+                and round_contract["satisfied"]
+            )
             else "COLLECTING_EVIDENCE"
-            if support_refs
-            else "INSUFFICIENT_EVIDENCE"
         )
         _cas_session_update(session, diagnosis, status=next_status, timestamp=timestamp)
         _append_event(
@@ -1320,6 +1903,9 @@ def generate_report(
                 "verification_status": verification["status"],
                 "verified_claim_count": len(verification["claims"]),
                 "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+                "minimum_diagnosis_rounds": round_contract["minimum"],
+                "observed_diagnosis_rounds": round_contract["observed"],
+                "minimum_rounds_satisfied": round_contract["satisfied"],
             },
             timestamp,
         )
@@ -1579,6 +2165,31 @@ def _apply_report_effects(
                 verification_status = (report.verification_json or {}).get("status")
                 has_support = bool(report.evidence_refs_json)
                 has_counter = bool(report.counter_evidence_refs_json)
+                round_session = new_session()
+                try:
+                    round_diagnosis = round_session.get(
+                        DropInsightSessionModel,
+                        diagnosis_id,
+                    )
+                    round_contract = (
+                        _diagnosis_round_contract(
+                            round_session,
+                            round_diagnosis,
+                        )
+                        if round_diagnosis is not None
+                        else {
+                            "minimum": 1,
+                            "observed": 0,
+                            "satisfied": False,
+                        }
+                    )
+                finally:
+                    round_session.close()
+
+                # LATS learns only from the immutable report produced by the
+                # Evidence Gate.  The reflection is planning context, never a
+                # substitute for incident Evidence.
+                _record_lats_report_outcome(report_id)
 
                 if has_counter and not has_support and hypothesis_id:
                     _replan_from_counter_evidence(
@@ -1592,8 +2203,42 @@ def _apply_report_effects(
                         hypothesis_id,
                         report_id,
                     )
-                elif verification_status in {"VERIFIED", "PARTIAL_WITHOUT_COUNTER"}:
-                    _record_successful_route(diagnosis_id, report_id)
+                elif verification_status == "PARTIAL_WITHOUT_COUNTER" and hypothesis_id:
+                    _replan_after_insufficient_evidence(
+                        diagnosis_id,
+                        hypothesis_id,
+                        report_id,
+                        continuation_reason=(
+                            "已有支持证据，但缺少独立证据域的交叉验证"
+                        ),
+                    )
+                elif (
+                    verification_status == "VERIFIED"
+                    and has_support
+                    and report.confidence >= 600
+                ):
+                    if round_contract["satisfied"]:
+                        _record_successful_route(diagnosis_id, report_id)
+                    elif hypothesis_id:
+                        _replan_after_insufficient_evidence(
+                            diagnosis_id,
+                            hypothesis_id,
+                            report_id,
+                            continuation_reason=(
+                                "当前证据已达到支持门槛，但受控场景要求至少 "
+                                f"{round_contract['minimum']} 轮真实诊断；当前仅完成 "
+                                f"{round_contract['observed']} 轮，继续跨证据域交叉验证"
+                            ),
+                        )
+                elif has_support and hypothesis_id:
+                    _replan_after_insufficient_evidence(
+                        diagnosis_id,
+                        hypothesis_id,
+                        report_id,
+                        continuation_reason=(
+                            "证据覆盖已通过结构校验，但综合置信度仍未达到结论门槛"
+                        ),
+                    )
             finally:
                 _REPORT_EFFECT_RECONCILIATION.reset(token)
             _renew_report_effect_lease(report_id, owner, fencing_token)
@@ -1672,6 +2317,411 @@ def list_feedback(diagnosis_id: str) -> list[DropInsightFeedbackModel]:
             .order_by(DropInsightFeedbackModel.created_at.desc())
             .all()
         )
+    finally:
+        session.close()
+
+
+def _intervention_event_view(event, diagnosis=None) -> dict:
+    payload = dict(event.payload_json or {})
+    return {
+        "intervention_id": payload.get("intervention_id"),
+        "diagnosis_id": event.diagnosis_id,
+        "sequence": event.sequence,
+        "action": payload.get("action"),
+        "message": payload.get("message"),
+        "hypothesis_id": payload.get("hypothesis_id"),
+        "revision_hypothesis_id": payload.get("revision_hypothesis_id"),
+        "tool_call_id": payload.get("tool_call_id"),
+        "round_index": payload.get("round_index"),
+        "created_by": payload.get("created_by"),
+        "created_at": event.occurred_at,
+        "status": diagnosis.status if diagnosis is not None else None,
+        "diagnosis_version": diagnosis.version if diagnosis is not None else None,
+    }
+
+
+def list_diagnosis_interventions(diagnosis_id: str) -> list[dict]:
+    """Return durable user turns in conversational order."""
+
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if diagnosis is None:
+            return []
+        rows = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type == "diagnosis.intervention_submitted",
+            )
+            .order_by(DropInsightEventModel.sequence.asc())
+            .all()
+        )
+        return [_intervention_event_view(row, diagnosis) for row in rows]
+    finally:
+        session.close()
+
+
+def _intervention_effect_key(
+    diagnosis_id: str,
+    created_by: str,
+    idempotency_key: str,
+) -> str:
+    digest = hashlib.sha256(
+        f"{diagnosis_id}\0{created_by}\0{idempotency_key}".encode("utf-8")
+    ).hexdigest()
+    return f"intervention:{digest[:48]}"
+
+
+def intervene_diagnosis(
+    diagnosis_id: str,
+    payload: InterveneDiagnosisRequest,
+    *,
+    created_by: str,
+) -> dict | None:
+    """Persist one user turn and continue the evidence loop safely.
+
+    The message is context, not evidence.  It can deprioritize a branch and
+    seed a new falsifiable hypothesis, but the selected probe still passes the
+    regular binding, policy, capability and budget checks.
+    """
+
+    generated_id = f"intervention_{uuid4().hex}"
+    effect_key = (
+        _intervention_effect_key(
+            diagnosis_id,
+            created_by,
+            payload.idempotency_key,
+        )
+        if payload.idempotency_key
+        else f"intervention:{generated_id}"
+    )
+    event_id = None
+    session = new_session()
+    try:
+        # Idempotency is checked before the optimistic version so a browser
+        # retry with the original version returns the first user turn.
+        existing = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.effect_key == effect_key,
+            )
+            .first()
+        )
+        if existing is not None:
+            event_id = existing.id
+        else:
+            diagnosis = _lock_diagnosis(
+                session,
+                diagnosis_id,
+                payload.expected_version,
+            )
+            if diagnosis is None:
+                return None
+            if diagnosis.deleted_at is not None:
+                raise ValueError("diagnosis is archived")
+            if diagnosis.status == "NEEDS_CLARIFICATION":
+                raise ValueError(
+                    "diagnosis scope must be resolved before user intervention"
+                )
+            timestamp = now_utc()
+            _validated_target_binding(session, diagnosis, now=timestamp)
+            parent = None
+            if payload.hypothesis_id:
+                parent = session.get(
+                    DropInsightHypothesisModel,
+                    payload.hypothesis_id,
+                )
+                if parent is None or parent.diagnosis_id != diagnosis_id:
+                    raise ValueError("hypothesis does not belong to diagnosis")
+            if parent is None:
+                parent = (
+                    session.query(DropInsightHypothesisModel)
+                    .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+                    .order_by(
+                        DropInsightHypothesisModel.round_index.desc(),
+                        DropInsightHypothesisModel.created_at.desc(),
+                    )
+                    .first()
+                )
+            current_round = (
+                session.query(func.max(DropInsightHypothesisModel.round_index))
+                .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+                .scalar()
+                or 0
+            )
+            round_index = int(current_round) + 1
+            max_rounds = int(
+                (diagnosis.budget_json or {}).get("max_diagnosis_rounds", 6)
+            )
+            if round_index > max_rounds:
+                raise ValueError(
+                    f"diagnosis round budget exhausted: {current_round}/{max_rounds}"
+                )
+            if parent is not None and payload.action in {
+                "CHALLENGE_HYPOTHESIS",
+                "CHANGE_DIRECTION",
+            }:
+                # Human direction changes are not scientific counter-evidence;
+                # preserve that distinction in the explicit status.
+                parent.status = "DEPRIORITIZED"
+                parent.updated_at = timestamp
+            intervention_id = generated_id
+            # `_append_event` owns sequence allocation and outbox creation.
+            _append_event(
+                session,
+                diagnosis_id,
+                "diagnosis.intervention_submitted",
+                "USER",
+                {
+                    "intervention_id": intervention_id,
+                    "action": payload.action,
+                    "message": payload.message.strip(),
+                    "hypothesis_id": parent.id if parent is not None else None,
+                    "revision_hypothesis_id": None,
+                    "tool_call_id": None,
+                    "round_index": round_index,
+                    "created_by": created_by,
+                    "status_before": diagnosis.status,
+                },
+                timestamp,
+                effect_key=effect_key,
+            )
+            _cas_session_update(
+                session,
+                diagnosis,
+                status="HYPOTHESIZING",
+                timestamp=timestamp,
+            )
+            session.commit()
+            stored_event = (
+                session.query(DropInsightEventModel)
+                .filter(
+                    DropInsightEventModel.diagnosis_id == diagnosis_id,
+                    DropInsightEventModel.effect_key == effect_key,
+                )
+                .one()
+            )
+            event_id = stored_event.id
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+    if event_id is None:
+        return None
+    return _apply_diagnosis_intervention(diagnosis_id, event_id)
+
+
+def _apply_diagnosis_intervention(diagnosis_id: str, event_id: str) -> dict:
+    """Idempotently project a persisted user turn into a new investigation round."""
+
+    session = new_session()
+    try:
+        event = session.get(DropInsightEventModel, event_id)
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if (
+            event is None
+            or event.diagnosis_id != diagnosis_id
+            or event.event_type != "diagnosis.intervention_submitted"
+            or diagnosis is None
+        ):
+            raise ValueError("diagnosis intervention not found")
+        event_payload = dict(event.payload_json or {})
+        if event_payload.get("revision_hypothesis_id"):
+            return _intervention_event_view(event, diagnosis)
+        target = dict(diagnosis.target_json or {})
+        previous = (
+            session.query(DropInsightHypothesisModel)
+            .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+            .order_by(
+                DropInsightHypothesisModel.round_index.asc(),
+                DropInsightHypothesisModel.created_at.asc(),
+            )
+            .all()
+        )
+        parent = next(
+            (
+                item
+                for item in previous
+                if item.id == event_payload.get("hypothesis_id")
+            ),
+            None,
+        )
+    finally:
+        session.close()
+
+    message = str(event_payload.get("message") or "").strip()
+    action = str(event_payload.get("action") or "ADD_CONTEXT")
+    round_index = int(event_payload.get("round_index") or 1)
+    prefix_by_action = {
+        "ADD_CONTEXT": "用户补充上下文后待验证",
+        "CHALLENGE_HYPOTHESIS": "用户质疑上一假设后待重新验证",
+        "CHANGE_DIRECTION": "用户要求切换方向后待验证",
+        "CONTINUE_INVESTIGATION": "证据不足后继续调查",
+    }
+    baseline = {
+        "category": f"USER_{action}",
+        "statement": f"{prefix_by_action.get(action, '用户干预后待验证')}：{message}",
+        "expected": ["新一轮可信采集证据与用户补充的方向在同一目标和时间窗内一致"],
+        "falsification": ["补充证据与该方向不一致或出现更强的替代解释"],
+        "tool_name": _feedback_tool(message, parent),
+    }
+    binding = _current_target_binding(diagnosis)
+    allowed_tools = _available_planner_tools(diagnosis, binding)
+    if not allowed_tools:
+        raise ValueError("bound Agent exposes no executable diagnostic collectors")
+    attempted_tools = {item.tool_name for item in list_tool_calls(diagnosis_id)}
+    skill_activation = _apply_active_planner_skill(
+        diagnosis,
+        diagnosis_id,
+        baseline,
+        target,
+        round_index=round_index,
+        phase="INTERVENTION_REPLAN",
+        attempted_tools=attempted_tools,
+        available_tools=allowed_tools,
+        reuse_existing=(action != "CHANGE_DIRECTION"),
+    )
+    skill_tool = _skill_selected_tool(skill_activation, allowed_tools)
+    if skill_tool is not None:
+        baseline["tool_name"] = skill_tool
+    retrieval_trace = _record_planner_knowledge_retrieval(
+        diagnosis_id,
+        query=diagnosis.query,
+        category=f"USER_{action}",
+        phase="INTERVENTION_REPLAN",
+        effect_key=f"{event_payload['intervention_id']}:knowledge_retrieval",
+        user_correction=message,
+        round_index=round_index,
+    )
+    proposal = propose_hypothesis_plan(
+        diagnosis_id=diagnosis_id,
+        query=diagnosis.query,
+        target=target,
+        category=f"USER_{action}",
+        rule_plan=baseline,
+        prior_hypotheses=[
+            {
+                "statement": item.statement,
+                "status": item.status,
+                "round": item.round_index,
+            }
+            for item in previous
+        ],
+        user_correction=message,
+        allowed_tools=allowed_tools,
+        route_priors=_successful_tool_route_priors(),
+        active_skill=skill_activation,
+        retrieval_trace=retrieval_trace,
+    )
+    candidate = (proposal or {}).get("hypotheses", [{}])[0]
+    statement = candidate.get("statement") or baseline["statement"]
+    expected = candidate.get("expected_observations") or baseline["expected"]
+    falsification = candidate.get("falsification_criteria") or baseline["falsification"]
+    reason = (proposal or {}).get("reasoning_summary") or (
+        "用户在页面中干预探索方向；保留旧分支审计，并开启新一轮证据收集。"
+    )
+    revision = create_hypothesis(
+        diagnosis_id,
+        CreateHypothesisRequest(
+            statement=statement,
+            expected_observations=expected,
+            falsification_criteria=falsification,
+        ),
+        source=(
+            "MODEL_INTERVENTION_REPLAN"
+            if proposal
+            else "USER_INTERVENTION_FALLBACK"
+        ),
+        round_index=round_index,
+        parent_hypothesis_id=parent.id if parent is not None else None,
+        generation_reason=reason,
+        effect_key=f"{event_payload['intervention_id']}:hypothesis",
+    )
+    if revision is None:
+        raise ValueError("diagnosis not found")
+    proposed_tool = (proposal or {}).get("tool_name")
+    fallback_tool = baseline["tool_name"]
+    if fallback_tool not in allowed_tools:
+        fallback_tool = (
+            "collect_sys_metrics"
+            if "collect_sys_metrics" in allowed_tools
+            else allowed_tools[0]
+        )
+    tool_name = (
+        skill_tool
+        or (proposed_tool if proposed_tool in allowed_tools else fallback_tool)
+    )
+    tool_call = request_tool_call(
+        diagnosis_id,
+        CreateToolCallRequest(
+            hypothesis_id=revision.id,
+            tool_name=tool_name,
+            arguments=_planner_tool_arguments(
+                tool_name, target, query=diagnosis.query
+            ),
+        ),
+        requested_by="user:intervention-replanner",
+        effect_key=f"{event_payload['intervention_id']}:tool_call",
+    )
+
+    applied_effect = f"{event_payload['intervention_id']}:applied"
+    session = new_session()
+    try:
+        event = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.id == event_id,
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+            )
+            .with_for_update()
+            .one()
+        )
+        updated_payload = dict(event.payload_json or {})
+        updated_payload.update(
+            {
+                "revision_hypothesis_id": revision.id,
+                "tool_call_id": tool_call.id if tool_call is not None else None,
+                "selected_tool": tool_name,
+                "skill_reuse": _skill_event_summary(skill_activation),
+            }
+        )
+        event.payload_json = updated_payload
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.intervention_applied",
+            "SYSTEM",
+            {
+                "intervention_id": updated_payload["intervention_id"],
+                "action": action,
+                "hypothesis_id": updated_payload.get("hypothesis_id"),
+                "revision_hypothesis_id": revision.id,
+                "tool_call_id": tool_call.id if tool_call is not None else None,
+                "round_index": round_index,
+                "skill_reuse": _skill_event_summary(skill_activation),
+            },
+            now_utc(),
+            effect_key=applied_effect,
+        )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(diagnosis_id, applied_effect):
+            raise
+    finally:
+        session.close()
+
+    session = new_session()
+    try:
+        event = session.get(DropInsightEventModel, event_id)
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        if event is None or diagnosis is None:
+            raise ValueError("diagnosis intervention not found")
+        return _intervention_event_view(event, diagnosis)
     finally:
         session.close()
 
@@ -1773,17 +2823,54 @@ def _replan_from_feedback(
     if diagnosis is None:
         return None
     target = diagnosis.target_json or {}
+    binding = _current_target_binding(diagnosis)
+    allowed_tools = _available_planner_tools(diagnosis, binding)
+    if not allowed_tools:
+        raise ValueError("bound Agent exposes no executable diagnostic collectors")
     previous = list_hypotheses(diagnosis_id)
     parent = next((item for item in previous if item.id == feedback.hypothesis_id), None)
     round_index = max([item.round_index or 1 for item in previous] or [1]) + 1
     correction = feedback.corrected_cause or feedback.feedback_note or "用户认为上一轮结论不完整"
+    fallback_tool = _feedback_tool(correction, parent)
+    if fallback_tool not in allowed_tools:
+        fallback_tool = (
+            "collect_sys_metrics"
+            if "collect_sys_metrics" in allowed_tools
+            else allowed_tools[0]
+        )
     baseline = {
+        "category": "HUMAN_CORRECTION",
         "statement": correction,
         "expected": ["新采集证据与用户纠正的原因在同一目标和时间窗内一致"],
         "falsification": ["补充证据与该纠正原因不一致或出现更强反证"],
-        "tool_name": _feedback_tool(correction, parent),
+        "tool_name": fallback_tool,
     }
+    attempted_tools = {item.tool_name for item in list_tool_calls(diagnosis_id)}
+    skill_activation = _apply_active_planner_skill(
+        diagnosis,
+        diagnosis_id,
+        baseline,
+        target,
+        round_index=round_index,
+        phase="FEEDBACK_REPLAN",
+        attempted_tools=attempted_tools,
+        available_tools=allowed_tools,
+        reuse_existing=(str(feedback.feedback_label or "").lower() != "wrong"),
+    )
+    skill_tool = _skill_selected_tool(skill_activation, allowed_tools)
+    if skill_tool is not None:
+        baseline["tool_name"] = skill_tool
+        fallback_tool = skill_tool
     model_attempted = True
+    retrieval_trace = _record_planner_knowledge_retrieval(
+        diagnosis_id,
+        query=diagnosis.query,
+        category="HUMAN_CORRECTION",
+        phase="FEEDBACK_REPLAN",
+        effect_key=f"feedback:{feedback.id}:knowledge_retrieval",
+        user_correction=correction,
+        round_index=round_index,
+    )
     proposal = propose_hypothesis_plan(
         diagnosis_id=diagnosis_id,
         query=diagnosis.query,
@@ -1795,11 +2882,10 @@ def _replan_from_feedback(
             for item in previous
         ],
         user_correction=correction,
-        allowed_tools=[
-            "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile",
-            "start_pyspy_profile", "collect_database_diagnostics",
-        ],
+        allowed_tools=allowed_tools,
         route_priors=_successful_tool_route_priors(),
+        active_skill=skill_activation,
+        retrieval_trace=retrieval_trace,
     )
     candidate = (proposal or {}).get("hypotheses", [{}])[0]
     statement = candidate.get("statement") or f"用户纠正后待验证：{correction}"
@@ -1821,14 +2907,19 @@ def _replan_from_feedback(
     )
     if revision is None:
         return revision
-    _current_target_binding(diagnosis)
-    tool_name = (proposal or {}).get("tool_name") or baseline["tool_name"]
+    proposed_tool = (proposal or {}).get("tool_name")
+    tool_name = (
+        skill_tool
+        or (proposed_tool if proposed_tool in allowed_tools else fallback_tool)
+    )
     request_tool_call(
         diagnosis_id,
         CreateToolCallRequest(
             hypothesis_id=revision.id,
             tool_name=tool_name,
-            arguments=_planner_tool_arguments(tool_name, target),
+            arguments=_planner_tool_arguments(
+                tool_name, target, query=diagnosis.query
+            ),
         ),
         requested_by="system:adaptive-replanner",
     )
@@ -1839,6 +2930,12 @@ def _feedback_tool(correction: str, parent: DropInsightHypothesisModel | None) -
     text = correction.lower()
     if any(token in text for token in _DATABASE_QUERY_TOKENS):
         return "collect_database_diagnostics"
+    if _query_mentions_go_runtime(text):
+        return "collect_go_profile"
+    if any(token in text for token in ("jvm", "gc", "java", "垃圾回收")):
+        return "start_jvm_profile"
+    if any(token in text for token in ("内存", "memory", "rss", "oom")):
+        return "collect_memory_profile"
     if any(token in text for token in ("io", "磁盘", "写入", "读取")):
         return "start_ebpf_io_profile"
     if any(token in text for token in ("python", "gil", "协程")):
@@ -1881,7 +2978,12 @@ def _current_target_binding(diagnosis) -> ProcessIdentityBinding:
         session.close()
 
 
-def _planner_tool_arguments(tool_name: str, target: dict) -> dict:
+def _planner_tool_arguments(
+    tool_name: str,
+    target: dict,
+    *,
+    query: str = "",
+) -> dict:
     raw_binding = target.get("process_binding")
     try:
         binding = ProcessIdentityBinding.from_mapping(raw_binding)
@@ -1894,9 +2996,548 @@ def _planner_tool_arguments(tool_name: str, target: dict) -> dict:
         "pid": binding.pid,
         "duration_seconds": 15,
     }
-    if tool_name in {"start_perf_profile", "start_pyspy_profile"}:
+    if tool_name in {
+        "start_perf_profile",
+        "start_pyspy_profile",
+        "start_jvm_profile",
+        "collect_go_profile",
+        "start_continuous_profile",
+    }:
         arguments["sample_rate"] = 99
+    if tool_name == "start_continuous_profile":
+        # A counter-evidence pivot uses this probe as an independent repeat,
+        # not as another single snapshot. Thirty seconds gives the native
+        # collector multiple bounded windows while remaining inside the
+        # public tool contract and the live-diagnosis budget.
+        arguments["duration_seconds"] = 30
+    if tool_name == "start_jvm_profile":
+        lowered = query.casefold()
+        if any(token in lowered for token in ("gc", "垃圾回收", "分配", "allocation")):
+            arguments["event"] = "alloc"
+        elif any(token in lowered for token in ("锁竞争", "reentrantlock", "lock contention")):
+            arguments["event"] = "lock"
+        elif any(token in lowered for token in ("下游", "等待", "响应慢", "latency")):
+            arguments["event"] = "wall"
+        else:
+            arguments["event"] = "cpu"
     return arguments
+
+
+_CATEGORY_TOOL_PREFERENCE = {
+    "DATABASE_LOCK": ["collect_database_diagnostics", "collect_sys_metrics"],
+    "LOAD_SATURATION": ["collect_sys_metrics", "start_perf_profile"],
+    "NETWORK_DEGRADATION": ["collect_sys_metrics"],
+    "JVM_GC": ["start_jvm_profile", "collect_memory_profile", "collect_sys_metrics"],
+    "DOWNSTREAM_DEPENDENCY": ["collect_sys_metrics"],
+    "QUEUE_CONGESTION": ["collect_sys_metrics"],
+    "CONTAINER_RESOURCE_LIMIT": ["collect_sys_metrics"],
+    "NOISY_NEIGHBOR": ["collect_sys_metrics"],
+    "IO_LATENCY": ["start_ebpf_io_profile", "collect_sys_metrics"],
+    "PYTHON_RUNTIME": ["start_pyspy_profile", "start_perf_profile", "collect_sys_metrics"],
+    "MEMORY_PRESSURE": ["collect_memory_profile", "collect_sys_metrics"],
+    "FD_LEAK": ["collect_sys_metrics"],
+    "LOCK_CONTENTION": [
+        "start_jvm_profile",
+        "start_perf_profile",
+        "collect_sys_metrics",
+    ],
+    "GO_RUNTIME": ["collect_go_profile", "collect_sys_metrics"],
+    "CPU_HOTSPOT": ["start_perf_profile", "start_continuous_profile", "collect_sys_metrics"],
+}
+
+# Each registered probe represents a genuinely different observation domain.
+# These are hypotheses to test, not incident facts.  They provide an honest,
+# deterministic expansion when a model is unavailable, repeats an old branch,
+# or emits several candidates that all point at the same probe.
+_TOOL_EXPLORATION_DIRECTIONS: dict[str, dict[str, object]] = {
+    "collect_sys_metrics": {
+        "evidence_domain": "SYSTEM_BASELINE",
+        "statement": "异常可能来自主机资源基线或共享资源争抢，而非单一运行时路径",
+        "expected": ["CPU、内存、磁盘 I/O 或网络指标至少一项与故障时间窗同步异常"],
+        "falsification": ["系统基线在故障时间窗内保持平稳，且与异常没有相关性"],
+    },
+    "start_perf_profile": {
+        "evidence_domain": "NATIVE_CPU_STACK",
+        "statement": "目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+        "expected": ["CPU 样本稳定集中在可归属的调用路径或等待路径"],
+        "falsification": ["调用栈样本分散，未出现稳定热点或等待路径"],
+    },
+    "start_continuous_profile": {
+        "evidence_domain": "CONTINUOUS_CPU_STACK",
+        "statement": "异常可能是短时漂移热点，单次采样窗口没有覆盖",
+        "expected": ["连续采样的至少一个窗口捕获稳定热点及其时间变化"],
+        "falsification": ["多个连续窗口均未捕获稳定热点或明显漂移"],
+    },
+    "start_ebpf_io_profile": {
+        "evidence_domain": "KERNEL_IO",
+        "statement": "异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+        "expected": ["eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"],
+        "falsification": ["块设备延迟与 I/O 队列平稳，且没有同窗阻塞"],
+    },
+    "start_pyspy_profile": {
+        "evidence_domain": "PYTHON_RUNTIME",
+        "statement": "Python 运行时可能存在 GIL 竞争、用户态热点或同步阻塞路径",
+        "expected": ["py-spy 样本集中在可归属的 Python 函数或等待路径"],
+        "falsification": ["Python 栈样本分散，且没有稳定热点或阻塞路径"],
+    },
+    "start_jvm_profile": {
+        "evidence_domain": "JVM_RUNTIME",
+        "statement": "JVM 可能存在业务热点、GC 压力或锁竞争",
+        "expected": ["JVM 采样出现稳定业务热点、GC 活动或锁等待路径"],
+        "falsification": ["JVM 业务栈、GC 与锁等待均保持平稳"],
+    },
+    "collect_memory_profile": {
+        "evidence_domain": "PROCESS_MEMORY",
+        "statement": "目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+        "expected": ["RSS、PSS、swap 或内存映射变化与故障时间窗一致"],
+        "falsification": ["目标进程内存足迹稳定，且没有换页或映射异常"],
+    },
+    "collect_go_profile": {
+        "evidence_domain": "GO_RUNTIME",
+        "statement": "Go 运行时可能存在热点函数、goroutine 阻塞或调度开销",
+        "expected": ["pprof 样本出现稳定热点、goroutine 阻塞或调度路径"],
+        "falsification": ["Go 运行时采样平稳，且没有稳定热点或阻塞路径"],
+    },
+    "collect_database_diagnostics": {
+        "evidence_domain": "DATABASE_WAIT",
+        "statement": "服务延迟可能来自数据库锁等待、长事务或连接排队",
+        "expected": ["数据库只读诊断发现与故障同窗的锁、事务或连接等待"],
+        "falsification": ["数据库锁、事务与连接等待在故障时间窗内均正常"],
+    },
+}
+
+
+def _autonomous_round_limit(budget: dict | None) -> int:
+    """Keep live autonomous exploration bounded to four rounds by default."""
+
+    configured = max(1, int((budget or {}).get("max_diagnosis_rounds", 6)))
+    return min(configured, 4)
+
+
+def _deterministic_exploration_candidates(
+    allowed_tools: list[str],
+    *,
+    round_index: int,
+    reason: str,
+    prior_hypotheses: list[DropInsightHypothesisModel] | None = None,
+) -> list[dict]:
+    """Create fresh Chinese hypotheses across distinct observable domains."""
+
+    known_keys = {
+        stable_candidate_key(item.statement)
+        for item in (prior_hypotheses or [])
+    }
+    candidates: list[dict] = []
+    seen_domains: set[str] = set()
+    for tool_name in dict.fromkeys(allowed_tools):
+        direction = _TOOL_EXPLORATION_DIRECTIONS.get(tool_name)
+        if direction is None:
+            continue
+        domain = str(direction["evidence_domain"])
+        if domain in seen_domains:
+            continue
+        statement = f"第 {round_index} 轮：{direction['statement']}"
+        if stable_candidate_key(statement) in known_keys:
+            continue
+        seen_domains.add(domain)
+        candidates.append(
+            {
+                "statement": statement,
+                "expected": list(direction["expected"]),
+                "falsification": list(direction["falsification"]),
+                "recommended_tool": tool_name,
+                "evidence_domain": domain,
+                "reason": reason,
+            }
+        )
+    return candidates
+
+
+def _merge_replan_candidates(
+    model_candidates: list[dict],
+    deterministic_candidates: list[dict],
+    *,
+    top_k: int,
+    prior_hypotheses: list[DropInsightHypothesisModel],
+) -> list[dict]:
+    """Prefer a model proposal, then force breadth across observable domains."""
+
+    known_keys = {stable_candidate_key(item.statement) for item in prior_hypotheses}
+    seen_keys: set[str] = set()
+    merged: list[dict] = []
+
+    def add(candidate: dict) -> None:
+        key = stable_candidate_key(str(candidate.get("statement") or ""))
+        if not candidate.get("statement") or key in known_keys or key in seen_keys:
+            return
+        seen_keys.add(key)
+        merged.append(candidate)
+
+    if model_candidates:
+        add(model_candidates[0])
+    first_model_tool = (
+        str(model_candidates[0].get("recommended_tool") or "")
+        if model_candidates
+        else ""
+    )
+    for candidate in deterministic_candidates:
+        if candidate.get("recommended_tool") != first_model_tool:
+            add(candidate)
+            if len(merged) >= max(1, top_k):
+                return merged
+    for candidate in model_candidates[1:]:
+        add(candidate)
+        if len(merged) >= max(1, top_k):
+            return merged
+    for candidate in deterministic_candidates:
+        add(candidate)
+        if len(merged) >= max(1, top_k):
+            break
+    return merged
+
+_TASK_KIND_NAMES = {item["name"] for item in TASK_KINDS}
+
+
+_RUNTIME_SPECIFIC_TOOLS = {
+    "start_pyspy_profile": "PYTHON",
+    "start_jvm_profile": "JAVA",
+    "collect_go_profile": "GO",
+}
+
+
+def _runtime_family_from_identity(identity: str) -> str | None:
+    value = str(identity or "").casefold()
+    if "go-hotspot" in value or "golang" in value:
+        return "GO"
+    if "python" in value:
+        return "PYTHON"
+    if "java" in value or "jvm" in value:
+        return "JAVA"
+    if "cpp" in value or "c++" in value:
+        return "CPP"
+    return None
+
+
+def _diagnosis_runtime_family(diagnosis) -> str | None:
+    """Infer a bound process runtime only to remove incompatible profilers."""
+
+    target = diagnosis.target_json or {}
+    binding = target.get("process_binding")
+    binding = binding if isinstance(binding, dict) else {}
+    # The server-issued process binding is authoritative.  A display/service
+    # label may be stale or contain a different runtime name (for example a Go
+    # binary behind a service called ``python-api``), so inspect it only after
+    # the bound executable.
+    bound_family = _runtime_family_from_identity(binding.get("executable_identity", ""))
+    if bound_family is not None:
+        return bound_family
+    labelled_family = _runtime_family_from_identity(
+        " ".join(str(value or "") for value in (target.get("service"), target.get("process")))
+    )
+    if labelled_family is not None:
+        return labelled_family
+    query = str(getattr(diagnosis, "query", "") or "")
+    if _query_mentions_go_runtime(query):
+        return "GO"
+    return None
+
+
+def _runtime_compatible_tools(diagnosis, tools: list[str]) -> list[str]:
+    runtime_family = _diagnosis_runtime_family(diagnosis)
+    if runtime_family is None:
+        return tools
+    return [
+        tool_name
+        for tool_name in tools
+        if _RUNTIME_SPECIFIC_TOOLS.get(tool_name, runtime_family) == runtime_family
+    ]
+
+
+def _runtime_tool_is_compatible(diagnosis, tool_name: str) -> bool:
+    runtime_family = _diagnosis_runtime_family(diagnosis)
+    required_family = _RUNTIME_SPECIFIC_TOOLS.get(tool_name)
+    return (
+        runtime_family is None
+        or required_family is None
+        or runtime_family == required_family
+    )
+
+
+def _query_mentions_go_runtime(query: str) -> bool:
+    query = query.casefold()
+    return any(
+        token in query
+        for token in (
+            "go pprof",
+            "golang",
+            "goroutine",
+            "go 服务",
+            "go-hotspot",
+            "go runtime",
+        )
+    )
+
+
+def _primary_intent_query(query: str) -> str:
+    """Return clauses that describe the observed symptom, not counter-checks.
+
+    Fault reports often keep the symptom and the requested exclusions in one
+    Chinese sentence, separated only by commas. Feeding that whole sentence
+    to the deterministic router lets a phrase such as ``排除 I/O`` override a
+    source-hotspot symptom. Keep positive clauses and drop explicit
+    falsification/control clauses before category routing. ``不排除`` is a
+    positive candidate statement and therefore remains eligible.
+    """
+
+    normalized = str(query or "").casefold()
+    if not normalized.strip():
+        return normalized
+    counter_markers = (
+        "排除",
+        "反证",
+        "不能单独解释",
+        "不要凭",
+        "rule out",
+        "exclude",
+        "counter evidence",
+        "counter-evidence",
+    )
+    primary_clauses = []
+    for clause in re.split(r"[。！？!?\n,，；;]", normalized):
+        clause = clause.strip()
+        if not clause:
+            continue
+        is_counter_clause = any(marker in clause for marker in counter_markers)
+        if is_counter_clause and "不排除" not in clause:
+            continue
+        primary_clauses.append(clause)
+    return " ".join(primary_clauses) or normalized
+
+
+def _should_route_downstream_dependency(
+    intent_query: str,
+    full_query: str,
+) -> bool:
+    """Infer a downstream cause without letting counter-checks steal routing.
+
+    Operators often put the observed symptom in the first sentence and the
+    suspected dependency in the requested investigation steps. A generic
+    latency symptom therefore needs that later context. If the first sentence
+    already names a concrete domain such as I/O, memory, GC or lock contention,
+    however, a later request to *exclude* downstream waiting must not override
+    it.
+    """
+
+    query = str(full_query or "").casefold()
+    symptom_clause = re.split(r"[。！？!?\n]", query, maxsplit=1)[0].strip()
+    downstream_markers = (
+        "下游",
+        "依赖服务",
+        "rpc",
+        "upstream",
+        "downstream",
+    )
+    generic_latency_markers = (
+        "端到端延迟",
+        "请求延迟",
+        "响应延迟",
+        "响应变慢",
+        "请求变慢",
+        "latency",
+    )
+    explicit_domain_markers = (
+        "入口负载",
+        "到达率",
+        "请求被拒绝",
+        "load saturation",
+        "丢包",
+        "网络",
+        "重传",
+        "network",
+        "队列",
+        "积压",
+        "backlog",
+        "consumer lag",
+        "噪声邻居",
+        "同宿主机",
+        "资源争抢",
+        "文件描述符",
+        "fd 泄漏",
+        "锁竞争",
+        "futex",
+        "mutex",
+        "自旋锁",
+        "i/o",
+        "磁盘",
+        "写入",
+        "读取",
+        "filechannel",
+        "fdatasync",
+        "内存",
+        "memory",
+        "rss",
+        "pss",
+        "堆外",
+        "offheap",
+        "full gc",
+        "垃圾回收",
+        "gc 压力",
+        "计算热点",
+        "热点函数",
+        "source hotspot",
+        "cpu 持续",
+        "cpu 升高",
+        "cpu 异常",
+        "cpu 飙",
+    )
+    if any(marker in symptom_clause for marker in explicit_domain_markers):
+        return False
+    if any(marker in symptom_clause for marker in downstream_markers):
+        return True
+    if not any(marker in symptom_clause for marker in generic_latency_markers):
+        return False
+    return any(marker in query for marker in downstream_markers)
+
+
+def _lock_profile_tool(diagnosis) -> str:
+    """Choose the first runtime-aware lock probe after identity is bound.
+
+    Native perf remains a later deep probe, but instrumented system metrics are
+    the cheaper and more reliable first observation for the C++ demo. Java can
+    start with async-profiler because its lock event is runtime-specific.
+    """
+
+    return (
+        "start_jvm_profile"
+        if _diagnosis_runtime_family(diagnosis) == "JAVA"
+        else "collect_sys_metrics"
+    )
+
+
+def _available_planner_tools(diagnosis, binding: ProcessIdentityBinding) -> list[str]:
+    """Return executable tools advertised by the bound native Agent."""
+
+    session = new_session()
+    try:
+        agent = session.get(AgentModel, binding.agent_id)
+        capabilities = set(agent.capabilities or []) if agent is not None else set()
+    finally:
+        session.close()
+    available = []
+    for tool in TOOLS:
+        collector = TOOL_TO_COLLECTOR.get(tool["name"])
+        if collector is None or collector not in _TASK_KIND_NAMES:
+            continue
+        required = set(tool.get("required_capabilities") or [])
+        if required.issubset(capabilities):
+            available.append(tool["name"])
+    return _runtime_compatible_tools(diagnosis, available)
+
+
+def _category_allowed_tools(category: str, available: list[str]) -> list[str]:
+    preferred = _CATEGORY_TOOL_PREFERENCE.get(category, ["collect_sys_metrics"])
+    return [tool_name for tool_name in preferred if tool_name in available]
+
+
+def _counter_evidence_pivot_from_envelopes(
+    evidence_rows: list[dict],
+    allowed_tools: list[str],
+) -> dict | None:
+    """Turn a trusted counter observation into an auditable next direction.
+
+    This is deliberately narrow: it does not infer a root cause from prose.
+    It only promotes analyzer-produced predicate fields that already passed
+    the Evidence Gate. A single perf profile that falsifies a lock/kernel
+    branch by exposing a dominant user-space hotspot is independently repeated
+    with bounded continuous profiling before it can support a conclusion.
+    """
+
+    if "start_continuous_profile" not in allowed_tools:
+        return None
+    for row in evidence_rows:
+        envelope = row.get("envelope") if isinstance(row, dict) else None
+        if not isinstance(envelope, dict):
+            continue
+        observation = envelope.get("observation")
+        metadata = observation.get("metadata") if isinstance(observation, dict) else None
+        predicate = metadata.get("hypothesis_predicate") if isinstance(metadata, dict) else None
+        if not isinstance(predicate, dict) or str(predicate.get("outcome") or "").upper() != "COUNTER":
+            continue
+        metrics = predicate.get("metrics")
+        metrics = metrics if isinstance(metrics, dict) else {}
+        dominant_function = str(metrics.get("dominant_function") or "").strip()
+        try:
+            dominant_percent = float(metrics.get("dominant_percent") or 0.0)
+        except (TypeError, ValueError):
+            dominant_percent = 0.0
+        reason = str(predicate.get("reason") or "").casefold()
+        exposes_user_hotspot = (
+            dominant_function
+            and dominant_percent >= 60.0
+            and any(
+                marker in reason
+                for marker in (
+                    "user-space hotspot",
+                    "userspace hotspot",
+                    "non-lock user-space hotspot",
+                    "用户态热点",
+                )
+            )
+        )
+        if not exposes_user_hotspot:
+            continue
+        return {
+            "category": "COUNTER_EVIDENCE_PIVOT",
+            "tool_name": "start_continuous_profile",
+            "evidence_domain": "CONTINUOUS_CPU_STACK",
+            "statement": (
+                "反证暴露了可归属的用户态热点；需通过连续多窗口采样验证热点是否稳定"
+            ),
+            "expected": [
+                f"多个连续窗口重复出现用户态热点 {dominant_function}",
+                "热点在连续窗口中保持主导且可归属到目标进程",
+            ],
+            "falsification": [
+                "连续窗口未重复出现该热点，或主要样本转为锁、内核等待或其他路径",
+            ],
+            "reason": (
+                f"上一轮可信反证观测到 {dominant_function} 占比 "
+                f"{dominant_percent:.1f}%，因此优先独立复验，而不是盲目枚举无关证据域。"
+            ),
+            "trigger_evidence_id": row.get("evidence_id"),
+            "trigger_predicate": predicate,
+            "prior_probability": 1.0,
+            "estimated_value": 0.95,
+        }
+    return None
+
+
+def _counter_evidence_pivot(report_id: str, allowed_tools: list[str]) -> dict | None:
+    """Load only the immutable counter Evidence cited by one report."""
+
+    session = new_session()
+    try:
+        report = session.get(DropInsightReportModel, report_id)
+        evidence_ids = list(report.counter_evidence_refs_json or []) if report else []
+        if not evidence_ids:
+            return None
+        rows = (
+            session.query(DropInsightEvidenceModel)
+            .filter(DropInsightEvidenceModel.id.in_(evidence_ids))
+            .all()
+        )
+        by_id = {row.id: row for row in rows}
+        ordered = [
+            {
+                "evidence_id": evidence_id,
+                "envelope": by_id[evidence_id].envelope_json or {},
+            }
+            for evidence_id in evidence_ids
+            if evidence_id in by_id
+        ]
+    finally:
+        session.close()
+    return _counter_evidence_pivot_from_envelopes(ordered, allowed_tools)
 
 
 def _replan_from_counter_evidence(
@@ -1906,32 +3547,113 @@ def _replan_from_counter_evidence(
 ) -> DropInsightHypothesisModel | None:
     """Open a bounded new round when trusted evidence falsifies the primary hypothesis."""
     diagnosis = get_diagnosis(diagnosis_id)
-    if diagnosis is None:
+    if diagnosis is None or getattr(diagnosis, "status", None) in {
+        "COMPLETED",
+        "INSUFFICIENT_EVIDENCE",
+    }:
         return None
     previous = list_hypotheses(diagnosis_id)
     parent = next((item for item in previous if item.id == parent_hypothesis_id), None)
     if parent is None:
         return None
-    round_index = (parent.round_index or 1) + 1
-    max_rounds = int((diagnosis.budget_json or {}).get("max_diagnosis_rounds", 6))
+    tree_depth = (parent.round_index or 1) + 1
+    round_contract = _report_round_contract_snapshot(diagnosis_id)
+    round_index = max(
+        [
+            int(item)
+            for item in (round_contract.get("round_indexes") or [])
+        ]
+        or [int(parent.round_index or 1)]
+    ) + 1
+    max_rounds = _autonomous_round_limit(diagnosis.budget_json or {})
     if round_index > max_rounds:
+        _record_lats_termination(
+            diagnosis_id,
+            reason="BUDGET_EXHAUSTED",
+            detail="可信反证后需要继续扩展，但已达到最多四轮的自动探索边界。",
+            effect_key=f"report:{report_id}:lats:round-budget-terminated",
+        )
         return None
     target = diagnosis.target_json or {}
-    statement = (
-        f"第 {round_index} 轮：可信反证已推翻上一轮主假设，"
-        "需验证同一时间窗内的替代资源或依赖原因"
+    binding = _current_target_binding(diagnosis)
+    available_tools = _available_planner_tools(diagnosis, binding)
+    attempted = {item.tool_name for item in list_tool_calls(diagnosis_id)}
+    existing_call = _tool_call_by_effect_key(
+        diagnosis_id,
+        f"report:{report_id}:counter:tool_call",
     )
-    tool_name = "collect_sys_metrics" if any(
-        token in parent.statement.lower() for token in ("cpu", "热点", "python", "io")
-    ) else "start_perf_profile"
+    allowed_tools = [
+        item
+        for item in available_tools
+        if item not in attempted
+        or (existing_call is not None and item == existing_call.tool_name)
+    ]
+    if not allowed_tools:
+        _record_lats_termination(
+            diagnosis_id,
+            reason="NO_ELIGIBLE_CHILD",
+            detail="反证后没有未尝试且满足 Agent 能力、策略和预算的替代证据域。",
+            effect_key=f"report:{report_id}:lats:no-tool-terminated",
+        )
+        return None
+    evidence_pivot = _counter_evidence_pivot(report_id, allowed_tools)
+    tool_name = (
+        existing_call.tool_name
+        if existing_call is not None
+        else str((evidence_pivot or {}).get("tool_name") or allowed_tools[0])
+    )
+    baseline_direction = evidence_pivot or _TOOL_EXPLORATION_DIRECTIONS.get(tool_name, {})
     baseline = {
-        "statement": statement,
-        "expected": ["补充证据能解释上一轮未覆盖的异常范围"],
-        "falsification": ["补充指标平稳且不能解释故障现象"],
+        "category": "COUNTER_EVIDENCE_REPLAN",
+        "statement": (
+            f"第 {round_index} 轮："
+            + str(
+                baseline_direction.get("statement")
+                or "可信反证已推翻上一轮假设，需验证新的候选原因"
+            )
+        ),
+        "expected": list(
+            baseline_direction.get("expected")
+            or ["新的独立证据能区分上一轮未覆盖的候选原因"]
+        ),
+        "falsification": list(
+            baseline_direction.get("falsification")
+            or ["该证据域保持平稳，无法支持新的候选原因"]
+        ),
         "tool_name": tool_name,
     }
+    # Trusted counter-evidence invalidates the old Skill branch as a route
+    # prior.  Re-run retrieval while excluding that activation so a different
+    # published Skill (or the rule fallback) can take over this round.
+    skill_activation = _apply_active_planner_skill(
+        diagnosis,
+        diagnosis_id,
+        baseline,
+        target,
+        round_index=round_index,
+        phase="COUNTER_EVIDENCE_REPLAN",
+        attempted_tools=attempted,
+        available_tools=allowed_tools,
+        reuse_existing=False,
+    )
+    skill_tool = _skill_selected_tool(skill_activation, allowed_tools)
+    # The trusted observation has higher authority than a retrieved route
+    # prior. Skill activation is still persisted and visible in the tree, but
+    # it cannot steer away from evidence that exposes a better next probe.
+    if skill_tool is not None and evidence_pivot is None:
+        baseline["tool_name"] = skill_tool
+        tool_name = skill_tool
     proposal = None
     if not _REPORT_EFFECT_RECONCILIATION.get():
+        retrieval_trace = _record_planner_knowledge_retrieval(
+            diagnosis_id,
+            query=diagnosis.query,
+            category="COUNTER_EVIDENCE_REPLAN",
+            phase="COUNTER_EVIDENCE_REPLAN",
+            effect_key=f"report:{report_id}:counter:knowledge_retrieval",
+            user_correction="可信反证已推翻上一轮主假设",
+            round_index=round_index,
+        )
         proposal = propose_hypothesis_plan(
             diagnosis_id=diagnosis_id,
             query=diagnosis.query,
@@ -1939,47 +3661,121 @@ def _replan_from_counter_evidence(
             category="COUNTER_EVIDENCE_REPLAN",
             rule_plan=baseline,
             prior_hypotheses=[item.to_dict() for item in previous],
+            evidence_summary=[
+                {
+                    "result": "counter_evidence",
+                    "reflection": _latest_lats_reflection(
+                        diagnosis_id, parent_hypothesis_id
+                    ),
+                    "reflection_is_evidence": False,
+                }
+            ],
             user_correction="可信反证已推翻上一轮主假设",
-            allowed_tools=["collect_sys_metrics", "start_perf_profile"],
+            allowed_tools=allowed_tools,
             route_priors=_successful_tool_route_priors(),
+            active_skill=skill_activation,
+            retrieval_trace=retrieval_trace,
         )
-    candidate = (proposal or {}).get("hypotheses", [{}])[0]
-    revision = create_hypothesis(
-        diagnosis_id,
-        CreateHypothesisRequest(
-            statement=candidate.get("statement") or statement,
-            expected_observations=candidate.get("expected_observations") or baseline["expected"],
-            falsification_criteria=candidate.get("falsification_criteria") or baseline["falsification"],
-        ),
-        source="MODEL_REPLAN" if proposal else "COUNTER_EVIDENCE_RULE",
+    reason = (proposal or {}).get("reasoning_summary") or (
+        "可信反证推翻上一轮主假设，反思结果已注入下一轮候选扩展。"
+    )
+    model_assisted = bool(proposal) and (
+        proposal.get("language_normalization") != "SERVER_RULE_FALLBACK"
+    )
+    model_candidates = []
+    if proposal:
+        model_candidates = [
+            {
+                "statement": item["statement"],
+                "expected_observations": item["expected_observations"],
+                "falsification_criteria": item["falsification_criteria"],
+                "reason": item.get("rationale") or reason,
+                "prior_probability": item.get("prior_probability"),
+                "estimated_value": item.get("estimated_value"),
+                "recommended_tool": proposal.get("tool_name") or tool_name,
+            }
+            for item in proposal.get("hypotheses") or []
+        ]
+    deterministic_candidates = _deterministic_exploration_candidates(
+        allowed_tools,
         round_index=round_index,
+        reason=reason,
+        prior_hypotheses=previous,
+    )
+    pivot_candidates = []
+    if evidence_pivot is not None:
+        pivot_candidates.append(
+            {
+                "statement": baseline["statement"],
+                "expected_observations": baseline["expected"],
+                "falsification_criteria": baseline["falsification"],
+                "reason": evidence_pivot["reason"],
+                "prior_probability": evidence_pivot["prior_probability"],
+                "estimated_value": evidence_pivot["estimated_value"],
+                "recommended_tool": evidence_pivot["tool_name"],
+                "evidence_domain": evidence_pivot["evidence_domain"],
+            }
+        )
+    raw_candidates = _merge_replan_candidates(
+        [*pivot_candidates, *model_candidates],
+        deterministic_candidates,
+        top_k=LATSConfig.from_budget(diagnosis.budget_json or {}).top_k,
+        prior_hypotheses=previous,
+    )
+    # An empty set here means only that no *new* semantic candidate survived
+    # de-duplication. A durable unvisited sibling can still exist and must be
+    # considered by the global LATS frontier before declaring exhaustion.
+    revision, selected_tool, selection = _create_and_select_lats_round(
+        diagnosis_id,
+        raw_candidates,
+        source="MODEL_REPLAN" if model_assisted else "COUNTER_EVIDENCE_RULE",
+        round_index=tree_depth,
+        execution_round_index=round_index,
         parent_hypothesis_id=parent.id,
-        generation_reason=(proposal or {}).get("reasoning_summary")
-        or "可信反证推翻上一轮主假设，自动进入下一轮互补取证。",
-        effect_key=f"report:{report_id}:counter:hypothesis",
+        generation_reason=reason,
+        default_tool=(
+            str(evidence_pivot["tool_name"])
+            if evidence_pivot is not None
+            else skill_tool or (proposal or {}).get("tool_name") or tool_name
+        ),
+        allowed_tools=allowed_tools,
+        phase="COUNTER_EVIDENCE_EXPANSION",
+        effect_prefix=f"report:{report_id}:counter",
+        preferred_candidate_key=(
+            stable_candidate_key(baseline["statement"])
+            if evidence_pivot is not None
+            else None
+        ),
     )
     if revision is not None:
-        _current_target_binding(diagnosis)
-        existing_call = _tool_call_by_effect_key(
-            diagnosis_id,
-            f"report:{report_id}:counter:tool_call",
-        )
         selected_tool = (
             existing_call.tool_name
             if existing_call is not None
-            else (proposal or {}).get("tool_name") or tool_name
+            else (
+                str(evidence_pivot["tool_name"])
+                if evidence_pivot is not None
+                else skill_tool or selected_tool or tool_name
+            )
         )
         call = request_tool_call(
             diagnosis_id,
             CreateToolCallRequest(
                 hypothesis_id=revision.id,
                 tool_name=selected_tool,
-                arguments=_planner_tool_arguments(selected_tool, target),
+                arguments=_planner_tool_arguments(
+                    selected_tool, target, query=diagnosis.query
+                ),
             ),
             requested_by="system:counter-evidence-replanner",
             effect_key=f"report:{report_id}:counter:tool_call",
         )
         if call is not None:
+            _record_lats_action_dispatched(
+                diagnosis_id,
+                revision.id,
+                call,
+                effect_prefix=f"report:{report_id}:counter:lats",
+            )
             session = new_session()
             try:
                 timestamp = now_utc()
@@ -1989,26 +3785,32 @@ def _replan_from_counter_evidence(
                     "planner.counter_replanned",
                     "SYSTEM",
                     {
-                        "round_index": revision.round_index,
+                        "round_index": round_index,
                         "previous_hypothesis_id": parent.id,
                         "hypothesis_id": revision.id,
                         "tool_name": call.tool_name,
                         "planner_kind": (
                             "MODEL_ASSISTED"
-                            if proposal
+                            if model_assisted
                             else "DETERMINISTIC_FALLBACK"
                         ),
                         "reason": revision.generation_reason,
                         "requires_approval": (
                             call.policy_decision == "REQUIRE_APPROVAL"
                         ),
+                        "lats_selection": selection,
+                        "skill_reuse": _skill_event_summary(skill_activation),
+                        "evidence_pivot": evidence_pivot,
                     },
                     timestamp,
                     effect_key=f"report:{report_id}:counter:event",
                 )
                 if created:
                     persisted = _lock_diagnosis(session, diagnosis_id)
-                    if persisted is not None:
+                    if persisted is not None and persisted.status not in {
+                        "COMPLETED",
+                        "INSUFFICIENT_EVIDENCE",
+                    }:
                         _cas_session_update(
                             session,
                             persisted,
@@ -2061,24 +3863,28 @@ def _replan_after_insufficient_evidence(
     diagnosis_id: str,
     parent_hypothesis_id: str,
     report_id: str,
+    *,
+    continuation_reason: str = "上一证据域不足以建立结论",
 ) -> DropInsightHypothesisModel | None:
-    """证据不足时自动换证据域，而不是立即把诊断交还给用户。"""
+    """证据不足或仅部分支持时自动换证据域继续交叉验证。"""
     diagnosis = get_diagnosis(diagnosis_id)
-    if diagnosis is None:
+    if diagnosis is None or getattr(diagnosis, "status", None) in {
+        "COMPLETED",
+        "INSUFFICIENT_EVIDENCE",
+    }:
         return None
     target = diagnosis.target_json or {}
     binding = _current_target_binding(diagnosis)
-    capability_by_tool = {
-        "collect_sys_metrics": "sys_metrics",
-        "start_perf_profile": "perf_cpu",
-        "start_ebpf_io_profile": "ebpf_io",
-        "start_pyspy_profile": "pyspy",
-        "collect_database_diagnostics": "database_lock",
-    }
     session = new_session()
     try:
         agent = session.get(AgentModel, binding.agent_id)
         if agent is None or agent.status != "ONLINE":
+            _record_lats_termination(
+                diagnosis_id,
+                reason="AGENT_UNAVAILABLE",
+                detail="目标采集 Agent 当前不在线，无法继续执行真实探针。",
+                effect_key=f"report:{report_id}:lats:agent-unavailable",
+            )
             return None
         capabilities = set(agent.capabilities or [])
     finally:
@@ -2087,15 +3893,26 @@ def _replan_after_insufficient_evidence(
     parent = next((item for item in previous if item.id == parent_hypothesis_id), None)
     if parent is None:
         return None
-    round_index = (parent.round_index or 1) + 1
-    max_rounds = int((diagnosis.budget_json or {}).get("max_diagnosis_rounds", 6))
+    tree_depth = (parent.round_index or 1) + 1
+    round_contract = _report_round_contract_snapshot(diagnosis_id)
+    round_index = max(
+        [
+            int(item)
+            for item in (round_contract.get("round_indexes") or [])
+        ]
+        or [int(parent.round_index or 1)]
+    ) + 1
+    max_rounds = _autonomous_round_limit(diagnosis.budget_json or {})
     if round_index > max_rounds:
+        _record_lats_termination(
+            diagnosis_id,
+            reason="BUDGET_EXHAUSTED",
+            detail="证据仍需交叉验证，但已达到最多四轮的自动探索边界。",
+            effect_key=f"report:{report_id}:lats:round-budget-terminated",
+        )
         return None
     attempted = {item.tool_name for item in list_tool_calls(diagnosis_id)}
-    all_tools = [
-        "collect_sys_metrics", "start_perf_profile", "start_ebpf_io_profile",
-        "start_pyspy_profile", "collect_database_diagnostics",
-    ]
+    all_tools = _available_planner_tools(diagnosis, binding)
     existing_call = _tool_call_by_effect_key(
         diagnosis_id,
         f"report:{report_id}:insufficient:tool_call",
@@ -2106,24 +3923,67 @@ def _replan_after_insufficient_evidence(
             item not in attempted
             or (existing_call is not None and item == existing_call.tool_name)
         )
-        and capability_by_tool[item] in capabilities
+        and TOOL_TO_COLLECTOR[item] in capabilities
     ]
     if not remaining:
+        _record_lats_termination(
+            diagnosis_id,
+            reason="NO_ELIGIBLE_CHILD",
+            detail="没有未尝试且满足 Agent 能力、策略与预算门禁的真实探针。",
+            effect_key=f"report:{report_id}:lats:no-frontier-terminated",
+        )
         return None
     fallback_tool = (
         existing_call.tool_name if existing_call is not None else remaining[0]
     )
+    baseline_direction = _TOOL_EXPLORATION_DIRECTIONS.get(fallback_tool, {})
     baseline = {
+        "category": "INSUFFICIENT_EVIDENCE_REPLAN",
         "statement": (
-            f"第 {round_index} 轮：上一证据域不足以建立结论，"
-            "需切换证据域继续定位"
+            f"第 {round_index} 轮："
+            + str(
+                baseline_direction.get("statement")
+                or "当前证据覆盖不足，需切换证据域验证新的候选原因"
+            )
         ),
-        "expected": ["新的独立采集结果能够支持或推翻至少一个候选假设"],
-        "falsification": ["补充证据仍无区分力，或目标能力不支持该采集器"],
+        "expected": list(
+            baseline_direction.get("expected")
+            or ["新的独立采集结果能够支持或推翻至少一个候选假设"]
+        ),
+        "falsification": list(
+            baseline_direction.get("falsification")
+            or ["补充证据仍无区分力，但采集失败不视为反证"]
+        ),
         "tool_name": fallback_tool,
     }
+    # Insufficient evidence does not refute a Skill.  Continue the persisted
+    # route and ask it for the next still-eligible, not-yet-attempted probe.
+    skill_activation = _apply_active_planner_skill(
+        diagnosis,
+        diagnosis_id,
+        baseline,
+        target,
+        round_index=round_index,
+        phase="INSUFFICIENT_EVIDENCE_REPLAN",
+        attempted_tools=attempted,
+        available_tools=remaining,
+        reuse_existing=True,
+    )
+    skill_tool = _skill_selected_tool(skill_activation, remaining)
+    if skill_tool is not None:
+        baseline["tool_name"] = skill_tool
+        fallback_tool = skill_tool
     proposal = None
     if not _REPORT_EFFECT_RECONCILIATION.get():
+        retrieval_trace = _record_planner_knowledge_retrieval(
+            diagnosis_id,
+            query=diagnosis.query,
+            category="INSUFFICIENT_EVIDENCE_REPLAN",
+            phase="INSUFFICIENT_EVIDENCE_REPLAN",
+            effect_key=f"report:{report_id}:insufficient:knowledge_retrieval",
+            user_correction=continuation_reason,
+            round_index=round_index,
+        )
         proposal = propose_hypothesis_plan(
             diagnosis_id=diagnosis_id,
             query=diagnosis.query,
@@ -2134,46 +3994,125 @@ def _replan_after_insufficient_evidence(
             evidence_summary=[{
                 "result": "insufficient_evidence",
                 "attempted_tools": sorted(attempted),
+                "continuation_reason": continuation_reason,
+                "reflection": _latest_lats_reflection(
+                    diagnosis_id, parent_hypothesis_id
+                ),
+                "reflection_is_evidence": False,
             }],
+            user_correction=continuation_reason,
             allowed_tools=remaining,
             route_priors=_successful_tool_route_priors(),
+            active_skill=skill_activation,
+            retrieval_trace=retrieval_trace,
         )
-    candidate = (proposal or {}).get("hypotheses", [{}])[0]
     reason = (proposal or {}).get("reasoning_summary") or (
-        "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。"
+        f"{continuation_reason}，按剩余注册工具和历史成功路线切换取证方向。"
     )
-    revision = create_hypothesis(
-        diagnosis_id,
-        CreateHypothesisRequest(
-            statement=candidate.get("statement") or baseline["statement"],
-            expected_observations=candidate.get("expected_observations") or baseline["expected"],
-            falsification_criteria=candidate.get("falsification_criteria") or baseline["falsification"],
-        ),
-        source="MODEL_REPLAN" if proposal else "AUTONOMOUS_RULE_FALLBACK",
+    model_assisted = bool(proposal) and (
+        proposal.get("language_normalization") != "SERVER_RULE_FALLBACK"
+    )
+    model_candidates = []
+    if proposal:
+        model_candidates = [
+            {
+                "statement": item["statement"],
+                "expected_observations": item["expected_observations"],
+                "falsification_criteria": item["falsification_criteria"],
+                "reason": item.get("rationale") or reason,
+                "prior_probability": item.get("prior_probability"),
+                "estimated_value": item.get("estimated_value"),
+                "recommended_tool": proposal.get("tool_name") or fallback_tool,
+            }
+            for item in proposal.get("hypotheses") or []
+        ]
+    deterministic_candidates = _deterministic_exploration_candidates(
+        remaining,
         round_index=round_index,
+        reason=reason,
+        prior_hypotheses=previous,
+    )
+    raw_candidates = _merge_replan_candidates(
+        model_candidates,
+        deterministic_candidates,
+        top_k=LATSConfig.from_budget(diagnosis.budget_json or {}).top_k,
+        prior_hypotheses=previous,
+    )
+    preferred_skill_candidate_key = None
+    if skill_tool is not None:
+        skill_direction = _TOOL_EXPLORATION_DIRECTIONS.get(skill_tool)
+        if skill_direction is not None:
+            skill_candidate = {
+                "statement": f"第 {round_index} 轮：{skill_direction['statement']}",
+                "expected": list(skill_direction["expected"]),
+                "falsification": list(skill_direction["falsification"]),
+                "recommended_tool": skill_tool,
+                "evidence_domain": skill_direction["evidence_domain"],
+                "reason": (
+                    f"{reason}；当前复用 Skill 的下一步需要验证"
+                    f"{skill_direction['evidence_domain']} 证据域。"
+                ),
+            }
+            preferred_skill_candidate_key = stable_candidate_key(
+                skill_candidate["statement"]
+            )
+            # Keep the Skill-directed hypothesis inside the bounded Top-K
+            # expansion even when a model proposes several plausible siblings.
+            # Existing semantic duplicates are reconciled by
+            # _create_and_select_lats_round and remain auditable tree nodes.
+            raw_candidates = [
+                skill_candidate,
+                *[
+                    item
+                    for item in raw_candidates
+                    if stable_candidate_key(str(item.get("statement") or ""))
+                    != preferred_skill_candidate_key
+                ],
+            ]
+    # Semantic de-duplication may remove every newly proposed candidate while
+    # a previously persisted, unvisited sibling remains on the LATS frontier.
+    # The selection helper performs the authoritative exhaustion check.
+    revision, selected_tool, selection = _create_and_select_lats_round(
+        diagnosis_id,
+        raw_candidates,
+        source="MODEL_REPLAN" if model_assisted else "AUTONOMOUS_RULE_FALLBACK",
+        round_index=tree_depth,
+        execution_round_index=round_index,
         parent_hypothesis_id=parent.id,
         generation_reason=reason,
-        effect_key=f"report:{report_id}:insufficient:hypothesis",
+        default_tool=skill_tool or (proposal or {}).get("tool_name") or fallback_tool,
+        allowed_tools=remaining,
+        phase="INSUFFICIENT_EVIDENCE_EXPANSION",
+        effect_prefix=f"report:{report_id}:insufficient",
+        preferred_candidate_key=preferred_skill_candidate_key,
     )
     if revision is None:
         return None
     selected_tool = (
         existing_call.tool_name
         if existing_call is not None
-        else (proposal or {}).get("tool_name") or fallback_tool
+        else skill_tool or selected_tool or fallback_tool
     )
     call = request_tool_call(
         diagnosis_id,
         CreateToolCallRequest(
             hypothesis_id=revision.id,
             tool_name=selected_tool,
-            arguments=_planner_tool_arguments(selected_tool, target),
+            arguments=_planner_tool_arguments(
+                selected_tool, target, query=diagnosis.query
+            ),
         ),
         requested_by="system:insufficient-evidence-replanner",
         effect_key=f"report:{report_id}:insufficient:tool_call",
     )
     if call is None:
         return revision
+    _record_lats_action_dispatched(
+        diagnosis_id,
+        revision.id,
+        call,
+        effect_prefix=f"report:{report_id}:insufficient:lats",
+    )
     session = new_session()
     try:
         timestamp = now_utc()
@@ -2183,20 +4122,27 @@ def _replan_after_insufficient_evidence(
             "planner.insufficient_replanned",
             "SYSTEM",
             {
-                "round_index": revision.round_index,
+                "round_index": round_index,
                 "previous_hypothesis_id": parent.id,
                 "hypothesis_id": revision.id,
                 "tool_name": call.tool_name,
-                "planner_kind": "MODEL_ASSISTED" if proposal else "DETERMINISTIC_FALLBACK",
+                "planner_kind": (
+                    "MODEL_ASSISTED" if model_assisted else "DETERMINISTIC_FALLBACK"
+                ),
                 "reason": revision.generation_reason,
                 "requires_approval": call.policy_decision == "REQUIRE_APPROVAL",
+                "lats_selection": selection,
+                "skill_reuse": _skill_event_summary(skill_activation),
             },
             timestamp,
             effect_key=f"report:{report_id}:insufficient:event",
         )
         if created:
             persisted = _lock_diagnosis(session, diagnosis_id)
-            if persisted is not None:
+            if persisted is not None and persisted.status not in {
+                "COMPLETED",
+                "INSUFFICIENT_EVIDENCE",
+            }:
                 _cas_session_update(
                     session,
                     persisted,
@@ -2248,6 +4194,1197 @@ def _event_effect_exists(diagnosis_id: str, effect_key: str) -> bool:
         )
     finally:
         session.close()
+
+
+def _record_lats_expansion_and_selection(
+    diagnosis_id: str,
+    candidates: list[dict],
+    *,
+    phase: str,
+    round_index: int,
+    tree_depth: int | None = None,
+    parent_hypothesis_id: str | None,
+    effect_prefix: str,
+) -> dict | None:
+    """Persist one bounded expansion and PUCT decision atomically.
+
+    ``candidates`` must already contain server-created hypothesis ids.  This
+    helper has no tool execution authority; request_tool_call() still applies
+    binding, capability, policy and resource-budget gates afterwards.
+    """
+
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return None
+        existing = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.effect_key == f"{effect_prefix}:selected",
+            )
+            .first()
+        )
+        if existing is not None:
+            return dict(existing.payload_json or {})
+
+        config = LATSConfig.from_budget(diagnosis.budget_json or {})
+        semantics = execution_semantics(diagnosis.mode)
+        timestamp = now_utc()
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.search_started",
+            "SYSTEM",
+            {
+                "algorithm": (
+                    "LATS-UCT"
+                    if config.selection_policy == "UCT"
+                    else "LATS-PUCT-EXTENSION"
+                ),
+                "algorithm_version": "drop-insight-lats-v1",
+                "semantics": semantics,
+                "config": {
+                    "top_k": config.top_k,
+                    "exploration_constant": config.exploration_constant,
+                    "max_iterations": config.max_iterations,
+                    "max_tool_calls": config.max_tool_calls,
+                    "selection_policy": config.selection_policy,
+                    "value_lambda": config.value_lambda,
+                    "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+                    "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+                },
+                "safety_authority": (
+                    "opaque Agent/PID binding + registered tool allowlist + "
+                    "resource budget + Evidence Gate"
+                ),
+                "model_has_shell_access": False,
+            },
+            timestamp,
+            effect_key=f"diagnosis:{diagnosis_id}:lats:started",
+        )
+        prior_events = (
+            session.query(DropInsightEventModel)
+            .filter(DropInsightEventModel.diagnosis_id == diagnosis_id)
+            .order_by(DropInsightEventModel.sequence.asc())
+            .all()
+        )
+        state = replay_search_events(prior_events)
+        metrics = state.get("node_metrics") or {}
+        parent_node_id = (
+            f"hypothesis:{parent_hypothesis_id}" if parent_hypothesis_id else None
+        )
+        parent_visits = int((metrics.get(parent_node_id) or {}).get("visits") or 0)
+        iteration = int(state.get("iteration") or 0) + 1
+        durable_candidates = []
+        for candidate in candidates:
+            item = dict(candidate)
+            if item.get("expansion_origin") == "EXISTING_UNVISITED_FRONTIER":
+                item.setdefault("depth", 0)
+                item.setdefault("parent_node_id", None)
+            else:
+                item["depth"] = max(0, int(round_index) - 1)
+                item["parent_node_id"] = parent_node_id
+            durable_candidates.append(item)
+        if parent_node_id is None:
+            parent_visits = sum(
+                int((metrics.get(item["node_id"]) or {}).get("visits") or 0)
+                for item in durable_candidates
+            )
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.candidates_expanded",
+            "AGENT",
+            {
+                "phase": phase,
+                "iteration": iteration,
+                "round_index": round_index,
+                "tree_depth": tree_depth or round_index,
+                "parent_node_id": parent_node_id,
+                "candidate_count": len(durable_candidates),
+                "candidates": durable_candidates,
+                "progressive_widening": semantics["execution_mode"] == "BUDGETED_LATS",
+            },
+            timestamp,
+            effect_key=f"{effect_prefix}:expanded",
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.candidates_evaluated",
+            "AGENT",
+            {
+                "phase": phase,
+                "iteration": iteration,
+                "evaluations": [
+                    {
+                        "node_id": item["node_id"],
+                        "initial_value": item.get("initial_value"),
+                        "lm_value": item.get("lm_value"),
+                        "self_consistency": item.get("self_consistency"),
+                        "heuristic_value": item.get("heuristic_value"),
+                        "value_lambda": item.get("value_lambda"),
+                        "value_formula": item.get("value_formula"),
+                        "value_source": item.get("value_source"),
+                    }
+                    for item in durable_candidates
+                ],
+                "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+                "evidence_gate_is_separate": True,
+            },
+            timestamp,
+            effect_key=f"{effect_prefix}:evaluated",
+        )
+        selection = select_puct_candidate(
+            durable_candidates,
+            metrics,
+            parent_visits=parent_visits,
+            exploration_constant=config.exploration_constant,
+            selection_policy=config.selection_policy,
+        )
+        if selection is None:
+            return None
+        payload = {
+            **selection,
+            "phase": phase,
+            "iteration": iteration,
+            "round_index": round_index,
+            "tree_depth": tree_depth or round_index,
+            "parent_node_id": parent_node_id,
+            "selection_policy": config.selection_policy,
+            "candidate_count": len(durable_candidates),
+            "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING",
+        }
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.node_selected",
+            "AGENT",
+            payload,
+            timestamp,
+            effect_key=f"{effect_prefix}:selected",
+        )
+        session.commit()
+        return payload
+    except IntegrityError:
+        session.rollback()
+        existing = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.effect_key == f"{effect_prefix}:selected",
+            )
+            .first()
+        )
+        if existing is None:
+            raise
+        return dict(existing.payload_json or {})
+    finally:
+        session.close()
+
+
+def _create_and_select_lats_round(
+    diagnosis_id: str,
+    raw_candidates: list[dict],
+    *,
+    source: str,
+    round_index: int,
+    execution_round_index: int | None = None,
+    parent_hypothesis_id: str,
+    generation_reason: str,
+    default_tool: str,
+    allowed_tools: list[str],
+    phase: str,
+    effect_prefix: str,
+    preferred_candidate_key: str | None = None,
+) -> tuple[DropInsightHypothesisModel | None, str | None, dict | None]:
+    """Expand top-k siblings, merge the unvisited frontier and run PUCT.
+
+    The merge is important: an observation can make an older sibling more
+    attractive than a newly generated child.  That is the LATS backtracking
+    step.  We still never replay a live side effect; the selected branch gets
+    exactly one newly policy-checked real tool observation.
+    """
+
+    diagnosis = get_diagnosis(diagnosis_id)
+    if diagnosis is None or getattr(diagnosis, "status", None) in {
+        "COMPLETED",
+        "INSUFFICIENT_EVIDENCE",
+    }:
+        return None, None, None
+    config = LATSConfig.from_budget(diagnosis.budget_json or {})
+    budget_session = new_session()
+    try:
+        tool_calls_used = (
+            budget_session.query(DropInsightToolCallModel)
+            .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
+            .count()
+        )
+        iterations_used = (
+            budget_session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type == "lats.node_selected",
+            )
+            .count()
+        )
+    finally:
+        budget_session.close()
+    if (
+        tool_calls_used >= config.max_tool_calls
+        or iterations_used >= config.max_iterations
+    ):
+        _record_lats_termination(
+            diagnosis_id,
+            reason="BUDGET_EXHAUSTED",
+            detail="LATS 迭代或真实工具调用预算已经耗尽。",
+            effect_key=f"{effect_prefix}:lats:budget-terminated",
+        )
+        return None, None, None
+    prepared = prepare_candidates(
+        [*raw_candidates, _UNKNOWN_HYPOTHESIS],
+        top_k=config.top_k,
+        default_tool=default_tool,
+        value_lambda=config.value_lambda,
+    )
+    existing_hypotheses = list_hypotheses(diagnosis_id)
+    known_candidate_keys = {
+        stable_candidate_key(item.statement): item for item in existing_hypotheses
+    }
+    created: list[dict] = []
+    for index, candidate in enumerate(prepared):
+        # Round labels and OTHER/UNKNOWN spelling variants must not create a
+        # second durable node for the same causal idea. Existing unvisited
+        # nodes are merged into the global frontier below.
+        if candidate["candidate_key"] in known_candidate_keys:
+            continue
+        effect_key = (
+            f"{effect_prefix}:hypothesis"
+            if index == 0
+            else f"{effect_prefix}:hypothesis:{index}"
+        )
+        row = create_hypothesis(
+            diagnosis_id,
+            CreateHypothesisRequest(
+                statement=candidate["statement"],
+                expected_observations=candidate["expected_observations"],
+                falsification_criteria=candidate["falsification_criteria"],
+            ),
+            source=(
+                "SYSTEM_FALLBACK"
+                if candidate.get("is_open_world_sentinel")
+                else source
+            ),
+            round_index=round_index,
+            parent_hypothesis_id=parent_hypothesis_id,
+            generation_reason=candidate.get("reason") or generation_reason,
+            effect_key=effect_key,
+        )
+        if row is not None:
+            known_candidate_keys[candidate["candidate_key"]] = row
+            created.append(
+                {
+                    **candidate,
+                    "node_id": f"hypothesis:{row.id}",
+                    "hypothesis_id": row.id,
+                    "expansion_origin": "NEW_CHILD",
+                }
+            )
+
+    # Merge every durable, still-unobserved sibling into this selection.  Its
+    # prior/value comes from the earlier expansion event, so restart does not
+    # alter the decision surface.
+    session = new_session()
+    try:
+        hypothesis_rows = (
+            session.query(DropInsightHypothesisModel)
+            .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+            .order_by(DropInsightHypothesisModel.created_at.asc())
+            .all()
+        )
+        calls = (
+            session.query(DropInsightToolCallModel)
+            .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
+            .all()
+        )
+        events = (
+            session.query(DropInsightEventModel)
+            .filter(DropInsightEventModel.diagnosis_id == diagnosis_id)
+            .order_by(DropInsightEventModel.sequence.asc())
+            .all()
+        )
+    finally:
+        session.close()
+    attempted_ids = {row.hypothesis_id for row in calls if row.hypothesis_id}
+    folded = replay_search_events(events)
+    historical_candidates = folded.get("candidates") or {}
+    created_ids = {row["hypothesis_id"] for row in created}
+    existing_frontier: list[dict] = []
+    for rank, row in enumerate(hypothesis_rows):
+        if row.id in attempted_ids or row.id in created_ids or row.id == parent_hypothesis_id:
+            continue
+        if str(row.status or "OPEN").upper() in {
+            "COUNTER", "REFUTED", "FALSIFIED", "DISPROVED", "REJECTED"
+        }:
+            continue
+        node_id = f"hypothesis:{row.id}"
+        prior = dict(historical_candidates.get(node_id) or {})
+        # A durable sibling keeps the probe that was selected when the
+        # hypothesis was created. If that probe has already run or is no
+        # longer available, the sibling is not executable in this round. Do
+        # not silently replace it with the round's fallback tool: that would
+        # evaluate one evidence domain (for example I/O) with an unrelated
+        # collector (for example py-spy) and turn strong evidence neutral.
+        recommended_tool = str(prior.get("recommended_tool") or "").strip()
+        if recommended_tool not in allowed_tools:
+            continue
+        existing_frontier.append(
+            {
+                **prior,
+                "candidate_key": prior.get("candidate_key") or f"persisted:{row.id}",
+                "statement": row.statement,
+                "node_id": node_id,
+                "hypothesis_id": row.id,
+                "prior": float(prior.get("prior") or 0.05),
+                "initial_value": float(prior.get("initial_value") or 0.2),
+                "value_source": prior.get("value_source") or "PERSISTED_FALLBACK",
+                "prior_source": prior.get("prior_source") or "PERSISTED_FALLBACK",
+                "rank": int(prior.get("rank", config.top_k + rank)),
+                "recommended_tool": recommended_tool,
+                "expansion_origin": "EXISTING_UNVISITED_FRONTIER",
+            }
+        )
+    # Canonical UCT gives every unvisited child the same +infinity bonus.  Use
+    # durable creation order as the deterministic tie break, so an older
+    # sibling is genuinely revisited before widening again.
+    frontier = order_progressive_frontier(existing_frontier, created)
+    if preferred_candidate_key:
+        # Canonical UCT gives every unvisited node the same infinite
+        # exploration term. When trusted counter evidence exposes a concrete
+        # alternative, use that candidate as the deterministic tie break. The
+        # branch still dispatches a fresh real probe; prior evidence is not
+        # reused as support.
+        preferred = [
+            row for row in frontier
+            if row.get("candidate_key") == preferred_candidate_key
+        ]
+        if preferred:
+            frontier = preferred + [
+                row for row in frontier
+                if row.get("candidate_key") != preferred_candidate_key
+            ]
+            for rank, row in enumerate(frontier):
+                row["rank"] = rank
+    if not frontier:
+        _record_lats_termination(
+            diagnosis_id,
+            reason="COVERAGE_EXHAUSTED",
+            detail="候选原因与可观测证据域均已覆盖，没有尚未访问的安全分支。",
+            effect_key=f"{effect_prefix}:lats:frontier-terminated",
+        )
+        return None, None, None
+    prior_total = sum(max(0.0, float(row.get("prior") or 0.0)) for row in frontier)
+    if prior_total <= 0:
+        prior_total = float(len(frontier))
+        for row in frontier:
+            row["prior"] = 1.0
+    for row in frontier:
+        row["prior"] = round(float(row.get("prior") or 0.0) / prior_total, 6)
+
+    selection = _record_lats_expansion_and_selection(
+        diagnosis_id,
+        frontier,
+        phase=phase,
+        round_index=execution_round_index or round_index,
+        tree_depth=round_index,
+        parent_hypothesis_id=parent_hypothesis_id,
+        effect_prefix=f"{effect_prefix}:lats",
+    )
+    selected_id = str((selection or {}).get("node_id") or "").removeprefix(
+        "hypothesis:"
+    )
+    selected = next((row for row in hypothesis_rows if row.id == selected_id), None)
+    if selected is None:
+        selected = next(
+            (
+                row for row in list_hypotheses(diagnosis_id)
+                if row.id == selected_id
+            ),
+            None,
+        )
+    selected_candidate = next(
+        (row for row in frontier if row.get("hypothesis_id") == selected_id),
+        {},
+    )
+    selected_tool = selected_candidate.get("recommended_tool") or default_tool
+    if selected_tool not in allowed_tools:
+        selected_tool = default_tool if default_tool in allowed_tools else (
+            allowed_tools[0] if allowed_tools else None
+        )
+    return selected, selected_tool, selection
+
+
+def _latest_lats_reflection(
+    diagnosis_id: str,
+    hypothesis_id: str,
+) -> dict | None:
+    session = new_session()
+    try:
+        rows = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type == "lats.reflection_recorded",
+            )
+            .order_by(DropInsightEventModel.sequence.desc())
+            .all()
+        )
+        node_id = f"hypothesis:{hypothesis_id}"
+        for row in rows:
+            payload = row.payload_json or {}
+            if payload.get("node_id") == node_id:
+                return {
+                    "decision": payload.get("decision"),
+                    "summary": payload.get("summary"),
+                    "reflection_is_evidence": False,
+                }
+        return None
+    finally:
+        session.close()
+
+
+def _record_lats_action_dispatched(
+    diagnosis_id: str,
+    hypothesis_id: str,
+    tool_call: DropInsightToolCallModel,
+    *,
+    effect_prefix: str,
+) -> None:
+    """Persist proposal/approval separately from a genuinely dispatched action."""
+
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return
+        if not _lats_search_started(session, diagnosis_id):
+            return
+        semantics = execution_semantics(diagnosis.mode)
+        timestamp = now_utc()
+        durable_prefix = f"tool_call:{tool_call.id}:lats"
+        common = {
+            "node_id": f"hypothesis:{hypothesis_id}",
+            "tool_call_id": tool_call.id,
+            "task_id": tool_call.task_id,
+            "tool_name": tool_call.tool_name,
+            "policy_decision": tool_call.policy_decision,
+            "rollout_semantics": semantics["rollout_semantics"],
+            "equivalent_sibling_rollback": semantics[
+                "strict_environment_reversibility"
+            ],
+        }
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.action_proposed",
+            "AGENT",
+            {
+                **common,
+                "status": tool_call.status,
+                "proposal_only": not bool(tool_call.task_id),
+            },
+            timestamp,
+            effect_key=f"{durable_prefix}:proposed",
+        )
+        if tool_call.status == "PENDING_APPROVAL":
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.awaiting_approval",
+                "POLICY",
+                {**common, "status": tool_call.status},
+                timestamp,
+                effect_key=f"{durable_prefix}:awaiting-approval",
+            )
+            session.commit()
+            return
+        if tool_call.status in {"DENIED", "REJECTED"}:
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.action_blocked",
+                "POLICY",
+                {**common, "status": tool_call.status},
+                timestamp,
+                effect_key=f"{durable_prefix}:blocked",
+            )
+            rows = (
+                session.query(DropInsightHypothesisModel)
+                .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+                .all()
+            )
+            parent_map = {row.id: row.parent_hypothesis_id for row in rows}
+            path = hypothesis_path(hypothesis_id, parent_map)
+            outcome = reward_from_outcome(
+                verification_status=None,
+                confidence=0,
+                support_count=0,
+                counter_count=0,
+                tool_status=tool_call.status,
+            )
+            reflection = reflection_from_outcome(outcome)
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.observation_recorded",
+                "POLICY",
+                {
+                    **common,
+                    "observation_id": f"policy:{tool_call.id}",
+                    "observation_source": "POLICY_GATE",
+                    "summary": "当前动作被策略或人工门禁拒绝，未执行真实采集。",
+                    "evidence_ids": [],
+                    "external_observation": False,
+                    "failure_is_counter_evidence": False,
+                },
+                timestamp,
+                effect_key=f"{durable_prefix}:policy-observation",
+            )
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.reflection_recorded",
+                "AGENT",
+                {
+                    "node_id": common["node_id"],
+                    "tool_call_id": tool_call.id,
+                    "decision": reflection["decision"],
+                    "summary": reflection["summary"],
+                    "grounded_in_observation": f"policy:{tool_call.id}",
+                    "reflection_is_evidence": False,
+                },
+                timestamp,
+                effect_key=f"{durable_prefix}:policy-reflection",
+            )
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.backpropagated",
+                "SYSTEM",
+                {
+                    "node_id": common["node_id"],
+                    "tool_call_id": tool_call.id,
+                    "path_node_ids": path,
+                    **outcome,
+                },
+                timestamp,
+                effect_key=f"{durable_prefix}:policy-backpropagation",
+            )
+            session.commit()
+            try:
+                _replan_after_insufficient_evidence(
+                    diagnosis_id,
+                    hypothesis_id,
+                    f"policy_{tool_call.id}",
+                    continuation_reason=(
+                        "上一动作被策略或人工门禁拒绝，需切换到允许的证据域"
+                    ),
+                )
+            except Exception:
+                # The durable gate outcome is already committed. A transient
+                # replanning failure must not roll back the user's decision.
+                logger.exception(
+                    "policy-blocked LATS replanning failed",
+                    extra={"diagnosis_id": diagnosis_id, "tool_call_id": tool_call.id},
+                )
+            return
+        if not tool_call.task_id or tool_call.status not in {
+            "TASK_CREATED", "RUNNING", "COMPLETED"
+        }:
+            session.commit()
+            return
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.simulation_started",
+            "SYSTEM",
+            {
+                **common,
+                "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+                "note": (
+                    "线上分支只执行一次真实工具动作；未选择兄弟没有观测、"
+                    "没有奖励，也不宣称可回滚到等价环境。"
+                ),
+            },
+            timestamp,
+            effect_key=f"{durable_prefix}:simulation",
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.action_dispatched",
+            "SYSTEM",
+            common,
+            timestamp,
+            effect_key=f"{durable_prefix}:action",
+        )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(
+            diagnosis_id, f"tool_call:{tool_call.id}:lats:proposed"
+        ):
+            raise
+    finally:
+        session.close()
+
+
+def _record_lats_tool_failure(
+    diagnosis_id: str,
+    hypothesis_id: str,
+    tool_call_id: str,
+    task_id: str,
+    status: str,
+    reason: str | None,
+) -> None:
+    """Treat collector failure as an environment observation, never counter-evidence."""
+
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return
+        if not _lats_search_started(session, diagnosis_id):
+            return
+        rows = (
+            session.query(DropInsightHypothesisModel)
+            .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+            .all()
+        )
+        parent_map = {row.id: row.parent_hypothesis_id for row in rows}
+        path = hypothesis_path(hypothesis_id, parent_map)
+        node_id = f"hypothesis:{hypothesis_id}"
+        outcome = reward_from_outcome(
+            verification_status=None,
+            confidence=0.0,
+            support_count=0,
+            counter_count=0,
+            tool_status=status,
+        )
+        reflection = reflection_from_outcome(outcome)
+        timestamp = now_utc()
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.observation_recorded",
+            "ENVIRONMENT",
+            {
+                "node_id": node_id,
+                "observation_id": f"tool_call:{tool_call_id}:failure",
+                "observation_source": "REAL_TOOL_TERMINAL_STATUS",
+                "summary": f"真实探针状态={status}；{reason or '未返回可用产物'}",
+                "tool_call_ids": [tool_call_id],
+                "task_ids": [task_id],
+                "evidence_ids": [],
+                "external_observation": True,
+                "cached_observation": True,
+                "failure_is_counter_evidence": False,
+                "rollout_semantics": execution_semantics(diagnosis.mode)[
+                    "rollout_semantics"
+                ],
+            },
+            timestamp,
+            effect_key=f"tool_call:{tool_call_id}:lats:observation",
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.reflection_recorded",
+            "AGENT",
+            {
+                "node_id": node_id,
+                "decision": reflection["decision"],
+                "summary": reflection["summary"],
+                "grounded_in_observation": f"tool_call:{tool_call_id}:failure",
+                "reflection_is_evidence": False,
+            },
+            timestamp,
+            effect_key=f"tool_call:{tool_call_id}:lats:reflection",
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "lats.backpropagated",
+            "SYSTEM",
+            {
+                "node_id": node_id,
+                "tool_call_id": tool_call_id,
+                "path_node_ids": path,
+                **outcome,
+            },
+            timestamp,
+            effect_key=f"tool_call:{tool_call_id}:lats:backpropagation",
+        )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(
+            diagnosis_id, f"tool_call:{tool_call_id}:lats:backpropagation"
+        ):
+            raise
+    finally:
+        session.close()
+
+
+def _record_lats_report_outcome(report_id: str) -> dict | None:
+    """Persist real observation, reflection and reward backpropagation once."""
+
+    session = new_session()
+    diagnosis_for_error = ""
+    try:
+        report = session.get(DropInsightReportModel, report_id)
+        if report is None or not report.hypothesis_id:
+            return None
+        diagnosis = _lock_diagnosis(session, report.diagnosis_id)
+        diagnosis_for_error = report.diagnosis_id
+        if diagnosis is None:
+            return None
+        if not _lats_search_started(session, report.diagnosis_id):
+            return None
+        hypothesis = session.get(DropInsightHypothesisModel, report.hypothesis_id)
+        if hypothesis is None:
+            return None
+        evidence_rows = (
+            session.query(DropInsightEvidenceModel)
+            .filter(
+                DropInsightEvidenceModel.diagnosis_id == report.diagnosis_id,
+                DropInsightEvidenceModel.hypothesis_id == report.hypothesis_id,
+            )
+            .all()
+        )
+        calls = (
+            session.query(DropInsightToolCallModel)
+            .filter(
+                DropInsightToolCallModel.diagnosis_id == report.diagnosis_id,
+                DropInsightToolCallModel.hypothesis_id == report.hypothesis_id,
+            )
+            .all()
+        )
+        support_count = len(report.evidence_refs_json or [])
+        counter_count = len(report.counter_evidence_refs_json or [])
+        rejected_count = sum(
+            str((row.classification_json or {}).get("decision") or "").upper().startswith("REJECT")
+            for row in evidence_rows
+        )
+        verification_status = (report.verification_json or {}).get("status")
+        outcome = reward_from_outcome(
+            verification_status=verification_status,
+            confidence=report.confidence,
+            support_count=support_count,
+            counter_count=counter_count,
+            rejected_count=rejected_count,
+            tool_status=(calls[-1].status if calls else None),
+        )
+        reflection = reflection_from_outcome(outcome)
+        round_contract = _diagnosis_round_contract(session, diagnosis)
+        verified_before_minimum = bool(
+            verification_status == "VERIFIED"
+            and support_count > 0
+            and report.confidence >= 600
+            and not round_contract["satisfied"]
+        )
+        if verified_before_minimum:
+            reflection = {
+                "decision": "EXPAND_FOR_CROSS_VALIDATION",
+                "summary": (
+                    "当前分支已有可信支持，但受控场景至少需要 "
+                    f"{round_contract['minimum']} 轮真实诊断；当前完成 "
+                    f"{round_contract['observed']} 轮，继续跨证据域交叉验证。"
+                ),
+            }
+        parent_rows = (
+            session.query(DropInsightHypothesisModel)
+            .filter(DropInsightHypothesisModel.diagnosis_id == report.diagnosis_id)
+            .all()
+        )
+        parent_map = {row.id: row.parent_hypothesis_id for row in parent_rows}
+        path = hypothesis_path(report.hypothesis_id, parent_map)
+        node_id = f"hypothesis:{report.hypothesis_id}"
+        semantics = execution_semantics(diagnosis.mode)
+        timestamp = now_utc()
+        _append_event(
+            session,
+            report.diagnosis_id,
+            "lats.observation_recorded",
+            "ENVIRONMENT",
+            {
+                "node_id": node_id,
+                "observation_id": f"report:{report.id}",
+                "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+                "summary": (
+                    f"真实采集完成：支持 {support_count} 条、反证 {counter_count} 条、"
+                    f"质量拒绝 {rejected_count} 条；门禁={verification_status or 'UNKNOWN'}。"
+                ),
+                "tool_call_ids": [row.id for row in calls],
+                "task_ids": [row.task_id for row in calls if row.task_id],
+                "evidence_ids": [row.id for row in evidence_rows],
+                "report_id": report.id,
+                "external_observation": True,
+                "cached_observation": True,
+                "rollout_semantics": semantics["rollout_semantics"],
+                "equivalent_sibling_rollback": semantics[
+                    "strict_environment_reversibility"
+                ],
+            },
+            timestamp,
+            effect_key=f"report:{report.id}:lats:observation",
+        )
+        _append_event(
+            session,
+            report.diagnosis_id,
+            "lats.reflection_recorded",
+            "AGENT",
+            {
+                "node_id": node_id,
+                "report_id": report.id,
+                "decision": reflection["decision"],
+                "summary": reflection["summary"],
+                "grounded_in_observation": f"report:{report.id}",
+                "reflection_is_evidence": False,
+            },
+            timestamp,
+            effect_key=f"report:{report.id}:lats:reflection",
+        )
+        _append_event(
+            session,
+            report.diagnosis_id,
+            "lats.backpropagated",
+            "SYSTEM",
+            {
+                "node_id": node_id,
+                "report_id": report.id,
+                "path_node_ids": path,
+                **outcome,
+            },
+            timestamp,
+            effect_key=f"report:{report.id}:lats:backpropagation",
+        )
+        if outcome["outcome"] == "FALSIFIED":
+            _append_event(
+                session,
+                report.diagnosis_id,
+                "lats.node_pruned",
+                "SYSTEM",
+                {
+                    "node_id": node_id,
+                    "report_id": report.id,
+                    "reason": "可信反证推翻当前假设；采集失败不触发剪枝。",
+                },
+                timestamp,
+                effect_key=f"report:{report.id}:lats:pruned",
+            )
+        if (
+            verification_status == "VERIFIED"
+            and support_count > 0
+            and report.confidence >= 600
+            and round_contract["satisfied"]
+        ):
+            _append_event(
+                session,
+                report.diagnosis_id,
+                "lats.search_terminated",
+                "SYSTEM",
+                {
+                    "reason": "VERIFIED",
+                    "detail": reflection["summary"],
+                    "report_id": report.id,
+                    "confidence": report.confidence / 1000,
+                    "best_path_node_ids": path,
+                },
+                timestamp,
+                effect_key=f"report:{report.id}:lats:terminated",
+            )
+        session.commit()
+        return {**outcome, "reflection": reflection, "path_node_ids": path}
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(
+            diagnosis_for_error,
+            f"report:{report_id}:lats:backpropagation",
+        ):
+            raise
+        return None
+    finally:
+        session.close()
+
+
+def _best_accepted_supported_report(session, diagnosis_id: str):
+    candidates = (
+        session.query(DropInsightReportModel)
+        .filter(
+            DropInsightReportModel.diagnosis_id == diagnosis_id,
+            DropInsightReportModel.confidence >= 600,
+        )
+        .all()
+    )
+
+    def rank(report) -> tuple:
+        verification = report.verification_json or {}
+        status = verification.get("status")
+        if status not in {"VERIFIED", "PARTIAL_WITHOUT_COUNTER"}:
+            return (-1, -1, -1.0, "", "")
+        return (
+            1 if status == "VERIFIED" else 0,
+            int(report.confidence or 0),
+            float(verification.get("coverage_ratio") or 0.0),
+            report.created_at.isoformat() if report.created_at else "",
+            report.id,
+        )
+
+    accepted = [
+        report
+        for report in candidates
+        if (report.evidence_refs_json or []) and rank(report)[0] >= 0
+    ]
+    return max(accepted, key=rank, default=None)
+
+
+def _finalize_diagnosis_in_session(
+    session,
+    diagnosis,
+    *,
+    reason: str,
+    detail: str,
+    effect_key: str,
+) -> dict | None:
+    """Stage one truthful terminal state in the caller's locked transaction.
+
+    A failed leaf must not overwrite an earlier well-supported branch.  When
+    LATS has no safe work left, the best accepted support report becomes the
+    final answer with its recorded limitations; otherwise the whole diagnosis
+    is finally marked as insufficient.  Active calls guard against a stale
+    retry terminating a search that is still collecting evidence.
+    """
+    diagnosis_id = diagnosis.id
+    if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE"}:
+        return {
+            "finalized": False,
+            "status": diagnosis.status,
+            "reason": "ALREADY_TERMINAL",
+        }
+    active_calls = (
+        session.query(DropInsightToolCallModel.id)
+        .filter(
+            DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+            DropInsightToolCallModel.status.in_({
+                "PENDING_APPROVAL",
+                "APPROVED",
+                "TASK_CREATED",
+                "RUNNING",
+            }),
+        )
+        .count()
+    )
+    if active_calls:
+        return {
+            "finalized": False,
+            "status": diagnosis.status,
+            "reason": "ACTIVE_TOOL_CALLS",
+        }
+
+    best_report = _best_accepted_supported_report(session, diagnosis_id)
+    round_contract = _diagnosis_round_contract(session, diagnosis)
+    best_report_before_round_gate = best_report
+    if not round_contract["satisfied"]:
+        # A server-owned demo may require several independent observations.
+        # Search exhaustion before that gate is an honest insufficient result,
+        # never a successful diagnosis based on the first plausible profile.
+        best_report = None
+    timestamp = now_utc()
+    finalization_digest = hashlib.sha256(effect_key.encode("utf-8")).hexdigest()[:32]
+    finalization_effect_key = f"lats-finalize:{finalization_digest}"
+
+    if best_report is not None:
+        # COMPLETED is intentionally reachable only from evidence collection.
+        # Both state changes stay in this uncommitted transaction, so clients
+        # observe exactly one terminal state.
+        if diagnosis.status != "COLLECTING_EVIDENCE":
+            if diagnosis.status not in {"PLANNING", "HYPOTHESIZING"}:
+                return {
+                    "finalized": False,
+                    "status": diagnosis.status,
+                    "reason": "NON_SEARCH_STATE",
+                }
+            _cas_session_update(
+                session,
+                diagnosis,
+                status="COLLECTING_EVIDENCE",
+                timestamp=timestamp,
+            )
+        _cas_session_update(
+            session,
+            diagnosis,
+            status="COMPLETED",
+            timestamp=timestamp,
+        )
+        verification = best_report.verification_json or {}
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.completed_from_supported_report",
+            "SYSTEM",
+            {
+                "report_id": best_report.id,
+                "confidence": best_report.confidence / 1000,
+                "verification_status": verification.get("status"),
+                "coverage_ratio": verification.get("coverage_ratio"),
+                "termination_reason": reason,
+                "termination_detail": detail,
+                "completed_with_limitations": (
+                    verification.get("status") != "VERIFIED"
+                ),
+                "limitations_preserved": True,
+            },
+            timestamp,
+            effect_key=finalization_effect_key,
+        )
+        final_status = "COMPLETED"
+    else:
+        if diagnosis.status not in {
+            "PLANNING",
+            "HYPOTHESIZING",
+            "COLLECTING_EVIDENCE",
+        }:
+            return {
+                "finalized": False,
+                "status": diagnosis.status,
+                "reason": "NON_SEARCH_STATE",
+            }
+        _cas_session_update(
+            session,
+            diagnosis,
+            status="INSUFFICIENT_EVIDENCE",
+            timestamp=timestamp,
+        )
+        _append_event(
+            session,
+            diagnosis_id,
+            "diagnosis.insufficient_evidence_finalized",
+            "SYSTEM",
+            {
+                "termination_reason": reason,
+                "termination_detail": detail,
+                "accepted_support_report": False,
+                "best_supported_report_id": (
+                    best_report_before_round_gate.id
+                    if best_report_before_round_gate is not None
+                    else None
+                ),
+                "minimum_diagnosis_rounds": round_contract["minimum"],
+                "observed_diagnosis_rounds": round_contract["observed"],
+                "minimum_rounds_satisfied": round_contract["satisfied"],
+            },
+            timestamp,
+            effect_key=finalization_effect_key,
+        )
+        final_status = "INSUFFICIENT_EVIDENCE"
+
+    return {
+        "finalized": True,
+        "status": final_status,
+        "best_report_id": best_report.id if best_report is not None else None,
+    }
+
+
+def _finalize_diagnosis_after_lats_termination(
+    diagnosis_id: str,
+    *,
+    reason: str,
+    detail: str,
+    effect_key: str,
+) -> dict | None:
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return None
+        result = _finalize_diagnosis_in_session(
+            session,
+            diagnosis,
+            reason=reason,
+            detail=detail,
+            effect_key=effect_key,
+        )
+        session.commit()
+        return result
+    except IntegrityError:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def _record_lats_termination(
+    diagnosis_id: str,
+    *,
+    reason: str,
+    detail: str,
+    effect_key: str,
+) -> None:
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return
+        finalization = _finalize_diagnosis_in_session(
+            session,
+            diagnosis,
+            reason=reason,
+            detail=detail,
+            effect_key=effect_key,
+        )
+        if finalization and finalization.get("finalized") and _lats_search_started(
+            session, diagnosis_id
+        ):
+            _append_event(
+                session,
+                diagnosis_id,
+                "lats.search_terminated",
+                "SYSTEM",
+                {
+                    "reason": reason,
+                    "detail": detail,
+                    "final_status": finalization.get("status"),
+                    "best_report_id": finalization.get("best_report_id"),
+                },
+                now_utc(),
+                effect_key=effect_key,
+            )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        persisted = get_diagnosis(diagnosis_id)
+        if persisted is None or persisted.status not in {
+            "COMPLETED",
+            "INSUFFICIENT_EVIDENCE",
+        }:
+            raise
+    finally:
+        session.close()
+
+
+def _lats_search_started(session, diagnosis_id: str) -> bool:
+    return (
+        session.query(DropInsightEventModel.id)
+        .filter(
+            DropInsightEventModel.diagnosis_id == diagnosis_id,
+            DropInsightEventModel.event_type == "lats.search_started",
+        )
+        .first()
+        is not None
+    )
 
 
 def _record_successful_route(diagnosis_id: str, report_id: str) -> None:
@@ -2322,8 +5459,16 @@ def preview_tool_call(
             max_tool_calls=budget.get("max_tool_calls", 12),
             allowed_pid=binding.pid if binding else None,
             binding_authoritative=binding_authoritative,
+            session_pre_authorized=diagnosis.mode == "AUTONOMOUS",
         )
-        decision = evaluate_tool_call(payload.tool_name, payload.arguments, context)
+        if not _runtime_tool_is_compatible(diagnosis, payload.tool_name):
+            decision = {
+                "decision": "DENY",
+                "checks": [{"name": "RUNTIME_COMPATIBILITY", "result": "FAIL"}],
+                "reason": "所选运行时探针与服务端绑定的目标进程类型不兼容",
+            }
+        else:
+            decision = evaluate_tool_call(payload.tool_name, payload.arguments, context)
         _append_event(
             session,
             diagnosis_id,
@@ -2529,7 +5674,22 @@ def decide_tool_call(
         session.close()
 
     if payload.approved:
-        return _execute_approved_tool_call(tool_call_id)
+        executed = _execute_approved_tool_call(tool_call_id)
+        if executed is not None and executed.hypothesis_id:
+            _record_lats_action_dispatched(
+                diagnosis_id,
+                executed.hypothesis_id,
+                executed,
+                effect_prefix=f"tool_call:{executed.id}:lats",
+            )
+        return executed
+    if model is not None and model.hypothesis_id:
+        _record_lats_action_dispatched(
+            diagnosis_id,
+            model.hypothesis_id,
+            model,
+            effect_prefix=f"tool_call:{model.id}:lats",
+        )
     return model
 
 
@@ -2633,9 +5793,10 @@ def maintain_drop_insight_sessions(
 
     session = new_session()
     try:
-        # A high-confidence accepted support report is a valid terminal result.
-        # Independent counter/control remains a limitation and fix-verification
-        # recommendation, not a reason to leave the UI spinning forever.
+        # Only a fully VERIFIED report is terminal while search effects are
+        # still running. PARTIAL_WITHOUT_COUNTER must continue to another
+        # evidence domain; a search-exhaustion finalizer may later complete the
+        # session with that best partial report and its explicit limitations.
         candidate_reports = (
             session.query(DropInsightReportModel)
             .filter(DropInsightReportModel.confidence >= 600)
@@ -2647,9 +5808,14 @@ def maintain_drop_insight_sessions(
         for report in candidate_reports:
             if report.diagnosis_id in seen or not (report.evidence_refs_json or []):
                 continue
+            if (report.verification_json or {}).get("status") != "VERIFIED":
+                continue
             seen.add(report.diagnosis_id)
             diagnosis = _lock_diagnosis(session, report.diagnosis_id)
             if diagnosis is None or diagnosis.status != "COLLECTING_EVIDENCE":
+                continue
+            round_contract = _diagnosis_round_contract(session, diagnosis)
+            if not round_contract["satisfied"]:
                 continue
             _cas_session_update(session, diagnosis, status="COMPLETED", timestamp=now)
             _append_event(
@@ -2719,12 +5885,42 @@ def maintain_drop_insight_sessions(
                 if active_count == 0 and diagnosis.status in {
                     "PLANNING", "HYPOTHESIZING", "COLLECTING_EVIDENCE"
                 }:
-                    _cas_session_update(
+                    termination_key = (
+                        f"tool_call:{tool_call.id}:approval-expired-finalization"
+                    )
+                    finalization = _finalize_diagnosis_in_session(
                         session,
                         diagnosis,
-                        status="INSUFFICIENT_EVIDENCE",
-                        timestamp=now,
+                        reason="APPROVAL_EXPIRED",
+                        detail="最后一个待审批动作已超时，当前没有继续运行的取证任务。",
+                        effect_key=termination_key,
                     )
+                    if finalization and finalization.get("finalized"):
+                        if _lats_search_started(session, diagnosis.id):
+                            _append_event(
+                                session,
+                                diagnosis.id,
+                                "lats.search_terminated",
+                                "SYSTEM",
+                                {
+                                    "reason": "APPROVAL_EXPIRED",
+                                    "detail": (
+                                        "最后一个待审批动作已超时，"
+                                        "当前没有继续运行的取证任务。"
+                                    ),
+                                    "final_status": finalization.get("status"),
+                                    "best_report_id": finalization.get(
+                                        "best_report_id"
+                                    ),
+                                },
+                                now,
+                                effect_key=f"{termination_key}:lats-terminated",
+                            )
+                        if (
+                            finalization.get("status") == "COMPLETED"
+                            and diagnosis.id not in completed
+                        ):
+                            completed.append(diagnosis.id)
             expired.append(tool_call.id)
         session.commit()
         return {"completed_diagnoses": completed, "expired_approvals": expired}
@@ -2887,40 +6083,88 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
 
             if task_status in {"FAILED", "CANCELLED"}:
                 timestamp = now_utc()
-                tool_call.status = task_status
-                tool_call.result_json = {
-                    "task_status": task_status,
-                    "reason": task.status_reason,
-                }
-                _release_budget_reservation(
-                    tool_call,
-                    timestamp=timestamp,
-                    reason=f"task_{task_status.lower()}",
-                )
-                _append_event(
-                    session,
-                    diagnosis_id,
-                    "tool_call.task_terminal",
-                    "SYSTEM",
-                    {
-                        "tool_call_id": tool_call.id,
-                        "task_id": task.id,
+                failed_hypothesis_id = tool_call.hypothesis_id
+                failed_tool_call_id = tool_call.id
+                failed_task_id = task.id
+                failed_status_reason = task.status_reason
+                if tool_call.terminal_processing_status == "NONE":
+                    tool_call.status = task_status
+                    tool_call.result_json = {
                         "task_status": task_status,
-                    },
-                    timestamp,
-                )
-                _cas_session_update(
-                    session,
-                    diagnosis,
-                    status="INSUFFICIENT_EVIDENCE",
-                    timestamp=timestamp,
-                )
-                tool_call.terminal_processing_status = "REPORT_EFFECTS_DONE"
-                tool_call.terminal_processed_at = timestamp
-                session.commit()
+                        "reason": failed_status_reason,
+                    }
+                    _release_budget_reservation(
+                        tool_call,
+                        timestamp=timestamp,
+                        reason=f"task_{task_status.lower()}",
+                    )
+                    _append_event(
+                        session,
+                        diagnosis_id,
+                        "tool_call.task_terminal",
+                        "SYSTEM",
+                        {
+                            "tool_call_id": tool_call.id,
+                            "task_id": task.id,
+                            "task_status": task_status,
+                        },
+                        timestamp,
+                    )
+                    if diagnosis.status not in {
+                        "COMPLETED",
+                        "INSUFFICIENT_EVIDENCE",
+                    }:
+                        _cas_session_update(
+                            session,
+                            diagnosis,
+                            status="COLLECTING_EVIDENCE",
+                            timestamp=timestamp,
+                        )
+                    # Commit the terminal observation first. If reflection or
+                    # replanning crashes, the next orchestrator pass retries
+                    # effects instead of losing the branch forever.
+                    tool_call.terminal_processing_status = "TERMINAL_RECORDED"
+                    session.commit()
+                # Do not keep the diagnosis/tool-call FOR UPDATE transaction
+                # open while replanning. Replanning uses independent sessions
+                # (and may call the model/checkpointer); retaining this session
+                # can make those sessions wait on our own row lock until the
+                # public gRPC deadline expires.
+                session.close()
+                if failed_hypothesis_id:
+                    _record_lats_tool_failure(
+                        diagnosis_id,
+                        failed_hypothesis_id,
+                        failed_tool_call_id,
+                        failed_task_id,
+                        task_status,
+                        failed_status_reason,
+                    )
+                    _replan_after_insufficient_evidence(
+                        diagnosis_id,
+                        failed_hypothesis_id,
+                        f"tool_failure_{failed_tool_call_id}",
+                    )
+                completion_session = new_session()
+                try:
+                    completed_call = (
+                        completion_session.query(DropInsightToolCallModel)
+                        .filter(
+                            DropInsightToolCallModel.id == failed_tool_call_id,
+                            DropInsightToolCallModel.diagnosis_id == diagnosis_id,
+                        )
+                        .with_for_update()
+                        .first()
+                    )
+                    if completed_call is not None:
+                        completed_call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+                        completed_call.terminal_processed_at = now_utc()
+                        completion_session.commit()
+                finally:
+                    completion_session.close()
                 actions.append({
-                    "tool_call_id": tool_call.id,
-                    "task_id": task.id,
+                    "tool_call_id": failed_tool_call_id,
+                    "task_id": failed_task_id,
                     "action": task_status,
                 })
                 continue
@@ -3076,6 +6320,12 @@ def _evaluate_persisted_tool_policy(session, diagnosis, tool_name: str, argument
         .filter(DropInsightToolCallModel.diagnosis_id == diagnosis.id)
         .count()
     )
+    if not _runtime_tool_is_compatible(diagnosis, tool_name):
+        return {
+            "decision": "DENY",
+            "checks": [{"name": "RUNTIME_COMPATIBILITY", "result": "FAIL"}],
+            "reason": "所选运行时探针与服务端绑定的目标进程类型不兼容",
+        }
     decision = evaluate_tool_call(
         tool_name,
         arguments,
@@ -3087,6 +6337,7 @@ def _evaluate_persisted_tool_policy(session, diagnosis, tool_name: str, argument
             max_tool_calls=budget.get("max_tool_calls", 12),
             allowed_pid=binding.pid if binding else None,
             binding_authoritative=binding_authoritative,
+            session_pre_authorized=diagnosis.mode == "AUTONOMOUS",
         ),
     )
     if decision["decision"] == "DENY":
@@ -3112,6 +6363,10 @@ _ESTIMATED_ARTIFACT_BYTES = {
     "start_ebpf_io_profile": 16 * 1024 * 1024,
     "start_pyspy_profile": 16 * 1024 * 1024,
     "collect_database_diagnostics": 2 * 1024 * 1024,
+    "start_jvm_profile": 64 * 1024 * 1024,
+    "collect_memory_profile": 8 * 1024 * 1024,
+    "collect_go_profile": 32 * 1024 * 1024,
+    "start_continuous_profile": 128 * 1024 * 1024,
 }
 
 
@@ -3385,6 +6640,33 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             raise ValueError("tool call Agent disagrees with process binding")
         if arguments.get("pid") is not None and arguments.get("pid") != binding.pid:
             raise ValueError("tool call PID disagrees with process binding")
+        if not _runtime_tool_is_compatible(diagnosis, model.tool_name):
+            model.status = "FAILED"
+            model.result_json = {
+                "error": "runtime_incompatible_tool",
+                "reason": "所选运行时探针与服务端绑定的目标进程类型不兼容",
+            }
+            model.executed_at = timestamp
+            _release_budget_reservation(
+                model,
+                timestamp=timestamp,
+                reason="runtime_incompatible_tool",
+            )
+            _append_event(
+                session,
+                model.diagnosis_id,
+                "tool_call.failed",
+                "POLICY",
+                {
+                    "tool_call_id": model.id,
+                    "tool_name": model.tool_name,
+                    "reason": "runtime_incompatible_tool",
+                },
+                timestamp,
+            )
+            session.commit()
+            session.refresh(model)
+            return model
         if model.tool_name == "get_agent_status":
             agent = session.get(AgentModel, arguments["agent_id"])
             model.result_json = agent.to_dict() if agent is not None else {"found": False}
@@ -3409,13 +6691,7 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             session.refresh(model)
             return model
 
-        collector_type = {
-            "collect_sys_metrics": "sys_metrics",
-            "start_perf_profile": "perf_cpu",
-            "start_ebpf_io_profile": "ebpf_io",
-            "start_pyspy_profile": "pyspy",
-            "collect_database_diagnostics": "database_lock",
-        }.get(model.tool_name)
+        collector_type = TOOL_TO_COLLECTOR.get(model.tool_name)
         if collector_type is None:
             model.status = "FAILED"
             model.result_json = {"error": "tool has no executor"}
@@ -3435,6 +6711,11 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
                 "diagnosis_step_id": tool_call_id,
                 "drop_insight_diagnosis_id": model.diagnosis_id,
                 "drop_insight_tool_call_id": tool_call_id,
+                **(
+                    {"event": arguments["event"]}
+                    if arguments.get("event")
+                    else {}
+                ),
             },
             process_binding=_binding_request(binding),
         )
@@ -3497,13 +6778,7 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
             or arguments.get("pid") != binding.pid
         ):
             raise ValueError("replayed tool call disagrees with process binding")
-        collector_type = {
-            "collect_sys_metrics": "sys_metrics",
-            "start_perf_profile": "perf_cpu",
-            "start_ebpf_io_profile": "ebpf_io",
-            "start_pyspy_profile": "pyspy",
-            "collect_database_diagnostics": "database_lock",
-        }.get(model.tool_name)
+        collector_type = TOOL_TO_COLLECTOR.get(model.tool_name)
         if collector_type is None:
             raise
         task_request = CreateTaskRequest(
@@ -3517,6 +6792,11 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
                 "diagnosis_step_id": tool_call_id,
                 "drop_insight_diagnosis_id": model.diagnosis_id,
                 "drop_insight_tool_call_id": tool_call_id,
+                **(
+                    {"event": arguments["event"]}
+                    if arguments.get("event")
+                    else {}
+                ),
             },
             process_binding=_binding_request(binding),
         )
@@ -3716,9 +6996,21 @@ def _score_candidate_hypotheses(diagnosis_id: str) -> None:
     """
     session = new_session()
     try:
+        # Several orchestrator callers may advance the same diagnosis at the
+        # same time (background Worker, browser retry and an acceptance poller).
+        # Lock before reading candidate statuses so every scorer observes the
+        # previously committed transition instead of all racing from OPEN.
+        # `_append_event` takes the same row lock later and is therefore a
+        # re-entrant no-op inside this transaction.
+        if _lock_diagnosis(session, diagnosis_id) is None:
+            return
         hypotheses = (
             session.query(DropInsightHypothesisModel)
             .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+            .order_by(
+                DropInsightHypothesisModel.round_index.asc(),
+                DropInsightHypothesisModel.id.asc(),
+            )
             .all()
         )
         if not hypotheses:
@@ -3754,14 +7046,31 @@ def _score_candidate_hypotheses(diagnosis_id: str) -> None:
                 continue
             predicate = _compute_hypothesis_predicate(hypothesis, metadata)
             if predicate and predicate["outcome"] == "SUPPORT":
-                hypothesis.status = "SUPPORTED"
+                next_status = "SUPPORTED"
             elif predicate and predicate["outcome"] == "COUNTER":
-                hypothesis.status = "COUNTER"
+                next_status = "COUNTER"
             else:
-                hypothesis.status = "INCONCLUSIVE"
+                next_status = "INCONCLUSIVE"
+            if hypothesis.status == next_status:
+                continue
+            hypothesis.status = next_status
             hypothesis.updated_at = timestamp
-            changed.append({"hypothesis_id": hypothesis.id, "status": hypothesis.status})
+            changed.append(
+                {
+                    "hypothesis_id": hypothesis.id,
+                    "round_index": hypothesis.round_index,
+                    "status": hypothesis.status,
+                }
+            )
         if changed:
+            # Keep the durable payload canonical. This also makes semantic
+            # no-op suppression deterministic across PostgreSQL query plans.
+            changed.sort(
+                key=lambda item: (
+                    int(item.get("round_index") or 0),
+                    str(item.get("hypothesis_id") or ""),
+                )
+            )
             _append_event(
                 session,
                 diagnosis_id,
@@ -3771,6 +7080,179 @@ def _score_candidate_hypotheses(diagnosis_id: str) -> None:
                 timestamp,
             )
             session.commit()
+    finally:
+        session.close()
+
+
+def _apply_active_planner_skill(
+    diagnosis,
+    diagnosis_id: str,
+    plan: dict,
+    target: dict,
+    *,
+    round_index: int | None = None,
+    phase: str = "INITIAL_PLAN",
+    attempted_tools: list[str] | set[str] | None = None,
+    available_tools: list[str] | set[str] | None = None,
+    reuse_existing: bool = True,
+) -> dict | None:
+    """Resolve one published Skill route for the current planning round.
+
+    The Skill subsystem owns retrieval and route progression.  This service
+    boundary deliberately passes the *already authorised* tool set into it;
+    the returned Skill remains a planning prior and can never expand runtime
+    capabilities, approval policy, evidence admission, or the diagnosis scope.
+    """
+    if (getattr(diagnosis, "skill_policy", None) or "AUTO") == "DISABLED":
+        return None
+    from .skill_evolution import apply_active_skill
+
+    decision = apply_active_skill(
+        diagnosis_id,
+        str(plan.get("category") or phase),
+        plan,
+        target,
+        round_index=round_index,
+        phase=phase,
+        attempted_tools=attempted_tools,
+        available_tools=available_tools,
+        reuse_existing=reuse_existing,
+        return_decision=True,
+    )
+    if not decision:
+        return None
+    _record_skill_route_decision(
+        diagnosis_id,
+        decision,
+        round_index=round_index,
+        phase=phase,
+    )
+    if decision.get("applied", True) is not False:
+        return decision
+    # An exhausted, previously validated Skill still contributes its stop and
+    # refutation contract to this round's reasoning context.  It has no selected
+    # tool, so it cannot dispatch a stale route step.  Rejected/unmatched content
+    # is never elevated into the trusted model context.
+    if (
+        str(decision.get("state") or "").upper() == "EXHAUSTED"
+        and decision.get("skill_instructions")
+    ):
+        return decision
+    return None
+
+
+def _skill_selected_tool(
+    activation: dict | None,
+    allowed_tools: list[str],
+) -> str | None:
+    """Return a Skill route step only when the server allow-list permits it."""
+
+    selected = str((activation or {}).get("selected_tool") or "").strip()
+    return selected if selected and selected in allowed_tools else None
+
+
+def _skill_event_summary(activation: dict | None) -> dict | None:
+    """Build a compact public event view without copying full Skill Markdown."""
+
+    if not activation:
+        return None
+    instructions = activation.get("skill_instructions") or {}
+    summary = {
+        key: activation.get(key)
+        for key in (
+            "applied",
+            "state",
+            "skill_id",
+            "skill_name",
+            "version",
+            "category",
+            "skill_category",
+            "requested_category",
+            "baseline_category",
+            "selected_category",
+            "match_score",
+            "baseline_tool",
+            "selected_tool",
+            "category_correction",
+            "reuse_step",
+            "load_mode",
+            "exit_reason",
+        )
+        if activation.get(key) is not None
+    } | {
+        key: instructions.get(key)
+        for key in (
+            "content_sha256",
+            "source_sha256",
+            "source_path",
+            "loaded_sections",
+            "load_mode",
+        )
+        if isinstance(instructions, dict) and instructions.get(key) is not None
+    }
+    if isinstance(instructions, dict) and instructions.get("name"):
+        summary.setdefault("skill_name", instructions["name"])
+    if activation.get("skill_category"):
+        summary.setdefault("category", activation["skill_category"])
+        summary.setdefault("selected_category", activation["skill_category"])
+    if activation.get("requested_category"):
+        summary.setdefault("baseline_category", activation["requested_category"])
+    return summary
+
+
+def _record_skill_route_decision(
+    diagnosis_id: str,
+    decision: dict,
+    *,
+    round_index: int | None,
+    phase: str,
+) -> None:
+    """Publish one idempotent, compact Skill route event for live clients."""
+
+    state = str(decision.get("state") or "ACTIVATED").upper()
+    if decision.get("applied", True) is False:
+        # A first-round ordinary abstention is not a route exit.  Rejections
+        # and exhaustion are important because they explain why the tree left
+        # a previously viable route.
+        if state == "NOT_MATCHED":
+            return
+        event_type = "skill.route_exited"
+    elif state == "REUSED":
+        event_type = "skill.route_reused"
+    else:
+        # SWITCHED is a fresh activation with state preserved in the payload.
+        event_type = "skill.route_activated"
+    payload = _skill_event_summary(decision) or {}
+    payload.update(
+        {
+            "round_index": round_index,
+            "phase": phase,
+            "knowledge_is_evidence": False,
+        }
+    )
+    session = new_session()
+    try:
+        timestamp = now_utc()
+        _append_event(
+            session,
+            diagnosis_id,
+            event_type,
+            "SYSTEM",
+            payload,
+            timestamp,
+            effect_key=(
+                f"skill-route:{diagnosis_id}:{round_index or 0}:"
+                f"{phase.casefold()}"
+            ),
+        )
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        if not _event_effect_exists(
+            diagnosis_id,
+            f"skill-route:{diagnosis_id}:{round_index or 0}:{phase.casefold()}",
+        ):
+            raise
     finally:
         session.close()
 
@@ -3798,6 +7280,7 @@ def run_diagnosis_planner(
             (item for item in existing_hypotheses if item.id == existing_calls[0].hypothesis_id),
             existing_hypotheses[0],
         )
+        retrievals = list_knowledge_retrievals(diagnosis_id)
         return {
             "planner_kind": "IDEMPOTENT_REPLAY",
             "planner_version": "rules-v2",
@@ -3805,13 +7288,21 @@ def run_diagnosis_planner(
             "category": "EXISTING_PLAN",
             "decision_source": primary.source,
             "reasoning_summary": "返回已持久化的诊断计划；重复请求不会创建新假设。",
+            "retrieval_trace": (
+                retrievals[-1]["retrieval_trace"] if retrievals else None
+            ),
             "hypothesis": primary.to_dict(),
             "tool_call": existing_calls[0].to_dict(),
         }
 
     query = (diagnosis.query or "").lower()
+    # Route from positive symptom clauses. Requested counter-checks remain in
+    # the full query for hypothesis generation, but cannot choose the primary
+    # category merely because they mention I/O, GC or another alternative.
+    intent_query = _primary_intent_query(query)
     triage_arguments = _planner_tool_arguments("collect_sys_metrics", target)
-    if any(token in query for token in ("数据库锁", "锁等待", "deadlock", "mysql lock", "db lock")):
+    questions: list[dict] | None = None
+    if _is_database_query(query):
         plan = {
             "planner_version": "rules-v2",
             "category": "DATABASE_LOCK",
@@ -3821,7 +7312,29 @@ def run_diagnosis_planner(
             "tool_name": "collect_database_diagnostics",
             "arguments": _planner_tool_arguments("collect_database_diagnostics", target),
         }
-    elif any(token in query for token in ("丢包", "packet loss", "网络抖动", "重传", "timeout", "超时")):
+    elif _should_route_downstream_dependency(intent_query, query):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "DOWNSTREAM_DEPENDENCY",
+            "statement": "入口服务变慢可能由下游依赖响应延迟传播引起",
+            "expected": ["下游请求量与响应延迟在同一观测窗口内同步升高"],
+            "falsification": ["下游响应平稳且本实例存在独立热点"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in intent_query for token in (
+        "入口负载", "到达率", "完成率", "请求被拒绝", "load saturation"
+    )):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "LOAD_SATURATION",
+            "statement": "入口请求到达率可能超过目标服务的持续处理能力",
+            "expected": ["到达率高于完成率，且拒绝数、队列或处理延迟同步上升"],
+            "falsification": ["到达率未超过完成率，且没有拒绝或积压"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in intent_query for token in ("丢包", "packet loss", "网络", "重传", "timeout", "超时")):
         plan = {
             "planner_version": "rules-v2",
             "category": "NETWORK_DEGRADATION",
@@ -3831,7 +7344,116 @@ def run_diagnosis_planner(
             "tool_name": "collect_sys_metrics",
             "arguments": triage_arguments,
         }
-    elif any(token in query for token in ("jvm", "gc", "full gc", "垃圾回收")):
+    elif any(token in intent_query for token in ("队列", "积压", "backlog", "consumer lag", "mq")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "QUEUE_CONGESTION",
+            "statement": "吞吐下降可能由生产速率超过消费速率并形成队列积压引起",
+            "expected": ["生产速率高于消费速率，且队列深度或消费延迟同步增长"],
+            "falsification": ["生产消费速率平衡且队列无积压"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in intent_query for token in ("噪声邻居", "同宿主机", "资源争抢", "noisy neighbor")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "NOISY_NEIGHBOR",
+            "statement": "目标服务可能受到同宿主机其他工作负载的资源干扰",
+            "expected": ["独立 peer 在同一宿主机和时间窗口内持续消耗资源"],
+            "falsification": ["同宿主机其他实例平稳且目标自身存在独立热点"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in intent_query for token in ("fd 泄漏", "文件描述符", "too many open files")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "FD_LEAK",
+            "statement": "目标进程可能存在文件描述符持续增长或未释放",
+            "expected": ["FD 数在采样窗口内持续增长并接近进程上限"],
+            "falsification": ["FD 数稳定或增长能由连接池预热解释"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in intent_query for token in ("锁竞争", "futex", "mutex", "自旋锁")):
+        lock_tool = _lock_profile_tool(diagnosis)
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "LOCK_CONTENTION",
+            "statement": "目标进程可能因锁竞争、自旋或频繁上下文切换而降低吞吐",
+            "expected": ["锁等待计数或锁相关调用路径与吞吐下降同窗增长"],
+            "falsification": ["锁相关等待平稳且热点来自独立业务计算"],
+            "tool_name": lock_tool,
+            "arguments": _planner_tool_arguments(
+                lock_tool,
+                target,
+                query=diagnosis.query,
+            ),
+        }
+    elif any(token in intent_query for token in ("io", "i/o", "disk", "磁盘", "写入", "读取", "filechannel", "fdatasync")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "IO_LATENCY",
+            "statement": "目标进程的性能下降可能由磁盘 I/O 延迟或同步写入路径阻塞引起",
+            "expected": ["进程写入活动与块设备高延迟分布在同一窗口出现"],
+            "falsification": ["进程写入和块设备延迟均处于基线"],
+            "tool_name": "start_ebpf_io_profile",
+            "arguments": _planner_tool_arguments("start_ebpf_io_profile", target),
+        }
+    elif any(token in intent_query for token in ("内存", "memory", "rss", "pss", "oom", "堆外", "offheap")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "MEMORY_PRESSURE",
+            "statement": "目标进程可能存在可观测的内存足迹增长或对象保留",
+            "expected": ["RSS/PSS 或受约束的进程内保留量在故障窗口内明显增长"],
+            "falsification": ["进程内存足迹稳定且没有换页或保留量增长"],
+            "tool_name": "collect_memory_profile",
+            "arguments": _planner_tool_arguments("collect_memory_profile", target),
+        }
+    elif any(token in intent_query for token in ("python", "py-spy", "gil", "协程")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "PYTHON_RUNTIME",
+            "statement": "目标 Python 进程可能存在用户态热点函数或 GIL 竞争",
+            "expected": ["py-spy 样本集中在少数 Python 函数或线程"],
+            "falsification": ["Python 栈样本均匀且无明显热点"],
+            "tool_name": "start_pyspy_profile",
+            "arguments": _planner_tool_arguments("start_pyspy_profile", target),
+        }
+    elif _query_mentions_go_runtime(intent_query):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "GO_RUNTIME",
+            "statement": "目标 Go 服务可能存在 CPU 热点或 goroutine 执行路径异常",
+            "expected": ["pprof 样本集中在少数 Go 函数或运行时路径"],
+            "falsification": ["Go CPU 样本分散且系统资源处于基线"],
+            "tool_name": "collect_go_profile",
+            "arguments": _planner_tool_arguments("collect_go_profile", target),
+        }
+    elif any(
+        token in intent_query
+        for token in (
+            "cpu 持续",
+            "cpu 升高",
+            "cpu 异常",
+            "cpu 飙",
+            "cpu 热点",
+            "计算热点",
+            "热点函数",
+            "火焰图",
+            "busy loop",
+        )
+    ):
+        plan = {
+            "planner_version": "rules-v3",
+            "classification_confidence": 0.95,
+            "category": "CPU_HOTSPOT",
+            "statement": "目标进程可能存在 CPU 热点函数或系统调用开销",
+            "expected": ["perf 样本集中在少数热点函数或内核调用链"],
+            "falsification": ["CPU 样本均匀且没有显著热点"],
+            "tool_name": "start_perf_profile",
+            "arguments": _planner_tool_arguments("start_perf_profile", target),
+        }
+    elif any(token in intent_query for token in ("jvm", "java", "gc", "full gc", "垃圾回收")):
         plan = {
             "planner_version": "rules-v2",
             "category": "JVM_GC",
@@ -3840,6 +7462,31 @@ def run_diagnosis_planner(
             "falsification": ["GC、堆和系统资源在同窗口均处于基线范围"],
             "tool_name": "collect_sys_metrics",
             "arguments": triage_arguments,
+        }
+    elif any(token in query for token in ("fd 泄漏", "文件描述符", "too many open files")):
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "FD_LEAK",
+            "statement": "目标进程可能存在文件描述符持续增长或未释放",
+            "expected": ["FD 数在采样窗口内持续增长并接近进程上限"],
+            "falsification": ["FD 数稳定或增长能由连接池预热解释"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif any(token in query for token in ("锁竞争", "futex", "mutex", "自旋锁")):
+        lock_tool = _lock_profile_tool(diagnosis)
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "LOCK_CONTENTION",
+            "statement": "目标进程可能因锁竞争、自旋或频繁上下文切换而消耗 CPU",
+            "expected": ["调用栈集中在锁、futex 或自旋路径，并与线程等待同窗"],
+            "falsification": ["锁相关栈占比低且热点来自独立业务计算"],
+            "tool_name": lock_tool,
+            "arguments": _planner_tool_arguments(
+                lock_tool,
+                target,
+                query=diagnosis.query,
+            ),
         }
     elif any(token in query for token in ("下游", "依赖服务", "rpc", "upstream", "downstream")):
         plan = {
@@ -3936,6 +7583,89 @@ def run_diagnosis_planner(
                 "prompt": "请补充可观测症状，例如延迟、错误率、吞吐或资源曲线。",
             },
         ]
+        # UNKNOWN is a provisional baseline, not a terminal keyword-classifier
+        # decision.  Cross-category Skill retrieval gets one chance to recover
+        # intent from the complete query and bound runtime before we ask the
+        # user for clarification.
+        plan = {
+            "planner_version": "rules-v3",
+            "category": "UNKNOWN",
+            "classification_confidence": 0.0,
+            "statement": "异常领域尚未明确，需要先采集系统基线或复用匹配的诊断 Skill",
+            "expected": ["系统基线或 Skill 路线能够区分下一步应进入的证据域"],
+            "falsification": ["没有已发布 Skill 命中且问题仍缺少可观测症状"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+
+    available_tools = _available_planner_tools(diagnosis, binding)
+    allowed_tools = _category_allowed_tools(plan["category"], available_tools)
+    if not allowed_tools:
+        allowed_tools = list(available_tools)
+    if not allowed_tools:
+        raise ValueError("bound Agent exposes no runtime-compatible diagnostic collectors")
+    if plan["tool_name"] not in allowed_tools:
+        plan["tool_name"] = allowed_tools[0]
+        plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
+
+    # 已发布技能只提供经过门禁验证的探针顺序先验。环境漂移或类别不匹配
+    # 时不会命中，规则规划器仍是可复现的安全兜底。
+    skill_activation = _apply_active_planner_skill(
+        diagnosis,
+        diagnosis_id,
+        plan,
+        target,
+        round_index=1,
+        phase="INITIAL_PLAN",
+        attempted_tools={item.tool_name for item in existing_calls},
+        available_tools=available_tools,
+        reuse_existing=True,
+    )
+    if skill_activation and skill_activation.get("applied", True) is not False:
+        correction = skill_activation.get("category_correction") or {}
+        selected_category = str(
+            skill_activation.get("selected_category")
+            or skill_activation.get("category")
+            or skill_activation.get("skill_category")
+            or (
+                correction.get("selected_category")
+                if isinstance(correction, dict)
+                else ""
+            )
+            or (correction.get("to") if isinstance(correction, dict) else "")
+            or ""
+        ).strip().upper()
+        if selected_category and selected_category != "UNKNOWN":
+            previous_category = str(plan.get("category") or "UNKNOWN")
+            plan["category"] = selected_category
+            plan["classification_confidence"] = max(
+                float(plan.get("classification_confidence") or 0.0),
+                float(skill_activation.get("match_score") or 0.0),
+            )
+            if selected_category != previous_category:
+                # The old keyword baseline must not leak a contradictory cause
+                # into deterministic fallback after Skill retrieval corrected
+                # the route category.
+                plan["statement"] = (
+                    f"跨类别 Skill 将诊断方向从 {previous_category} 修正为 "
+                    f"{selected_category}，该方向仍需本次真实证据验证"
+                )
+                plan["expected"] = [
+                    "Skill 路线采集的新证据能够支持或推翻修正后的候选原因"
+                ]
+                plan["falsification"] = [
+                    "本次可信证据不支持该 Skill 路线，需退出并探索其他证据域"
+                ]
+            corrected_allowed = _category_allowed_tools(
+                selected_category,
+                available_tools,
+            )
+            if corrected_allowed:
+                allowed_tools = corrected_allowed
+
+    if questions is not None and not (
+        skill_activation and skill_activation.get("applied", True) is not False
+    ):
         session = new_session()
         try:
             persisted = _lock_diagnosis(session, diagnosis_id)
@@ -3949,10 +7679,11 @@ def run_diagnosis_planner(
                 "planner.needs_clarification",
                 "SYSTEM",
                 {
-                    "planner_kind": "DETERMINISTIC_RULES",
-                    "planner_version": "rules-v2",
+                    "planner_kind": "SKILL_AWARE_ROUTER",
+                    "planner_version": "rules-v3",
                     "category": "UNKNOWN",
                     "classification_confidence": 0.0,
+                    "skill_retrieval": "ABSTAINED",
                     "questions": questions,
                 },
                 timestamp,
@@ -3967,8 +7698,8 @@ def run_diagnosis_planner(
         finally:
             session.close()
         return {
-            "planner_kind": "DETERMINISTIC_RULES",
-            "planner_version": "rules-v2",
+            "planner_kind": "SKILL_AWARE_ROUTER",
+            "planner_version": "rules-v3",
             "classification_confidence": 0.0,
             "category": "UNKNOWN",
             "status": "NEEDS_CLARIFICATION",
@@ -3976,20 +7707,34 @@ def run_diagnosis_planner(
             "hypothesis": None,
             "tool_call": None,
         }
-
-    # 已发布技能只提供经过门禁验证的探针顺序先验。环境漂移或类别不匹配
-    # 时不会命中，规则规划器仍是可复现的安全兜底。
-    from .skill_evolution import apply_active_skill
-
-    skill_activation = apply_active_skill(
-        diagnosis_id, plan["category"], plan, target
-    )
+    skill_first_tool: str | None = None
     if skill_activation:
+        selected_skill_tool = _skill_selected_tool(
+            skill_activation,
+            available_tools,
+        )
+        if selected_skill_tool is not None:
+            plan["tool_name"] = selected_skill_tool
+            if selected_skill_tool not in allowed_tools:
+                allowed_tools.insert(0, selected_skill_tool)
+            # A published Skill is the treatment-arm route prior for the first
+            # real probe.  The model still generates and ranks hypotheses, but
+            # must not silently collapse AUTO back onto the control arm by
+            # replacing this runtime-compatible first tool.
+            skill_first_tool = selected_skill_tool
         plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
 
     # 规则负责范围/工具白名单，模型只在边界内提出和排序可证伪假设。
     # 模型不可用时保留确定性规则结果，且把来源显式展示给用户。
     model_attempted = True
+    retrieval_trace = _record_planner_knowledge_retrieval(
+        diagnosis_id,
+        query=diagnosis.query,
+        category=plan["category"],
+        phase="INITIAL_PLAN",
+        effect_key=f"diagnosis:{diagnosis_id}:initial:knowledge_retrieval",
+        round_index=1,
+    )
     proposal = propose_hypothesis_plan(
         diagnosis_id=diagnosis_id,
         query=diagnosis.query,
@@ -3997,12 +7742,14 @@ def run_diagnosis_planner(
         category=plan["category"],
         rule_plan=plan,
         prior_hypotheses=[item.to_dict() for item in list_hypotheses(diagnosis_id)],
-        allowed_tools=[plan["tool_name"]],
+        allowed_tools=allowed_tools,
         route_priors=_successful_tool_route_priors(),
         active_skill=skill_activation,
+        retrieval_trace=retrieval_trace,
     )
-    if proposal:
-        plan["tool_name"] = proposal["tool_name"]
+    if proposal and proposal.get("tool_name") in allowed_tools:
+        if skill_first_tool is None:
+            plan["tool_name"] = proposal["tool_name"]
         plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
         model_candidates = [
             {
@@ -4010,15 +7757,21 @@ def run_diagnosis_planner(
                 "expected": item["expected_observations"],
                 "falsification": item["falsification_criteria"],
                 "reason": item.get("rationale") or proposal.get("reasoning_summary", ""),
+                "prior_probability": item.get("prior_probability"),
+                "estimated_value": item.get("estimated_value"),
             }
             for item in proposal["hypotheses"]
         ]
-        candidates = [*model_candidates, _UNKNOWN_HYPOTHESIS]
-        source = "MODEL"
         generation_reason = proposal.get("reasoning_summary", "模型在策略边界内生成候选假设")
         plan["statement"] = model_candidates[0]["statement"]
         plan["expected"] = model_candidates[0]["expected"]
         plan["falsification"] = model_candidates[0]["falsification"]
+        if proposal.get("language_normalization") == "SERVER_RULE_FALLBACK":
+            candidates = _candidate_hypotheses(plan["category"], plan)
+            source = "SERVER_LANGUAGE_RULE_FALLBACK"
+        else:
+            candidates = [*model_candidates, _UNKNOWN_HYPOTHESIS]
+            source = "MODEL"
     else:
         candidates = _candidate_hypotheses(plan["category"], plan)
         source = "DETERMINISTIC_RULE"
@@ -4028,39 +7781,93 @@ def run_diagnosis_planner(
             else f"规则分类器已选择 {plan['category']} 诊断路径；该类别当前使用确定性规划。"
         )
 
-    # 方案 §5.2：除主假设外，同时保留备选假设与 OTHER/UNKNOWN，
-    # 避免假设成为答案边界。主假设仍驱动后续工具调用与报告生成。
-    for candidate in candidates:
-        if any(item.statement == candidate["statement"] for item in list_hypotheses(diagnosis_id)):
-            continue
-        create_hypothesis(
+    # LATS expansion keeps top-k mutually falsifiable candidates plus the
+    # open-world sentinel.  LM scores are priors only; missing/invalid values
+    # use deterministic fallbacks in prepare_candidates().
+    lats_config = LATSConfig.from_budget(diagnosis.budget_json or {})
+    prepared_candidates = prepare_candidates(
+        candidates,
+        top_k=lats_config.top_k,
+        default_tool=plan["tool_name"],
+        value_lambda=lats_config.value_lambda,
+    )
+    durable_candidates: list[dict] = []
+    known_by_statement = {
+        stable_candidate_key(item.statement): item
+        for item in list_hypotheses(diagnosis_id)
+    }
+    for candidate_index, candidate in enumerate(prepared_candidates):
+        candidate_key = candidate["candidate_key"]
+        hypothesis_row = known_by_statement.get(candidate_key)
+        if hypothesis_row is None:
+            hypothesis_row = create_hypothesis(
             diagnosis_id,
             CreateHypothesisRequest(
                 statement=candidate["statement"],
-                expected_observations=candidate["expected"],
-                falsification_criteria=candidate["falsification"],
+                    expected_observations=candidate["expected_observations"],
+                    falsification_criteria=candidate["falsification_criteria"],
             ),
-            source=source if candidate is not _UNKNOWN_HYPOTHESIS else "SYSTEM_FALLBACK",
+                source=(
+                    "SYSTEM_FALLBACK"
+                    if candidate.get("is_open_world_sentinel")
+                    else source
+                ),
             round_index=1,
             generation_reason=candidate.get("reason", generation_reason),
+            effect_key=(
+                f"diagnosis:{diagnosis_id}:initial:hypothesis:{candidate_index}"
+            ),
         )
+        if hypothesis_row is not None:
+            durable_candidates.append(
+                {
+                    **candidate,
+                    "node_id": f"hypothesis:{hypothesis_row.id}",
+                    "hypothesis_id": hypothesis_row.id,
+                }
+            )
+            known_by_statement[candidate_key] = hypothesis_row
+
+    selection = _record_lats_expansion_and_selection(
+        diagnosis_id,
+        durable_candidates,
+        phase="INITIAL_EXPANSION",
+        round_index=1,
+        parent_hypothesis_id=None,
+        effect_prefix=f"diagnosis:{diagnosis_id}:initial:lats",
+    )
+    selected_hypothesis_id = (
+        str((selection or {}).get("node_id") or "").removeprefix("hypothesis:")
+    )
     hypotheses = list_hypotheses(diagnosis_id)
     hypothesis = next(
-        (item for item in hypotheses if item.statement == plan["statement"]),
-        hypotheses[0] if hypotheses else None,
+        (item for item in hypotheses if item.id == selected_hypothesis_id),
+        None,
     )
     if hypothesis is None:
-        hypothesis = create_hypothesis(
-            diagnosis_id,
-            CreateHypothesisRequest(
-                statement=plan["statement"],
-                expected_observations=plan.get("expected", []),
-                falsification_criteria=plan.get("falsification", []),
-            ),
-            source=source,
-            round_index=1,
-            generation_reason=generation_reason,
-        )
+        hypothesis = hypotheses[0] if hypotheses else None
+    if hypothesis is None:
+        raise ValueError("LATS expansion did not produce an executable hypothesis")
+    selected_candidate = next(
+        (
+            item for item in durable_candidates
+            if item.get("hypothesis_id") == hypothesis.id
+        ),
+        {},
+    )
+    recommended_tool = selected_candidate.get("recommended_tool")
+    if skill_first_tool is not None:
+        plan["tool_name"] = skill_first_tool
+        plan["arguments"] = _planner_tool_arguments(skill_first_tool, target)
+    elif recommended_tool in allowed_tools:
+        plan["tool_name"] = recommended_tool
+        plan["arguments"] = _planner_tool_arguments(recommended_tool, target)
+
+    # Rebuild the final request after Skill/model/LATS selection so JVM event
+    # choice follows the diagnosis intent (allocation, lock, wall or CPU).
+    plan["arguments"] = _planner_tool_arguments(
+        plan["tool_name"], target, query=diagnosis.query
+    )
 
     existing_calls = list_tool_calls(diagnosis_id)
     tool_call = next(
@@ -4081,10 +7888,21 @@ def run_diagnosis_planner(
                 arguments=plan["arguments"],
             ),
             requested_by=requested_by,
+            effect_key=f"diagnosis:{diagnosis_id}:initial:tool_call",
+        )
+    if tool_call is not None:
+        _record_lats_action_dispatched(
+            diagnosis_id,
+            hypothesis.id,
+            tool_call,
+            effect_prefix=f"diagnosis:{diagnosis_id}:initial:lats",
         )
     return {
         "planner_kind": (
-            "LANGGRAPH_AGENT"
+            "SERVER_RULE_FALLBACK"
+            if proposal
+            and proposal.get("language_normalization") == "SERVER_RULE_FALLBACK"
+            else "LANGGRAPH_AGENT"
             if proposal and proposal.get("agent_framework")
             else "MODEL_ASSISTED"
             if proposal
@@ -4099,13 +7917,16 @@ def run_diagnosis_planner(
         "category": plan["category"],
         "decision_source": source,
         "reasoning_summary": generation_reason,
+        "retrieval_trace": retrieval_trace,
         "skill_activation": skill_activation,
+        "lats_selection": selection,
         "agent_runtime": (
             {
                 "framework": proposal.get("agent_framework"),
                 "version": proposal.get("agent_version"),
                 "checkpoint_backend": proposal.get("checkpoint_backend"),
                 "thread_id": diagnosis_id,
+                "language_normalization": proposal.get("language_normalization"),
             }
             if proposal and proposal.get("agent_framework")
             else None
@@ -4442,6 +8263,14 @@ def _append_event(
         ).scalar_one_or_none()
         if existing is not None:
             return False
+    if _latest_semantic_event_has_payload(
+        session,
+        diagnosis_id,
+        event_type,
+        actor,
+        payload,
+    ):
+        return False
     current = session.execute(
         select(func.max(DropInsightEventModel.sequence)).where(
             DropInsightEventModel.diagnosis_id == diagnosis_id
@@ -4460,7 +8289,106 @@ def _append_event(
     )
     session.add(event)
     _enqueue_diagnosis_event(session, event)
+    # A single state transition may append several durable events before the
+    # surrounding transaction commits (for example action_proposed followed
+    # by awaiting_approval, or simulation_started followed by
+    # action_dispatched).  Flush here so the next max(sequence) query observes
+    # this event and allocates the next sequence instead of reusing it.  The
+    # event and its outbox row still commit atomically in the caller's
+    # transaction.
+    session.flush()
     return True
+
+
+_EVENT_SEMANTIC_SCOPE_KEYS = (
+    "round_index",
+    "iteration",
+    "hypothesis_id",
+    "parent_hypothesis_id",
+    "node_id",
+    "tool_call_id",
+    "task_id",
+    "task_attempt_id",
+    "report_id",
+    "evidence_id",
+    "intervention_id",
+    "observation_id",
+    "snapshot_id",
+)
+
+
+def _event_semantic_scope(payload: dict) -> tuple:
+    """Return the stable round/entity slot whose latest value an event describes.
+
+    Event payloads remain the source of truth; this scope is used only to find
+    the previous value for no-op suppression. Mutable fields such as status,
+    score and reward are deliberately excluded so a real A -> B -> A change is
+    retained instead of being mistaken for a historical duplicate.
+    """
+
+    scope = [
+        (key, _freeze_event_value(payload[key]))
+        for key in _EVENT_SEMANTIC_SCOPE_KEYS
+        if payload.get(key) is not None
+    ]
+    hypotheses = payload.get("hypotheses")
+    if isinstance(hypotheses, list):
+        hypothesis_scope = sorted(
+            (
+                str(item.get("hypothesis_id")),
+                item.get("round_index"),
+            )
+            for item in hypotheses
+            if isinstance(item, dict) and item.get("hypothesis_id")
+        )
+        if hypothesis_scope:
+            scope.append(("hypotheses", tuple(hypothesis_scope)))
+    return tuple(scope)
+
+
+def _freeze_event_value(value):
+    if isinstance(value, dict):
+        return tuple(
+            (str(key), _freeze_event_value(item))
+            for key, item in sorted(value.items(), key=lambda row: str(row[0]))
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_event_value(item) for item in value)
+    return value
+
+
+def _latest_semantic_event_has_payload(
+    session,
+    diagnosis_id: str,
+    event_type: str,
+    actor: str,
+    payload: dict,
+) -> bool:
+    """Suppress only a repeated latest value in the same semantic slot.
+
+    The diagnosis row is already locked by ``_append_event``, so this check is
+    safe against concurrent pollers. Looking at the latest value per slot (not
+    every historical payload) preserves genuine state/score reversals and new
+    LATS iterations while making at-least-once orchestration a durable no-op.
+    """
+
+    semantic_scope = _event_semantic_scope(payload)
+    rows = session.execute(
+        select(DropInsightEventModel.payload_json)
+        .where(
+            DropInsightEventModel.diagnosis_id == diagnosis_id,
+            DropInsightEventModel.event_type == event_type,
+            DropInsightEventModel.actor == actor,
+        )
+        .order_by(DropInsightEventModel.sequence.desc())
+    ).scalars()
+    for existing_payload in rows:
+        existing_payload = dict(existing_payload or {})
+        if semantic_scope:
+            if _event_semantic_scope(existing_payload) != semantic_scope:
+                continue
+        return _freeze_event_value(existing_payload) == _freeze_event_value(payload)
+    return False
 
 
 def _enqueue_diagnosis_event(session, event: DropInsightEventModel) -> None:
@@ -4506,13 +8434,15 @@ def _lock_diagnosis(session, diagnosis_id: str, expected_version: int | None = N
 
 
 _SESSION_TRANSITIONS = {
-    "NEEDS_CLARIFICATION": {"UNDERSTANDING", "HYPOTHESIZING", "NEEDS_CLARIFICATION"},
-    "UNDERSTANDING": {"PLANNING", "HYPOTHESIZING", "NEEDS_CLARIFICATION", "UNDERSTANDING"},
-    "PLANNING": {"HYPOTHESIZING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "PLANNING"},
-    "HYPOTHESIZING": {"PLANNING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "HYPOTHESIZING"},
-    "COLLECTING_EVIDENCE": {"HYPOTHESIZING", "INSUFFICIENT_EVIDENCE", "COMPLETED", "COLLECTING_EVIDENCE"},
+    "NEEDS_CLARIFICATION": {"UNDERSTANDING", "HYPOTHESIZING", "NEEDS_CLARIFICATION", "CANCELLED"},
+    "UNDERSTANDING": {"PLANNING", "HYPOTHESIZING", "NEEDS_CLARIFICATION", "UNDERSTANDING", "CANCELLED"},
+    "PLANNING": {"HYPOTHESIZING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "PLANNING", "CANCELLED"},
+    "HYPOTHESIZING": {"PLANNING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "HYPOTHESIZING", "CANCELLED"},
+    "COLLECTING_EVIDENCE": {"HYPOTHESIZING", "INSUFFICIENT_EVIDENCE", "COMPLETED", "COLLECTING_EVIDENCE", "CANCELLED"},
     "INSUFFICIENT_EVIDENCE": {"HYPOTHESIZING", "PLANNING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE"},
-    "COMPLETED": {"COMPLETED"},
+    # A verified report remains immutable, but an explicit human turn may
+    # reopen the session and create a later auditable round.
+    "COMPLETED": {"COMPLETED", "HYPOTHESIZING"},
 }
 
 
@@ -4549,25 +8479,174 @@ def _derive_report_conclusion(
     *,
     support_refs: list[str],
     counter_refs: list[str],
+    supporting: list[EvidenceEnvelope] | None = None,
+    verification_status: str | None = None,
 ) -> str:
-    """Create the authoritative conclusion from accepted server evidence."""
+    """Create a root-cause statement from accepted immutable evidence.
+
+    A hypothesis is only a question posed by the planner.  Repeating that
+    question after a SUPPORT predicate produced misleading reports such as
+    "JVM may have a hotspot, GC pressure or lock contention".  The report
+    instead names the concrete function/resource observed by the Analyzer and
+    keeps unverified causal alternatives outside the conclusion.
+    """
 
     if not support_refs:
         if counter_refs:
             return (
-                "INSUFFICIENT_EVIDENCE：现有可信证据未支持该假设，且存在反证；"
+                "本轮判断：现有可信证据未支持该假设，且存在反证；"
                 f"暂不接受假设“{hypothesis_statement}”。"
             )
         return (
-            "INSUFFICIENT_EVIDENCE：当前没有能够支持该假设的可信证据；"
+            "本轮判断：当前没有能够支持该假设的可信证据；"
             f"假设“{hypothesis_statement}”仍待验证。"
         )
+
+    concrete_finding = _concrete_report_finding(supporting or [])
     if counter_refs:
+        if concrete_finding:
+            return (
+                f"阶段性根因：{concrete_finding}但同一诊断中仍存在反证，"
+                "暂不能把它提升为最终根因。"
+            )
         return (
-            "MIXED_EVIDENCE：可信证据部分支持该假设，同时存在反证；"
+            "本轮判断：可信证据部分支持该假设，同时存在反证；"
             f"假设“{hypothesis_statement}”需要继续证伪。"
         )
-    return f"SUPPORTED：可信采集证据支持假设“{hypothesis_statement}”。"
+
+    if concrete_finding:
+        title = "根因结论" if verification_status == "VERIFIED" else "阶段性根因"
+        return f"{title}：{concrete_finding}"
+
+    return (
+        "阶段性判断：证据与候选假设一致，但尚未定位到具体函数、资源或依赖；"
+        f"不能把假设“{hypothesis_statement}”直接写成最终根因，需要继续取证。"
+    )
+
+
+def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
+    """Render the strongest evidence-derived finding without inventing data."""
+
+    candidates: list[tuple[int, EvidenceEnvelope, dict, dict]] = []
+    for envelope in supporting:
+        observation = envelope.observation if isinstance(envelope.observation, dict) else {}
+        metadata = observation.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        predicate = metadata.get("hypothesis_predicate")
+        if not isinstance(predicate, dict) or predicate.get("outcome") != "SUPPORT":
+            continue
+        metrics = predicate.get("metrics")
+        if not isinstance(metrics, dict):
+            metrics = {}
+        function_name = str(metrics.get("dominant_function") or "").strip()
+        try:
+            dominant_percent = float(metrics.get("dominant_percent") or 0.0)
+        except (TypeError, ValueError):
+            dominant_percent = 0.0
+        score = (100 if function_name else 0) + int(dominant_percent)
+        candidates.append((score, envelope, metadata, metrics))
+    if not candidates:
+        return None
+
+    _, envelope, metadata, metrics = max(candidates, key=lambda item: item[0])
+    function_name = str(metrics.get("dominant_function") or "").strip()
+    try:
+        dominant_percent = float(metrics.get("dominant_percent") or 0.0)
+    except (TypeError, ValueError):
+        dominant_percent = 0.0
+    percent_text = f"，占有效样本的 {dominant_percent:.1f}%" if dominant_percent > 0 else ""
+    sample_count = envelope.quality.sample_count if envelope.quality.sample_count_known else 0
+    sample_text = f"在 {sample_count} 个有效样本中，" if sample_count > 0 else ""
+    schema_version = str(metadata.get("schema_version") or "").casefold()
+    profile_event = str(
+        metrics.get("profile_event") or metadata.get("profile_event") or ""
+    ).casefold()
+    top_functions = metadata.get("top_functions")
+    top_functions = top_functions if isinstance(top_functions, list) else []
+
+    if schema_version.startswith("java_async_profile.") and function_name:
+        # async-profiler commonly places a generated ``$$Lambda...run``
+        # adapter above the actual application method. Prefer the first real
+        # Java business frame while keeping the exact observed symbol.
+        business_function = next(
+            (
+                str(row.get("name") or "").strip()
+                for row in top_functions
+                if isinstance(row, dict)
+                and str(row.get("name") or "").strip()
+                and "$$Lambda" not in str(row.get("name") or "")
+                and not str(row.get("name") or "").strip().endswith("[]")
+                and not str(row.get("name") or "").strip().startswith("java/")
+                and not str(row.get("name") or "").strip().startswith("jdk/")
+            ),
+            function_name,
+        )
+        event_labels = {
+            "alloc": "Java 对象分配热点",
+            "lock": "Java 锁等待热点",
+            "wall": "Java 阻塞/等待热点",
+            "cpu": "Java CPU 执行热点",
+        }
+        event_label = event_labels.get(profile_event, "Java 性能热点")
+        allocated_types = []
+        if profile_event == "alloc":
+            for row in top_functions:
+                if not isinstance(row, dict):
+                    continue
+                name = str(row.get("name") or "").strip()
+                if name.endswith("[]") and name not in allocated_types:
+                    allocated_types.append(name)
+        type_text = (
+            f"，主要分配对象为 {'、'.join(allocated_types[:3])}"
+            if allocated_types
+            else ""
+        )
+        gc_counters = metadata.get("jvm_gc_counters")
+        gc_counters = gc_counters if isinstance(gc_counters, dict) else {}
+        gc_delta = gc_counters.get("delta")
+        gc_delta = gc_delta if isinstance(gc_delta, dict) else {}
+        gc_count_delta = max(0, int(gc_delta.get("gc_count") or 0))
+        gc_time_delta = max(0, int(gc_delta.get("gc_time_ms") or 0))
+        allocated_delta = max(0, int(gc_delta.get("allocated_bytes") or 0))
+        allocation_boundary = (
+            f"同一采集窗口的独立 JVM 计数器同时记录到 GC {gc_count_delta} 次、"
+            f"GC 耗时增加 {gc_time_delta} ms、累计分配增加 {allocated_delta} 字节；"
+            "这确认了分配与 GC 活动相关，但仍不能冒充 Full GC 次数或停顿分位数。"
+            if gc_counters and (gc_count_delta > 0 or gc_time_delta > 0)
+            else "该证据确认了集中对象分配路径，但没有独立证明 GC 暂停或锁竞争是主瓶颈。"
+        )
+        boundary = {
+            "alloc": allocation_boundary,
+            "lock": "该证据确认了锁等待路径，但仍需修复前后对照证明它对整体延迟的因果贡献。",
+            "wall": "该证据确认了阻塞路径，但仍需依赖侧或系统侧证据区分具体等待来源。",
+            "cpu": "该证据确认了 CPU 热路径，但仍需修复前后对照确认其因果贡献。",
+        }.get(profile_event, "该证据定位了具体热路径，仍需修复前后对照完成因果验证。")
+        return (
+            f"{sample_text}{event_label}定位在业务调用路径 `{business_function}`"
+            f"{percent_text}{type_text}。{boundary}"
+        )
+
+    if function_name:
+        if schema_version.startswith("go_pprof_analysis."):
+            profile_label = "Go CPU 热点"
+        elif schema_version.startswith("pyspy_analysis."):
+            profile_label = "Python 源码热点"
+        else:
+            profile_label = "性能热点"
+        return (
+            f"{sample_text}{profile_label}定位在 `{function_name}`{percent_text}。"
+            "该函数是当前证据窗口内最集中的执行路径；仍需修复前后对照确认因果贡献。"
+        )
+
+    lock_wait_count = metrics.get("lock_wait_count")
+    blocker_count = metrics.get("blocker_count")
+    if lock_wait_count is not None or blocker_count is not None:
+        return (
+            f"数据库锁等待链已被结构化证据确认：等待会话 {int(lock_wait_count or 0)} 个，"
+            f"阻塞会话 {int(blocker_count or 0)} 个。需要解除阻塞并复测事务延迟。"
+        )
+    return None
 
 
 def _derive_next_actions(
@@ -4580,6 +8659,98 @@ def _derive_next_actions(
     if counter_refs:
         return ["针对冲突证据执行独立的证伪采集，并比较同窗口结果"]
     return ["在相同负载下执行修复前后复测，确认热点和副作用变化"]
+
+
+def _structured_signal_predicate(
+    hypothesis: DropInsightHypothesisModel,
+    metadata: dict,
+) -> dict | None:
+    """Match allow-listed Analyzer signals to the planned observation."""
+
+    signals = metadata.get("signals")
+    if not isinstance(signals, dict):
+        return None
+    expected = hypothesis.expected_observations_json or []
+    statement = str(hypothesis.statement or "").casefold()
+    hypothesis_text = " ".join(
+        [statement, *(str(item).casefold() for item in expected)]
+    )
+    signal_specs = (
+        (
+            "queue_backlog",
+            ("队列", "积压", "生产", "消费", "queue", "backlog", "consumer lag"),
+        ),
+        (
+            "load_saturation",
+            ("入口负载", "到达率", "完成率", "拒绝", "吞吐", "load saturation"),
+        ),
+        (
+            "noisy_neighbor",
+            ("噪声邻居", "同宿主机", "共享资源", "资源争抢", "noisy neighbor"),
+        ),
+        (
+            "lock_contention",
+            ("锁竞争", "锁等待", "futex", "mutex", "reentrantlock", "contention"),
+        ),
+        (
+            "jvm_gc",
+            ("jvm", "gc", "垃圾回收", "分配风暴", "allocation"),
+        ),
+        (
+            "downstream_latency",
+            ("下游", "依赖", "downstream", "响应慢", "端到端延迟"),
+        ),
+        (
+            "network_latency",
+            ("网络", "丢包", "重传", "network", "连接超时"),
+        ),
+        (
+            "io_latency",
+            ("磁盘", "块设备", "io 延迟", "i/o", "写入", "fdatasync", "fsync"),
+        ),
+        (
+            "io_activity",
+            ("磁盘", "i/o", "写入", "读取", "filechannel", "fdatasync", "fsync"),
+        ),
+        (
+            "memory_growth",
+            ("内存", "rss", "pss", "swap", "堆外", "offheap", "memory"),
+        ),
+        (
+            "cpu_hotspot",
+            ("cpu", "计算热点", "热点函数", "用户态热点", "cpu hotspot"),
+        ),
+    )
+    for signal_name, tokens in signal_specs:
+        if (
+            signal_name == "jvm_gc"
+            and str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1"
+        ):
+            # The dedicated JVM counter predicate below can promote this
+            # independent before/after window to CONTROL rather than SUPPORT.
+            continue
+        signal = signals.get(signal_name)
+        if not isinstance(signal, dict) or signal.get("detected") is not True:
+            continue
+        if not any(token in hypothesis_text for token in tokens):
+            continue
+        covered = [
+            index
+            for index, item in enumerate(expected)
+            if any(token in str(item).casefold() for token in tokens)
+        ]
+        return {
+            "outcome": "SUPPORT",
+            "version": "hypothesis-predicate-v3",
+            "reason": str(
+                signal.get("reason")
+                or f"structured analyzer signal {signal_name} was observed"
+            ),
+            "criterion_indexes": covered or ([0] if expected else []),
+            "metrics": dict(signal.get("metrics") or {}),
+            "signal": signal_name,
+        }
+    return None
 
 
 def _compute_hypothesis_predicate(
@@ -4597,6 +8768,55 @@ def _compute_hypothesis_predicate(
     expected = hypothesis.expected_observations_json or []
     falsification = hypothesis.falsification_criteria_json or []
     statement = str(hypothesis.statement or "").casefold()
+
+    structured_predicate = _structured_signal_predicate(hypothesis, metadata)
+    if structured_predicate is not None:
+        return structured_predicate
+
+    if str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1":
+        delta = metadata.get("delta")
+        delta = delta if isinstance(delta, dict) else {}
+        hypothesis_text = " ".join(
+            [statement, *(str(item).casefold() for item in expected)]
+        )
+        gc_hypothesis = any(
+            token in hypothesis_text
+            for token in ("gc", "垃圾回收", "分配", "allocation", "堆")
+        )
+        if gc_hypothesis:
+            gc_count_delta = max(0, int(delta.get("gc_count") or 0))
+            gc_time_delta = max(0, int(delta.get("gc_time_ms") or 0))
+            allocated_delta = max(0, int(delta.get("allocated_bytes") or 0))
+            metrics = {
+                "gc_count_delta": gc_count_delta,
+                "gc_time_ms_delta": gc_time_delta,
+                "allocated_bytes_delta": allocated_delta,
+                "window_duration_ms": max(
+                    0, int(metadata.get("window_duration_ms") or 0)
+                ),
+            }
+            if allocated_delta > 0 and (gc_count_delta > 0 or gc_time_delta > 0):
+                return {
+                    "outcome": "CONTROL",
+                    "version": "hypothesis-predicate-v2",
+                    "reason": (
+                        "same-window JVM counters independently observed "
+                        f"{gc_count_delta} GC cycle(s), {gc_time_delta} ms GC time, "
+                        f"and {allocated_delta} allocated bytes"
+                    ),
+                    "criterion_indexes": [0] if falsification else [],
+                    "metrics": metrics,
+                }
+            return {
+                "outcome": "COUNTER",
+                "version": "hypothesis-predicate-v2",
+                "reason": (
+                    "same-window JVM counters did not observe GC activity "
+                    "under allocation profiling"
+                ),
+                "criterion_indexes": [0] if falsification else [],
+                "metrics": metrics,
+            }
 
     if str(metadata.get("schema_version") or "").startswith("database_lock."):
         lock_wait_count = max(0, int(metadata.get("lock_wait_count") or 0))
@@ -4664,11 +8884,20 @@ def _compute_hypothesis_predicate(
         name = row["name"].strip()
         current = aggregated.setdefault(
             name,
-            {"name": name, "percent": 0.0, "samples": 0, "locations": []},
+            {
+                "name": name,
+                "percent": 0.0,
+                "samples": 0,
+                "self_percent": 0.0,
+                "self_samples": 0,
+                "locations": [],
+            },
         )
         current["percent"] += _safe_percent(row.get("percent"))
+        current["self_percent"] += _safe_percent(row.get("self_percent"))
         try:
             current["samples"] += max(0, int(row.get("samples") or 0))
+            current["self_samples"] += max(0, int(row.get("self_samples") or 0))
         except (TypeError, ValueError):
             pass
         if row.get("file") or row.get("line"):
@@ -4696,6 +8925,49 @@ def _compute_hypothesis_predicate(
             "rwsem", "sem_wait", "lock_slowpath",
         ))
 
+    def _is_runtime_container(name: str) -> bool:
+        """Return whether a TopN row is a runtime/container frame, not code.
+
+        perf's folded-stack TopN is inclusive, so loader/runtime containers can
+        legitimately account for 100% of samples.  Treating ``[libpython]`` or
+        the ``python`` executable as a business function turns a useful profile
+        into a false source-hotspot predicate.
+        """
+
+        value = name.casefold().strip()
+        if value.startswith("[") and value.endswith("]"):
+            return True
+        return bool(re.fullmatch(
+            r"(?:python(?:\d+(?:\.\d+)*)?|java|node|ruby|php|perl)",
+            value,
+        ))
+
+    def _has_source_location(row: dict) -> bool:
+        for location in row.get("locations", []):
+            if not isinstance(location, dict):
+                continue
+            try:
+                line = int(location.get("line") or 0)
+            except (TypeError, ValueError):
+                line = 0
+            if (
+                isinstance(location.get("file"), str)
+                and bool(location["file"].strip())
+                and line > 0
+            ):
+                return True
+        return False
+
+    def _is_go_standard_frame(name: str) -> bool:
+        value = name.casefold().strip()
+        prefixes = (
+            "runtime.", "internal/", "internal.", "crypto/", "crypto.",
+            "sync.", "syscall.", "net/", "net.", "os.", "time.", "bytes.",
+            "hash/", "hash.", "encoding/", "encoding.", "reflect.",
+            "vendor/", "golang.org/",
+        )
+        return value in {"main.main", "runtime.main"} or value.startswith(prefixes)
+
     def _predicate(outcome: str, reason: str, indexes: list[int], **metrics):
         return {
             "outcome": outcome,
@@ -4707,11 +8979,25 @@ def _compute_hypothesis_predicate(
 
     significant = [row for row in named if _percent(row) >= 20.0]
     user_rows = [row for row in named if not _is_kernel(str(row["name"]))]
+    actionable_user_rows = [
+        row for row in user_rows
+        if not _is_runtime_container(str(row["name"]))
+    ]
     kernel_rows = [row for row in named if _is_kernel(str(row["name"]))]
     lock_rows = [row for row in named if _is_lock(str(row["name"]))]
     dominant_user = max(user_rows, key=_percent, default=None)
+    dominant_actionable_user = max(
+        actionable_user_rows,
+        key=_percent,
+        default=None,
+    )
     dominant_kernel = max(kernel_rows, key=_percent, default=None)
     dominant_user_pct = _percent(dominant_user) if dominant_user else 0.0
+    dominant_actionable_user_pct = (
+        _percent(dominant_actionable_user)
+        if dominant_actionable_user
+        else 0.0
+    )
     dominant_kernel_pct = _percent(dominant_kernel) if dominant_kernel else 0.0
 
     hypothesis_text = " ".join(
@@ -4725,29 +9011,230 @@ def _compute_hypothesis_predicate(
         and "函数" in hypothesis_text
         and any(token in hypothesis_text for token in ("集中", "热点", "占比"))
     )
-    # A GIL hypothesis often mentions a single hotspot in its falsification
-    # wording.  The causal subject is still GIL contention and must be scored
-    # before the generic user-hotspot branch.
-    gil_hypothesis = "gil" in statement
+    # A pure GIL causal claim often mentions a single hotspot in its
+    # falsification wording and must be scored before the generic user-hotspot
+    # branch.  A planner may also emit a disjunctive candidate such as
+    # ``热点函数或 GIL 竞争``.  That sentence intentionally keeps both causes
+    # open, so real hotspot evidence must be allowed through the user-space
+    # predicate instead of being swallowed by the GIL-only branch.
+    gil_mentioned = "gil" in statement
+    hotspot_mentioned = any(token in statement for token in (
+        "热点函数", "函数热点", "hot function", "source hotspot",
+    ))
+    disjunction_pattern = r"(?:或(?:者)?|/|\bor\b)"
+    mixed_gil_hotspot_hypothesis = bool(
+        gil_mentioned
+        and hotspot_mentioned
+        and (
+            re.search(
+                rf"(?:热点函数|函数热点|hot\s+function|source\s+hotspot)"
+                rf".{{0,32}}{disjunction_pattern}.{{0,32}}gil",
+                statement,
+            )
+            or re.search(
+                rf"gil.{{0,32}}{disjunction_pattern}.{{0,32}}"
+                rf"(?:热点函数|函数热点|hot\s+function|source\s+hotspot)",
+                statement,
+            )
+        )
+    )
+    gil_hypothesis = gil_mentioned and not mixed_gil_hotspot_hypothesis
     kernel_hypothesis = any(token in statement for token in (
         "内核态", "系统调用", "中断", "kernel", "syscall",
     ))
     lock_hypothesis = any(token in statement for token in (
         "锁竞争", "自旋", "lock contention", "spin",
     ))
+    source_mapping_expected = any(
+        any(token in str(item).casefold() for token in (
+            "源码", "文件", "行号", "source file", "source line",
+        ))
+        for item in expected
+        if isinstance(item, str)
+    )
+    pyspy_profile = str(metadata.get("schema_version") or "").casefold().startswith(
+        "pyspy_analysis."
+    )
+    perf_profile = str(metadata.get("schema_version") or "").casefold().startswith(
+        "perf_analysis."
+    )
+    go_pprof_profile = str(metadata.get("schema_version") or "").casefold().startswith(
+        "go_pprof_analysis."
+    )
+    java_profile = str(metadata.get("schema_version") or "").casefold().startswith(
+        "java_async_profile."
+    )
+
+    # py-spy reports self samples at individual source lines.  Aggregate those
+    # rows by function above, then evaluate the hypothesis' actual "one or a
+    # few functions" criterion by cumulative concentration.  Requiring real
+    # file+line locations keeps this separate from perf's inclusive runtime
+    # containers and makes the emitted function names evidence-derived.
+    source_functions = sorted(
+        (
+            row for row in actionable_user_rows
+            if _has_source_location(row) and _percent(row) > 0
+        ),
+        # Percentages are rounded in analyzer metadata.  For an apparent tie,
+        # prefer the function observed across more executable source lines;
+        # this is a structural signal from the profile rather than a special
+        # case for any demo function name.
+        key=lambda row: (
+            round(_percent(row), 1),
+            len(row.get("locations", [])),
+        ),
+        reverse=True,
+    )
+    significant_source_functions = [
+        row for row in source_functions if _percent(row) >= 10.0
+    ]
+    concentrated_source_functions = significant_source_functions[:3]
+    concentrated_source_pct = min(
+        100.0,
+        sum(_percent(row) for row in concentrated_source_functions),
+    )
+
+    # Go pprof TopN is inclusive: every frame in one stack receives the same
+    # sample weight, so a hot application path can legitimately produce more
+    # than three high-percentage rows. Evaluate source-mapped application
+    # frames directly and stop here; the generic token matcher below must not
+    # mistake the word ``CPU`` for the ``goCPUHotFunction`` symbol.
+    if go_pprof_profile:
+        go_application_rows = [
+            row
+            for row in source_functions
+            if not _is_go_standard_frame(str(row["name"]))
+        ]
+        dominant_go = max(go_application_rows, key=_percent, default=None)
+        # Runtime words alone only describe the probe.  They do not prove a
+        # waiting, networking or goroutine-contention hypothesis.  Claim a
+        # CPU hotspot only when the candidate itself asks about a hotspot or
+        # concentrated/high CPU execution.
+        go_hotspot_hypothesis = any(
+            token in hypothesis_text
+            for token in ("热点", "hotspot", "hot function")
+        ) or (
+            "cpu" in hypothesis_text
+            and any(
+                token in hypothesis_text
+                for token in (
+                    "集中", "升高", "持续", "占用", "主导", "dominant",
+                    "concentrat", "high", "saturat",
+                )
+            )
+        )
+        if (
+            go_hotspot_hypothesis
+            and dominant_go is not None
+            and _percent(dominant_go) >= 20.0
+        ):
+            covered_indexes = [
+                index
+                for index, item in enumerate(expected)
+                if isinstance(item, str)
+                and any(
+                    token in item.casefold()
+                    for token in (
+                        "pprof", "go ", "函数", "热点", "样本", "路径",
+                        "function", "hot", "sample", "path",
+                    )
+                )
+            ]
+            return _predicate(
+                "SUPPORT",
+                f"Go pprof captured source-mapped application hotspot "
+                f"{dominant_go['name']} at {_percent(dominant_go):.1f}%",
+                covered_indexes or [0],
+                dominant_function=dominant_go["name"],
+                dominant_percent=_percent(dominant_go),
+                source_locations=dominant_go.get("locations", []),
+                profile_semantics="inclusive",
+            )
+        return _predicate(
+            "NEUTRAL",
+            "Go pprof contains samples but no source-mapped application hotspot supports this hypothesis",
+            [],
+            profile_semantics="inclusive",
+        )
+
+    if java_profile:
+        profile_event = str(metadata.get("profile_event") or "unknown").casefold()
+        java_rows = sorted(actionable_user_rows, key=_percent, reverse=True)
+        application_rows = [
+            row
+            for row in java_rows
+            if any(
+                token in str(row["name"]).casefold()
+                for token in ("hotspot", "allocate", "reentrantlock", "filechannel")
+            )
+        ]
+        dominant_java = application_rows[0] if application_rows else None
+        gc_hypothesis = any(
+            token in hypothesis_text
+            for token in ("gc", "垃圾回收", "堆", "分配", "allocation")
+        )
+        lock_java_hypothesis = any(
+            token in hypothesis_text
+            for token in ("锁竞争", "reentrantlock", "lock contention")
+        )
+        wait_java_hypothesis = any(
+            token in hypothesis_text
+            for token in ("下游", "等待", "响应", "latency")
+        )
+        supported_event = (
+            (profile_event == "alloc" and gc_hypothesis)
+            or (profile_event == "lock" and lock_java_hypothesis)
+            or (profile_event == "wall" and wait_java_hypothesis)
+            or (profile_event == "cpu" and user_hypothesis)
+        )
+        if supported_event and dominant_java is not None:
+            covered_indexes = [
+                index
+                for index, item in enumerate(expected)
+                if isinstance(item, str)
+                and any(
+                    token in item.casefold()
+                    for token in (
+                        "jvm", "gc", "堆", "分配", "热点", "锁", "等待",
+                        "profile", "allocation", "lock", "wall",
+                    )
+                )
+            ]
+            return _predicate(
+                "SUPPORT",
+                f"async-profiler {profile_event} profile captured Java path "
+                f"{dominant_java['name']} at {_percent(dominant_java):.1f}%",
+                covered_indexes or [0],
+                dominant_function=dominant_java["name"],
+                dominant_percent=_percent(dominant_java),
+                profile_event=profile_event,
+                profile_semantics="inclusive",
+            )
+        return _predicate(
+            "NEUTRAL",
+            "Java profile contains real frames but its event/path does not support this hypothesis",
+            [],
+            profile_event=profile_event,
+            profile_semantics="inclusive",
+        )
 
     # Planner prose describes signal classes rather than concrete symbols.
     # Turn the Analyzer's TopN distribution into an explicit, auditable
     # predicate so high-quality data is not incorrectly left neutral.
     if gil_hypothesis:
-        if dominant_user and dominant_user_pct >= 60.0 and 1 <= len(significant) <= 3:
+        if (
+            dominant_actionable_user
+            and dominant_actionable_user_pct >= 60.0
+            and 1 <= len(significant) <= 3
+        ):
             return _predicate(
                 "COUNTER",
-                f"single dominant hotspot {dominant_user['name']} at "
-                f"{dominant_user_pct:.1f}% contradicts a GIL-contention explanation",
+                f"single dominant hotspot {dominant_actionable_user['name']} at "
+                f"{dominant_actionable_user_pct:.1f}% contradicts a "
+                "GIL-contention explanation",
                 [0, 1],
-                dominant_function=dominant_user["name"],
-                dominant_percent=dominant_user_pct,
+                dominant_function=dominant_actionable_user["name"],
+                dominant_percent=dominant_actionable_user_pct,
                 significant_hotspot_count=len(significant),
             )
         return _predicate(
@@ -4756,15 +9243,107 @@ def _compute_hypothesis_predicate(
             [],
         )
     if user_hypothesis:
-        if dominant_user and dominant_user_pct >= 60.0 and 1 <= len(significant) <= 3:
+        if (
+            pyspy_profile
+            and 1 <= len(concentrated_source_functions) <= 3
+            and len(significant_source_functions) <= 3
+            and concentrated_source_pct >= 70.0
+        ):
+            covered_indexes = [
+                index
+                for index, item in enumerate(expected)
+                if isinstance(item, str)
+                and (
+                    (
+                        any(token in item.casefold() for token in (
+                            "集中", "少数", "热点", "concentrat", "hot",
+                        ))
+                        and any(token in item.casefold() for token in (
+                            "函数", "function", "样本", "sample",
+                        ))
+                    )
+                    or (
+                        _has_source_location(concentrated_source_functions[0])
+                        and any(token in item.casefold() for token in (
+                            "源码", "文件", "行号", "source file", "source line",
+                        ))
+                    )
+                )
+            ]
             return _predicate(
                 "SUPPORT",
-                f"dominant user-space hotspot {dominant_user['name']} accounts for "
-                f"{dominant_user_pct:.1f}% with {len(significant)} significant hotspot(s)",
+                f"{len(concentrated_source_functions)} source-mapped Python "
+                f"function(s) account for {concentrated_source_pct:.1f}% of "
+                "py-spy self samples",
+                covered_indexes or [0],
+                dominant_function=concentrated_source_functions[0]["name"],
+                dominant_percent=_percent(concentrated_source_functions[0]),
+                concentrated_percent=concentrated_source_pct,
+                concentrated_functions=[
+                    {
+                        "name": row["name"],
+                        "percent": _percent(row),
+                        "locations": row.get("locations", []),
+                    }
+                    for row in concentrated_source_functions
+                ],
+                source_mapped=True,
+            )
+        # Native perf TopN percentages are inclusive: every frame in a hot
+        # stack can appear near 100%, so counting those rows as independent
+        # hotspots incorrectly rejects a single hot leaf. The Analyzer's call
+        # graph records self samples, which identify where CPU time actually
+        # lands without relying on demo-specific function names.
+        native_self_hotspots = [
+            row
+            for row in actionable_user_rows
+            if _safe_percent(row.get("self_percent")) >= 20.0
+        ]
+        dominant_native_self = max(
+            native_self_hotspots,
+            key=lambda row: _safe_percent(row.get("self_percent")),
+            default=None,
+        )
+        if (
+            perf_profile
+            and dominant_native_self is not None
+            and _safe_percent(dominant_native_self.get("self_percent")) >= 60.0
+            and not source_mapping_expected
+        ):
+            return _predicate(
+                "SUPPORT",
+                f"native perf self samples identify hotspot "
+                f"{dominant_native_self['name']} at "
+                f"{_safe_percent(dominant_native_self.get('self_percent')):.1f}%",
+                [0],
+                dominant_function=dominant_native_self["name"],
+                dominant_percent=_safe_percent(
+                    dominant_native_self.get("self_percent")
+                ),
+                self_samples=dominant_native_self.get("self_samples", 0),
+                profile_semantics="self",
+            )
+        significant_actionable = [
+            row for row in actionable_user_rows if _percent(row) >= 20.0
+        ]
+        if (
+            dominant_actionable_user
+            and dominant_actionable_user_pct >= 60.0
+            and 1 <= len(significant_actionable) <= 3
+            and (
+                not source_mapping_expected
+                or _has_source_location(dominant_actionable_user)
+            )
+        ):
+            return _predicate(
+                "SUPPORT",
+                f"dominant user-space hotspot {dominant_actionable_user['name']} accounts for "
+                f"{dominant_actionable_user_pct:.1f}% with "
+                f"{len(significant_actionable)} significant hotspot(s)",
                 [0, 1],
-                dominant_function=dominant_user["name"],
-                dominant_percent=dominant_user_pct,
-                significant_hotspot_count=len(significant),
+                dominant_function=dominant_actionable_user["name"],
+                dominant_percent=dominant_actionable_user_pct,
+                significant_hotspot_count=len(significant_actionable),
             )
         if dominant_kernel and dominant_kernel_pct >= 40.0 and dominant_user_pct < 40.0:
             return _predicate(
@@ -4803,13 +9382,17 @@ def _compute_hypothesis_predicate(
                 dominant_function=dominant_lock["name"],
                 dominant_percent=_percent(dominant_lock),
             )
-        if dominant_user and dominant_user_pct >= 60.0 and not lock_rows:
+        if (
+            dominant_actionable_user
+            and dominant_actionable_user_pct >= 60.0
+            and not lock_rows
+        ):
             return _predicate(
                 "COUNTER",
                 "a strong non-lock user-space hotspot exists and no lock-related symbol was sampled",
                 [0],
-                dominant_function=dominant_user["name"],
-                dominant_percent=dominant_user_pct,
+                dominant_function=dominant_actionable_user["name"],
+                dominant_percent=dominant_actionable_user_pct,
             )
 
     def _matches(text_entries, name):
@@ -4827,6 +9410,8 @@ def _compute_hypothesis_predicate(
 
     for row in named:
         name = str(row["name"])
+        if _is_runtime_container(name):
+            continue
         if _matches(expected, name):
             return {
                 "outcome": "SUPPORT",
@@ -4865,7 +9450,7 @@ def _derive_imported_evidence_role(
         predicate = metadata.get("hypothesis_predicate")
     if isinstance(predicate, dict):
         outcome = str(predicate.get("outcome") or "").upper()
-        if outcome in {"SUPPORT", "COUNTER", "NEUTRAL"}:
+        if outcome in {"SUPPORT", "COUNTER", "CONTROL", "NEUTRAL"}:
             return outcome
 
     top_functions = metadata.get("top_functions")
@@ -5155,7 +9740,10 @@ def clarify_diagnosis(
         if not requested_range and diagnosis.time_range_json:
             requested_range = diagnosis.time_range_json or {}
         if submitted_range is not None:
-            if requested_range and submitted_range != requested_range:
+            if requested_range and not _diagnostic_time_ranges_equivalent(
+                submitted_range,
+                requested_range,
+            ):
                 raise ValueError(
                     "requested diagnosis time range is immutable once established"
                 )

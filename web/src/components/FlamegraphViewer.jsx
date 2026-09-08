@@ -10,9 +10,13 @@ import {
 import * as d3 from "d3";
 import { defaultFlamegraphTooltip, flamegraph } from "d3-flame-graph";
 import "d3-flame-graph/dist/d3-flamegraph.css";
-import { getTaskArtifactContent } from "../api/client";
+import { getTaskArtifactContentText } from "../api/client";
 import { escapeHtml } from "../utils/html";
+import { parseJsonOffMainThread } from "../utils/parseJsonOffMainThread";
 import { COLORS, FLAMEGRAPH as FG } from "../theme";
+
+const MAX_FLAMEGRAPH_NODES = 50_000;
+const MAX_FLAMEGRAPH_DEPTH = 256;
 
 /**
  * 为函数名生成稳定的颜色（基于名称哈希的 HSL 色相）。
@@ -102,6 +106,7 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [limitNotice, setLimitNotice] = useState("");
   const [hasData, setHasData] = useState(false);
   const [renderVersion, setRenderVersion] = useState(0);
   const [searchText, setSearchText] = useState("");
@@ -157,10 +162,27 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
+    setLimitNotice("");
     setDetailsText("");
     try {
       const params = artifactIndex === null || artifactIndex === undefined ? {} : { index: artifactIndex };
-      const tree = normalizeFlamegraphPayload(await getTaskArtifactContent(taskId, artifactType, params));
+      const { value: envelope, limits } = await parseJsonOffMainThread(
+        await getTaskArtifactContentText(taskId, artifactType, params),
+        {
+          treeRootKey: "data",
+          maxNodes: MAX_FLAMEGRAPH_NODES,
+          maxDepth: MAX_FLAMEGRAPH_DEPTH,
+        },
+      );
+      if (envelope?.code !== 0) {
+        throw new Error(envelope?.message || "无法加载火焰图数据");
+      }
+      const tree = normalizeFlamegraphPayload(envelope?.data);
+      if (limits?.truncated) {
+        setLimitNotice(
+          `产物超过浏览器安全渲染上限，当前展示前 ${limits.nodeCount.toLocaleString()} 个节点；完整文件仍可下载。`,
+        );
+      }
       if (hasRenderableFlamegraph(tree)) {
         dataRef.current = tree;
         setHasData(true);
@@ -409,6 +431,16 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
           </Tooltip>
         </Space>
       </div>
+
+      {limitNotice && (
+        <Alert
+          type="info"
+          showIcon
+          message="火焰图已降级展示"
+          description={limitNotice}
+          style={{ marginBottom: 12 }}
+        />
+      )}
 
       {/* 火焰图容器 */}
       <div

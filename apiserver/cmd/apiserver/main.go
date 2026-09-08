@@ -13,6 +13,7 @@ import (
 	"mini-drop/apiserver/internal/config"
 	"mini-drop/apiserver/internal/httpapi"
 	"mini-drop/apiserver/internal/repository"
+	"mini-drop/apiserver/internal/scheduler"
 )
 
 func main() {
@@ -50,6 +51,13 @@ func main() {
 		WriteTimeout:      0, // SSE and artifact downloads may be long-lived.
 		IdleTimeout:       120 * time.Second,
 	}
+	runCtx, stopBackground := context.WithCancel(context.Background())
+	defer stopBackground()
+	go scheduler.New(
+		repo,
+		logger,
+		time.Duration(cfg.SchedulePollSeconds)*time.Second,
+	).Run(runCtx)
 
 	errCh := make(chan error, 1)
 	go func() {
@@ -72,6 +80,7 @@ func main() {
 		}
 		return
 	}
+	stopBackground()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

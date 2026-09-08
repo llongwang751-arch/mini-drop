@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini-Drop 复杂诊断案例</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#172033;font-family:"Microsoft YaHei","Noto Sans SC",sans-serif}
+    .app{width:1920px;height:1080px;display:grid;grid-template-columns:230px 1fr;background:#f5f7fa}.side{background:#061a2e;color:#fff;padding:28px 22px}.logo{font-size:26px;font-weight:800;margin-bottom:42px}.nav{padding:16px;border-radius:10px;background:#1677ff;font-size:18px}.main{padding:24px 30px}.bar{height:58px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:0 22px;margin-bottom:18px}.bar strong{font-size:21px}.badge{padding:6px 12px;border-radius:999px;background:#e6f4ff;color:#1677ff;font-weight:700}.panel{background:#fff;border:1px solid #e5eaf0;border-radius:14px;padding:20px}.head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.head h1{font-size:27px;margin:0 0 8px}.head p{margin:0;color:#657085;font-size:16px}.ok{padding:7px 12px;background:#edf9f1;color:#15803d;border-radius:7px;font-weight:700}.summary{margin-top:16px;display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.root,.fix{padding:14px 16px;border-radius:10px;line-height:1.55}.root{background:#edf9f1;border-left:5px solid #22a06b}.fix{background:#eef5ff;border-left:5px solid #1677ff}.root b,.fix b{display:block;margin-bottom:4px}.content{margin-top:18px;display:grid;grid-template-columns:1.45fr .75fr;gap:16px}.card{border:1px solid #e4e8ee;border-radius:12px;padding:15px;background:#fff}.title{font-size:18px;font-weight:800;margin-bottom:12px}.legend{display:flex;gap:8px;float:right;font-size:13px;font-weight:500}.dot{display:inline-flex;align-items:center;gap:5px}.dot:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c)}
+    .tree{position:relative;height:520px;background:linear-gradient(#fff,#fbfcfe);overflow:hidden}.node{position:absolute;width:235px;padding:11px 13px;border-radius:10px;border:2px solid #d9dfe8;background:#fff;box-shadow:0 3px 8px rgba(15,23,42,.06);font-size:14px;z-index:2}.node strong{display:block;font-size:15px;margin-bottom:5px}.node small{color:#6b7280;line-height:1.35}.blue{border-color:#3788f5;background:#eef6ff}.red{border-color:#ef6a6a;background:#fff1f1}.green{border-color:#2eb872;background:#eefbf3}.gray{border-color:#cbd2dc;background:#f6f7f9;color:#77808f}.n0{left:335px;top:12px}.n1{left:20px;top:150px}.n2{left:285px;top:150px}.n3{left:550px;top:150px}.n4{left:550px;top:295px}.n5{left:550px;top:430px}.n6{left:815px;top:150px}.line{position:absolute;height:2px;background:#4f8fe8;transform-origin:left center;z-index:1}.l1{left:448px;top:110px;width:330px;transform:rotate(156deg)}.l2{left:448px;top:110px;width:155px;transform:rotate(117deg)}.l3{left:448px;top:110px;width:188px;transform:rotate(42deg)}.l4{left:448px;top:110px;width:425px;transform:rotate(18deg);background:#aab2bd}.v1,.v2{left:668px;width:2px;height:80px;background:#2f9b66}.v1{top:255px}.v2{top:390px}.jump{position:absolute;left:450px;top:270px;width:105px;border-top:3px dashed #1677ff;color:#1677ff;font-size:13px;padding-top:5px}.rounds{display:grid;gap:9px}.round{display:grid;grid-template-columns:48px 1fr 58px;gap:8px;padding:11px;border-radius:9px;background:#f7f9fc;border-left:4px solid #1677ff;font-size:14px}.round.bad{border-color:#e5484d}.round.hit{border-color:#22a06b;background:#f0faf4}.round b{font-size:16px}.round span{color:#687386}.metrics{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{padding:11px;text-align:center;border-radius:9px;background:#f2f6fb}.metric b{display:block;font-size:21px;color:#153a67}.foot{margin-top:12px;color:#6b7280;font-size:13px;text-align:right}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side"><div class="logo">Mini-Drop</div><div class="nav">AI 诊断</div></aside>
+  <main class="main">
+    <div class="bar"><strong>复杂案例回放</strong><span class="badge">受控故障回放 · 已完成</span></div>
+    <section class="panel">
+      <div class="head"><div><h1>订单服务 CPU、P99 与磁盘等待同时升高</h1><p>第一次无 Skill：AI 走错、剪枝、跨树转向，最终通过恢复窗口确认根因</p></div><span class="ok">置信度 94%</span></div>
+<div class="summary"><div class="root"><b>最终根因</b>同宿主机日志压缩进程持续同步写盘，磁盘队列升高，订单服务阻塞在 fsync/writeback。</div><div class="fix"><b>处理与验证</b>限制压缩并发并降低 I/O 优先级；恢复后磁盘队列 14→1.2，P99 1.8s→205ms，CPU 回落至 74%。</div></div>
+      <div class="content">
+        <div class="card"><div class="title">AI 实际走过的探索树 <span class="legend"><i class="dot" style="--c:#3788f5">已调查</i><i class="dot" style="--c:#ef6a6a">反证剪枝</i><i class="dot" style="--c:#2eb872">根因路径</i><i class="dot" style="--c:#b6bec9">未调查</i></span></div>
+          <div class="tree">
+            <div class="line l1"></div><div class="line l2"></div><div class="line l3"></div><div class="line l4"></div><div class="line v1"></div><div class="line v2"></div><div class="jump">跨树转向 →</div>
+            <div class="node blue n0"><strong>复合症状入口</strong><small>CPU、P99、磁盘等待同窗升高</small></div>
+            <div class="node red n1"><strong>用户态热点 ✕</strong><small>用户栈仅 18%，不足以解释异常</small></div>
+            <div class="node red n2"><strong>锁竞争 ✕</strong><small>futex 栈仅 3.2%，证据否定</small></div>
+            <div class="node blue n3"><strong>目标 I/O 调查</strong><small>目标延迟 4.6ms，转查宿主机</small></div>
+            <div class="node green n4"><strong>同机进程扫描</strong><small>log-compactor 写入 228MB/s</small></div>
+            <div class="node green n5"><strong>恢复反证 ✓</strong><small>停止故障后队列、P99、CPU 同时回落</small></div>
+            <div class="node gray n6"><strong>网络下游</strong><small>已有更强证据，满足停止条件</small></div>
+          </div>
+        </div>
+        <div class="card"><div class="title">五轮调查轨迹</div><div class="rounds">
+          <div class="round"><b>01</b><div><strong>系统基线</strong><br><span>确认三项指标同窗异常</span></div><b>24s</b></div>
+          <div class="round bad"><b>02</b><div><strong>CPU 火焰图</strong><br><span>用户态热点证据不足，剪枝</span></div><b>31s</b></div>
+          <div class="round bad"><b>03</b><div><strong>锁等待</strong><br><span>锁竞争被反证，转向 I/O</span></div><b>27s</b></div>
+          <div class="round"><b>04</b><div><strong>I/O → 宿主机</strong><br><span>发现同机日志压缩写盘</span></div><b>42s</b></div>
+          <div class="round hit"><b>05</b><div><strong>恢复验证</strong><br><span>停止故障后指标回落，确认根因</span></div><b>44s</b></div>
+        </div><div class="metrics"><div class="metric"><b>6 次</b>工具调用</div><div class="metric"><b>168 秒</b>首次诊断</div><div class="metric"><b>3 条</b>剪枝路径</div></div></div>
+      </div>
+      <div class="foot">截图来源：Mini-Drop 内置复杂案例回放 · 数据为受控故障基线/故障/恢复三阶段快照</div>
+    </section>
+  </main>
+</div>
+</body></html>

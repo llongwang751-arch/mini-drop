@@ -1,3 +1,9 @@
+// Mini-Drop collection control plane.
+//
+// This gRPC service is the rendezvous point between the Go API and remote C++
+// Agents. The API enqueues durable task intent; Agents register, heartbeat and
+// pull work; result callbacks advance the persisted collection state. Large
+// artifacts bypass gRPC and travel through object storage.
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 
@@ -168,6 +174,22 @@ std::string bounded_text(std::string value, std::size_t max_length = 1024) {
   value.erase(std::remove(value.begin(), value.end(), '\0'), value.end());
   if (value.size() > max_length) value.resize(max_length);
   return value;
+}
+
+bool valid_traceparent(const std::string& value) {
+  if (value.size() != 55 || value.substr(0, 3) != "00-" ||
+      value[35] != '-' || value[52] != '-') {
+    return false;
+  }
+  for (std::size_t index = 0; index < value.size(); ++index) {
+    if (index == 2 || index == 35 || index == 52) continue;
+    if (!std::isxdigit(static_cast<unsigned char>(value[index])) ||
+        std::isupper(static_cast<unsigned char>(value[index]))) {
+      return false;
+    }
+  }
+  return value.substr(3, 32) != std::string(32, '0') &&
+      value.substr(36, 16) != std::string(16, '0');
 }
 
 std::int64_t bounded_u64(std::uint64_t value) {
@@ -592,8 +614,20 @@ class ControlService final : public mini_drop::Control::Service, private Service
               ? ""
               : std::string(request_id_header->second.data(),
                             request_id_header->second.length());
+      const auto traceparent_header =
+          context->client_metadata().find("traceparent");
+      std::string traceparent =
+          traceparent_header == context->client_metadata().end()
+              ? ""
+              : bounded_text(
+                    std::string(traceparent_header->second.data(),
+                                traceparent_header->second.length()),
+                    55);
+      if (!valid_traceparent(traceparent)) traceparent.clear();
       const json metadata = {
-          {"served_by", "cpp-control"}, {"request_id", request_id}};
+          {"served_by", "cpp-control"}, {"request_id", request_id},
+          {"traceparent", traceparent},
+          {"trace_id", traceparent.empty() ? "" : traceparent.substr(3, 32)}};
       tx.exec_params(
           "INSERT INTO audit_logs(event_type,message,task_id,metadata,created_at) "
           "VALUES('TASK_DISPATCH_CONFIRMED',$1,$2,$3::jsonb,now())",
@@ -767,6 +801,22 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
         }
       }
 
+      json options = json::object();
+      json resource_budget = json::object();
+      std::string traceparent;
+      try {
+        const auto params = json::parse(row[5].as<std::string>());
+        options = params.value("options", json::object());
+        resource_budget = params.value("resource_budget", json::object());
+        if (params.contains("_trace") && params.at("_trace").is_object()) {
+          traceparent = bounded_text(
+              params.at("_trace").value("traceparent", std::string{}), 55);
+          if (!valid_traceparent(traceparent)) traceparent.clear();
+        }
+      } catch (...) {}
+      const std::string trace_id =
+          traceparent.empty() ? "" : traceparent.substr(3, 32);
+
       tx.exec_params(
           "UPDATE tasks SET status='RUNNING',status_reason=$2,collection_status='DELIVERED',"
           "started_at=COALESCE(started_at,now()) WHERE id=$1",
@@ -776,7 +826,9 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
           "VALUES($1,'PENDING','RUNNING',$2,'server',$3::jsonb,now())",
           task_id, "C++ 控制面下发任务",
           (json{{"served_by", "cpp-control"},
-                {"task_attempt_id", attempt_id}}).dump());
+                {"task_attempt_id", attempt_id},
+                {"traceparent", traceparent},
+                {"trace_id", trace_id}}).dump());
 
       // Persist one concrete execution for every claimed logical task.  AI
       // evidence must point to this attempt instead of trusting a task row
@@ -792,20 +844,18 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
           "now()+make_interval(secs => $5::integer),$6::jsonb,$7,now(),now())",
           task_id, attempt_id, request->agent_id(),
           "C++ control plane dispatched collection attempt",
-          row[4].as<int>() + 30, R"({"served_by":"cpp-control"})",
+          row[4].as<int>() + 30,
+          (json{{"served_by", "cpp-control"},
+                {"traceparent", traceparent},
+                {"trace_id", trace_id}}).dump(),
           sha256_hex(attempt_authority));
-
-      json options = json::object();
-      try {
-        const auto params = json::parse(row[5].as<std::string>());
-        options = params.value("options", json::object());
-      } catch (...) {}
 
       response->set_pending(true);
       auto* desc = response->mutable_task_desc();
       desc->set_task_id(task_id);
       desc->set_task_attempt_authority(attempt_authority);
       desc->set_task_attempt_id(attempt_id);
+      desc->set_traceparent(traceparent);
       desc->set_profiler_type(
           static_cast<mini_drop::TaskKindProfiler>(profiler_type(collector)));
       desc->set_timeout_sec(options.value("timeout_sec", row[4].as<int>() + 30));
@@ -827,14 +877,87 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
       sample->set_hz(row[3].as<int>());
       sample->set_duration(row[4].as<int>());
       sample->set_callgraph(options.value("callgraph", std::string{"fp"}));
+      const std::string go_pprof_endpoint = env_or(
+          "MINI_DROP_GO_PPROF_ENDPOINT",
+          "http://go-hotspot:6060/debug/pprof/profile");
       std::string default_event = "cpu-cycles";
       if (collector == "java_async") {
         default_event = "cpu";
       } else if (collector == "go_pprof") {
-        default_event = "http://go-hotspot:6060/debug/pprof/profile";
+        default_event = go_pprof_endpoint;
       }
       sample->set_event(options.value("event", default_event));
       sample->set_subprocess(options.value("subprocess", false));
+      auto* budget = desc->mutable_resource_budget();
+      budget->set_max_cpu_percent(
+          resource_budget.value("max_cpu_percent", 50));
+      budget->set_max_memory_mb(
+          resource_budget.value("max_memory_mb", 1024));
+      budget->set_max_output_mb(
+          resource_budget.value("max_output_mb", 256));
+      budget->set_max_duration_sec(
+          resource_budget.value("max_duration_sec", row[4].as<int>()));
+
+      const int pid = row[1].as<int>();
+      const int hz = row[3].as<int>();
+      const int duration = row[4].as<int>();
+      if (collector == "perf_cpu") {
+        auto* payload = desc->mutable_perf();
+        payload->set_pid(pid);
+        payload->set_hz(hz);
+        payload->set_duration_sec(duration);
+        payload->set_callgraph(options.value("callgraph", std::string{"fp"}));
+        payload->set_event(options.value("event", std::string{"cpu-cycles"}));
+        payload->set_subprocess(options.value("subprocess", false));
+      } else if (collector == "java_async") {
+        auto* payload = desc->mutable_async_profiler();
+        payload->set_pid(pid);
+        payload->set_duration_sec(duration);
+        payload->set_event(options.value("event", std::string{"cpu"}));
+      } else if (collector == "go_pprof") {
+        auto* payload = desc->mutable_pprof();
+        payload->set_pid(pid);
+        payload->set_duration_sec(duration);
+        payload->set_endpoint(options.value("pprof_url", go_pprof_endpoint));
+      } else if (collector == "ebpf_io") {
+        auto* payload = desc->mutable_ebpf();
+        payload->set_pid(pid);
+        payload->set_duration_sec(duration);
+        payload->set_device(options.value("device", std::string{}));
+      } else if (collector == "pyspy") {
+        auto* payload = desc->mutable_pyspy();
+        payload->set_pid(pid);
+        payload->set_hz(hz);
+        payload->set_duration_sec(duration);
+        payload->set_subprocess(options.value("subprocess", false));
+      } else if (collector == "memory_smaps") {
+        auto* payload = desc->mutable_memory_smaps();
+        payload->set_pid(pid);
+        payload->set_duration_sec(duration);
+        payload->set_interval_ms(options.value("interval_ms", 1000));
+      } else if (collector == "sys_metrics") {
+        auto* payload = desc->mutable_system_metrics();
+        payload->set_pid(pid);
+        payload->set_duration_sec(duration);
+        payload->set_interval_ms(options.value("interval_ms", 1000));
+      } else if (collector == "continuous_perf") {
+        auto* payload = desc->mutable_continuous_perf();
+        payload->set_pid(pid);
+        payload->set_hz(hz);
+        payload->set_duration_sec(duration);
+        payload->set_window_seconds(
+            options.value("window_seconds", duration));
+        payload->set_callgraph(options.value("callgraph", std::string{"fp"}));
+        payload->set_event(options.value("event", std::string{"cpu-cycles"}));
+        payload->set_trigger_cpu_percent(
+            options.value("trigger_cpu_percent", 0));
+        payload->set_trigger_consecutive_samples(
+            options.value("trigger_consecutive_samples", 3));
+        payload->set_trigger_wait_seconds(
+            options.value("trigger_wait_seconds", 0));
+        payload->set_retention_tier(
+            options.value("retention_tier", std::string{"standard"}));
+      }
       tx.commit();
       return grpc::Status::OK;
     } catch (const std::exception& error) {
@@ -867,7 +990,8 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
         return status;
       }
       const auto attempts = tx.exec_params(
-          "SELECT id,task_attempt_authority_sha256 FROM task_attempts "
+          "SELECT id,task_attempt_authority_sha256,"
+          "COALESCE(metadata_json,'{}'::json)::text FROM task_attempts "
           "WHERE task_id=$1 ORDER BY attempt_no DESC LIMIT 1",
           request->task_id());
       if (attempts.empty() || attempts[0][1].is_null() ||
@@ -880,6 +1004,12 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
             "invalid or stale task-attempt authority");
       }
       const std::string attempt_id = attempts[0][0].as<std::string>();
+      json attempt_metadata = json::object();
+      try {
+        attempt_metadata = json::parse(attempts[0][2].as<std::string>());
+      } catch (...) {}
+      attempt_metadata["served_by"] = "cpp-control";
+      attempt_metadata["task_attempt_id"] = attempt_id;
       if (current == "CANCELLED" || current == "ANALYZING" || current == "DONE" || current == "FAILED") {
         tx.commit();
         return grpc::Status::OK;
@@ -891,9 +1021,8 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
             error_code == mini_drop_contract::kErrorNone) {
           error_code = std::string(mini_drop_contract::kErrorInternalError);
         }
-        const json metadata = {
-            {"served_by", "cpp-control"}, {"error_code", error_code},
-            {"task_attempt_id", attempt_id}};
+        json metadata = attempt_metadata;
+        metadata["error_code"] = error_code;
         tx.exec_params(
             "UPDATE tasks SET status='FAILED',status_reason=$2,collection_status='FAILED',"
             "analysis_status='CANCELED',error_code=$3,error_message=$2,"
@@ -928,8 +1057,7 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
           "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
           "VALUES($1,$2,'UPLOADING',$3,'agent',$4::jsonb,now())",
           request->task_id(), current, "C++ 控制面接收采集产物",
-          (json{{"served_by", "cpp-control"},
-                {"task_attempt_id", attempt_id}}).dump());
+          attempt_metadata.dump());
 
       json artifacts = json::array();
       try {
@@ -984,7 +1112,7 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
           "WHERE id=(SELECT id FROM task_attempts WHERE task_id=$1 "
           "ORDER BY attempt_no DESC LIMIT 1)",
           request->task_id(), "Collection artifacts persisted",
-          R"({"served_by":"cpp-control"})");
+          attempt_metadata.dump());
 
       const std::string metadata = artifacts.dump();
       const std::string checksum = sha256_hex(metadata);
@@ -1024,8 +1152,7 @@ class ResultService final : public mini_drop::Hotmethod::Service, private Servic
           "INSERT INTO task_status_events(task_id,from_status,to_status,reason,actor,metadata,created_at) "
           "VALUES($1,'UPLOADING','ANALYZING',$2,'server',$3::jsonb,now())",
           request->task_id(), "产物已记录，等待 Python Analyzer",
-          (json{{"served_by", "cpp-control"},
-                {"task_attempt_id", attempt_id}}).dump());
+          attempt_metadata.dump());
       tx.commit();
       return grpc::Status::OK;
     } catch (const std::exception& error) {

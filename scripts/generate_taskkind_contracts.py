@@ -61,7 +61,11 @@ SPECIALIZED_OPTION_PROPERTIES = {
     "continuous_perf": {
         "event": {"type": "string", "minLength": 1, "maxLength": 128},
         "callgraph": {"enum": ["fp", "dwarf", "lbr"]},
-        "window_seconds": {"type": "integer", "minimum": 1, "maximum": 300},
+        "window_seconds": {"type": "integer", "minimum": 1, "maximum": 900},
+        "trigger_cpu_percent": {"type": "integer", "minimum": 0, "maximum": 100},
+        "trigger_consecutive_samples": {"type": "integer", "minimum": 1, "maximum": 60},
+        "trigger_wait_seconds": {"type": "integer", "minimum": 0, "maximum": 86400},
+        "retention_tier": {"enum": ["short", "standard", "extended"]},
     },
 }
 

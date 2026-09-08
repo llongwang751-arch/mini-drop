@@ -134,8 +134,10 @@ export default function useSSE({
     mountedRef.current = true;
     cursorRef.current = 0;
     connect();
+    window.addEventListener("mini-drop:credentials-changed", connect);
     return () => {
       mountedRef.current = false;
+      window.removeEventListener("mini-drop:credentials-changed", connect);
       sourceRef.current?.close();
       sourceRef.current = null;
       if (reconnectTimer.current) {

@@ -24,7 +24,8 @@ describe("FixVerificationPanel", () => {
 
   it("renders past verification records", async () => {
     render(<FixVerificationPanel diagnosisId="diag-1" />);
-    expect(await screen.findByText("VERIFIED")).toBeInTheDocument();
+    expect(await screen.findByText("修复验证通过")).toBeInTheDocument();
+    expect(screen.queryByText("VERIFIED")).not.toBeInTheDocument();
     expect(screen.getByText("task-before")).toBeInTheDocument();
     expect(screen.getByText("task-after")).toBeInTheDocument();
     await waitFor(() =>

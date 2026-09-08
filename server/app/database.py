@@ -96,6 +96,11 @@ _MANAGED_SCHEMA_TABLES = {
     "diagnostic_skills",
     "diagnostic_skill_evaluations",
     "diagnostic_skill_activations",
+    "diagnostic_experiments",
+    "diagnostic_experiment_assignments",
+    "diagnostic_experiment_observations",
+    "diagnostic_experiment_metrics",
+    "operator_preference_memories",
 }
 _MANAGED_PROCESS_COLUMNS = {
     "tasks": {"process_snapshot_id", "process_binding_json"},

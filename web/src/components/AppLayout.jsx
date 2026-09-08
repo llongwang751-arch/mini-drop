@@ -12,12 +12,18 @@ import {
   SettingOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
-import { createEventSource, getStoredApiKey, saveApiKey } from "../api/client";
+import { createEventSource, getStoredApiKey, saveApiKey, syncBrowserSession } from "../api/client";
 import ErrorBoundary from "./ErrorBoundary";
 import styles from "./AppLayout.module.css";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
+
+/**
+ * 应用外壳：所有页面共享的侧栏、页头、访问凭据和全局 SSE 连接都在这里。
+ * Outlet 才是当前路由页面。把凭据与事件连接放在外壳，能避免切换页面时反复登录；
+ * 具体页面只关心自己的 REST 数据和领域交互。
+ */
 
 const MENU_ITEMS = [
   { key: "/ai-diagnosis", icon: <RobotOutlined />, label: "AI 诊断" },
@@ -41,7 +47,7 @@ const MENU_ITEMS = [
 ];
 
 const PAGE_META = {
-  "/ai-diagnosis": ["AI 诊断工作台", "证据驱动的多轮诊断与 Skill 演进"],
+  "/ai-diagnosis": ["AI 诊断", "多轮取证与 Skill 演进"],
   "/tasks": ["任务面板", "采集任务、执行状态与结果入口"],
   "/schedules": ["计划任务", "周期采集与执行策略"],
   "/audit": ["审计日志", "关键操作与诊断责任链"],
@@ -66,7 +72,10 @@ function pageMeta(pathname) {
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && Boolean(window.matchMedia?.("(max-width: 640px)").matches),
+  );
+  const [collapsed, setCollapsed] = useState(isMobile);
   const [apiKey, setApiKey] = useState(getStoredApiKey() || "");
   const [credentialOpen, setCredentialOpen] = useState(false);
   const [sseConnected, setSseConnected] = useState(false);
@@ -80,11 +89,44 @@ export default function AppLayout() {
   const diagnosisPage = location.pathname === "/ai-diagnosis";
 
   useEffect(() => {
-    const stream = createEventSource();
-    stream.onopen = () => setSseConnected(true);
-    stream.onerror = () => setSseConnected(false);
-    return () => stream.close();
+    let stream = null;
+    let cancelled = false;
+    const connect = async () => {
+      stream?.close();
+      setSseConnected(false);
+      try {
+        await syncBrowserSession();
+      } catch {
+        // REST errors surface on the page; SSE remains in explicit fallback.
+      }
+      if (cancelled) return;
+      stream = createEventSource();
+      stream.onopen = () => setSseConnected(true);
+      stream.onerror = () => setSseConnected(false);
+    };
+    connect();
+    window.addEventListener("mini-drop:credentials-changed", connect);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("mini-drop:credentials-changed", connect);
+      stream?.close();
+    };
   }, []);
+
+  useEffect(() => {
+    const query = window.matchMedia?.("(max-width: 640px)");
+    if (!query) return undefined;
+    const handleChange = (event) => {
+      setIsMobile(event.matches);
+      if (event.matches) setCollapsed(true);
+    };
+    query.addEventListener?.("change", handleChange);
+    return () => query.removeEventListener?.("change", handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) setCollapsed(true);
+  }, [isMobile, location.pathname]);
 
   useEffect(() => {
     if (selectedParent) {
@@ -93,19 +135,23 @@ export default function AppLayout() {
   }, [selectedParent]);
 
   async function handleSaveKey() {
-    await saveApiKey(apiKey.trim());
-    setCredentialOpen(false);
-    message.success(apiKey.trim() ? "访问凭据已保存" : "访问凭据已清除");
+    try {
+      await saveApiKey(apiKey.trim());
+      setCredentialOpen(false);
+      message.success(apiKey.trim() ? "访问凭据已验证，实时连接正在建立" : "访问凭据已清除");
+    } catch (error) {
+      message.error(error?.message || "访问凭据验证失败");
+    }
   }
 
   const credentialEditor = (
     <div className={styles.credentialEditor}>
       <div>
-        <Text strong>Mini-Drop API Key</Text>
+        <Text strong>Mini-Drop 访问密钥</Text>
         <Text type="secondary">仅用于当前控制台访问，保存后立即生效。</Text>
       </div>
       <Input.Password
-        aria-label="Mini-Drop API Key"
+        aria-label="Mini-Drop 访问密钥"
         placeholder="输入访问凭据"
         value={apiKey}
         onChange={(event) => setApiKey(event.target.value)}
@@ -118,10 +164,18 @@ export default function AppLayout() {
 
   return (
     <Layout className={styles.layout}>
+      {isMobile && !collapsed && (
+        <button
+          type="button"
+          className={styles.mobileNavBackdrop}
+          aria-label="关闭导航"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
       <Sider
-        className={styles.sider}
+        className={`${styles.sider} ${isMobile ? styles.mobileSider : ""}`}
         collapsed={collapsed}
-        collapsedWidth={72}
+        collapsedWidth={isMobile ? 0 : 72}
         width={224}
         theme="dark"
         trigger={null}
@@ -131,12 +185,12 @@ export default function AppLayout() {
           {!collapsed && (
             <span className={styles.brandCopy}>
               <b>Mini-Drop</b>
-              <small>Evidence-first diagnosis</small>
+              <small>证据优先的智能诊断</small>
             </span>
           )}
         </div>
 
-        <div className={styles.menuLabel}>{collapsed ? "" : "WORKSPACE"}</div>
+        <div className={styles.menuLabel}>{collapsed ? "" : "工作区"}</div>
         <Menu
           className={styles.menu}
           theme="dark"
@@ -145,7 +199,10 @@ export default function AppLayout() {
           openKeys={openKeys}
           onOpenChange={setOpenKeys}
           items={MENU_ITEMS}
-          onClick={({ key }) => navigate(key)}
+          onClick={({ key }) => {
+            navigate(key);
+            if (isMobile) setCollapsed(true);
+          }}
         />
 
         <div className={styles.siderFooter}>

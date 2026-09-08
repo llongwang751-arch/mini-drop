@@ -27,7 +27,7 @@ message TaskDesc {
   string task_id         = 1;  // 全局唯一任务 ID
   uint32 task_type       = 2;  // 任务大类: 0=通用 1=Java 2=Tracing 4=MemCheck 6=JavaHeap
   TaskKindProfiler profiler_type = 3;  // 唯一编号来自 contracts/taskkinds.json
-  RecordArgv sample_argv = 4;  // 采集参数
+  RecordArgv sample_argv = 4 [deprecated = true];  // N-1 兼容；新任务使用 typed payload
   string container_name  = 5;  // 容器/Pod 名称（非容器场景为空）
   uint32 container_type  = 6;  // 容器运行时类型
   uint32 timeout_sec     = 7;  // 任务超时秒数，Agent 应在此时限内完成采集
@@ -37,6 +37,95 @@ message TaskDesc {
   string task_attempt_authority = 20;  // 不透明的任务尝试授权，Agent 必须原样回传
   repeated UploadTarget upload_targets = 21;  // 每对象短时 PUT 授权
   string task_attempt_id = 22;  // 本次真实执行身份，贯穿 Artifact/AnalysisJob
+  ResourceBudget resource_budget = 23;  // 每任务上限，Agent 取本地与任务预算的较小值
+  string traceparent = 24;  // 经控制面校验的 W3C Trace Context，不参与执行授权
+
+  oneof payload {
+    PerfTask perf = 30;
+    AsyncProfilerTask async_profiler = 31;
+    PprofTask pprof = 32;
+    EbpfTask ebpf = 33;
+    PySpyTask pyspy = 34;
+    MemorySmapsTask memory_smaps = 35;
+    SystemMetricsTask system_metrics = 36;
+    ContinuousPerfTask continuous_perf = 37;
+  }
+}
+
+
+// ResourceBudget 是单个任务的硬上限，不是性能目标。
+message ResourceBudget {
+  uint32 max_cpu_percent = 1;
+  uint32 max_memory_mb = 2;
+  uint32 max_output_mb = 3;
+  uint32 max_duration_sec = 4;
+}
+
+
+message PerfTask {
+  int32 pid = 1;
+  uint32 hz = 2;
+  uint32 duration_sec = 3;
+  string callgraph = 4;
+  string event = 5;
+  bool subprocess = 6;
+}
+
+
+message AsyncProfilerTask {
+  int32 pid = 1;
+  uint32 duration_sec = 2;
+  string event = 3;
+}
+
+
+message PprofTask {
+  int32 pid = 1;
+  uint32 duration_sec = 2;
+  string endpoint = 3;
+}
+
+
+message EbpfTask {
+  int32 pid = 1;
+  uint32 duration_sec = 2;
+  string device = 3;
+}
+
+
+message PySpyTask {
+  int32 pid = 1;
+  uint32 hz = 2;
+  uint32 duration_sec = 3;
+  bool subprocess = 4;
+}
+
+
+message MemorySmapsTask {
+  int32 pid = 1;
+  uint32 duration_sec = 2;
+  uint32 interval_ms = 3;
+}
+
+
+message SystemMetricsTask {
+  int32 pid = 1;
+  uint32 duration_sec = 2;
+  uint32 interval_ms = 3;
+}
+
+
+message ContinuousPerfTask {
+  int32 pid = 1;
+  uint32 hz = 2;
+  uint32 duration_sec = 3;
+  uint32 window_seconds = 4;
+  string callgraph = 5;
+  string event = 6;
+  uint32 trigger_cpu_percent = 7;
+  uint32 trigger_consecutive_samples = 8;
+  uint32 trigger_wait_seconds = 9;
+  string retention_tier = 10;
 }
 
 

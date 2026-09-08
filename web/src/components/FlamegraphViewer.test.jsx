@@ -3,7 +3,7 @@ import { render, waitFor } from "@testing-library/react";
 import FlamegraphViewer from "./FlamegraphViewer";
 
 vi.mock("../api/client", () => ({
-  getTaskArtifactContent: vi.fn(),
+  getTaskArtifactContentText: vi.fn(),
 }));
 
 import * as api from "../api/client";
@@ -27,7 +27,11 @@ function buildLargeTree() {
 
 describe("FlamegraphViewer", () => {
   beforeEach(() => {
-    api.getTaskArtifactContent.mockResolvedValue(buildLargeTree());
+    api.getTaskArtifactContentText.mockImplementation(async () => JSON.stringify({
+      code: 0,
+      message: "ok",
+      data: buildLargeTree(),
+    }));
   });
 
   it("renders a 10k-node flamegraph without crashing", async () => {
@@ -39,7 +43,11 @@ describe("FlamegraphViewer", () => {
   });
 
   it("shows an empty state for a tree without samples", async () => {
-    api.getTaskArtifactContent.mockResolvedValue({ name: "root", value: 0, children: [] });
+    api.getTaskArtifactContentText.mockResolvedValue(JSON.stringify({
+      code: 0,
+      message: "ok",
+      data: { name: "root", value: 0, children: [] },
+    }));
     const { container } = render(<FlamegraphViewer taskId="task-empty" />);
     await waitFor(
       () => expect(container.querySelector(".ant-empty")).toBeTruthy(),

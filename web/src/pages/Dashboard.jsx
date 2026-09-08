@@ -47,6 +47,11 @@ import useSSE from "../hooks/useSSE";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import { collectorMeta } from "../utils/collectors";
 
+/**
+ * 任务面板对应基础采集域：它展示 Agent、创建 Task、观察双状态并进入结果页。
+ * 这里的“完成”只说明采集/分析流水线完成；根因判断属于 AI 诊断工作台。
+ */
+
 // ── 通知列表（最近 5 条 toast 通知）──────────────────────
 
 const RECENT_KEYS = new Set();
@@ -166,7 +171,7 @@ export default function Dashboard() {
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
-          <p>系统会把任务标记为 CANCELLED，并通过心跳通知 Agent 终止采集进程。</p>
+          <p>系统会把任务标记为“已取消”，并通过心跳通知 Agent 终止采集进程。</p>
           <p><strong>{task.name || task.id}</strong></p>
         </div>
       ),
@@ -208,7 +213,7 @@ export default function Dashboard() {
             PID: {task.target_pid} · {task.collector_type} · {new Date(task.created_at).toLocaleString()}
           </p>
           <p style={{ color: "#d48806", fontSize: 12 }}>
-            仅 DONE / FAILED / CANCELLED 终态任务可归档。
+            仅“已完成 / 失败 / 已取消”的终态任务可归档。
           </p>
         </div>
       ),

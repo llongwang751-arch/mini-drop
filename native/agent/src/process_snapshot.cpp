@@ -321,6 +321,12 @@ ProcessSnapshot collect_process_snapshot(
     candidate.comm = read_first_line(
         process.root / "comm", kMaxProcessIdentityLength);
     candidate.executable_identity = executable_identity(process.root / "exe");
+    // Kernel threads and processes whose executable link is no longer readable
+    // do not have the complete immutable identity required by Control. Omit
+    // them instead of making the entire otherwise-valid snapshot partial.
+    if (candidate.executable_identity.empty()) {
+      continue;
+    }
     candidate.cgroup = cgroup_hint(process.root / "cgroup");
     candidate.service_hint = service_hint_from_cgroup(candidate.cgroup);
     candidate.instance_hint = instance_hint_from_cgroup(candidate.cgroup);

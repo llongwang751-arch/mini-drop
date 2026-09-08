@@ -7,18 +7,19 @@ struct TaskKind { int profiler_type; std::string_view name; std::string_view ana
 struct TaskKindArtifactFilename { int profiler_type; std::string_view filename; };
 inline constexpr std::array<TaskKind, 8> kTaskKinds{{
     TaskKind{0, "perf_cpu", "perf_flamegraph", "cpu-cycles", 2},
-    TaskKind{1, "java_async", "async_profiler_flamegraph", "cpu", 2},
+    TaskKind{1, "java_async", "async_profiler_flamegraph", "cpu", 3},
     TaskKind{2, "go_pprof", "pprof_flamegraph", "", 2},
     TaskKind{3, "pyspy", "pyspy_flamegraph", "", 2},
     TaskKind{4, "ebpf_io", "ebpf_io_histogram", "", 3},
     TaskKind{5, "memory_smaps", "memory_smaps_trend", "", 2},
     TaskKind{6, "sys_metrics", "system_metrics", "", 2},
-    TaskKind{7, "continuous_perf", "continuous_perf_windows", "cpu-cycles", 2},
+    TaskKind{7, "continuous_perf", "continuous_perf_windows", "cpu-cycles", 3},
 }};
-inline constexpr std::array<TaskKindArtifactFilename, 17> kTaskKindArtifactFilenames{{
+inline constexpr std::array<TaskKindArtifactFilename, 19> kTaskKindArtifactFilenames{{
     TaskKindArtifactFilename{0, "perf.data"},
     TaskKindArtifactFilename{0, "manifest.json"},
     TaskKindArtifactFilename{1, "java-flamegraph.html"},
+    TaskKindArtifactFilename{1, "jvm-gc-metrics.json"},
     TaskKindArtifactFilename{1, "manifest.json"},
     TaskKindArtifactFilename{2, "go-cpu.pprof"},
     TaskKindArtifactFilename{2, "manifest.json"},
@@ -31,7 +32,8 @@ inline constexpr std::array<TaskKindArtifactFilename, 17> kTaskKindArtifactFilen
     TaskKindArtifactFilename{5, "manifest.json"},
     TaskKindArtifactFilename{6, "sys_metrics.json"},
     TaskKindArtifactFilename{6, "manifest.json"},
-    TaskKindArtifactFilename{7, "continuous-perf.data"},
+    TaskKindArtifactFilename{7, "continuous-perf.tar"},
+    TaskKindArtifactFilename{7, "continuous-summary.json"},
     TaskKindArtifactFilename{7, "manifest.json"},
 }};
 inline constexpr const TaskKind* find_by_name(std::string_view name) {

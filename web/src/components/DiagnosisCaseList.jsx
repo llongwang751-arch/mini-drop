@@ -1,5 +1,6 @@
 import { Alert, Button, Empty, List, Segmented, Space, Tag, Tooltip, Typography } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { getFrozenReplayMeta } from "../utils/latsReplay";
 
 const { Paragraph, Text } = Typography;
 
@@ -81,12 +82,14 @@ export default function DiagnosisCaseList({
           const active = item.selection_key === selectedKey;
           const [statusColor, statusLabel] = STATUS_META[item.canonical_status] || STATUS_META.UNKNOWN;
           const query = item.query || item.case_id || "未命名诊断";
+          const replay = getFrozenReplayMeta(item);
           return (
             <List.Item className={active ? "diagnosis-case-row is-selected" : "diagnosis-case-row"}>
               <button
                 type="button"
                 className="diagnosis-case-select"
                 aria-current={active ? "true" : undefined}
+                aria-label={`打开诊断：${query}`}
                 onClick={() => onSelect(item)}
               >
                 <Paragraph
@@ -97,7 +100,9 @@ export default function DiagnosisCaseList({
                 </Paragraph>
                 <Space size={[4, 4]} wrap>
                   <Tag color={statusColor}>{statusLabel}</Tag>
-                  <Tag>Drop Insight V2</Tag>
+                  {replay.isFrozenReplay
+                    ? <Tag color="geekblue">FULL_LATS · 冻结回放</Tag>
+                    : <Tag>Drop Insight V2</Tag>}
                 </Space>
                 <Text type="secondary" className="diagnosis-case-time">
                   {displayTime(item.updated_at || item.created_at)}

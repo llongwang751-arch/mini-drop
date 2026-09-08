@@ -313,6 +313,7 @@ class AnalysisJobMixin:
         *,
         output_artifacts: list[dict[str, Any]] | None = None,
         output_artifact_ids: list[int] | None = None,
+        artifact_metadata_updates: dict[int, dict[str, Any]] | None = None,
         reason: str = "Analyzer 已生成可视化结果",
     ) -> AnalysisJobModel:
         """Persist analyzer outputs and finish the parent task atomically."""
@@ -348,6 +349,18 @@ class AnalysisJobMixin:
                     raise ValueError("output artifact lineage does not match AnalysisJob")
                 for artifact in existing_outputs:
                     artifact.analysis_job_id = job.id
+            updates = artifact_metadata_updates or {}
+            if any(int(artifact_id) not in ids for artifact_id in updates):
+                raise ValueError("artifact metadata update is not an AnalysisJob output")
+            for artifact_id, metadata in updates.items():
+                model = session.get(ArtifactModel, int(artifact_id))
+                if (
+                    model is None
+                    or model.task_id != job.task_id
+                    or model.task_attempt_id != job.task_attempt_id
+                ):
+                    raise ValueError("artifact metadata update lineage mismatch")
+                model.meta_json = dict(metadata or {})
             for artifact in output_artifacts or []:
                 analyzer_verified = (
                     artifact.get("integrity_status") == "VERIFIED"

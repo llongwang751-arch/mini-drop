@@ -2,10 +2,21 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Card, Form, Input, Space, Table, Tag, message } from "antd";
 import { ExperimentOutlined } from "@ant-design/icons";
 import { listFixVerifications, verifyDiagnosisFix } from "../api/client";
+import { verificationStatusLabel } from "../utils/diagnosisDisplay";
+
+const FIX_OUTCOME_LABELS = {
+  VERIFIED: "修复验证通过",
+  REJECTED: "修复验证未通过",
+};
+
+function fixOutcomeLabel(value) {
+  const key = String(value || "").toUpperCase();
+  return FIX_OUTCOME_LABELS[key] || verificationStatusLabel(value, "验证状态未知");
+}
 
 /**
  * 修复前后验证面板：输入 before/after 任务 ID，调用 /fix/verify，
- * 显示 VERIFIED / REJECTED 结论与历史记录（guide #4.6）。
+ * 主界面显示中文验证结论；稳定协议码仍可在接口与审计数据中使用。
  */
 export default function FixVerificationPanel({ diagnosisId }) {
   const [form] = Form.useForm();
@@ -39,7 +50,7 @@ export default function FixVerificationPanel({ diagnosisId }) {
         fix_summary: values.fix_summary || "",
       });
       setLastResult(result);
-      message.success(`验证结论：${result.outcome}`);
+      message.success(`验证结论：${fixOutcomeLabel(result.outcome)}`);
       form.resetFields();
       load();
     } catch (err) {
@@ -77,7 +88,7 @@ export default function FixVerificationPanel({ diagnosisId }) {
         <Alert
           type={lastResult.outcome === "VERIFIED" ? "success" : "error"}
           showIcon
-          message={`${lastResult.outcome} — ${lastResult.comparison?.reason || ""}`}
+          message={`${fixOutcomeLabel(lastResult.outcome)} — ${lastResult.comparison?.reason || ""}`}
           style={{ marginBottom: 12 }}
         />
       )}
@@ -93,7 +104,7 @@ export default function FixVerificationPanel({ diagnosisId }) {
             title: "结论",
             dataIndex: "outcome",
             render: (v) => (
-              <Tag color={v === "VERIFIED" ? "green" : "red"}>{v}</Tag>
+              <Tag color={v === "VERIFIED" ? "green" : "red"}>{fixOutcomeLabel(v)}</Tag>
             ),
           },
           { title: "修复前", dataIndex: "before_task_id" },

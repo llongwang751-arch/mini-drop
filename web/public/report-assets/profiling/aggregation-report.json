@@ -1,0 +1,27 @@
+{
+  "schema": "mini-drop.profile-aggregation-benchmark.v1",
+  "kind": "SYNTHETIC_LOSSLESS_TRANSPORT_COMPARISON",
+  "seed": 20260905,
+  "sample_count": 200000,
+  "unique_stack_count": 6,
+  "correctness": {
+    "exact_stack_counts_preserved": true
+  },
+  "raw": {
+    "bytes": 6892661,
+    "gzip_bytes": 141265,
+    "encode_ms": 114.219,
+    "sha256": "67b94b718c2dc6f97412c923d7359867e1f93626fda9eb2353ce4f07cdc13497"
+  },
+  "preaggregated_folded": {
+    "bytes": 209,
+    "gzip_bytes": 155,
+    "aggregate_ms": 5.108,
+    "sha256": "cf695f3aa1e73acbe223a7405d81c747fa54d92ac0eb41004c29d8d72ba9d39b"
+  },
+  "ratios": {
+    "plain_size_reduction": 0.99997,
+    "gzip_size_reduction": 0.998903
+  },
+  "measurement_boundary": "Synthetic repeated-stack encoding only; does not measure perf, eBPF, Pyroscope or Parca production CPU overhead."
+}

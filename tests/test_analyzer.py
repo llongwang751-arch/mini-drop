@@ -6,17 +6,20 @@
 
 import json
 import re
+import sys
 from unittest import mock
 
 import pytest
 
 from analyzer.mini_drop_analyzer.hotmethod_analyzer import (
     _build_flame_tree,
+    _folded_stack_quality,
     _load_output_dir,
     _match_rules,
     _parse_top,
     _perf_script,
 )
+from analyzer.mini_drop_analyzer import hotmethod_analyzer
 
 # 模拟折叠栈文本
 _COLLAPSED_SAMPLE = (
@@ -60,6 +63,22 @@ class TestParseTop:
         top = _parse_top(collapsed)
         # func_a, func_b, func_c 共 3 个独立函数名
         assert len(top) == 3
+
+    def test_non_positive_or_frameless_rows_are_not_samples(self, tmp_path):
+        collapsed = tmp_path / "collapsed.txt"
+        collapsed.write_text("valid;leaf 3\nzero;leaf 0\nnegative;leaf -2\n 4\n")
+
+        quality = _folded_stack_quality(collapsed)
+        tree = _build_flame_tree(collapsed)
+        top = _parse_top(collapsed)
+
+        assert quality == {
+            "sample_count": 3,
+            "valid_stack_lines": 1,
+            "malformed_lines": 3,
+        }
+        assert tree["value"] == 3
+        assert {row["name"] for row in top} == {"valid", "leaf"}
 
 
 def test_perf_script_omits_event_period_so_sample_count_is_observation_count(
@@ -173,3 +192,77 @@ class TestAnalyzerConfig:
 
     def test_load_output_dir_uses_default_when_missing(self, tmp_path):
         assert _load_output_dir(tmp_path / "missing.toml") == "/tmp/mini-drop-analyzer"
+
+
+def test_cli_rejects_header_only_perf_data_with_machine_readable_reason(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    perf_data = tmp_path / "perf.data"
+    perf_data.write_bytes(b"PERFILE2" + b"\x00" * 7600)
+    output_root = tmp_path / "out"
+
+    def fake_perf_script(_source, output):
+        output.write_text("")
+        return True, ""
+
+    monkeypatch.setattr(hotmethod_analyzer, "_perf_script", fake_perf_script)
+    monkeypatch.setattr(
+        hotmethod_analyzer,
+        "_stackcollapse",
+        lambda *_args: pytest.fail("empty perf script must stop before stackcollapse"),
+    )
+    monkeypatch.setattr(sys, "argv", [
+        "hotmethod-analyzer",
+        "--task-id", "task-empty",
+        "--perf-data", str(perf_data),
+        "--output-dir", str(output_root),
+    ])
+
+    with pytest.raises(SystemExit) as exc:
+        hotmethod_analyzer.main()
+
+    payload = json.loads(capsys.readouterr().out)
+    assert exc.value.code == 2
+    assert payload["failure_kind"] == "SAMPLE_QUALITY"
+    assert payload["reason_code"] == "NO_PERF_SAMPLES"
+    assert payload["details"]["perf_data_bytes"] == 7608
+    assert "目标进程" in payload["action_hint"]
+    assert not (output_root / "task-empty" / "flamegraph.json").exists()
+
+
+def test_cli_rejects_events_without_foldable_call_stacks(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    perf_data = tmp_path / "perf.data"
+    perf_data.write_bytes(b"non-empty")
+    output_root = tmp_path / "out"
+
+    def fake_perf_script(_source, output):
+        output.write_text("worker 42 event without a callchain\n")
+        return True, ""
+
+    def fake_stackcollapse(_source, output):
+        output.write_text("")
+        return True, ""
+
+    monkeypatch.setattr(hotmethod_analyzer, "_perf_script", fake_perf_script)
+    monkeypatch.setattr(hotmethod_analyzer, "_stackcollapse", fake_stackcollapse)
+    monkeypatch.setattr(sys, "argv", [
+        "hotmethod-analyzer",
+        "--task-id", "task-no-stacks",
+        "--perf-data", str(perf_data),
+        "--output-dir", str(output_root),
+    ])
+
+    with pytest.raises(SystemExit) as exc:
+        hotmethod_analyzer.main()
+
+    payload = json.loads(capsys.readouterr().out)
+    assert exc.value.code == 2
+    assert payload["reason_code"] == "NO_FOLDED_STACKS"
+    assert payload["details"]["sample_count"] == 0
+    assert "perf record -g" in payload["action_hint"]

@@ -10,4 +10,5 @@ go test ./...
 go run ./cmd/apiserver
 ```
 
-接口迁移边界见 `docs/contracts/go-diagnosis-query.md` 和 `docs/architecture/implementation-status.md`。
+接口边界见 `docs/contracts/go-diagnosis-query.md`，当前完成度与缺口见
+完整部署边界见 `docs/REPLICATION.md`，AI 诊断边界见 `docs/AI_DIAGNOSIS.md`。

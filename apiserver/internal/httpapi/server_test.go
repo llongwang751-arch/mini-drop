@@ -6,11 +6,13 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"mini-drop/apiserver/internal/config"
+	mini_drop "mini-drop/apiserver/internal/gen/mini_drop"
 	"mini-drop/apiserver/internal/repository"
 )
 
@@ -33,6 +35,47 @@ func TestValidateIdempotencyKey(t *testing.T) {
 	}
 }
 
+func TestRequestTraceRetainsTraceIDAndCreatesChildSpan(t *testing.T) {
+	server := &Server{}
+	handler := server.requestTrace(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Trace-ID") != "4bf92f3577b34da6a3ce929d0e0e4736" {
+			t.Fatalf("unexpected trace id: %s", r.Header.Get("X-Trace-ID"))
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Traceparent", "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01")
+	recorder := httptest.NewRecorder()
+
+	handler.ServeHTTP(recorder, request)
+
+	traceparent := recorder.Header().Get("Traceparent")
+	traceID, flags, ok := parseTraceparent(traceparent)
+	if !ok || traceID != "4bf92f3577b34da6a3ce929d0e0e4736" || flags != "01" {
+		t.Fatalf("unexpected response trace context: %q", traceparent)
+	}
+	if strings.Contains(traceparent, "00f067aa0ba902b7") {
+		t.Fatalf("server must create a child span instead of reusing the caller span: %q", traceparent)
+	}
+}
+
+func TestRequestTraceReplacesInvalidAllZeroContext(t *testing.T) {
+	server := &Server{}
+	handler := server.requestTrace(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Traceparent", "00-00000000000000000000000000000000-0000000000000000-01")
+	recorder := httptest.NewRecorder()
+
+	handler.ServeHTTP(recorder, request)
+
+	traceID, _, ok := parseTraceparent(recorder.Header().Get("Traceparent"))
+	if !ok || traceID == "00000000000000000000000000000000" {
+		t.Fatalf("invalid context was not replaced: %q", recorder.Header().Get("Traceparent"))
+	}
+}
+
 func TestReadIdempotencyKeyNormalizesWhitespace(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/tasks", nil)
 	req.Header.Set("Idempotency-Key", "  key-value-0001  ")
@@ -42,6 +85,59 @@ func TestReadIdempotencyKeyNormalizesWhitespace(t *testing.T) {
 	}
 	if key != "key-value-0001" {
 		t.Fatalf("key=%q", key)
+	}
+}
+
+func TestNormalizeTaskResourceBudget(t *testing.T) {
+	budget, err := normalizeTaskResourceBudget(nil, 15, 300)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if budget.MaxDurationSec != 15 || budget.MaxMemoryMB != 1024 || budget.MaxOutputMB != 256 {
+		t.Fatalf("unexpected defaults: %#v", budget)
+	}
+	if _, err := normalizeTaskResourceBudget(
+		&taskResourceBudget{MaxCPUPercent: 101}, 15, 300,
+	); err == nil {
+		t.Fatal("expected CPU budget validation error")
+	}
+	if _, err := normalizeTaskResourceBudget(
+		&taskResourceBudget{MaxDurationSec: 10}, 15, 300,
+	); err == nil {
+		t.Fatal("expected duration budget validation error")
+	}
+}
+
+func TestApplyTypedTaskPayload(t *testing.T) {
+	desc := &mini_drop.TaskDesc{}
+	applyTypedTaskPayload(desc, createTaskRequest{
+		CollectorType: "go_pprof", TargetPID: 123, DurationSec: 20,
+		SampleRate: 99, Options: map[string]any{"pprof_url": "http://service:6060/debug/pprof/profile"},
+	})
+	if desc.GetPprof() == nil || desc.GetPprof().GetPid() != 123 ||
+		desc.GetPprof().GetEndpoint() != "http://service:6060/debug/pprof/profile" {
+		t.Fatalf("unexpected typed pprof payload: %#v", desc.GetPprof())
+	}
+}
+
+func TestApplyTypedContinuousTaskPayload(t *testing.T) {
+	desc := &mini_drop.TaskDesc{}
+	applyTypedTaskPayload(desc, createTaskRequest{
+		CollectorType: "continuous_perf", TargetPID: 456, DurationSec: 3600,
+		SampleRate: 49,
+		Options: map[string]any{
+			"window_seconds":              300,
+			"trigger_cpu_percent":         75,
+			"trigger_consecutive_samples": 4,
+			"trigger_wait_seconds":        1800,
+			"retention_tier":              "extended",
+		},
+	})
+	payload := desc.GetContinuousPerf()
+	if payload == nil || payload.GetPid() != 456 || payload.GetWindowSeconds() != 300 ||
+		payload.GetTriggerCpuPercent() != 75 || payload.GetTriggerConsecutiveSamples() != 4 ||
+		payload.GetTriggerWaitSeconds() != 1800 || payload.GetRetentionTier() != "extended" {
+		t.Fatalf("unexpected typed continuous payload: %#v", payload)
 	}
 }
 
@@ -84,7 +180,40 @@ func TestNativeHealthAndMe(t *testing.T) {
 		if resp.StatusCode != http.StatusOK {
 			t.Fatalf("%s status=%d", path, resp.StatusCode)
 		}
+		if resp.Header.Get("X-Content-Type-Options") != "nosniff" ||
+			resp.Header.Get("Referrer-Policy") != "no-referrer" ||
+			resp.Header.Get("Cache-Control") != "no-store" {
+			t.Fatalf("%s missing direct API security headers: %#v", path, resp.Header)
+		}
 		_ = resp.Body.Close()
+	}
+}
+
+func TestPrometheusMetricsAreServedByGo(t *testing.T) {
+	server, legacy := testServer(t, false)
+	defer server.Close()
+	defer legacy.Close()
+
+	first, err := http.Get(server.URL + "/api/me")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = first.Body.Close()
+	resp, err := http.Get(server.URL + "/api/metrics")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK ||
+		!strings.Contains(string(body), "mini_drop_http_requests_total") ||
+		!strings.Contains(string(body), "mini_drop_http_responses_total{class=\"2xx\"}") ||
+		!strings.Contains(string(body), "mini_drop_http_request_duration_seconds_sum") ||
+		!strings.Contains(resp.Header.Get("Content-Type"), "text/plain") {
+		t.Fatalf("unexpected metrics response: status=%d body=%s", resp.StatusCode, body)
 	}
 }
 
@@ -152,6 +281,38 @@ func TestAuthRejectsAndAcceptsAPIKey(t *testing.T) {
 	}
 }
 
+func TestBrowserSessionAuthenticatesNativeEventSourceRequests(t *testing.T) {
+	server, legacy := testServer(t, true)
+	defer server.Close()
+	defer legacy.Close()
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{Jar: jar}
+	req, _ := http.NewRequest(http.MethodPost, server.URL+"/api/auth/session", nil)
+	req.Header.Set("X-API-Key", "test-key")
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("session status=%d", resp.StatusCode)
+	}
+
+	req, _ = http.NewRequest(http.MethodGet, server.URL+"/api/me", nil)
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("cookie-authenticated status=%d", resp.StatusCode)
+	}
+}
+
 func TestRBACPrincipalAndResourceScope(t *testing.T) {
 	legacy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = io.WriteString(w, `{"code":0,"message":"ok","data":{}}`)
@@ -191,9 +352,33 @@ func TestRBACPrincipalAndResourceScope(t *testing.T) {
 		t.Fatalf("unexpected /me response: status=%d body=%#v", resp.StatusCode, me)
 	}
 
+	resp = request(http.MethodPost, "/api/v2/diagnostic-skills/skill-a/publish", "operator-key", `{}`)
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("operator must not publish a Skill: status=%d", resp.StatusCode)
+	}
+
+	resp = request(http.MethodPost, "/api/v2/diagnostic-skills/skill-a/campaign", "approver-key", `{}`)
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("approver should pass governance RBAC before unavailable worker: status=%d", resp.StatusCode)
+	}
+
+	resp = request(http.MethodPost, "/api/v2/diagnostic-experiments/exp-a/approve", "operator-key", `{"reason":"ship"}`)
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("operator must not approve an experiment rollout: status=%d", resp.StatusCode)
+	}
+
+	resp = request(http.MethodPost, "/api/v2/diagnostic-experiments/exp-a/approve", "approver-key", `{"reason":"ship"}`)
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("approver should pass experiment RBAC before unavailable worker: status=%d", resp.StatusCode)
+	}
+
 }
 
-func TestCompositeEventCursorRoundTrip(t *testing.T) {
+func TestEventCursorRoundTrip(t *testing.T) {
 	raw := formatEventCursor(123, 456)
 	taskID, auditID := parseEventCursor(raw)
 	if taskID != 123 || auditID != 456 {

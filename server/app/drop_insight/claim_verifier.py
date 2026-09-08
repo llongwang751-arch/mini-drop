@@ -286,10 +286,15 @@ def _domain_field_claims(base: dict[str, Any], observation: Any) -> list[dict[st
     if not isinstance(observation, dict):
         return claims
     containers: list[tuple[str, dict]] = [("/", observation)]
-    for key in ("summary", "process"):
-        child = observation.get(key)
-        if isinstance(child, dict):
-            containers.append((f"/{key}", child))
+    metadata = observation.get("metadata")
+    if isinstance(metadata, dict):
+        containers.append(("/metadata", metadata))
+    for prefix, parent in list(containers):
+        for key in ("summary", "process"):
+            child = parent.get(key)
+            if isinstance(child, dict):
+                child_prefix = f"/{key}" if prefix == "/" else f"{prefix}/{key}"
+                containers.append((child_prefix, child))
     for prefix, container in containers:
         for field, (metric_code, label) in DOMAIN_FIELDS.items():
             if field not in container:

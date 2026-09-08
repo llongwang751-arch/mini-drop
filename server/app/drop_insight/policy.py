@@ -3,13 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from .tools import TOOLS
+from .tools import TOOL_BY_NAME
 
 Decision = Literal["ALLOW", "REQUIRE_APPROVAL", "DENY"]
 RISK_ORDER = {"R0": 0, "R1": 1, "R2": 2}
-TOOL_BY_NAME = {item["name"]: item for item in TOOLS}
-
-
 @dataclass(frozen=True)
 class PolicyContext:
     allowed_agent_ids: frozenset[str]
@@ -19,6 +16,7 @@ class PolicyContext:
     max_tool_calls: int
     allowed_pid: int | None = None
     binding_authoritative: bool = True
+    session_pre_authorized: bool = False
 
 
 def evaluate_tool_call(
@@ -64,12 +62,22 @@ def evaluate_tool_call(
     if not risk_ok:
         return _result("DENY", checks, "工具风险高于会话预算")
 
-    if tool.get("requires_approval", False):
+    if tool.get("requires_approval", False) and not context.session_pre_authorized:
         checks.append({"name": "HUMAN_APPROVAL", "result": "REQUIRE_APPROVAL"})
         return _result("REQUIRE_APPROVAL", checks, f"{tool_name} 需要人工批准")
 
-    checks.append({"name": "HUMAN_APPROVAL", "result": "NOT_REQUIRED"})
-    return _result("ALLOW", checks, "策略检查通过")
+    approval_result = (
+        "SESSION_PREAUTHORIZED"
+        if tool.get("requires_approval", False)
+        else "NOT_REQUIRED"
+    )
+    checks.append({"name": "HUMAN_APPROVAL", "result": approval_result})
+    reason = (
+        "自主会话已在创建时预授权；目标、能力、风险和预算检查通过"
+        if approval_result == "SESSION_PREAUTHORIZED"
+        else "策略检查通过"
+    )
+    return _result("ALLOW", checks, reason)
 
 
 def _result(decision: Decision, checks: list[dict[str, str]], reason: str) -> dict[str, Any]:
@@ -103,4 +111,3 @@ def _validate_schema(arguments: dict[str, Any], schema: dict[str, Any]) -> list[
         if isinstance(value, str) and len(value) < spec.get("minLength", 0):
             errors.append(f"{name} 长度不足")
     return errors
-

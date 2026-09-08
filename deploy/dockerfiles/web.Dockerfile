@@ -1,9 +1,11 @@
 # Mini-Drop Web frontend build and runtime image
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
+ARG NPM_REGISTRY=""
 WORKDIR /app
 COPY web/package.json web/package-lock.json ./
-RUN npm ci
+RUN if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi \
+    && npm ci
 
 COPY web/ ./
 RUN npm run build

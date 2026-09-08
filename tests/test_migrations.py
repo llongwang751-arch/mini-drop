@@ -71,5 +71,5 @@ def test_current_baseline_adopts_legacy_revision(tmp_path: Path) -> None:
     assert "legacy_sentinel" in tables
     assert "diagnostic_skills" in tables
     with engine.connect() as connection:
-        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "20260901_0005"
+        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "20260908_0007"
     engine.dispose()
