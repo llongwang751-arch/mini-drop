@@ -67,24 +67,9 @@ Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述
 
 ## 系统架构
 
-```mermaid
-flowchart LR
-    User[业务用户 / 排障人员] --> Web[React Web]
-    Web -->|HTTP / SSE| API[Go API]
-    API -->|私有 gRPC| Control[C++ Control]
-    Control <-->|gRPC / 生产 mTLS| Agent[C++ 采集 Agent]
-    Agent -->|白名单探针| App[Linux 业务进程]
-    Agent -->|短时上传授权| Store[MinIO]
-    API -->|私有 gRPC| Diagnosis[Python Diagnosis Worker]
-    Diagnosis --> Runtime[LangChain / LangGraph]
-    Diagnosis -->|受控任务编排| Control
-    Store --> Analyzer[Python Analyzer]
-    API --> DB[(PostgreSQL)]
-    Control --> DB
-    Diagnosis --> DB
-    Analyzer --> DB
-    Analyzer --> Store
-```
+![Mini-Drop 架构：React Web 经 Go API 访问控制与诊断服务，C++ Agent 采集 Linux 业务进程，PostgreSQL 保存状态，MinIO 保存采集和分析产物](docs/assets/architecture.svg)
+
+架构图使用仓库内的静态 SVG，可直接查看和编辑[图源](docs/assets/architecture.svg)。浏览器通过 Go API 进入平台；Control 调度现场采集，Diagnosis Worker 组织 AI 调查，Analyzer 将采集文件转换为可读的分析结果。
 
 | 模块 | 实际职责 | 主要技术 |
 | --- | --- | --- |

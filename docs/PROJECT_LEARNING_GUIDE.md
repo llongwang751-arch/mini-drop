@@ -1947,7 +1947,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **820 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **821 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2728,6 +2728,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `docs/AGENT_RUNTIME.md` | Runtime、Harness、Theme、上下文、记忆和框架边界。 | — |
 | `docs/AI_DIAGNOSIS.md` | AI 范围、规划、Evidence Gate、LATS 和页面语义。 | — |
+| `docs/assets/architecture.svg` | README 静态架构图的可编辑源文件，展示平台、采集 Agent、业务进程与存储职责。 | — |
 | `docs/assets/learning-guide/01-ai-diagnosis-workbench.png` | 总教材图 1：AI 诊断空白工作台和全局导航。 | — |
 | `docs/assets/learning-guide/02-diagnosis-case-drawer.png` | 总教材图 2：诊断历史抽屉、筛选和新建入口。 | — |
 | `docs/assets/learning-guide/02b-new-diagnosis-composer.png` | 总教材图 3：新诊断自然语言输入框和开始按钮。 | — |

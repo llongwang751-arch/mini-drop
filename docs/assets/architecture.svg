@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="800" viewBox="0 0 1360 800" role="img" aria-labelledby="title desc">
+  <title id="title">Mini-Drop 系统架构</title>
+  <desc id="desc">用户通过 React Web 访问 Go API。API 调用 C++ Control 和 Python Diagnosis Worker。Control 与目标机器上的 C++ 采集 Agent 通信，Agent 采集 Linux 业务进程并上传 MinIO。Python Analyzer 读取原始采集物并写回分析产物。API、Control、Diagnosis 和 Analyzer 使用 PostgreSQL 保存领域状态。</desc>
+  <!-- Editable source: this SVG is self-contained; no Mermaid, scripts or external assets. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#526b85"/></marker>
+    <style>
+      text { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; fill: #18324b; }
+      .heading { font-size: 28px; font-weight: 700; }
+      .name { font-size: 22px; font-weight: 600; }
+      .body { font-size: 17px; }
+      .label { font-size: 16px; fill: #425c75; }
+      .group { font-size: 17px; font-weight: 600; fill: #486785; }
+      .box { fill: #fff; stroke: #adc5dd; stroke-width: 1.5; }
+      .line { fill: none; stroke: #526b85; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1360" height="800" rx="20" fill="#fff"/>
+  <text x="40" y="48" class="heading">Mini-Drop · 从业务进程到诊断证据</text>
+  <text x="40" y="80" class="body">公开入口、任务控制、现场采集与 AI 调查分别承担职责</text>
+
+  <rect x="285" y="110" width="605" height="442" rx="16" fill="#f3f7fc" stroke="#d9e4ef"/>
+  <text x="305" y="140" class="group">平台服务 · 内部接口不直接暴露给浏览器</text>
+  <rect x="1010" y="110" width="305" height="442" rx="16" fill="#f0faf5" stroke="#cce6d7"/>
+  <text x="1030" y="140" class="group">目标机器 · Linux</text>
+
+  <rect x="35" y="185" width="190" height="100" rx="12" class="box"/>
+  <text x="130" y="222" text-anchor="middle" class="name">React Web</text>
+  <text x="130" y="253" text-anchor="middle" class="body">业务用户 / 排障人员</text>
+
+  <rect x="315" y="185" width="225" height="100" rx="12" class="box"/>
+  <text x="427" y="222" text-anchor="middle" class="name">Go API</text>
+  <text x="427" y="253" text-anchor="middle" class="body">鉴权、查询、HTTP / SSE</text>
+
+  <rect x="635" y="185" width="225" height="100" rx="12" class="box"/>
+  <text x="747" y="222" text-anchor="middle" class="name">C++ Control</text>
+  <text x="747" y="253" text-anchor="middle" class="body">注册、租约、任务分发</text>
+
+  <rect x="1030" y="185" width="260" height="100" rx="12" class="box"/>
+  <text x="1160" y="222" text-anchor="middle" class="name">C++ 采集 Agent</text>
+  <text x="1160" y="253" text-anchor="middle" class="body">身份快照、采集、结果回调</text>
+
+  <path d="M225 235 H315" class="line"/>
+  <text x="270" y="207" text-anchor="middle" class="label">HTTP</text>
+  <text x="270" y="226" text-anchor="middle" class="label">/ SSE</text>
+  <path d="M540 235 H635" class="line"/>
+  <text x="587" y="221" text-anchor="middle" class="label">私有 gRPC</text>
+  <path d="M860 235 H1030" class="line" marker-start="url(#arrow)"/>
+  <text x="945" y="204" text-anchor="middle" class="label">gRPC</text>
+  <text x="945" y="224" text-anchor="middle" class="label">生产 mTLS</text>
+
+  <rect x="315" y="380" width="300" height="140" rx="12" class="box"/>
+  <text x="465" y="415" text-anchor="middle" class="name">Python Diagnosis Worker</text>
+  <text x="465" y="447" text-anchor="middle" class="body">LangChain / LangGraph</text>
+  <text x="465" y="477" text-anchor="middle" class="body">假设 → 工具 → 证据 → 报告</text>
+  <text x="465" y="501" text-anchor="middle" class="label">按权限、目标与预算组织调查</text>
+  <path d="M427 285 V380" class="line"/>
+  <text x="445" y="337" class="label">私有 gRPC</text>
+  <path d="M615 422 H747 V285" class="line"/>
+  <text x="761" y="349" class="label">受控任务</text>
+  <text x="761" y="373" class="label">编排</text>
+
+  <rect x="1030" y="380" width="260" height="140" rx="12" class="box"/>
+  <text x="1160" y="420" text-anchor="middle" class="name">Linux 业务进程</text>
+  <text x="1160" y="452" text-anchor="middle" class="body">C++ / Python / Go / Java</text>
+  <text x="1160" y="487" text-anchor="middle" class="label">业务独立运行，关联目标后取证</text>
+  <path d="M1160 285 V380" class="line"/>
+  <text x="1176" y="337" class="label">白名单探针</text>
+
+  <rect x="35" y="604" width="510" height="110" rx="12" fill="#f3f7fc" stroke="#adc5dd"/>
+  <text x="60" y="639" class="name">PostgreSQL · 领域状态与持久化</text>
+  <text x="60" y="670" class="body">API / Control / Diagnosis / Analyzer 读写</text>
+  <text x="60" y="696" class="label">任务、尝试、证据、报告、审计、Outbox 与 Checkpoint</text>
+
+  <rect x="635" y="604" width="265" height="110" rx="12" class="box"/>
+  <text x="767" y="639" text-anchor="middle" class="name">Python Analyzer</text>
+  <text x="767" y="670" text-anchor="middle" class="body">异步分析原始采集物</text>
+  <text x="767" y="696" text-anchor="middle" class="label">火焰图、TopN、趋势与元数据</text>
+
+  <rect x="1030" y="604" width="260" height="110" rx="12" class="box"/>
+  <text x="1160" y="639" text-anchor="middle" class="name">MinIO · 对象存储</text>
+  <text x="1160" y="670" text-anchor="middle" class="body">原始文件与分析产物</text>
+  <text x="1160" y="696" text-anchor="middle" class="label">Agent 使用单任务短时上传授权</text>
+  <path d="M1030 645 H900" class="line"/>
+  <text x="964" y="632" text-anchor="middle" class="label">读取原始文件</text>
+  <path d="M900 686 H1030" class="line"/>
+  <text x="964" y="675" text-anchor="middle" class="label">写回分析产物</text>
+  <path d="M1290 235 H1330 V577 H1160 V604" class="line"/>
+  <text x="1250" y="572" text-anchor="middle" class="label">上传采集物</text>
+
+  <text x="40" y="763" class="body">采集 Agent 提供现场事实；诊断 Agent 组织调查。报告完成、根因确认与修复验证分别记录。</text>
+</svg>

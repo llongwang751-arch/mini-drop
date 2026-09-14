@@ -43,6 +43,7 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "docs/assets/architecture.svg": "README 静态架构图的可编辑源文件，展示平台、采集 Agent、业务进程与存储职责。",
     "docs/BUSINESS_ONBOARDING_DESIGN.md": "业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。",
     "integrations/agi_saber/service.py": "独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。",
     "scripts/run_actual_rag_acceptance.py": "冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。",
