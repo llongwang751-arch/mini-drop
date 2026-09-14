@@ -65,6 +65,18 @@ def test_policy_denies_unknown_argument_and_out_of_scope_agent():
     assert out_of_scope["decision"] == "DENY"
 
 
+def test_host_io_cannot_support_target_process_even_with_legacy_support_predicate():
+    item = evidence()
+    item.scope.pid = 123
+    item.observation = {"metadata": {"scope_semantics": "HOST_BLOCK_DEVICE", "target_attributed": False, "hypothesis_predicate": {"outcome": "SUPPORT"}}}
+    result = classify_evidence(item)
+    assert result["decision"] == "ACCEPT_LIMITED"
+    assert not result["can_support_conclusion"]
+    assert calibrate_confidence([item], [], 1.0) == 0
+    item.observation["metadata"]["target_attributed"] = True
+    assert classify_evidence(item)["can_support_conclusion"]
+
+
 def evidence(evidence_id="ev-1", *, degraded=False, sample_count=1000, tool_name="perf"):
     return EvidenceEnvelope(
         evidence_id=evidence_id,

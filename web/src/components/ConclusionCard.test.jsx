@@ -3,6 +3,15 @@ import { describe, expect, it } from "vitest";
 import ConclusionCard from "./ConclusionCard";
 
 describe("ConclusionCard", () => {
+  it("does not present historical host-only I/O as a process root cause", () => {
+    render(<ConclusionCard report={{ confidence: .6, verification: { status: "PARTIAL_WITHOUT_COUNTER" },
+      conclusion: "阶段性判断：尚未定位到具体函数", claims: [{ valid: true, statement: "host block-device tracepoints observed a measurable high-latency tail" }],
+      limitations: ["结论已完成，但仍应在修复复测中补充独立验证"], next_actions: ["立即修复磁盘"] }} />);
+    expect(screen.getByText("尚未定位根因")).toBeInTheDocument();
+    expect(screen.getByText(/没有把这些 I\/O 归属到目标进程/)).toBeInTheDocument();
+    expect(screen.queryByText(/立即修复磁盘|结论已完成/)).not.toBeInTheDocument();
+    expect(screen.getByText(/本报告本身不证明故障已解决/)).toBeInTheDocument();
+  });
   it("shows verification, conclusion and limitations with Chinese primary copy", () => {
     render(
       <ConclusionCard report={{
@@ -14,7 +23,7 @@ describe("ConclusionCard", () => {
       }} />,
     );
 
-    expect(screen.getByText("阶段性根因")).toBeInTheDocument();
+    expect(screen.getByText("阶段性发现（待验证）")).toBeInTheDocument();
     expect(screen.getByText("证据门禁：部分支持，缺少独立反证或对照")).toBeInTheDocument();
     expect(screen.getByText(/连续性能采集没有发现同步写活动/)).toBeInTheDocument();
     expect(screen.getByText(/延长连续性能采集窗口/)).toBeInTheDocument();
@@ -62,7 +71,7 @@ describe("ConclusionCard", () => {
       }} />,
     );
 
-    expect(screen.getByText("阶段性根因")).toBeInTheDocument();
+    expect(screen.getByText("阶段性发现（待验证）")).toBeInTheDocument();
     expect(screen.getByText(/Java 对象分配热点定位/)).toBeInTheDocument();
     expect(screen.getByText(/Hotspot\.lambda\$startWorkers\$1/)).toBeInTheDocument();
     expect(screen.getByText(/主要分配对象为/)).toBeInTheDocument();

@@ -971,6 +971,7 @@ function EvaluationPanel({ metrics, sourceSkill, onOpenEvaluation }) {
 }
 
 export default function AgentCockpit({
+  compact = false,
   detail,
   resources = {},
   sourceSkill = null,
@@ -1031,7 +1032,7 @@ export default function AgentCockpit({
     { key: "tools", label: "工具调用", value: `${toolCalls.length} 次`, meta: metrics.toolSuccessRate == null ? "成功率暂无" : `成功率 ${metrics.toolSuccessRate}%`, icon: <ApiOutlined /> },
     { key: "evidence", label: "证据", value: `${acceptedEvidence.length}/${evidence.length}`, meta: "可支撑结论 / 总数", icon: <SafetyCertificateOutlined /> },
     { key: "memory", label: "记忆", value: `${(detail?.query || detail?.request?.query ? 1 : 0) + interventions.length} 条`, meta: `会话上下文 · ${globalMemory.length} 条路线记忆`, icon: <DatabaseOutlined /> },
-    { key: "evaluation", label: "评测", value: metrics.toolSuccessRate == null ? "暂无" : `${metrics.toolSuccessRate}%`, meta: "工具成功率 · 点击看完整口径", icon: <ExperimentOutlined /> },
+    { key: "evaluation", label: "工具成功率", value: metrics.toolSuccessRate == null ? "暂无" : `${metrics.toolSuccessRate}%`, meta: metrics.toolSuccessNote, icon: <ExperimentOutlined /> },
   ];
 
   const panelTitles = {
@@ -1046,8 +1047,8 @@ export default function AgentCockpit({
   };
 
   return (
-    <section className="agent-cockpit" aria-label="Agent 可观测控制台">
-      <div className="agent-cockpit-heading">
+    <section className={`agent-cockpit ${compact ? "is-compact" : ""}`} aria-label="Agent 可观测控制台">
+      {compact !== "tree" && <div className="agent-cockpit-heading">
         <div>
           <Space size={8}>
             <ApartmentOutlined />
@@ -1060,8 +1061,13 @@ export default function AgentCockpit({
           <CheckCircleOutlined className="agent-cockpit-safe-icon" />
           <Text type="secondary">可信证据才是事实</Text>
         </Space>
-      </div>
-      <RuntimeBar runtime={runtime} connected={connected} />
+      </div>}
+      {compact ? (
+        <details className="agent-runtime-details">
+          <summary>运行时详情{runtime?.degraded || runtime?.status === "DEGRADED" ? " · 已降级" : ""}</summary>
+          <RuntimeBar runtime={runtime} connected={connected} />
+        </details>
+      ) : <RuntimeBar runtime={runtime} connected={connected} />}
       <div className="agent-cockpit-grid">
         {cards.map((card) => (
           <button

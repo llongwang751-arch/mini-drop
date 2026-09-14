@@ -21,6 +21,7 @@ import grpc
 from pydantic import ValidationError
 
 from server.app.drop_insight.exploration_tree import get_live_exploration_tree
+from server.app.drop_insight.business_showcase import get_business_acceptance
 from server.app.drop_insight.diagnosis_agent import get_agent_runtime_status
 from server.app.drop_insight.fault_plaza import (
     FaultPlazaError,
@@ -165,12 +166,28 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
     principal = principal.strip() or "local-anonymous"
     params = parse_qs(query, keep_blank_values=False)
 
+    if method == "GET" and path == "/services":
+        from .drop_insight.managed_services import list_managed_services
+        return _ok(list_managed_services())
+    ids = _match(path, r"/services/([^/]+)/diagnoses")
+    if ids and method == "POST":
+        from .drop_insight.managed_services import StartServiceDiagnosis, start_service_diagnosis
+        request = StartServiceDiagnosis.model_validate(_body(raw_body))
+        try:
+            return _ok(start_service_diagnosis(ids[0], request, principal=principal), status=201)
+        except KeyError:
+            return _error(404, "接入服务不存在")
+        except ValueError as exc:
+            return _error(409, str(exc))
+
     if method == "GET" and path == "/agent-runtime/status":
         return _ok(get_agent_runtime_status())
     if method == "GET" and path == "/showcases/mentor-complex":
         return _ok(get_mentor_complex_showcase())
     if method == "GET" and path == "/showcases/fault-plaza":
         return _ok(get_fault_plaza())
+    if method == "GET" and path == "/showcases/business-acceptance":
+        return _ok(get_business_acceptance())
     if method == "GET" and path == "/showcases/lats-replays":
         return _ok(get_frozen_replay_catalog())
     ids = _match(path, r"/showcases/lats-replays/([^/]+)/runs")

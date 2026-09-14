@@ -36,6 +36,7 @@ vi.mock("../hooks/useSSE", () => ({
 }));
 
 import * as api from "../api/client";
+import useSSE from "../hooks/useSSE";
 
 const diagnosis = {
   diagnosis_id: "diag-1",
@@ -66,6 +67,42 @@ describe("AIDiagnosis V2 workspace", () => {
   });
 
   afterEach(cleanup);
+
+  it("preserves a same-session report on partial and core refresh failures, but clears it when switching sessions", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    const second = { ...diagnosis, diagnosis_id: "diag-2", query: "检查另一个进程" };
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis, second]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{
+      report_id: "r-1", conclusion: "原会话中已确认的对象分配热点", confidence: 0.7,
+      evidence_refs: ["ev-1"], verification: { status: "PARTIAL_WITHOUT_COUNTER" },
+    }]);
+    render(<AIDiagnosis />);
+    const finding = await screen.findByLabelText("当前诊断结论摘要");
+    expect(within(finding).getByText("原会话中已确认的对象分配热点")).toBeInTheDocument();
+    api.listDropInsightReports.mockRejectedValue(new Error("temporary report failure"));
+    useSSE.mock.calls.at(-1)[0].onDiagnosisProgress({ diagnosis_id: "diag-1" });
+    await screen.findByText("部分数据加载失败：报告");
+    expect(within(finding).getByText("原会话中已确认的对象分配热点")).toBeInTheDocument();
+    api.getDropInsightDiagnosis.mockRejectedValue(new Error("temporary detail failure"));
+    fireEvent.click(screen.getByRole("button", { name: "重试" }));
+    await screen.findByText("部分数据加载失败：详情");
+    expect(within(finding).getByText("原会话中已确认的对象分配热点")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "打开诊断案例列表" }));
+    fireEvent.click(await screen.findByRole("button", { name: "打开诊断：检查另一个进程" }));
+    await waitFor(() => expect(screen.queryByLabelText("当前诊断结论摘要")).not.toBeInTheDocument());
+    expect(screen.queryByText("原会话中已确认的对象分配热点")).not.toBeInTheDocument();
+  });
+
+  it("does not submit while confirming a Chinese IME composition", async () => {
+    render(<AIDiagnosis />);
+    const input = screen.getByLabelText("描述诊断问题");
+    fireEvent.change(input, { target: { value: "检查内存" } });
+    fireEvent.keyDown(input, { key: "Enter", isComposing: true, keyCode: 229 });
+    expect(api.createDropInsightDiagnosis).not.toHaveBeenCalled();
+    fireEvent.keyDown(input, { key: "Enter", shiftKey: true });
+    expect(api.createDropInsightDiagnosis).not.toHaveBeenCalled();
+  });
 
   it("renders only Drop Insight V2 diagnoses", async () => {
     api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);

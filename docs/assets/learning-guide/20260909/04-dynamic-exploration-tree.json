@@ -1,0 +1,557 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis?case=drop_insight_v2%3Ainsight_c23e8c442c2343f1bd10cb39bb8666af",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 4 轮\n实时事件已连接\n树版本 87\n诊断说明\n诊断案例 226\n新建诊断\nAgent 工作台\n验证与 A/B\n当前诊断\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n诊断完成\n自主\n人工审批\n对话\n探索树\n分屏\n全屏树\n复杂案例回放 · 4 轮\n运行时详情\n当前阶段 / 轮次\n第 4 轮\n规划假设\n11 个\n主动知识检索\n5 次\nLATS 搜索\n搜索结束\n工具调用\n4 次\n证据\n1/6\n记忆\n1 条\n工具成功率\n75%\n实时探索树\n版本 87\n树状结构\n轮次路径\n4 轮\n探索 25 个可见节点\n父子关系 24 条\n剪枝 6 条\n方向切换 3 次\nSkill 已切换\n已完成\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n已调查分支\n反证剪枝\n根因路径\n停止后未继续\nSkill 路线（非证据）\n42%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n诊断根节点\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n根因路径\n诊断入口\n判断依据\n探索树随诊断事件实时生长\n假设分支\n候选假设\n第 1 轮\nJava 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升\n已调查\n第 1 轮假设\n判断依据\nSkill 要求先对齐堆/RSS、分配率、GC 次数、暂停时间和请求延迟，系统指标是第一步基线证据，用于确认 GC 压力是否在系统层面可见。\n当前最佳路径\n访问次数\n4\n平均回报 Q\n-0.313\n先验概率\n0.648\nUCT\n1000000.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 2 轮\n第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力\n已调查\n第 2 轮假设\n判断依据\n上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证PROCESS_MEMORY 证据域。\n当前最佳路径\n访问次数\n2\n平均回报 Q\n0.070\n先验概率\n0.399\nUCT\n1000000.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 3 轮\n第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争\n根因路径\n第 3 轮假设\n判断依据\n按 gc-pressure-diagnosis Skill 取证顺序，系统指标与内存 profile 已采集但不足以建立结论。当前推进到 Skill 路线第三步 start_jvm_profile，采集 JVM 调用栈与 GC 暂停数据，用于验证分配热点路径、GC 暂停与延迟抖…\n当前最佳路径\n访问次数\n1\n平均回报 Q\n0.630\n先验概率\n0.326\nUCT\n1000000.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 4 轮\n目标进程存在原生调用栈热点，CPU 样本稳定集中在特定调用路径或等待路径\n已调查\n第 4 轮假设\n判断依据\ncpu-hotspot-diagnosis Skill 取证顺序第二步要求受控执行 perf 采样，生成火焰图、热点函数 TopN 和用户态/内核态占比，以确认 CPU 热点位置。\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.263\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 4 轮\nCPU 开销来自内核态（如系统调用、调度或内存管理），而非用户态业务代码热点\n已调查\n第 4 轮假设\n判断依据\n知识库提示需区分用户态与系统态 CPU。若 perf 样本主要归属内核调用链，则根因可能是系统调用开销或内核资源竞争而非 JVM 业务代码。\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.105\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n发起取证\n工具调用\n第 3 轮\n未知诊断工具\n根因路径\nJVM\nSkill 路线第 3 步 · 已采用\nstart_jvm_profile\n判断依据\n自主会话已在创建时预授权；目标、能力、风险和预算检查通过\n支持证据\n证据裁决\n第 3 轮\n支持证据\n根因路径\n证据裁决\n证据内容\nJAVA_ASYNC_JAVA_FLAMEGRAPH_HTML\n反证\n证据裁决\n第 3 轮\n反证或低质量证据\n反证剪枝\n证据裁决\n证据内容\nJAVA_ASYNC_MANIFEST\n形成结论\n诊断结论\n第 3 轮\n根因结论\n根因路径\n结论\n判断依据\nSUPPORTED：可信采集证据支持假设“第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争”。\n假设分支\n候选假设\n第 3 轮\n延迟抖动由 GC 暂停引起，JVM profile 显示 GC 线程活跃且暂停时间与延迟抖动窗口对齐\n已调查\n第 3 轮假设\n判断依据\nSkill 要求采集 GC 暂停 P95/P99、GC 时间占比和分代占用来确认 GC 压力。start_jvm_profile 可提供 GC 暂停与线程状态数据，验证 GC 是否与延迟抖动时间相关。\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.168\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 3 轮\n第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖\n已调查\n第 3 轮假设\n判断依据\n按 gc-pressure-diagnosis Skill 取证顺序，系统指标与内存 profile 已采集但不足以建立结论。当前推进到 Skill 路线第三步 start_jvm_profile，采集 JVM 调用栈与 GC 暂停数据，用于验证分配热点路径、GC 暂停与延迟抖…\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.102\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n发起取证\n工具调用\n第 2 轮\n未知诊断工具\n已调查\n内存\nSkill 路线第 2 步 · 已采用\ncollect_memory_profile\n判断依据\n策略检查通过\n证据结果\n证据裁决\n第 2 轮\n反证或低质量证据\n已调查\n证据裁决\n证据内容\nMEMORY_SMAPS_MEMORY_JSON\n反证\n证据裁决\n第 2 轮\n反证或低质量证据\n反证剪枝\n证据裁决\n证据内容\nMEMORY_SMAPS_MANIFEST\n形成结论\n诊断结论\n第 2 轮\n阶段性结论\n反证剪枝\n结论\n判断依据\nINSUFFICIENT_EVIDENCE：当前没有能够支持该假设的可信证据；假设“第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力”仍待验证。\n假设分支\n候选假设\n第 4 轮\n第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销\n已调查\n第 4 轮假设\n判断依据\n上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。\n当前选择\n访问次数\n1\n平均回报 Q\n-0.900\n先验概率\n0.120\nUCT\n1000000.000\n查看评分\n优先调查\n寻找反证\n发起取证\n工具调用\n第 4 轮\n未知诊断工具\n反证剪枝\nCPU\nSkill 路线第 2 步\nstart_perf_profile\n判断依据\n自主会话已在创建时预授权；目标、能力、风险和预算检查通过\n假设分支\n候选假设\n第 2 轮\n第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点\n已调查\n第 2 轮假设\n判断依据\n上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.080\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n发起取证\n工具调用\n第 1 轮\n未知诊断工具\n已调查\n系统基线\nSkill 路线第 1 步 · 已采用Skill 路线第 1 步\ncollect_sys_metrics\n判断依据\n策略检查通过\n证据结果\n证据裁决\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n证据内容\nSYS_METRICS_SYS_METRICS\n反证\n证据裁决\n第 1 轮\n反证或低质量证据\n反证剪枝\n证据裁决\n证据内容\nSYS_METRICS_MANIFEST\n形成结论\n诊断结论\n第 1 轮\n阶段性结论\n反证剪枝\n结论\n判断依据\nINSUFFICIENT_EVIDENCE：当前没有能够支持该假设的可信证据；假设“Java 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升”仍待验证。\n假设分支\n候选假设\n第 1 轮\n延迟抖动可能来自系统资源竞争（如 CPU 抢占或 IO 阻塞），而非 GC 本身\n已调查\n第 1 轮假设\n判断依据\n知识检索提示 CPU 高可能是 GC 的原因也可能是结果，需先排除系统资源竞争作为独立根因。\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.127\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\n假设分支\n候选假设\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n已调查\n第 1 轮假设\n判断依据\n等待工具证据验证或反证\n访问次数\n0\n平均回报 Q\n0.000\n先验概率\n0.034\nUCT\n0.000\n查看评分\n优先调查\n寻找反证\nSkill 调查路线\n作为搜索先验参与规划，不属于诊断证据\n非证据先验\n已切换\n查看 Skill 详情\ncpu-hotspot-diagnosis\n版本 2\nCPU\nBM25 + 本地哈希/领域概念特征\n匹配分 72%\n完整 SKILL.md 已加载\n路由已纠偏：INSUFFICIENT_EVIDENCE_REPLAN → CPU\n1\n召回候选\n第 4 轮\n2\n激活路线\n采集系统指标\n3\n第 2 轮沿用\n采集内存剖析\n4\n第 3 轮沿用\n启动 JVM 性能剖析\n5\n切换路线\n启动连续性能采集\n推荐工具路线\n采集系统指标\n已执行\n→\n采集 CPU 火焰图\n执行失败\n→\n启动连续性能采集\n当前步骤 · 第 4 轮\n1\n第 1 轮\n1 工具 · 2 证据\n2\n第 2 轮\n1 工具 · 2 证据\n3\n第 3 轮\n1 工具 · 2 证据\n4\n第 4 轮\n1 工具 · 0 证据\n取证转向第 1 次转向：系统基线 → 内存，上一方向证据不足或被反证，转向新的取证域\n取证转向第 2 次转向：内存 → JVM，上一方向证据不足或被反证，转向新的取证域\n取证转向第 3 次转向：JVM → CPU，上一方向证据不足或被反证，转向新的取证域\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "全屏查看探索树",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开当前复杂案例回放",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "summary",
+      "type": "",
+      "label": "运行时详情",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看当前阶段 / 轮次",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看规划假设",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看主动知识检索",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看LATS 搜索",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看工具调用",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看记忆",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看工具成功率",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "summary",
+      "type": "",
+      "label": "实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "缩小探索树",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "放大探索树",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "复位探索树",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开探索树全屏弹窗",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：Java 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：Java 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：Java 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：目标进程存在原生调用栈热点，CPU 样本稳定集中在特定调用路径或等待路径",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：目标进程存在原生调用栈热点，CPU 样本稳定集中在特定调用路径或等待路径",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：目标进程存在原生调用栈热点，CPU 样本稳定集中在特定调用路径或等待路径",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：CPU 开销来自内核态（如系统调用、调度或内存管理），而非用户态业务代码热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：CPU 开销来自内核态（如系统调用、调度或内存管理），而非用户态业务代码热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：CPU 开销来自内核态（如系统调用、调度或内存管理），而非用户态业务代码热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：延迟抖动由 GC 暂停引起，JVM profile 显示 GC 线程活跃且暂停时间与延迟抖动窗口对齐",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：延迟抖动由 GC 暂停引起，JVM profile 显示 GC 线程活跃且暂停时间与延迟抖动窗口对齐",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：延迟抖动由 GC 暂停引起，JVM profile 显示 GC 线程活跃且暂停时间与延迟抖动窗口对齐",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：延迟抖动可能来自系统资源竞争（如 CPU 抢占或 IO 阻塞），而非 GC 本身",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：延迟抖动可能来自系统资源竞争（如 CPU 抢占或 IO 阻塞），而非 GC 本身",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：延迟抖动可能来自系统资源竞争（如 CPU 抢占或 IO 阻塞），而非 GC 本身",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 LATS 节点评分：其他未知原因（其他尚未识别的原因）",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "优先调查：其他未知原因（其他尚未识别的原因）",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "寻找反证：其他未知原因（其他尚未识别的原因）",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 详情",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 阶段：召回候选",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 阶段：激活路线",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 阶段：第 2 轮沿用",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 阶段：第 3 轮沿用",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看 Skill 阶段：切换路线",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "采集系统指标，已执行",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "采集 CPU 火焰图，执行失败",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动连续性能采集，当前步骤",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "补充诊断上下文",
+      "placeholder": "继续追问结论，或补充新的现象、上下文和约束",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "基于结论继续一轮",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:13:12.522845+00:00",
+  "screenshot": "04-dynamic-exploration-tree.png",
+  "sha256": "1b6adbeddbada1719cd5866bdd5ac319808ed68aa99faef8e5de4492af5e75b8",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

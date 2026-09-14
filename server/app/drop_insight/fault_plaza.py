@@ -16,6 +16,8 @@ from typing import Any
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
+from .fault_acceptance import latest_acceptance
+
 
 @dataclass(frozen=True)
 class FaultScenario:
@@ -69,6 +71,7 @@ class FaultScenario:
             "duration_options_seconds": [30, 60, 120],
             "supports_skill_ab": self.supports_skill_ab,
             "acceptance_level": self.acceptance_level,
+            "latest_acceptance": latest_acceptance(self.scenario_id),
             "skill_ab_unavailable_reason": (
                 ""
                 if self.supports_skill_ab
@@ -83,6 +86,11 @@ class FaultScenario:
         }
 
 
+# Per-scenario live acceptance (do not change the unverified default above).
+# Existing four: fault-plaza-full-21-final-v2-20260908.json.
+# These historical lineage runs do not establish verified roots or fixes.
+# Remaining seventeen: fault-plaza-remaining-17-20260909.json.
+# New campaign canonical payload SHA-256: 95e79972e0c5548a1b5db5b32b8a1c7bc7a0a7350ae382fb07b3333e84c26f70
 SCENARIOS: tuple[FaultScenario, ...] = (
     FaultScenario(
         "cpu-hotspot",
@@ -97,6 +105,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
         "cpu-hotspot-diagnosis",
         {},
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "source-hotspot",
@@ -111,7 +120,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
         "python-runtime-diagnosis",
         {},
-        acceptance_level="LIVE_DIAGNOSIS_VERIFIED",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "memory-pressure",
@@ -126,6 +135,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
         "memory-growth-diagnosis",
         {"megabytes": 96},
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "io-write-latency",
@@ -140,6 +150,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
         "io-latency-diagnosis",
         {},
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "noisy-neighbor",
@@ -154,6 +165,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
         "same-host-contention-diagnosis",
         {},
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "load-saturation",
@@ -169,6 +181,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "load-saturation-diagnosis",
         {},
         supports_skill_ab=False,
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "queue-backlog",
@@ -183,6 +196,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
         "queue-backlog-diagnosis",
         {},
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "go-cpu-hotspot",
@@ -197,7 +211,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
         "go-runtime-diagnosis",
         {},
-        acceptance_level="LIVE_DIAGNOSIS_VERIFIED",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
         lab_key="go",
         target_runtime="Go",
     ),
@@ -216,6 +230,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"delay_ms": 240},
         lab_key="go",
         target_runtime="Go",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "go-memory-growth",
@@ -232,6 +247,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"megabytes": 96},
         lab_key="go",
         target_runtime="Go",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "go-file-io",
@@ -248,6 +264,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {},
         lab_key="go",
         target_runtime="Go",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "java-gc-pressure",
@@ -262,7 +279,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
         "gc-pressure-diagnosis",
         {},
-        acceptance_level="LIVE_DIAGNOSIS_VERIFIED",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
         lab_key="java",
         target_runtime="Java",
     ),
@@ -281,6 +298,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {},
         lab_key="java",
         target_runtime="Java",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "java-downstream-latency",
@@ -297,6 +315,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"delay_ms": 260},
         lab_key="java",
         target_runtime="Java",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "java-offheap-growth",
@@ -313,6 +332,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"megabytes": 96},
         lab_key="java",
         target_runtime="Java",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "java-file-io",
@@ -329,6 +349,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {},
         lab_key="java",
         target_runtime="Java",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "cpp-cpu-hotspot",
@@ -343,7 +364,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         "诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
         "cpp-runtime-diagnosis",
         {},
-        acceptance_level="LIVE_DIAGNOSIS_VERIFIED",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
         lab_key="cpp",
         target_runtime="C++",
     ),
@@ -362,6 +383,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {},
         lab_key="cpp",
         target_runtime="C++",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "cpp-memory-growth",
@@ -378,6 +400,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"megabytes": 96},
         lab_key="cpp",
         target_runtime="C++",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "cpp-file-io",
@@ -394,6 +417,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {},
         lab_key="cpp",
         target_runtime="C++",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
     FaultScenario(
         "cpp-downstream-latency",
@@ -410,6 +434,7 @@ SCENARIOS: tuple[FaultScenario, ...] = (
         {"delay_ms": 260},
         lab_key="cpp",
         target_runtime="C++",
+        acceptance_level="HISTORICAL_LINEAGE_VERIFIED",
     ),
 )
 

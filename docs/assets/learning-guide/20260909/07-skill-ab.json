@@ -1,0 +1,165 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis?case=drop_insight_v2%3Ainsight_0570ecf2d19c42b98f14a95732317d26",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 4 轮\n实时事件已连接\n树版本 87\n诊断说明\n诊断案例 226\n新建诊断\nAgent 工作台\n验证与 A/B\n验证中心\n诊断与 Skill 验证中心\n诊断验证\n诊断验证中心\n从方法、真实故障、策略演化到成熟产品对照，所有结论都有过程和证据可追溯。\n当前评测体系\n旧测试入口已下线\n评测总览\n故障广场\nSkill A/B\nSkill 示例与沉淀\n服务端随机实验\n用加盐 SHA-256 粘性分流把真实诊断分到 Skill AUTO 或 DISABLED。 只有人工/受控 Oracle 标注才进入根因准确率，路线提前不会被当成正确率。\n刷新\n只自动生成发布建议，永不自动修改 Prompt、代码、权限或生产流量\n默认每臂至少 30 个已标注样本，p ≤ 0.05，提升至少 5 个百分点，且安全与验证率护栏通过，才可由有权限的人批准。\n新建 50/50 实验\nRelease 20260908 post-deploy Skill experiment · RUNNING\nAUTO 正确率\n-\nDISABLED 正确率\n-\n效果量\n-\np 值\n样本不足\nRUNNING\n已分流 0\n已标注 0\n95% CI -\n长期快照 0\n真实诊断问题\n流量单元标识\n只保存哈希；同一标识在同一实验中稳定落到同一臂。\n由服务端随机分流并诊断\n诊断\t随机臂\t诊断状态\tOracle 标签\n\n还没有真实分流样本\n计算显著性并保存快照\n当前不可发布：尚未评估\n真实 Skill：启用与关闭对比\n两组都创建真实诊断、真实调用工具和证据门禁。支持、反证、中性和受限四类准入结果都计入“门禁接受”；历史只保存诊断 ID，指标会从服务端重新读取。\n已运行的受控真值评测\n540 条根因评测 + 500 组同题 Skill A/B\n查看机器报告\n500 组根因 Top-1\n68.4%\nSkill 开启；关闭组 41.2%\n准确率差值\n+27.2 个百分点\n同一 Case、同一两次工具预算\n关键采集器两轮内命中\n68.4%\n关闭组 41.2%\n改善 / 退化\n136 / 0\np=2.30e-41；不变 364\n540 条：Skill 70.7%\n540 条：关闭 42.8%\n关键路线提前 187 组\n差值 95% CI [23.2, 31.2]pp\n来自 21 个可执行白名单故障合同的受控回放；不是 540 次公网真机注入，真机链路由独立验收报告证明。\n两组共用问题\n启动真实对比\n当前不是严格同范围实验\n当前公共 API 会让两组独立自动发现目标和时间窗。结果可演示真实路线，但不能据此声称 Skill 提升了准确率或速度。",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "随机实验名称",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建 50/50 实验",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "",
+      "placeholder": "从故障广场带入，或输入一条需要真实取证的问题",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "由服务端随机分流并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "计算显著性并保存快照",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看机器报告",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "Skill A/B 诊断问题",
+      "placeholder": "例如：诊断 demo 服务 CPU 持续升高，找出热点函数并排除 I/O 等待",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动真实对比",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:01:44.595663+00:00",
+  "screenshot": "07-skill-ab.png",
+  "sha256": "ecb8bbc58cbfabc3171ea1a39043f4826d2907e6637ab5e3152687a6d05d83ba",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

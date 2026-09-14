@@ -129,6 +129,20 @@ void test_empty_snapshot_is_complete() {
   require(snapshot.candidates.empty(), "empty snapshot has candidates");
 }
 
+void test_explicit_container_workload_slice() {
+  TemporaryProc proc;
+  proc.add_process(200, 1, 9876, 4026532000ULL, 20, "uwsgi", "/usr/bin/uwsgi",
+      "0::/mini.slice/mini-drop.slice/mini-drop-business.slice/mini-drop-business-linkding.slice/docker-abc.scope");
+  proc.add_process(201, 1, 9877, 4026532000ULL, 21, "other", "/usr/bin/other",
+      "0::/system.slice/docker-other.scope");
+  const auto snapshot = collect_process_snapshot({}, proc.path(), 256, 100);
+  require(snapshot.candidates.size() == 2, "expected both observed processes");
+  for (const auto& row : snapshot.candidates) {
+    if (row.pid == 200) require(row.service_hint == "mini-drop-business-linkding.slice", "workload slice not retained");
+    if (row.pid == 201) require(row.service_hint.empty(), "generic slice became service identity");
+  }
+}
+
 void test_agent_and_collector_descendants_are_excluded() {
   TemporaryProc proc;
   proc.add_process(100, 1, 1000, 4026531000ULL, 100, "agent");
@@ -196,6 +210,7 @@ int main() {
   try {
     test_complete_snapshot_has_bounded_metadata();
     test_empty_snapshot_is_complete();
+    test_explicit_container_workload_slice();
     test_agent_and_collector_descendants_are_excluded();
     test_incomplete_immutable_identity_is_rejected();
     test_missing_executable_identity_is_rejected();

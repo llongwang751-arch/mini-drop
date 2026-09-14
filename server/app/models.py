@@ -48,6 +48,7 @@ class AgentModel(Base):
     # truncating it or rejecting Agent registration.
     os_info = Column(Text, default="unknown")
     capabilities = Column(JSON, default=list)
+    latest_metrics = Column(JSON, nullable=True)
     status = Column(String(16), default="ONLINE")
     last_heartbeat_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False)
@@ -61,6 +62,7 @@ class AgentModel(Base):
             "version": self.version,
             "os_info": self.os_info,
             "capabilities": self.capabilities or [],
+            "latest_metrics": self.latest_metrics or {},
             "status": self.status,
             "last_heartbeat_at": self.last_heartbeat_at,
             "created_at": self.created_at,

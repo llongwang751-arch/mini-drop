@@ -1,0 +1,3308 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 智能诊断\n从异常现象，找到性能瓶颈\n描述服务、时间和异常表现，系统将逐步采集证据并验证原因。\n轮询兜底中\n诊断说明\n诊断案例 226\nAgent 工作台\n验证与 A/B\n哪里出现了异常？\n\n尽量描述服务或进程、发生时间，以及 CPU、内存或请求延迟的变化。\n\nCPU 升高\n内存增长\n请求变慢\n开始诊断\nEnter 开始诊断 · Shift + Enter 换行\n用故障广场开始演示\n诊断案例\n选择已有会话，或开始一条新诊断\n案例列表不再占用主工作台宽度\n新建诊断\n进行中\n待处理\n已完成\n证据不足\n全部\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 19:15:11\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 19:14:36\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 19:12:54\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:29:44\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:27:31\n诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。\n已完成\nDrop Insight V2\n2026/9/8 18:25:41\n诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:23:49\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:21:58\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:20:01\n诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n已完成\nDrop Insight V2\n2026/9/8 18:18:10\n诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:16:18\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:14:27\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:12:36\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:11:30\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n已完成\nDrop Insight V2\n2026/9/8 18:09:39\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 18:07:46\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:05:42\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n已完成\nDrop Insight V2\n2026/9/8 18:03:44\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 18:01:49\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:59:52\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:58:04\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:56:08\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:54:17\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:52:20\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 17:50:08\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:42:58\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:41:38\n诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。\n已完成\nDrop Insight V2\n2026/9/8 17:39:46\n诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:37:55\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:36:04\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:34:08\n诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n已完成\nDrop Insight V2\n2026/9/8 17:32:15\n诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:30:25\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:28:33\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:26:42\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:25:37\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n已完成\nDrop Insight V2\n2026/9/8 17:23:45\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 17:21:54\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:20:03\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n已完成\nDrop Insight V2\n2026/9/8 17:18:11\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:16:35\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:14:09\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:12:02\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:10:09\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:08:04\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 17:06:11\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:03:50\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 17:01:44\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:51:52\n诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:50:21\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:48:30\n诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n已完成\nDrop Insight V2\n2026/9/8 16:46:33\n诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:44:22\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 16:42:06\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:30:07\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:28:45\n诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。\n已完成\nDrop Insight V2\n2026/9/8 16:26:39\n诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:24:48\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:22:58\n诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n已取消\nDrop Insight V2\n2026/9/8 16:22:27\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:20:59\n诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 16:17:48\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:15:56\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:14:20\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:13:14\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n已完成\nDrop Insight V2\n2026/9/8 16:11:20\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 16:09:27\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:07:35\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n已完成\nDrop Insight V2\n2026/9/8 16:05:45\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:03:49\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:02:12\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 16:00:15\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 15:58:18\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 15:56:28\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 15:54:47\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:49:58\n诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n现象：P99 从 80ms 升到 900ms 对象：worker1 的 order-service 时间：最近 10 分钟 方向：检查 CPU、GC 和下游网络，给出可验证根因\n已取消\nDrop Insight V2\n2026/9/8 15:44:30\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:42:50\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:42:33\n诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:42:19\n诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:42:02\n诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:41:43\n诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n证据不足\nDrop Insight V2\n2026/9/8 15:41:28\n诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:41:09\n诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:40:53\n诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。\n证据不足\nDrop Insight V2\n2026/9/8 15:40:32\n诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:40:13\n诊断 demo 环境中的 java-hotspot 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:39:22\n诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:38:30\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:21:40\n诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 15:03:40\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:01:48\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 15:00:12\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:58:27\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n已完成\nDrop Insight V2\n2026/9/8 14:56:35\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 14:54:44\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:52:52\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n已完成\nDrop Insight V2\n2026/9/8 14:50:56\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:49:21\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:47:44\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:45:52\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 14:44:02\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 14:42:10\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 14:40:29\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:37:47\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:35:50\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:21:12\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:19:19\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:12:10\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 14:10:18\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 13:54:46\n诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。\n已完成\nDrop Insight V2\n2026/9/8 13:51:59\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n已完成\nDrop Insight V2\n2026/9/8 13:50:03\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 13:48:06\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n已完成\nDrop Insight V2\n2026/9/8 13:45:50\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n证据不足\nDrop Insight V2\n2026/9/8 13:31:42\n诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:53:26\n诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:51:14\n诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。\n证据不足\nDrop Insight V2\n2026/9/8 12:49:03\n诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:46:17\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:44:06\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 12:17:51\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:16:29\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n证据不足\nDrop Insight V2\n2026/9/8 12:14:39\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n证据不足\nDrop Insight V2\n2026/9/8 12:12:48\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 12:10:57\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n证据不足\nDrop Insight V2\n2026/9/8 12:09:06\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:07:14\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:05:14\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 12:02:40\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 12:00:26\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 11:58:35\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 11:56:41\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 11:52:48\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 11:51:19\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 10:59:10\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 10:36:29\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 10:34:16\n诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。\n证据不足\nDrop Insight V2\n2026/9/8 10:32:00\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n证据不足\nDrop Insight V2\n2026/9/8 10:29:49\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 10:27:48\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n证据不足\nDrop Insight V2\n2026/9/8 10:25:35\n诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 10:23:20\n诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 10:20:58\n诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 10:18:07\n诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。\n已完成\nDrop Insight V2\n2026/9/8 10:15:35\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 10:13:29\n诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。\n已完成\nDrop Insight V2\n2026/9/8 10:11:23\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/8 10:08:45\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/8 09:36:09\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/8 09:28:04\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 23:45:44\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 23:43:33\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 23:32:53\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 23:30:41\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 23:17:24\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 23:15:19\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 22:54:48\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 22:52:03\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 22:15:08\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 21:47:41\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 20:01:28\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 18:46:33\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 18:44:17\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 18:38:43\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 18:36:23\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 18:29:04\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 18:07:38\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 17:56:42\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 17:50:09\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 17:40:38\n诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 17:38:32\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 15:29:00\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n证据不足\nDrop Insight V2\n2026/9/7 15:28:40\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 15:26:23\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 15:24:17\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 15:22:20\n诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\n证据不足\nDrop Insight V2\n2026/9/7 15:15:01\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 15:13:09\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 15:10:33\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 14:58:48\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 14:52:59\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 14:37:36\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 14:32:33\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 14:30:32\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 00:33:23\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/7 00:31:22\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/6 23:49:38\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n已完成\nDrop Insight V2\n2026/9/6 23:47:32\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/6 22:31:17\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n已完成\nDrop Insight V2\n2026/9/6 22:29:20\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n证据不足\nDrop Insight V2\n2026/9/6 21:53:22\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n证据不足\nDrop Insight V2\n2026/9/6 18:43:39\n诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n证据不足\nDrop Insight V2\n2026/9/6 18:24:16\n诊断 demo 环境中的 Python 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\n证据不足\nDrop Insight V2\n2026/9/6 18:19:39\n诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。\n证据不足\nDrop Insight V2\n2026/9/6 17:12:37\n诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。\n证据不足\nDrop Insight V2\n2026/9/6 17:12:18\n诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。\n证据不足\nDrop Insight V2\n2026/9/6 17:07:14\n诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。\n证据不足\nDrop Insight V2\n2026/9/6 17:06:53\n诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。\n证据不足\nDrop Insight V2\n2026/9/6 17:04:49\n诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。\n已完成\nDrop Insight V2\n2026/9/6 16:54:58\n诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。\n已完成\nDrop Insight V2\n2026/9/6 16:54:39\n诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。\n已完成\nDrop Insight V2\n2026/9/6 16:54:23\n诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。\n已完成\nDrop Insight V2\n2026/9/6 16:54:04\n诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。\n已完成\nDrop Insight V2\n2026/9/6 16:53:49\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 16:47:38\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:28:08\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:27:58\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:26:57\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:26:47\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:25:48\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:25:38\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:25:08\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:24:57\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\n已完成\nFULL_LATS · 冻结回放\n2026/9/6 15:21:28\n诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。\n已完成\nDrop Insight V2\n2026/9/6 00:28:35\n诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。\n已完成\nDrop Insight V2\n2026/9/6 00:27:19\n诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。\n证据不足\nDrop Insight V2\n2026/9/6 00:19:15\n检查 worker1 上订单服务最近 5 分钟为什么 CPU 持续升高，并排除 I/O 等待。\n证据不足\nDrop Insight V2\n2026/9/5 19:22:53\n检查两台 Worker 的 CPU、内存和磁盘是否异常\n证据不足\nDrop Insight V2\n2026/9/5 00:36:58\n检查两台 Worker 的 CPU、内存和磁盘是否异常\n证据不足\nDrop Insight V2\n2026/9/5 00:34:29\n当前载入 226 条；列表范围受服务端分页限制。",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "CPU 升高",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "内存增长",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "请求变慢",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "描述诊断问题",
+      "placeholder": "描述问题，例如：订单服务最近 5 分钟 CPU 与 P99 同时升高，请定位根因",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "开始诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "用故障广场开始演示",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Close",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：现象：P99 从 80ms 升到 900ms 对象：worker1 的 order-service 时间：最近 10 分钟 方向：检查 CPU、GC 和下游网络，给出可验证根因",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：现象：P99 从 80ms 升到 900ms 对象：worker1 的 order-service 时间：最近 10 分钟 方向：检查 CPU、GC 和下游网络，给出可验证根因",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 java-hotspot 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 java-hotspot 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 Python 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 Python 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot I/O 等待升高，定位同步写入与块设备延迟。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot 内存持续增长，判断是进程保留内存还是系统缓存。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot CPU 持续升高，找出热点函数，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：诊断 demo 环境中的 python-hotspot，定位 Python 源码级 CPU 热点和具体函数。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：检查 worker1 上订单服务最近 5 分钟为什么 CPU 持续升高，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：检查 worker1 上订单服务最近 5 分钟为什么 CPU 持续升高，并排除 I/O 等待。",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：检查两台 Worker 的 CPU、内存和磁盘是否异常",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：检查两台 Worker 的 CPU、内存和磁盘是否异常",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断：检查两台 Worker 的 CPU、内存和磁盘是否异常",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档诊断：检查两台 Worker 的 CPU、内存和磁盘是否异常",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:01:27.714768+00:00",
+  "screenshot": "02-diagnosis-case-drawer.png",
+  "sha256": "9945ccd4c93755646d01da12a2282aa600097cfa6756eef58c7c9fa22c849597",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

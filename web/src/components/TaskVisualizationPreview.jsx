@@ -68,9 +68,7 @@ export default function TaskVisualizationPreview({ taskId }) {
               .catch(() => { if (!cancelled) setTop([]); }),
           );
         }
-        const documentType = types.has("java_flamegraph_html")
-          ? "java_flamegraph_html"
-          : types.has("flamegraph_svg")
+        const documentType = types.has("flamegraph_svg") && !types.has("java_flamegraph_html")
           ? "flamegraph_svg"
           : null;
         if (documentType) {
@@ -117,11 +115,12 @@ export default function TaskVisualizationPreview({ taskId }) {
 
   const meta = collectorMeta(task?.collector_type);
   const flameArtifact = artifacts.find((item) => item.artifact_type === "flamegraph_json");
+  const javaArtifact = artifacts.find((item) => item.artifact_type === "java_flamegraph_html");
   const continuousArtifact = artifacts.find(
     (item) => item.artifact_type === "continuous_flamegraph_json",
   );
   const hasInlineVisualization = Boolean(
-    flameArtifact || continuousArtifact || embeddedDocument || top.length || ebpfData || sysMetrics,
+    flameArtifact || javaArtifact || continuousArtifact || embeddedDocument || top.length || ebpfData || sysMetrics,
   );
 
   return (
@@ -139,7 +138,7 @@ export default function TaskVisualizationPreview({ taskId }) {
         </Link>
       </Space>
 
-      {(flameArtifact || continuousArtifact || embeddedDocument || top.length > 0) && (
+      {(flameArtifact || javaArtifact || continuousArtifact || embeddedDocument || top.length > 0) && (
         <Row gutter={[16, 16]}>
           <Col xs={24} xl={top.length > 0 ? 16 : 24}>
             {flameArtifact && (
@@ -153,7 +152,10 @@ export default function TaskVisualizationPreview({ taskId }) {
                 height={360}
               />
             )}
-            {!flameArtifact && !continuousArtifact && embeddedDocument && (
+            {!flameArtifact && !continuousArtifact && javaArtifact && (
+              <FlamegraphViewer taskId={taskId} artifactType="java_flamegraph_html" height={360} />
+            )}
+            {!flameArtifact && !continuousArtifact && !javaArtifact && embeddedDocument && (
               <iframe
                 srcDoc={embeddedDocument}
                 sandbox=""

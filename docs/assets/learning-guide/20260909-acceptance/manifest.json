@@ -1,0 +1,134 @@
+{
+  "phase": "after",
+  "scenario_count": 21,
+  "verified_count": 21,
+  "cards": [
+    {
+      "title": "CPU 计算热点",
+      "verified": true,
+      "text": "CPU 计算热点\nCPU\n全链路已验收\n单进程 CPU 持续升高，并出现稳定的用户态热点函数\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n目标进程 CPU 升高；调用栈出现集中热点；停止故障后 CPU 回落\n推荐采集\n系统指标采集perf CPU 采样py-spy Python 采样\n关联 Skill\ncpu-hotspot-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Python 源码热点",
+      "verified": true,
+      "text": "Python 源码热点\n运行时\n全链路已验收\nPython 业务函数占用 CPU，可定位到稳定的文件、函数和行号\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nPython 帧占比集中；source_hot_function 成为 TopN；源码映射可解析\n推荐采集\n系统指标采集py-spy Python 采样\n关联 Skill\npython-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "进程内存增长",
+      "verified": true,
+      "text": "进程内存增长\n内存\n全链路已验收\n目标进程持续保留内存，RSS 在短时间内明显增长\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nRSS/PSS 增长；retained memory 增长；停止并清理后内存回落\n推荐采集\n系统指标采集进程内存剖析\n关联 Skill\nmemory-growth-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "同步写入压力",
+      "verified": true,
+      "text": "同步写入压力\nI/O\n全链路已验收\n目标进程持续同步写文件，写入字节和 I/O 等待升高\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nwrite_bytes 增长；块设备延迟升高；CPU 热点不能单独解释现象\n推荐采集\n系统指标采集eBPF I/O 采样\n关联 Skill\nio-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "同机噪声邻居",
+      "verified": true,
+      "text": "同机噪声邻居\n资源竞争\n全链路已验收\n另一个同宿主机进程争抢 CPU，目标进程自身并无主导热点\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n宿主机 CPU 饱和；目标栈无主导热点；同机 peer CPU ticks 增长\n推荐采集\n系统指标采集perf CPU 采样\n关联 Skill\nsame-host-contention-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "入口负载饱和",
+      "verified": true,
+      "text": "入口负载饱和\n负载\n全链路已验收\n请求到达速度超过处理速度，拒绝数和延迟同时升高\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\noffered RPS 高于 completed RPS；rejected requests 增长；CPU 使用率升高\n推荐采集\n系统指标采集perf CPU 采样\n关联 Skill\nload-saturation-diagnosis\nSkill A/B\n关联 Skill load-saturation-diagnosis 尚未发布；可先使用“启动并诊断”演示动态探索。\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "生产消费队列堆积",
+      "verified": true,
+      "text": "生产消费队列堆积\n队列\n全链路已验收\n生产速率高于消费速率，队列深度和排队延迟持续增长\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nproducer rate 高于 consumer rate；queue depth 增长；停止注入后积压消退\n推荐采集\n系统指标采集\n关联 Skill\nqueue-backlog-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Go 服务 CPU 热点",
+      "verified": true,
+      "text": "Go 服务 CPU 热点\nGo 运行时\n全链路已验收\nGo 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待\n目标运行时\nGo\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n目标进程 CPU 升高；pprof 热点集中；系统等待不足以解释 CPU\n推荐采集\n系统指标采集Go pprof 采样perf CPU 采样\n关联 Skill\ngo-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Go 网络等待与下游慢响应",
+      "verified": true,
+      "text": "Go 网络等待与下游慢响应\n网络\n全链路已验收\n请求处理时间升高但 CPU 不一定饱和，需要区分本地热点、网络等待和下游变慢\n目标运行时\nGo\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n请求等待时间升高；CPU 不能单独解释延迟；停止注入后请求时延回落\n推荐采集\n系统指标采集Go pprof 采样\n关联 Skill\nnetwork-degradation-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Go 堆内存持续增长",
+      "verified": true,
+      "text": "Go 堆内存持续增长\n内存\n全链路已验收\nGo 服务分阶段保留堆对象，RSS 与堆内存同步增长，但总量被安全上限约束\n目标运行时\nGo\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nGo heap inuse 持续增长；RSS/PSS 同向上升；停止并触发回收后内存回落\n推荐采集\n系统指标采集进程内存剖析Go pprof 采样\n关联 Skill\ngo-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Go 同步文件写入",
+      "verified": true,
+      "text": "Go 同步文件写入\nI/O\n全链路已验收\nGo 服务反复执行固定临时文件写入与同步落盘，制造可恢复的块设备等待\n目标运行时\nGo\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n进程 write bytes 持续增长；同步写调用与 I/O 等待可见；停止后写入速率和等待回落\n推荐采集\n系统指标采集eBPF I/O 采样Go pprof 采样\n关联 Skill\nio-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Java 分配风暴与 GC 压力",
+      "verified": true,
+      "text": "Java 分配风暴与 GC 压力\nJava 运行时\n全链路已验收\nJava 服务持续制造短命对象，堆呈锯齿并可能出现 GC 与延迟抖动\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n分配量快速增长；GC 次数增加；堆使用呈回收锯齿而非单调泄漏\n推荐采集\n系统指标采集进程内存剖析JVM async-profiler 采样\n关联 Skill\ngc-pressure-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Java 锁竞争",
+      "verified": true,
+      "text": "Java 锁竞争\n锁竞争\n全链路已验收\n多个 Java 线程竞争同一临界区，吞吐下降且阻塞/上下文切换增加\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n锁等待次数增长；调用栈出现 ReentrantLock/park；CPU 热点不能单独解释吞吐\n推荐采集\n系统指标采集JVM async-profiler 采样perf CPU 采样\n关联 Skill\nlock-contention-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Java 下游依赖慢响应",
+      "verified": true,
+      "text": "Java 下游依赖慢响应\n下游依赖\n全链路已验收\nJava 请求线程等待受控下游响应，端到端延迟升高但本地 CPU 保持中低水平\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n请求等待时间升高；线程栈以等待/park 为主；本地 CPU 热点不足以解释延迟\n推荐采集\n系统指标采集JVM async-profiler 采样\n关联 Skill\ndependency-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Java 堆外内存持续增长",
+      "verified": true,
+      "text": "Java 堆外内存持续增长\n内存\n全链路已验收\nJava 服务分阶段保留 DirectByteBuffer，进程 RSS 上升但 Java 堆指标不能完整解释\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nRSS/PSS 持续增长；匿名内存占比增加；Java 堆增幅小于进程 RSS 增幅\n推荐采集\n系统指标采集进程内存剖析JVM async-profiler 采样\n关联 Skill\nmemory-growth-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "Java 同步文件写入",
+      "verified": true,
+      "text": "Java 同步文件写入\nI/O\n全链路已验收\nJava 服务使用 FileChannel 强制同步固定临时文件，写入延迟和 I/O 等待升高\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nFileChannel 写入累计增长；force/fsync 路径可见；CPU 与 GC 不能单独解释等待\n推荐采集\n系统指标采集eBPF I/O 采样JVM async-profiler 采样\n关联 Skill\nio-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "C++ 计算热点",
+      "verified": true,
+      "text": "C++ 计算热点\nC++\n全链路已验收\nC++ 进程出现稳定计算热点，需要区分业务循环、锁自旋和系统调用开销\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n目标 CPU 升高；perf 热点集中在固定函数；锁等待和 I/O 不占主导\n推荐采集\n系统指标采集perf CPU 采样连续性能采集\n关联 Skill\ncpp-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "C++ 互斥锁竞争",
+      "verified": true,
+      "text": "C++ 互斥锁竞争\n锁竞争\n全链路已验收\n多个 C++ 线程争抢同一互斥锁，等待时间和上下文切换上升\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n互斥锁等待累计增长；futex/锁调用栈集中；降低竞争后吞吐恢复\n推荐采集\n系统指标采集perf CPU 采样连续性能采集\n关联 Skill\nlock-contention-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "C++ 有界内存保留",
+      "verified": true,
+      "text": "C++ 有界内存保留\n内存\n全链路已验收\nC++ 进程分阶段保留匿名内存，RSS 上升但不会耗尽宿主机\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nRSS/PSS 持续增长；匿名映射占比增加；停止并释放后内存回落\n推荐采集\n系统指标采集进程内存剖析\n关联 Skill\nmemory-growth-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "C++ 同步文件写入",
+      "verified": true,
+      "text": "C++ 同步文件写入\nI/O\n全链路已验收\nC++ 服务对固定临时文件执行有界 write 与 fdatasync，制造可停止的磁盘等待\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n进程写入字节增长；write/fdatasync 系统调用路径可见；停止后 I/O wait 回落\n推荐采集\n系统指标采集eBPF I/O 采样perf CPU 采样\n关联 Skill\nio-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    },
+    {
+      "title": "C++ 下游响应变慢",
+      "verified": true,
+      "text": "C++ 下游响应变慢\n下游依赖\n全链路已验收\nC++ 请求线程等待固定回环下游，端到端延迟上升但本地 CPU 不一定饱和\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n回环请求延迟升高；socket 等待路径可见；本地计算热点不足以解释时延\n推荐采集\n系统指标采集perf CPU 采样连续性能采集\n关联 Skill\ndependency-latency-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "python.png",
+      "sha256": "0d73a626388f6acc5b1fedb15de7bda85bdf371972ae106302883259d87a3931"
+    },
+    {
+      "file": "go.png",
+      "sha256": "ce3d964c34dd6feb7bca91c3c1b42de3e66df61c5ee3e8d0664e31a31cba4154"
+    },
+    {
+      "file": "java.png",
+      "sha256": "0c32ace0a4e2dfc16aebe7017c136c6319f4ee27676d63063c0ed9537cf6e9fe"
+    },
+    {
+      "file": "cpp.png",
+      "sha256": "76243b17251b04af17498fba9348e308886f9a109e31a4cc74cab8d37e07ee54"
+    }
+  ],
+  "browser_exceptions": [],
+  "blocked_mutations": [],
+  "scope": "PUBLIC_READ_ONLY",
+  "passed": true
+}

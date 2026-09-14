@@ -74,6 +74,12 @@ function parseObject(value) {
 }
 
 export function detectProfileQualityIssue(task, artifacts = []) {
+  const rawError = [task?.error_message, task?.status_reason].filter(value => typeof value === "string").join(" ");
+  if (rawError.includes("NO_PERF_SAMPLES")) return {
+    code: "NO_PERF_SAMPLES",
+    message: "未获得 CPU 样本，无法生成火焰图；这不表示目标没有故障。",
+    action: "先核对 PID 和业务进程名，并确认采样窗口内有负载。若目标在等待或阻塞，应选择适用的运行时 wall/lock 采样或系统指标。采集失败后分析不会继续；直接重复相同采样可能仍无样本。",
+  };
   const profileArtifacts = artifacts.filter((item) => PROFILE_ARTIFACT_TYPES.has(item.artifact_type));
   const reason = parseObject(task?.status_reason)
     || parseObject(task?.analysis_error)
@@ -215,7 +221,6 @@ export default function TaskResult() {
       item.artifact_type === "flamegraph_json" ||
       item.artifact_type === "java_flamegraph_html"
   );
-  const javaHtmlArtifact = artifacts.find((item) => item.artifact_type === "java_flamegraph_html");
   const memoryArtifact = artifacts.find((item) => item.artifact_type === "memory_json");
   const pprofArtifact = artifacts.find((item) => item.artifact_type === "pprof_raw");
   const sysMetricsArtifact = artifacts.find((item) => item.artifact_type === "sys_metrics");
@@ -487,7 +492,9 @@ export default function TaskResult() {
               task.status === "FAILED"
                 ? task.collection_status === "COLLECTED"
                   ? `采集产物已成功保存，Analyzer 失败：${taskStatusReason || "未提供失败原因"}。可重放分析任务，无需重新采集。`
-                  : `采集失败原因：${taskStatusReason || "未提供失败原因"}`
+                  : taskStatusReason?.includes("NO_PERF_SAMPLES")
+                    ? "未获得 CPU 样本，无法生成火焰图。请核对目标业务进程及采样期间的负载；等待或阻塞问题需要其他取证方式。下方保留原始错误。"
+                    : `采集失败原因：${taskStatusReason || "未提供失败原因"}`
                 : `${taskCollector.description}${taskStatusReason ? ` 当前状态：${taskStatusReason}` : ""}`
             }
             action={
@@ -586,7 +593,7 @@ export default function TaskResult() {
                     height={FLAMEGRAPH_HEIGHT}
                   />
                 ) : analysis.hasJavaHtml ? (
-                  <JavaFlameViewer taskId={taskId} artifact={javaHtmlArtifact} />
+                  <FlamegraphViewer ref={flameRef} taskId={taskId} artifactType="java_flamegraph_html" height={FLAMEGRAPH_HEIGHT} />
                 ) : analysis.svg ? (
                   <iframe
                     srcDoc={analysis.svg}
@@ -785,13 +792,6 @@ export default function TaskResult() {
         </Card>
       )}
 
-      {/* Java 火焰图 HTML */}
-      {javaHtmlArtifact && (
-        <Card title="Java 火焰图" size="small">
-          <JavaFlameViewer taskId={taskId} artifact={javaHtmlArtifact} />
-        </Card>
-      )}
-
       {/* eBPF IO 延迟分布 */}
       {ebpfArtifact && hasFlameOrTop && (
         <Card title="eBPF IO 延迟分布" size="small">
@@ -833,40 +833,6 @@ export default function TaskResult() {
         action={<Button onClick={() => navigate("/ai-diagnosis")}>进入 AI 诊断</Button>}
       />
     </Space>
-  );
-}
-
-// ── 辅助组件：Java 火焰图 HTML Viewer ────────────────────────
-
-function JavaFlameViewer({ taskId, artifact }) {
-  const [html, setHtml] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await getTaskArtifactContent(taskId, "java_flamegraph_html");
-        if (!cancelled) setHtml(data?.text || "");
-      } catch {
-        if (!cancelled) setHtml("");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [taskId]);
-
-  if (loading) return <Skeleton.Input active block style={{ height: 400, borderRadius: 8 }} />;
-  if (!html) return <Empty description="无法加载 Java 火焰图" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-
-  return (
-    <iframe
-      srcDoc={html}
-      sandbox=""
-      title="Java 火焰图"
-      style={{ width: "100%", height: 420, border: "none", borderRadius: 6 }}
-    />
   );
 }
 

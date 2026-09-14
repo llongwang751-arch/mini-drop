@@ -10,6 +10,7 @@ import {
   rollbackDiagnosticSkill,
 } from "../api/client";
 import "./SkillEvolutionPanel.css";
+import { validateSkillBenchmark } from "../utils/skillBenchmark";
 
 const { Paragraph, Text } = Typography;
 
@@ -148,7 +149,7 @@ const CATEGORY_LABEL = {
   NETWORK_DEGRADATION: "网络劣化",
 };
 
-export default function SkillEvolutionPanel() {
+export default function SkillEvolutionPanel({ onOpenFaults }) {
   const [skills, setSkills] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
@@ -181,9 +182,7 @@ export default function SkillEvolutionPanel() {
         return response.json();
       })
       .then((report) => {
-        if (report?.schema !== "mini-drop.skill-reuse-report.v2") {
-          throw new Error("报告 schema 不受支持");
-        }
+        validateSkillBenchmark(report);
         if (active) setBenchmark(report);
       })
       .catch((error) => {
@@ -369,8 +368,9 @@ export default function SkillEvolutionPanel() {
             </div>
             <div className="skill-result-metric skill-result-metric-muted">
               <Text type="secondary">真实根因准确率 / 诊断耗时</Text>
-              <b>需 Linux 实机诊断验证（Campaign）</b>
-              <span>离线路由报告明确不覆盖这两项</span>
+              <b>本离线路由报告不统计</b>
+              <span>项目已有受控真机故障验收；结果请到故障广场查看</span>
+              {onOpenFaults && <Button type="link" onClick={onOpenFaults}>查看真机故障与验收证据</Button>}
             </div>
           </div>
           <div className="skill-proof-rounds">
@@ -393,7 +393,7 @@ export default function SkillEvolutionPanel() {
           </div>
         </Card>}
         <Text className="skill-benchmark-boundary" type="secondary">
-          当前数字只表示 Skill 路线记忆的选择与拒绝能力。真实根因准确率和实际耗时仍需在 Linux 实机故障验证（Campaign）中，用基线、故障、恢复三段快照复核。
+          当前数字只表示 Skill 路线的选择与拒绝能力。已有真机验收需结合每次运行的基线、故障、恢复证据阅读；受控案例通过率不代表线上根因准确率，独立大样本效果与耗时对照仍待评估。
         </Text>
       </Card>
       <div className="skill-plaza-toolbar">

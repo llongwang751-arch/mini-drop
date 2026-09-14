@@ -11,6 +11,18 @@ import axios from "axios";
 
 const API_KEY_STORAGE_KEY = "mini-drop-api-key";
 
+export function listManagedServices() {
+  return api.get("/v2/services");
+}
+
+export function startManagedServiceDiagnosis(serviceId, payload) {
+  return api.post(`/v2/services/${encodeURIComponent(serviceId)}/diagnoses`, payload);
+}
+
+export function getBusinessAcceptance() {
+  return api.get("/v2/showcases/business-acceptance");
+}
+
 const api = axios.create({
   baseURL: "/api",
   timeout: 30000,

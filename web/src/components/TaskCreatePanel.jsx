@@ -86,11 +86,14 @@ export default function TaskCreatePanel({ onTaskCreated }) {
       return;
     }
     setPid(null);
+    setProcesses([]);
+    let cancelled = false;
     setProcessLoading(true);
     listTopProcesses(agentId, 30)
-      .then((items) => setProcesses(items || []))
-      .catch(() => setProcesses([]))
-      .finally(() => setProcessLoading(false));
+      .then((items) => { if (!cancelled) setProcesses(items || []); })
+      .catch(() => { if (!cancelled) setProcesses([]); })
+      .finally(() => { if (!cancelled) setProcessLoading(false); });
+    return () => { cancelled = true; };
   }, [agentId]);
 
   useEffect(() => {
@@ -109,7 +112,7 @@ export default function TaskCreatePanel({ onTaskCreated }) {
   }
 
   async function submit() {
-    if (!agentId || !pid) {
+    if (!agentId || !pid || processLoading || !processes.some(item => item.pid === pid)) {
       setError("请选择在线 Agent 和目标进程");
       return;
     }
@@ -173,7 +176,7 @@ export default function TaskCreatePanel({ onTaskCreated }) {
           />
         </Col>
         <Col xs={24} md={12} lg={6}>
-          <Typography.Text type="secondary">可信进程快照</Typography.Text>
+          <Typography.Text type="secondary">目标进程（Agent 实时发现）</Typography.Text>
           <Select
             showSearch
             loading={processLoading}
@@ -183,7 +186,7 @@ export default function TaskCreatePanel({ onTaskCreated }) {
             optionFilterProp="label"
             options={processes.map((item) => ({
               value: item.pid,
-              label: `${item.pid} · ${item.comm || item.service_hint || "unknown"}`,
+              label: `${item.pid} · ${item.comm || "进程名未知"}${item.service_hint ? ` · ${item.service_hint}` : ""}`,
             }))}
           />
         </Col>
@@ -207,6 +210,9 @@ export default function TaskCreatePanel({ onTaskCreated }) {
           <Button type="primary" block icon={<FireOutlined />} loading={submitting} onClick={submit}>开始采集</Button>
         </Col>
       </Row>
+      <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
+        请核对进程名与所属业务后采集。列表来自 Agent 的进程快照，“可信”指来源可校验，不表示它就是故障进程。CPU 火焰图需要目标在采样期间有执行活动；睡眠或等待中的进程可能没有 CPU 样本。
+      </Typography.Paragraph>
       {collector === "continuous_perf" && (
         <>
           <Alert

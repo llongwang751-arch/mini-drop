@@ -14,12 +14,16 @@ from __future__ import annotations
 
 import argparse
 import base64
+from datetime import datetime, timezone
+import hashlib
 import json
 import os
 import shutil
 import subprocess
 import tempfile
 import time
+import threading
+from queue import Queue, Empty
 from pathlib import Path
 from typing import Any
 
@@ -52,23 +56,67 @@ class Cdp:
     """Small synchronous Chrome DevTools Protocol client."""
 
     def __init__(self, ws_url: str) -> None:
-        self.socket = websocket.create_connection(ws_url, timeout=20, suppress_origin=True)
+        self.socket = websocket.create_connection(ws_url, timeout=5, suppress_origin=True)
         self.sequence = 0
+        self.exceptions = []
+        self.blocked_mutations = []
+        self.pending = {}
+        self.lock = threading.Lock()
+        self.running = True
+        threading.Thread(target=self._receive, daemon=True).start()
+
+    def _send(self, method, params, inbox=None):
+        with self.lock:
+            self.sequence += 1
+            request_id = self.sequence
+            if inbox is not None:
+                self.pending[request_id] = inbox
+            self.socket.send(json.dumps({"id":request_id,"method":method,"params":params}))
+        return request_id
+
+    def _receive(self):
+        from urllib.parse import urlparse
+        while self.running:
+            try:
+                raw = self.socket.recv()
+                if not raw:
+                    break
+                payload = json.loads(raw)
+            except websocket.WebSocketTimeoutException:
+                continue
+            except (websocket.WebSocketConnectionClosedException, OSError):
+                break
+            if payload.get("method") == "Runtime.exceptionThrown":
+                self.exceptions.append(payload["params"]["exceptionDetails"].get("text"))
+            if payload.get("method") == "Fetch.requestPaused":
+                item = payload["params"]
+                request = item["request"]
+                request_path = urlparse(request["url"]).path
+                allowed = request["method"] in ("GET", "HEAD", "OPTIONS") or (
+                    request["method"] == "POST" and request_path == "/api/auth/session")
+                if not allowed:
+                    self.blocked_mutations.append({"method":request["method"],"path":request_path})
+                self._send("Fetch.continueRequest" if allowed else "Fetch.failRequest",
+                    {"requestId":item["requestId"], **({} if allowed else {"errorReason":"BlockedByClient"})})
+            inbox = self.pending.pop(payload.get("id"), None)
+            if inbox is not None:
+                inbox.put(payload)
 
     def close(self) -> None:
+        self.running = False
         self.socket.close()
 
     def call(self, method: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-        self.sequence += 1
-        request_id = self.sequence
-        self.socket.send(json.dumps({"id": request_id, "method": method, "params": params or {}}))
-        while True:
-            payload = json.loads(self.socket.recv())
-            if payload.get("id") != request_id:
-                continue
-            if "error" in payload:
-                raise RuntimeError(f"CDP {method} 失败：{payload['error']}")
-            return payload.get("result", {})
+        inbox = Queue()
+        request_id = self._send(method, params or {}, inbox)
+        try:
+            payload = inbox.get(timeout=45)
+        except Empty:
+            self.pending.pop(request_id, None)
+            raise RuntimeError(f"CDP timed out: {method}") from None
+        if "error" in payload:
+            raise RuntimeError(f"CDP {method} failed: {payload['error']}")
+        return payload.get("result", {})
 
     def evaluate(self, expression: str) -> Any:
         result = self.call(
@@ -107,7 +155,7 @@ def click_text(cdp: Cdp, label: str, *, starts_with: bool = False) -> bool:
     (() => {{
       const label = {label_json};
       const nodes = [...document.querySelectorAll(
-        'button, a, [role="tab"], .ant-segmented-item, .ant-segmented-item-label'
+        'button, a, summary, [role="tab"], .ant-segmented-item, .ant-segmented-item-label'
       )];
       const target = nodes.find((node) => {{
         const text = (node.innerText || node.textContent || '').replace(/\\s+/g, ' ').trim();
@@ -139,7 +187,20 @@ def capture(cdp: Cdp, output: Path, *, preserve_scroll: bool = False) -> None:
         {"format": "png", "fromSurface": True, "captureBeyondViewport": False},
     )
     output.write_bytes(base64.b64decode(result["data"]))
-    print(output.relative_to(ROOT).as_posix())
+    inventory = cdp.evaluate("""(() => {
+      const visible = e => !!e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden';
+      return { title: document.title, protocol: location.protocol, url: location.pathname + location.search,
+        text: document.body.innerText,
+        controls: [...document.querySelectorAll('button, a, input, textarea, select, [role="tab"], summary')]
+          .filter(visible).map(e => ({tag:e.tagName.toLowerCase(), type:e.type || '',
+            label:e.getAttribute('aria-label') || e.innerText || e.title || '',
+            placeholder:e.getAttribute('placeholder') || '', disabled:!!e.disabled})) };
+    })()""")
+    inventory.update({"captured_at": datetime.now(timezone.utc).isoformat(),
+        "screenshot": output.name, "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
+        "scope": "LOCAL_DOCUMENT" if inventory.get("protocol") == "file:" else "PUBLIC_READ_ONLY_EXISTING_DATA"})
+    output.with_suffix(".json").write_text(json.dumps(inventory, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(output.resolve().relative_to(ROOT).as_posix())
 
 
 def capture_tour(cdp: Cdp, base_url: str, output: Path) -> None:
@@ -210,12 +271,73 @@ def capture_tour(cdp: Cdp, base_url: str, output: Path) -> None:
     capture(cdp, output / "12-audit-log.png")
 
 
+def capture_deep_tour(cdp: Cdp, base_url: str, output: Path, diagnosis_id: str) -> None:
+    from urllib.parse import quote
+
+    def close_dialog():
+        cdp.evaluate("[...document.querySelectorAll('.ant-modal-close,.ant-drawer-close')].filter(e=>e.getClientRects().length).at(-1)?.click()")
+        time.sleep(0.5)
+
+    navigate(cdp, f"{base_url}/ai-diagnosis")
+    if click_text(cdp, "诊断说明"):
+        capture(cdp, output / "13-diagnosis-help.png")
+        close_dialog()
+    cdp.call("Emulation.setDeviceMetricsOverride", {"width":390,"height":844,"deviceScaleFactor":1,"mobile":True})
+    capture(cdp, output / "14-mobile-workbench.png")
+    cdp.call("Emulation.setDeviceMetricsOverride", {"width":1600,"height":1000,"deviceScaleFactor":1,"mobile":False})
+    navigate(cdp, f"{base_url}/ai-diagnosis?case={quote('drop_insight_v2:' + diagnosis_id)}")
+    time.sleep(2)
+    capture(cdp, output / "03-selected-diagnosis.png")
+    for key, selector in [("stage","阶段"),("plan","规划假设"),("rag","知识检索"),("tools","工具"),
+                          ("evidence","证据"),("memory","记忆"),("evaluation","工具成功率"),("lats","LATS")]:
+        opened = cdp.evaluate("""(() => {
+          const fragment = %s;
+          const e = [...document.querySelectorAll('.agent-cockpit button')]
+            .find(e=>(e.getAttribute('aria-label') || e.innerText).includes(fragment));
+          if(!e) return false; e.click(); return true;
+        })()""" % json.dumps(selector))
+        if opened:
+            time.sleep(0.8)
+            capture(cdp, output / f"15-cockpit-{key}.png")
+            if key == "memory" and click_text(cdp, "跨诊断偏好", starts_with=True):
+                capture(cdp, output / "16-operator-memory.png")
+            close_dialog()
+    if click_text(cdp, "探索树"):
+        capture(cdp, output / "04-dynamic-exploration-tree.png")
+        if click_text(cdp, "查看搜索预算与评分"):
+            capture(cdp, output / "17-tree-budget.png")
+        cdp.evaluate("document.querySelector('button[aria-label=\"全屏查看探索树\"]')?.click()")
+        time.sleep(0.7)
+        capture(cdp, output / "18-tree-fullscreen.png")
+        close_dialog()
+        if click_text(cdp, "轮次路径"):
+            capture(cdp, output / "19-tree-rounds.png")
+    click_text(cdp, "对话")
+    cdp.evaluate("document.querySelector('.diagnosis-composer')?.scrollIntoView({block:'center'})")
+    capture(cdp, output / "20-multiturn-composer.png", preserve_scroll=True)
+    click_text(cdp, "验证与 A/B")
+    click_text(cdp, "Skill A/B")
+    if cdp.evaluate("!!document.querySelector('.skill-experiment-card')"):
+        cdp.evaluate("document.querySelector('.skill-experiment-card').scrollIntoView({block:'start'})")
+        capture(cdp, output / "21-random-experiment.png", preserve_scroll=True)
+    navigate(cdp, f"{base_url}/agent/control-interview-demo-agent")
+    capture(cdp, output / "22-agent-detail.png")
+    navigate(cdp, f"{base_url}/task/task_20260908_111407_2481eb")
+    cdp.evaluate("document.querySelector('iframe')?.scrollIntoView({block:'center'})")
+    capture(cdp, output / "23-task-visualization.png", preserve_scroll=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="抓取 Mini-Drop 教学文档截图")
     parser.add_argument("--base-url", default=DEFAULT_URL)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--browser", type=Path)
     parser.add_argument("--port", type=int, default=9339)
+    parser.add_argument("--deep", action="store_true")
+    parser.add_argument("--deep-only", action="store_true")
+    parser.add_argument("--task-only", action="store_true")
+    parser.add_argument("--task-id", default="task_20260908_095029_7f7b03")
+    parser.add_argument("--diagnosis-id", default="insight_c23e8c442c2343f1bd10cb39bb8666af")
     args = parser.parse_args()
 
     api_key = os.environ.get("MINI_DROP_SCREENSHOT_API_KEY", "").strip()
@@ -253,6 +375,7 @@ def main() -> int:
             cdp = Cdp(ws_url)
             cdp.call("Page.enable")
             cdp.call("Runtime.enable")
+            cdp.call("Fetch.enable", {"patterns":[{"urlPattern":"*/api/*", "requestStage":"Request"}]})
             cdp.call("Security.setIgnoreCertificateErrors", {"ignore": True})
             cdp.call(
                 "Emulation.setDeviceMetricsOverride",
@@ -264,7 +387,20 @@ def main() -> int:
                 + "); } catch (_) {}"
             )
             cdp.call("Page.addScriptToEvaluateOnNewDocument", {"source": init_script})
-            capture_tour(cdp, base_url, output)
+            if not args.deep_only and not args.task_only:
+                capture_tour(cdp, base_url, output)
+            if args.deep or args.deep_only:
+                capture_deep_tour(cdp, base_url, output, args.diagnosis_id)
+            if args.task_only:
+                navigate(cdp, f"{base_url}/task/{args.task_id}")
+                time.sleep(2)
+                capture(cdp, output / "24-python-task-summary.png")
+                cdp.evaluate("window.scrollTo(0, 700)")
+                capture(cdp, output / "25-python-flamegraph.png", preserve_scroll=True)
+            manifest = {"captured_at":datetime.now(timezone.utc).isoformat(), "base_url":base_url,
+                "scope":"PUBLIC_READ_ONLY_EXISTING_DATA", "screenshots":sorted(p.name for p in output.glob('*.png')),
+                "browser_exceptions":cdp.exceptions, "blocked_mutations":cdp.blocked_mutations}
+            (output / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         finally:
             if cdp is not None:
                 cdp.close()

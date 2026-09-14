@@ -23,6 +23,30 @@ def _hypothesis(expected=None, falsification=None) -> DropInsightHypothesisModel
     )
 
 
+def test_native_wrapper_cannot_counter_lock_or_match_generic_criteria():
+    for schema in ("perf_analysis.v1", "continuous_perf_analysis.v2"):
+        metadata = {"schema_version": schema, "top_functions": [
+            {"name": "[go-hotspot]", "percent": 100, "self_percent": 99.7},
+            {"name": "go-hotspot", "percent": 100, "self_percent": 0},
+        ]}
+        lock = _hypothesis(expected=["锁等待持续"], falsification=["存在强计算热点"])
+        lock.statement = "目标进程存在锁竞争"
+        generic = _hypothesis(expected=["go-hotspot 的热点函数可定位"])
+        generic.statement = "目标运行路径需要定位"
+        assert _compute_hypothesis_predicate(lock, metadata) is None
+        assert _compute_hypothesis_predicate(generic, metadata) is None
+
+
+def test_native_inclusive_parent_is_not_a_dominant_lock_counter():
+    hypothesis = _hypothesis(expected=["锁等待持续"], falsification=["计算热点主导"])
+    hypothesis.statement = "目标进程存在锁竞争"
+    metadata = {"schema_version": "perf_analysis.v1", "top_functions": [
+        {"name": "request_dispatch", "percent": 100, "self_percent": 1},
+        {"name": "[unresolved]", "percent": 99, "self_percent": 99},
+    ]}
+    assert _compute_hypothesis_predicate(hypothesis, metadata) is None
+
+
 def test_predicate_support_when_top_function_matches_expected():
     hypothesis = _hypothesis(
         expected=["perf samples concentrate in calculate_price"],
@@ -60,6 +84,17 @@ def test_predicate_none_without_claimable_signal():
         {"top_functions": [{"name": "readdir", "percent": 40.0}]},
     )
     assert result is None
+
+
+def test_host_block_io_is_neutral_without_process_attribution():
+    hypothesis = _hypothesis(expected=["I/O 延迟升高"], falsification=["I/O 正常"])
+    hypothesis.statement = "目标进程因磁盘阻塞导致队列堆积"
+    result = _compute_hypothesis_predicate(hypothesis, {
+        "scope_semantics": "HOST_BLOCK_DEVICE", "target_attributed": False,
+        "signals": {"io_latency": {"detected": True, "reason": "host I/O tail", "metrics": {"latency_p95_us": 2000}}},
+    })
+    assert result["outcome"] == "NEUTRAL"
+    assert result["criterion_indexes"] == []
 
 
 def test_predicate_none_without_top_functions():
@@ -260,6 +295,31 @@ def test_predicate_counters_gil_contention_with_single_dominant_hotspot():
     )
     assert result is not None
     assert result["outcome"] == "COUNTER"
+
+
+def test_unresolved_runtime_container_cannot_counter_kernel_hypothesis():
+    hypothesis = _hypothesis(
+        expected=["CPU 样本稳定集中在可归属的调用路径或等待路径"],
+        falsification=["调用栈样本分散，未出现稳定热点或等待路径"],
+    )
+    hypothesis.statement = "目标进程可能存在原生调用栈热点、锁竞争或系统调用开销"
+    result = _compute_hypothesis_predicate(hypothesis, {
+        "schema_version": "perf_analysis.v1",
+        "top_functions": [{"name": "[libpython3.12.so.1.0]", "percent": 100.0}],
+    })
+    assert result is None or result["outcome"] == "NEUTRAL"
+
+
+def test_continuous_perf_zero_self_process_wrapper_is_not_a_root_or_counter():
+    metadata = {"schema_version": "continuous_perf_analysis.v2", "top_functions": [
+        {"name": "[go-hotspot]", "percent": 100, "self_percent": 99.7},
+        {"name": "go-hotspot", "percent": 100, "self_percent": 0},
+    ]}
+    for statement in ("目标用户态热点函数主导 CPU", "目标进程可能存在系统调用开销"):
+        hypothesis = _hypothesis(expected=["CPU 样本集中在可归属的调用路径"], falsification=["未发现稳定热点"])
+        hypothesis.statement = statement
+        result = _compute_hypothesis_predicate(hypothesis, metadata)
+        assert result is None or result["outcome"] == "NEUTRAL"
 
 
 def test_go_pprof_supports_source_mapped_application_hotspot():
@@ -486,6 +546,23 @@ def test_perf_runtime_container_is_not_business_source_hotspot():
     )
 
     assert result is None
+
+
+def test_unresolved_native_leaf_does_not_promote_process_wrapper_to_root_cause():
+    hypothesis = _hypothesis(
+        expected=["CPU 样本集中在少数热点函数"],
+        falsification=["CPU 样本均匀分布"],
+    )
+    hypothesis.statement = "目标进程业务函数 CPU 热点"
+    result = _compute_hypothesis_predicate(hypothesis, {
+        "schema_version": "perf_analysis.v1",
+        "top_functions": [
+            {"name": "mini-drop-java-", "percent": 100, "self_percent": 0},
+            {"name": "[perf-1322033.map]", "percent": 100, "self_percent": 99},
+            {"name": "[unknown]", "percent": 99, "self_percent": 99},
+        ],
+    })
+    assert result is None or result["outcome"] != "SUPPORT"
 
 
 def test_native_perf_uses_leaf_self_samples_for_disjunctive_cpu_hotspot():

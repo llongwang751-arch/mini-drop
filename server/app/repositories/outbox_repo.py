@@ -76,9 +76,9 @@ class OutboxMixin:
     def mark_outbox_published(
         self, message_id: str, worker_id: str, *, now: datetime | None = None
     ) -> None:
-        now = now or now_utc()
         with self._write_session() as session:
-            message = session.get(OutboxMessageModel, message_id)
+            message = session.get(OutboxMessageModel, message_id, with_for_update=True)
+            now = now or now_utc()
             if message is None or message.status == "PUBLISHED":
                 return
             if not self._owned_outbox_claim(message, worker_id, now):
@@ -99,9 +99,9 @@ class OutboxMixin:
         now: datetime | None = None,
     ) -> str:
         """Record a failure only while the caller still owns a live lease."""
-        now = now or now_utc()
         with self._write_session() as session:
-            message = session.get(OutboxMessageModel, message_id)
+            message = session.get(OutboxMessageModel, message_id, with_for_update=True)
+            now = now or now_utc()
             if message is None:
                 return "UNKNOWN"
             if message.status == "PUBLISHED":

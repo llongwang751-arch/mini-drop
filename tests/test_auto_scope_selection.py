@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pytest
 
 from server.app.database import init_db, new_session, reset_engine
-from server.app.drop_insight.schemas import PreviewToolCallRequest
+from server.app.drop_insight.schemas import PreviewToolCallRequest, CreateDiagnosisRequestV2
 from server.app.drop_insight import service
 from server.app.drop_insight.service import (
     _auto_scope_service_filter,
@@ -42,6 +42,27 @@ def _candidate(binding_id: str, *, process: str, capabilities: list[str]) -> dic
         "collector_capabilities": capabilities,
         "eligible": True,
     }
+
+
+def test_background_scope_respects_explicit_manual_selection(monkeypatch):
+    calls = []
+    monkeypatch.setattr(service, "_auto_resolve_diagnosis_scope", lambda *args: calls.append(args))
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="知识库 Python 查询慢", mode="AUTONOMOUS", auto_scope=False))
+    assert diagnosis.status == "NEEDS_CLARIFICATION"
+    assert service.resolve_diagnosis_scope_autonomously(diagnosis.id) is False
+    assert calls == []
+    assert service.get_diagnosis(diagnosis.id).target_json.get("process_binding") is None
+
+
+def test_background_scope_retries_when_user_enabled_discovery(monkeypatch):
+    calls = []
+    monkeypatch.setattr(service, "_auto_resolve_diagnosis_scope", lambda *args: calls.append(args))
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="知识库 Python 查询慢", mode="AUTONOMOUS", auto_scope=True))
+    assert len(calls) == 1
+    service.resolve_diagnosis_scope_autonomously(diagnosis.id)
+    assert len(calls) == 2
 
 
 def test_ambiguous_autonomous_scope_uses_capability_aware_safe_fallback() -> None:
@@ -125,6 +146,44 @@ def test_fault_plaza_go_service_name_selects_the_go_runtime_route() -> None:
     )
 
 
+def test_java_runtime_probe_is_not_starved_by_generic_replan_registry_order():
+    from server.app.drop_insight.service import _runtime_preferred_tools
+    diagnosis = SimpleNamespace(target_json={
+        "process_binding": {"executable_identity": "java"},
+    })
+    tools = ["start_perf_profile", "start_continuous_profile", "start_ebpf_io_profile", "start_jvm_profile"]
+    assert _runtime_preferred_tools(diagnosis, tools) == [
+        "start_jvm_profile", "start_perf_profile", "start_continuous_profile", "start_ebpf_io_profile",
+    ]
+    assert _runtime_preferred_tools(diagnosis, tools[:2]) == tools[:2]
+
+
+def test_named_service_followed_by_symptom_cannot_select_diagnosis_worker(monkeypatch):
+    discovery = {"candidates": [
+        _candidate("worker", process="python", capabilities=["pyspy", "sys_metrics"]),
+        _candidate("target", process="python-hotspot", capabilities=["pyspy", "sys_metrics"]),
+    ]}
+    calls = []
+    def must_not_rank(**kwargs):
+        calls.append(kwargs)
+        raise AssertionError("explicit eligible target must bind before model ranking")
+    monkeypatch.setattr("server.app.ai_provider.get_ai_settings", lambda: SimpleNamespace(nlp_enabled=True, api_key="test-only"))
+    monkeypatch.setattr("server.app.drop_insight.diagnosis_agent.select_scope_with_diagnosis_agent", must_not_rank)
+    selected = _select_auto_scope_candidate(
+        "诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降",
+        discovery, diagnosis_id="strict-load-saturation")
+    assert selected["binding_id"] == "target"
+    assert calls == []
+    assert _auto_scope_service_filter(
+        "诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降"
+    ) == "python-hotspot"
+
+
+def test_absent_explicit_process_does_not_select_only_unrelated_candidate():
+    discovery = {"candidates": [_candidate("worker", process="python", capabilities=["sys_metrics"])]}
+    assert _select_auto_scope_candidate("检查进程名为 java 的服务", discovery) is None
+
+
 def test_java_process_query_does_not_create_an_invalid_service_filter() -> None:
     assert (
         _auto_scope_service_filter(
@@ -175,7 +234,7 @@ def test_authoritative_executable_runtime_wins_over_service_label() -> None:
     assert _runtime_tool_is_compatible(diagnosis, "collect_go_profile")
 
 
-def test_explicit_go_query_can_narrow_a_generically_named_binary() -> None:
+def test_prose_does_not_authorize_runtime_attach_for_unknown_binary() -> None:
     diagnosis = SimpleNamespace(
         query="请用 Golang pprof 检查 orders 的 CPU",
         target_json={
@@ -184,7 +243,8 @@ def test_explicit_go_query_can_narrow_a_generically_named_binary() -> None:
         },
     )
 
-    assert _diagnosis_runtime_family(diagnosis) == "GO"
+    assert _diagnosis_runtime_family(diagnosis) is None
+    assert not _runtime_tool_is_compatible(diagnosis, "collect_go_profile")
 
 
 def _seed_bound_go_diagnosis() -> tuple[str, str, int]:

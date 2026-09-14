@@ -82,6 +82,9 @@ target_link_libraries(mini-drop-native-agent PRIVATE
 )
 
 enable_testing()
+add_executable(self-metrics-test tests/self_metrics_test.cpp)
+target_include_directories(self-metrics-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_test(NAME self-metrics-test COMMAND self-metrics-test)
 add_executable(result-outbox-test
   tests/result_outbox_test.cpp
   src/result_outbox.cpp
@@ -105,3 +108,13 @@ target_compile_options(process-snapshot-test PRIVATE
   -Wall -Wextra -Wpedantic
 )
 add_test(NAME process-snapshot-test COMMAND process-snapshot-test)
+
+add_executable(perf-samples-test tests/perf_samples_test.cpp)
+target_include_directories(perf-samples-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(perf-samples-test PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME perf-samples-test COMMAND perf-samples-test)
+
+add_executable(runtime-guard-test tests/runtime_guard_test.cpp)
+target_include_directories(runtime-guard-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(runtime-guard-test PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME runtime-guard-test COMMAND runtime-guard-test)

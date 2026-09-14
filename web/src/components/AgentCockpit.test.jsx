@@ -234,7 +234,7 @@ describe("AgentCockpit", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "查看评测" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看工具成功率" }));
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Agent 评测与 Skill 演进")).toBeInTheDocument();
     expect(within(dialog).getByText("1/2 次已结束调用成功")).toBeInTheDocument();
@@ -250,7 +250,7 @@ describe("AgentCockpit", () => {
     render(<AgentCockpit detail={{ ...detail, agent_runtime: undefined }} resources={{}} />);
 
     expect(screen.getByText("运行框架信息尚未随本次诊断返回")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "查看评测" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看工具成功率" }));
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getAllByText("暂无").length).toBeGreaterThan(0);
     expect(within(dialog).getByText("暂无已结束工具样本")).toBeInTheDocument();

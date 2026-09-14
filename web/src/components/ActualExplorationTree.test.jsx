@@ -3,6 +3,17 @@ import { describe, expect, it, vi } from "vitest";
 import ActualExplorationTree from "./ActualExplorationTree";
 
 describe("ActualExplorationTree", () => {
+  it("uses stable tool IDs and distinguishes failed probes from counter-evidence", () => {
+    render(<ActualExplorationTree tree={{ nodes: [
+      { id: "tool:1", kind: "tool", title: "1. 采集系统基线", tool: "collect_sys_metrics", status: "COMPLETED", state: "visited" },
+      { id: "tool:2", kind: "tool", title: "2. CPU", tool: "start_perf_profile", status: "FAILED", state: "refuted" },
+    ] }} />);
+    expect(screen.getByText("采集系统指标")).toBeInTheDocument();
+    expect(screen.queryByText("未知诊断工具")).not.toBeInTheDocument();
+    const failed = screen.getByRole("treeitem", { name: /采集 CPU 火焰图/ });
+    expect(failed).toHaveClass("tree-branch-unavailable");
+    expect(failed).toHaveTextContent("执行失败");
+  });
   it("shows the route actually explored, including pruning and direction changes", () => {
     render(
       <ActualExplorationTree
@@ -50,8 +61,8 @@ describe("ActualExplorationTree", () => {
       element.classList.contains("actual-tree-switch")
       && element.textContent.includes("CPU → I/O")
     ))).toBeInTheDocument();
-    expect(screen.getAllByText("根因路径").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("反证剪枝").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("报告采用路径").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("已被反证").length).toBeGreaterThan(0);
   });
 
   it("defaults to the parent-child tree, while keeping the round path as an auxiliary view", () => {

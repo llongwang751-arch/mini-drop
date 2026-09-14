@@ -1,10 +1,13 @@
-"""Run strict live Diagnosis closure across the allow-listed Fault Plaza.
+"""Run historical live Diagnosis lineage checks across the Fault Plaza.
 
 This is deliberately different from the 540-case deterministic benchmark.
 Every selected row starts a real bounded fault and requires fresh
 Diagnosis -> Task/Attempt/Artifact -> Evidence -> Report lineage before the
 fault is stopped.  A start/stop-only smoke test is recorded as a failure, not
 silently promoted to live diagnosis evidence.
+
+This legacy runner does NOT verify concrete root causes or measured recovery.
+For strict scenario acceptance use run_fault_plaza_strict_acceptance.py.
 """
 
 from __future__ import annotations
@@ -177,6 +180,7 @@ def run_scenario(
         "diagnosis_chain_verified": False,
         "cleanup_verified": False,
         "passed": False,
+        "acceptance_scope": "LINEAGE_AND_CLEANUP_ONLY",
     }
     fault_started = False
     primary_error: Exception | None = None

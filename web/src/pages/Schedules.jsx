@@ -15,7 +15,7 @@ import {
   Tag,
   message,
 } from "antd";
-import { PlusOutlined, PlayCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import { PlusOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import {
   createSchedule,
   deleteSchedule,

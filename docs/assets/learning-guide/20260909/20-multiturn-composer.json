@@ -1,0 +1,228 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis?case=drop_insight_v2%3Ainsight_c23e8c442c2343f1bd10cb39bb8666af",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 智能诊断\n当前诊断 · 第 4 轮\n先看根因、可信度与建议；需要时再展开完整调查过程。\n实时事件已连接\n树版本 87\n诊断说明\n诊断案例 226\n新建诊断\nAgent 工作台\n验证与 A/B\n当前诊断\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\n诊断完成\n自主\n人工审批\n对话\n探索树\n分屏\n复杂案例回放 · 4 轮\n理解问题\n确认范围\n生成假设\n决策树取证\n证据裁决\n6结论验证\n阶段性根因\n本会话报告摘要\n\nJava 对象分配热点定位在业务调用路径 Hotspot.lambda$startWorkers$1，占有效样本的 100.0%，主要分配对象为 byte[]。该证据确认了集中对象分配路径，但没有独立证明 GC 暂停或锁竞争是主瓶颈。\n\n引用支持证据 1 条\n引用反证 0 条\n完整报告与证据可在下方调查记录中查看\n\n尚未确认：缺少独立反证或对照证据；结论已完成，但仍应在修复复测中补充独立验证。\n\n下一步：在相同负载下执行修复前后复测，确认热点和副作用变化\n\nAgent 运行驾驶舱\n运行时详情\n当前阶段 / 轮次\n第 4 轮\n规划假设\n11 个\n主动知识检索\n5 次\nLATS 搜索\n搜索结束\n工具调用\n4 次\n证据\n1/6\n记忆\n1 条\n工具成功率\n75%\n我\n诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。\nAI 诊断助手\n第 1 轮\n已理解问题并建立首轮计划\n本轮已裁决\n本轮主假设\nJava 服务延迟抖动与 GC 压力相关，系统层面表现为 CPU 或 RSS 在抖动窗口内同步上升\n系统指标采集\n2 条准入证据\n1 个报告版本\nAI 诊断助手\n第 2 轮\n已根据新输入修订调查计划\n本轮已裁决\n本轮主假设\n第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力\ncollect_memory_profile\nCPU 火焰图采集\n2 条准入证据\n1 个报告版本\nAI 诊断助手\n第 3 轮\n已根据新输入修订调查计划\n本轮已裁决\n本轮主假设\n第 3 轮：JVM 可能存在业务热点、GC 压力或锁竞争\nstart_jvm_profile\n2 条准入证据\n1 个报告版本\nAI 诊断助手\n第 4 轮\n已根据新输入修订调查计划\n正在规划\n本轮主假设\n目标进程存在原生调用栈热点，CPU 样本稳定集中在特定调用路径或等待路径\nAI 诊断助手\n11\n个去重后假设\n4\n次工具调用\n6\n条证据\n3\n个报告版本\n00\n结论先行\n先回答根因、可信度和下一步；完整探索过程保留在下方\n阶段性根因\n置信度 60%\n证据门禁：部分支持，缺少独立反证或对照\n\nJava 对象分配热点定位在业务调用路径 Hotspot.lambda$startWorkers$1，占有效样本的 100.0%，主要分配对象为 byte[]。该证据确认了集中对象分配路径，但没有独立证明 GC 暂停或锁竞争是主瓶颈。\n\n建议下一步\n在相同负载下执行修复前后复测，确认热点和副作用变化\n结论边界：缺少独立反证或对照证据；结论已完成，但仍应在修复复测中补充独立验证。\n引用支持证据：ev_task_task_20260907_154436_10ea8d_809\n评价本轮诊断\n你的反馈不会覆盖旧结论。系统会保留本轮证据；部分正确或错误时，新建下一轮假设继续取证。\n结论正确\n部分正确\n结论错误\n完整调查过程\n展开查看假设、Skill 路线、工具调用与证据\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开当前复杂案例回放",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "summary",
+      "type": "",
+      "label": "运行时详情",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看当前阶段 / 轮次",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看规划假设",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看主动知识检索",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看LATS 搜索",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看工具调用",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看记忆",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看工具成功率",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "结论正确",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "部分正确",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "结论错误",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "补充诊断上下文",
+      "placeholder": "继续追问结论，或补充新的现象、上下文和约束",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "基于结论继续一轮",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:13:18.224028+00:00",
+  "screenshot": "20-multiturn-composer.png",
+  "sha256": "dfae293686f78e0e852a560f23977cf8a1c7ac0b62e7965579e8eecff5ddf266",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

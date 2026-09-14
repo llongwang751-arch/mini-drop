@@ -1,0 +1,800 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+________________ test_postgres_claim_lease_takeover_and_fencing ________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x759ae5b2e1d0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg object at 0x759ae6391bd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x759ae5b2eb90>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x759ae5b2eb50>
+parameters = [{'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-authority', 'effect_key': None, 'expected_observations_json': Json([]), ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae7841600>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-authority', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.ForeignKeyViolation: insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-authority) is not present in table "drop_insight_sessions".
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: ForeignKeyViolation
+
+The above exception was the direct cause of the following exception:
+
+postgres_sessions = sessionmaker(class_='Session', autocommit=False, bind=Engine(postgresql+psycopg://mini_drop:***@postgres:5432/mini_drop_test_hardening_20260909), autoflush=False, expire_on_commit=False)
+
+    def test_postgres_claim_lease_takeover_and_fencing(postgres_sessions):
+        report_id = "report-postgres-authority"
+>       _seed_report(postgres_sessions, report_id)
+
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:85: in _seed_report
+    with factory.begin() as session:
+/usr/local/lib/python3.11/contextlib.py:144: in __exit__
+    next(self.gen)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1819: in _maker_context_manager
+    with self.begin():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:147: in __exit__
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:145: in __exit__
+    self.commit()
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1316: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1290: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4353: in flush
+    self._flush(objects)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4488: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4449: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:465: in execute
+    rec.execute(self)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:94: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:1049: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae7841600>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-authority', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-authority) is not present in table "drop_insight_sessions".
+E           [SQL: INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_json, status, source, round_index, parent_hypothesis_id, generation_reason, effect_key, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(diagnosis_id)s::VARCHAR, %(statement)s::VARCHAR, %(expected_observations_json)s::JSON, %(falsification_criteria_json)s::JSON, %(status)s::VARCHAR, %(source)s::VARCHAR, %(round_index)s::INTEGER, %(parent_hypothesis_id)s::VARCHAR, %(generation_reason)s::VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+E           [parameters: {'id': 'hypothesis-report-postgres-authority', 'diagnosis_id': 'diagnosis-report-postgres-authority', 'statement': 'PostgreSQL preserves report-effect authority', 'expected_observations_json': Json([]), 'falsification_criteria_json': Json([]), 'status': 'OPEN', 'source': 'DETERMINISTIC_RULE', 'round_index': 1, 'parent_hypothesis_id': None, 'generation_reason': 'postgres_integration_test', 'effect_key': None, 'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc)}]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: IntegrityError
+_________ test_postgres_session_lock_serializes_event_effect_identity __________
+
+self = <sqlalchemy.engine.base.Connection object at 0x759ae4f532d0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg object at 0x759ae3fc6b90>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x759ae4f53350>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x759ae4f534d0>
+parameters = [{'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-event-lock', 'effect_key': None, 'expected_observations_json': Json([]), ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae8454340>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-event-lock', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.ForeignKeyViolation: insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-event-lock) is not present in table "drop_insight_sessions".
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: ForeignKeyViolation
+
+The above exception was the direct cause of the following exception:
+
+postgres_sessions = sessionmaker(class_='Session', autocommit=False, bind=Engine(postgresql+psycopg://mini_drop:***@postgres:5432/mini_drop_test_hardening_20260909), autoflush=False, expire_on_commit=False)
+
+    def test_postgres_session_lock_serializes_event_effect_identity(postgres_sessions):
+>       diagnosis_id, _ = _seed_report(
+            postgres_sessions,
+            "report-postgres-event-lock",
+        )
+
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:85: in _seed_report
+    with factory.begin() as session:
+/usr/local/lib/python3.11/contextlib.py:144: in __exit__
+    next(self.gen)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1819: in _maker_context_manager
+    with self.begin():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:147: in __exit__
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:145: in __exit__
+    self.commit()
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1316: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1290: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4353: in flush
+    self._flush(objects)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4488: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4449: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:465: in execute
+    rec.execute(self)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:94: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:1049: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae8454340>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-event-lock', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-event-lock) is not present in table "drop_insight_sessions".
+E           [SQL: INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_json, status, source, round_index, parent_hypothesis_id, generation_reason, effect_key, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(diagnosis_id)s::VARCHAR, %(statement)s::VARCHAR, %(expected_observations_json)s::JSON, %(falsification_criteria_json)s::JSON, %(status)s::VARCHAR, %(source)s::VARCHAR, %(round_index)s::INTEGER, %(parent_hypothesis_id)s::VARCHAR, %(generation_reason)s::VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+E           [parameters: {'id': 'hypothesis-report-postgres-event-lock', 'diagnosis_id': 'diagnosis-report-postgres-event-lock', 'statement': 'PostgreSQL preserves report-effect authority', 'expected_observations_json': Json([]), 'falsification_criteria_json': Json([]), 'status': 'OPEN', 'source': 'DETERMINISTIC_RULE', 'round_index': 1, 'parent_hypothesis_id': None, 'generation_reason': 'postgres_integration_test', 'effect_key': None, 'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc)}]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: IntegrityError
+___ test_postgres_report_and_event_constraints_reject_concurrent_duplicates ____
+
+self = <sqlalchemy.engine.base.Connection object at 0x759ae57751d0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg object at 0x759ae3bcd9d0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x759ae5775850>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x759ae57757d0>
+parameters = [{'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-identity-seed', 'effect_key': None, 'expected_observations_json': Json([]), ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae67eebc0>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-identity-seed', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.ForeignKeyViolation: insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-identity-seed) is not present in table "drop_insight_sessions".
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: ForeignKeyViolation
+
+The above exception was the direct cause of the following exception:
+
+postgres_sessions = sessionmaker(class_='Session', autocommit=False, bind=Engine(postgresql+psycopg://mini_drop:***@postgres:5432/mini_drop_test_hardening_20260909), autoflush=False, expire_on_commit=False)
+
+    def test_postgres_report_and_event_constraints_reject_concurrent_duplicates(
+        postgres_sessions,
+    ):
+>       diagnosis_id, hypothesis_id = _seed_report(
+            postgres_sessions,
+            "report-postgres-identity-seed",
+        )
+
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:284: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace-source/tests/test_drop_insight_report_effects_postgres.py:85: in _seed_report
+    with factory.begin() as session:
+/usr/local/lib/python3.11/contextlib.py:144: in __exit__
+    next(self.gen)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1819: in _maker_context_manager
+    with self.begin():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:147: in __exit__
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/util.py:145: in __exit__
+    self.commit()
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1316: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:1290: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4353: in flush
+    self._flush(objects)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4488: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4449: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:465: in execute
+    rec.execute(self)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:94: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:1049: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Cursor [closed] [IDLE] (host=postgres user=mini_drop database=mini_drop_test_hardening_20260909) at 0x759ae67eebc0>
+query = 'INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_...:VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)'
+params = {'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'diagnosis-report-postgres-identity-seed', 'effect_key': None, 'expected_observations_json': Json([]), ...}
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "drop_insight_hypotheses" violates foreign key constraint "drop_insight_hypotheses_diagnosis_id_fkey"
+E           DETAIL:  Key (diagnosis_id)=(diagnosis-report-postgres-identity-seed) is not present in table "drop_insight_sessions".
+E           [SQL: INSERT INTO drop_insight_hypotheses (id, diagnosis_id, statement, expected_observations_json, falsification_criteria_json, status, source, round_index, parent_hypothesis_id, generation_reason, effect_key, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(diagnosis_id)s::VARCHAR, %(statement)s::VARCHAR, %(expected_observations_json)s::JSON, %(falsification_criteria_json)s::JSON, %(status)s::VARCHAR, %(source)s::VARCHAR, %(round_index)s::INTEGER, %(parent_hypothesis_id)s::VARCHAR, %(generation_reason)s::VARCHAR, %(effect_key)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+E           [parameters: {'id': 'hypothesis-report-postgres-identity-seed', 'diagnosis_id': 'diagnosis-report-postgres-identity-seed', 'statement': 'PostgreSQL preserves report-effect authority', 'expected_observations_json': Json([]), 'falsification_criteria_json': Json([]), 'status': 'OPEN', 'source': 'DETERMINISTIC_RULE', 'round_index': 1, 'parent_hypothesis_id': None, 'generation_reason': 'postgres_integration_test', 'effect_key': None, 'created_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 24, 9, 0, tzinfo=datetime.timezone.utc)}]
+E           (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+/usr/local/lib/python3.11/site-packages/psycopg/cursor.py:117: IntegrityError
+=========================== short test summary info ============================
+FAILED ../workspace-source/tests/test_drop_insight_report_effects_postgres.py::test_postgres_claim_lease_takeover_and_fencing
+FAILED ../workspace-source/tests/test_drop_insight_report_effects_postgres.py::test_postgres_session_lock_serializes_event_effect_identity
+FAILED ../workspace-source/tests/test_drop_insight_report_effects_postgres.py::test_postgres_report_and_event_constraints_reject_concurrent_duplicates
+3 failed in 4.41s
+
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+TEST_EXIT=1

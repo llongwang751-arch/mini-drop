@@ -120,7 +120,7 @@ describe("SkillABPanel", () => {
     expect(within(autoArm).getByText("首条支持证据")).toBeInTheDocument();
     expect(within(autoArm).getByText("总探索耗时")).toBeInTheDocument();
     expect(within(autoArm).getByText("70 秒")).toBeInTheDocument();
-    expect(screen.getByText("500 组根因 Top-1")).toBeInTheDocument();
+    expect(screen.getByText("500 组合同根因代理 Top-1")).toBeInTheDocument();
     expect(screen.getAllByText("68.0%").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("+26.8 个百分点")).toBeInTheDocument();
     expect(onCasesChanged).toHaveBeenCalled();

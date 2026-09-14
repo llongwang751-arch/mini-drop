@@ -1,0 +1,62 @@
+--- a/final/internal/application/local_repos.py
++++ b/final/internal/application/local_repos.py
+@@ -9,6 +9,7 @@
+ 
+ import json
+ import hashlib
++import heapq
+ import inspect
+ import math
+ import threading
+@@ -770,16 +771,32 @@
+             return [RagRow(id=record.id, content=record.content) for record in records], None
+ 
+     def search_local(self, query: str, top_k: int, user_id: str = "default_user") -> list[dict[str, Any]]:
+-        with self.store.transaction() as session:
+-            records = session.scalars(
+-                select(AgentRagChunkRecord).where(AgentRagChunkRecord.user_id == user_id)
+-            ).all()
+-            scored = [
+-                (record, _lexical_score(query, f"{record.content}\n{record.parent_content}"))
+-                for record in records
+-            ]
+-            scored = [(record, score) for record, score in scored if score > 0]
+-            scored.sort(key=lambda item: (-item[1], item[0].id))
++        # The lexical fallback needs no embeddings or ORM entities. Keep only
++        # the best k rows while streaming one tenant's text; preserve the
++        # original cosine score and deterministic id tie-break exactly.
++        query_counts = Counter(_search_tokens(query))
++        if not query_counts:
++            return []
++        query_norm = math.sqrt(sum(value * value for value in query_counts.values()))
++        limit = max(1, min(int(top_k), 100))
++        with self.store.transaction() as session:
++            records = session.execute(
++                select(
++                    AgentRagChunkRecord.id,
++                    AgentRagChunkRecord.content,
++                    AgentRagChunkRecord.parent_content,
++                )
++                .where(AgentRagChunkRecord.user_id == user_id)
++                .execution_options(yield_per=128)
++            )
++            def candidates():
++                for record in records:
++                    counts = Counter(_search_tokens(f"{record.content}\n{record.parent_content}"))
++                    dot = sum(count * counts.get(token, 0) for token, count in query_counts.items())
++                    if dot:
++                        norm = math.sqrt(sum(value * value for value in counts.values()))
++                        yield record, dot / (query_norm * norm)
++            scored = heapq.nsmallest(limit, candidates(), key=lambda item: (-item[1], item[0].id))
+             return [
+                 {
+                     "pg_id": record.id,
+@@ -788,7 +805,7 @@
+                     "score": score,
+                     "source": "local_keyword",
+                 }
+-                for record, score in scored[:max(1, min(int(top_k), 100))]
++                for record, score in scored
+             ]
+ 
+     def load_all_for_reindex(self, user_id: str = "default_user") -> list[dict[str, Any]]:

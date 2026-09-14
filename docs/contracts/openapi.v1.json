@@ -8,6 +8,16 @@
   "servers": [{"url": "/"}],
   "security": [{"ApiKeyAuth": []}],
   "paths": {
+    "/api/v2/services": {"get": {"operationId": "listManagedServices", "description": "Operator-registered backend services joined with fresh authoritative Agent snapshots. Process presence is not application health.", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/services/{service_id}/diagnoses": {
+      "parameters": [{"name": "service_id", "in": "path", "required": true, "schema": {"type": "string"}}],
+      "post": {
+        "operationId": "startManagedServiceDiagnosis",
+        "description": "Resolve the registered service on its configured Agent and issue a fresh opaque process binding. Ambiguous instances require clarification; no arbitrary PID or shell accepted.",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"additionalProperties": false, "properties": {"query": {"maxLength": 2000, "minLength": 3, "title": "Query", "type": "string"}, "mode": {"default": "AUTONOMOUS", "enum": ["AUTONOMOUS", "ASSISTED"], "title": "Mode", "type": "string"}, "request_id": {"anyOf": [{"pattern": "^[a-f0-9]{32}$", "type": "string"}, {"type": "null"}], "default": null, "title": "Request Id"}}, "required": ["query"], "title": "StartServiceDiagnosis", "type": "object"}}}},
+        "responses": {"201": {"$ref": "#/components/responses/Success"}, "404": {"description": "Unknown service"}, "409": {"description": "Service not observed in a fresh authoritative snapshot"}}
+      }
+    },
     "/livez": {"get": {"operationId": "liveness", "responses": {"200": {"description": "process alive"}}}},
     "/readyz": {"get": {"operationId": "readiness", "responses": {"200": {"description": "dependencies ready"}}}},
     "/healthz": {"get": {"operationId": "healthz", "responses": {"200": {"description": "compatibility readiness endpoint"}}}},
@@ -52,6 +62,7 @@
     "/api/v2/diagnostic-tools": {"get": {"operationId": "listDiagnosticTools", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
     "/api/v2/agent-runtime/status": {"get": {"operationId": "getAgentRuntimeStatus", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
     "/api/v2/showcases/mentor-complex": {"get": {"operationId": "getMentorComplexShowcase", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/business-acceptance": {"get": {"operationId": "getBusinessAcceptance", "description": "Read server-owned business measurement results; does not certify AI root causes.", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
     "/api/v2/showcases/fault-plaza": {"get": {"operationId": "getFaultPlaza", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
     "/api/v2/showcases/fault-plaza/{scenario_id}/{action}": {"parameters": [{"$ref": "#/components/parameters/ScenarioId"}, {"$ref": "#/components/parameters/FaultScenarioAction"}], "post": {"operationId": "transitionFaultScenario", "requestBody": {"required": false, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/StartFaultScenarioRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
     "/api/v2/showcases/lats-replays": {"get": {"operationId": "listLATSReplayShowcases", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},

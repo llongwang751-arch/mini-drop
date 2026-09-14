@@ -1,0 +1,110 @@
+{
+  "tag": "20260914T073540Z",
+  "release": "/opt/mini-drop-releases/20260914T073540Z",
+  "previous_release": "/opt/mini-drop-releases/20260913T165503Z",
+  "changed_containers": [
+    "mini-drop-control-diagnosis-worker-1",
+    "mini-drop-control-web-1",
+    "mini-drop-control-analyzer-1"
+  ],
+  "rollback_images": {
+    "diagnosis-worker": "mini-drop-cleanup-rollback:diagnosis-worker-20260914T073540Z",
+    "analyzer": "mini-drop-cleanup-rollback:analyzer-20260914T073540Z",
+    "web": "mini-drop-cleanup-rollback:web-20260914T073540Z"
+  },
+  "images": {
+    "diagnosis-worker": "mini-drop-python-worker:20260914T073540Z",
+    "analyzer": "mini-drop-python-worker:20260914T073540Z",
+    "web": "mini-drop-web:20260914T073540Z"
+  },
+  "source_bundle_sha256": "bb7d907fd8b34e407d69de80075f3a57c6738b8ab944c29f8e6462b214a0287c",
+  "verification": {
+    "health": {
+      "dependencies": {
+        "control_plane": "healthy",
+        "database": "healthy",
+        "diagnostic_ai": "healthy"
+      },
+      "language": "go",
+      "service": "mini-drop-apiserver"
+    },
+    "agents": [
+      {
+        "id": "control-interview-demo-agent",
+        "status": "ONLINE"
+      },
+      {
+        "id": "tencent-lighthouse-worker-2",
+        "status": "ONLINE"
+      },
+      {
+        "id": "tencent-cvm-worker-1",
+        "status": "ONLINE"
+      }
+    ],
+    "services": [
+      {
+        "service_id": null,
+        "status": "OBSERVED",
+        "available": null
+      },
+      {
+        "service_id": null,
+        "status": "OBSERVED",
+        "available": null
+      },
+      {
+        "service_id": null,
+        "status": "OBSERVED",
+        "available": null
+      },
+      {
+        "service_id": null,
+        "status": "OBSERVED",
+        "available": null
+      },
+      {
+        "service_id": null,
+        "status": "OBSERVED",
+        "available": null
+      }
+    ],
+    "matching_public_assets": 34,
+    "python_code_hashes": {
+      "/app/server/app/drop_insight/service.py": "39bae3dae0c4806fdc68ac837eddf5897933b43aa3d390431a0799eee2f671b3",
+      "/app/analyzer/mini_drop_analyzer/pprof_analyzer.py": "d31e4c8a09b40825781aef9d7fec1476315eb9aab0d18c1ed5bbcba6066ce364",
+      "/app/analyzer/mini_drop_analyzer/hotmethod_analyzer.py": "5578dae18243dec4f4af54569482e2d2e583005e551a979969166589c694ca86"
+    },
+    "business_http": {
+      "18441": 200,
+      "18442": 200,
+      "18443": 200,
+      "18444": 200
+    },
+    "passed": true
+  },
+  "local_regression": {
+    "python_passed": 560,
+    "python_skipped": 5,
+    "web_passed": 172,
+    "web_test_files": 39,
+    "go": "passed",
+    "openapi_pairs": 83,
+    "generated_contracts": "passed"
+  },
+  "scope": "Repository cleanup rollout; no new fault/root-cause or capacity acceptance.",
+  "public_browser": {
+    "checks": {
+      "new_workbench": "PASS",
+      "mobile_no_horizontal_overflow": "PASS",
+      "validation_center": "PASS",
+      "experiment_panel": "PASS",
+      "diagnosis_memory": "PASS",
+      "persisted_finding_and_tree": "PASS"
+    },
+    "scope": "PUBLIC_HTTPS_READ_ONLY_EXISTING_DATA",
+    "browser_exceptions": [],
+    "blocked_mutations": [],
+    "passed": true
+  }
+}

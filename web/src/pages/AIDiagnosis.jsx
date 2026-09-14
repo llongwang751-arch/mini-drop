@@ -26,9 +26,11 @@ import {
 } from "@ant-design/icons";
 import ChatThread from "../components/ChatThread";
 import AgentCockpit from "../components/AgentCockpit";
+import DiagnosisFinding from "../components/DiagnosisFinding";
 import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
+import ManagedServicesPanel from "../components/ManagedServicesPanel";
 import MentorComplexShowcase from "../components/MentorComplexShowcase";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
@@ -177,6 +179,7 @@ export default function AIDiagnosis() {
   const [detail, setDetail] = useState(null);
   const [resources, setResources] = useState(EMPTY_RESOURCES);
   const [resourceErrors, setResourceErrors] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [listLoading, setListLoading] = useState(false);
   const [listLoaded, setListLoaded] = useState(false);
   const [listError, setListError] = useState("");
@@ -190,6 +193,7 @@ export default function AIDiagnosis() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [replayOpen, setReplayOpen] = useState(false);
   const [caseDrawerOpen, setCaseDrawerOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [treeFullscreen, setTreeFullscreen] = useState(false);
   const [pendingTreeIntervention, setPendingTreeIntervention] = useState(null);
   const [composerAction, setComposerAction] = useState("ADD_CONTEXT");
@@ -204,6 +208,8 @@ export default function AIDiagnosis() {
     }
   });
   const requestVersion = useRef(0);
+  const resourceDiagnosisId = useRef("");
+  const composerRef = useRef(null);
   const advancing = useRef(false);
   const liveRefreshTimer = useRef(null);
   const selectedIdRef = useRef("");
@@ -274,12 +280,11 @@ export default function AIDiagnosis() {
       setSelectedCase((current) => {
         const requested = current?.selection_key || initialCaseKey.current;
         if (!requested) return current;
-        const match = nextCases.find((item) => item.selection_key === requested);
+        const match = nextCases.find((item) => item.selection_key === requested || item.diagnosis_id === requested);
         if (match) initialCaseKey.current = "";
         return match || current;
       });
     } catch (error) {
-      setCases([]);
       setListError(error?.message || "诊断列表暂时不可用，请检查服务连接后重试");
     } finally {
       setListLoading(false);
@@ -305,11 +310,10 @@ export default function AIDiagnosis() {
       ["知识检索轨迹", listDropInsightRetrievals(id)],
     ];
     const settled = await Promise.allSettled(requests.map(([, request]) => request));
-    if (version !== requestVersion.current) return;
+    if (version !== requestVersion.current || id !== selectedIdRef.current) return;
     const nativeDetail = settled[0].status === "fulfilled" ? settled[0].value : null;
     const coreDetail = nativeDetail || projectedDetail;
     if (!coreDetail) throw settled[0].reason;
-    const value = (index, fallback) => settled[index].status === "fulfilled" ? settled[index].value : fallback;
     setDetail(coreDetail);
     setSelectedCase((current) => {
       if (!current || current.diagnosis_id !== id) return current;
@@ -322,26 +326,41 @@ export default function AIDiagnosis() {
         updated_at: nextUpdatedAt,
       });
     });
-    setResources({
-      explorationTree: value(1, null),
-      events: value(2, []),
-      hypotheses: value(3, []),
-      evidence: value(4, []),
-      reports: value(5, []),
-      toolCalls: value(6, []),
-      budget: value(7, null),
-      feedback: value(8, []),
-      skillActivations: value(9, []),
-      interventions: value(10, []),
-      runtimeStatus: value(11, null),
-      retrievals: value(12, []),
+    setResources((previous) => {
+      const value = (index, key) => settled[index].status === "fulfilled"
+        ? settled[index].value : previous[key];
+      return {
+        explorationTree: value(1, "explorationTree"),
+        events: value(2, "events"),
+        hypotheses: value(3, "hypotheses"),
+        evidence: value(4, "evidence"),
+        reports: value(5, "reports"),
+        toolCalls: value(6, "toolCalls"),
+        budget: value(7, "budget"),
+        feedback: value(8, "feedback"),
+        skillActivations: value(9, "skillActivations"),
+        interventions: value(10, "interventions"),
+        runtimeStatus: value(11, "runtimeStatus"),
+        retrievals: value(12, "retrievals"),
+      };
     });
+    if (settled.every((result) => result.status === "fulfilled")) setLastUpdated(new Date());
     setResourceErrors([
       ...settled.flatMap((result, index) => index > 0 && result.status === "rejected" ? [requests[index][0]] : []),
     ]);
   }, []);
 
   const loadSelectedDetail = useCallback(async (caseItem, { background = false } = {}) => {
+    const nextId = caseItem?.diagnosis_id || "";
+    // Keep stale data only within the same diagnosis; never carry evidence
+    // across a target switch, including when the new request fails.
+    if (resourceDiagnosisId.current !== nextId) {
+      resourceDiagnosisId.current = nextId;
+      setDetail(null);
+      setResources(EMPTY_RESOURCES);
+      setResourceErrors([]);
+      setLastUpdated(null);
+    }
     if (!caseItem) {
       requestVersion.current += 1;
       setDetail(null);
@@ -351,18 +370,15 @@ export default function AIDiagnosis() {
     }
     const version = ++requestVersion.current;
     if (!background) setLoading(true);
-    setResourceErrors([]);
     try {
       await loadV2Detail(caseItem, version);
     } catch (error) {
       if (version === requestVersion.current) {
-        setDetail(null);
-        setResources(EMPTY_RESOURCES);
         setResourceErrors(["详情"]);
-        message.error(error?.message || "诊断详情加载失败");
+        if (!background) message.error(error?.message || "诊断详情加载失败");
       }
     } finally {
-      if (!background && version === requestVersion.current) setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [loadV2Detail]);
 
@@ -414,23 +430,15 @@ export default function AIDiagnosis() {
   const handleDiagnosisProgress = useCallback((event) => {
     const diagnosisId = event?.diagnosis_id;
     if (!diagnosisId || diagnosisId !== selectedIdRef.current) return;
-    getDropInsightExplorationTree(diagnosisId)
-      .then((tree) => {
-        if (diagnosisId !== selectedIdRef.current) return;
-        setResources((current) => {
-          const previousRevision = Number(current.explorationTree?.revision || 0);
-          if (Number(tree?.revision || 0) < previousRevision) return current;
-          return { ...current, explorationTree: tree };
-        });
-      })
-      .catch(() => undefined);
-
-    if (liveRefreshTimer.current) window.clearTimeout(liveRefreshTimer.current);
+    // Coalesce event bursts into one refresh. Keeping the first timer also
+    // prevents a continuous event stream from starving the detail refresh.
+    if (liveRefreshTimer.current) return;
     liveRefreshTimer.current = window.setTimeout(() => {
+      liveRefreshTimer.current = null;
       if (diagnosisId === selectedIdRef.current && selectedCase) {
         loadSelectedDetail(selectedCase, { background: true }).catch(() => undefined);
       }
-    }, 220);
+    }, 350);
   }, [loadSelectedDetail, selectedCase]);
 
   useEffect(() => {
@@ -712,17 +720,17 @@ export default function AIDiagnosis() {
   const hasActiveDiagnosis = Boolean(detail || selectedCase);
 
   return (
-    <div className="ai-diagnosis-page">
-      <header className={`diagnosis-command-header ${hasActiveDiagnosis ? "is-compact" : ""}`}>
+    <div className={`ai-diagnosis-page ${hasActiveDiagnosis ? "has-session" : "is-start"} content-${contentView}`}>
+      <header className="diagnosis-command-header is-compact">
         <div>
           <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 智能诊断</div>
           <Title level={2}>
-            {hasActiveDiagnosis ? `当前诊断 · 第 ${treeStats.current_round || 0} 轮` : "Drop 负责采集事实，Agent 决定下一步，Skill 只复用已验证路线"}
+            {hasActiveDiagnosis ? `当前诊断 · 第 ${treeStats.current_round || 0} 轮` : "从异常现象，找到性能瓶颈"}
           </Title>
           <Paragraph>
             {hasActiveDiagnosis
               ? "先看根因、可信度与建议；需要时再展开完整调查过程。"
-              : "三层通过持久化事件连接：采集成功不等于证据有效，Skill 命中也不等于根因成立。"}
+              : "描述服务、时间和异常表现，系统将逐步采集证据并验证原因。"}
           </Paragraph>
         </div>
         <div className="diagnosis-live-signals">
@@ -730,12 +738,12 @@ export default function AIDiagnosis() {
             {sseConnected ? <WifiOutlined /> : <DisconnectOutlined />}
             {sseConnected ? "实时事件已连接" : "轮询兜底中"}
           </span>
-          <span><BranchesOutlined /> 树版本 {treeRevision}</span>
-          <span>第 {treeStats.current_round || 0} 轮</span>
+          {hasActiveDiagnosis && <span><BranchesOutlined /> 树版本 {treeRevision}</span>}
+          <button type="button" className="diagnosis-help-button" onClick={() => setHelpOpen(true)}>诊断说明</button>
         </div>
       </header>
 
-      {!hasActiveDiagnosis && (
+      <Modal title="诊断如何工作" open={helpOpen} onCancel={() => setHelpOpen(false)} footer={null} width={760}>
         <section className="diagnosis-layer-map" aria-label="Mini-Drop 诊断架构分层">
           <article>
             <span className="diagnosis-layer-index">01</span>
@@ -759,7 +767,7 @@ export default function AIDiagnosis() {
             </div>
           </article>
         </section>
-      )}
+      </Modal>
 
       <div className="ai-diagnosis-workspace">
         <main className="ai-diagnosis-main">
@@ -773,14 +781,15 @@ export default function AIDiagnosis() {
                 >
                   诊断案例{cases.length ? ` ${cases.length}` : ""}
                 </Button>
+                {hasActiveDiagnosis && <Button onClick={startBlankDiagnosis}>新建诊断</Button>}
                 <Segmented
-                  options={[{ label: "Agent 工作台", value: "workspace" }, { label: "验证与 A/B", value: "evaluation" }]}
+                  options={[{ label: "接入服务", value: "services" }, { label: "Agent 工作台", value: "workspace" }, { label: "验证与 A/B", value: "evaluation" }]}
                   value={workspaceView}
                   onChange={setWorkspaceView}
                 />
               </Space>
-              <Text type="secondary">{workspaceView === "evaluation" ? "验证中心" : "当前诊断"}</Text>
-              <Title level={4}>{workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : (detail?.query || selectedCase?.query || "开始一次新诊断")}</Title>
+              <Text type="secondary">{workspaceView === "services" ? "业务后台" : workspaceView === "evaluation" ? "验证中心" : "当前诊断"}</Text>
+              <Title level={4}>{workspaceView === "services" ? "选择实际后台服务进行诊断" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : (detail?.query || selectedCase?.query || "开始一次新诊断")}</Title>
             </div>
             {workspaceView === "workspace" && (
               <Space wrap>
@@ -833,7 +842,7 @@ export default function AIDiagnosis() {
             )}
           </div>
 
-          {workspaceView === "evaluation" ? (
+          {workspaceView === "services" ? <ManagedServicesPanel onOpenDiagnosis={openDiagnosis} /> : workspaceView === "evaluation" ? (
             <div className="diagnosis-evaluation-view">
               <EvalPanel
                 onStartDiagnosis={startDiagnosisFromShowcase}
@@ -843,7 +852,7 @@ export default function AIDiagnosis() {
             </div>
           ) : (
             <>
-              {detail && (
+              {detail && contentView !== "tree" && (
                 <div className="diagnosis-stage-rail">
                   <Steps
                     size="small"
@@ -860,7 +869,10 @@ export default function AIDiagnosis() {
                   type="warning"
                   showIcon
                   message={`部分数据加载失败：${resourceErrors.join("、")}`}
-                  action={<Button size="small" onClick={() => loadSelectedDetail(selectedCase)}>重试</Button>}
+                  description={lastUpdated
+                    ? `已保留本会话上次成功加载的数据，最新状态尚未确认。最近完整更新：${lastUpdated.toLocaleTimeString("zh-CN")}`
+                    : "最新状态尚未确认，已加载的本会话数据会继续保留。请重试。"}
+                  action={<Button size="small" aria-label="重试" onClick={() => loadSelectedDetail(selectedCase)}>重试</Button>}
                 />
               )}
 
@@ -874,9 +886,13 @@ export default function AIDiagnosis() {
                 />
               )}
 
+              {detail && !frozenReplay && contentView !== "tree" && (
+                <DiagnosisFinding reports={resources.reports} status={detail.status} />
+              )}
               {detail && (
                 <div className="diagnosis-cockpit-slot">
                   <AgentCockpit
+                    compact={contentView === "tree" ? "tree" : true}
                     detail={detail}
                     resources={resources}
                     sourceSkill={sourceSkill}
@@ -886,7 +902,22 @@ export default function AIDiagnosis() {
                 </div>
               )}
 
-              <Spin spinning={loading}>
+              {!hasActiveDiagnosis && (
+                <section className="diagnosis-start-intro" aria-label="开始诊断">
+                  <h3>哪里出现了异常？</h3>
+                  <p>尽量描述服务或进程、发生时间，以及 CPU、内存或请求延迟的变化。</p>
+                  <div className="diagnosis-example-queries">
+                    {[
+                      ["CPU 升高", "订单服务最近 5 分钟 CPU 持续升高，请定位热点并排除同机争抢。"],
+                      ["内存增长", "Java 服务内存持续增长，请检查对象分配与 GC，并说明还需要哪些证据。"],
+                      ["请求变慢", "接口响应时间突然升高，请检查网络等待和下游依赖。"],
+                    ].map(([label, example]) => (
+                      <Button key={label} onClick={() => { setQuery(example); composerRef.current?.focus(); }}>{label}</Button>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {hasActiveDiagnosis && <Spin spinning={loading}>
                 <div className={`diagnosis-workbench-grid ${detail ? `has-diagnosis view-${contentView}` : "is-empty"}`}>
                   {(!detail || contentView !== "tree") && <section className="diagnosis-narrative-panel">
                     <ChatThread
@@ -933,7 +964,7 @@ export default function AIDiagnosis() {
                     </aside>
                   )}
                 </div>
-              </Spin>
+              </Spin>}
 
               <div className="diagnosis-composer-shell">
                 {frozenReplay && (
@@ -958,15 +989,16 @@ export default function AIDiagnosis() {
                 )}
                 <div className="diagnosis-composer">
                   <Input.TextArea
+                    ref={composerRef}
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter" && !event.shiftKey) {
+                      if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
                         event.preventDefault();
                         submitComposer();
                       }
                     }}
-                    autoSize={{ minRows: 1, maxRows: 5 }}
+                    autoSize={{ minRows: hasActiveDiagnosis ? 1 : 3, maxRows: 5 }}
                     placeholder={frozenReplay
                       ? "冻结回放不能追加真实采集、普通规划或人工干预"
                       : selectedId && !readOnly
@@ -990,6 +1022,10 @@ export default function AIDiagnosis() {
                     ? (statusValue === "COMPLETED" ? "基于结论继续一轮" : "发送并继续诊断")
                     : "开始诊断"}</Button>
                 </div>
+                {!hasActiveDiagnosis && <div className="diagnosis-start-footnote">
+                  <span>Enter 开始诊断 · Shift + Enter 换行</span>
+                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>用故障广场开始演示</Button>
+                </div>}
               </div>
             </>
           )}

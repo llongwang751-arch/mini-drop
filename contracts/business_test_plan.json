@@ -1,0 +1,12 @@
+{
+  "schema": "mini-drop.business-test-plan.v1",
+  "shared_paths": ["contracts/", "server/app/drop_insight/business_acceptance.py", "scripts/check_business_test_plan.py", "scripts/run_business_acceptance.py"],
+  "cases": [
+    {"id": "RAG-01", "requirement": "控制重排工作量后，保持查询流量及引用质量并恢复延迟", "owner": "business-runtime", "risk": "rerank_candidate_growth", "paths": ["demo/rag_service/", "web/src/components/BusinessAcceptancePanel"], "test": "tests/test_business_acceptance.py", "runner": "scripts/run_business_acceptance.py", "oracle_visibility": "HARNESS_ONLY", "required_outcome": "IMPROVEMENT_VERIFIED"},
+    {"id": "RAG-02", "requirement": "导入与查询并发时隔离执行队列，不能停止导入来伪造修复", "owner": "business-runtime", "risk": "shared_queue_starvation", "paths": ["demo/rag_service/", "web/src/components/BusinessAcceptancePanel"], "test": "tests/test_business_acceptance.py", "runner": "scripts/run_business_acceptance.py", "oracle_visibility": "HARNESS_ONLY", "required_outcome": "IMPROVEMENT_VERIFIED"},
+    {"id": "RAG-03", "requirement": "生成依赖持续变慢时，明确标注本地摘录降级，不能判完整恢复", "owner": "business-runtime", "risk": "dependency_timeout", "paths": ["demo/rag_service/", "web/src/components/BusinessAcceptancePanel"], "test": "tests/test_business_acceptance.py", "runner": "scripts/run_business_acceptance.py", "oracle_visibility": "HARNESS_ONLY", "required_outcome": "DEGRADED_AVAILABLE"}
+  ],
+  "external_cases": [
+    {"id": "RAG-ACTUAL-01", "requirement": "实际办公助手本地检索优化保持排序、租户隔离和同负载质量", "owner": "business-integration", "risk": "full_row_vector_decode", "paths": ["integrations/agi_saber/", "scripts/run_actual_rag_acceptance.py"], "test": "tests/test_actual_rag_adapter.py", "runner": "scripts/run_actual_rag_acceptance.py", "oracle_visibility": "HARNESS_ONLY", "required_outcome": "IMPROVEMENT_VERIFIED", "execution": "FROZEN_EXTERNAL_SOURCE_REQUIRED", "source_contract": ["internal/rag/rag.py", "internal/rag/hybrid.py", "internal/application/local_repos.py"]}
+  ]
+}

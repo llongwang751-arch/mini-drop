@@ -424,13 +424,13 @@ function BenchmarkSummary({ report, loading }) {
       <div className="skill-ab-benchmark-heading">
         <div>
           <Text className="skill-ab-kicker">已运行的受控真值评测</Text>
-          <Title level={5}>540 条根因评测 + 500 组同题 Skill A/B</Title>
+          <Title level={5}>540 条受控离线回放 + 500 组同题 Skill A/B</Title>
         </div>
         <Button href={BENCHMARK_REPORT_URL} target="_blank" icon={<FileSearchOutlined />}>查看机器报告</Button>
       </div>
       <div className="skill-ab-score-grid">
         <article className="skill-ab-score-card is-featured">
-          <span>500 组根因 Top-1</span>
+          <span>500 组合同根因代理 Top-1</span>
           <strong>{percentage(paired.skill_enabled?.root_cause_top1_accuracy)}</strong>
           <small>Skill 开启；关闭组 {percentage(paired.no_skill?.root_cause_top1_accuracy)}</small>
         </article>
@@ -458,6 +458,12 @@ function BenchmarkSummary({ report, loading }) {
           差值 95% CI [{Number(paired.delta_bootstrap_95?.lower_percentage_points || 0).toFixed(1)}, {Number(paired.delta_bootstrap_95?.upper_percentage_points || 0).toFixed(1)}]pp
         </Tag>
         <Text type="secondary">来自 21 个可执行白名单故障合同的受控回放；不是 540 次公网真机注入，真机链路由独立验收报告证明。</Text>
+        <details>
+          <summary>测试集如何生成，这些数字能证明什么</summary>
+          <p>以 21 类故障合同为母体，固定种子 20260907，改变描述、噪声和服务名，生成 540 条变体。每个采集器的观察预先写入数据集，答案单独保存并记录哈希。</p>
+          <p>其中 500 条在开启、关闭 Skill 两组使用相同输入和两次工具预算。必须预测匹配合同答案且在预算内选到关键采集器，才计为正确。这里使用确定性规则评分，不是 540 次真实模型调用。</p>
+          <p>同一合同变体不是独立事故，生成和评分共享已知场景定义。这些结果用于路线回归，不能代表生产诊断准确率。真机随机 A/B、故障链路验收和修复复测分别记录；停止演示故障不等于 AI 自动修复程序。</p>
+        </details>
       </div>
     </section>
   );

@@ -1428,6 +1428,16 @@ func (s *Server) auth(next http.Handler) http.Handler {
 			writeAPI(w, http.StatusUnauthorized, 1401, "访问认证失败", nil)
 			return
 		}
+		// V2 currently passes identity, but not resource scopes, to the worker.
+		// Deny scoped principals at the shared REST/SSE boundary until every V2
+		// resource supports filtering; role=admin must not bypass a narrow scope.
+		if strings.HasPrefix(r.URL.Path, "/api/v2/") &&
+			(!scopeAllows(principal.AgentIDs, "*") ||
+				!scopeAllows(principal.ServiceIDs, "*") ||
+				!scopeAllows(principal.Environments, "*")) {
+			writeAPI(w, http.StatusForbidden, 1403, "AI 诊断暂不支持受限资源范围的账号", nil)
+			return
+		}
 		if isMutatingMethod(r.Method) && !strings.HasPrefix(r.URL.Path, "/api/auth/") {
 			approvalPath := strings.HasSuffix(r.URL.Path, "/approvals")
 			skillGovernancePath := strings.HasPrefix(r.URL.Path, "/api/v2/diagnostic-skills/") &&

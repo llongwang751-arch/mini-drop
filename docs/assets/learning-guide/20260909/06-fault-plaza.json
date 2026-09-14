@@ -1,0 +1,284 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis?case=drop_insight_v2%3Ainsight_0570ecf2d19c42b98f14a95732317d26",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 4 轮\n实时事件已连接\n树版本 87\n诊断说明\n诊断案例 226\n新建诊断\nAgent 工作台\n验证与 A/B\n验证中心\n诊断与 Skill 验证中心\n诊断验证\n诊断验证中心\n从方法、真实故障、策略演化到成熟产品对照，所有结论都有过程和证据可追溯。\n当前评测体系\n旧测试入口已下线\n评测总览\n故障广场\nSkill A/B\nSkill 示例与沉淀\n故障广场\n启动白名单内的真实故障，再让 AI 采集、裁决和验证。所有场景都有自动停止保护。\n实验室就绪\n30 秒\n60 秒\n120 秒\n刷新状态\n仅对 demo-target 实验环境注入故障\n页面只能调用服务端固定场景，不能提交 URL、命令、Agent 或 PID。不要把故障注入指向生产环境。\n按运行时筛选\n当前显示 4 / 21 个场景\n推荐 4\n全部 21\nGo 4\nJava 5\nC++ 5\nPython 7\nGo 服务 CPU 热点\nGo 运行时\n全链路已验收\nGo 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待\n目标运行时\nGo\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n目标进程 CPU 升高；pprof 热点集中；系统等待不足以解释 CPU\n推荐采集\n系统指标采集Go pprof 采样perf CPU 采样\n关联 Skill\ngo-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止\nJava 分配风暴与 GC 压力\nJava 运行时\n全链路已验收\nJava 服务持续制造短命对象，堆呈锯齿并可能出现 GC 与延迟抖动\n目标运行时\nJava / JVM\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n分配量快速增长；GC 次数增加；堆使用呈回收锯齿而非单调泄漏\n推荐采集\n系统指标采集进程内存剖析JVM async-profiler 采样\n关联 Skill\ngc-pressure-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止\nC++ 计算热点\nC++\n全链路已验收\nC++ 进程出现稳定计算热点，需要区分业务循环、锁自旋和系统调用开销\n目标运行时\nC++\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\n目标 CPU 升高；perf 热点集中在固定函数；锁等待和 I/O 不占主导\n推荐采集\n系统指标采集perf CPU 采样连续性能采集\n关联 Skill\ncpp-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止\nPython 源码热点\n运行时\n全链路已验收\nPython 业务函数占用 CPU，可定位到稳定的文件、函数和行号\n目标运行时\nPython\n建议轮次\n至少 3 轮\n调查阶段\n低开销系统初筛运行时或内核专项取证寻找反证并观察恢复窗口\n预期信号\nPython 帧占比集中；source_hot_function 成为 TopN；源码映射可解析\n推荐采集\n系统指标采集py-spy Python 采样\n关联 Skill\npython-runtime-diagnosis\n启动故障\n启动并诊断\nSkill A/B\n停止\n完整 LATS 冻结回放\nFULL_LATS\nFROZEN_REPLAY\n在同一个不可变观察快照上重置并比较兄弟分支试探（rollout），查看选择、反思与价值回传。\n刷新场景\n冻结算法回放，不是实时故障证据\n回放不会启动故障、不会连接目标采集节点，也不会调用实时采集器。结论只在固定观察快照（snapshot）的真值边界内成立；故障实验室未启用时仍可独立运行。\nPython CPU 热点：从系统基线回溯到源码函数\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\nUCT\n执行语义\nFULL_LATS · FROZEN_REPLAY\n真值边界\n受控冻结观测，不是本次现场采集证据\n新建回放会话",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新状态",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动故障",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Skill A/B",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "停止",
+      "placeholder": "",
+      "disabled": true
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动故障",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Skill A/B",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "停止",
+      "placeholder": "",
+      "disabled": true
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动故障",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Skill A/B",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "停止",
+      "placeholder": "",
+      "disabled": true
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动故障",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Skill A/B",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "停止",
+      "placeholder": "",
+      "disabled": true
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新冻结回放场景",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "运行冻结回放：Python CPU 热点：从系统基线回溯到源码函数",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:01:42.606965+00:00",
+  "screenshot": "06-fault-plaza.png",
+  "sha256": "c19d9205714eb8b1cd1ce41b738bc897e5d33b9b6a0f5087f2d13b2d547796bb",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

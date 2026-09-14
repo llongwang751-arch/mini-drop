@@ -41,9 +41,11 @@ const DECISION_COLORS = {
  * 源码位置（file:line，若分析器产出）。
  */
 export default function EvidenceCard({ evidence }) {
-  const roleCode = String(evidence.role || "").toUpperCase();
+  const metadata = evidence.envelope?.observation?.metadata || {};
+  const hostOnly = metadata.scope_semantics === "HOST_BLOCK_DEVICE" && metadata.target_attributed !== true;
+  const roleCode = hostOnly ? "NEUTRAL" : String(evidence.role || "").toUpperCase();
   const roleColor = ROLE_LABELS[roleCode] || "default";
-  const roleLabel = evidenceRoleLabel(evidence.role);
+  const roleLabel = hostOnly ? "主机背景观察（未归属进程）" : evidenceRoleLabel(evidence.role);
   const envelope = evidence.envelope || {};
   const source = envelope.source || {};
   const topFunctions = envelope.observation?.metadata?.top_functions || [];
@@ -52,11 +54,11 @@ export default function EvidenceCard({ evidence }) {
     || envelope.observation?.summary
     || envelope.summary
     || evidence.summary;
-  const decision = evidence.classification?.decision;
+  const decision = hostOnly ? "ACCEPT_LIMITED" : evidence.classification?.decision;
   const decisionCode = String(decision || "").toUpperCase();
   const decisionColor = DECISION_COLORS[decisionCode] || "default";
   const hasUnknownProtocolCode = (
-    !isKnownEvidenceRole(evidence.role)
+    hostOnly || !isKnownEvidenceRole(evidence.role)
     || (decision && !isKnownEvidenceDecision(decision))
     || (source.tool_name && !isKnownDiagnosticTool(source.tool_name))
   );
@@ -86,13 +88,14 @@ export default function EvidenceCard({ evidence }) {
             )}
           </div>
         )}
+        {hostOnly && <Text type="warning">这是宿主机块设备观测。尚未证明请求来自目标进程，不能据此确认或反驳该进程的根因；需结合进程读写计数、等待栈和正常基线。</Text>}
         <Text type="secondary" className="diagnosis-evidence-id">证据 {evidence.evidence_id}</Text>
         {hasUnknownProtocolCode && (
           <details className="diagnosis-protocol-details">
             <summary>查看技术详情</summary>
             <Space direction="vertical" size={2} style={{ width: "100%", marginTop: 6 }}>
               <Text type="secondary">原始证据角色：<Text code>{evidence.role || "未返回"}</Text></Text>
-              {decision && <Text type="secondary">原始门禁码：<Text code>{decision}</Text></Text>}
+              {decision && <Text type="secondary">原始门禁码：<Text code>{evidence.classification?.decision || "未返回"}</Text></Text>}
               {source.tool_name && <Text type="secondary">原始工具标识：<Text code>{source.tool_name}</Text></Text>}
             </Space>
           </details>

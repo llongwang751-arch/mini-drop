@@ -8,6 +8,8 @@ tree, while descriptions stay deterministic and intentionally concise.
 from __future__ import annotations
 
 import subprocess
+import ast
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,6 +29,7 @@ GROUP_TITLES = {
     "proto": "proto：跨语言协议源文件",
     "contracts": "contracts：共享稳定合同",
     "demo": "demo：四种运行时的受控故障实验室",
+    "integrations": "integrations：真实业务源码接入与独立验收适配器",
     "skills": "skills：可复用诊断路线",
     "knowledge": "knowledge：Agentic RAG 知识先验",
     "benchmarks": "benchmarks：公开题目与私有真值",
@@ -35,12 +38,38 @@ GROUP_TITLES = {
     "deploy": "deploy：镜像、环境、证书与编排",
     "docs": "docs：权威设计与接口文档",
     "reports": "reports：已经运行后产生的证据报告",
-    "design-system": "design-system：页面设计基线",
     "output": "output：交付型派生材料",
     ".github": ".github：持续集成",
 }
 
 EXACT = {
+    "docs/BUSINESS_ONBOARDING_DESIGN.md": "业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。",
+    "integrations/agi_saber/service.py": "独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。",
+    "scripts/run_actual_rag_acceptance.py": "冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。",
+    "scripts/render_actual_rag_acceptance.py": "合并实际业务测量与独立 AI 诊断结果生成可追溯复盘文档。",
+    "docs/BUSINESS_ACCEPTANCE.md": "业务测量、同负载修复比较、知识库样例、CI 计划及本地/AI 验收边界。",
+    "server/app/drop_insight/business_acceptance.py": "业务测量源合同与可比性、延迟、成功率、质量、降级门禁。",
+    "server/app/drop_insight/business_showcase.py": "读取服务端固定且哈希校验的业务结果，仅提供只读展示。",
+    "scripts/run_business_acceptance.py": "真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。",
+    "scripts/check_business_test_plan.py": "校验需求与执行案例一致、引用有效，并生成保守的变更影响清单。",
+    "scripts/generate_business_contracts.py": "从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。",
+    "scripts/build_business_acceptance_view.py": "从完成且哈希一致的业务报告生成页面投影。",
+    "scripts/render_business_acceptance.py": "从业务原始报告生成 Markdown 对比结果。",
+    "scripts/run_fault_plaza_strict_acceptance.py": "21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。",
+    "scripts/render_fault_plaza_acceptance.py": "从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。",
+    "scripts/build_fault_plaza_acceptance_index.py": "校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。",
+    "server/app/drop_insight/fault_acceptance.py": "读取并校验只读挂载的验收索引，为故障广场提供真实最近验收结果。",
+    "docs/FAULT_PLAZA_ACCEPTANCE.md": "严格验收协议、通过标准、历史链路边界、发布修复与页面截图。",
+    "native/agent/include/self_metrics.h": "读取 Agent 自身 /proc 计数，按相邻时间窗计算 CPU、RSS 与磁盘读写速率；无有效窗口不填零。",
+    "native/agent/tests/self_metrics_test.cpp": "验证自身指标的有效窗口、计数回退、缺失来源和真实 RSS。",
+    "web/src/utils/agentMetrics.js": "格式化 Agent 自身指标与单位，区分未上报、非法值和实测零。",
+    "web/src/utils/reportPresentation.js": "构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。",
+    "server/migrations/versions/20260910_0008_agent_latest_metrics.py": "为 Agent 增加可空 JSON 指标字段，保留旧行与缺失值语义，并兼容基线建表。",
+    "tests/test_agent_metrics_migration.py": "验证指标迁移保留旧数据、默认缺失以及重复升级兼容性。",
+    "scripts/render_learning_guide.py": "把唯一 Markdown 教材生成离线 HTML 阅读版，内嵌截图、目录搜索和图片放大，并校验链接。",
+    "server/app/drop_insight/skill_experiments.py": "服务端粘性随机分流、人工/Oracle 标签、统计快照、护栏和发布建议。",
+    "server/app/drop_insight/operator_memory.py": "按 principal 隔离的显式偏好读写与删除，拒绝目标或权限等越界记忆。",
+    "web/src/components/SkillExperimentPanel.jsx": "随机实验创建、流量分配、标签、统计结果与人工批准入口。",
     "AGENTS.md": "仓库协作规则；规定重启后先读哪些权威文档以及禁止破坏的数据。",
     "README.md": "项目首页，给出能力概览、快速启动和权威文档入口。",
     "pyproject.toml": "Python 依赖、打包、pytest 与开发工具配置。",
@@ -65,6 +94,10 @@ EXACT = {
     "web/src/components/ActualExplorationTree.jsx": "真实 LATS 父子树、评分、剪枝、回溯、缩放与全屏交互。",
     "web/src/components/AgentCockpit.jsx": "阶段、计划、RAG、工具、Evidence、记忆、评测和 LATS 指标驾驶舱。",
     "web/src/components/ChatThread.jsx": "把持久化领域事件按轮次投影成多轮诊断对话。",
+    "web/src/components/DiagnosisFinding.jsx": "从本会话既有报告提取首屏摘要，保留证据引用、限制与下一步。",
+    "scripts/verify_frontend_workbench.mjs": "使用本地合成 API 与 Chromium 验证首屏、响应式、树和失败刷新；不连接云端。",
+    "scripts/verify_final_ui_acceptance.mjs": "通过公网只读验证首屏、移动布局、已有报告、探索树、验证中心和记忆，阻止业务写请求。",
+    "deploy/dockerfiles/web-prebuilt.Dockerfile": "将已测试的 web/dist 叠加到指定 Web 运行镜像，保留旧哈希资产供已打开页面继续加载。",
     "web/src/components/FaultPlazaPanel.jsx": "故障广场；管理 21 个白名单场景、状态、时长和启动/停止。",
     "web/src/components/SkillABPanel.jsx": "创建并比较 Skill AUTO/DISABLED 两臂，恢复浏览器 A/B 历史。",
     "web/src/components/SkillEvolutionPanel.jsx": "查看 Skill 候选、评测、发布、隔离、回滚和沉淀。",
@@ -208,6 +241,24 @@ def describe(path: str) -> str:
         return EXACT[path]
     name = Path(path).name
     lower = path.lower()
+    if name == "__init__.py":
+        return "Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。"
+    if name.lower().startswith("readme"):
+        return "当前目录的用途、运行方式、依赖与边界说明。"
+    if name in ("go.mod", "go.sum"):
+        return "Go 模块依赖与版本声明。" if name == "go.mod" else "Go 依赖内容校验记录，随依赖工具更新。"
+    if name in ("package.json", "package-lock.json"):
+        return "Node 工程依赖和 build/test 等脚本入口。" if name == "package.json" else "npm 精确依赖版本与完整性锁文件，供 npm ci 重现。"
+    if name == "CMakeLists.txt":
+        return "CMake 原生构建目标、源文件、编译选项和链接依赖。"
+    if name.endswith((".png", ".jpg", ".svg")):
+        return "可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。"
+    if lower.startswith("docs/assets/") and name.endswith(".json"):
+        return "截图取证元数据：页面文字、控件、路径、时间、图片 hash 或批次清单。"
+    if lower.startswith("web/public/report-assets/"):
+        return "随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。"
+    if lower.startswith(".github/workflows/"):
+        return "CI 工作流：声明触发条件、运行环境、测试和构建检查步骤。"
     if "/generated/" in lower or name.endswith((".pb.go", "_pb2.py", "_pb2_grpc.py")):
         return "由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。"
     if "/migrations/versions/" in lower:
@@ -264,8 +315,6 @@ def describe(path: str) -> str:
         return f"Analyzer 文件，负责{topic_for(path)}或第三方格式兼容。"
     if lower.startswith("docs/"):
         return "项目设计、使用、部署、接口或验收说明。"
-    if name.lower().startswith("readme"):
-        return "当前目录的用途、运行方式和边界说明。"
     return "项目配置、源码或派生材料；从所在目录和引用关系理解其职责。"
 
 
@@ -281,9 +330,105 @@ def current_files() -> list[str]:
     paths = []
     for raw in result.stdout.splitlines():
         path = raw.replace("\\", "/").strip()
+        if path.startswith(("output/learning-guide/", "output/acceptance/")):
+            continue
         if path and (ROOT / path).is_file():
             paths.append(path)
     return sorted(set(paths), key=lambda value: value.casefold())
+
+
+DIRECTORIES = {
+    "web/src/pages": "路由页面：组织数据加载、表单和页面级状态。",
+    "web/src/components": "可复用或领域专用组件：对话、树、图表、工具与证据卡。",
+    "web/src/api": "统一 HTTP 客户端、鉴权和业务请求封装。",
+    "web/src/hooks": "轮询与 SSE 等跨页面状态逻辑。",
+    "web/src/utils": "状态/证据展示、格式兼容和数据转换纯函数。",
+    "web/src/generated": "由源合同生成的前端枚举；不要手改。",
+    "web/src/lib": "第三方库的项目内统一入口。",
+    "web/public": "随 Web 发布的公开静态资源；不能放密钥或私有真值。",
+    "web": "React 前端工程，含依赖、构建配置、页面与测试。",
+    "apiserver/cmd": "Go 服务启动程序与命令入口。",
+    "apiserver/internal/httpapi": "HTTP 路由、鉴权、输入校验与内部调用。",
+    "apiserver/internal/repository": "PostgreSQL 查询、写入和事务边界。",
+    "apiserver/internal/scheduler": "定时扫描到期计划并触发任务。",
+    "apiserver/internal/cron": "Cron 表达式解析及下一次触发计算。",
+    "apiserver/internal/objectstore": "MinIO 对象元数据与短时访问授权。",
+    "apiserver/internal/config": "环境配置解析、默认值和启动校验。",
+    "apiserver/internal/gen": "Protobuf/gRPC 生成代码；源头在 proto。",
+    "apiserver": "Go 公开 API 模块，独立 go.mod 与测试。",
+    "server/app/drop_insight": "AI 诊断领域：目标、假设、工具、Evidence、Report、LATS 与 Skill。",
+    "server/app/agent_runtime": "框架适配、上下文、Checkpoint、Harness 与知识检索。",
+    "server/app/generated": "Python 协议生成物。",
+    "server/app": "Python 服务基础能力、数据模型、Worker 和分析调度。",
+    "server/migrations/versions": "按 revision 排序的数据库 schema 迁移。",
+    "server/migrations": "Alembic 迁移环境、模板和版本链。",
+    "server": "Python 服务包。",
+    "native/agent/src": "采集 Agent 主循环、进程快照、采集器、上传与本地结果 Outbox。",
+    "native/control/src": "C++ Control 调度、注册、租约和结果回报实现。",
+    "native/agent": "原生采集节点程序及其构建配置。",
+    "native/control": "原生控制面程序及其构建配置。",
+    "native/gperftools_bridge": "gperftools 兼容桥与原生产物接入。",
+    "native": "原生 C++ 工程及公共工具。",
+    "analyzer/mini_drop_analyzer": "各类 Profile、指标和内存产物的解析与统一输出。",
+    "analyzer": "独立分析包、格式处理与测试材料。",
+    "proto": "跨语言消息和 gRPC 协议源头及生成物。",
+    "contracts": "机器可读的共享枚举、参数、状态和产物合同。",
+    "demo": "隔离的受控故障实验室；按运行时设置固定动作与自动停止。",
+    "skills": "可复用调查路线正文和轻量 catalog，不保存当前事故 Evidence。",
+    "knowledge": "可检索的诊断知识文档与来源目录。",
+    "benchmarks": "评测输入、真值与生成合同；不得将私有答案喂给被测规划器。",
+    "tests": "Python 行为、合同、可靠性与失败边界验证。",
+    "scripts": "可重复运行的生成、检验、截图、评测与运维辅助入口。",
+    "deploy/dockerfiles": "各服务容器镜像的构建配方。",
+    "deploy/env": "部署变量模板与受控实验配置；真实密钥文件不进教材。",
+    "deploy/nginx": "HTTPS、代理、静态资源、SSE 与请求限制配置。",
+    "deploy/systemd": "宿主机 Agent 等服务的生命周期管理。",
+    "deploy/k8s": "Kubernetes 部署材料，不代表当前云端已用 Kubernetes。",
+    "deploy/scripts": "证书、初始化与配置辅助脚本。",
+    "deploy": "部署、镜像、网络与环境配置。",
+    "docs/assets/learning-guide/20260909": "本次真实云端截图、可见文字/控件清单与图片 hash。",
+    "docs/assets/learning-guide": "保留拍摄时间的教材截图与历史证据。",
+    "docs/contracts": "公开 API、事件与跨服务语义文档。",
+    "docs": "当前权威文档、教程、接口与复盘。",
+    "reports": "已执行后产生的历史验收证据；日期与场景边界不可抹除。",
+    "output": "交付或审阅材料；不作为业务源码和数据库事实。",
+    ".github/workflows": "持续集成工作流与自动门禁。",
+    ".github": "仓库平台协作和 CI 配置。",
+}
+
+
+def directory_description(path: str) -> str:
+    if path in DIRECTORIES:
+        return DIRECTORIES[path]
+    parent = next((p for p in sorted(DIRECTORIES, key=len, reverse=True) if path.startswith(p + "/")), None)
+    label = Path(path).name
+    return f"{label} 子目录；" + (DIRECTORIES[parent] if parent else "归属该顶层模块，按下方文件职责定位。")
+
+
+def symbols(path: str) -> str:
+    file = ROOT / path
+    if file.suffix not in (".py", ".jsx", ".js", ".go", ".proto") or "/generated/" in path or "/gen/" in path or "_pb2" in path or ".pb.go" in path:
+        return "—"
+    if file.stat().st_size > 2_000_000:
+        return "—"
+    text = file.read_text(encoding="utf-8", errors="replace")
+    if file.suffix == ".py":
+        try:
+            tree = ast.parse(text)
+            names = [n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))]
+        except SyntaxError:
+            names = []
+    elif file.suffix == ".go":
+        names = re.findall(r"^func\s+(?:\([^\n]*?\)\s+)?(\w+)\s*\(", text, re.M)
+    elif file.suffix == ".proto":
+        names = re.findall(r"^\s*(?:service|message|enum)\s+(\w+)", text, re.M)
+    else:
+        names = re.findall(r"^(?:export\s+(?:default\s+)?)?(?:async\s+)?function\s+(\w+)", text, re.M)
+        names += re.findall(r"^export\s+const\s+(\w+)", text, re.M)
+    names = list(dict.fromkeys(names))
+    public = [n for n in names if not n.startswith('_')]
+    selected = (public or names)[:5]
+    return "、".join(f"`{n}`" for n in selected) + (f" 等 {len(names)} 个声明" if len(names) > 5 else "") if selected else "—"
 
 
 def render(paths: list[str]) -> str:
@@ -297,22 +442,26 @@ def render(paths: list[str]) -> str:
         "",
         "## 34. 当前仓库逐文件字典（自动生成）",
         "",
-        f"本节由 `scripts/generate_learning_guide_file_index.py` 从当前工作树生成，共登记 **{len(paths)} 个实际存在的文件**。它解决“看到文件名却不知道先读什么”的问题；`node_modules/`、`.git/`、缓存、数据库卷和 MinIO 对象不属于源码，因此不会列入。自动生成文件、测试、报告和样式也会逐项出现，但同类职责用统一口径描述。",
+        f"本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **{len(paths)} 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。",
         "",
-        "阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按 500 多个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。",
+        "阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。",
         "",
     ]
+    directories = sorted({str(parent).replace('\\', '/') for path in paths for parent in Path(path).parents if str(parent) != '.'}, key=str.casefold)
+    lines.extend(["### 34.0 每个目录负责什么", "", f"共 {len(directories)} 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。", "", "| 目录 | 职责 |", "|---|---|"])
+    lines.extend(f"| `{p}/` | {directory_description(p)} |" for p in directories)
+    lines.append("")
     for group in order:
         lines.extend(
             [
                 f"### 34.{order.index(group) + 1} {GROUP_TITLES.get(group, group)}",
                 "",
-                "| 文件 | 用途 |",
-                "|---|---|",
+                "| 文件 | 用途 | 源码定位（部分声明） |",
+                "|---|---|---|",
             ]
         )
         for path in grouped[group]:
-            lines.append(f"| `{path}` | {describe(path)} |")
+            lines.append(f"| `{path}` | {describe(path)} | {symbols(path)} |")
         lines.append("")
     lines.extend([END, ""])
     return "\n".join(lines)

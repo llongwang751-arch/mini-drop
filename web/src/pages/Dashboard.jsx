@@ -46,6 +46,7 @@ import usePolling from "../hooks/usePolling";
 import useSSE from "../hooks/useSSE";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import { collectorMeta } from "../utils/collectors";
+import { agentMetric } from "../utils/agentMetrics";
 
 /**
  * 任务面板对应基础采集域：它展示 Agent、创建 Task、观察双状态并进入结果页。
@@ -418,23 +419,23 @@ export default function Dashboard() {
       { title: "Host", dataIndex: "hostname", width: 140, ellipsis: true },
       { title: "IP", dataIndex: "ip_addr", width: 140 },
       {
-        title: "CPU",
+        title: "Agent CPU",
         width: 70,
         render: (_, record) =>
-          `${record.latest_metrics?.self?.cpu_percent ?? 0}%`,
+          agentMetric(record.latest_metrics?.self?.cpu_percent, "%"),
       },
       {
-        title: "RSS",
+        title: "Agent 内存 RSS",
         width: 90,
         render: (_, record) =>
-          `${(record.latest_metrics?.self?.rss_mb ?? 0).toFixed(1)} MB`,
+          agentMetric(record.latest_metrics?.self?.rss_mb, " MB"),
       },
       {
-        title: "IO R/W",
+        title: "Agent 读 / 写（KB/s）",
         width: 100,
         render: (_, record) => {
           const s = record.latest_metrics?.self || {};
-          return `${s.read_kb_s ?? 0}/${s.write_kb_s ?? 0}`;
+          return `${agentMetric(s.read_kb_s)} / ${agentMetric(s.write_kb_s)}`;
         },
       },
       {

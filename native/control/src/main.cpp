@@ -26,6 +26,7 @@
 #include <array>
 #include <cctype>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
@@ -682,6 +683,23 @@ class HealthService final : public mini_drop::HealthCheck::Service, private Serv
           "UPDATE agents SET ip_addr=CASE WHEN $2='' THEN ip_addr ELSE $2 END,status='ONLINE',"
           "last_heartbeat_at=now(),updated_at=now() WHERE id=$1",
           request->agent_id(), request->ip_addr());
+      json metrics = json::object();
+      if (request->has_self_pstats()) {
+        const auto& stats = request->self_pstats();
+        if (std::isfinite(stats.cpu_percent()) && stats.cpu_percent() >= 0 &&
+            std::isfinite(stats.rss_mb()) && stats.rss_mb() >= 0 &&
+            std::isfinite(stats.read_kb_s()) && stats.read_kb_s() >= 0 &&
+            std::isfinite(stats.write_kb_s()) && stats.write_kb_s() >= 0) {
+          metrics["self"] = {{"cpu_percent", stats.cpu_percent()}, {"rss_mb", stats.rss_mb()},
+            {"read_kb_s", stats.read_kb_s()}, {"write_kb_s", stats.write_kb_s()}};
+          metrics["scope"] = "AGENT_PROCESS";
+          metrics["sampled_at_unix_ms"] = std::chrono::duration_cast<std::chrono::milliseconds>(
+              std::chrono::system_clock::now().time_since_epoch()).count();
+        }
+      }
+      // An old Agent or a failed read clears stale measurements instead of
+      // carrying a last successful sample forward as a new measurement.
+      tx.exec_params("UPDATE agents SET latest_metrics=$2::json WHERE id=$1", request->agent_id(), metrics.dump());
       if (request->has_process_candidate_snapshot()) {
         persist_process_snapshot(
             tx, config_, request->agent_id(),

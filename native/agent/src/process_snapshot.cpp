@@ -166,6 +166,7 @@ std::string cgroup_hint(const fs::path& path) {
 
 std::string service_hint_from_cgroup(const std::string& cgroup) {
   std::size_t end = 0;
+  std::string workload_slice;
   while (end < cgroup.size()) {
     const std::size_t start = cgroup.find_first_not_of('/', end);
     if (start == std::string::npos) break;
@@ -175,9 +176,16 @@ std::string service_hint_from_cgroup(const std::string& cgroup) {
     if (part.size() > 8 && part.compare(part.size() - 8, 8, ".service") == 0) {
       return bounded_text(part, kMaxProcessHintLength);
     }
+    // Docker's systemd driver accepts only a slice as cgroup-parent. Preserve
+    // an explicitly named workload group when there is no systemd service.
+    // Generic OS/user slices must never identify unrelated business processes.
+    if (part.rfind("mini-drop-business-", 0) == 0 && part.size() > 24 &&
+        part.compare(part.size() - 6, 6, ".slice") == 0) {
+      workload_slice = bounded_text(part, kMaxProcessHintLength);
+    }
     if (end == std::string::npos) break;
   }
-  return {};
+  return workload_slice;
 }
 
 std::string instance_hint_from_cgroup(const std::string& cgroup) {

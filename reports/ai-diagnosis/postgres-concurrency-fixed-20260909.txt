@@ -1,0 +1,14 @@
+.F.                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_postgres_session_lock_serializes_event_effect_identity __________
+/tmp/test_postgres.py:268: in test_postgres_session_lock_serializes_event_effect_identity
+    assert second_started.wait(timeout=5)
+E   assert False
+E    +  where False = wait(timeout=5)
+E    +    where wait = <threading.Event at 0x70dd1b400a10: unset>.wait
+=========================== short test summary info ============================
+FAILED ../tmp/test_postgres.py::test_postgres_session_lock_serializes_event_effect_identity
+1 failed, 2 passed in 7.86s
+
+
+TEST_EXIT=1

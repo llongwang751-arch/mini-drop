@@ -16,6 +16,24 @@ afterEach(() => {
 });
 
 describe("FaultPlazaPanel", () => {
+  it("shows fresh acceptance gates and opens evidence without injecting a fault", async () => {
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
+      scenario_id: "java-lock-contention", title: "Java 锁等待", target_runtime: "Java",
+      acceptance_level: "LIVE_DIAGNOSIS_VERIFIED", latest_acceptance: {
+        passed: true, root_cause_accepted: false, lineage_verified: true,
+        recovery_observed: true, cleanup_verified: true, tested_release: "test-release",
+        diagnosis_id: "insight-acceptance",
+      },
+    }] });
+    const open = vi.fn();
+    render(<FaultPlazaPanel onOpenDiagnosis={open} />);
+    expect(await screen.findByText("严格复验未通过")).toBeInTheDocument();
+    expect(screen.queryByText("严格复验通过 · 未验证代码修复")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "查看复验诊断" }));
+    expect(open).toHaveBeenCalledWith("insight-acceptance");
+    expect(api.startFaultPlazaScenario).not.toHaveBeenCalled();
+  });
+
   beforeEach(() => {
     vi.resetAllMocks();
     api.getFaultPlaza.mockResolvedValue({
@@ -148,8 +166,9 @@ describe("FaultPlazaPanel", () => {
     expect(headings[2]).toContain("C++ 计算热点");
     expect(headings[3]).toContain("Python 源码热点");
 
-    expect(within(screen.getByText("Go 服务 CPU 热点").closest("article")).getByText("全链路已验收")).toBeInTheDocument();
-    expect(within(screen.getByText("Python 源码热点").closest("article")).getByText("全链路已验收")).toBeInTheDocument();
+    expect(within(screen.getByText("Go 服务 CPU 热点").closest("article")).getByText("历史链路记录 · 不代表根因验收")).toBeInTheDocument();
+    expect(within(screen.getByText("Python 源码热点").closest("article")).getByText("尚无验收记录")).toBeInTheDocument();
+    expect(screen.queryByText("全链路已验收")).not.toBeInTheDocument();
   });
 
   it("filters by runtime while keeping an active scenario visible for safe stopping", async () => {

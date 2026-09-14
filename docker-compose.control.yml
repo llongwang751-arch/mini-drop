@@ -139,7 +139,8 @@ services:
       MINI_DROP_FAULT_LAB_JAVA_URL: ${MINI_DROP_FAULT_LAB_JAVA_URL:-}
       MINI_DROP_FAULT_LAB_CPP_URL: ${MINI_DROP_FAULT_LAB_CPP_URL:-}
       MINI_DROP_SCHEMA_MANAGED: "1"
-      MINI_DROP_SOURCE_ROOTS: /workspace-source/demo/python-hotspot:/workspace-source/demo/go-hotspot:/workspace-source/demo/java-hotspot:/workspace-source/demo/cpp-hotspot:/workspace-source/server:/workspace-source/native
+      MINI_DROP_SOURCE_ROOTS: /opt/agi-office/current/internal:/workspace-source/demo/python-hotspot:/workspace-source/demo/go-hotspot:/workspace-source/demo/java-hotspot:/workspace-source/demo/cpp-hotspot:/workspace-source/server:/workspace-source/native
+      MINI_DROP_BUSINESS_LOG_ROOT: /var/log/mini-drop-business
       MINI_DROP_GRPC_AUTH_ENABLED: "1"
       MINI_DROP_GRPC_TOKEN: ${MINI_DROP_GRPC_TOKEN}
       MINI_DROP_GRPC_SECURE: "1"
@@ -158,6 +159,8 @@ services:
     expose: ["50061"]
     volumes:
       - "${MINI_DROP_SOURCE_PATH:-.}:/workspace-source:ro"
+      - "${MINI_DROP_OFFICE_SOURCE_PATH:-./integrations/agi_saber}:/opt/agi-office:ro"
+      - "${MINI_DROP_BUSINESS_LOG_PATH:-./output/business-logs}:/var/log/mini-drop-business:ro"
       - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
     depends_on:
       postgres: {condition: service_healthy}
@@ -397,8 +400,14 @@ services:
     ports:
       - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTP_PORT:-80}:80"
       - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:${CONTROL_HTTPS_PORT:-443}:443"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:18441:18441"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:18442:18442"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:18443:18443"
+      - "${CONTROL_BIND_ADDRESS:-0.0.0.0}:18444:18444"
     volumes:
       - ./deploy/nginx/control-tls.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/nginx/business-apps.conf:/etc/nginx/business-apps.conf:ro
+      - "${MINI_DROP_BUSINESS_LOG_PATH:-./output/business-logs}:/var/log/mini-drop-business"
       - "${CONTROL_CERT_DIR:-./deploy/certs/control}:/certs:ro"
     depends_on:
       apiserver: {condition: service_healthy}

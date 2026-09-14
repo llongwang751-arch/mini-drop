@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "RequestOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "quality_passed": {
+          "title": "Quality Passed",
+          "type": "boolean"
+        },
+        "degraded": {
+          "default": false,
+          "title": "Degraded",
+          "type": "boolean"
+        },
+        "stage_ms": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Stage Ms",
+          "type": "object"
+        },
+        "trace_id": {
+          "pattern": "^[a-f0-9]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "latency_ms",
+        "success",
+        "quality_passed",
+        "trace_id"
+      ],
+      "title": "RequestOutcome",
+      "type": "object"
+    },
+    "Workload": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "request_set_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Set Sha256",
+          "type": "string"
+        },
+        "arrival_rate": {
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Arrival Rate",
+          "type": "number"
+        },
+        "request_count": {
+          "maximum": 100000,
+          "minimum": 10,
+          "title": "Request Count",
+          "type": "integer"
+        },
+        "concurrency_limit": {
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Concurrency Limit",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "warmup_requests": {
+          "minimum": 0,
+          "title": "Warmup Requests",
+          "type": "integer"
+        },
+        "environment": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Environment",
+          "type": "string"
+        },
+        "service": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Service",
+          "type": "string"
+        },
+        "resources_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Resources Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_sha256",
+        "request_set_sha256",
+        "arrival_rate",
+        "request_count",
+        "concurrency_limit",
+        "seed",
+        "warmup_requests",
+        "environment",
+        "service",
+        "resources_sha256"
+      ],
+      "title": "Workload",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "window_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Window Id",
+      "type": "string"
+    },
+    "workload": {
+      "$ref": "#/$defs/Workload"
+    },
+    "revision": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Revision",
+      "type": "string"
+    },
+    "config_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Config Sha256",
+      "type": "string"
+    },
+    "generator": {
+      "enum": [
+        "EXTRACTIVE_LOCAL",
+        "REMOTE_MODEL",
+        "CONTROLLED_DEPENDENCY"
+      ],
+      "title": "Generator",
+      "type": "string"
+    },
+    "elapsed_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Elapsed Seconds",
+      "type": "number"
+    },
+    "max_dispatch_lag_ms": {
+      "minimum": 0,
+      "title": "Max Dispatch Lag Ms",
+      "type": "number"
+    },
+    "requests": {
+      "items": {
+        "$ref": "#/$defs/RequestOutcome"
+      },
+      "maxItems": 100000,
+      "minItems": 10,
+      "title": "Requests",
+      "type": "array"
+    }
+  },
+  "required": [
+    "window_id",
+    "workload",
+    "revision",
+    "config_sha256",
+    "generator",
+    "elapsed_seconds",
+    "max_dispatch_lag_ms",
+    "requests"
+  ],
+  "title": "MeasurementWindow",
+  "type": "object"
+}

@@ -1,5 +1,84 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-14 清理版本已发布
+
+已发布 `/opt/mini-drop-releases/20260914T073540Z`，更新 Web、Diagnosis Worker、Analyzer。三个 Agent 在线，五个业务被发现；四个轻量业务网页返回 200，34 个公网静态文件与本机构建哈希一致。删除旧组件和死代码、精简文档；采集、数据库 schema 与业务数据不变。发布镜像、回滚版本和检查见 [发布记录](../reports/cleanup-release-20260914.json)。下方带日期的记录属于历史批次，21 场景严格成绩仍为 1 项通过、20 项未通过。
+
+## 2026-09-14 四个轻量业务已接入
+
+Memos v0.30.0、File Browser v2.63.23、linkding v1.46.2、ntfy v2.28.0 已在原两台 Worker 独立常驻，HTTPS 入口为控制机 18441—18444 端口。保留原网页、业务账号和独立数据，通过网关 request_id 关联原诊断。该业务接入批次发布 `/opt/mini-drop-releases/20260913T165503Z`（Web / Diagnosis Worker），详情见 `reports/business-acceptance/lightweight-business-20260914/final-state.json`；三台 Native Agent 已增加 JVM 运行时保护。源合同为 `integrations/lightweight/catalog.json` 和 `artifact-lock.json`，生成配置不可独立编辑。
+
+八项基础业务检查及真实标题抓取通过；最新四个诊断正确关联服务、Agent、PID 和请求观察，16 个任务中 15 个成功，文件服务一项 perf 无样本。四个报告会话均为 INSUFFICIENT_EVIDENCE，不表示发现或修复了四个业务故障。书签受控依赖延迟的 8/8/8 请求中位数约 33/834/33ms，只证明注入与撤销后的业务变化。既有 21 场景成绩仍为 1 通过、20 未通过。
+
+首轮发生 JVM attach 误用于未知 Go 进程导致退出；已修复服务端未知运行时工具过滤和原生 libjvm.so 映射检查，并通过绕过 V2 的旧任务 API 负向实机检查，未中断文件服务。ntfy 每秒轮询曾触发 429；改为持续订阅后 23 条消息全部匹配。失败原始记录保留。File Browser 上游已归档，仅作隔离演示，所有文件 API 增加平台认证；命令执行保持禁用。业务函数 span、数据库诊断连接器、长期容量与真正缺陷修复 A/B 未完成，Vikunja/Miniflux 未部署。
+
+使用方法、截图、版本和限制见 [服务接入](SERVICE_INTEGRATION.md)、[本批验收](../reports/business-acceptance/轻量业务接入与验收-20260914.md)。账号仅在服务器私有配置与本机 `.codex/private/mini-drop-business-accounts.json`，不进入仓库或报告。
+
+## 2026-09-13 业务接入选型记录
+
+历史选型记录：轻量业务取代 Petclinic 优先方案；Memos、File Browser、linkding、ntfy 已于本文顶部所述批次部署。后续候选与未实现范围见 [业务接入设计](BUSINESS_ONBOARDING_DESIGN.md)。
+
+## 2026-09-13 完整办公助手后台接入
+
+原完整 FastAPI/Vue 办公助手独立常驻，入口、可信 PID 绑定、重启恢复与数据目录统一维护在 [服务接入](SERVICE_INTEGRATION.md)。后续四个业务接入沿用这条链路；不恢复临时检索适配器充当完整后台。
+
+## 2026-09-13 实际 RAG 接入与范围选择修复
+
+独立实际 RAG 三窗对照及 `auto_scope=false` 修复的测量、失败尝试、诊断 ID 与截图见 [实际 RAG 复盘](../reports/business-acceptance/实际RAG优化与AI联调-20260913.md)。测试容器已停止，原始证据保留。当前常驻接入以 [服务接入](SERVICE_INTEGRATION.md) 为准。
+
+## 2026-09-13 业务验收基础模块
+
+知识库 HTTP 样例、业务测量合同和验证中心只读投影仍用于可重复回归，见 [业务验收](BUSINESS_ACCEPTANCE.md)。样例不代表原办公助手，也不能由业务指标改善推导 AI 根因验证。
+
+## 2026-09-10 验收口径更正：21 条链路不等于 21 个根因已验证
+
+对 9 月 8 日原始 21 条诊断逐条读取现存 Report：只有 2 个会话至少含一份 `VERIFIED` 报告，另外 19 个没有；这只是存储的报告门禁状态，不能直接称为真实根因准确率。旧 Campaign 的 `lineage_only` 验证只要求指定采集器产物、支持证据、报告引用、会话完成和注入清理，没有强制检查根因报告 VERIFIED，也没有要求修复前后验证。此前“21/21 全链路已验收”的表述不应继续用于表示根因定位及修复闭环全部成功。
+
+C++ 锁竞争的旧验收 perf 失败，支持报告为 PARTIAL_WITHOUT_COUNTER；9 月 10 日新运行虽工具执行完成，perf 样本低于门槛，I/O 仅属主机背景，锁假设缺独立对照，最终 INSUFFICIENT_EVIDENCE。详见 [验收口径复核](../reports/ai-diagnosis/21场景验收口径更正-20260910.md)。旧原始机器报告保留，页面历史标签现已按新的分层标准调整，不能把本次只读复核写成重新验收通过。
+
+## 2026-09-10 全面检查修复（已发布）
+
+最新云端目录 `/opt/mini-drop-releases/20260910T074729Z`；后端 API 与 Python 镜像发布标签 `20260910T073914Z`，最终 Web 标签 `20260910T074729Z`。三台 Agent 新系统指标任务完成，幂等重放、独立 PostgreSQL 并发测试与浏览器检查通过。
+
+本轮修正 Skill 离线评测与真机验收的文案边界，新增故障广场证据入口；Agent 趋势改用采样时间去重，切换机器清空历史并拒绝旧请求结果，CPU 不再裁切到 100%。离线报告字段不完整时显示错误，不生成替代分数。
+
+后端幂等冲突先释放事务再查询已创建任务；Outbox 完成/失败回写使用行锁与领取串行化，并在取得锁后检查租约时间。Go 统一限制 V2 REST/SSE：当前 RPC 只传身份、没有完整资源范围执行，因此任一 Agent/Service/Environment 范围受限的账号返回 403，直到实现端到端范围过滤；全范围账号仍按角色授权。这是明确的功能边界，不代表多租户隔离已完成。数据库保持 20260910_0008，无新增迁移。
+
+检查结果和发布证据见 [项目全面检查与修复](../reports/ai-diagnosis/项目全面检查与修复-20260910.md)。下方发布版本属于历史记录，最新验收状态以该报告为准。
+
+## 2026-09-10 Skill 页面展示调整（已发布）
+
+当前云端目录 `/opt/mini-drop-releases/20260909T174951Z`。本次只替换 Web，后端容器保持运行；页面内展示、页签切换、总览快捷入口及 375px/横屏布局验证通过，0 个浏览器异常。
+
+验证中心的“Skill 示例与沉淀”现在与其他入口一样，在页面内容区显示，选中导航同步切换；总览中的“查看示例与运行实例”也进入该页签。内置路线、运行实例、评测、发布、隔离及回滚沿用原组件与接口。移除大弹窗和弹窗内滚动限制。
+
+
+## 2026-09-10 用户截图问题修复（已发布）
+
+当前云端目录 `/opt/mini-drop-releases/20260909T170846Z`。工具名以稳定 ID 翻译；树区分反证与不可观测；报告拆分调查、根因与修复状态，证据不足使用橙色提示。主机 I/O 未归属进程时不得作为该进程根因支持或反证；旧报告保留审计并明确旧评分失效的范围。截图案例仍未定位根因，也没有修复复测记录。
+
+三个原生 Agent 均已推广新版自身指标采集。链路为 `/proc/self` 相邻窗口差分 → 心跳 `self_pstats` → Control 写入 `agents.latest_metrics` → Go API → 页面；CPU/RSS/读写速率只描述 Agent 自身。缺失显示“未上报”，实测零保留，首窗口或读取失败不填零。两台腾讯 Worker 的 SSH 访问已恢复，第二台通过第一台跳转；现已完成升级，不再是待办。
+
+数据库 head 为 `20260910_0008`，新增可空 JSON 字段；API 当前镜像为 `mini-drop-apiserver:usability-executable-20260910`，两个 Python Worker 使用 `mini-drop-python-worker:20260909T165645Z`。曾出现遗漏字段导致心跳失败、Go 二进制缺执行权限导致 API 启动失败，已恢复并完成独立终验。回滚须保留字段并使用认识新 head 的 Python 镜像，不能直接回滚到旧 schema 组合。
+
+最终 Python 509 passed / 3 skipped，Web 全量 152 项及后续定向回归通过，Go 测试通过，CTest 4/4。三个新 `sys_metrics` 任务均采集与分析成功；三个 Agent 指标新鲜、RSS 非零、二进制 hash 一致。公网五张实拍截图、0 个浏览器异常，历史主机 I/O 证据在新门禁下为 ACCEPT_LIMITED / NEUTRAL。详见 [截图问题修复与验收](../reports/ai-diagnosis/截图问题修复与验收-20260910.md)。本节是最新状态，下方带日期的旧版本记录保留作历史；长期压测与大样本随机 A/B 尚未完成。
+
+## 2026-09-09 后续完善（已发布）
+
+- Java async-profiler HTML 改为受限数据解析并由现有 D3 组件绘制；不执行产物脚本，不放宽 iframe 沙箱。任务切换会忽略旧请求的迟到响应。
+- 原生 perf 检查 PERF_RECORD_SAMPLE，取消 16 KiB 文件阈值；默认 cycles 无样本时仅补采一次 cpu-clock。真正无样本使用 `ANALYSIS_INPUT_INVALID` 和 `NO_PERF_SAMPLES` 说明；取消、超时、异常退出分别保留类型。没有样本不能当成已验收证据。
+- 真实模型恢复后发现 Java 的有限轮次重规划可能耗尽在通用探针，现将符合绑定运行时的专用探针优先放入候选集，仍遵守能力/策略/预算和 LATS 选择。原生 self 样本已知时不再用进程包装帧的累计比例冒充热点叶函数。
+- 模型工具提案在返回 accepted 前检查“采集失败当反证”；该语义错误最多给一次明确纠正机会，网络/provider 异常不额外重试。持续无效仍规则兜底；报告结论继续由证据门禁构建。
+- 当前版本 `/opt/mini-drop-releases/20260909T153610Z`；主修复发布在 `20260909T151902Z`，去掉重复 Java 图表在 `20260909T152520Z`，最终版本修正 Python Skill 将采集错误误列为反证的正文。前端、Diagnosis Worker 和演示 Agent 均有可回滚版本，腾讯两台 C++ Agent 保持原镜像在线。
+- DeepSeek 充值后最小调用 HTTP 200。修复后的 Java、Python、Go、C++ 四条全链路 4/4，初始规划均为 LANGGRAPH_AGENT，并存在持久化 MODEL 假设；16 次真实工具调用全部完成。首轮 Java 失败与兜底记录保留，不回写历史证据。
+- 云端 Java 图表 38 帧、单图、搜索可用，0 个浏览器异常；独立空闲进程 perf 任务按 NO_PERF_SAMPLES 明确失败。10 分钟、4 路并发、1,200 次读取均成功，各路 P95 约 0.92～0.94 秒（包含公网往返，期间有其他验收与构建）。这不是容量上限或长期 soak。
+- Python 全量 506 passed / 3 skipped；三项跳过的 PostgreSQL 测试已另在独立测试 DB 全部通过。Web 全量 146 tests，通过后新增任务切换保护，最终组件 12 tests 通过（共 147 个不同测试）；C++ CTest 3/3，生产构建和 bundle 检查通过。总记录见 `reports/ai-diagnosis/后续完善与验收-20260909.md`。
+- 随机 A/B 六次真实分配、取证、标注和评估通过（AUTO 2、DISABLED 4）；小样本输出 NOT_READY，未批准发布。偏好保存/跨两个新会话加载/删除恢复通过。
+- 三项 PostgreSQL 并发测试在独立 test 数据库通过。修复测试 fixture 的父子 flush 顺序和锁等待信号位置，未关闭外键或唯一约束。
+- 39 张表的快照行数恢复一致，2,830 个 MinIO 对象逐一 SHA-256 校验一致；备份与独立恢复数据库/桶保留。入口 `python3 scripts/verify_backup_restore.py --output /opt/mini-drop-backups/<新目录>`，仅在 Linux Docker 主机执行。
+- 旧 Python Worker `mini-drop-jyl-worker-agent-1` 指向废弃控制面，已关闭自动重启并停止；保留容器/镜像/配置。当前三个 C++ Agent 不属于此容器。
+
+
 > 这是跨聊天、跨任务使用的上下文锚点。开始工作时先读本页，再进入对应专题文档。
 
 最新一次电脑重启前的精确交接状态保存在 `docs/RESTART_HANDOFF.md`。它记录当前云端版本、FULL/BUDGETED LATS 边界、最终测试基线和重启后的恢复动作；不包含任何密码或私钥。
@@ -28,6 +107,10 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - 验证中心提供独立的“完整 LATS 冻结回放”：每次点击都创建一条新的 `REPLAY` Diagnosis，把服务端白名单 fixture 作为不可变快照落库，再逐帧持久化 `lats.*` 事件并通过现有 SSE 更新探索树。它不连接 Agent、不创建真实 Task/Artifact/Evidence/Report，不能冒充当前线上故障证据。
 - 人工审批只允许修改策略开放的采样参数；服务端签发的 Agent/PID 目标身份在页面中只读，不能借审批改绑目标。
 
+## 2026-09-09 其余 17 场景全链路复验与标签同步
+
+历史 17/17 仅表示旧链路合同通过，不能表示根因 VERIFIED 或修复闭环。工具失败、发布回滚与原始记录见 [17 场景复验](../reports/ai-diagnosis/故障广场其余17场景全链路复验-20260909.md)。当前严格成绩与口径以 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md) 为准。
+
 ## 当前部署决定
 
 - 云服务器仍需要运行环境；“上云”不等于“不用 Docker”。
@@ -36,7 +119,7 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - Worker 可以使用 `docker-compose.worker.yml`，也可以通过 `deploy/systemd/mini-drop-agent.service` 裸机运行 C++ Agent。
 - 对宿主机 PID、perf 和 eBPF 的访问要求较高时，Worker 使用 systemd 更直接；Control 保留 Docker Compose 更易维护。
 - 不得把 Docker 配置和数据库/MinIO 数据卷当作普通缓存删除。
-- 当前线上版本为 `/opt/mini-drop-releases/20260908T094648Z`，`/opt/mini-drop-current` 已在 2026-09-08（UTC+8）原子指向该目录；对外入口是 `https://120.24.187.205/ai-diagnosis`。该版本继承 15 张云端教材截图，并包含意图子句优先级、工具/假设绑定、native perf self-sample 语义和 Java 故障实验内存边界修正。发布只滚动替换 Python Worker/Analyzer，没有重建 ECS、PostgreSQL、MinIO 或其数据卷。
+- 最新保存的发布记录为 `/opt/mini-drop-releases/20260914T073540Z`；镜像和回滚信息以本文顶部链接的发布记录为准。对外入口是 `https://120.24.187.205/ai-diagnosis`。
 - `20260906T125357Z` 的安全源码包 SHA-256 为 `078D15D7099ECAF47B82228FD42EA261E9B1BE02386E2178A9FB378B177A06F3`；其清单已验证不含 `.env`、证书、私钥、本地数据库、缓存和构建产物。旧 staging `20260906T115542Z` 与本地作废包 `20260906T123931Z` 不得切换为 current。后续发布继续使用版本目录和原子软链接，原生镜像构建保持 `NATIVE_BUILD_JOBS=1`、`COMPOSE_PARALLEL_LIMIT=1`，不得删除 PostgreSQL/MinIO 卷。
 
 ## 权威文档
@@ -54,58 +137,44 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 
 ## 当前学习入口
 
+### 2026-09-09 前端工作台收尾（已发布云端）
+
+- 新诊断首屏直接展示问题输入、三类可编辑示例和故障广场演示入口；架构说明移至“诊断说明”弹窗。
+- 对话视图在驾驶舱前展示持久化报告摘要、证据引用数量、限制和下一步。摘要与完整报告采用同一最佳报告选择规则，后续证据不足分支不会遮住此前较强报告；不新增或回写 Evidence/Report。
+- 驾驶舱保留八个详情入口，运行时信息按需展开，降级提示仍在折叠标题上可见。“评测”指标明确改为“工具成功率”。探索树优先展示拓扑，搜索预算/评分可展开，Skill 路线、逐轮记录和转向放在树下方。
+- 同一会话刷新失败保留已有数据并提示状态未确认；切换会话清空旧数据，避免跨目标展示证据。SSE 事件合并刷新，取消额外的逐事件探索树请求；中文输入法确认字符不会误发送。
+- 本轮已发布云端，仅更新 Web，数据库与对象数据保持原状。公网 `/api/healthz` 的 Control、数据库、Diagnosis Worker 均为 healthy；45 个公网前端文件与本地构建逐字节一致。报告为 `reports/ai-diagnosis/frontend-deploy-20260909T111410Z.json` 和 `frontend-assets-20260909T111410Z.json`；本轮没有重跑 21 场故障，不把健康检查视为新故障验收。
+- 公网只读 Chromium 验证通过：新首页、390px 移动布局、既有 Java 报告摘要、探索树与全屏、验证中心、Skill A/B 和记忆。未捕获异常与被阻止的业务写请求均为 0，真实会话 SSE 已连接。报告为 `reports/ai-diagnosis/frontend-ui-20260909T111410Z.json`，截图在 `output/acceptance/20260909T111410Z/`；脚本仅允许读取及建立鉴权会话，不注入故障或改写诊断。
+- 本地浏览器回归入口为 `scripts/verify_frontend_workbench.mjs`，使用明确标记的合成 API 数据，输出 `output/frontend-review-20260909/`；它验证页面行为，不能替代云端真实诊断或用户最终页面验收。
+- 本地候选验证：Web 33 个测试文件、137 tests 全部通过；生产构建和 bundle 检查通过。Chromium 验证 1366×768、1093×768 和 390×844 布局、示例填写、报告摘要、树与全屏、报告刷新失败保留及重试恢复，0 个浏览器未捕获异常。机器结果在 `output/frontend-review-20260909/result.json`，全量测试日志在 `output/frontend-tests-final-20260909.log`。
+
 主教材是 `docs/PROJECT_LEARNING_GUIDE.md`，目前包含：
 
-1. 全部真实页面、按钮、输入框和使用示例，并配有 15 张 2026-09-08 当前云端只读截图；图片保存在 `docs/assets/learning-guide/`，通过 `scripts/capture_learning_guide_screenshots.py` 可重复抓取。
+1. 主要页面、静态文案、动态字段与条件按钮的使用说明；正文配有 32 张 2026-09-09 云端只读截图和 1 张注明出处的历史冻结示意。新截图、可见文字/控件清单和图片 hash 位于 `docs/assets/learning-guide/20260909/`，旧截图保留。
 2. 基础采集与 AI 自主诊断的端到端链路。
 3. 仓库目录、核心文件、状态机和数据模型。
 4. LangGraph、Harness、Theme、Context、Memory 与 Skill 的关系。
 5. 性能诊断相关的操作系统、网络、分布式系统与面试知识。
 6. 七节从零开始的实操课程。
-7. 由 `scripts/generate_learning_guide_file_index.py` 从实际工作树维护的逐文件字典；生成代码、测试、部署、报告和样式也标明来源与用途。
+7. 由 `scripts/generate_learning_guide_file_index.py` 从实际工作树维护的目录与逐文件字典；附真实源码声明定位。导出与缓存不列为业务源码。
+8. 第 0 节前置知识、两条逐步源码追踪链、五个实操练习、40 个专题面试问答与学习自测。
+9. `scripts/render_learning_guide.py` 从同一 Markdown 生成离线 HTML，内嵌截图，支持目录、全文/文件名搜索、图片放大和打印；不另维护一套正文。
 
-后续教学内容继续更新同一份主教材，不另起名称相似但互相冲突的版本。
+后续教学内容继续更新同一份主教材，不另起名称相似但互相冲突的版本。教材第 29 节保留 Java 图体空白的历史发现；该问题已在 9 月 9 日后续完善中修复，当前结果见 [后续完善与验收](../reports/ai-diagnosis/后续完善与验收-20260909.md)。
 
 需要直接排练或面试演示时，使用 `docs/INTERVIEW_DEMO_GUIDE.md`。它不是第二份架构真相，而是从主教材提炼出的页面操作脚本，并明确区分 FULL_LATS 冻结回放与真实 BUDGETED_LATS 诊断。
 
 ## 最近验证基线
 
-2026-09-08 当前代码完成了包含自由探索、实际轮次回溯、运行时路由门禁和 FULL_LATS 冻结回放桥在内的全量回归；代码测试与真实公网验收分开记录：
+最新已保存的回归记录见 [四业务验收](../reports/business-acceptance/轻量业务接入与验收-20260914.md)：Python 560 passed / 5 skipped，Web 39 个文件、172 项测试，原生 5 项 CTest、OpenAPI 83 组路由与生产构建通过。它们是该发布批次的记录，不代表以后修改自动通过。
 
-- Python：501 passed，3 skipped，0 failed。
-- Web：32 个测试文件、133 tests 全部通过；生产构建与 bundle 检查通过。全量测试需单 worker 顺序运行，避免本机并发导入 Ant Design/ECharts 造成统一的 5 秒资源争抢超时。
-- Go：`go test ./...` 全包 0 failed。
-- OpenAPI：80 个 method/path 对通过。
-- 新 Skill 路线评测：540 个新提示词 Case，506 个通过；正例 334/360，负例 172/180，误激活 8/180，不复用路线的弃权基线为 180/540。这组数字只表示路线选择与拒绝，不是真实根因准确率。
-- 新受控根因评测：21 个可执行故障合同生成 540 条确定性回放，关闭 Skill 为 231/540（42.78%），启用 Skill 为 382/540（70.74%）；其中 500 组同题同两次工具预算为 41.20% 对 68.40%，提升 27.20 个百分点，改善 136、退化 0、关键路线提前 187 组。它测量受控合同上的 Evidence 合格代理 Top-1，不是 540 次公网真机注入。
-- 新 Linux live E2E：同一发布版本顺序执行故障广场全部 21 个白名单场景，Python 7/7、Go 4/4、Java 5/5、C++ 5/5，21 条诊断链和 21 次故障清理全部通过。全轮包含 83 次真实 Tool Call、236 条 Evidence 和 70 份 Report；机器报告为 `reports/ai-diagnosis/fault-plaza-full-21-final-v2-20260908.json`，规范化 payload SHA-256 为 `c8f7d0413fce94601cd905238533553f2d20509ae2492035e03f8c78faa07eea`。这是受控真机闭环，不是生产准确率。
-- 新增连续窗口 Bundle、安全解包、调用图、兼容矩阵和聚合对照测试；受控 Python 源码热点、Go CPU 热点、C++ CPU 热点和 Java GC 压力已经分别完成云端 live E2E，`continuous_perf` 长周期与独立 eBPF Campaign 也已通过专项真机验收。Java 结论属于 `PARTIAL_WITHOUT_COUNTER`：真实 JVM allocation Profile 足以支持当前热点判断，但缺少独立计数器交叉验证，页面和报告都会保留这项限制。
-- Windows Docker Desktop 当时不可用，但六个发布镜像由独立 WSL Docker 构建并加载到云端；是否通过 Linux live E2E 以云端报告为准，而不是以本机 Docker 状态推断。
+历史 540 条路线测试、540 条受控根因回放和 500 组 A/B 的范围与原始报告见 [Skill 文档](SKILLS.md)。这些离线成绩不能替代 Linux 真实根因和同负载修复验收。
 
 ## 2026-09-07 云端发布与现场验收
 
-- 当前线上目录是 `/opt/mini-drop-releases/20260908T094648Z`。它包含完整 `SKILL.md` 渐进式披露、跨类别检索纠偏、跨轮 Skill 上下文、动态树中的 Skill 非证据路线泳道、540/500 量化卡，以及意图子句路由、工具/假设绑定、native perf self-sample 语义、显式网络症状优先级和 Java 故障实验内存边界修正；公网 `/api/healthz` 与 AI 诊断页均返回 HTTP 200。
-- 报告生成不再把 Planner 的宽泛候选原样写成“诊断结论”。新报告从通过门禁的 Analyzer metadata/predicate 中提取具体函数、样本占比、事件类型和可用对象类型；完整验证显示“根因结论”，缺少独立反证/对照显示“阶段性根因”。不可变旧报告由 Web 使用其既有 claims 做确定性展示恢复，不修改数据库审计记录。
-- `sys_metrics.v1` 与当前页面的结构错位已通过显式兼容适配器修复：历史逐秒 RSS、线程和 FD 会显示真实当前值、峰值、趋势与采样表；没有采集的 CPU、负载、I/O 和网络保持“未采集”，不会伪造成 0。未来 Analyzer 状态文案也不再把 v1 产物误称为 v2。
-- 公网业务健康检查使用 `/api/healthz`。公网 `/readyz` 当前匹配 Nginx 的 SPA fallback 并返回 `index.html`，因此只能把 `/api/healthz` 的结构化结果或容器内 `/readyz` 当作 readiness 证据。
-- 页面入口：`https://120.24.187.205/ai-diagnosis`。
-- 发布后检查确认 Agent Runtime 为 `HEALTHY`，请求和实际 Checkpoint 后端均为 PostgreSQL；容器内 RAG 可返回知识结果，九个 Control/演示服务均正常运行。
-- 当前故障广场在线枚举 21 个白名单场景（Python 7、Go 4、Java 5、C++ 5），`control-interview-demo-agent` 和四个隔离实验室均可用。PID 会变化，只能使用每条 Diagnosis 内服务端签发的不可变目标绑定，不能把历史 PID 当成配置。
-- 本次发布后又从故障广场创建一组全新的 Go CPU A/B：关闭 Skill 为 `insight_33af01c2aeff443ca74b0ebf1b8c7201`，开启 Skill 为 `insight_212795b892964cebbf059b7dfbc67085`。两组均完成 4 轮、4 次真实工具调用、16 条 Evidence 和 4 份报告；AUTO 组先执行 Go pprof，动态树返回完整 `SKILL.md`、9 个已校验章节、SHA-256、逐轮偏离/耗尽轨迹及 3 步路线覆盖层。故障清理已验证。报告为 `reports/ai-diagnosis/skill-route-live-20260907T062103Z.json`，SHA-256 为 `DC3BC84DFF73FA078B46EBB2887C7D0C795089EBDBE3490860673E23A0EB7270`。
-- 最终版本切换后再次运行修正后的真实 Go A/B：`DISABLED=insight_9f94b3910410440b9b8c389319f3cc88`，路线为系统指标 → Go pprof → perf → eBPF I/O；`AUTO=insight_108c07dd8c074bd0ab87ef3571ef6eb7`，路线为 Go pprof → 系统指标 → perf → 连续剖析。两组绑定同一不可变 PID，均完成 4 个报告轮次；AUTO 树实际保存 `ACTIVATED → DEVIATED → DEVIATED`，完整加载 9 个 Skill 章节，并把 6 个路线步骤关联到真实树节点。报告为 `reports/ai-diagnosis/skill-route-final-20260907T063732Z.json`，SHA-256 为 `7271D87467DF6EABC94C414AEFB619EC2E5A60DA93AD997AAB715A810B40EEA9`，故障清理已验证。
-- 故障广场默认按 **Go → Java → C++ → Python** 各展示一个推荐案例，并提供“推荐、全部、Go、Java、C++、Python”筛选。服务端成熟度标签仍以场景合同为准；2026-09-08 的完整 live Campaign 已证明当前 21 个白名单场景逐项闭环，但不能把受控演示结果外推为生产事故准确率。
-- `DISABLED` 路线新建诊断 `insight_e581f5ac05704a2e96ba8a899a9786bd`，终态 `COMPLETED`，完成 4 个有报告执行轮次、4 次真实工具调用和 16 条 Evidence；py-spy 火焰图根节点 2968 个样本、TopN 8 行，无 Skill activation，最终报告置信度 0.69。
-- `AUTO` 路线新建诊断 `insight_85bff86fb8fc4c9abd72e6e26496b77b`，终态 `COMPLETED`，完成 4 个有报告执行轮次、4 次真实工具调用和 16 条 Evidence；py-spy 火焰图根节点 2968 个样本、TopN 5 行，激活内置 `python-runtime` Skill 一次，最终报告置信度 0.73。
-- 两条链路都发现 `source_hot_function`，报告的实际轮次均为 `[1,2,3,4]`，LATS 事件精确重复数均为 0；收尾检查确认故障已停止（`fault_active=false`）。
-- Python 源码热点验收报告为 `reports/ai-diagnosis/interview-demo-live-acceptance-20260906T142517Z.json`，SHA-256 为 `9A8EA9DB4DF645B6F7CFD34C8A707D8E03E96FC719C604B09E320B1AC7146D3B`。
-- 最新 Go 强验收报告为 `reports/ai-diagnosis/go-interview-demo-live-acceptance-20260907T003100CST.json`，SHA-256 为 `9E24B6528BCF289296E7C8F4B894C4A09BAF17986F2BF3406359B3AB87EEDBD4`。关闭 Skill 的新诊断 `insight_5dc98348c4374b1e8a0089c88d7dfc71` 先走 `collect_sys_metrics`，开启 Skill 的新诊断 `insight_bcf79060ab2242e19a5131a36857a651` 先走 `collect_go_profile`；两组都完成 4 个真实执行轮次，Go pprof 火焰图和 TopN 均命中 `main.goCPUHotFunction`，报告引用对应 SUPPORT Evidence，且故障清理已验证。
-- C++ CPU 热点真实 Skill A/B 报告为 `reports/ai-diagnosis/cpp-cpu-hotspot-live-ab-20260907T104202Z.json`，SHA-256 为 `975D6DAB0532552BB2382137FC2D55D0C484EEB3F39E3038D35668371A63F303`。两组均完成 4 轮，AUTO 的 perf 产物命中 `cpp_cpu_hot_function`，Task、Artifact、Evidence 与 Report 链路通过。
-- 持续 perf 与独立 eBPF 专项报告为 `reports/ai-diagnosis/priority-collectors-live-20260907T0932Z.json`，SHA-256 为 `f14eb214ce86ca7b3f03bbd807383a059c8a5abcc52661def9fd58d1256bc559`。持续任务运行 60 秒、生成 4 个窗口；eBPF 产物包含非零真实样本，结束后清理通过。
-- Java GC 压力真实 A/B 报告为 `reports/ai-diagnosis/java-gc-pressure-live-ab-20260907T1535Z.json`，SHA-256 为 `7efeb124d295b112abe67abc759856d239b6c2dd41c0ddb15ac658e4df4fb63c`。关闭 Skill 的新诊断 `insight_98f5e80170d24e078e7def200fcd6169` 终态为证据不足；开启 Skill 的新诊断 `insight_c23e8c442c2343f1bd10cb39bb8666af` 终态为带限制完成。两组都先做低风险系统初筛，但完整路线分别为“系统指标 → perf → eBPF I/O → JVM Profile”和“系统指标 → 内存 Profile → JVM allocation Profile → perf”；AUTO 组真实 async-profiler 产物包含 2,842 个样本并命中 `Hotspot`，新增 1 条可支撑结论的 Evidence，故障清理已验证。故障广场的 `java-gc-pressure` 与此前已通过的 `cpp-cpu-hotspot` 现均返回 `LIVE_DIAGNOSIS_VERIFIED`。
-- 面向阅读和答辩的最新测试报告为 `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md`，对应 Word 版为 `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260906.docx`。Word 版已逐页渲染检查，并通过 0 高、0 中、0 低问题的无障碍审计。
-- FULL_LATS 公网验收报告为 `reports/ai-diagnosis/lats-replay-acceptance-public-20260906T071335Z.json`，SHA-256 为 `D337B15661524799D72EB94AEB7588C624D27DFE34549EF4ADAF4EC408D2D9F6`。脚本通过 `https://120.24.187.205` 连续创建两条 fresh Diagnosis：各观察到 6 个树 revision 和 4 次冻结 simulation；两次 snapshot digest 相同，节点 namespace 不相交，真实 Tool Call/Evidence/Report 均为 0。
-- 这次 A/B 是对同一个不可变 demo 进程做两次隔离、顺序执行的受控故障重放。它证明页面可随时创建新故障、新 Diagnosis/Task/Artifact/Evidence/Report 链以及 Skill 路线差异；两臂不是同一墙钟时间窗，不能把耗时差写成严格性能收益。
-- host-network 的 demo Agent 通过回环 MinIO 端口上传。`diagnosis-worker` 必须实际接收到 `MINIO_AGENT_ENDPOINT=127.0.0.1:19000`；只把变量写进 env 文件、但没有传入该容器，会生成 demo Agent 无法访问的上传地址。
+该批逐次发布、Python/Go/C++/Java A/B、采集产物、诊断 ID、SHA-256 与限制已记录在 [AI 与 Skill 测试报告](../reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md) 及 `reports/ai-diagnosis/` 原始机器报告。冻结回放与真实诊断的区别见 [AI 诊断](AI_DIAGNOSIS.md)，复现命令见 [基础复刻](REPLICATION.md)。
+
+9 月 8 日旧 21/21 只按链路合同判定，后续已更正，见 [验收口径复核](../reports/ai-diagnosis/21场景验收口径更正-20260910.md)。不要用旧发布状态覆盖本文顶部的最新状态。
 
 ## 2026-09-05 当前实现增量
 
@@ -133,7 +202,7 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - 当前评测和 Skill 演进有离线数据集、门禁、发布、隔离和回滚；服务端已经实现持久化随机分流、显著性分析和指标快照，但尚无足够生产随机样本，不能把双会话演示或受控回放冒充线上 A/B 结论。
 - “自进化”只允许产生候选 Skill 并经过评测与人工发布，不能表述为模型会在线自行改 Prompt、代码、权限或自动把反馈发布到生产。
 
-这些结果说明当前代码和文档注释修改没有破坏已覆盖的行为；故障广场当前 21 个白名单组合已由同版本 Linux live 报告逐项验收。新增运行时、Collector 或生产故障类型仍必须另做匹配环境验收。
+21 个白名单组合有历史链路记录；严格根因验收仍为 1 项通过、20 项未通过。新增运行时、Collector 或生产故障类型必须另做匹配环境验收。
 
 ## LATS 搜索合同与运行边界（2026-09-06）
 

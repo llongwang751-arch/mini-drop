@@ -69,8 +69,24 @@ try {
 
   let sequence = 0;
   const pending = new Map();
+  const browserExceptions = [];
+  const blockedMutations = [];
   socket.addEventListener("message", (event) => {
     const message = JSON.parse(String(event.data));
+    if (message.method === "Runtime.exceptionThrown") {
+      browserExceptions.push(message.params.exceptionDetails.text);
+    }
+    if (message.method === "Fetch.requestPaused") {
+      const { requestId, request } = message.params;
+      const isSessionAuthentication = request.method === "POST"
+        && new URL(request.url).pathname === "/api/auth/session";
+      if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && !isSessionAuthentication) {
+        blockedMutations.push({ method: request.method, path: new URL(request.url).pathname });
+        void send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
+      } else {
+        void send("Fetch.continueRequest", { requestId });
+      }
+    }
     if (!message.id || !pending.has(message.id)) return;
     const handler = pending.get(message.id);
     pending.delete(message.id);
@@ -85,6 +101,8 @@ try {
 
   await send("Page.enable");
   await send("Runtime.enable");
+  // This tour reads existing server data; never start a fault or mutate a Skill.
+  await send("Fetch.enable", { patterns: [{ urlPattern: "*/api/*", requestStage: "Request" }] });
   await send("Emulation.setDeviceMetricsOverride", {
     width: 1600,
     height: 1100,
@@ -164,6 +182,21 @@ try {
     "Agent 工作台",
     "验证与 A/B",
   ]);
+  await waitForTexts(["诊断说明", "用故障广场开始演示"]);
+  await screenshot("workbench-start-desktop.png");
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390, height: 844, deviceScaleFactor: 1, mobile: true,
+  });
+  await wait(500);
+  const mobile = await send("Runtime.evaluate", {
+    expression: "document.documentElement.scrollWidth <= innerWidth + 1",
+    returnByValue: true,
+  });
+  if (!mobile.result?.value) throw new Error("Mobile page overflows horizontally");
+  await screenshot("workbench-start-mobile.png");
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1366, height: 768, deviceScaleFactor: 1, mobile: false,
+  });
   await clickExactText("验证与 A/B");
   await waitForTexts(["诊断验证中心", "故障广场", "Skill A/B"]);
   await screenshot("validation-center.png");
@@ -183,6 +216,8 @@ try {
   await screenshot("skill-experiment.png");
 
   const checks = {
+    new_workbench: "PASS",
+    mobile_no_horizontal_overflow: "PASS",
     validation_center: "PASS",
     experiment_panel: "PASS",
     diagnosis_memory: diagnosisId ? "PENDING" : "SKIPPED_NO_DIAGNOSIS_ID",
@@ -190,6 +225,27 @@ try {
   if (diagnosisId) {
     const caseId = encodeURIComponent(`drop_insight_v2:${diagnosisId}`);
     await openAndWait(`${baseUrl}/ai-diagnosis?case=${caseId}`, ["记忆", "证据", "工具"]);
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      const result = await send("Runtime.evaluate", {
+        expression: "!!document.querySelector('.diagnosis-finding')", returnByValue: true,
+      });
+      if (result.result?.value) break;
+      if (attempt === 59) throw new Error("Persisted report summary is missing");
+      await wait(500);
+    }
+    await screenshot("persisted-finding.png");
+    await clickExactText("探索树");
+    await wait(700);
+    await screenshot("live-exploration-tree.png");
+    const fullscreen = await send("Runtime.evaluate", {
+      expression: "(() => { const button = document.querySelector('button[aria-label=\"全屏查看探索树\"]'); if (!button) return false; button.click(); return true; })()",
+      returnByValue: true,
+    });
+    if (!fullscreen.result?.value) throw new Error("Fullscreen tree button is missing");
+    await waitForTexts(["实时诊断探索树 · 全屏阅读"]);
+    await screenshot("live-exploration-tree-fullscreen.png");
+    await send("Runtime.evaluate", { expression: "document.querySelector('.ant-modal-close')?.click()" });
+    checks.persisted_finding_and_tree = "PASS";
     await clickExactText("记忆");
     await waitForTexts([
       "跨诊断偏好",
@@ -204,15 +260,21 @@ try {
     checks.diagnosis_memory = "PASS";
   }
 
-  process.stdout.write(`${JSON.stringify({
+  if (browserExceptions.length) throw new Error(`Browser exceptions: ${browserExceptions.join(", ")}`);
+  const report = {
     schema: "mini-drop.final-ui-acceptance.v1",
     base_url: baseUrl,
     release,
     diagnosis_id: diagnosisId || null,
     checks,
+    scope: "PUBLIC_HTTPS_READ_ONLY_EXISTING_DATA",
+    browser_exceptions: browserExceptions,
+    blocked_mutations: blockedMutations,
     output_dir: outputDir,
-    human_visual_acceptance: "PENDING_USER_CONFIRMATION",
-  }, null, 2)}\n`);
+    passed: true,
+  };
+  await writeFile(path.join(outputDir, "result.json"), `${JSON.stringify(report, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } finally {
   socket?.close();
   browser.kill();

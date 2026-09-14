@@ -88,7 +88,6 @@ from .lats import (
     reward_from_outcome,
     select_puct_candidate,
     stable_candidate_key,
-    termination_decision,
 )
 from .rounds import report_execution_rounds
 
@@ -253,6 +252,8 @@ def _auto_scope_service_filter(query: str) -> str | None:
 
     lowered = query.casefold()
     explicit_service_patterns = (
+        r"(?:环境中(?:的)?|诊断|检查)\s*"
+        r"([a-z][a-z0-9]*(?:[-_][a-z0-9]+)+)(?![a-z0-9_.-])",
         r"(?:服务名|service(?:\s+name)?)\s*(?:为|是|[:=])?\s*"
         r"([a-z][a-z0-9_.-]{0,127})",
         r"([a-z][a-z0-9_.-]{0,127})\s*(?:服务|service)\b",
@@ -300,8 +301,6 @@ def _select_auto_scope_candidate(
     diagnosis_id: str | None = None,
 ) -> dict | None:
     candidates = [item for item in discovery.get("candidates", []) if item.get("eligible")]
-    if len(candidates) == 1:
-        return candidates[0]
     if not candidates:
         return None
 
@@ -319,6 +318,30 @@ def _select_auto_scope_candidate(
         ]
         if len(exact_matches) == 1:
             return exact_matches[0]
+        # An explicit but absent process is not permission to select a worker
+        # of the same language. Multiple exact matches may be ranked below.
+        if not exact_matches:
+            return None
+        candidates = exact_matches
+
+    # A concrete machine-style name can be followed by a symptom rather than
+    # the word 'service', e.g. 'python-hotspot 入口请求被拒绝'. The old service
+    # regex missed that form and the model could choose our own Python worker.
+    # Narrow to names actually present in the trusted candidate set first.
+    lowered = query.casefold()
+    mentioned = []
+    for candidate in candidates:
+        names = {str(candidate.get(key) or "").casefold() for key in ("service", "process")}
+        if any(
+            ("-" in name or "_" in name)
+            and re.search(r"(?<![a-z0-9_.-])" + re.escape(name) + r"(?![a-z0-9_.-])", lowered)
+            for name in names if name
+        ):
+            mentioned.append(candidate)
+    if mentioned:
+        candidates = mentioned
+    if len(candidates) == 1:
+        return candidates[0]
     if _is_database_query(query):
         postgres = [
             item for item in candidates
@@ -603,6 +626,7 @@ def discover_target_candidates(
     *,
     service: str | None = None,
     environment: str | None = None,
+    agent_id: str | None = None,
 ) -> dict | None:
     """Persist one opaque, diagnosis-scoped view of latest Agent snapshots."""
 
@@ -653,6 +677,8 @@ def discover_target_candidates(
         fail_statuses: list[str] = []
         authoritative_seen = False
         for agent in agents:
+            if agent_id is not None and agent.id != agent_id:
+                continue
             snapshot = (
                 session.query(ProcessCandidateSnapshotModel)
                 .filter(ProcessCandidateSnapshotModel.agent_id == agent.id)
@@ -754,6 +780,7 @@ def discover_target_candidates(
                         "instance": candidate.instance_hint or None,
                         "environment": candidate.instance_hint or None,
                         "process": candidate.comm or None,
+                        "namespace_pid": candidate.namespace_pid,
                         "collector_capabilities": candidate.collector_capabilities or [],
                         "eligible": True,
                         "ineligible_reason": None,
@@ -841,6 +868,19 @@ def resolve_diagnosis_scope_autonomously(diagnosis_id: str) -> bool:
             or diagnosis.status != "NEEDS_CLARIFICATION"
         ):
             return False
+        created_event = (
+            session.query(DropInsightEventModel)
+            .filter(
+                DropInsightEventModel.diagnosis_id == diagnosis_id,
+                DropInsightEventModel.event_type == "diagnosis.created",
+            )
+            .order_by(DropInsightEventModel.sequence.asc())
+            .first()
+        )
+        # Persist the caller's choice across the HTTP request and background
+        # worker. Older events lack this field and retain their old behavior.
+        if created_event is not None and (created_event.payload_json or {}).get("auto_scope") is False:
+            return False
         retry_seconds = max(
             5,
             int(os.getenv("MINI_DROP_AUTO_SCOPE_RETRY_SEC", "15")),
@@ -872,6 +912,7 @@ def create_diagnosis(
     payload: CreateDiagnosisRequestV2,
     *,
     created_by: str = "system:internal",
+    business_observation: dict | None = None,
 ) -> DropInsightSessionModel:
     target_json = payload.target.model_dump(mode="json")
     time_range_json = payload.time_range.model_dump(mode="json") if payload.time_range else {}
@@ -907,6 +948,8 @@ def create_diagnosis(
             "status": status,
             "skill_policy": payload.skill_policy,
             "created_by": created_by.strip() or "system:internal",
+            "auto_scope": payload.auto_scope,
+            **({"business_observation": business_observation} if business_observation else {}),
         },
         occurred_at=timestamp,
     )
@@ -1809,7 +1852,7 @@ def generate_report(
             limitations.append("没有通过证据门禁的支持证据，当前不能建立根因结论。")
         elif not verification["has_independent_counter_or_control"]:
             limitations.append(
-                "缺少独立反证或对照证据；结论已完成，但仍应在修复复测中补充独立验证。"
+                "缺少独立反证或对照证据；当前只是阶段性发现，尚不能确认因果关系或故障已修复。"
             )
 
         source_symbols = _extract_source_symbols(supporting + counter)
@@ -1832,6 +1875,15 @@ def generate_report(
             support_refs=support_refs,
             counter_refs=counter_refs,
         )
+        if not _concrete_report_finding([item for item in supporting if item.evidence_id in support_refs]):
+            next_actions = ["先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"]
+        host_observations = [row.envelope_json.get("observation", {}).get("metadata", {}) for row in rows
+            if row.envelope_json.get("observation", {}).get("metadata", {}).get("scope_semantics") == "HOST_BLOCK_DEVICE"]
+        if host_observations:
+            next_actions = ["将同窗口的目标进程读写计数、阻塞调用栈与主机 I/O 分布关联；队列积压还需比较生产速率、消费速率和队列长度。主机延迟不能直接归因为该进程。"]
+            if not support_refs:
+                conclusion = "尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。"
+                limitations.append("主机 I/O 仅作背景观察，不是目标进程的支持证据或反证。故障修复状态需独立复测。")
         round_contract = _diagnosis_round_contract(
             session,
             diagnosis,
@@ -2978,6 +3030,27 @@ def _current_target_binding(diagnosis) -> ProcessIdentityBinding:
         session.close()
 
 
+def _jvm_profile_event(query: str) -> str:
+    """Use the first affirmative symptom, not a later counterexample keyword."""
+    patterns = (
+        ("alloc", r"(?<![a-z0-9_])gc(?![a-z0-9_])|垃圾回收|分配|allocation"),
+        ("lock", r"锁竞争|锁等待|锁路径|reentrantlock|mutex|lock contention"),
+        ("wall", r"下游|等待|响应慢|延迟|latency"),
+    )
+    # Keep a whole Chinese sentence together: '寻找 GC、I/O 或计算反证'
+    # describes alternative explanations, not the intended allocation probe.
+    for sentence in re.split(r"[。；;!?！？\n]", query.casefold()):
+        sentence = re.split(r"排除|反证|不是|并非|rule out|exclude|without", sentence, maxsplit=1)[0]
+        matches = [(match.start(), index, event)
+                   for index, (event, pattern) in enumerate(patterns)
+                   if (match := re.search(pattern, sentence)) is not None]
+        if matches:
+            return min(matches)[2]
+        if re.search(r"(?<![a-z0-9_])cpu(?![a-z0-9_])|计算热点", sentence):
+            return "cpu"
+    return "cpu"
+
+
 def _planner_tool_arguments(
     tool_name: str,
     target: dict,
@@ -3011,15 +3084,7 @@ def _planner_tool_arguments(
         # public tool contract and the live-diagnosis budget.
         arguments["duration_seconds"] = 30
     if tool_name == "start_jvm_profile":
-        lowered = query.casefold()
-        if any(token in lowered for token in ("gc", "垃圾回收", "分配", "allocation")):
-            arguments["event"] = "alloc"
-        elif any(token in lowered for token in ("锁竞争", "reentrantlock", "lock contention")):
-            arguments["event"] = "lock"
-        elif any(token in lowered for token in ("下游", "等待", "响应慢", "latency")):
-            arguments["event"] = "wall"
-        else:
-            arguments["event"] = "cpu"
+        arguments["event"] = _jvm_profile_event(query)
     return arguments
 
 
@@ -3206,12 +3271,12 @@ _RUNTIME_SPECIFIC_TOOLS = {
 
 
 def _runtime_family_from_identity(identity: str) -> str | None:
-    value = str(identity or "").casefold()
+    value = str(identity or "").casefold().removesuffix(" (deleted)").rsplit("/", 1)[-1]
     if "go-hotspot" in value or "golang" in value:
         return "GO"
-    if "python" in value:
+    if value.startswith("python") or value == "uwsgi":
         return "PYTHON"
-    if "java" in value or "jvm" in value:
+    if value == "java" or value.startswith(("java-hotspot", "jvm-hotspot")):
         return "JAVA"
     if "cpp" in value or "c++" in value:
         return "CPP"
@@ -3229,7 +3294,9 @@ def _diagnosis_runtime_family(diagnosis) -> str | None:
     # binary behind a service called ``python-api``), so inspect it only after
     # the bound executable.
     bound_family = _runtime_family_from_identity(binding.get("executable_identity", ""))
-    if bound_family is not None:
+    if binding.get("executable_identity"):
+        # Unknown bound executables must not inherit a runtime from prose or
+        # service names. JVM attach can deliver SIGQUIT to a non-JVM target.
         return bound_family
     labelled_family = _runtime_family_from_identity(
         " ".join(str(value or "") for value in (target.get("service"), target.get("process")))
@@ -3244,12 +3311,11 @@ def _diagnosis_runtime_family(diagnosis) -> str | None:
 
 def _runtime_compatible_tools(diagnosis, tools: list[str]) -> list[str]:
     runtime_family = _diagnosis_runtime_family(diagnosis)
-    if runtime_family is None:
-        return tools
     return [
         tool_name
         for tool_name in tools
-        if _RUNTIME_SPECIFIC_TOOLS.get(tool_name, runtime_family) == runtime_family
+        if _RUNTIME_SPECIFIC_TOOLS.get(tool_name) is None
+        or _RUNTIME_SPECIFIC_TOOLS[tool_name] == runtime_family
     ]
 
 
@@ -3257,10 +3323,22 @@ def _runtime_tool_is_compatible(diagnosis, tool_name: str) -> bool:
     runtime_family = _diagnosis_runtime_family(diagnosis)
     required_family = _RUNTIME_SPECIFIC_TOOLS.get(tool_name)
     return (
-        runtime_family is None
-        or required_family is None
+        required_family is None
         or runtime_family == required_family
     )
+
+
+def _runtime_preferred_tools(diagnosis, tools: list[str]) -> list[str]:
+    """Keep an eligible runtime profiler in the bounded replan frontier.
+
+    Registry ordering must not spend the entire four-round budget on generic
+    perf probes before trying JVM/Go/Python evidence. This is only a prior;
+    the capability/policy filters and model/LATS selection still apply.
+    """
+    family = _diagnosis_runtime_family(diagnosis)
+    return sorted(tools, key=lambda name: 0 if (
+        family is not None and _RUNTIME_SPECIFIC_TOOLS.get(name) == family
+    ) else 1)
 
 
 def _query_mentions_go_runtime(query: str) -> bool:
@@ -3431,7 +3509,7 @@ def _available_planner_tools(diagnosis, binding: ProcessIdentityBinding) -> list
         required = set(tool.get("required_capabilities") or [])
         if required.issubset(capabilities):
             available.append(tool["name"])
-    return _runtime_compatible_tools(diagnosis, available)
+    return _runtime_preferred_tools(diagnosis, _runtime_compatible_tools(diagnosis, available))
 
 
 def _category_allowed_tools(category: str, available: list[str]) -> list[str]:
@@ -5296,34 +5374,6 @@ def _finalize_diagnosis_in_session(
         "status": final_status,
         "best_report_id": best_report.id if best_report is not None else None,
     }
-
-
-def _finalize_diagnosis_after_lats_termination(
-    diagnosis_id: str,
-    *,
-    reason: str,
-    detail: str,
-    effect_key: str,
-) -> dict | None:
-    session = new_session()
-    try:
-        diagnosis = _lock_diagnosis(session, diagnosis_id)
-        if diagnosis is None:
-            return None
-        result = _finalize_diagnosis_in_session(
-            session,
-            diagnosis,
-            reason=reason,
-            detail=detail,
-            effect_key=effect_key,
-        )
-        session.commit()
-        return result
-    except IntegrityError:
-        session.rollback()
-        raise
-    finally:
-        session.close()
 
 
 def _record_lats_termination(
@@ -8769,6 +8819,9 @@ def _compute_hypothesis_predicate(
     falsification = hypothesis.falsification_criteria_json or []
     statement = str(hypothesis.statement or "").casefold()
 
+    if metadata.get("scope_semantics") == "HOST_BLOCK_DEVICE" and metadata.get("target_attributed") is not True:
+        return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3", "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联", "criterion_indexes": [], "metrics": {}}
+
     structured_predicate = _structured_signal_predicate(hypothesis, metadata)
     if structured_predicate is not None:
         return structured_predicate
@@ -8907,8 +8960,17 @@ def _compute_hypothesis_predicate(
                 "percent": _safe_percent(row.get("percent")),
             })
     named = list(aggregated.values())
+    perf_profile = str(metadata.get("schema_version") or "").casefold().startswith(
+        ("perf_analysis.", "continuous_perf_analysis.")
+    )
+
     def _percent(row: dict) -> float:
         return _safe_percent(row.get("percent"))
+
+    def _actionable_percent(row: dict) -> float:
+        if perf_profile and "self_percent" in row:
+            return _safe_percent(row.get("self_percent"))
+        return _percent(row)
 
     def _is_kernel(name: str) -> bool:
         value = name.casefold().strip()
@@ -8982,19 +9044,20 @@ def _compute_hypothesis_predicate(
     actionable_user_rows = [
         row for row in user_rows
         if not _is_runtime_container(str(row["name"]))
+        and _actionable_percent(row) > 0.0
     ]
     kernel_rows = [row for row in named if _is_kernel(str(row["name"]))]
     lock_rows = [row for row in named if _is_lock(str(row["name"]))]
     dominant_user = max(user_rows, key=_percent, default=None)
     dominant_actionable_user = max(
         actionable_user_rows,
-        key=_percent,
+        key=_actionable_percent,
         default=None,
     )
     dominant_kernel = max(kernel_rows, key=_percent, default=None)
     dominant_user_pct = _percent(dominant_user) if dominant_user else 0.0
     dominant_actionable_user_pct = (
-        _percent(dominant_actionable_user)
+        _actionable_percent(dominant_actionable_user)
         if dominant_actionable_user
         else 0.0
     )
@@ -9054,9 +9117,6 @@ def _compute_hypothesis_predicate(
     )
     pyspy_profile = str(metadata.get("schema_version") or "").casefold().startswith(
         "pyspy_analysis."
-    )
-    perf_profile = str(metadata.get("schema_version") or "").casefold().startswith(
-        "perf_analysis."
     )
     go_pprof_profile = str(metadata.get("schema_version") or "").casefold().startswith(
         "go_pprof_analysis."
@@ -9330,6 +9390,9 @@ def _compute_hypothesis_predicate(
             dominant_actionable_user
             and dominant_actionable_user_pct >= 60.0
             and 1 <= len(significant_actionable) <= 3
+            # With native self weights available, a 100% ancestor/process
+            # wrapper cannot replace a missing identifiable hot leaf.
+            and not (perf_profile and any("self_percent" in row for row in named))
             and (
                 not source_mapping_expected
                 or _has_source_location(dominant_actionable_user)
@@ -9363,13 +9426,22 @@ def _compute_hypothesis_predicate(
                 dominant_function=dominant_kernel["name"],
                 dominant_percent=dominant_kernel_pct,
             )
-        if dominant_user and dominant_user_pct >= 60.0 and dominant_kernel_pct < 20.0:
+        # A DSO/process placeholder is not an attributable function. Treating
+        # [libpython...] as counterproof sends the next round back to the same
+        # unresolved runtime container instead of gathering independent data.
+        counter_hotspot = dominant_actionable_user
+        counter_percent = dominant_actionable_user_pct
+        if perf_profile and any("self_percent" in row for row in named):
+            counter_hotspot = max(actionable_user_rows, key=lambda row: _safe_percent(row.get("self_percent")), default=None)
+            counter_percent = _safe_percent(counter_hotspot.get("self_percent")) if counter_hotspot else 0.0
+        if (counter_hotspot and counter_percent >= 60.0
+                and dominant_kernel_pct < 20.0):
             return _predicate(
                 "COUNTER",
-                f"user-space hotspot {dominant_user['name']} dominates while no kernel hotspot reaches 20%",
+                f"user-space hotspot {counter_hotspot['name']} dominates while no kernel hotspot reaches 20%",
                 [0],
-                dominant_function=dominant_user["name"],
-                dominant_percent=dominant_user_pct,
+                dominant_function=counter_hotspot["name"],
+                dominant_percent=counter_percent,
             )
 
     if lock_hypothesis:
@@ -9410,7 +9482,9 @@ def _compute_hypothesis_predicate(
 
     for row in named:
         name = str(row["name"])
-        if _is_runtime_container(name):
+        if _is_runtime_container(name) or (
+            perf_profile and "self_percent" in row and _actionable_percent(row) <= 0.0
+        ):
             continue
         if _matches(expected, name):
             return {
@@ -9486,14 +9560,6 @@ def _parse_datetime(value):
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return None
-
-
-def _sample_count(metadata: dict) -> int:
-    for key in ("sample_count", "samples", "total_samples", "event_count"):
-        value = metadata.get(key)
-        if isinstance(value, int) and not isinstance(value, bool):
-            return max(0, value)
-    return 0
 
 
 def _time_ranges_overlap(start, end, requested: dict) -> bool:

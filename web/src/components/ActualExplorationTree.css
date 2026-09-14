@@ -319,3 +319,10 @@
 @media (prefers-reduced-motion: reduce) {
   .actual-exploration-tree .skill-trace-event button { transition: none; }
 }
+
+/* Missing observations are distinct from scientific counter-evidence. */
+.diagnosis-record-tree .tree-card-unavailable,
+.diagnosis-route-card.is-unavailable { border-top-color: #b86e13; background: #fffaf1; }
+.diagnosis-record-tree .tree-branch-unavailable.has-parent::before,
+.diagnosis-record-tree .tree-branch-unavailable.has-parent::after { border-color: #b86e13; border-style: dashed; }
+.diagnosis-tree-legend .is-unavailable i { border-top-color: #b86e13; border-top-style: dashed; }

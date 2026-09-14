@@ -1,0 +1,410 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/tasks",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n任务面板\n计划任务\n系统治理\n事件流已连接\nSSE / Outbox\n任务面板\n采集任务、执行状态与结果入口\n实时\n访问凭据\n任务面板\n10s 自动刷新\n刷新\n新建性能采集\nGo API\n完成后展示：交互式 CPU 火焰图 + TopN 热点\n这里只创建采集 Task；需要根因判断时，请把产物交给 AI 诊断工作台完成证据门禁。\n目标 Agent\nmini-drop-control · ONLINE\n可信进程快照\n采集器\nCPU 火焰图\n时长（秒）\n开始采集\n最近可视化结果\nJava 火焰图\nDrop Insight: start_jvm_profile\nPID 1322033 · async-profiler Java 火焰图\nJava 火焰图\nDrop Insight: start_jvm_profile\nPID 1322033 · async-profiler Java 火焰图\nI/O 延迟图\nDrop Insight: start_ebpf_io_profile\nPID 1322033 · eBPF I/O 延迟直方图\n内存趋势\nDrop Insight: collect_memory_profile\nPID 1322033 · RSS / PSS / Swap 趋势图\n服务版本\n0.1.0\nAgent 在线\n3/ 3\n进行中\n0/ 834\n成功率\n83%\n任务分布：\n695 完成\n139 失败\n0 进行中\n0 其他\nAgent 状态：\n3 在线\n0 离线\n最近完成: Drop Insight: start_jvm_profile, Drop Insight: start_jvm_profile, Drop Insight: start_ebpf_io_profile\n任务列表\n834\n创建时间\n↓ 降序\n诊断历史\n任务\tAgent\tPID\t采集器\t采集 / 分析\t创建时间\t操作\n\n任务\n\t\nAgent\n\t\nPID\n\t\n采集器\n\t\n采集 / 分析\n\t\n创建时间\n\t\n操作\n\nDrop Insight: start_perf_profile\tcontrol-interview-demo-agent\t1322033\tCPU 火焰图\t\n执行失败\n已取消\n\t2026/9/8 19:14:21\t\n查看原因\n\nDrop Insight: start_jvm_profile\tcontrol-interview-demo-agent\t1322033\tJava 火焰图\t\n原始数据已保存\n成功\n\t2026/9/8 19:14:07\t\n查看火焰图\n\nDrop Insight: start_jvm_profile\tcontrol-interview-demo-agent\t1322033\tJava 火焰图\t\n原始数据已保存\n成功\n\t2026/9/8 19:13:46\t\n查看火焰图\n\nDrop Insight: start_ebpf_io_profile\tcontrol-interview-demo-agent\t1322033\tI/O 延迟图\t\n原始数据已保存\n成功\n\t2026/9/8 19:13:29\t\n查看图表\n\nDrop Insight: collect_memory_profile\tcontrol-interview-demo-agent\t1322033\t内存趋势\t\n原始数据已保存\n成功\n\t2026/9/8 19:12:21\t\n查看图表\n\nDrop Insight: start_perf_profile\tcontrol-interview-demo-agent\t1322033\tCPU 火焰图\t\n执行失败\n已取消\n\t2026/9/8 19:12:04\t\n查看原因\n\nDrop Insight: start_continuous_profile\tcontrol-interview-demo-agent\t906277\t持续火焰图\t\n原始数据已保存\n成功\n\t2026/9/8 19:11:50\t\n查看火焰图\n\nDrop Insight: collect_sys_metrics\tcontrol-interview-demo-agent\t1322033\t系统指标\t\n原始数据已保存\n成功\n\t2026/9/8 19:11:39\t\n查看图表\n共 834 条\n1\n2\n3\n4\n5\n•••\n105\n8 / page\nAgent 列表\n3\nAgent\tHost\tIP\tCPU\tRSS\tIO R/W\t状态\n\nAgent\n\t\nHost\n\t\nIP\n\t\nCPU\n\t\nRSS\n\t\nIO R/W\n\t\n状态\n\ncontrol-interview-demo-agent\tmini-drop-control\t127.0.0.1\t0%\t0.0 MB\t0/0\t在线\ntencent-lighthouse-worker-2\tmini-drop-worker-2\t134.175.136.160\t0%\t0.0 MB\t0/0\t在线\ntencent-cvm-worker-1\tmini-drop-worker-1\t106.52.176.128\t0%\t0.0 MB\t0/0\t在线",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "开始采集",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "",
+      "placeholder": "搜索任务名…",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断历史",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_perf_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看原因",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_jvm_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看火焰图",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_jvm_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看火焰图",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_ebpf_io_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看图表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: collect_memory_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看图表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_perf_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看原因",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: start_continuous_profile",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看火焰图",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "Drop Insight: collect_sys_metrics",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "查看图表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "归档任务并保留证据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "",
+      "placeholder": "",
+      "disabled": true
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "1",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "2",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "3",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "4",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "5",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "•••",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "105",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "Page Size",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "control-interview-demo-agent",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "tencent-lighthouse-worker-2",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "tencent-cvm-worker-1",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:01:49.215289+00:00",
+  "screenshot": "09-task-dashboard.png",
+  "sha256": "d699b4de7007b3168710b84fa9de179b17239ff0e0ddf47a36e35cc4047a6e1a",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

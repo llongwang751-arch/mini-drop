@@ -2,6 +2,8 @@
 
 #include "artifact_uploader.h"
 #include "process_runner.h"
+#include "perf_samples.h"
+#include "error_code_contract.h"
 
 #include <filesystem>
 #include <fstream>
@@ -114,8 +116,8 @@ class PerfCollector final : public Collector {
     // never silently replaced.
     std::string recorded_event = requested_event;
     bool software_event_recovery = false;
-    constexpr std::uintmax_t kHeaderOnlyThresholdBytes = 16 * 1024;
-    if (fs::file_size(perf_data) < kHeaderOnlyThresholdBytes &&
+    auto samples = inspect_perf_samples(perf_data);
+    if (samples == PerfSamples::absent &&
         (requested_event == "cpu-cycles" || requested_event == "cpu-cycles:u")) {
       const int retry_duration = std::min(task.duration, 15);
       const fs::path retry_data = output_dir / "perf-retry.data";
@@ -124,17 +126,33 @@ class PerfCollector final : public Collector {
           perf_command("cpu-clock:u", retry_data, retry_duration),
           std::max(task.timeout, retry_duration + 15), retry_stderr,
           cancel_requested);
-      if (command_result.cancelled || command_result.timed_out ||
-          command_result.exit_code != 0 || !fs::exists(retry_data) ||
-          fs::file_size(retry_data) < kHeaderOnlyThresholdBytes) {
-        result.error = "perf produced no samples; cpu-clock recovery failed: " +
-            first_line(retry_stderr);
+      if (command_result.cancelled || command_result.timed_out || command_result.exit_code != 0) {
+        result.error_code = std::string(command_result.cancelled
+            ? mini_drop_contract::kErrorTaskCanceled : command_result.timed_out
+            ? mini_drop_contract::kErrorRunnerTimeout : mini_drop_contract::kErrorRunnerExitNonzero);
+        result.error = "perf cpu-clock recovery " + std::string(command_result.cancelled
+            ? "cancelled" : command_result.timed_out ? "timed out" : "failed") + ": " + first_line(retry_stderr);
+        return result;
+      }
+      samples = inspect_perf_samples(retry_data);
+      if (samples != PerfSamples::present) {
+        result.error_code = std::string(mini_drop_contract::kErrorAnalysisInputInvalid);
+        result.error = samples == PerfSamples::absent
+            ? "NO_PERF_SAMPLES: cycles and cpu-clock recorded no samples; target may be idle or blocked. Use wall/lock or system metrics, or sample under load."
+            : "INVALID_PERF_DATA: cpu-clock recovery produced missing or malformed data";
         return result;
       }
       fs::remove(perf_data);
       fs::rename(retry_data, perf_data);
       recorded_event = "cpu-clock:u";
       software_event_recovery = true;
+    }
+    if (samples != PerfSamples::present) {
+      result.error_code = std::string(mini_drop_contract::kErrorAnalysisInputInvalid);
+      result.error = samples == PerfSamples::absent
+          ? "NO_PERF_SAMPLES: requested event recorded no samples; custom events are not replaced. Check activity and event support."
+          : "INVALID_PERF_DATA: perf record produced missing or malformed data";
+      return result;
     }
 
     const std::string object_key = authorized_object_key(task, "perf.data");

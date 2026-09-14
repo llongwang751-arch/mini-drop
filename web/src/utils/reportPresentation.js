@@ -5,13 +5,30 @@ function verificationStatus(report) {
 }
 
 export function reportConclusionTitle(report) {
+  if (hasUnattributedHostIO(report)) return "尚未定位根因";
   const status = verificationStatus(report);
+  if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return "尚未定位根因";
   if (status === "VERIFIED") return "根因结论";
-  if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性根因";
+  if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性发现（待验证）";
   if (["INSUFFICIENT_EVIDENCE", "FALSIFIED", "REJECTED"].includes(status)) {
     return "本轮判断";
   }
   return "诊断判断";
+}
+
+export function hasUnattributedHostIO(report) {
+  return validClaims(report).some(claim => /host block-device tracepoints/i.test(claim.statement || ""));
+}
+
+export function reportLimitations(report) {
+  if (hasUnattributedHostIO(report)) return ["历史报告引用的是主机级 I/O，未证明来自目标进程，原支持标记不能用于确认进程根因。缺少正常基线和修复前后对照。"];
+  return (report?.limitations || []).map(text => String(text).replace("结论已完成，但仍应在修复复测中补充独立验证", "调查记录已生成，因果关系与修复效果仍待验证"));
+}
+
+export function reportNextActions(report) {
+  if (hasUnattributedHostIO(report)) return ["采集同窗口的目标进程读写计数与阻塞调用栈，再关联主机 I/O；队列积压需同时比较生产速率、消费速率和队列长度。"];
+  if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return ["先补充目标进程的资源变化与运行时调用栈，定位具体瓶颈后再制定修复；当前不能直接给出修复方案。"];
+  return report?.next_actions || [];
 }
 
 function validClaims(report) {
@@ -96,7 +113,25 @@ function legacyEvidenceFinding(report) {
   return "";
 }
 
+// Reports describe different hypotheses. A later inconclusive branch must not
+// replace an earlier verified finding in the session summary.
+export function selectBestReport(reports = []) {
+  const rank = { VERIFIED: 3, PARTIAL_WITHOUT_COUNTER: 2, INSUFFICIENT_EVIDENCE: 1 };
+  return [...reports].sort((left, right) => {
+    const status = (item) => String(item?.verification?.status || item?.verification_status || "").toUpperCase();
+    return (rank[status(right)] || 0) - (rank[status(left)] || 0)
+      || (right?.evidence_refs?.length || 0) - (left?.evidence_refs?.length || 0)
+      || Number(right?.confidence || 0) - Number(left?.confidence || 0)
+      || new Date(right?.updated_at || right?.created_at || 0) - new Date(left?.updated_at || left?.created_at || 0)
+      || Number(right?.version || 0) - Number(left?.version || 0);
+  })[0] || null;
+}
+
 export function reportConclusionText(report) {
+  if (hasUnattributedHostIO(report)) {
+    const claim = validClaims(report).find(item => item.claim_type === "SYS_METRIC_IO_LATENCY" && Number.isFinite(item.claimed_value));
+    return `尚未确定目标进程的故障原因。采到了宿主机块设备 I/O 延迟分布${claim ? `，报告记录的延迟指标为 ${claim.claimed_value} 微秒` : ""}，但没有把这些 I/O 归属到目标进程。没有正常基线，不能仅凭该数值认定磁盘异常，更不能证明它导致队列积压。`;
+  }
   const original = String(report?.conclusion || "暂无可信判断").trim();
   const isLegacyGeneric = /^(?:SUPPORTED|MIXED_EVIDENCE|INSUFFICIENT_EVIDENCE)[：:]/i.test(original);
   if (isLegacyGeneric) {

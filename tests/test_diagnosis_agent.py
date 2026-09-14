@@ -99,6 +99,41 @@ def test_probe_tool_accepts_only_server_allowlisted_tools():
     assert json.loads(rejected)["accepted"] is False
 
 
+def test_probe_rejects_collection_failure_as_counter_evidence_before_acceptance():
+    proposal = _proposal()
+    proposal["hypotheses"][0]["falsification_criteria"] = ["采集失败或无法附加"]
+    response = json.loads(request_diagnostic_probe.func(**proposal, runtime=SimpleNamespace(context=_context())))
+    assert response["accepted"] is False
+    assert response["code"] == "INVALID_FALSIFICATION"
+
+
+@pytest.mark.parametrize("corrected", [True, False])
+def test_semantic_rejection_gets_at_most_one_corrective_turn(monkeypatch, corrected):
+    proposal = _proposal()
+    bad = _proposal()
+    bad["hypotheses"][0]["falsification_criteria"] = ["采集失败"]
+    class FakeAgent:
+        calls = 0
+        def invoke(self, *args, **kwargs):
+            self.calls += 1
+            current = proposal if corrected and self.calls == 2 else bad
+            cid = f"semantic-{self.calls}"
+            reply = request_diagnostic_probe.func(**current, runtime=SimpleNamespace(context=_context()))
+            return {"messages": [
+                AIMessage(content="", tool_calls=[{"name": "request_diagnostic_probe", "args": current, "id": cid, "type": "tool_call"}]),
+                ToolMessage(content=reply, tool_call_id=cid, name="request_diagnostic_probe"),
+            ]}
+    agent = FakeAgent()
+    monkeypatch.setattr("server.app.drop_insight.diagnosis_agent._agent_for", lambda _: agent)
+    monkeypatch.setattr("server.app.drop_insight.diagnosis_agent.get_agent_runtime_status", lambda: {"actual_backend": "memory"})
+    settings = AISettings("full", "test", "https://example.invalid", "semantic-test", "test", True, True, True)
+    result = plan_with_diagnosis_agent(_context(), settings)
+    assert agent.calls == 2
+    assert (result is not None) is corrected
+    if corrected:
+        assert result["hypotheses"][0]["falsification_criteria"] == proposal["hypotheses"][0]["falsification_criteria"]
+
+
 def test_agent_result_is_read_from_validated_tool_call():
     proposal = _proposal()
     messages = [

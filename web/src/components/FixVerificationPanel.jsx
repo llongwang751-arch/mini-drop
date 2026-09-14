@@ -18,20 +18,22 @@ function fixOutcomeLabel(value) {
  * 修复前后验证面板：输入 before/after 任务 ID，调用 /fix/verify，
  * 主界面显示中文验证结论；稳定协议码仍可在接口与审计数据中使用。
  */
-export default function FixVerificationPanel({ diagnosisId }) {
+export default function FixVerificationPanel({ diagnosisId, canVerify = true }) {
   const [form] = Form.useForm();
   const [records, setRecords] = useState([]);
   const [verifying, setVerifying] = useState(false);
   const [lastResult, setLastResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     if (!diagnosisId) return;
     setLoading(true);
+    setLoadError(false);
     try {
       setRecords(await listFixVerifications(diagnosisId));
     } catch {
-      setRecords([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -62,6 +64,11 @@ export default function FixVerificationPanel({ diagnosisId }) {
 
   return (
     <Card title="修复前后验证" size="small" style={{ marginTop: 16 }}>
+      <Alert showIcon type={loadError ? "error" : "info"}
+        message={loading ? "正在核对修复记录" : loadError ? "修复记录读取失败，当前状态未确认" : records.length ? "已有修复复测记录，请逐条查看结果与适用范围" : "尚无修复复测记录：故障是否解决未验证"}
+        description="诊断工具负责取证，不会自动修改业务代码。只有明确实施修复并完成可比复测，才能评价修复效果。当前自动对比支持 TopN 热点变化，不能替代全部业务指标验收。"
+        action={loadError ? <Button onClick={load}>重试</Button> : null} style={{ marginBottom: 12 }} />
+      {canVerify && <>
       <Alert
         showIcon
         type="info"
@@ -83,6 +90,7 @@ export default function FixVerificationPanel({ diagnosisId }) {
           对比验证
         </Button>
       </Form>
+      </>}
 
       {lastResult && (
         <Alert

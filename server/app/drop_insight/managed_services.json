@@ -1,0 +1,87 @@
+{
+  "services": [
+    {
+      "id": "agi-office-backend",
+      "name": "AGI 办公助手后台",
+      "environment": "interview",
+      "description": "原办公助手 FastAPI 后台：账号登录 → 文档上传入库 → 知识库问答。",
+      "runtime": "Python / FastAPI",
+      "service_hint": "agi-office-backend.service",
+      "agent_id": "control-interview-demo-agent",
+      "entry_path": "/api/office/",
+      "scope": "原办公助手完整后台、独立业务库与真实生成模型；当前使用本地词法检索，未部署 Milvus。"
+    },
+    {
+      "id": "memos",
+      "name": "Memos 笔记",
+      "environment": "interview",
+      "runtime": "Go / SQLite",
+      "description": "记录笔记、按标签查看，并保存和读取附件。",
+      "service_hint": "mini-drop-business-memos.service",
+      "agent_id": "tencent-cvm-worker-1",
+      "entry_path": "https://120.24.187.205:18441/",
+      "version": "v0.30.0",
+      "scope": "上游独立业务与测试数据。请求观测为网关时长；阶段、根因和修复状态按实际证据判断。",
+      "business_observations": true,
+      "observation_operations": [
+        "memo.attachments",
+        "memo.records"
+      ]
+    },
+    {
+      "id": "files",
+      "name": "File Browser 文件管理",
+      "environment": "interview",
+      "runtime": "Go / BoltDB / Filesystem",
+      "description": "上传下载测试文件、浏览目录，并核对文件完整性。",
+      "service_hint": "mini-drop-business-files.service",
+      "agent_id": "tencent-cvm-worker-1",
+      "entry_path": "https://120.24.187.205:18442/",
+      "version": "v2.63.23",
+      "scope": "上游独立业务与测试数据。请求观测为网关时长；阶段、根因和修复状态按实际证据判断。",
+      "business_observations": true,
+      "observation_operations": [
+        "files.download",
+        "files.resources",
+        "files.search"
+      ],
+      "maintenance_notice": "上游已归档，仅用于隔离演示。访问文件 API 需先登录 Mini-Drop，再使用文件服务自己的账号。"
+    },
+    {
+      "id": "linkding",
+      "name": "linkding 书签",
+      "environment": "interview",
+      "runtime": "Python / Django / SQLite",
+      "description": "收藏网页、读取标题、按标签整理书签。",
+      "service_hint": "mini-drop-business-linkding.slice",
+      "agent_id": "tencent-lighthouse-worker-2",
+      "entry_path": "https://120.24.187.205:18443/",
+      "version": "v1.46.2",
+      "scope": "单 HTTP worker 的独立书签业务。只采样该请求处理进程，后台抓取进程需另行定位；网关日志不提供函数阶段。",
+      "business_observations": true,
+      "observation_operations": [
+        "bookmarks.records",
+        "bookmarks.tags"
+      ],
+      "process_name": "uwsgi",
+      "exclude_container_init": true
+    },
+    {
+      "id": "ntfy",
+      "name": "ntfy 通知",
+      "environment": "interview",
+      "runtime": "Go / SQLite",
+      "description": "向自己的测试客户端发布通知、订阅消息和读取缓存。",
+      "service_hint": "mini-drop-business-ntfy.service",
+      "agent_id": "tencent-lighthouse-worker-2",
+      "entry_path": "https://120.24.187.205:18444/",
+      "version": "v2.28.0",
+      "scope": "上游独立业务与测试数据。请求观测为网关时长；阶段、根因和修复状态按实际证据判断。",
+      "business_observations": true,
+      "observation_operations": [
+        "notifications.publish",
+        "notifications.subscribe"
+      ]
+    }
+  ]
+}

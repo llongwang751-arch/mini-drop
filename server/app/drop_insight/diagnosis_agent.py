@@ -69,6 +69,8 @@ DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT = (
     "函数名和工具名等必要专有名词可以保留英文。证据反驳、工具不可观测或"
     "门禁拒绝动作后，必须提出未尝试的候选原因并切换证据域；其他未知原因"
     "只能保留一个兜底候选。"
+    "falsification_criteria 必须描述采集成功时与假设相反的可观察结果；"
+    "采集失败、权限不足、无法附加、样本不足只能表示不可观测，不能作为反证。"
 )
 
 SKILL_PROGRESSIVE_DISCLOSURE_REQUIREMENT = (
@@ -195,6 +197,15 @@ def request_diagnostic_probe(
             "hypotheses": hypotheses,
         }
     )
+    if any(marker in criterion.casefold()
+           for hypothesis in request.hypotheses
+           for criterion in hypothesis.falsification_criteria
+           for marker in _COLLECTION_FAILURE_MARKERS):
+        return json.dumps({
+            "accepted": False,
+            "code": "INVALID_FALSIFICATION",
+            "reason": "采集失败或不可观测不能证伪根因。请把每条证伪条件改成采集成功时与假设相反的指标/调用栈结果，工具白名单与预算不变。",
+        }, ensure_ascii=False)
     return json.dumps(
         {"accepted": True, "proposal": request.model_dump(mode="json")},
         ensure_ascii=False,
@@ -908,6 +919,11 @@ def plan_with_diagnosis_agent(
         user_preferences=_normalize_trusted_context(context.user_preferences),
     )
     agent = _agent_for(settings)
+    invoke_config = {
+        "configurable": {"thread_id": context.diagnosis_id, "checkpoint_ns": AGENT_VERSION},
+        "recursion_limit": 8,
+        "tags": ["mini-drop", "diagnosis-agent", context.category],
+    }
     try:
         result = agent.invoke(
             {
@@ -922,16 +938,25 @@ def plan_with_diagnosis_agent(
                     }
                 ]
             },
-            config={
-                "configurable": {
-                    "thread_id": context.diagnosis_id,
-                    "checkpoint_ns": AGENT_VERSION,
-                },
-                "recursion_limit": 8,
-                "tags": ["mini-drop", "diagnosis-agent", context.category],
-            },
+            config=invoke_config,
             context=context,
         )
+        messages = list(result.get("messages") or [])
+        last_tool = next((m for m in reversed(messages) if isinstance(m, ToolMessage)), None)
+        try:
+            rejection = json.loads(str(last_tool.content)) if last_tool is not None else {}
+        except (TypeError, ValueError):
+            rejection = {}
+        if (last_tool is not None and last_tool.name == "request_diagnostic_probe"
+                and rejection.get("accepted") is False
+                and rejection.get("code") == "INVALID_FALSIFICATION"):
+            # One corrective model turn, only for a semantic rejection. Never
+            # retry provider/network exceptions or execute an invalid proposal.
+            log_event("info", "diagnosis_agent_semantic_correction", diagnosis_id=context.diagnosis_id,
+                      reason="INVALID_FALSIFICATION", maximum_corrections=1)
+            result = agent.invoke({"messages": [{"role": "user", "content":
+                "服务端校验拒绝上一份计划：" + rejection["reason"] + "请重新调用 request_diagnostic_probe，仅允许本次一次纠正。"}]},
+                config=invoke_config, context=context)
     except Exception as exc:
         _record_provider_failure(settings, exc)
         raise

@@ -76,10 +76,10 @@ def test_fault_plaza_exposes_multilanguage_routes_and_multiround_contract(monkey
     acceptance_levels = {
         item["scenario_id"]: item["acceptance_level"] for item in scenarios
     }
-    assert acceptance_levels["source-hotspot"] == "LIVE_DIAGNOSIS_VERIFIED"
-    assert acceptance_levels["go-cpu-hotspot"] == "LIVE_DIAGNOSIS_VERIFIED"
-    assert acceptance_levels["java-gc-pressure"] == "LIVE_DIAGNOSIS_VERIFIED"
-    assert acceptance_levels["cpp-cpu-hotspot"] == "LIVE_DIAGNOSIS_VERIFIED"
+    assert acceptance_levels["source-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
+    assert acceptance_levels["go-cpu-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
+    assert acceptance_levels["java-gc-pressure"] == "HISTORICAL_LINEAGE_VERIFIED"
+    assert acceptance_levels["cpp-cpu-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
     expected_process = {
         "python": "python-hotspot",
         "go": "go-hotspot",

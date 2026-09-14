@@ -144,9 +144,10 @@ function buildFallbackTree(hypotheses = [], toolCalls = [], report) {
 
 const NODE_META = {
   visited: { label: "已调查", color: "blue", icon: <BranchesOutlined /> },
-  refuted: { label: "反证剪枝", color: "red", icon: <CloseCircleOutlined /> },
-  confirmed: { label: "根因路径", color: "green", icon: <CheckCircleOutlined /> },
-  unvisited: { label: "满足停止条件", color: "default", icon: <MinusCircleOutlined /> },
+  refuted: { label: "已被反证", color: "red", icon: <CloseCircleOutlined /> },
+  unavailable: { label: "未获得有效证据", color: "orange", icon: <InfoCircleOutlined /> },
+  confirmed: { label: "报告采用路径", color: "green", icon: <CheckCircleOutlined /> },
+  unvisited: { label: "尚未调查", color: "default", icon: <MinusCircleOutlined /> },
 };
 
 const KIND_LABELS = {
@@ -170,7 +171,7 @@ const EDGE_KIND_LABELS = {
   REPLAN: "重新规划",
 };
 
-const COUNTER_EVIDENCE = new Set(["ACCEPT_COUNTER", "REJECT", "REJECT_LOW_QUALITY"]);
+const COUNTER_EVIDENCE = new Set(["ACCEPT_COUNTER"]);
 
 const SKILL_STATE_META = {
   ACTIVE: { label: "持续生效", tone: "active", color: "processing" },
@@ -553,13 +554,16 @@ function normalizeTreeNode(node, verifiedHypothesisId = "") {
     else state = PRUNED.has(status) ? "refuted" : "visited";
   }
   const rawTitle = node.title || node.label || node.id;
+  // A failed probe or rejected artifact cannot scientifically refute a cause.
+  if (["FAILED", "CANCELLED", "DENIED", "REJECTED", "REJECT_LOW_QUALITY", "INSUFFICIENT_EVIDENCE"].includes(status)
+    || (kind === "evidence" && ["REJECT", "ACCEPT_LIMITED"].includes(status))) state = "unavailable";
   return {
     ...node,
     id: String(node.id),
     parent_id: node.parent_id == null ? null : String(node.parent_id),
     kind,
     title: kind === "tool"
-      ? TOOL_LABELS[rawTitle] || diagnosticToolLabel(rawTitle)
+      ? diagnosticToolLabel(node.tool || node.tool_name || node.label || rawTitle)
       : chineseDiagnosticText(rawTitle),
     state,
     status,
@@ -1106,6 +1110,7 @@ function normalizeEdge(edge, index) {
 }
 
 function relationshipLabel(parent, child, edge) {
+  if (child.state === "unavailable") return "未获得有效证据";
   if (edge?.label) return edge.label;
   if (edge?.kind && EDGE_KIND_LABELS[edge.kind]) return EDGE_KIND_LABELS[edge.kind];
   if (child.kind === "intervention") return "人工转向";
@@ -1221,14 +1226,16 @@ function ExplorationNode({
           <Text strong>{node.title}</Text>
         </div>
         <Space wrap size={[4, 4]}>
-          <Tag color={meta.color}>{active ? "刚刚更新" : meta.label}</Tag>
+          <Tag color={meta.color}>{meta.label}</Tag>
+          {active && <Tag>刚刚更新</Tag>}
+          {node.kind === "tool" && <Tag>{diagnosticStatusLabel(node.status)}</Tag>}
           {node.domain && <Tag>{node.domain}</Tag>}
           <SkillRouteReferenceTags node={node} />
         </Space>
         {node.tool && <div className="tree-card-tool"><Text code>{node.tool}</Text></div>}
         {node.evidence && (
           <div className="tree-card-evidence">
-            <span>{node.kind === "evidence" ? "证据内容" : "判断依据"}</span>
+            <span>{node.kind === "evidence" ? "证据内容" : node.kind === "tool" ? "执行许可与记录" : "判断依据"}</span>
             <Text type="secondary">{node.evidence}</Text>
           </div>
         )}
@@ -1650,41 +1657,26 @@ function StructuredExplorationTree({
         {skillTrace && <Tag color="purple">Skill {skillTrace.stateMeta.label}</Tag>}
         {snapshot?.status && <Tag>{diagnosticStatusLabel(snapshot.status)}</Tag>}
       </Space>
-      <LatsSearchStrip search={projectedSearch} nodeById={nodeById} />
-      {snapshot?.rounds?.length > 0 && (
-        <div className="live-tree-rounds" aria-label="诊断轮次">
-          {snapshot.rounds.map((round) => (
-            <div className={`live-tree-round is-${String(round.status || "").toLowerCase()}`} key={round.round_index}>
-              <b>{round.round_index}</b>
-              <span>第 {round.round_index} 轮</span>
-              <small>{frozenReplay
-                ? `${round.simulation_count ?? round.tool_call_count ?? 0} 模拟 · ${round.evidence_count ?? 0} 冻结观察`
-                : `${round.tool_call_count ?? 0} 工具 · ${round.evidence_count ?? 0} 证据`}</small>
-            </div>
-          ))}
-        </div>
-      )}
-      {(switches || []).map((item, index) => (
-        <div className="actual-tree-switch" key={`${item.from || item.from_category}-${item.to || item.to_category}-${index}`}>
-          <SwapOutlined />
-          <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : "purple"}>
-            {item.source === "USER_INTERVENTION" ? "人工转向" : "取证转向"}
-          </Tag>
-          第 {index + 1} 次转向：{CATEGORY_LABELS[item.from || item.from_category] || item.from || item.from_category}
-          {" → "}{CATEGORY_LABELS[item.to || item.to_category] || item.to || item.to_category}
-          <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>
-        </div>
-      ))}
+      <details className="diagnosis-tree-search-details">
+        <summary>{frozenReplay ? "FULL_LATS · 冻结回放，非现场证据" : "实时调查 · 现场随时间变化，不可回滚"} <span>查看搜索预算与评分</span></summary>
+        <LatsSearchStrip search={projectedSearch} nodeById={nodeById} />
+      </details>
+      <details className="diagnosis-tree-search-details">
+        <summary>这棵树怎么看 · 工具有哪些</summary>
+        <p>从问题到候选原因，再到工具调用、证据裁决和报告。连线表示调查关系，不是程序函数调用。报告完成不代表故障修复。</p>
+        <p>系统指标看资源变化；perf 看 CPU 热函数；py-spy 看 Python 栈；Go pprof 和 JVM async-profiler 看对应运行时；smaps 看内存；eBPF 看主机块设备延迟；连续采样看多窗口变化。实际可用工具受目标、能力和权限限制。</p>
+        <p>采集失败或证据质量不足表示尚不可判断，不能当成假设被证伪。Skill 只建议取证顺序，不提供本次故障证据。</p>
+      </details>
       {viewMode === "topology" ? (
         <>
           <div className="diagnosis-tree-legend" aria-label="探索树图例">
             <span className="is-visited"><i />已调查分支</span>
-            <span className="is-refuted"><i />反证剪枝</span>
-            <span className="is-confirmed"><i />根因路径</span>
+            <span className="is-refuted"><i />已被反证</span>
+            <span className="is-unavailable"><i />失败或证据不足</span>
+            <span className="is-confirmed"><i />报告采用路径（不代表修复）</span>
             <span className="is-unvisited"><i />停止后未继续</span>
             {skillTrace && <span className="is-skill-prior"><i />Skill 路线（非证据）</span>}
           </div>
-          <SkillTraceLane trace={skillTrace} onInspect={() => setSkillDetailOpen(true)} />
           <FitExplorationTree>
             <div className="exploration-tree exploration-tree-dynamic diagnosis-record-tree">
               <ul className="dynamic-tree-root" role="tree" aria-label="真实父子探索树">
@@ -1704,6 +1696,31 @@ function StructuredExplorationTree({
               </ul>
             </div>
           </FitExplorationTree>
+          <SkillTraceLane trace={skillTrace} onInspect={() => setSkillDetailOpen(true)} />
+          {snapshot?.rounds?.length > 0 && (
+            <div className="live-tree-rounds" aria-label="诊断轮次">
+              {snapshot.rounds.map((round) => (
+                <div className={`live-tree-round is-${String(round.status || "").toLowerCase()}`} key={round.round_index}>
+                  <b>{round.round_index}</b>
+                  <span>第 {round.round_index} 轮</span>
+                  <small>{frozenReplay
+                    ? `${round.simulation_count ?? round.tool_call_count ?? 0} 模拟 · ${round.evidence_count ?? 0} 冻结观察`
+                    : `${round.tool_call_count ?? 0} 工具 · ${round.evidence_count ?? 0} 证据`}</small>
+                </div>
+              ))}
+            </div>
+          )}
+          {(switches || []).map((item, index) => (
+            <div className="actual-tree-switch" key={`${item.from || item.from_category}-${item.to || item.to_category}-${index}`}>
+              <SwapOutlined />
+              <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : "purple"}>
+                {item.source === "USER_INTERVENTION" ? "人工转向" : "取证转向"}
+              </Tag>
+              第 {index + 1} 次转向：{CATEGORY_LABELS[item.from || item.from_category] || item.from || item.from_category}
+              {" → "}{CATEGORY_LABELS[item.to || item.to_category] || item.to || item.to_category}
+              <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>
+            </div>
+          ))}
         </>
       ) : (
         <ReadableRouteBoard

@@ -1,0 +1,102 @@
+"""Generate the application gateway and service entries from the pinned catalog."""
+import json
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[2]
+ROWS=json.loads((Path(__file__).with_name('catalog.json')).read_text(encoding='utf-8'))['services']
+OPERATIONS={
+ 'memos':[(r'^/api/v1/memos', 'memo.records'),(r'^/api/v1/attachments','memo.attachments'),(r'^/file/attachments/','memo.attachments'),(r'^/memos\.api\.v1\.MemoService/','memo.records'),(r'^/memos\.api\.v1\.AttachmentService/','memo.attachments')],
+ 'files':[(r'^/api/resources','files.resources'),(r'^/api/raw','files.download'),(r'^/api/search','files.search')],
+ 'linkding':[(r'^/api/bookmarks','bookmarks.records'),(r'^/bookmarks','bookmarks.records'),(r'^/api/tags','bookmarks.tags')],
+ 'ntfy':[(r'^/mini-drop-test[^/]*/(json|sse|raw|ws)$','notifications.subscribe'),(r'^/mini-drop-test[^/]*$','notifications.publish')],
+}
+DESCRIPTIONS={
+ 'memos':('Go / SQLite','记录笔记、按标签查看，并保存和读取附件。'),
+ 'files':('Go / BoltDB / Filesystem','上传下载测试文件、浏览目录，并核对文件完整性。'),
+ 'linkding':('Python / Django / SQLite','收藏网页、读取标题、按标签整理书签。'),
+ 'ntfy':('Go / SQLite','向自己的测试客户端发布通知、订阅消息和读取缓存。'),
+}
+
+def generate():
+ # Ports share cookies. Forward only each upstream's documented auth cookies.
+ blocks=["map $http_upgrade $business_connection { default upgrade; '' ''; }\n"];entries=[]
+ cookies={'memos':'memos_refresh=$cookie_memos_refresh', 'files':'auth=$cookie_auth',
+          'linkding':'ld_sessionid=$cookie_ld_sessionid; ld_csrftoken=$cookie_ld_csrftoken', 'ntfy':''}
+ for row in ROWS:
+  name=row['id'];var='$business_'+name
+  mapping='\n'.join('    ~'+regex+' '+operation+';' for regex,operation in OPERATIONS[name])
+  blocks.append(f'''map $uri {var} {{
+    default "";
+{mapping}
+}}
+log_format business_{name} escape=json '{{"request_id":"$request_id","service_id":"{name}","version":"{row['version']}","operation":"{var}","method":"$request_method","status":$status,"ended_at_unix":$msec,"duration_seconds":$request_time,"bytes_sent":$body_bytes_sent}}';
+server {{
+    listen {row['public_port']} ssl;
+    server_name _;
+    ssl_certificate /certs/server.crt;
+    ssl_certificate_key /certs/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    server_tokens off;
+    client_max_body_size 16m;
+    access_log /var/log/mini-drop-business/{name}.jsonl business_{name} if={var};
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy same-origin always;
+    location / {{
+        limit_req zone=api_limit burst=30 nodelay;
+        limit_req_status 429;
+        limit_conn api_conn 20;
+        proxy_pass http://172.17.0.1:{row['tunnel_port']};
+        proxy_set_header Host $http_host;
+        proxy_set_header Cookie "{cookies[name]}";
+        proxy_set_header X-API-Key "";
+        proxy_set_header X-Request-ID $request_id;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $business_connection;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 5s;
+        proxy_hide_header X-Request-ID;
+        add_header X-Request-ID $request_id always;
+    }}
+}}
+''')
+  if name=='files':
+   # Only the static login shell is public. Every File Browser API (including
+   # public-share APIs) also needs Mini-Drop authentication at the gateway.
+   normal=blocks[-1].split('    location / {',1)[1].rsplit('\n}',1)[0]
+   protected='    location ^~ /api/ {\n        auth_request /_business_access;'+normal+'\n'
+   auth="""    location = /_business_access {
+        internal;
+        resolver 127.0.0.11 valid=5s ipv6=off;
+        set $business_auth_api http://apiserver:8080;
+        proxy_pass $business_auth_api/api/agents;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header Authorization "";
+        proxy_set_header X-API-Key $http_x_api_key;
+        proxy_set_header Cookie $http_cookie;
+    }
+"""
+   blocks[-1]=blocks[-1].replace('    location / {',auth+protected+'    location / {')
+  runtime,description=DESCRIPTIONS[name]
+  entries.append(dict(id=name,name=row['name'],environment='interview',runtime=runtime,
+      description=description,service_hint='mini-drop-business-'+name+('.slice' if row['kind']=='container' else '.service'),
+      agent_id=row['agent_id'],entry_path=row['entry_url'],version=row['version'],
+      scope='上游独立业务与测试数据。请求观测为网关时长；阶段、根因和修复状态按实际证据判断。',
+      business_observations=True,observation_operations=sorted({o for _,o in OPERATIONS[name]})))
+  if name=='linkding':
+   entries[-1].update(process_name='uwsgi',exclude_container_init=True,
+      scope='单 HTTP worker 的独立书签业务。只采样该请求处理进程，后台抓取进程需另行定位；网关日志不提供函数阶段。')
+  if name=='files':
+   entries[-1]['maintenance_notice']='上游已归档，仅用于隔离演示。访问文件 API 需先登录 Mini-Drop，再使用文件服务自己的账号。'
+ (ROOT/'deploy/nginx/business-apps.conf').write_text('# Generated by integrations/lightweight/generate_gateway.py\n'+''.join(blocks),encoding='utf-8')
+ catalog=ROOT/'server/app/drop_insight/managed_services.json'
+ existing=json.loads(catalog.read_text(encoding='utf-8'))
+ ids={r['id'] for r in ROWS}
+ existing['services']=[r for r in existing['services'] if r['id'] not in ids]+entries
+ catalog.write_text(json.dumps(existing,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+if __name__=='__main__':generate()

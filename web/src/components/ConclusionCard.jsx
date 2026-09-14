@@ -1,5 +1,5 @@
 import { Card, Tag, Space, Typography, Progress } from "antd";
-import { TrophyOutlined } from "@ant-design/icons";
+import { TrophyOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import SafeMarkdown from "./SafeMarkdown";
 import {
   chineseDiagnosticText,
@@ -9,6 +9,9 @@ import {
 import {
   reportConclusionText,
   reportConclusionTitle,
+  reportLimitations,
+  reportNextActions,
+  hasUnattributedHostIO,
 } from "../utils/reportPresentation";
 
 const { Text } = Typography;
@@ -22,6 +25,8 @@ export default function ConclusionCard({ report }) {
   const verification = report.verification || {};
   const verificationStatus = verification.status;
   const conclusionTitle = reportConclusionTitle(report);
+  const limitations = reportLimitations(report);
+  const nextActions = reportNextActions(report);
   const verColor =
     verificationStatus === "VERIFIED"
       ? "green"
@@ -32,45 +37,46 @@ export default function ConclusionCard({ report }) {
   return (
     <Card
       size="small"
-      className="diagnosis-conclusion-card"
+      className={`diagnosis-conclusion-card ${verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? "is-verified" : "is-limited"}`}
       title={
         <Space>
-          <TrophyOutlined />
+          {verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? <TrophyOutlined /> : <InfoCircleOutlined />}
           {conclusionTitle}
         </Space>
       }
     >
       <Space direction="vertical" size={10} style={{ width: "100%" }}>
         <Space wrap>
-          <Tag color={confidence >= 0.6 ? "green" : "orange"}>
-            置信度 {(confidence * 100).toFixed(0)}%
+          <Tag color={verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? "green" : "orange"}>
+            {hasUnattributedHostIO(report) ? "历史评分不可用于进程归因" : `证据评分 ${(confidence * 100).toFixed(0)} / 100`}
           </Tag>
-          {verificationStatus && <Tag color={verColor}>证据门禁：{verificationStatusLabel(verificationStatus)}</Tag>}
+          {verificationStatus && <Tag color={hasUnattributedHostIO(report) ? "orange" : verColor}>证据门禁：{hasUnattributedHostIO(report) ? "主机观察，目标归因未通过" : verificationStatusLabel(verificationStatus)}</Tag>}
         </Space>
-        <Progress
+        {!hasUnattributedHostIO(report) && <Progress
           percent={Math.round(confidence * 100)}
           showInfo={false}
-          strokeColor={confidence >= 0.6 ? "#52c41a" : "#faad14"}
-        />
+          strokeColor={verificationStatus === "VERIFIED" ? "#52c41a" : "#faad14"}
+        />}
         <SafeMarkdown>{reportConclusionText(report)}</SafeMarkdown>
-        {report.next_actions?.length > 0 && (
+        <Text type="secondary">证据评分是内部规则分，不是诊断正确概率。报告生成与故障修复是两个独立状态；本报告本身不证明故障已解决。</Text>
+        {nextActions.length > 0 && (
           <div className="diagnosis-conclusion-actions">
             <Text strong>建议下一步</Text>
             <ul>
-              {report.next_actions.map((action, index) => (
+              {nextActions.map((action, index) => (
                 <li key={`${index}:${action}`}>{chineseDiagnosticText(action)}</li>
               ))}
             </ul>
           </div>
         )}
-        {report.limitations?.length > 0 && (
+        {limitations.length > 0 && (
           <Text type="secondary" style={{ fontSize: 12 }}>
-            结论边界：{report.limitations.map((item) => chineseDiagnosticText(item)).join("；")}
+            结论边界：{limitations.map((item) => chineseDiagnosticText(item)).join("；")}
           </Text>
         )}
         {(report.evidence_refs?.length > 0 || report.counter_evidence_refs?.length > 0) && (
           <Text type="secondary" style={{ fontSize: 12 }}>
-            引用支持证据：{report.evidence_refs?.join("、") || "无"}
+            {hasUnattributedHostIO(report) ? "历史引用（仅主机观察）：" : "引用支持证据："}{report.evidence_refs?.join("、") || "无"}
             {report.counter_evidence_refs?.length > 0 &&
               `；反证：${report.counter_evidence_refs.join("、")}`}
           </Text>

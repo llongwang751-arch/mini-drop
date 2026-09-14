@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "minimum_requests": {
+      "default": 30,
+      "minimum": 10,
+      "title": "Minimum Requests",
+      "type": "integer"
+    },
+    "recovery_p95_ratio": {
+      "default": 1.3,
+      "maximum": 2,
+      "minimum": 1,
+      "title": "Recovery P95 Ratio",
+      "type": "number"
+    },
+    "minimum_success_rate": {
+      "default": 0.98,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Minimum Success Rate",
+      "type": "number"
+    },
+    "minimum_quality_rate": {
+      "default": 0.98,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Minimum Quality Rate",
+      "type": "number"
+    },
+    "minimum_fault_ratio": {
+      "default": 1.5,
+      "exclusiveMinimum": 1,
+      "title": "Minimum Fault Ratio",
+      "type": "number"
+    },
+    "max_dispatch_lag_ms": {
+      "default": 150,
+      "exclusiveMinimum": 0,
+      "title": "Max Dispatch Lag Ms",
+      "type": "number"
+    },
+    "latency_floor_ms": {
+      "default": 20,
+      "minimum": 0,
+      "title": "Latency Floor Ms",
+      "type": "number"
+    }
+  },
+  "title": "AcceptancePolicy",
+  "type": "object"
+}

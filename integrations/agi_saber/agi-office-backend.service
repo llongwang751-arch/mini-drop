@@ -1,0 +1,26 @@
+[Unit]
+Description=AGI office assistant backend observed by Mini-Drop
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=agi-office
+Group=agi-office
+WorkingDirectory=/opt/agi-office/current
+EnvironmentFile=/etc/agi-office/backend.env
+ExecStart=/opt/agi-office/venv/bin/python -m uvicorn backend_entry:app --host 172.17.0.1 --port 18090 --no-access-log
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/agi-office
+CPUQuota=75%
+MemoryMax=512M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

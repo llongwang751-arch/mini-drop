@@ -6,6 +6,29 @@
   overflow: hidden;
 }
 
+/* Compact navigation keeps all eight drill-downs available in the workbench. */
+.agent-cockpit.is-compact { box-shadow: none; border-radius: 8px; background: #fff; }
+.agent-cockpit.is-compact .agent-cockpit-heading { padding: 10px 14px; }
+.agent-cockpit.is-compact .agent-cockpit-heading > div > .ant-typography,
+.agent-cockpit.is-compact .agent-cockpit-heading .ant-tag,
+.agent-cockpit.is-compact .agent-cockpit-heading > .ant-space { display: none; }
+.agent-cockpit.is-compact .agent-cockpit-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.agent-cockpit.is-compact .agent-cockpit-card { min-height: 78px; padding: 10px; gap: 6px; }
+.agent-cockpit.is-compact .agent-cockpit-card-icon { display: none; }
+.agent-cockpit.is-compact .agent-cockpit-card-copy b { font-size: 17px; }
+.agent-cockpit.is-compact .agent-cockpit-card-copy em { display: none; }
+.agent-runtime-details { padding: 0 14px; color: #52657b; font-size: 12px; }
+.agent-runtime-details > summary { padding: 6px 0 10px; cursor: pointer; }
+.agent-runtime-details > summary:focus-visible { outline: 2px solid #2563eb; }
+.agent-runtime-details[open] { padding-bottom: 8px; }
+@media (max-width: 1200px) {
+  .agent-cockpit.is-compact .agent-cockpit-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .agent-cockpit.is-compact .agent-cockpit-card { min-height: 65px; }
+}
+@media (max-width: 560px) {
+  .agent-cockpit.is-compact .agent-cockpit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .agent-cockpit-heading {
   display: flex;
   align-items: flex-start;

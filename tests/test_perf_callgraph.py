@@ -36,7 +36,9 @@ def test_build_call_graph_is_bounded(tmp_path):
 def test_native_perf_collector_recovers_header_only_vm_capture_with_cpu_clock():
     source = (PROJECT_ROOT / "native/agent/src/perf_collector.cpp").read_text()
 
-    assert "kHeaderOnlyThresholdBytes" in source
+    # Actual small/empty/malformed record behavior is covered by the native
+    # perf-samples-test. Keep this wiring check for the bounded recovery path.
+    assert "inspect_perf_samples(perf_data)" in source
     assert 'perf_command("cpu-clock:u"' in source
     assert "software_event_recovery" in source
     assert 'requested_event == "cpu-cycles"' in source

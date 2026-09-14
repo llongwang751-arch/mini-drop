@@ -28,6 +28,7 @@ import ErrorAlert from "../components/ErrorAlert";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import usePolling from "../hooks/usePolling";
 import echarts from "../lib/echarts";
+import { appendMetricSample, agentMetric } from "../utils/agentMetrics";
 
 export default function AgentDetail() {
   const { agentId } = useParams();
@@ -43,49 +44,47 @@ export default function AgentDetail() {
   const chartRef = useRef(null);
   const chartInst = useRef(null);
 
+  const requestGeneration = useRef(0);
+  const mounted = useRef(false);
+  const currentAgentId = useRef(agentId);
+  currentAgentId.current = agentId;
+
   const load = useCallback(async () => {
+    const generation = ++requestGeneration.current;
+    const isCurrent = () => mounted.current && currentAgentId.current === agentId && generation === requestGeneration.current;
     setError("");
     try {
-      const agents = await listAgents();
+      const [agents, tasks] = await Promise.all([listAgents(), listTasks()]);
+      if (!isCurrent()) return;
       const found = agents.find((a) => a.id === agentId);
       setAgent(found || null);
-
-      const tasks = await listTasks();
-      const mine = (tasks || [])
+      setAgentTasks((tasks || [])
         .filter((t) => t.agent_id === agentId)
-        .sort(
-          (a, b) =>
-            new Date(b.created_at || 0).getTime() -
-            new Date(a.created_at || 0).getTime()
-        );
-      setAgentTasks(mine);
-
-      // 构建最近的指标历史（从 agent 的 latest_metrics 累计）
-      if (found?.latest_metrics?.self) {
-        const now = Date.now();
-        const m = found.latest_metrics.self;
-        setCpuHistory((prev) => {
-          const next = [...prev, { ts: now, value: m.cpu_percent || 0 }];
-          return next.slice(-60); // 最多保留 60 个点
-        });
-        setRssHistory((prev) => {
-          const next = [...prev, { ts: now, value: m.rss_mb || 0 }];
-          return next.slice(-60);
-        });
-      }
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)));
+      const metrics = found?.latest_metrics;
+      setCpuHistory((prev) => appendMetricSample(prev, metrics?.sampled_at_unix_ms, metrics?.self?.cpu_percent));
+      setRssHistory((prev) => appendMetricSample(prev, metrics?.sampled_at_unix_ms, metrics?.self?.rss_mb));
     } catch (err) {
-      setError(err.message);
+      if (isCurrent()) setError(err.message || "读取 Agent 失败");
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }, [agentId]);
 
   useEffect(() => {
+    mounted.current = true;
+    setLoading(true);
+    setAgent(null);
+    setAgentTasks([]);
+    setCpuHistory([]);
+    setRssHistory([]);
+    setTaskSearch("");
     load();
+    return () => { mounted.current = false; ++requestGeneration.current; };
   }, [load]);
 
-  // 每 10 秒自动刷新
-  usePolling(load, { interval: 10000, enabled: agent?.status === "ONLINE" });
+  // Keep checking offline agents so recovery becomes visible without a manual reload.
+  usePolling(load, { interval: 10000 });
 
   // ── 渲染 ECharts 指标折线图 ──────────────────────────
   useEffect(() => {
@@ -101,21 +100,22 @@ export default function AgentDetail() {
     chartInst.current = inst;
 
     const cpuData = cpuHistory.map((p) => [
-      new Date(p.ts).toLocaleTimeString(),
+      p.ts,
       p.value,
     ]);
     const rssData = rssHistory.map((p) => [
-      new Date(p.ts).toLocaleTimeString(),
+      p.ts,
       p.value,
     ]);
 
     inst.setOption({
+        animation: false,
         tooltip: { trigger: "axis" },
         legend: { data: ["CPU %", "RSS MB"], bottom: 0 },
-        grid: { left: 50, right: 20, top: 20, bottom: 30 },
-        xAxis: { type: "category", boundaryGap: false },
+        grid: { left: 50, right: 45, top: 20, bottom: 55 },
+        xAxis: { type: "time", splitNumber: 4, axisLabel: { hideOverlap: true, formatter: (ts) => new Date(ts).toLocaleTimeString() } },
         yAxis: [
-          { type: "value", name: "CPU %", max: 100 },
+          { type: "value", name: "CPU %", min: 0 },
           { type: "value", name: "MB" },
         ],
         series: [
@@ -225,14 +225,18 @@ export default function AgentDetail() {
 
   if (!agent) {
     return (
+      <Space direction="vertical" style={{ width: "100%" }}>
+      <ErrorAlert error={error} onClose={() => setError("")} />
       <Empty
-        description={`Agent "${agentId}" 未找到`}
+        description={error ? "暂时无法读取 Agent 信息" : `Agent "${agentId}" 未找到`}
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       >
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/tasks")}>
           返回任务面板
         </Button>
+        <Button onClick={load}>重试</Button>
       </Empty>
+      </Space>
     );
   }
 
@@ -283,7 +287,7 @@ export default function AgentDetail() {
             }
             size="small"
           >
-            <Descriptions column={2} size="small" bordered>
+            <Descriptions column={1} size="small" bordered labelStyle={{ width: 140 }} contentStyle={{ overflowWrap: "anywhere" }}>
               <Descriptions.Item label="Agent ID">
                 <Typography.Text copyable style={{ fontSize: FONT_SIZES.sm }}>
                   {agent.id}
@@ -294,7 +298,7 @@ export default function AgentDetail() {
               </Descriptions.Item>
               <Descriptions.Item label="主机名（Hostname）">{agent.hostname}</Descriptions.Item>
               <Descriptions.Item label="IP">{agent.ip_addr}</Descriptions.Item>
-              <Descriptions.Item label="版本">{agent.version || "0.1.0"}</Descriptions.Item>
+              <Descriptions.Item label="版本">{agent.version || "未上报"}</Descriptions.Item>
               <Descriptions.Item label="OS">{agent.os_info || "unknown"}</Descriptions.Item>
               <Descriptions.Item label="最后心跳" span={2}>
                 {agent.last_heartbeat_at
@@ -328,20 +332,20 @@ export default function AgentDetail() {
             {agent.latest_metrics?.self && (
               <div style={{ marginTop: SPACING.md }}>
                 <Typography.Text type="secondary" style={{ fontSize: FONT_SIZES.sm }}>
-                  实时开销：
+                  Agent 自身开销（不是整机或业务进程）：
                 </Typography.Text>
                 <Space size={SPACING.sm} wrap style={{ marginTop: 4 }}>
                   <Tag color="blue">
-                    CPU {agent.latest_metrics.self.cpu_percent ?? 0}%
+                    CPU {agentMetric(agent.latest_metrics.self.cpu_percent, "%")}
                   </Tag>
                   <Tag color="green">
-                    RSS {(agent.latest_metrics.self.rss_mb ?? 0).toFixed(1)} MB
+                    RSS {agentMetric(agent.latest_metrics.self.rss_mb, " MB")}
                   </Tag>
                   <Tag>
-                    IO R/W {agent.latest_metrics.self.read_kb_s ?? 0}/{agent.latest_metrics.self.write_kb_s ?? 0} KB/s
+                    IO R/W {agentMetric(agent.latest_metrics.self.read_kb_s)}/{agentMetric(agent.latest_metrics.self.write_kb_s)} KB/s
                   </Tag>
                   <Tag>
-                    子进程 {agent.latest_metrics.self.children_count ?? 0}
+                    子进程 {agentMetric(agent.latest_metrics.self.children_count, "", 0)}
                   </Tag>
                 </Space>
               </div>
@@ -354,7 +358,7 @@ export default function AgentDetail() {
             title={
               <Space>
                 <ApiOutlined style={{ color: COLORS.warning }} />
-                资源趋势
+                Agent 自身开销趋势
                 {cpuHistory.length > 0 && (
                   <Tag style={{ fontSize: 10 }}>
                     过去 {cpuHistory.length} 个采样点
@@ -368,7 +372,7 @@ export default function AgentDetail() {
               <div ref={chartRef} style={{ width: "100%", height: 260 }} />
             ) : (
               <Empty
-                description="等待指标数据…"
+                description="等待至少两个不同时间的心跳样本…"
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             )}

@@ -12,7 +12,7 @@ vi.mock("../api/client", () => ({
 }));
 
 import * as api from "../api/client";
-import TaskResult from "./TaskResult";
+import TaskResult, { detectProfileQualityIssue } from "./TaskResult";
 
 function renderTask() {
   return render(
@@ -23,6 +23,12 @@ function renderTask() {
 }
 
 describe("TaskResult collection boundary", () => {
+  it("explains a plain-string no-samples failure without promising a retry will work", () => {
+    const issue = detectProfileQualityIssue({ error_message: "NO_PERF_SAMPLES: cycles and cpu-clock recorded no samples" });
+    expect(issue.message).toContain("不表示目标没有故障");
+    expect(issue.action).toContain("核对 PID");
+    expect(issue.action).toContain("直接重复相同采样可能仍无样本");
+  });
   beforeEach(() => {
     api.getTask.mockResolvedValue({
       id: "task-1", name: "测试任务", agent_id: "agent-a", target_pid: 123,

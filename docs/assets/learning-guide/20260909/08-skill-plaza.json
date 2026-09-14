@@ -1,0 +1,270 @@
+{
+  "title": "Mini-Drop - 性能诊断平台",
+  "url": "/ai-diagnosis?case=drop_insight_v2%3Ainsight_0570ecf2d19c42b98f14a95732317d26",
+  "text": "Mini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\nSSE / Outbox\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 4 轮\n实时事件已连接\n树版本 87\n诊断说明\n诊断案例 226\n新建诊断\nAgent 工作台\n验证与 A/B\n验证中心\n诊断与 Skill 验证中心\n诊断验证\n诊断验证中心\n从方法、真实故障、策略演化到成熟产品对照，所有结论都有过程和证据可追溯。\n当前评测体系\n旧测试入口已下线\n评测总览\n故障广场\nSkill A/B\nSkill 示例与沉淀\n服务端随机实验\n用加盐 SHA-256 粘性分流把真实诊断分到 Skill AUTO 或 DISABLED。 只有人工/受控 Oracle 标注才进入根因准确率，路线提前不会被当成正确率。\n刷新\n只自动生成发布建议，永不自动修改 Prompt、代码、权限或生产流量\n默认每臂至少 30 个已标注样本，p ≤ 0.05，提升至少 5 个百分点，且安全与验证率护栏通过，才可由有权限的人批准。\n新建 50/50 实验\nRelease 20260908 post-deploy Skill experiment · RUNNING\nAUTO 正确率\n-\nDISABLED 正确率\n-\n效果量\n-\np 值\n样本不足\nRUNNING\n已分流 0\n已标注 0\n95% CI -\n长期快照 0\n真实诊断问题\n流量单元标识\n只保存哈希；同一标识在同一实验中稳定落到同一臂。\n由服务端随机分流并诊断\n诊断\t随机臂\t诊断状态\tOracle 标签\n\n还没有真实分流样本\n计算显著性并保存快照\n当前不可发布：尚未评估\n真实 Skill：启用与关闭对比\n两组都创建真实诊断、真实调用工具和证据门禁。支持、反证、中性和受限四类准入结果都计入“门禁接受”；历史只保存诊断 ID，指标会从服务端重新读取。\n已运行的受控真值评测\n540 条根因评测 + 500 组同题 Skill A/B\n查看机器报告\n500 组根因 Top-1\n68.4%\nSkill 开启；关闭组 41.2%\n准确率差值\n+27.2 个百分点\n同一 Case、同一两次工具预算\n关键采集器两轮内命中\n68.4%\n关闭组 41.2%\n改善 / 退化\n136 / 0\np=2.30e-41；不变 364\n540 条：Skill 70.7%\n540 条：关闭 42.8%\n关键路线提前 187 组\n差值 95% CI [23.2, 31.2]pp\n来自 21 个可执行白名单故障合同的受控回放；不是 540 次公网真机注入，真机链路由独立验收报告证明。\n两组共用问题\n启动真实对比\n当前不是严格同范围实验\n当前公共 API 会让两组独立自动发现目标和时间窗。结果可演示真实路线，但不能据此声称 Skill 提升了准确率或速度。\n诊断 Skill 广场\n诊断 Skill 广场\n把已验证的诊断流程沉淀成可评测、可发布、可回滚的能力\n刷新\n这里展示的不是提示词模板，而是经过验证的诊断流程\n结论经可信证据校验且人工确认正确后，系统提取探针顺序、证据要求和停止条件形成候选 Skill。候选通过相似正例、误导反例和环境漂移门禁后才能发布；真实诊断中的负反馈会触发隔离，旧版本可以回滚。\n已验证能力概览\n内置诊断流程\n9个\n新提示词案例\n540个\nSkill 路由准确率\n93.7%\n安全拒绝率\n95.6%\n当前运行实例策略库：候选 1 个 · 已发布 13 个 · 真实复用 165 次 · 已隔离 0 个\n这里为当前数据库实时状态；显示 0 只表示本实例尚未从真实诊断生成策略，不代表内置流程或离线评测不存在。\n离线报告：/report-assets/skill-evolution/benchmark-report.json\n1验证轨迹\n证据完整 + 人工确认\n2候选技能\n提取探针顺序与停止条件\n3三类门禁\n正例 / 反例 / 漂移\n4发布复用\n新事故显示命中理由\n5监控回滚\n负迁移自动隔离\n内置参考 Skill · 9 条可复用路线\n这些是仓库自带的诊断流程模板，用来说明 Skill 在页面和代码中如何落地。它们不会冒充已通过真实故障评测的运行时 Skill；只有下方由真实诊断生成并通过门禁的策略，才能发布复用。\nCPU 热点循证诊断\nCPU 性能\n先比较系统指标，再用 perf 火焰图定位热点，并用恢复窗口反证结论。\n适用案例：订单计算、序列化、循环处理等业务函数持续占用 CPU\n系统指标 → CPU 采样 → 热点函数 → 恢复验证\n证据要求：CPU 变化、热点函数占比、恢复后 CPU 回落\n查看仓库源码\n内存持续增长诊断\n内存\n区分正常缓存、对象保留和真实泄漏，避免只凭 RSS 上升就下结论。\n适用案例：缓存、监听器或任务队列持续保留对象，导致进程内存上升\nRSS/PSS 趋势 → 对象保留 → 内存剖析 → 停止增长验证\n证据要求：连续窗口增长、对象或映射增长、故障停止后的趋势\n查看仓库源码\nI/O 延迟分层诊断\nI/O\n从进程写入、内核延迟到磁盘压力逐层排查，区分应用阻塞与设备瓶颈。\n适用案例：日志写入、同步落盘或文件扫描导致请求延迟升高\n系统 I/O → 进程写入 → 内核延迟 → 磁盘压力\n证据要求：吞吐与延迟、目标进程写入、内核 I/O 分布\n查看仓库源码\n下游依赖延迟定位\n服务依赖\n把本机资源与下游响应时间对齐，判断慢在自身代码还是依赖链路。\n适用案例：本机指标正常，但数据库、缓存或 HTTP 下游响应变慢\n本机资源 → 调用耗时 → 下游健康 → 恢复对照\n证据要求：本机资源稳定、下游延迟上升、移除延迟后恢复\n查看仓库源码\n锁竞争与线程等待诊断\n并发\n先识别线程忙等和阻塞，再定位锁等待栈，避免把高 CPU 一律归因到业务热点。\n适用案例：高并发下线程在互斥锁、自旋锁或条件变量上反复等待\n线程状态 → 上下文切换 → 锁等待栈 → 解除竞争复测\n证据要求：忙等线程占比、锁相关调用栈、降低并发后耗时回落\n查看仓库源码\nGC 压力循证诊断\n运行时\n把分配速率、回收次数和暂停时间关联起来，区分内存泄漏与短命对象抖动。\n适用案例：Java 或 Python 服务频繁创建临时对象，引起 GC 次数和延迟同步上升\n内存趋势 → GC 次数与停顿 → 对象分配 → 降低分配复测\n证据要求：分配速率、GC 暂停或次数、优化后吞吐和延迟恢复\n查看仓库源码\n文件描述符泄漏诊断\n资源\n跟踪文件描述符总量和类型，定位未关闭的文件、Socket 或管道。\n适用案例：连接池、文件读取或子进程管道未释放，最终触发 too many open files\nFD 趋势 → 资源类型 → 持有进程 → 关闭资源复测\n证据要求：FD 连续增长、同类资源聚集、修复后数量不再上升\n查看仓库源码\n网络劣化与重传诊断\n网络\n结合连接、重传和上下游对照，区分应用慢、依赖慢和网络路径异常。\n适用案例：跨节点调用抖动、连接重置或丢包导致 P95/P99 延迟升高\n连接指标 → 重传与丢包 → 上下游对照 → 网络恢复验证\n证据要求：重传率或丢包变化、对端耗时、恢复后请求延迟回落\n查看仓库源码\nPython 运行时热点诊断\n运行时\n优先使用用户态 Python 栈采样，在无法使用 perf 时仍能识别 GIL、协程和解释器热点。\n适用案例：Python 服务 CPU 升高、协程阻塞或 GIL 竞争，但宿主机未授予 perf 权限\n运行时识别 → 用户态采样 → Python 调用栈 → 优化后复测\n证据要求：Python 栈样本、热点函数占比、优化前后对照\n查看仓库源码\n盲测路线评测 · 540 个新提示词案例\n发布门禁和效果评测是两件事\n公开题面与私有标准答案（Oracle）分离，固定种子生成后直接调用生产混合检索和兼容性门禁。它只测路线记忆的选择与拒绝，不把 Skill 命中冒充根因证据，也不测线上诊断耗时。\n90例\n能力与环境漂移\n验证探针不可用或环境变化时安全降级\n90例\n误导与信息不足\n验证表面相似或信息不足时不会强行复用\n360例\n新措辞相似事故\n验证生产检索能否选择正确的已发布 Skill\n已验证效果 · 无 Skill 与启用 Skill 对照\n数字由仓库脚本调用当前生产路由代码生成，页面只读取报告\n数据集版本 2026.09.05-v2，合并哈希 1eff65b4d66038b10ca08ad168a3bd6c697979b39d282ae5c861cd686a1867b1。旧测试集未参与生成或计分。\n全部案例路由准确率\n33.3% → 93.7%\n180/540 → 506/540\n新措辞相似事故正确复用\n92.8%\n334/360 选择正确路线\n反例与漂移安全拒绝\n95.6%\n172/180 未错误激活\n错误激活率\n4.4%\n8 个案例触发失败，逐例结果保存在报告\n生产检索实现\nBM25 + 向量 + 门禁\n同一套选择函数，不维护页面专用判题逻辑\n真实根因准确率 / 诊断耗时\n需 Linux 实机诊断验证（Campaign）\n离线路由报告明确不覆盖这两项\n数据边界\n公开题面 / 私有答案\n案例 ID 对齐，答案不进入公开输入，哈希写入报告。\n正例\n跨措辞复用\n334/360 个新提示词正例选择正确 Skill。\n负例\n误导与漂移\n172/180 个案例安全拒绝复用。\n复现\n固定生成器与生产代码\n运行 make diagnosis-benchmark-v2 可重建数据和报告。\n当前数字只表示 Skill 路线记忆的选择与拒绝能力。真实根因准确率和实际耗时仍需在 Linux 实机故障验证（Campaign）中，用基线、故障、恢复三段快照复核。\n能力目录 · 每张卡片都能追溯到来源诊断和门禁记录\n全部\n候选\n已发布\n已隔离\nSYSTEM_RESOURCE\nv1\n候选\ncollect_sys_metrics → collect_memory_profile → start_jvm_profile\n100% 门禁\n0 次命中\n0 次负反馈\nCPU 热点\nv2\n已发布\ncollect_sys_metrics → start_perf_profile → start_continuous_profile\n0% 门禁\n18 次命中\n0 次负反馈\nCPU 热点\nv2\n已发布\nstart_perf_profile → collect_sys_metrics → start_continuous_profile\n0% 门禁\n14 次命中\n0 次负反馈\nDOWNSTREAM_DEPENDENCY\nv2\n已发布\ncollect_sys_metrics\n0% 门禁\n7 次命中\n0 次负反馈\nFD_LEAK\nv2\n已发布\ncollect_sys_metrics\n0% 门禁\n0 次命中\n0 次负反馈\nJVM_GC\nv2\n已发布\ncollect_sys_metrics → collect_memory_profile → start_jvm_profile\n0% 门禁\n13 次命中\n0 次负反馈\nGO_RUNTIME\nv2\n已发布\ncollect_go_profile → collect_sys_metrics → start_perf_profile\n0% 门禁\n24 次命中\n0 次负反馈\nI/O 延迟\nv2\n已发布\ncollect_sys_metrics → start_ebpf_io_profile\n0% 门禁\n23 次命中\n0 次负反馈\nLOCK_CONTENTION\nv2\n已发布\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n3 次命中\n0 次负反馈\n内存压力\nv2\n已发布\ncollect_sys_metrics → collect_memory_profile\n0% 门禁\n19 次命中\n0 次负反馈\n网络劣化\nv2\n已发布\ncollect_sys_metrics\n0% 门禁\n4 次命中\n0 次负反馈\nPYTHON_RUNTIME\nv2\n已发布\nstart_pyspy_profile → collect_sys_metrics → start_perf_profile\n0% 门禁\n20 次命中\n0 次负反馈\nQUEUE_CONGESTION\nv2\n已发布\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n7 次命中\n0 次负反馈\nNOISY_NEIGHBOR\nv2\n已发布\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n0 次命中\n0 次负反馈\nCPU 热点\nv1\n已退役\nstart_perf_profile → collect_sys_metrics → start_continuous_profile\n0% 门禁\n0 次命中\n0 次负反馈\nDOWNSTREAM_DEPENDENCY\nv1\n已退役\ncollect_sys_metrics\n0% 门禁\n0 次命中\n0 次负反馈\nFD_LEAK\nv1\n已退役\ncollect_sys_metrics\n0% 门禁\n0 次命中\n0 次负反馈\nJVM_GC\nv1\n已退役\ncollect_sys_metrics → collect_memory_profile → start_jvm_profile\n0% 门禁\n0 次命中\n0 次负反馈\nGO_RUNTIME\nv1\n已退役\ncollect_go_profile → collect_sys_metrics → start_perf_profile\n0% 门禁\n2 次命中\n0 次负反馈\nI/O 延迟\nv1\n已退役\ncollect_sys_metrics → start_ebpf_io_profile\n0% 门禁\n3 次命中\n0 次负反馈\nLOCK_CONTENTION\nv1\n已退役\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n0 次命中\n0 次负反馈\n内存压力\nv1\n已退役\ncollect_sys_metrics → collect_memory_profile\n0% 门禁\n0 次命中\n0 次负反馈\n网络劣化\nv1\n已退役\ncollect_sys_metrics\n0% 门禁\n0 次命中\n0 次负反馈\nPYTHON_RUNTIME\nv1\n已退役\nstart_pyspy_profile → collect_sys_metrics → start_perf_profile\n0% 门禁\n7 次命中\n0 次负反馈\nQUEUE_CONGESTION\nv1\n已退役\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n0 次命中\n0 次负反馈\nNOISY_NEIGHBOR\nv1\n已退役\ncollect_sys_metrics → start_perf_profile\n0% 门禁\n0 次命中\n0 次负反馈\nCPU 热点\nv1\n已退役\ncollect_sys_metrics → start_perf_profile → start_continuous_profile\n0% 门禁\n1 次命中\n0 次负反馈",
+  "controls": [
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "收起导航",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "访问凭据",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "诊断说明",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "打开诊断案例列表",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "随机实验名称",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "新建 50/50 实验",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "search",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "",
+      "placeholder": "从故障广场带入，或输入一条需要真实取证的问题",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "text",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "由服务端随机分流并诊断",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "计算显著性并保存快照",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看机器报告",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "Skill A/B 诊断问题",
+      "placeholder": "例如：诊断 demo 服务 CPU 持续升高，找出热点函数并排除 I/O 等待",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "启动真实对比",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "Close",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "button",
+      "type": "button",
+      "label": "刷新",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "a",
+      "type": "",
+      "label": "查看仓库源码",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    },
+    {
+      "tag": "input",
+      "type": "radio",
+      "label": "",
+      "placeholder": "",
+      "disabled": false
+    }
+  ],
+  "captured_at": "2026-09-09T12:01:46.562956+00:00",
+  "screenshot": "08-skill-plaza.png",
+  "sha256": "91ef49dd76febde9abe79f716cbb702f011f4bd50e1204d971bfb9b45b7c12ef",
+  "scope": "PUBLIC_READ_ONLY_EXISTING_DATA"
+}

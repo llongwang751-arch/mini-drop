@@ -10,6 +10,18 @@ vi.mock("../api/client", () => ({
 import * as api from "../api/client";
 
 describe("FixVerificationPanel", () => {
+  it("shows an explicit unverified outcome when no repair records exist", async () => {
+    api.listFixVerifications.mockResolvedValueOnce([]);
+    render(<FixVerificationPanel diagnosisId="diag-empty" canVerify={false} />);
+    expect(await screen.findByText(/尚无修复复测记录/)).toBeInTheDocument();
+    expect(screen.queryByText("对比验证")).not.toBeInTheDocument();
+  });
+  it("does not mistake a load failure for an absent repair", async () => {
+    api.listFixVerifications.mockRejectedValueOnce(new Error("network"));
+    render(<FixVerificationPanel diagnosisId="diag-error" canVerify={false} />);
+    expect(await screen.findByText(/修复记录读取失败/)).toBeInTheDocument();
+    expect(screen.queryByText(/尚无修复复测记录/)).not.toBeInTheDocument();
+  });
   beforeEach(() => {
     api.listFixVerifications.mockResolvedValue([
       {

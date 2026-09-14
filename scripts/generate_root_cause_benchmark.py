@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from server.app.drop_insight.fault_plaza import SCENARIOS
-from server.app.drop_insight.root_cause_benchmark import SCHEMA, TOOL_TO_COLLECTOR
+from server.app.drop_insight.root_cause_benchmark import SCHEMA
 
 
 ROOT = Path(__file__).resolve().parents[1]

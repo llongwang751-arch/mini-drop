@@ -11,6 +11,7 @@ import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
 import { chineseDiagnosticText } from "../utils/diagnosisDisplay";
 import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
+import { selectBestReport } from "../utils/reportPresentation";
 
 const { Text } = Typography;
 
@@ -170,7 +171,7 @@ export default function ChatThread({
       return new Date(b?.updated_at || b?.created_at || 0) - new Date(a?.updated_at || a?.created_at || 0);
     });
   }
-  const latestReport = reportRows[0] || null;
+  const latestReport = selectBestReport(reportRows);
   const feedbackRows = [...(feedback || [])];
   if (feedbackRows.some((item) => item?.created_at || item?.updated_at)) {
     feedbackRows.sort(
@@ -363,8 +364,8 @@ export default function ChatThread({
                 submitting={feedbackSubmitting}
               />
             )}
-            {hasVerifiedRootCause && detail?.diagnosis_id && !readOnly && (
-              <FixVerificationPanel diagnosisId={detail.diagnosis_id} />
+            {detail?.diagnosis_id && (
+              <FixVerificationPanel key={detail.diagnosis_id} diagnosisId={detail.diagnosis_id} canVerify={hasVerifiedRootCause && !readOnly} />
             )}
           </>
         )}
@@ -426,8 +427,8 @@ export default function ChatThread({
           />
         )}
         {/* 证据不足只是待验证假设；只有根因通过反证门禁后才能验证修复。 */}
-        {hasVerifiedRootCause && isExpert && detail?.diagnosis_id && !readOnly && (
-          <FixVerificationPanel diagnosisId={detail.diagnosis_id} />
+        {latestReport && isExpert && detail?.diagnosis_id && (
+          <FixVerificationPanel key={detail.diagnosis_id} diagnosisId={detail.diagnosis_id} canVerify={hasVerifiedRootCause && !readOnly} />
         )}
         {["INSUFFICIENT_EVIDENCE", "PARTIAL", "PARTIAL_COMPLETED"].includes(String(detail.status || "").toUpperCase()) && !readOnly && (
           <Alert

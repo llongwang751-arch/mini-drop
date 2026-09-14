@@ -13,6 +13,7 @@ import "d3-flame-graph/dist/d3-flamegraph.css";
 import { getTaskArtifactContentText } from "../api/client";
 import { escapeHtml } from "../utils/html";
 import { parseJsonOffMainThread } from "../utils/parseJsonOffMainThread";
+import { parseAsyncProfilerHtml } from "../utils/asyncProfiler";
 import { COLORS, FLAMEGRAPH as FG } from "../theme";
 
 const MAX_FLAMEGRAPH_NODES = 50_000;
@@ -67,7 +68,7 @@ function normalizeFlamegraphPayload(payload) {
       try {
         value = JSON.parse(value);
       } catch {
-        return payload;
+        return value;
       }
       continue;
     }
@@ -103,6 +104,7 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
   const dataRef = useRef(null);
   const currentNodeRef = useRef(null);
   const currentSearchRef = useRef("");
+  const loadSequenceRef = useRef(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -160,6 +162,7 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
 
   // ── 加载数据 ───────────────────────────────────────────
   const load = useCallback(async () => {
+    const sequence = ++loadSequenceRef.current;
     setLoading(true);
     setError("");
     setLimitNotice("");
@@ -174,10 +177,14 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
           maxDepth: MAX_FLAMEGRAPH_DEPTH,
         },
       );
+      if (sequence !== loadSequenceRef.current) return;
       if (envelope?.code !== 0) {
         throw new Error(envelope?.message || "无法加载火焰图数据");
       }
-      const tree = normalizeFlamegraphPayload(envelope?.data);
+      const payload = normalizeFlamegraphPayload(envelope?.data);
+      const tree = artifactType === "java_flamegraph_html"
+        ? parseAsyncProfilerHtml(typeof payload === "string" ? payload : payload?.text)
+        : payload;
       if (limits?.truncated) {
         setLimitNotice(
           `产物超过浏览器安全渲染上限，当前展示前 ${limits.nodeCount.toLocaleString()} 个节点；完整文件仍可下载。`,
@@ -193,16 +200,18 @@ const FlamegraphViewer = forwardRef(function FlamegraphViewer({
         setSearchStats(null);
       }
     } catch (err) {
+      if (sequence !== loadSequenceRef.current) return;
       setError(err.message || "无法加载火焰图数据");
       setHasData(false);
       setSearchStats(null);
     } finally {
-      setLoading(false);
+      if (sequence === loadSequenceRef.current) setLoading(false);
     }
   }, [taskId, artifactType, artifactIndex]);
 
   useEffect(() => {
     load();
+    return () => { loadSequenceRef.current += 1; };
   }, [load]);
 
   const createChart = useCallback((width) => (

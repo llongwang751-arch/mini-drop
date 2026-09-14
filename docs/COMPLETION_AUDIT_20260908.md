@@ -1,12 +1,19 @@
 # Mini-Drop 完成度审计（2026-09-08）
 
+## 2026-09-09 复验更新
+
+以下原文是 9 月 8 日的历史检查。9 月 9 日已完成 17 个剩余故障的三轮真实链路复验，21 个场景均有受控验收记录；随机 A/B 的六条服务端分配/真实取证/标注/评估、偏好保存/跨会话/删除恢复、独立 PostgreSQL 三项并发测试和隔离恢复演练均已有新证据。不能继续沿用“尚未迁移”或“写入链路完全未验收”的旧结论。
+
+模型充值后已恢复 HTTP 200，但真实模型复验发现 Java 探针遗漏，已修复并重新通过四运行时 4/4，失败记录继续保留。当前结论和发布后验证见 [后续完善与验收](../reports/ai-diagnosis/后续完善与验收-20260909.md)。十分钟读取验证只能证明有界观察，不能替代生产容量评测和长期运行。
+
+
 本文只记录可由代码、测试或云端报告证明的状态。`代码完成`、`自动验收通过`、`云端发布完成`和`人工页面确认`是四个不同结论，不能互相替代。
 
 ## 九项闭环状态
 
 | 项目 | 当前状态 | 可核验证据 | 仍然不能宣称什么 |
 |---|---|---|---|
-| 21 个故障场景逐项闭环 | 云端 live 验收完成 | `scripts/run_fault_plaza_closure_campaign.py` 在同一版本得到 21/21；每项均有真实 Diagnosis、Task、Attempt、非空 Artifact、SUPPORT Evidence、Report 引用、终态和清理 | 这是受控 Linux live E2E，不是生产准确率 |
+| 21 个故障场景逐项闭环 | 历史链路验证完成；根因未全部验收 | `scripts/run_fault_plaza_closure_campaign.py` 在同一版本得到 21/21；每项均有真实 Diagnosis、Task、Attempt、非空 Artifact、SUPPORT Evidence、Report 引用、终态和清理 | 这是受控 Linux live E2E，不是生产准确率 |
 | Java GC 独立计数器 | 云端 live 验收完成 | 新场景生成 2 个已校验 `jvm_gc_metrics` 样本并以 CONTROL Evidence 入链，同时有 2,828 个 allocation Profile 样本；Java 容器无重启/OOM | 旧报告仍保持 `PARTIAL_WITHOUT_COUNTER`，不能回写成新结果 |
 | 540/500 测试集口径 | 完成 | 540 条是 21 个合同生成的确定性受控回放；500 组同题同两次工具预算为 41.20% 对 68.40%，差值 27.20 个百分点，bootstrap 95% 区间 `[23.2, 31.2]`，精确符号检验 `p=2.295887e-41`，改善 136、退化 0 | 不是 540 次云服务器故障，也不是生产准确率 |
 | 实时与完整 LATS | 边界完成 | 实时工具链标记 `BUDGETED_LATS / LIVE_PROGRESSIVE`；只有冻结 observation + reset proof 才标记 `FULL_LATS / FROZEN_REPLAY` | 真实现场不可回滚，不能宣称兄弟分支处于完全相同状态 |
@@ -24,4 +31,4 @@
 - OpenAPI：`80` 个 method/path 对与实现一致。
 - Compose：`docker-compose.control.yml` 使用面试环境变量完成静态配置校验；本地 Windows Docker daemon 不作为 Linux live 证明。
 
-上述代码测试不会替代云端真实故障验收。最终发布版本为 `/opt/mini-drop-releases/20260908T094648Z`；完整 Campaign 为 21/21，机器报告 `reports/ai-diagnosis/fault-plaza-full-21-final-v2-20260908.json` 的规范化 payload SHA-256 为 `c8f7d0413fce94601cd905238533553f2d20509ae2492035e03f8c78faa07eea`。尚未完成的是用户亲自逐页点击后的主观页面验收，以及依赖真实随机流量和长期指标窗口的生产 A/B。
+上述代码测试不会替代云端真实故障验收。最终发布版本为 `/opt/mini-drop-releases/20260908T094648Z`；完整 Campaign 为 21/21，机器报告 `reports/ai-diagnosis/fault-plaza-full-21-final-v2-20260908.json` 的规范化 payload SHA-256 为 `c8f7d0413fce94601cd905238533553f2d20509ae2492035e03f8c78faa07eea`。这份历史检查遗漏了根因 VERIFIED 与恢复对照要求。根因闭环、同负载修复验证和生产 A/B 仍须独立核验，最新逐项结果见 [21 场景严格复验](../reports/ai-diagnosis/21场景严格复验-20260910.md)。

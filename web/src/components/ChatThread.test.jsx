@@ -32,7 +32,7 @@ describe("ChatThread conclusion-first mode", () => {
     const conclusion = screen.getByText("结论先行");
     const investigation = screen.getByText("完整调查过程");
     expect(conclusion.compareDocumentPosition(investigation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getAllByText("阶段性根因")).toHaveLength(1);
+    expect(screen.getAllByText("阶段性发现（待验证）")).toHaveLength(1);
     expect(screen.getByText("优化热点循环后复测")).toBeInTheDocument();
     expect(screen.queryByText("形成可验证假设")).not.toBeInTheDocument();
 
@@ -44,7 +44,7 @@ describe("ChatThread conclusion-first mode", () => {
     render(<ChatThread {...baseProps} mode="expert" />);
 
     expect(screen.queryByText("结论先行")).not.toBeInTheDocument();
-    expect(screen.getAllByText("阶段性根因")).toHaveLength(1);
+    expect(screen.getAllByText("阶段性发现（待验证）")).toHaveLength(1);
   });
 
   it("keeps autonomous scope selection inside the AI runtime", () => {

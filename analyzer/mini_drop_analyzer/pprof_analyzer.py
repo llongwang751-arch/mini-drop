@@ -33,16 +33,6 @@ def load_profile(data: bytes) -> Profile:
     return profile
 
 
-def _function_name(profile: Profile, function_id: int) -> str:
-    for function in profile.function:
-        if function.id == function_id:
-            index = function.name
-            if 0 <= index < len(profile.string_table):
-                return profile.string_table[index] or f"func_{function_id}"
-            return f"func_{function_id}"
-    return f"func_{function_id}"
-
-
 def _function_source(profile: Profile, function_id: int) -> tuple[str, str, int]:
     """Resolve a function id to (name, file, start_line) from the string table."""
     for function in profile.function:

@@ -100,6 +100,10 @@ def _seed_report(factory, report_id: str):
                 updated_at=NOW,
             )
         )
+        # These models deliberately have no ORM relationship cascade. Flush
+        # each parent before adding its child so PostgreSQL's immediate FK
+        # constraints are exercised with a valid fixture.
+        session.flush()
         session.add(
             DropInsightHypothesisModel(
                 id=hypothesis_id,
@@ -115,6 +119,7 @@ def _seed_report(factory, report_id: str):
                 updated_at=NOW,
             )
         )
+        session.flush()
         session.add(
             DropInsightReportModel(
                 id=report_id,
@@ -231,6 +236,8 @@ def test_postgres_session_lock_serializes_event_effect_identity(postgres_session
 
     def append(owner: str, hold_lock: bool) -> bool:
         with postgres_sessions() as session:
+            if not hold_lock:
+                second_started.set()
             diagnosis = (
                 session.execute(
                     select(DropInsightSessionModel)
@@ -242,8 +249,6 @@ def test_postgres_session_lock_serializes_event_effect_identity(postgres_session
             if hold_lock:
                 first_locked.set()
                 assert release_first.wait(timeout=5)
-            else:
-                second_started.set()
             created = drop_insight_service._append_event(
                 session,
                 diagnosis.id,
@@ -260,10 +265,12 @@ def test_postgres_session_lock_serializes_event_effect_identity(postgres_session
         first = executor.submit(append, "owner-a", True)
         assert first_locked.wait(timeout=5)
         second = executor.submit(append, "owner-b", False)
-        assert second_started.wait(timeout=5)
-        with pytest.raises(FutureTimeoutError):
-            second.result(timeout=0.2)
-        release_first.set()
+        try:
+            assert second_started.wait(timeout=5)
+            with pytest.raises(FutureTimeoutError):
+                second.result(timeout=0.2)
+        finally:
+            release_first.set()
         assert first.result(timeout=5) is True
         assert second.result(timeout=5) is False
 

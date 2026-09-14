@@ -94,6 +94,12 @@ def classify_evidence(envelope: EvidenceEnvelope) -> dict[str, Any]:
         return {"decision": "REJECT", "can_support_conclusion": False, "reasons": reasons}
 
     limitations = list(envelope.limitations)
+    metadata = envelope.observation.get("metadata")
+    metadata = metadata if isinstance(metadata, dict) else {}
+    if (envelope.scope.pid is not None
+        and metadata.get("scope_semantics") == "HOST_BLOCK_DEVICE"
+        and metadata.get("target_attributed") is not True):
+        limitations.append("仅观察到宿主机块设备 I/O，未归属目标进程；不能支持或反驳该进程的根因")
     if envelope.quality.degraded:
         limitations.append("采集已降级")
     if not envelope.quality.sample_count_known:

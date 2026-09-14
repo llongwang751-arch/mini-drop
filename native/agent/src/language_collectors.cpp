@@ -2,6 +2,7 @@
 
 #include "artifact_uploader.h"
 #include "process_runner.h"
+#include "runtime_guard.h"
 
 #include <filesystem>
 #include <fstream>
@@ -195,6 +196,11 @@ class AsyncProfilerCollector final : public Collector {
   }
   TaskResult collect(const Config& config, const Task& task,
       const std::atomic<bool>& stop, std::atomic<bool>& cancel) const override {
+    if (!has_hotspot_runtime(task.pid)) {
+      return {task.id, false,
+              "RUNTIME_MISMATCH: target has no verified executable libjvm.so mapping; JVM attach was not attempted",
+              ""};
+    }
     const char* configured = std::getenv("ASYNC_PROFILER_BIN");
     const std::string binary = configured ? configured : "/opt/async-profiler/bin/asprof";
     if (!executable_exists(binary)) {

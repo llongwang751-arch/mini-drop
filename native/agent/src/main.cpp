@@ -17,6 +17,7 @@
 #include "collector_registry.h"
 #include "process_snapshot.h"
 #include "result_outbox.h"
+#include "self_metrics.h"
 #include "error_code_contract.h"
 
 #include <atomic>
@@ -472,6 +473,24 @@ std::optional<mini_drop::HealthCheckResponse> heartbeat(
   request.set_agent_version("0.3.0-native-cpp");
   request.set_busy(busy);
   request.set_active_task_id(active_task_id);
+  // Do not publish first-window or unreadable counters as measured zeros.
+  static std::mutex metrics_mutex;
+  static std::optional<mini_drop_native::SelfCounters> previous;
+  {
+    std::lock_guard<std::mutex> lock(metrics_mutex);
+    auto current = mini_drop_native::read_self_counters();
+    if (current && previous) {
+      auto rates = mini_drop_native::self_rates(*previous, *current, sysconf(_SC_CLK_TCK));
+      if (rates) {
+        auto* stats = request.mutable_self_pstats();
+        stats->set_cpu_percent(rates->cpu_percent);
+        stats->set_rss_mb(rates->rss_mb);
+        stats->set_read_kb_s(rates->read_kb_s);
+        stats->set_write_kb_s(rates->write_kb_s);
+      }
+    }
+    previous = current;
+  }
 
   const ProcessSnapshot snapshot = collect_process_snapshot(collector_capabilities);
   auto* wire_snapshot = request.mutable_process_candidate_snapshot();

@@ -290,6 +290,11 @@ func (p *Postgres) CreateTask(ctx context.Context, input CreateTask) (string, bo
 		string(processBinding), now,
 	); err != nil {
 		if input.IdempotencyKey != "" && isUniqueViolation(err) {
+			// Release the aborted transaction before reconciliation acquires another
+			// pooled connection; otherwise concurrent conflicts can exhaust the pool.
+			if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
+				return "", false, rollbackErr
+			}
 			// A concurrent replica won the idempotency race; reconcile instead of failing.
 			replayedID, replay, reconcileErr := p.resolveIdempotentTask(ctx, input, requestParams)
 			if reconcileErr != nil {
@@ -394,7 +399,7 @@ func (p *Postgres) ListAgents(ctx context.Context, page Page) ([]map[string]any,
 	}
 	rows, err := p.pool.Query(ctx, `
 		SELECT id, hostname, ip_addr, version, os_info, capabilities, status,
-		       last_heartbeat_at, created_at, updated_at
+		       last_heartbeat_at, created_at, updated_at, latest_metrics
 		FROM agents
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2`, page.Limit, page.Offset)
@@ -406,11 +411,11 @@ func (p *Postgres) ListAgents(ctx context.Context, page Page) ([]map[string]any,
 	items := make([]map[string]any, 0, page.Limit)
 	for rows.Next() {
 		var id, hostname, ipAddr, version, osInfo, status string
-		var capabilities []byte
+		var capabilities, latestMetrics []byte
 		var lastHeartbeat, createdAt, updatedAt time.Time
 		if err := rows.Scan(
 			&id, &hostname, &ipAddr, &version, &osInfo, &capabilities, &status,
-			&lastHeartbeat, &createdAt, &updatedAt,
+			&lastHeartbeat, &createdAt, &updatedAt, &latestMetrics,
 		); err != nil {
 			return nil, 0, err
 		}
@@ -419,7 +424,7 @@ func (p *Postgres) ListAgents(ctx context.Context, page Page) ([]map[string]any,
 			"os_info": osInfo, "capabilities": decodeJSON(capabilities, []any{}),
 			"status": status, "last_heartbeat_at": lastHeartbeat,
 			"created_at": createdAt, "updated_at": updatedAt,
-			"latest_metrics": map[string]any{},
+			"latest_metrics": decodeJSON(latestMetrics, map[string]any{}),
 		})
 	}
 	return items, total, rows.Err()

@@ -46,6 +46,36 @@ jobs:
       - name: Lint (compileall)
         run: python -m compileall -q server analyzer
 
+  business:
+    name: Business HTTP acceptance and test-plan traceability
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install 'pydantic>=2,<3'
+      - name: Check generated business contracts
+        run: python scripts/generate_business_contracts.py --check
+      - name: Validate current plan
+        run: python scripts/check_business_test_plan.py --output output/business-plan.json
+      - name: PR change impact
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: python scripts/check_business_test_plan.py --base "$BASE_SHA" --head "$HEAD_SHA" --output output/business-impact.json
+      - name: Real HTTP workload and quality gates
+        run: python scripts/run_business_acceptance.py --output output/business-campaign.json --require-outcomes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-measurements-${{ github.sha }}
+          path: output/business*
+
   go:
     name: Go (apiserver)
     runs-on: ubuntu-22.04

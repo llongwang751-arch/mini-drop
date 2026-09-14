@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Col,
-  Modal,
   Row,
   Segmented,
   Space,
@@ -22,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { listDiagnosticSkills } from "../api/client";
 import FaultPlazaPanel from "./FaultPlazaPanel";
+import BusinessAcceptancePanel from "./BusinessAcceptancePanel";
 import LatsReplayPanel from "./LatsReplayPanel";
 import SkillABPanel from "./SkillABPanel";
 import SkillEvolutionPanel from "./SkillEvolutionPanel";
@@ -31,6 +31,7 @@ const { Paragraph, Text, Title } = Typography;
 
 const NAV_ITEMS = [
   { label: "评测总览", value: "overview", icon: <ReadOutlined /> },
+  { label: "业务案例", value: "business", icon: <ExperimentOutlined /> },
   { label: "故障广场", value: "faults", icon: <BugOutlined /> },
   { label: "Skill A/B", value: "skill-ab", icon: <ExperimentOutlined /> },
   { label: "Skill 示例与沉淀", value: "skills", icon: <BranchesOutlined /> },
@@ -133,7 +134,7 @@ function OverviewPanel({ onOpenSkills }) {
           type="warning"
           showIcon
           message="回归分数不等于线上正确率"
-          description="页面只展示 Drop Insight V2 的真实诊断过程和 Skill 独立难例。旧版 Campaign、产品对照与静态目录均已下线。"
+          description="离线路由测试、受控真机故障验收和冻结回放分别回答不同问题。请查看每份报告的样本范围、证据与结论边界。"
         />
       </Card>
 
@@ -155,7 +156,6 @@ function OverviewPanel({ onOpenSkills }) {
 
 export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesChanged }) {
   const [section, setSection] = useState("overview");
-  const [skillPlazaOpen, setSkillPlazaOpen] = useState(false);
   const [skillABSeed, setSkillABSeed] = useState(null);
 
   return (
@@ -164,12 +164,12 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         <div>
           <Text className="eval-eyebrow">诊断验证</Text>
           <Title level={3}>诊断验证中心</Title>
-          <Paragraph>从方法、真实故障、策略演化到成熟产品对照，所有结论都有过程和证据可追溯。</Paragraph>
+          <Paragraph>查看真实故障、诊断过程与 Skill 评测，按证据判断结论是否成立。</Paragraph>
         </div>
         <div className="eval-header-status">
           <span className="eval-status-dot" />
           <Text strong>当前评测体系</Text>
-          <Text type="secondary">旧测试入口已下线</Text>
+          <Text type="secondary">离线评测 · 真机验收 · 过程回放</Text>
         </div>
       </header>
 
@@ -178,21 +178,17 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         block
         value={section}
         options={NAV_ITEMS}
-        onChange={(value) => {
-          if (value === "skills") {
-            setSkillPlazaOpen(true);
-            return;
-          }
-          setSection(value);
-        }}
+        onChange={setSection}
       />
 
       <main className="eval-center-content">
-        {section === "overview" && <OverviewPanel onOpenSkills={() => setSkillPlazaOpen(true)} />}
+        {section === "overview" && <OverviewPanel onOpenSkills={() => setSection("skills")} />}
+        {section === "business" && <BusinessAcceptancePanel />}
         {section === "faults" && (
           <Space direction="vertical" size={18} style={{ width: "100%" }}>
             <FaultPlazaPanel
               onStartDiagnosis={onStartDiagnosis}
+              onOpenDiagnosis={onOpenDiagnosis}
               onPrepareSkillAB={(diagnosisRequest, started) => {
                 setSkillABSeed({
                   ...diagnosisRequest,
@@ -214,19 +210,8 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
             onCasesChanged={onCasesChanged}
           />
         )}
+        {section === "skills" && <SkillEvolutionPanel onOpenFaults={() => setSection("faults")} />}
       </main>
-      <Modal
-        className="skill-plaza-modal"
-        title="诊断 Skill 广场"
-        open={skillPlazaOpen}
-        onCancel={() => setSkillPlazaOpen(false)}
-        footer={null}
-        width="min(94vw, 1440px)"
-        style={{ top: 24 }}
-        destroyOnHidden
-      >
-        <SkillEvolutionPanel />
-      </Modal>
     </div>
   );
 }

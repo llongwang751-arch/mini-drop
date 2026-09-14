@@ -426,3 +426,37 @@ func TestSafeDownloadFilename(t *testing.T) {
 		t.Fatalf("unexpected empty fallback: %q", got)
 	}
 }
+
+func TestV2ResourceScopeCannotBypassRESTOrSSE(t *testing.T) {
+	for _, path := range []string{"/api/v2/diagnoses", "/api/v2/diagnoses/foreign/events/stream", "/api/v2/showcases/fault-plaza/cpu/start"} {
+		for _, method := range []string{http.MethodGet, http.MethodPost} {
+			for _, scope := range []string{"agent", "service", "environment", "all"} {
+				t.Run(method+path+scope, func(t *testing.T) {
+					p := config.Principal{ID: "test", APIKey: "test-key", Roles: []string{"admin"}, AgentIDs: []string{"*"}, ServiceIDs: []string{"*"}, Environments: []string{"*"}}
+					switch scope {
+					case "agent":
+						p.AgentIDs = []string{"a"}
+					case "service":
+						p.ServiceIDs = []string{"s"}
+					case "environment":
+						p.Environments = []string{"staging"}
+					}
+					s := &Server{cfg: config.Config{AuthEnabled: true, Principals: []config.Principal{p}}}
+					called := false
+					handler := s.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { called = true; w.WriteHeader(http.StatusNoContent) }))
+					req := httptest.NewRequest(method, path, nil)
+					req.Header.Set("X-API-Key", "test-key")
+					rec := httptest.NewRecorder()
+					handler.ServeHTTP(rec, req)
+					if scope == "all" {
+						if !called || rec.Code != 204 {
+							t.Fatalf("global principal rejected: %d", rec.Code)
+						}
+					} else if called || rec.Code != 403 {
+						t.Fatalf("scoped principal bypassed V2 boundary: %d", rec.Code)
+					}
+				})
+			}
+		}
+	}
+}

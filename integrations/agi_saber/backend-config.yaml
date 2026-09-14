@@ -1,0 +1,16 @@
+# Dedicated office deployment. Secrets are generated on the host, not copied
+# from the developer's .env or from Mini-Drop's diagnosis model account.
+server:
+  port: '18090'
+rag:
+  chunk_size: 200
+  chunk_overlap: 50
+  top_k: 3
+security:
+  allowlist_mode: true
+  allowlist: []
+sandbox:
+  enabled: false
+observability:
+  pprof:
+    enabled: false

@@ -24,7 +24,6 @@ const RECOMMENDED_SCENARIO_IDS = {
   "C++": "cpp-cpu-hotspot",
   Python: "source-hotspot",
 };
-const FULL_CHAIN_VALIDATED_SCENARIOS = new Set(["source-hotspot", "go-cpu-hotspot"]);
 
 function runtimeKey(value) {
   const normalized = String(value || "").trim().toLowerCase();
@@ -36,6 +35,15 @@ function runtimeKey(value) {
 }
 
 function maturityMeta(scenario) {
+  const recent = scenario?.latest_acceptance;
+  if (recent && typeof recent.passed === "boolean") {
+    const verified = recent.passed && recent.lineage_verified === true
+      && recent.root_cause_accepted === true && recent.recovery_observed === true
+      && recent.cleanup_verified === true;
+    return verified
+      ? { color: "green", text: "严格复验通过 · 未验证代码修复" }
+      : { color: "orange", text: "严格复验未通过" };
+  }
   const level = String(
     scenario?.acceptance_level || scenario?.validation_level || scenario?.maturity_level || "",
   ).toUpperCase();
@@ -43,11 +51,14 @@ function maturityMeta(scenario) {
     level === "LIVE_DIAGNOSIS_VERIFIED"
     || level === "FULL_CHAIN"
     || level === "LIVE_E2E"
-    || FULL_CHAIN_VALIDATED_SCENARIOS.has(scenario?.scenario_id)
+    || level === "HISTORICAL_LINEAGE_VERIFIED"
   ) {
-    return { color: "green", text: "全链路已验收" };
+    return { color: "gold", text: "历史链路记录 · 不代表根因验收" };
   }
-  return { color: "blue", text: "故障注入已验收" };
+  if (level === "FAULT_INJECTION_VERIFIED") {
+    return { color: "blue", text: "故障注入已验证" };
+  }
+  return { color: "default", text: "尚无验收记录" };
 }
 
 function recommendedScenarios(scenarios) {
@@ -101,7 +112,7 @@ function familyLabel(value) {
   return labels[String(value || "").toUpperCase()] || value || "综合故障";
 }
 
-export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB }) {
+export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, onOpenDiagnosis }) {
   const [plaza, setPlaza] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -300,10 +311,20 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB }) 
                 <div><dt>预期信号</dt><dd>{(scenario.expected_signals || []).map((item) => chineseDiagnosticText(item)).join("；") || "等待服务端说明"}</dd></div>
                 <div><dt>推荐采集</dt><dd>{(scenario.recommended_collectors || []).map((item) => <Tag key={item}>{diagnosticToolLabel(item)}</Tag>)}</dd></div>
                 <div><dt>关联 Skill</dt><dd><Text code>{scenario.related_skill || "动态规划"}</Text></dd></div>
+                {scenario.latest_acceptance && <div><dt>最近复验</dt><dd>
+                  {scenario.latest_acceptance.root_cause_accepted ? "根因通过" : "根因未通过"}
+                  {"；"}{scenario.latest_acceptance.recovery_observed ? "撤销后活动回落" : "恢复未确认"}
+                  {"；"}{scenario.latest_acceptance.cleanup_verified ? "注入已清理" : "清理未确认"}。
+                  <br />测试版本：{scenario.latest_acceptance.tested_release}。撤销注入不等于同负载修复。
+                </dd></div>}
                 {!scenarioAvailable && <div><dt>不可用原因</dt><dd><Text type="danger">{chineseDiagnosticText(unavailableReason)}</Text></dd></div>}
                 {!supportsSkillAB && <div><dt>Skill A/B</dt><dd><Text type="secondary">{skillABReason}</Text></dd></div>}
               </dl>
               <div className="fault-scenario-actions">
+                {scenario.latest_acceptance?.diagnosis_id && <Button
+                  onClick={() => onOpenDiagnosis?.(scenario.latest_acceptance.diagnosis_id)}
+                  disabled={!onOpenDiagnosis}
+                >查看复验诊断</Button>}
                 <Button
                   icon={<PlayCircleOutlined />}
                   disabled={!ready || !scenarioAvailable}
