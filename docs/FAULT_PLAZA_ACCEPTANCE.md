@@ -71,3 +71,10 @@
 - 因此 `root_gate_verified` 中"覆盖率为 1"的语义比 2026-09-10 更严格：无法再靠结构分支把覆盖槽位"送满"。
 - 首轮 `1/21`（`fault-plaza-strict-21-20260910-r2.json`）与两次针对性复测均在旧门禁下测得。在新门禁下重跑 21 场景之前，这些数字不得引用为当前能力；页面投影读取历史运行记录，不会自动变成新门禁成绩。
 - 复测必须按本协议执行并单独记录云端版本与诊断 ID；本地离线测试全绿不构成复测。受控回放基准（`reports/evaluation/`）不等于本协议的真机验收。
+
+## 2026-09-20 复测执行记录
+
+- 发布 `20260920T185032Z`（替换 diagnosis-worker / analyzer / web；native 与 Go API 未动）激活并三服务 healthy 后启动复测。
+- 运行入口：`output/acceptance/gate-tightening-20260920/run_strict_21.py`（沿用 r2 模式：认证 client 与只读实验室快照均凭据在内存读取）。
+- 输出：`reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`（RUNNING 期间增量写盘并附 sha256，不覆盖任何历史 campaign）。
+- 结果与解读在本报告完成前留空；完成后本节更新最终 passed/failed 与逐场景说明。

@@ -1,5 +1,14 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-20 证据门禁收紧、基准去自证循环与云端发布（最新）
+
+1. **门禁收紧（本轮最高杠杆改动）**：假设谓词移除全部 12 处捏造覆盖槽位（`covered or [0]`、`[0] if falsification else []`、GIL/用户态分支硬编码 `[0, 1]` 等），`claim_verifier` 在谓词未映射槽位时不再默认补槽位 0；`VERIFIED` 的覆盖率只能由判据文本与证据域的真实匹配（`_criterion_text_indexes`）累积。`service.py` 拆出 `event_store` / `hypothesis_predicate` / `report_conclusion` / `fix_verification` 四个叶子模块（9930 → 8485 行，命名空间 re-export 兼容全部既有测试与补丁点）。
+2. **基准去自证循环**：观测语料改为逐用例确定性抖动的采集器度量形态（不再逐字复制 `expected_signals`），评分画像只用场景标题与家族；双格式导出公开输入与私有答案分离（`dataset_ground_truth.json`）。重跑后数字不变（41.20% → 68.40%，p=2.30e-41）——证明提升一直由"决定性采集器 2 步内到达率"驱动而非文本自查；新增测试锁定观测不得泄漏 Oracle 信号。95.2% 虚构对比正文已按用户决定从 FAULT_PLAZA_21_BENCHMARK_REPORT 删除。
+3. **前端**：fallback 树不再编造转向理由（推断事件显式标注）、缺失值不再画 0；`TOOL_LABELS`/终态集合/报告择优统一单一来源；control SSE 收敛为 `SSEProvider` 单连接（AppLayout 裸 EventSource 删除，Dashboard 走订阅，`useSSE` 增加向后兼容的 `enabled` 门控）。`virtual_loss` 经核实是文档化的保留评分组件（恒 0），不是死代码，未删除。
+4. **C++**：Agent worker 线程异常安全（try/catch → INTERNAL_ERROR TaskResult）、Control gRPC token 常量时间比对；在本机 Docker 按构建流程实测，agent 5/5 CTest 通过。
+5. **云端发布 `20260920T185032Z`**：替换 diagnosis-worker / analyzer / web 三服务，native 与 Go API 未动。由于 v5 起容器改由 `private/runtime.compose.json` 管理，`release_sre_cloud.py prepare` 的标签发现在第二代发布不适用——本次以 v5 的 runtime.compose 为基底生成回滚配置（回滚镜像 `mini-drop-sre-rollback:*-20260920T185032Z` 已标记，`previous_release=20260919T141800Z`），wheels 复用 `20260919T123800Z`，`deploy/env` 从 `/opt/mini-drop/deploy/env` 补入发布目录。构建后三服务 healthy，`/api/healthz` 三依赖 healthy。上一版本文档记录的 20260914T073540Z 早已被 09-19 的 v5（20260919T141800Z）取代，属文档滞后，随本节一并更正。
+6. **严格验收复测进行中**：入口 `output/acceptance/gate-tightening-20260920/run_strict_21.py`，输出 `reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`；新门禁下 21 场景的成绩以该报告为准，完成后更新 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md) 与验证中心投影。
+
 ## 2026-09-19 规划预算与证据缺口增量（最新）
 
 当前云端发布 `20260919T141800Z`，仅替换 Diagnosis Worker。针对 300 秒 LATS 过期，新增共享墙钟准入：范围选择最多 25 秒、单轮规划最多 60 秒，模型请求逐次扣除剩余时间且单次最多 45 秒，摘要请求上限 10 秒；采集准入及审批后执行复查采集时长加 30 秒分析/报告预留。总预算未提高。HTTP timeout 不是可强杀网络/数据库调用的硬实时保证。验证器新增未覆盖 expected/falsification 索引与独立反证/对照缺口，供工作记忆和规划提示使用；不改变 VERIFIED 门槛，不宣称已完成基于缺口的确定性工具排序。本地 156 passed、2 skipped。首轮 141100Z 约 180 秒完成全部三项采集，但模型全超时走规则兜底，完整验收失败；修订后的回归结果见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。
