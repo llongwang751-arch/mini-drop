@@ -43,7 +43,7 @@ import TaskCreatePanel from "../components/TaskCreatePanel";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
 import usePolling from "../hooks/usePolling";
-import useSSE from "../hooks/useSSE";
+import { useControlEvents } from "../hooks/SSEContext";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import { collectorMeta } from "../utils/collectors";
 import { agentMetric } from "../utils/agentMetrics";
@@ -238,7 +238,7 @@ export default function Dashboard() {
 
   // ── SSE 实时事件 ──────────────────────────────────────
 
-  useSSE({
+  useControlEvents({
     onTaskChanged(data) {
       showEventNotification("task_changed", data);
       refresh(); // 事件到达后刷新数据

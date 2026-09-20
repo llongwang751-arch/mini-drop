@@ -1959,7 +1959,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1427 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1430 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2452,8 +2452,9 @@ python scripts/render_learning_guide.py
 | `web/src/components/AgentCockpit.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/AgentCockpit.jsx` | 阶段、计划、RAG、工具、Evidence、记忆、评测和 LATS 指标驾驶舱。 | `rows`、`eventPayload`、`printable`、`percent`、`evidenceDecision` 等 30 个声明 |
 | `web/src/components/AgentCockpit.test.jsx` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
-| `web/src/components/AppLayout.jsx` | 全局导航、页面标题、访问凭据和 SSE 状态。 | `menuSelection`、`pageMeta`、`AppLayout` |
+| `web/src/components/AppLayout.jsx` | 全局导航、页面标题、访问凭据和 SSE 状态。 | `menuSelection`、`pageMeta`、`AppLayout`、`AppLayoutShell` |
 | `web/src/components/AppLayout.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/components/AppLayout.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `makeFakeES`、`renderLayout` |
 | `web/src/components/BusinessAcceptancePanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `BusinessAcceptancePanel` |
 | `web/src/components/BusinessAcceptancePanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/CallGraphViewer.jsx` | Caller/Callee 调用关系图。 | `unwrap`、`CallGraphViewer` |
@@ -2520,6 +2521,8 @@ python scripts/render_learning_guide.py
 | `web/src/generated/taskKinds.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/generated/taskStatuses.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/global.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/hooks/SSEContext.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `SSEProvider`、`useControlSSE`、`useControlEvents` |
+| `web/src/hooks/SSEContext.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `makeFakeES`、`Probe`、`ConnectedProbe` |
 | `web/src/hooks/usePolling.js` | React 前端模块，负责对应模块行为的展示或交互。 | `usePolling` |
 | `web/src/hooks/usePolling.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `PollingHarness`、`setVisibility` |
 | `web/src/hooks/useSSE.js` | React 前端模块，负责对应模块行为的展示或交互。 | `useSSE` |

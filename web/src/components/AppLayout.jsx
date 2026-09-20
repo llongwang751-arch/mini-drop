@@ -12,7 +12,8 @@ import {
   SettingOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
-import { createEventSource, getStoredApiKey, saveApiKey, syncBrowserSession } from "../api/client";
+import { getStoredApiKey, saveApiKey } from "../api/client";
+import { SSEProvider, useControlSSE } from "../hooks/SSEContext";
 import ErrorBoundary from "./ErrorBoundary";
 import styles from "./AppLayout.module.css";
 
@@ -70,6 +71,15 @@ function pageMeta(pathname) {
 }
 
 export default function AppLayout() {
+  // shell 持有整个应用唯一的 control SSE 连接，页面通过 context 订阅事件。
+  return (
+    <SSEProvider>
+      <AppLayoutShell />
+    </SSEProvider>
+  );
+}
+
+function AppLayoutShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(
@@ -78,7 +88,7 @@ export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(isMobile);
   const [apiKey, setApiKey] = useState(getStoredApiKey() || "");
   const [credentialOpen, setCredentialOpen] = useState(false);
-  const [sseConnected, setSseConnected] = useState(false);
+  const { connected: sseConnected } = useControlSSE();
   const [openKeys, setOpenKeys] = useState(() => {
     const { parent } = menuSelection(location.pathname);
     return parent ? [parent] : [];
@@ -87,31 +97,6 @@ export default function AppLayout() {
   const { selected: selectedKey, parent: selectedParent } = menuSelection(location.pathname);
   const [title, description] = pageMeta(location.pathname);
   const diagnosisPage = location.pathname === "/ai-diagnosis";
-
-  useEffect(() => {
-    let stream = null;
-    let cancelled = false;
-    const connect = async () => {
-      stream?.close();
-      setSseConnected(false);
-      try {
-        await syncBrowserSession();
-      } catch {
-        // REST errors surface on the page; SSE remains in explicit fallback.
-      }
-      if (cancelled) return;
-      stream = createEventSource();
-      stream.onopen = () => setSseConnected(true);
-      stream.onerror = () => setSseConnected(false);
-    };
-    connect();
-    window.addEventListener("mini-drop:credentials-changed", connect);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("mini-drop:credentials-changed", connect);
-      stream?.close();
-    };
-  }, []);
 
   useEffect(() => {
     const query = window.matchMedia?.("(max-width: 640px)");
