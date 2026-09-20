@@ -9,24 +9,22 @@ import ConclusionCard from "./ConclusionCard";
 import ScopeCard from "./ScopeCard";
 import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
-import { chineseDiagnosticText } from "../utils/diagnosisDisplay";
+import { TOOL_LABELS, chineseDiagnosticText } from "../utils/diagnosisDisplay";
 import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
 import { selectBestReport } from "../utils/reportPresentation";
 
 const { Text } = Typography;
 
-const TOOL_LABELS = {
-  collect_sys_metrics: "系统指标采集",
-  collect_database_diagnostics: "数据库状态采集",
-  start_perf_profile: "CPU 火焰图采集",
-  start_pyspy_profile: "Python 调用栈采集",
-  start_ebpf_io_profile: "I/O 延迟采集",
-  get_agent_status: "采集节点检查",
-};
 
 function readableToolName(tool) {
   const key = tool?.tool_name || tool?.name || tool?.tool || "";
   return TOOL_LABELS[key] || key || "待选择采集器";
+}
+
+function percentText(value) {
+  if (value === null || value === undefined) return "未记录";
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? `${Math.round(numeric * 100)}%` : "未记录";
 }
 
 function buildConversationRounds(
@@ -244,17 +242,17 @@ export default function ChatThread({
                     <Space wrap>
                       <Tag color="green">Skill {index + 1}</Tag>
                       <Tag>版本 {reason.skill_version || "-"}</Tag>
-                      <Tag color="blue">匹配度 {Math.round(Number(activation.match_score || 0) * 100)}%</Tag>
+                      <Tag color="blue">匹配度 {percentText(activation.match_score)}</Tag>
                       {reason.retrieval === "HYBRID_BM25_VECTOR" && (
                         <>
-                          <Tag color="purple">BM25 {Math.round(Number(reason.bm25 || 0) * 100)}%</Tag>
-                          <Tag color="geekblue">向量 {Math.round(Number(reason.vector || 0) * 100)}%</Tag>
-                          <Tag>上下文 {Math.round(Number(reason.structured || 0) * 100)}%</Tag>
+                          <Tag color="purple">BM25 {percentText(reason.bm25)}</Tag>
+                          <Tag color="geekblue">向量 {percentText(reason.vector)}</Tag>
+                          <Tag>上下文 {percentText(reason.structured)}</Tag>
                         </>
                       )}
                       {Number(reason.observed_outcomes || 0) > 0 && (
                         <Tag color="cyan">
-                          复用可信度 {Math.round(Number(reason.posterior_reliability || 0) * 100)}%
+                          复用可信度 {percentText(reason.posterior_reliability)}%
                           （{reason.observed_outcomes} 次反馈）
                         </Tag>
                       )}

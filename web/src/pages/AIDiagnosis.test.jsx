@@ -202,16 +202,18 @@ describe("AIDiagnosis V2 workspace", () => {
     ));
   });
 
-  it("creates a diagnosis through the retained V2 API", async () => {
+  it.each(["LATS", "REACT"])("creates a diagnosis with %s through the retained V2 API", async (strategy) => {
     api.createDropInsightDiagnosis.mockResolvedValue({ diagnosis_id: "diag-new" });
     api.runDropInsightPlanner.mockResolvedValue({});
     render(<AIDiagnosis />);
+    if (strategy === "REACT") fireEvent.click(screen.getByText("ReAct 顺序对照"));
     fireEvent.change(screen.getByPlaceholderText(/描述问题/), {
       target: { value: "定位订单服务 CPU" },
     });
     fireEvent.click(screen.getByText("开始诊断"));
     await waitFor(() => expect(api.createDropInsightDiagnosis).toHaveBeenCalledWith({
       query: "定位订单服务 CPU",
+      budget: { investigation_strategy: strategy },
       mode: "AUTONOMOUS",
       auto_scope: true,
     }));
@@ -223,7 +225,7 @@ describe("AIDiagnosis V2 workspace", () => {
     api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
     api.getDropInsightExplorationTree.mockResolvedValue({
       revision: 3,
-      stats: { rounds: 2, nodes: 0, pruned: 0 },
+      stats: { rounds: 2, current_round: 2, nodes: 0, pruned: 0 },
       nodes: [],
     });
 

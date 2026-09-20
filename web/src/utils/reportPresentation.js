@@ -150,3 +150,15 @@ export function reportConclusionText(report) {
       .replace(/^INSUFFICIENT_EVIDENCE[：:]\s*/i, "当前证据不足："),
   );
 }
+
+export function reportRemediation(report) {
+  const remediation = report?.verification?.remediation || report?.remediation;
+  if (
+    remediation?.schema_version === 2 &&
+    ((Array.isArray(remediation.mitigations) && remediation.mitigations.length > 0) ||
+      (Array.isArray(remediation.root_cause_fixes) && remediation.root_cause_fixes.length > 0))
+  ) {
+    return { ...remediation, root_cause_fixes: report?.verification?.status === "VERIFIED" ? remediation.root_cause_fixes : [] };
+  }
+  return null;
+}

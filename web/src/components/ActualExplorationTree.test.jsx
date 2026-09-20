@@ -56,7 +56,8 @@ describe("ActualExplorationTree", () => {
     expect(screen.getByText("实际探索树")).toBeInTheDocument();
     expect(screen.getByRole("tree", { name: "真实父子探索树" })).toBeInTheDocument();
     expect(screen.getByText("剪枝 1 条")).toBeInTheDocument();
-    expect(screen.getByText("方向切换 1 次")).toBeInTheDocument();
+    expect(screen.getByText("方向切换 0 次")).toBeInTheDocument();
+    expect(screen.getByText("推断方向变化 1 次")).toBeInTheDocument();
     expect(screen.getByText((_, element) => (
       element.classList.contains("actual-tree-switch")
       && element.textContent.includes("CPU → I/O")

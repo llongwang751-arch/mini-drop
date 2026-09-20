@@ -31,6 +31,7 @@ import {
   chineseDiagnosticText,
   diagnosticStatusLabel,
   diagnosticToolLabel,
+  TOOL_LABELS,
 } from "../utils/diagnosisDisplay";
 import { hypothesisSemanticKey } from "../utils/hypothesisSemantics";
 import "./MentorComplexShowcase.css";
@@ -38,14 +39,6 @@ import "./ActualExplorationTree.css";
 
 const { Text } = Typography;
 
-const TOOL_LABELS = {
-  collect_sys_metrics: "系统指标",
-  collect_database_diagnostics: "数据库状态",
-  start_perf_profile: "CPU 火焰图",
-  start_pyspy_profile: "Python 调用栈",
-  start_ebpf_io_profile: "I/O 延迟",
-  get_agent_status: "采集节点检查",
-};
 
 const CATEGORY_LABELS = {
   CPU_HOTSPOT: "CPU",
@@ -82,6 +75,10 @@ function inferCategory(name = "") {
   if (name.includes("network")) return "NETWORK_DEGRADATION";
   if (name.includes("sys_metrics")) return "SYSTEM_RESOURCE";
   return "GENERAL";
+}
+
+function countText(value) {
+  return value == null ? "未记录" : value;
 }
 
 function buildFallbackTree(hypotheses = [], toolCalls = [], report) {
@@ -136,7 +133,8 @@ function buildFallbackTree(hypotheses = [], toolCalls = [], report) {
     if (previous !== current) switches.push({
       from_category: previous,
       to_category: current,
-      reason: "上一方向证据不足，转向新的取证分支",
+      // 前端只能观察到相邻探针的类别变化，不得编造转向原因冒充服务端事件。
+      inferred: true,
     });
   }
   return { nodes, switches };
@@ -153,8 +151,8 @@ const NODE_META = {
 const KIND_LABELS = {
   diagnosis: "诊断根节点",
   intervention: "人工干预",
-  hypothesis: "候选假设",
-  tool: "工具调用",
+  hypothesis: "因果假设 (Hypothesis)",
+  tool: "验证探针 (Probe Tool)",
   evidence: "证据裁决",
   report: "诊断结论",
   verification: "修复复测",
@@ -696,6 +694,7 @@ function mergeLegacyHypothesisNodes(nodes, edges = []) {
 
 function scoreLabel(search) {
   const algorithm = String(search?.algorithm || "").toUpperCase();
+  if (algorithm === "REACT") return "ReAct 规划顺序";
   return algorithm.includes("PUCT") ? "PUCT" : algorithm.includes("UCT") ? "UCT" : "UCT / PUCT";
 }
 
@@ -880,7 +879,9 @@ function LatsSearchStrip({ search, nodeById }) {
           <div className="is-live-tool-count">
             <Text strong>实时工具调用</Text>
             <Space wrap size={[6, 6]}>
-              <Tag>{budget?.usedToolCalls ?? 0}/{budget?.maxToolCalls ?? 0}</Tag>
+              {budget?.usedToolCalls != null && budget?.maxToolCalls != null
+                ? <Tag>{budget.usedToolCalls}/{budget.maxToolCalls}</Tag>
+                : <Tag>实时工具调用未记录</Tag>}
               <Text type="secondary">冻结回放不调用真实采集器</Text>
             </Space>
           </div>
@@ -1652,7 +1653,10 @@ function StructuredExplorationTree({
         {semanticProjection.mergedCount > 0 && <Tag color="cyan">语义合并 {semanticProjection.mergedCount} 个重复假设</Tag>}
         <Tag>父子关系 {graph.edgeCount} 条</Tag>
         <Tag color="red">剪枝 {stats.pruned ?? prunedCount} 条</Tag>
-        <Tag color="purple">方向切换 {(switches || []).length} 次</Tag>
+        <Tag color="purple">方向切换 {(switches || []).filter((item) => !item.inferred).length} 次</Tag>
+        {(switches || []).some((item) => item.inferred) && (
+          <Tag>推断方向变化 {(switches || []).filter((item) => item.inferred).length} 次</Tag>
+        )}
         {Number(stats.human_interventions || 0) > 0 && <Tag color="cyan">人工干预 {stats.human_interventions} 次</Tag>}
         {skillTrace && <Tag color="purple">Skill {skillTrace.stateMeta.label}</Tag>}
         {snapshot?.status && <Tag>{diagnosticStatusLabel(snapshot.status)}</Tag>}
@@ -1662,14 +1666,16 @@ function StructuredExplorationTree({
         <LatsSearchStrip search={projectedSearch} nodeById={nodeById} />
       </details>
       <details className="diagnosis-tree-search-details">
-        <summary>这棵树怎么看 · 工具有哪些</summary>
-        <p>从问题到候选原因，再到工具调用、证据裁决和报告。连线表示调查关系，不是程序函数调用。报告完成不代表故障修复。</p>
+        <summary>这棵树怎么看 · 循证性能决策树说明</summary>
+        <p><strong>架构说明：</strong>本树为「循证性能决策树」。树的每个主节点是业务机理的<strong>因果假设分支 (Hypothesis)</strong>，挂载的子节点是求证该假设派发的<strong>验证探针 (Probe Tool)</strong>。LATS 在假设空间进行强化选枝与反驳剪枝，避免在工具空间盲目无序试探。</p>
         <p>系统指标看资源变化；perf 看 CPU 热函数；py-spy 看 Python 栈；Go pprof 和 JVM async-profiler 看对应运行时；smaps 看内存；eBPF 看主机块设备延迟；连续采样看多窗口变化。实际可用工具受目标、能力和权限限制。</p>
         <p>采集失败或证据质量不足表示尚不可判断，不能当成假设被证伪。Skill 只建议取证顺序，不提供本次故障证据。</p>
       </details>
       {viewMode === "topology" ? (
         <>
           <div className="diagnosis-tree-legend" aria-label="探索树图例">
+            <span className="is-hypothesis-kind"><i style={{ background: "#2563eb", borderRadius: "2px" }} />因果假设节点</span>
+            <span className="is-probe-kind"><i style={{ background: "#059669", borderRadius: "2px" }} />验证探针动作</span>
             <span className="is-visited"><i />已调查分支</span>
             <span className="is-refuted"><i />已被反证</span>
             <span className="is-unavailable"><i />失败或证据不足</span>
@@ -1704,8 +1710,8 @@ function StructuredExplorationTree({
                   <b>{round.round_index}</b>
                   <span>第 {round.round_index} 轮</span>
                   <small>{frozenReplay
-                    ? `${round.simulation_count ?? round.tool_call_count ?? 0} 模拟 · ${round.evidence_count ?? 0} 冻结观察`
-                    : `${round.tool_call_count ?? 0} 工具 · ${round.evidence_count ?? 0} 证据`}</small>
+                    ? `${countText(round.simulation_count ?? round.tool_call_count)} 模拟 · ${countText(round.evidence_count)} 冻结观察`
+                    : `${countText(round.tool_call_count)} 工具 · ${countText(round.evidence_count)} 证据`}</small>
                 </div>
               ))}
             </div>
@@ -1713,12 +1719,14 @@ function StructuredExplorationTree({
           {(switches || []).map((item, index) => (
             <div className="actual-tree-switch" key={`${item.from || item.from_category}-${item.to || item.to_category}-${index}`}>
               <SwapOutlined />
-              <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : "purple"}>
-                {item.source === "USER_INTERVENTION" ? "人工转向" : "取证转向"}
+              <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : item.inferred ? "default" : "purple"}>
+                {item.source === "USER_INTERVENTION" ? "人工转向" : item.inferred ? "推断方向变化" : "取证转向"}
               </Tag>
               第 {index + 1} 次转向：{CATEGORY_LABELS[item.from || item.from_category] || item.from || item.from_category}
               {" → "}{CATEGORY_LABELS[item.to || item.to_category] || item.to || item.to_category}
-              <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>
+              {item.inferred
+                ? <Text type="secondary">（前端按相邻探针类别推断，非服务端持久化事件）</Text>
+                : <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>}
             </div>
           ))}
         </>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TERMINAL_DIAGNOSIS_STATUSES } from "../utils/diagnosisDisplay";
 import {
   Alert,
   Button,
@@ -9,6 +10,7 @@ import {
   Space,
   Spin,
   Steps,
+  Tag,
   Typography,
   message,
 } from "antd";
@@ -74,7 +76,7 @@ const { Paragraph, Text, Title } = Typography;
  * 与报告生成；本页通过 SSE 增量刷新，并在 SSE 断开时用低频轮询兜底。
  */
 
-const TERMINAL = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
+const TERMINAL = TERMINAL_DIAGNOSIS_STATUSES;
 const LOCKED_TERMINAL = new Set(["FAILED", "CANCELLED"]);
 const STATUS_LABELS = {
   CREATED: "等待开始",
@@ -175,6 +177,7 @@ export default function AIDiagnosis() {
   const [workspaceView, setWorkspaceView] = useState("workspace");
   const [caseFilter, setCaseFilter] = useState("all");
   const [query, setQuery] = useState("");
+  const [investigationStrategy, setInvestigationStrategy] = useState("LATS");
   const [sending, setSending] = useState(false);
   const [detail, setDetail] = useState(null);
   const [resources, setResources] = useState(EMPTY_RESOURCES);
@@ -508,7 +511,7 @@ export default function AIDiagnosis() {
         ...payload,
         query: text,
       });
-      const item = normalizeCase({ ...created, query: text, status: created.status || "CREATED" }, true);
+      const item = normalizeCase({ ...created, query: text, status: created.status || "CREATED" });
       setQuery("");
       setSelectedCase(item);
       syncCaseQuery(item.selection_key);
@@ -527,6 +530,7 @@ export default function AIDiagnosis() {
   async function startNew() {
     return createAndOpenDiagnosis({
       query,
+      budget: { investigation_strategy: investigationStrategy },
       mode: isExpert ? "ASSISTED" : "AUTONOMOUS",
       auto_scope: !isExpert,
     });
@@ -725,7 +729,7 @@ export default function AIDiagnosis() {
         <div>
           <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 智能诊断</div>
           <Title level={2}>
-            {hasActiveDiagnosis ? `当前诊断 · 第 ${treeStats.current_round || 0} 轮` : "从异常现象，找到性能瓶颈"}
+            {hasActiveDiagnosis ? (treeStats.current_round ? `当前诊断 · 第 ${treeStats.current_round} 轮` : "当前诊断 · 轮次待同步") : "从异常现象，找到性能瓶颈"}
           </Title>
           <Paragraph>
             {hasActiveDiagnosis
@@ -795,6 +799,11 @@ export default function AIDiagnosis() {
               <Space wrap>
                 {selectedCase && <>
                   <span className={`diagnosis-status is-${canonical.toLowerCase()}`}>{STATUS_LABELS[canonical]}</span>
+                  {(detail?.target?.trace_id || selectedCase?.target?.trace_id) && (
+                    <Tag color="cyan" title={(detail?.target?.span_id || selectedCase?.target?.span_id) ? `Span ID: ${detail?.target?.span_id || selectedCase?.target?.span_id}` : undefined}>
+                      Trace: {detail?.target?.trace_id || selectedCase?.target?.trace_id}
+                    </Tag>
+                  )}
                   {frozenReplay ? (
                     <span className="diagnosis-replay-badge">FULL_LATS · 冻结回放</span>
                   ) : (
@@ -987,6 +996,9 @@ export default function AIDiagnosis() {
                     />
                   </div>
                 )}
+                {!selectedId && <Segmented size="small" aria-label="调查策略"
+                  options={[{ label: "LATS 假设分支", value: "LATS" }, { label: "ReAct 顺序对照", value: "REACT" }]}
+                  value={investigationStrategy} onChange={setInvestigationStrategy} disabled={sending} />}
                 <div className="diagnosis-composer">
                   <Input.TextArea
                     ref={composerRef}

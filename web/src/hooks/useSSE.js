@@ -49,6 +49,12 @@ export default function useSSE({
       reconnectTimer.current = null;
     }
     sourceRef.current?.close();
+    sourceRef.current = null;
+    if (channel === "diagnosis" && !resourceId) {
+      setConnected(false);
+      handlersRef.current.onConnectionChange?.(false);
+      return null;
+    }
     const es = channel === "diagnosis"
       ? createDiagnosisEventSource(resourceId, cursorRef.current)
       : createEventSource();

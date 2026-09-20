@@ -112,6 +112,22 @@ describe("useSSE", () => {
     expect(createEventSource).not.toHaveBeenCalled();
   });
 
+  it("waits for a diagnosis ID and disconnects when the selection clears", () => {
+    const es = makeFakeES();
+    createDiagnosisEventSource.mockReturnValue(es);
+    const { result, rerender } = renderHook(({ id }) => useSSE({ channel: "diagnosis", resourceId: id }), { initialProps: { id: "" } });
+    expect(createDiagnosisEventSource).not.toHaveBeenCalled();
+    expect(createEventSource).not.toHaveBeenCalled();
+    rerender({ id: "diag-1" });
+    expect(createDiagnosisEventSource).toHaveBeenCalledWith("diag-1", 0);
+    act(() => es.onopen());
+    expect(result.current.connected).toBe(true);
+    rerender({ id: "" });
+    expect(es.close).toHaveBeenCalled();
+    expect(result.current.connected).toBe(false);
+    expect(createDiagnosisEventSource).toHaveBeenCalledTimes(1);
+  });
+
   it("replays the diagnosis stream from the last received sequence", () => {
     const streams = [];
     createDiagnosisEventSource.mockImplementation(() => {

@@ -33,6 +33,7 @@ const TERMINATION_LABELS = {
 };
 
 const EXECUTION_MODE_LABELS = {
+  BOUNDED_REACT: "ReAct 顺序调查（实时环境不可回退）",
   FULL_LATS: "完整 LATS（可回放/受控复现）",
   BUDGETED_LATS: "预算约束 LATS（实时环境不可回退）",
 };

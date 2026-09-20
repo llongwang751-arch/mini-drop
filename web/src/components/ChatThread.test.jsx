@@ -135,7 +135,7 @@ describe("ChatThread conclusion-first mode", () => {
     expect(screen.getByText("合并 1 个跨轮重述")).toBeInTheDocument();
     const history = container.querySelector(".diagnosis-round-history");
     expect(within(history).getAllByText(/第 [12] 轮/).length).toBeGreaterThanOrEqual(2);
-    expect(within(history).getByText("Python 调用栈采集")).toBeInTheDocument();
+    expect(within(history).getByText("采集 Python 调用栈")).toBeInTheDocument();
     expect(within(history).getByText(/本轮工具、证据和评分更新仍单独保留/)).toBeInTheDocument();
   });
 });

@@ -665,17 +665,19 @@ function RetrievalMatch({ match }) {
       <List.Item.Meta
         title={(
           <Space wrap>
-            <Text strong>{printable(match?.title || match?.knowledge_id)}</Text>
+            <Text strong>{printable(match?.title || match?.knowledge_id || match?.report_id)}</Text>
             {Number.isFinite(score) && <Tag color="blue">相关分 {score.toFixed(3)}</Tag>}
           </Space>
         )}
         description={(
           <Space direction="vertical" size={6} style={{ width: "100%" }}>
             <Space wrap size={[4, 4]}>
-              <Text code>{printable(match?.document)}</Text>
+              <Text code>{printable(match?.document || match?.diagnosis_id)}</Text>
               {match?.content_hash && <Text type="secondary">SHA-256 {String(match.content_hash).slice(0, 12)}…</Text>}
             </Space>
             {match?.excerpt && <Paragraph className="agent-cockpit-retrieval-excerpt">{chineseDiagnosticText(match.excerpt)}</Paragraph>}
+            {match?.summary && <Paragraph>{chineseDiagnosticText(match.summary)}</Paragraph>}
+            {match?.status === "HISTORICAL_REPORT_NOT_REVALIDATED" && <Tag color="warning">历史报告，本次未复核</Tag>}
             {rows(match?.matched_terms).length > 0 && (
               <Space wrap size={[4, 4]}>{rows(match.matched_terms).map((term) => <Tag key={term}>{term}</Tag>)}</Space>
             )}
@@ -725,9 +727,14 @@ function RAGPanel({ retrievals }) {
                   <Descriptions size="small" bordered column={{ xs: 1, md: 2 }}>
                     <Descriptions.Item label="检索问题" span={2}>{chineseDiagnosticText(printable(trace.query))}</Descriptions.Item>
                     <Descriptions.Item label="检索器">{printable(trace.retriever)}</Descriptions.Item>
+                    {trace.actual_backend && <Descriptions.Item label="实际检索方式">{printable(trace.actual_backend)}</Descriptions.Item>}
+                    {trace.tool && <Descriptions.Item label="查询工具">{printable(trace.tool)}</Descriptions.Item>}
                     <Descriptions.Item label="目录">{printable(trace.catalog)}</Descriptions.Item>
                     <Descriptions.Item label="检索摘要哈希" span={2}><Text code copyable>{printable(trace.query_hash)}</Text></Descriptions.Item>
                   </Descriptions>
+                  {rows(trace.degraded_reasons).length > 0 && <Alert type="warning" message="检索已降级" description={trace.degraded_reasons.join("；")} />}
+                  {trace.error && <Alert type="warning" message="参考查询未完成" description={printable(trace.error)} />}
+                  {trace.source_kind && <Text>外部观察：{trace.source_kind} · {trace.metric} · {trace.unit}（服务窗口级，未作为根因证据）</Text>}
                   <List
                     size="small"
                     locale={{ emptyText: "本轮没有达到相关性门槛的知识命中" }}
@@ -915,7 +922,9 @@ function LatsSearchPanel({ search, nodeById, diagnosticBudget, diagnosisStatus }
           {frozenReplay && (
             <div className="agent-cockpit-existing-budget" aria-label="冻结回放实时工具调用">
               <Text strong>实时工具调用（与模拟分开）</Text>
-              <LatsBudgetMeter label="真实采集器" used={budget.usedToolCalls ?? 0} maximum={budget.maxToolCalls ?? 0} remaining={budget.remainingToolCalls} />
+              {budget.usedToolCalls == null && budget.maxToolCalls == null && budget.remainingToolCalls == null
+                ? <Text type="secondary">服务端尚未记录实时工具调用</Text>
+                : <LatsBudgetMeter label="真实采集器" used={budget.usedToolCalls} maximum={budget.maxToolCalls} remaining={budget.remainingToolCalls} />}
             </div>
           )}
         </section>
