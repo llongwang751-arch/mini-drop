@@ -747,7 +747,32 @@ int main() {
         active_traceparent = task.traceparent;
         worker_running.store(true);
         worker = std::thread([&, task]() {
-          TaskResult result = execute_task(config, task, cancel_requested);
+          TaskResult result;
+          try {
+            result = execute_task(config, task, cancel_requested);
+          } catch (const std::exception& exc) {
+            std::cout << "{\"level\":\"error\",\"event\":\"task_execution_exception\","
+                      << "\"task_id\":\"" << json_escape(task.id) << "\","
+                      << "\"error\":\"" << json_escape(exc.what()) << "\"}\n";
+            TaskResult failure;
+            failure.task_id = task.id;
+            failure.task_attempt_id = task.task_attempt_id;
+            failure.task_attempt_authority = task.task_attempt_authority;
+            failure.error = std::string("task execution raised an unexpected exception: ") + exc.what();
+            failure.error_code = std::string(mini_drop_contract::kErrorInternalError);
+            result = std::move(failure);
+          } catch (...) {
+            std::cout << "{\"level\":\"error\",\"event\":\"task_execution_exception\","
+                      << "\"task_id\":\"" << json_escape(task.id) << "\","
+                      << "\"error\":\"unknown exception\"}\n";
+            TaskResult failure;
+            failure.task_id = task.id;
+            failure.task_attempt_id = task.task_attempt_id;
+            failure.task_attempt_authority = task.task_attempt_authority;
+            failure.error = "task execution raised an unknown exception";
+            failure.error_code = std::string(mini_drop_contract::kErrorInternalError);
+            result = std::move(failure);
+          }
           std::lock_guard<std::mutex> lock(result_mutex);
           completed = std::move(result);
         });
