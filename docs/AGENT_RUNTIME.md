@@ -1,6 +1,28 @@
 # Agent Runtime 设计
 
+## 2026-09-19 规划截止时间与显式证据缺口
+
+`agent_runtime/deadlines.py` 以 Autonomous 会话创建时间和 max_duration_seconds 计算剩余时间，与过期扫描的 10–1800 秒钳制一致。范围选择上限 25 秒、每轮规划上限 60 秒，另扣除至少 15 秒探针与 30 秒分析/报告余量。每次模型调用通过 LangChain ModelRequest.model_settings 传递剩余 timeout（单次最多 45 秒），RAG 与语义纠错共用上下文截止时间。计划输出上限 1000 tokens，并将剩余时间提供给模型以减少临近截止时的查询。摘要中间件使用每次调用的副本绑定 timeout（最多 10 秒），避免绕过主模型包装器或污染并发会话。预算停止不计入模型供应商熔断。
+
+持久化工具准入及审批后真实 dispatch 均检查 duration_seconds + 30 秒是否足够；晚到审批释放预留且不创建 Task。证据不足/反证重规划在无时间启动最短探针时停止扩展。该余量是准入策略，HTTP/数据库/队列仍不具备硬实时取消保证，现有会话过期扫描继续作为最后边界。
+
+Verifier 在原 verification 中额外输出 missing_expected、missing_falsification（从零开始的原条件索引）与 needs_independent_counter_or_control。报告 API 的具体路径为 report.verification.verification 内，工作记忆原样带入，提示模型先说明待补缺口再选择可观测的允许工具。字段不改变证据门槛；换工具本身不构成独立对照，旧报告缺字段不猜测。LATS 当前仍是单步真实工具分支，不是完整嵌套多步 ReAct。此次测试 156 passed、2 skipped；真实回归见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。
+
+## 2026-09-19 SRE 诊断 Agent 主线明确
+
+产品主线是在现有采集与 Analyzer 链路上增加 SRE 诊断助手。循证诊断与性能诊断树为固定要求；ReAct/LATS 是可替换的分支/行动选择策略，不能代替树与证据门禁。推荐外层假设树调度、内层观察行动循环，当前尚未完成独立节点多步 ReAct 子回合，不宣称完整论文 LATS。
+
+本批实现三路 RAG（BM25、Chroma 语义、目录实体精确召回，经 RRF 与重排）及从 SQL 读取的当前调查工作记忆；工作记忆保留证据引用、拒绝状态和最新验证缺口，不能生成新事实。开源源码对照、实际集成边界和后续计划见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。
+
+## 2026-09-19 知识质量与发布补充
+
+当前云端知识为 19 条目录、17 份 Markdown、39 个块；新 Chroma 快照 `md-knowledge-98e462e61a3ffd4164df07b5c62c248c`。新增官方来源调查指南与项目治理协议，公共索引不包含事故真值或私有观测。`scripts/evaluate_sre_retrieval.py` 支持词法/真实混合对照，保存实际后端、降级原因、逐例排名和语料 hash；15 条是开发集，尚未盲测。开源集成边界和下一阶段合同见 [质量记录](../reports/architecture/sre-quality-roadmap-20260919.md)。
+
+2026-09-19 已在云端发布 `diagnosis-agent-v5-retrieval`。实际 ReAct/LATS 两轮模型规划、Chroma 混合检索和采集报告通过，PostgreSQL Checkpoint 正常；两轮均未达到 VERIFIED 根因，不作为准确率比较。部署和边界见 [发布记录](../reports/architecture/cloud-release-20260919.md)。下文同日“尚未发布”描述的是实现时状态。
+
 ## 框架决策
+
+2026-09-19 本地运行补充：单次聊天请求可用 `MINI_DROP_AGENT_MODEL_TIMEOUT_SEC` 覆盖（限制 5～120 秒，默认沿用调用方 20/30 秒），SiliconFlow 可显式设置 `MINI_DROP_SILICONFLOW_ENABLE_THINKING=false`。参考 [官方非思考模式示例](https://www.siliconflow.com/zh/blog/deepseek-v3-2-now-on-siliconflow-reasoning-first-model-built-for-agents)。配置变更需重启 Worker。诊断图 superstep 上限改为 64，因为 middleware 也占用图步数；主模型调用仍最多 6 次，参考查询仍最多 4 次。真实本地验证见 `reports/local-sre/`；不视为云端发布或效果 Benchmark。
 
 生产运行时使用 `LangChain create_agent + LangGraph`。
 
@@ -33,9 +55,54 @@ server/app/drop_insight/
 
 Harness 不提供 shell。它把数据库对象转换成 JSON 原生值，只向 Scope Agent 暴露允许显示的候选字段，并验证模型返回的 `binding_id` 仍属于原候选集合。Diagnosis Agent 只能调用语义工具；服务端再把语义工具映射为实际 Collector。
 
+## 2026-09-19 检索、记忆与外部观察扩展（尚未发布）
+
+沿用现有 Runtime，不引入第二套调度器。实现借鉴 HolmesGPT 的工具循环与边界、Redis SRE 的记忆分层、RunbookAI 的混合召回思路，没有复制受限许可证代码。版本、源码链接和选型理由见 [开源调研](../reports/architecture/performance-sre-agent-research-20260919.md)。
+
+| 模块 | 当前实现与边界 |
+|---|---|
+| 按需检索 | 模型可调用 `search_knowledge`、`read_knowledge_chunk`；每次规划最多 4 次参考查询，共享去重与 45 秒准入期限。另有每次 Agent invoke 6 次主模型调用上限；压缩模型调用不计入该上限。这不是整个诊断的硬实时期限。 |
+| 混合召回 | `semantic_retrieval.py` 使用 Qwen3-Embedding-4B（1024 维）、Chroma cosine、BM25、RRF、Qwen3-Reranker-4B。默认仍为 lexical；显式开启 hybrid。cosine 距离 0.65、rerank 0.1 是待标定阈值，不是概率。 |
+| 索引治理 | 只导入 catalog 白名单的公共仓库文档；拒绝私有/租户/ACL 条目、越界路径、超大文件。分块带源 hash，集合名由全部文档及模型/维度决定。显式离线构建，完成后发布 ready；源变化而未重建时降级，不读旧集合。旧集合保留，不自动清理。 |
+| 失败与审计 | 缺配置、索引不可用、Embedding 失败降级 BM25，Reranker 失败保留融合排序，记录 actual/requested backend 和固定错误码。score_kind 区分 BM25/RRF/rerank，不混为诊断置信度。SDK HTTP I/O 通过版本约束适配器限时。 |
+| 历史事故记忆 | `incident_memory.py` 从 PostgreSQL 报告读取同 created_by、service、environment 的最近 30 天记录，最多扫描 100 条；要求 VERIFIED、完整覆盖、独立反证/对照、引用非空，排除归档和当前会话。runtime/version 存在时必须一致。标为 HISTORICAL_REPORT_NOT_REVALIDATED；归档立即撤销召回，无模型自由写回。 |
+| 外部观察 | `grafana_observations.py` 对接 Grafana 官方 datasource proxy 的 Prometheus query_range；仅两个固定模板 request_rate/latency_p95。服务、环境、时间窗由已存诊断绑定；窗口最长 30 分钟，步长 15 秒，响应最大 32 KiB，禁止跳转。保留查询、窗口、资源、时间、单位、规范化 JSON hash。不是通用 MCP 客户端，也不是原生 Evidence。 |
+| 模型兼容 | `model_factory.py` 分离聊天与检索模型；DeepSeek 用原集成，其他 OpenAI 兼容端点用 ChatOpenAI。现有聊天配置不被 Embedding 配置覆盖。硅基流动已用于本地真实工具查询、模型重规划和采集报告；首轮超时与图步数不足的失败记录保留于 `reports/local-sre/`，不代表稳定性或根因准确率已验收。 |
+| 策略对照 | 新建诊断选择 `budget.investigation_strategy=REACT` 或默认 LATS。ReAct 按最新规划次序选未访问候选，沿用全部取证门禁；共用事件仍叫 lats.*，实际 algorithm 为 REACT。候选生成和审计统计仍复用现有路径，因此不是论文原版 ReAct/LATS 复现实验。 |
+
+参考查询结果均带 `is_evidence=false`，通过现有 `planner.knowledge_retrieved` 事件保存。知识、历史文本及外部观察都不能授权工具、绑定新 PID 或作为当前根因事实。工具拒绝/重复请求由 Agent checkpoint 留痕；已执行参考查询另有领域事件。没有自由 shell、自动修复执行、自动记忆晋升，也没有跨服务事故共享。
+
+### 本地配置与重建
+
+安装 `python -m pip install -e ".[retrieval]"`，通过私有进程环境加载 `deploy/env/retrieval.env.example` 的配置。凭据不进入仓库；`SILICONFLOW_API_KEY` 与聊天模型密钥独立。单进程开发设 `MINI_DROP_CHROMA_PATH` 到持久目录；服务部署设 `MINI_DROP_CHROMA_HOST/PORT`，远程 TLS 可设 `MINI_DROP_CHROMA_SSL=true`。索引构建与在线 Worker 必须使用同一模型、维度、知识版本和 Chroma 位置。
+
+```text
+python scripts/build_knowledge_index.py
+python scripts/verify_semantic_retrieval.py --prompt-key --output <新的报告路径.json>
+```
+
+`verify_semantic_retrieval.py` 只上传两篇合成技术文档和一条查询，不访问业务数据，不测试事故准确率。正常查询 hybrid 会将查询和公共知识候选发给配置的模型服务；默认 lexical 不产生这种外发。
+
+### 可选容器配置
+
+`docker-compose.retrieval.yml` 是 control compose 的可选叠加层，Chroma 1.5.9 不发布宿主机端口，使用独立 `knowledge_chroma` 卷。先使用现有私有 control 环境与检索环境，再执行：
+
+```text
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml build migrate
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml up -d chroma
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml run --rm knowledge-index
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml up -d diagnosis-worker
+```
+
+处置建议使用 `schema_version=2`；旧无目标绑定的命令建议保留在原始报告中，前端不再将其显示为当前可执行预案。
+
+源代码 overlay 不安装新依赖，本轮需要完整重建 Python 镜像。索引命令失败时 Worker 会降级词法，不应宣称向量检索已启用。本机 Docker daemon 未运行，以上配置只做静态检查，容器启动与云端发布未验收。Chroma HTTP 限于可信内部网络；生产身份认证、备份容量和多副本压力验证仍待实施。
+
+Grafana 连接器另需 `MINI_DROP_GRAFANA_URL/TOKEN/PROMETHEUS_UID/ENVIRONMENT`；token 应由 Grafana 授予只读数据源权限。当前固定指标名称 `http_server_request_duration_seconds` 与 `service_name` 标签，接入其他仪表口径要新增经测试的模板。没有配置真实 Grafana，当前只有模拟适配测试。
+
 ## Agentic RAG
 
-Diagnosis Planner 会在每个初始计划或重规划轮次读取 `knowledge/catalog.json` 及其关联 Markdown，按中英文 token、中文 n-gram 和 BM25 做确定性检索。无需向量数据库或第二套 Agent Runtime。Top-K 结果包含知识 ID、标题、源文件、正文 SHA-256、匹配词、所需证据、限制和短摘录，并进入 LangGraph 的只读规划上下文。
+Diagnosis Planner 会在每个初始计划或重规划轮次读取 `knowledge/catalog.json` 及其关联 Markdown，按中英文 token、中文 n-gram 和 BM25 做确定性检索。默认不依赖向量数据库；可选混合模式见上节，仍使用同一 Agent Runtime。Top-K 结果包含知识 ID、标题、源文件、正文 SHA-256、匹配词、所需证据、限制和短摘录，并进入 LangGraph 的只读规划上下文。
 
 检索结果会以 `planner.knowledge_retrieved` 事件按 Diagnosis 隔离持久化，`GET /api/v2/diagnoses/{id}/retrievals` 可回放当时输入。事件和响应都显式标记 `KNOWLEDGE_PRIOR_ONLY` / `is_evidence=false`：知识只能提示“下一步采什么”，不能生成 `DropInsightEvidence`，也不能替代本次 Task/Artifact 事实。原始用户 query 留在审计轨迹中，但不会被提升到 system prompt 的可信知识块；Markdown 中的指令性文字同样不具备控制权。
 
@@ -54,20 +121,22 @@ Skill 检索与 Knowledge RAG 是两条相邻但不同的路线先验。Skill �
 Theme 是版本化行为合同，不是颜色主题：
 
 - `safe-autonomous-scope-v1`：只选已签发目标，优先精确语义与采集能力匹配。
-- `evidence-first-diagnosis-v1`：先提出可证伪假设，再取证；禁止把采集失败当反证。
+- `evidence-first-diagnosis-v2-retrieval`：先提出可证伪假设，再取证；禁止把采集失败当反证。
 
 Theme 变更必须升级版本并通过测试，避免历史 Checkpoint 在无标记情况下改变含义。
 
 ## 上下文与记忆
 
-记忆分四层，其中只有第一层属于当前事故的权威事实：
+记忆分五层，其中只有第一层属于当前事故的权威事实：
 
 1. 业务状态：诊断、假设、工具调用、Evidence、报告，存 PostgreSQL，是事实来源。
 2. 线程短期记忆：LangGraph Checkpoint，按 diagnosis ID 隔离；超出窗口后摘要并保留最近消息。
 3. 用户显式偏好记忆：按认证 principal 隔离并存 PostgreSQL，目前只允许语言、解释详略、时区和“低风险工具优先”四类白名单字段；它是可删除的提示上下文，不能保存查询、PID、旧根因、工具权限或目标绑定。
 4. 长期路线记忆：通过验证并发布的 Skill；它只影响检索和探针顺序，不携带旧案例结论。
 
-Knowledge/RAG 不属于上述四类记忆：它是版本化仓库材料的按需读取。Skill 记录“验证过的路线”，Knowledge 解释“某类现象通常需要哪些证据”，两者都不能成为当前事故事实。
+5. 历史事故参考：从同用户、服务、环境的近期严格 VERIFIED 报告召回，随归档撤销；不重新验证历史事实，也不成为当前证据。
+
+Knowledge/RAG 不属于上述五类记忆：它是版本化仓库材料的按需读取。Skill 记录“验证过的路线”，Knowledge 解释“某类现象通常需要哪些证据”，两者都不能成为当前事故事实。
 
 默认窗口由 `MINI_DROP_AGENT_MEMORY_MAX_MESSAGES`、`MINI_DROP_AGENT_MEMORY_MAX_TOKENS`、`MINI_DROP_AGENT_MEMORY_KEEP_TOKENS` 控制。范围发现重试由 `MINI_DROP_AUTO_SCOPE_RETRY_SEC` 限频。
 

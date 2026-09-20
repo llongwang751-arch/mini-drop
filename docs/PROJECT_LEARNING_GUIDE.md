@@ -1,5 +1,17 @@
 # Mini-Drop 从 0 到 1 学习手册
 
+## 2026-09-19 诊断 Agent 定位补充
+
+项目是在采集分析基础链路上增加 SRE 诊断助手：性能假设树组织解释，ReAct 式循环驱动观察行动，LATS 是可选分支调度；结论受证据门禁约束。三路 RAG 与 SQL 工作记忆已发布。模块实况、开源参考和未实现边界见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。
+
+## 2026-09-19 云端 v5 发布补充
+
+当前已发布到原云端入口，包含主动检索、Chroma 混合召回、历史报告记忆与 ReAct 选项。两条实际 ReAct/LATS 诊断链路通过，但未完成 VERIFIED 根因和修复复测。当前版本、证据与回滚见 [云端发布记录](../reports/architecture/cloud-release-20260919.md)；下方“本地、未发布”是之前的交接状态。
+
+## 2026-09-19 本地 Agent 改造交接
+
+当前新增能力与限制见 [Agent Runtime](AGENT_RUNTIME.md) 和 [实施报告](../reports/architecture/performance-sre-agent-implementation-20260919.md)。本轮没有发布云端；不要把本地测试当成线上验收。Embedding/Reranker 的真实合成查询已通过，事故准确率及 ReAct/LATS 同负载对照尚未评估。旧 95.2% 草稿撤回为无证据结论，历史原始报告保持不变。
+
 ## 2026-09-10 验收口径更正：21 条链路不等于 21 个根因已验证
 
 对 9 月 8 日原始 21 条诊断逐条读取现存 Report：只有 2 个会话至少含一份 `VERIFIED` 报告，另外 19 个没有；这只是存储的报告门禁状态，不能直接称为真实根因准确率。旧 Campaign 的 `lineage_only` 验证只要求指定采集器产物、支持证据、报告引用、会话完成和注入清理，没有强制检查根因报告 VERIFIED，也没有要求修复前后验证。此前“21/21 全链路已验收”的表述不应继续用于表示根因定位及修复闭环全部成功。
@@ -1487,7 +1499,7 @@ EventSource 是单向长连接。反向代理缓冲、空闲超时、会话过�
 5. `private/oracles.json` 保存根因真值、关键采集器和期望 Skill，评测时才合并；
 6. `manifest.json` 保存 Case 数、合同数以及公开集和私有真值集的 SHA-256，防止评测后改答案。
 
-一个样本只有同时满足两件事才算 Top-1 正确：预测的根因 ID 与私有真值一致，并且这一组在两次工具预算内真的到达该合同的关键采集器。只靠问题文本“猜中”不计正确。这与项目“Evidence 优先”的设计一致。
+一个样本只有同时满足两件事才算 Top-1 正确：预测的根因 ID 与私有真值一致，并且这一组在两次工具预算内真的到达该合同的关键采集器。只靠问题文本“猜中”不计正确。这与项目“Evidence 优先”的设计一致。2026-09-20 起观测语料为逐用例确定性抖动的采集器度量形态（不再复制 `expected_signals`），评分画像只用场景标题与家族；文本预测在闭集上仍接近满分是 query 模板嵌入症状的固有性质，Top-1 的实质是关键采集器两步内到达率。
 
 ### 28.3 500 组 Skill A/B 怎样保证可比
 
@@ -1947,13 +1959,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **821 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1427 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 128 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 438 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -1981,6 +1993,8 @@ python scripts/render_learning_guide.py
 | `benchmarks/diagnosis-v2/` | diagnosis-v2 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
 | `benchmarks/diagnosis-v2/private/` | private 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
 | `benchmarks/diagnosis-v2/public/` | public 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
+| `benchmarks/evaluation-suite/` | evaluation-suite 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
+| `benchmarks/retrieval/` | retrieval 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
 | `benchmarks/root-cause-v1/` | root-cause-v1 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
 | `benchmarks/root-cause-v1/private/` | private 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
 | `benchmarks/root-cause-v1/public/` | public 子目录；评测输入、真值与生成合同；不得将私有答案喂给被测规划器。 |
@@ -2034,9 +2048,315 @@ python scripts/render_learning_guide.py
 | `native/gperftools_bridge/` | gperftools 兼容桥与原生产物接入。 |
 | `native/gperftools_bridge/src/` | src 子目录；gperftools 兼容桥与原生产物接入。 |
 | `output/` | 交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/` | cloud-sre-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/` | tests-r2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/tests-r2/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260919/wheels/` | wheels 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/frontend-review-20260909/` | frontend-review-20260909 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/interview-guide/` | interview-guide 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/` | local-sre-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser/` | browser 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1789819540315/` | browser-1789819540315 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1789819631631/` | browser-1789819631631 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1789822478251/` | browser-1789822478251 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1789822690756/` | browser-1789822690756 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-api/` | local-sre-api 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/pdf/` | pdf 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/review-pytest-20260919/` | review-pytest-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/review-pytest-20260919/test_analyzer_upload_binds_tem0/` | test_analyzer_upload_binds_tem0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/review-pytest-20260919/test_prepare_and_verify_local_0/` | test_prepare_and_verify_local_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/review-pytest-20260919/test_prepare_rejects_declared_0/` | test_prepare_rejects_declared_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/review-pytest-20260919/test_verify_rejects_tampered_l0/` | test_verify_rejects_tampered_l0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/` | sre-agent-chroma-tests 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/` | sre-agent-chroma-tests-r2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/` | index 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/fe18f4f3-28f9-46ac-9a01-b7c708ade75e/` | fe18f4f3-28f9-46ac-9a01-b7c708ade75e 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/` | index 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/3e989ace-7973-4b4f-a699-7317991c334f/` | 3e989ace-7973-4b4f-a699-7317991c334f 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/` | sre-agent-final-validation 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_hybrid_retrieval_returns_0/` | test_hybrid_retrieval_returns_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_hybrid_retrieval_returns_0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/` | index 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/e0f92868-65ae-46a7-a6b6-150c7606f45a/` | e0f92868-65ae-46a7-a6b6-150c7606f45a 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_retrieval_returns_empty_f0/` | test_retrieval_returns_empty_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_retrieval_returns_empty_f0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_retrieval_trace_explicitl0/` | test_retrieval_trace_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-final-validation/test_retrieval_trace_explicitl0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/` | sre-agent-tests-core 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_hybrid_retrieval_returns_0/` | test_hybrid_retrieval_returns_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_hybrid_retrieval_returns_0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_retrieval_returns_empty_f0/` | test_retrieval_returns_empty_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_retrieval_returns_empty_f0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_retrieval_trace_explicitl0/` | test_retrieval_trace_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-core/test_retrieval_trace_explicitl0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/` | sre-agent-tests-final 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-final/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/` | sre-agent-tests-full 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/` | sre-agent-tests-full-r2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_pprof_int0/` | test_analyzer_runner_pprof_int0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_pprof_int0/task-pprof/` | task-pprof 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_speedscop0/` | test_analyzer_runner_speedscop0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_speedscop0/task-pyspy/` | task-pyspy 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_analyzer_upload_binds_tem0/` | test_analyzer_upload_binds_tem0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_async_profiler_event_is_r0/` | test_async_profiler_event_is_r0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_async_profiler_html_is_de0/` | test_async_profiler_html_is_de0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_bounded_tail_reads_comple0/` | test_bounded_tail_reads_comple0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_build_call_graph_has_dire0/` | test_build_call_graph_has_dire0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_build_call_graph_is_bound0/` | test_build_call_graph_is_bound0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_campaign_persists_an_atom0/` | test_campaign_persists_an_atom0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_changed_raw_evidence_is_r0/` | test_changed_raw_evidence_is_r0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_events_withou0/` | test_cli_rejects_events_withou0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_events_withou0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_events_withou0/out/task-no-stacks/` | task-no-stacks 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_header_only_p0/` | test_cli_rejects_header_only_p0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_header_only_p0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_header_only_p0/out/task-empty/` | task-empty 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_conflicting_request_ids_f0/` | test_conflicting_request_ids_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_maps_ea0/` | test_continuous_bundle_maps_ea0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_maps_ea0/task-1-window-0/` | task-1-window-0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_rejects0/` | test_continuous_bundle_rejects0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_ebpf_latency_is_explicitl0/` | test_ebpf_latency_is_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_empty_collapsed_file0/` | test_empty_collapsed_file0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_empty_input0/` | test_empty_input0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_hybrid_retrieval_returns_0/` | test_hybrid_retrieval_returns_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_hybrid_retrieval_returns_0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_java_flamegraph_merges_sa0/` | test_java_flamegraph_merges_sa0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_java_runtime_symbol_canno0/` | test_java_runtime_symbol_canno0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_lexical_chunk_can_be_read0/` | test_lexical_chunk_can_be_read0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_load_output_dir_from_conf0/` | test_load_output_dir_from_conf0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_local_artifact_persists_v0/` | test_local_artifact_persists_v0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_malformed_lines_skipped0/` | test_malformed_lines_skipped0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_maps_cpp_qualified_functi0/` | test_maps_cpp_qualified_functi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_maps_go_method_and_report0/` | test_maps_go_method_and_report0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_maps_java_nested_class_sy0/` | test_maps_java_nested_class_sy0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_maps_python_hot_symbol_to0/` | test_maps_python_hot_symbol_to0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_maps_ruby_method_extent0/` | test_maps_ruby_method_extent0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_memory_v2_derives_memory_0/` | test_memory_v2_derives_memory_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/` | test_new_benchmark_is_large_bl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_non_positive_or_frameless0/` | test_non_positive_or_frameless0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_observation_timing_is_not0/` | test_observation_timing_is_not0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/` | test_output_collector_marks_va0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/` | task-valid 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_output_collector_rejects_0/` | test_output_collector_rejects_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_output_collector_rejects_0/task-empty/` | task-empty 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_partial_lines_and_old_rec0/` | test_partial_lines_and_old_rec0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_perf_script_omits_event_p0/` | test_perf_script_omits_event_p0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_rejects_corrupt0/` | test_pprof_cli_rejects_corrupt0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/` | test_pprof_cli_writes_outputs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/out/task-pprof/` | task-pprof 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_prepare_and_verify_local_0/` | test_prepare_and_verify_local_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_prepare_rejects_declared_0/` | test_prepare_rejects_declared_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_rejects_invalid0/` | test_pyspy_cli_rejects_invalid0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/` | test_pyspy_cli_writes_outputs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/out/task-pyspy/` | task-pyspy 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin0/` | test_reject_wrong_scope_nonfin0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin1/` | test_reject_wrong_scope_nonfin1 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin2/` | test_reject_wrong_scope_nonfin2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin3/` | test_reject_wrong_scope_nonfin3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin4/` | test_reject_wrong_scope_nonfin4 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin5/` | test_reject_wrong_scope_nonfin5 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_repository_skill_instruct0/` | test_repository_skill_instruct0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_repository_skill_instruct0/skills/` | skills 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_repository_skill_instruct0/skills/python-runtime-diagnosis/` | python-runtime-diagnosis 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_resolve_under_root_reject0/` | test_resolve_under_root_reject0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_retrieval_returns_empty_f0/` | test_retrieval_returns_empty_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_retrieval_returns_empty_f0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_retrieval_trace_explicitl0/` | test_retrieval_trace_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_retrieval_trace_explicitl0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/` | test_root_cause_dataset_has_540 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/` | test_root_cause_evaluator_runs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/` | test_root_cause_markdown_repor0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/` | test_root_cause_replay_is_dete0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_ruby_postfix_modifier_doe0/` | test_ruby_postfix_modifier_doe0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_correlates_co0/` | test_sys_metrics_correlates_co0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_v2_derives_me0/` | test_sys_metrics_v2_derives_me0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_v2_rejects_pi0/` | test_sys_metrics_v2_rejects_pi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_top_functions_sorted0/` | test_top_functions_sorted0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_top_percent_sum0/` | test_top_percent_sum0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_tree_depth_truncation0/` | test_tree_depth_truncation0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_tree_has_root_structure0/` | test_tree_has_root_structure0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_upload_returns_size0/` | test_upload_returns_size0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/` | test_v2_evaluator_calls_produc0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full-r2/test_verify_rejects_tampered_l0/` | test_verify_rejects_tampered_l0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_analyzer_runner_pprof_int0/` | test_analyzer_runner_pprof_int0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_analyzer_runner_pprof_int0/task-pprof/` | task-pprof 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_analyzer_runner_speedscop0/` | test_analyzer_runner_speedscop0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_analyzer_runner_speedscop0/task-pyspy/` | task-pyspy 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_analyzer_upload_binds_tem0/` | test_analyzer_upload_binds_tem0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_async_profiler_event_is_r0/` | test_async_profiler_event_is_r0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_async_profiler_html_is_de0/` | test_async_profiler_html_is_de0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_bounded_tail_reads_comple0/` | test_bounded_tail_reads_comple0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_build_call_graph_has_dire0/` | test_build_call_graph_has_dire0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_build_call_graph_is_bound0/` | test_build_call_graph_is_bound0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_campaign_persists_an_atom0/` | test_campaign_persists_an_atom0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_changed_raw_evidence_is_r0/` | test_changed_raw_evidence_is_r0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_events_withou0/` | test_cli_rejects_events_withou0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_events_withou0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_events_withou0/out/task-no-stacks/` | task-no-stacks 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_header_only_p0/` | test_cli_rejects_header_only_p0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_header_only_p0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_cli_rejects_header_only_p0/out/task-empty/` | task-empty 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_conflicting_request_ids_f0/` | test_conflicting_request_ids_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_continuous_bundle_maps_ea0/` | test_continuous_bundle_maps_ea0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_continuous_bundle_maps_ea0/task-1-window-0/` | task-1-window-0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_continuous_bundle_rejects0/` | test_continuous_bundle_rejects0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_ebpf_latency_is_explicitl0/` | test_ebpf_latency_is_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_empty_collapsed_file0/` | test_empty_collapsed_file0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_empty_input0/` | test_empty_input0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_fresh_run_has_disjoint_pe0/` | test_fresh_run_has_disjoint_pe0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_hybrid_retrieval_returns_0/` | test_hybrid_retrieval_returns_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_hybrid_retrieval_returns_0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_java_flamegraph_merges_sa0/` | test_java_flamegraph_merges_sa0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_java_runtime_symbol_canno0/` | test_java_runtime_symbol_canno0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_load_output_dir_from_conf0/` | test_load_output_dir_from_conf0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_local_artifact_persists_v0/` | test_local_artifact_persists_v0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_malformed_lines_skipped0/` | test_malformed_lines_skipped0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_maps_cpp_qualified_functi0/` | test_maps_cpp_qualified_functi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_maps_go_method_and_report0/` | test_maps_go_method_and_report0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_maps_java_nested_class_sy0/` | test_maps_java_nested_class_sy0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_maps_python_hot_symbol_to0/` | test_maps_python_hot_symbol_to0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_maps_ruby_method_extent0/` | test_maps_ruby_method_extent0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_memory_v2_derives_memory_0/` | test_memory_v2_derives_memory_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_missing_index_does_not_ca0/` | test_missing_index_does_not_ca0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_model_or_dimensions_chang0/` | test_model_or_dimensions_chang0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/` | test_new_benchmark_is_large_bl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_non_positive_or_frameless0/` | test_non_positive_or_frameless0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_observation_timing_is_not0/` | test_observation_timing_is_not0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/` | test_output_collector_marks_va0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/` | task-valid 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_output_collector_rejects_0/` | test_output_collector_rejects_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_output_collector_rejects_0/task-empty/` | task-empty 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_partial_lines_and_old_rec0/` | test_partial_lines_and_old_rec0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_perf_script_omits_event_p0/` | test_perf_script_omits_event_p0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pprof_cli_rejects_corrupt0/` | test_pprof_cli_rejects_corrupt0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/` | test_pprof_cli_writes_outputs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/out/task-pprof/` | task-pprof 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_prepare_and_verify_local_0/` | test_prepare_and_verify_local_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_prepare_rejects_declared_0/` | test_prepare_rejects_declared_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pyspy_cli_rejects_invalid0/` | test_pyspy_cli_rejects_invalid0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/` | test_pyspy_cli_writes_outputs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/out/` | out 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/out/task-pyspy/` | task-pyspy 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin0/` | test_reject_wrong_scope_nonfin0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin1/` | test_reject_wrong_scope_nonfin1 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin2/` | test_reject_wrong_scope_nonfin2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin3/` | test_reject_wrong_scope_nonfin3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin4/` | test_reject_wrong_scope_nonfin4 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin5/` | test_reject_wrong_scope_nonfin5 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_repository_skill_instruct0/` | test_repository_skill_instruct0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_repository_skill_instruct0/skills/` | skills 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_repository_skill_instruct0/skills/python-runtime-diagnosis/` | python-runtime-diagnosis 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_resolve_under_root_reject0/` | test_resolve_under_root_reject0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_retrieval_returns_empty_f0/` | test_retrieval_returns_empty_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_retrieval_returns_empty_f0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_retrieval_trace_explicitl0/` | test_retrieval_trace_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_retrieval_trace_explicitl0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/` | test_root_cause_dataset_has_540 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/` | test_root_cause_evaluator_runs0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/` | test_root_cause_markdown_repor0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/` | test_root_cause_replay_is_dete0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_ruby_postfix_modifier_doe0/` | test_ruby_postfix_modifier_doe0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_sys_metrics_correlates_co0/` | test_sys_metrics_correlates_co0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_sys_metrics_v2_derives_me0/` | test_sys_metrics_v2_derives_me0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_sys_metrics_v2_rejects_pi0/` | test_sys_metrics_v2_rejects_pi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_top_functions_sorted0/` | test_top_functions_sorted0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_top_percent_sum0/` | test_top_percent_sum0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_tree_depth_truncation0/` | test_tree_depth_truncation0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_tree_has_root_structure0/` | test_tree_has_root_structure0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_upload_returns_size0/` | test_upload_returns_size0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/` | test_v2_evaluator_calls_produc0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/private/` | private 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/public/` | public 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-full/test_verify_rejects_tampered_l0/` | test_verify_rejects_tampered_l0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/` | sre-agent-tests-initial 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_hybrid_retrieval_returns_0/` | test_hybrid_retrieval_returns_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_hybrid_retrieval_returns_0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_retrieval_returns_empty_f0/` | test_retrieval_returns_empty_f0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_retrieval_returns_empty_f0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_retrieval_trace_explicitl0/` | test_retrieval_trace_explicitl0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/sre-agent-tests-initial/test_retrieval_trace_explicitl0/knowledge/` | knowledge 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `proto/` | 跨语言消息和 gRPC 协议源头及生成物。 |
 | `reports/` | 已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/` | ai-diagnosis 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2046,7 +2366,9 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/rendered/` | rendered 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered-v2/` | rendered-v2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered-v3/` | rendered-v3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/architecture/` | architecture 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/` | business-acceptance 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `scripts/` | 可重复运行的生成、检验、截图、评测与运维辅助入口。 |
 | `server/` | Python 服务包。 |
 | `server/app/` | Python 服务基础能力、数据模型、Worker 和分析调度。 |
@@ -2097,6 +2419,8 @@ python scripts/render_learning_guide.py
 | `AGENTS.md` | 仓库协作规则；规定重启后先读哪些权威文档以及禁止破坏的数据。 | — |
 | `alembic.ini` | Alembic 数据库迁移入口配置。 | — |
 | `docker-compose.control.yml` | 云端控制面、数据层、Web 和演示实验室的主编排。 | — |
+| `docker-compose.local-sre.yml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `docker-compose.retrieval.yml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `docker-compose.worker.yml` | 独立采集 Worker 的容器编排。 | — |
 | `docker-compose.yml` | 本地开发用的组合服务定义。 | — |
 | `Makefile` | 开发、测试、生成合同和容器操作的快捷命令。 | — |
@@ -2123,7 +2447,7 @@ python scripts/render_learning_guide.py
 | `web/public/report-assets/skill-evolution/benchmark-report.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/src/api/client.js` | 浏览器唯一 API 客户端；处理会话、错误翻译和全部业务请求。 | `listManagedServices`、`startManagedServiceDiagnosis`、`getBusinessAcceptance`、`translateError`、`getStoredApiKey` 等 89 个声明 |
 | `web/src/components/ActualExplorationTree.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
-| `web/src/components/ActualExplorationTree.jsx` | 真实 LATS 父子树、评分、剪枝、回溯、缩放与全屏交互。 | `inferCategory`、`buildFallbackTree`、`firstPresent`、`firstArray`、`skillEventKind` 等 34 个声明 |
+| `web/src/components/ActualExplorationTree.jsx` | 真实 LATS 父子树、评分、剪枝、回溯、缩放与全屏交互。 | `inferCategory`、`countText`、`buildFallbackTree`、`firstPresent`、`firstArray` 等 35 个声明 |
 | `web/src/components/ActualExplorationTree.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/AgentCockpit.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/AgentCockpit.jsx` | 阶段、计划、RAG、工具、Evidence、记忆、评测和 LATS 指标驾驶舱。 | `rows`、`eventPayload`、`printable`、`percent`、`evidenceDecision` 等 30 个声明 |
@@ -2134,7 +2458,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/BusinessAcceptancePanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/CallGraphViewer.jsx` | Caller/Callee 调用关系图。 | `unwrap`、`CallGraphViewer` |
 | `web/src/components/ChatMessage.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `ChatMessage` |
-| `web/src/components/ChatThread.jsx` | 把持久化领域事件按轮次投影成多轮诊断对话。 | `readableToolName`、`buildConversationRounds`、`ConversationRound`、`ChatThread` |
+| `web/src/components/ChatThread.jsx` | 把持久化领域事件按轮次投影成多轮诊断对话。 | `readableToolName`、`percentText`、`buildConversationRounds`、`ConversationRound`、`ChatThread` |
 | `web/src/components/ChatThread.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/ConclusionCard.jsx` | 根因、置信度、门禁状态、限制和建议展示。 | `ConclusionCard` |
 | `web/src/components/ConclusionCard.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
@@ -2177,7 +2501,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/SafeMarkdown.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/ScopeCard.jsx` | 目标发现、服务/环境/安全 binding 和时间窗确认。 | `localDateTime`、`defaultWindow`、`candidateLabel`、`ScopeCard` |
 | `web/src/components/ScopeCard.test.jsx` | 前端自动化测试，验证同名模块的目标发现与安全范围。 | `candidate`、`discovery`、`deferred`、`renderCard`、`chooseTarget` 等 6 个声明 |
-| `web/src/components/SkillABPanel.jsx` | 创建并比较 Skill AUTO/DISABLED 两臂，恢复浏览器 A/B 历史。 | `readSkillABHistory`、`writeSkillABHistory`、`historyRecordToPair`、`emptyArm`、`bestReport` 等 27 个声明 |
+| `web/src/components/SkillABPanel.jsx` | 创建并比较 Skill AUTO/DISABLED 两臂，恢复浏览器 A/B 历史。 | `readSkillABHistory`、`writeSkillABHistory`、`historyRecordToPair`、`emptyArm`、`scopeKey` 等 26 个声明 |
 | `web/src/components/SkillABPanel.test.jsx` | 前端自动化测试，验证同名模块的Skill 检索、策略与演进。 | — |
 | `web/src/components/SkillEvolutionPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/SkillEvolutionPanel.jsx` | 查看 Skill 候选、评测、发布、隔离、回滚和沉淀。 | `percent`、`SkillEvolutionPanel` |
@@ -2223,7 +2547,7 @@ python scripts/render_learning_guide.py
 | `web/src/utils/asyncProfiler.js` | React 前端模块，负责性能 Profile的展示或交互。 | `decodeString`、`parseAsyncProfilerHtml` |
 | `web/src/utils/asyncProfiler.test.js` | 前端自动化测试，验证同名模块的性能 Profile。 | — |
 | `web/src/utils/collectors.js` | React 前端模块，负责采集器的展示或交互。 | `collectorMeta`、`COLLECTOR_META`、`COLLECTOR_OPTIONS` |
-| `web/src/utils/diagnosisDisplay.js` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `normalizedCode`、`isProtocolLike`、`readableOrFallback`、`isKnownDiagnosticStatus`、`isKnownEvidenceRole` 等 24 个声明 |
+| `web/src/utils/diagnosisDisplay.js` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `normalizedCode`、`isProtocolLike`、`readableOrFallback`、`isKnownDiagnosticStatus`、`isKnownEvidenceRole` 等 26 个声明 |
 | `web/src/utils/diagnosisDisplay.test.js` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `web/src/utils/html.js` | React 前端模块，负责对应模块行为的展示或交互。 | `escapeHtml` |
 | `web/src/utils/hypothesisSemantics.js` | React 前端模块，负责对应模块行为的展示或交互。 | `normalizedText`、`stableUnique`、`hypothesisSemanticKey`、`timestampOf`、`roundOf` 等 8 个声明 |
@@ -2236,7 +2560,7 @@ python scripts/render_learning_guide.py
 | `web/src/utils/parseJsonOffMainThread.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/parseJsonPayload.js` | React 前端模块，负责对应模块行为的展示或交互。 | `limitTree`、`parseJsonPayload` |
 | `web/src/utils/parseJsonPayload.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
-| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`reportConclusionTitle`、`hasUnattributedHostIO`、`reportLimitations`、`reportNextActions` 等 11 个声明 |
+| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`reportConclusionTitle`、`hasUnattributedHostIO`、`reportLimitations`、`reportNextActions` 等 12 个声明 |
 | `web/src/utils/skillBenchmark.js` | React 前端模块，负责Skill 检索、策略与演进的展示或交互。 | `validateSkillBenchmark` |
 | `web/src/utils/skillBenchmark.test.js` | 前端自动化测试，验证同名模块的Skill 检索、策略与演进。 | — |
 | `web/src/utils/status.js` | React 前端模块，负责对应模块行为的展示或交互。 | `statusColor`、`isTaskActive`、`ACTIVE_TASK_STATUSES` |
@@ -2295,11 +2619,18 @@ python scripts/render_learning_guide.py
 | `server/app/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `server/app/_env.py` | Python 服务模块，负责对应模块行为。 | `_find_env_file`、`_is_docker`、`_load_dotenv` |
 | `server/app/agent_runtime/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `server/app/agent_runtime/chroma_http.py` | Python 服务模块，负责Agent Runtime。 | `BoundedClient`、`bounded_http_client` |
 | `server/app/agent_runtime/context.py` | 可信上下文组装、裁剪和确定性序列化。 | `trusted_json_default`、`trusted_context_json`、`normalize_trusted_context`、`bounded_tail` |
+| `server/app/agent_runtime/deadlines.py` | Python 服务模块，负责Agent Runtime。 | `remaining_seconds`、`probe_deadline_check`、`planning_seconds` |
+| `server/app/agent_runtime/grafana_observations.py` | Python 服务模块，负责Agent Runtime。 | `query_service_observations` |
 | `server/app/agent_runtime/harness.py` | 模型输入输出授权边界；阻止模型伪造目标和工具。 | `safe_scope_candidates`、`selected_authorized_candidate` |
-| `server/app/agent_runtime/memory.py` | 短期 Checkpoint 与上下文窗口策略。 | `AgentMemoryPolicy` |
+| `server/app/agent_runtime/incident_memory.py` | Python 服务模块，负责上下文与记忆。 | `recall_incidents` |
+| `server/app/agent_runtime/investigation_strategy.py` | Python 服务模块，负责Agent Runtime。 | `select_react_candidate` |
+| `server/app/agent_runtime/memory.py` | 短期 Checkpoint 与上下文窗口策略。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
+| `server/app/agent_runtime/model_factory.py` | Python 服务模块，负责Agent Runtime。 | `create_chat_model` |
 | `server/app/agent_runtime/retrieval.py` | Knowledge 目录的本地 BM25/词法混合检索。 | `retrieve_knowledge`、`build_retrieval_trace` 等 10 个声明 |
 | `server/app/agent_runtime/runtime.py` | 框架、模型和 Checkpoint 后端身份描述。 | `RuntimeDescriptor` |
+| `server/app/agent_runtime/semantic_retrieval.py` | Python 服务模块，负责Agent Runtime。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
 | `server/app/agent_runtime/themes.py` | 版本化诊断行为主题和系统提示。 | `diagnosis_system_prompt`、`scope_system_prompt` |
 | `server/app/ai_provider.py` | Python 服务模块，负责对应模块行为。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
 | `server/app/analysis_jobs.py` | 持久化 AnalysisJob 的领取、运行、重试和终态编排。 | `analysis_error_code`、`artifact_input_checksum`、`enqueue_artifact_analysis`、`ProcessResult`、`AnalyzerOutput` 等 16 个声明 |
@@ -2320,25 +2651,29 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/business_observations.py` | Python 服务模块，负责对应模块行为。 | `GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` |
 | `server/app/drop_insight/business_showcase.py` | 读取服务端固定且哈希校验的业务结果，仅提供只读展示。 | `get_business_acceptance` |
 | `server/app/drop_insight/campaign_matrix.py` | Python 服务模块，负责对应模块行为。 | `validate_collector_reports`、`build_campaign_admission` |
-| `server/app/drop_insight/claim_verifier.py` | 检查报告主张是否被当前 Evidence 引用和支持。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims` 等 12 个声明 |
-| `server/app/drop_insight/diagnosis_agent.py` | LangChain create_agent 与 LangGraph Checkpoint 适配。 | `DiagnosisAgentContext`、`ScopeSelectionContext`、`AgentHypothesis`、`DiagnosticProbeRequest`、`ScopeSelectionRequest` 等 30 个声明 |
+| `server/app/drop_insight/claim_verifier.py` | 检查报告主张是否被当前 Evidence 引用和支持。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
+| `server/app/drop_insight/diagnosis_agent.py` | LangChain create_agent 与 LangGraph Checkpoint 适配。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `server/app/drop_insight/event_store.py` | Python 服务模块，负责对应模块行为。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
 | `server/app/drop_insight/evidence.py` | Python 服务模块，负责Evidence 分类与门禁。 | `StrictModel`、`EvidenceSource`、`EvidenceScope`、`EvidenceTimeRange`、`EvidenceQuality` 等 8 个声明 |
 | `server/app/drop_insight/exploration_tree.py` | 从领域记录重建可恢复的探索树快照。 | `get_live_exploration_tree` 等 11 个声明 |
 | `server/app/drop_insight/fault_acceptance.py` | 读取并校验只读挂载的验收索引，为故障广场提供真实最近验收结果。 | `latest_acceptance` |
 | `server/app/drop_insight/fault_plaza.py` | 四运行时 21 个故障场景的服务端白名单。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
+| `server/app/drop_insight/fix_verification.py` | Python 服务模块，负责对应模块行为。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
 | `server/app/drop_insight/frozen_replay_showcase.py` | 冻结 fixture 到持久化 FULL_LATS 会话的桥。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
+| `server/app/drop_insight/hypothesis_predicate.py` | Python 服务模块，负责对应模块行为。 | `_structured_signal_predicate`、`_criterion_text_indexes`、`_compute_hypothesis_predicate`、`_derive_imported_evidence_role`、`_safe_percent` |
 | `server/app/drop_insight/lats.py` | UCT/PUCT、Selection、Expansion、Simulation、Reflection 和价值回传原语。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
 | `server/app/drop_insight/managed_services.json` | Python 服务模块，负责对应模块行为。 | — |
 | `server/app/drop_insight/managed_services.py` | Python 服务模块，负责对应模块行为。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
 | `server/app/drop_insight/operator_memory.py` | 按 principal 隔离的显式偏好读写与删除，拒绝目标或权限等越界记忆。 | `list_operator_preferences`、`put_operator_preference`、`delete_operator_preference`、`load_safe_agent_preferences` 等 6 个声明 |
 | `server/app/drop_insight/policy.py` | 风险、预算、能力、目标和审批门禁。 | `PolicyContext`、`evaluate_tool_call` |
 | `server/app/drop_insight/rcaeval_benchmark.py` | Python 服务模块，负责评测数据与指标。 | `PrivateCase`、`TelemetrySignature`、`RouteSkill`、`Prediction`、`SkillGate` 等 28 个声明 |
+| `server/app/drop_insight/report_conclusion.py` | Python 服务模块，负责对应模块行为。 | `_derive_report_conclusion`、`_concrete_report_finding`、`_derive_next_actions` |
 | `server/app/drop_insight/retrieval_benchmark.py` | Python 服务模块，负责评测数据与指标。 | `load_benchmark`、`run_benchmark` |
 | `server/app/drop_insight/root_cause_benchmark.py` | 540 条根因回放与 500 组 Skill A/B 的评分实现。 | `evaluate_controlled_root_causes`、`report_sha256` 等 16 个声明 |
 | `server/app/drop_insight/rounds.py` | Python 服务模块，负责对应模块行为。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
 | `server/app/drop_insight/scaled_skill_ab.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
 | `server/app/drop_insight/schemas.py` | Python 服务模块，负责对应模块行为。 | `StrictModel`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget`、`StartFrozenReplayRequest` 等 29 个声明 |
-| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 150 个声明 |
+| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 129 个声明 |
 | `server/app/drop_insight/showcase.py` | Python 服务模块，负责对应模块行为。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
 | `server/app/drop_insight/skill_benchmark.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
 | `server/app/drop_insight/skill_evolution.py` | Skill 混合检索、激活、跨轮沿用、候选演进和发布门禁。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
@@ -2528,13 +2863,23 @@ python scripts/render_learning_guide.py
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `knowledge/agent_experiments.md` | Agentic RAG 知识条目：agent experiments；只作先验，不作 Evidence。 | — |
+| `knowledge/agent_tool_governance.md` | Agentic RAG 知识条目：agent tool governance；只作先验，不作 Evidence。 | — |
 | `knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `knowledge/cgroup_cpu.md` | Agentic RAG 知识条目：cgroup cpu；只作先验，不作 Evidence。 | — |
 | `knowledge/distributed_attribution.md` | Agentic RAG 知识条目：distributed attribution；只作先验，不作 Evidence。 | — |
+| `knowledge/go_profiles.md` | Agentic RAG 知识条目：go profiles；只作先验，不作 Evidence。 | — |
 | `knowledge/jvm_gc.md` | Agentic RAG 知识条目：jvm gc；只作先验，不作 Evidence。 | — |
+| `knowledge/latency_measurement.md` | Agentic RAG 知识条目：latency measurement；只作先验，不作 Evidence。 | — |
 | `knowledge/linux_cpu.md` | Agentic RAG 知识条目：linux cpu；只作先验，不作 Evidence。 | — |
 | `knowledge/linux_iowait.md` | Agentic RAG 知识条目：linux iowait；只作先验，不作 Evidence。 | — |
 | `knowledge/linux_memory.md` | Agentic RAG 知识条目：linux memory；只作先验，不作 Evidence。 | — |
+| `knowledge/memory_pressure.md` | Agentic RAG 知识条目：memory pressure；只作先验，不作 Evidence。 | — |
 | `knowledge/mysql_lock_wait.md` | Agentic RAG 知识条目：mysql lock wait；只作先验，不作 Evidence。 | — |
+| `knowledge/postgres_waits.md` | Agentic RAG 知识条目：postgres waits；只作先验，不作 Evidence。 | — |
+| `knowledge/python_sampling.md` | Agentic RAG 知识条目：python sampling；只作先验，不作 Evidence。 | — |
+| `knowledge/rag_quality.md` | Agentic RAG 知识条目：rag quality；只作先验，不作 Evidence。 | — |
+| `knowledge/sre_recovery.md` | Agentic RAG 知识条目：sre recovery；只作先验，不作 Evidence。 | — |
 | `knowledge/tcp_retransmit.md` | Agentic RAG 知识条目：tcp retransmit；只作先验，不作 Evidence。 | — |
 
 ### 34.13 benchmarks：公开题目与私有真值
@@ -2545,6 +2890,9 @@ python scripts/render_learning_guide.py
 | `benchmarks/diagnosis-v2/private/oracles.json` | 私有根因/Skill 真值，评测时才与公开输入合并。 | — |
 | `benchmarks/diagnosis-v2/public/cases.json` | 公开评测输入，不包含根因答案。 | — |
 | `benchmarks/diagnosis-v2/sources.json` | 评测来源或数据合同。 | — |
+| `benchmarks/evaluation-suite/dataset.json` | 评测来源或数据合同。 | — |
+| `benchmarks/evaluation-suite/dataset.xlsx` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/sre_queries.json` | 评测来源或数据合同。 | — |
 | `benchmarks/root-cause-v1/manifest.json` | 数据集数量、版本、随机种子和文件 SHA-256 清单。 | — |
 | `benchmarks/root-cause-v1/private/oracles.json` | 私有根因/Skill 真值，评测时才与公开输入合并。 | — |
 | `benchmarks/root-cause-v1/public/cases.json` | 公开评测输入，不包含根因答案。 | — |
@@ -2555,7 +2903,9 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `tests/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `tests/test_actual_rag_adapter.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_service`、`test_trace_context_rejects_zero_or_malformed_ids_and_isolates_requests`、`test_failure_observations_and_bounded_retention_are_truthful`、`test_http_only_exposes_bounded_query_and_redacted_observations` |
+| `tests/test_agent_deadlines.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `diagnosis`、`test_wall_clock_includes_planning_and_reserves_finalization`、`test_verifier_exposes_gaps_without_upgrading_partial_report`、`test_model_calls_share_deadline_and_override_provider_timeout`、`test_summarization_uses_bounded_copy` 等 7 个声明 |
 | `tests/test_agent_metrics_migration.py` | 验证指标迁移保留旧数据、默认缺失以及重复升级兼容性。 | `test_metrics_migration_preserves_existing_agent_and_null_is_not_zero` |
+| `tests/test_agent_model_options.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `test_provider_options_stay_scoped` |
 | `tests/test_agentic_rag.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `isolated_database`、`test_hybrid_retrieval_returns_auditable_source_and_best_markdown_chunk`、`test_retrieval_returns_empty_for_unrelated_query`、`test_retrieval_trace_explicitly_refuses_to_be_incident_evidence`、`test_langgraph_planner_receives_and_returns_the_same_retrieval_trace` 等 9 个声明 |
 | `tests/test_ai_provider.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_ai_defaults_use_official_deepseek_chat`、`test_ai_mode_none_disables_all`、`test_ai_mode_nlp_only`、`test_ai_custom_provider_env`、`test_ai_http_client_reuses_thread_local_connection_pool` 等 10 个声明 |
 | `tests/test_analysis_jobs.py` | Python 自动化测试，验证分析任务与质量状态的成功、失败与边界条件。 | `repo`、`test_enqueue_is_idempotent_for_same_input`、`test_analyzer_registry_is_version_aware`、`test_each_collector_contract_has_a_versioned_analyzer`、`test_analysis_job_can_enrich_existing_output_metadata` 等 24 个声明 |
@@ -2580,12 +2930,12 @@ python scripts/render_learning_guide.py
 | `tests/test_diagnosis_min_round_progression.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_minimum_report_rounds_advance_to_round_three_despite_semantic_sibling`、`test_reused_skill_tool_is_attached_to_its_matching_lats_hypothesis` 等 7 个声明 |
 | `tests/test_diagnosis_rounds.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_selection_iteration_is_the_real_round_after_backtracking`、`test_legacy_diagnosis_falls_back_to_hypothesis_birth_round` |
 | `tests/test_diagnosis_session_expiry.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_expired_autonomous_session_is_cancelled_with_a_durable_reason` |
-| `tests/test_diagnosis_terminal_finalization.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_unverified_report_never_commits_a_transient_terminal_state`、`test_search_exhaustion_without_support_finalizes_as_insufficient_once`、`test_search_exhaustion_uses_best_supported_report_instead_of_overwriting_it`、`test_maintenance_does_not_finish_partial_report_before_replanning` 等 11 个声明 |
+| `tests/test_diagnosis_terminal_finalization.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_deadline_stops_expansion_and_finalizes_without_claiming_root_cause`、`test_unverified_report_never_commits_a_transient_terminal_state`、`test_search_exhaustion_without_support_finalizes_as_insufficient_once`、`test_search_exhaustion_uses_best_supported_report_instead_of_overwriting_it` 等 12 个声明 |
 | `tests/test_diagnosis_worker.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_process_binding_authority_rejects_legacy_target`、`test_process_binding_authority_accepts_attested_target`、`test_worker_starts_and_advances_autonomous_sessions` |
 | `tests/test_diagnostic_ai_rpc.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `AbortedRPC`、`FakeContext`、`test_private_diagnostic_rpc_rejects_invalid_token`、`test_private_diagnostic_rpc_binds_and_resets_trace_context`、`test_agent_runtime_status_internal_route_is_secret_free` 等 9 个声明 |
 | `tests/test_diagnostic_skill_evolution.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_latest_verified_report_can_generate_candidate_before_human_publish_approval`、`test_verified_trajectory_becomes_versioned_active_skill_once`、`test_failed_cross_environment_campaign_blocks_publish`、`test_verified_campaign_trust_chain_can_become_candidate_without_tool_call` 等 21 个声明 |
 | `tests/test_drop_insight_budget.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_budget_denies_when_artifact_bytes_exceed_limit`、`test_settle_uses_actual_artifact_bytes`、`test_release_frees_reservation_on_failure` 等 6 个声明 |
-| `tests/test_drop_insight_policy_evidence.py` | Python 自动化测试，验证Evidence 分类与门禁的成功、失败与边界条件。 | `policy_context`、`test_policy_requires_human_approval_for_perf`、`test_autonomous_session_pre_authorizes_registered_perf_only`、`test_policy_denies_unknown_argument_and_out_of_scope_agent`、`test_host_io_cannot_support_target_process_even_with_legacy_support_predicate` 等 12 个声明 |
+| `tests/test_drop_insight_policy_evidence.py` | Python 自动化测试，验证Evidence 分类与门禁的成功、失败与边界条件。 | `policy_context`、`test_policy_requires_human_approval_for_perf`、`test_autonomous_session_pre_authorizes_registered_perf_only`、`test_policy_denies_unknown_argument_and_out_of_scope_agent`、`test_host_io_cannot_support_target_process_even_with_legacy_support_predicate` 等 15 个声明 |
 | `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `postgres_sessions`、`test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity`、`test_postgres_report_and_event_constraints_reject_concurrent_duplicates` 等 7 个声明 |
 | `tests/test_drop_insight_session_cas.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_illegal_status_transition_is_rejected_by_table`、`test_valid_transition_increments_version_via_cas`、`test_stale_version_conflicts_under_optimistic_lock` |
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
@@ -2598,6 +2948,7 @@ python scripts/render_learning_guide.py
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 34 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
+| `tests/test_investigation_memory.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_working_notebook_preserves_rejection_and_truncation`、`test_working_memory_reads_only_current_investigation` |
 | `tests/test_jvm_profile_planning.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `test_jvm_profile_event_follows_diagnosis_intent`、`test_lock_probe_follows_bound_runtime_identity`、`test_later_gc_counterexample_does_not_turn_lock_capture_into_allocation`、`test_unknown_business_executable_cannot_fall_back_to_jvm_attach`、`test_uwsgi_has_python_profiler_but_no_jvm_attach` 等 6 个声明 |
 | `tests/test_k8s_manifests.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_k8s_base_has_unique_resources_and_does_not_embed_example_secret`、`test_k8s_control_services_are_replicated_and_disruption_bounded`、`test_k8s_agent_is_one_host_pid_collector_per_node` |
 | `tests/test_kernel_compatibility.py` | Python 自动化测试，验证Linux 内核兼容性的成功、失败与边界条件。 | `test_modern_cap_perfmon_supports_perf_without_sys_admin`、`test_restricted_host_falls_back_without_claiming_a_profile`、`test_gperftools_requires_explicit_app_opt_in`、`test_pyspy_does_not_ignore_a_restrictive_ptrace_policy` |
@@ -2618,14 +2969,17 @@ python scripts/render_learning_guide.py
 | `tests/test_pyspy_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_speedscope_accepts_bytes`、`test_analyze_speedscope_rebuilds_top_and_flame_tree`、`test_analyze_speedscope_counts_fractional_sampling_intervals`、`test_analyze_speedscope_aggregates_all_thread_profiles`、`test_pyspy_cli_writes_outputs` 等 8 个声明 |
 | `tests/test_python_hotspot_memory_cleanup.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_memory_stop_releases_buffers_and_trims_linux_heap`、`test_demo_sets_a_stable_linux_process_name_for_agent_discovery` |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_uses_final_root_cause_title`、`test_support_without_specific_finding_is_not_promoted_to_root_cause` |
-| `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
+| `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
 | `tests/test_skill_policy.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_skill_policy_defaults_to_auto_and_is_persisted`、`test_disabled_skill_policy_is_persisted`、`test_disabled_policy_bypasses_skill_retrieval`、`test_skill_round_metadata_and_full_instructions_are_forwarded` 等 9 个声明 |
 | `tests/test_source_mapper.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `test_maps_python_hot_symbol_to_ast_location`、`test_unknown_and_unconfigured_sources_are_explicit`、`test_maps_go_method_and_reports_concurrency_signals`、`test_maps_cpp_qualified_function`、`test_maps_java_nested_class_symbol` 等 8 个声明 |
 | `tests/test_sql_repository.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `repo_fixture`、`TestAgentPersistence`、`TestTaskPersistence`、`TestProcessAttestation`、`TestArtifactPersistence` 等 11 个声明 |
+| `tests/test_sre_agent_upgrade.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `knowledge`、`Collection`、`Client`、`Provider`、`test_real_chroma_snapshot_and_retrieval` 等 23 个声明 |
+| `tests/test_sre_collection_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_partial_tool_success_does_not_pass_chain`、`test_empty_or_rejected_evidence_does_not_pass_chain`、`test_complete_chain_passes_without_claiming_root_cause` |
 | `tests/test_state_machine.py` | Python 自动化测试，验证状态机的成功、失败与边界条件。 | `TestValidateTransition`、`TestBuildStatusEvent`、`TestAllowedTransitions`、`TestTerminalCheck`、`TestCancellationTransitions` |
 | `tests/test_storage.py` | Python 自动化测试，验证对象存储的成功、失败与边界条件。 | `TestEnsureBucket`、`TestBucketAvailable`、`TestUploadFile`、`TestReadObjectBytes`、`TestPresignedUrl` |
 | `tests/test_taskkind_contract_generation.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_taskkind_contract_is_valid_and_generated_bindings_are_fresh`、`test_dual_status_contract_is_closed_and_generated_bindings_are_fresh`、`test_error_code_contract_is_unique_and_generated_bindings_are_fresh` |
+| `tests/test_three_route_retrieval.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `make_knowledge`、`test_exact_entity_recall_has_token_boundaries`、`test_three_routes_are_independently_auditable`、`test_vector_failure_keeps_two_local_routes_and_marks_degradation`、`test_changed_entity_contract_requires_new_snapshot` 等 6 个声明 |
 
 ### 34.15 scripts：生成、检查和云端验收入口
 
@@ -2636,21 +2990,28 @@ python scripts/render_learning_guide.py
 | `scripts/build_ai_diagnosis_test_report_docx.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
 | `scripts/build_business_acceptance_view.py` | 从完成且哈希一致的业务报告生成页面投影。 | `verified`、`build` |
 | `scripts/build_fault_plaza_acceptance_index.py` | 校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。 | `verified_json`、`build` |
+| `scripts/build_knowledge_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/capture_learning_guide_screenshots.py` | 通过临时无头浏览器抓取当前云端只读页面，生成总教材使用的可复现截图。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
 | `scripts/check_business_test_plan.py` | 校验需求与执行案例一致、引用有效，并生成保守的变更影响清单。 | `validate`、`affected` |
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
 | `scripts/check_web_bundle.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |
 | `scripts/generate_diagnosis_benchmark_v2.py` | 生成 540 条 Skill 检索与拒绝测试集。 | `build`、`main` |
 | `scripts/generate_error_code_contracts.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | `main` 等 7 个声明 |
 | `scripts/generate_learning_guide_file_index.py` | 生成本节文件字典；修改仓库结构后重新运行。 | `topic_for`、`describe`、`current_files`、`directory_description`、`symbols` 等 7 个声明 |
-| `scripts/generate_root_cause_benchmark.py` | 从故障合同生成 540 条公开 Case 与私有 Oracle。 | `build`、`main` 等 6 个声明 |
+| `scripts/generate_root_cause_benchmark.py` | 从故障合同生成 540 条公开 Case 与私有 Oracle。 | `build`、`main` 等 7 个声明 |
 | `scripts/generate_service_request_contract.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | — |
 | `scripts/generate_status_contracts.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | `main` 等 6 个声明 |
 | `scripts/generate_taskkind_contracts.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | `main` 等 10 个声明 |
+| `scripts/inspect_cloud_python_sampling.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `inspect`、`main` |
+| `scripts/local_sre.ps1` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/package_skill_evolution_delivery.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `build`、`main` 等 9 个声明 |
+| `scripts/package_sre_release.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/prepare-control-ssh.ps1` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/release_knowledge_cloud.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/release_sre_cloud.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `run`、`inspect`、`save`、`compose`、`healthy` 等 10 个声明 |
 | `scripts/render_actual_rag_acceptance.py` | 合并实际业务测量与独立 AI 诊断结果生成可追溯复盘文档。 | — |
 | `scripts/render_business_acceptance.py` | 从业务原始报告生成 Markdown 对比结果。 | `render` |
 | `scripts/render_fault_plaza_acceptance.py` | 从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。 | `render` |
@@ -2658,25 +3019,32 @@ python scripts/render_learning_guide.py
 | `scripts/run_actual_rag_acceptance.py` | 冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。 | `get`、`measure`、`run` |
 | `scripts/run_business_acceptance.py` | 真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。 | `write_json`、`measure`、`run` |
 | `scripts/run_diagnosis_benchmark_v2.py` | 运行生产 Skill 选择器 Benchmark。 | `main` |
+| `scripts/run_dual_format_benchmark.py` | 工程脚本，负责评测数据与指标的生成、检查或验收。 | `generate_dataset_files`、`generate_evaluation_reports`、`main` |
 | `scripts/run_fault_plaza_closure_campaign.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
 | `scripts/run_fault_plaza_strict_acceptance.py` | 21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。 | `now`、`RecordingClient`、`measure`、`evaluate_intervention`、`evaluate_reports` 等 8 个声明 |
 | `scripts/run_live_skill_ab_campaign.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `Client`、`run_one`、`main` |
 | `scripts/run_multi_cloud_acceptance.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
 | `scripts/run_root_cause_benchmark.py` | 运行根因 Top-1 与 500 组 Skill A/B 并输出报告。 | `main` |
 | `scripts/run_scaled_skill_ab.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `main` |
+| `scripts/setup_local_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/start_demo_wsl.ps1` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_backup_restore.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `run`、`main` |
 | `scripts/verify_backup_restore.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_cloud_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_cloud_sre_browser.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_external_acceptance.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_fault_plaza_runtime_smoke.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_smoke`、`main` |
 | `scripts/verify_final_ui_acceptance.mjs` | 通过公网只读验证首屏、移动布局、已有报告、探索树、验证中心和记忆，阻止业务写请求。 | — |
 | `scripts/verify_frontend_workbench.mjs` | 使用本地合成 API 与 Chromium 验证首屏、响应式、树和失败刷新；不连接云端。 | — |
 | `scripts/verify_interview_demo.py` | 用页面同款 API 验收真实故障、A/B、Artifact、Evidence、报告和清理。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `scripts/verify_lats_replay_showcase.py` | 验收冻结 FULL_LATS 双会话、重置证明和命名空间隔离。 | `AcceptanceError`、`Client`、`main` 等 9 个声明 |
+| `scripts/verify_local_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `collection_chain_checks`、`main` |
+| `scripts/verify_local_sre_browser.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_multi_replica.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_native_ebpf.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_priority_collectors.py` | 验收持续 perf 与独立 eBPF Campaign。 | `run_acceptance`、`main` 等 7 个声明 |
 | `scripts/verify_report_presentation_ui.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_semantic_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 
 ### 34.16 deploy：镜像、环境、证书与编排
 
@@ -2684,15 +3052,19 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `deploy/certs/.gitkeep` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `deploy/dockerfiles/apiserver.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `deploy/dockerfiles/local-sre-api.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `deploy/dockerfiles/local-sre-python.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-agent-source-overlay.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-agent.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-control.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/python-worker-source-overlay.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/python-worker.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `deploy/dockerfiles/sre-release-python.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/web-prebuilt.Dockerfile` | 将已测试的 web/dist 叠加到指定 Web 运行镜像，保留旧哈希资产供已打开页面继续加载。 | — |
 | `deploy/dockerfiles/web.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/env/control.env.example` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
 | `deploy/env/interview-demo.env` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
+| `deploy/env/retrieval.env.example` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
 | `deploy/env/worker.env.example` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
 | `deploy/k8s/base/analyzer.yaml` | Kubernetes analyzer 资源定义。 | — |
 | `deploy/k8s/base/apiserver.yaml` | Kubernetes apiserver 资源定义。 | — |
@@ -2888,6 +3260,7 @@ python scripts/render_learning_guide.py
 | `docs/contracts/task-parameters/pyspy.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/task-parameters/sys_metrics.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/taskkind.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
 | `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
@@ -2974,11 +3347,26 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/截图问题修复与验收-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/故障广场其余17场景全链路复验-20260909.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/项目全面检查与修复-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/agent-deadline-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/cloud-recovery-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/cloud-release-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-chroma-20260919-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-chroma-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-final-validation-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-python-20260919-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-python-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-agent-targeted-final-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-diagnosis-agent-design-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/sre-quality-roadmap-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/实际RAG优化与AI联调-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/真实后台服务接入-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/轻量业务接入与验收-20260914.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/首轮业务验收-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/cleanup-release-20260914.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/evaluation/evaluation_report.xlsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/面试反馈与项目优化方案-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 
 ### 34.19 output：交付型派生材料
@@ -2987,6 +3375,136 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `output/Agent开发一面问题逐题回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/Agent开发一面问题通用回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/agent-modules-smoke.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/agent-runtime-release.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/agent-runtime-source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/expanded-rag-hybrid.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/expanded-rag-lexical.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/final-health.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/knowledge-delta.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/knowledge-health.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/knowledge-release.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/knowledge-source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/lats-agent.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/lats-deadline-r2.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/lats-deadline.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/react-expanded.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/release-summary.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/release-wheels.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/sampling-mode-experiment.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/security-boundary-check.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/source-check-final.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/source-deadlines-r2.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/source-deadlines.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/tests-r2/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/thread-namespaces.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/three-route-hybrid.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/verification-lats.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/verification-react.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/web-assets.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/aiohappyeyeballs-2.7.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/aiohttp-3.14.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/aiosignal-1.4.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/annotated_doc-0.0.5-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/annotated_types-0.8.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/anyio-4.15.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/attrs-26.1.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/bcrypt-5.0.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/build-1.6.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/certifi-2026.7.22-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/charset_normalizer-3.5.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/chromadb-1.5.9-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/click-8.5.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/colorama-0.4.6-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/durationpy-0.11-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/filelock-4.0.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/flatbuffers-25.12.19-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/fsspec-2026.9.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/googleapis_common_protos-1.75.3-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/grpcio-1.80.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/h11-0.16.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/httpcore-1.0.9-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/httptools-0.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/httpx-0.28.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/huggingface_hub-1.32.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/idna-3.20-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/importlib_resources-7.1.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/jsonschema-4.26.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/jsonschema_specifications-2025.9.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/kubernetes-36.0.3-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/markdown_it_py-4.2.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/mdurl-0.1.2-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/mmh3-5.3.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/multidict-6.9.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/oauthlib-3.3.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/onnxruntime-1.30.0-cp311-cp311-manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_api-1.44.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_exporter_otlp_proto_common-1.44.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_exporter_otlp_proto_grpc-1.44.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_proto-1.44.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_sdk-1.44.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/opentelemetry_semantic_conventions-0.65b0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/orjson-3.12.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/overrides-7.7.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/packaging-26.3-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/propcache-0.5.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/protobuf-6.33.6-cp39-abi3-manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pybase64-1.5.0-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pydantic-2.13.5-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pydantic_core-2.46.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pydantic_settings-2.15.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pygments-2.21.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pypika-0.51.1-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pyproject_hooks-1.3.3-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/python_dateutil-2.9.0.post0-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/python_dotenv-1.2.3-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/referencing-0.37.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/requests-2.34.2-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/requests_oauthlib-2.0.0-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/rich-15.0.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/rpds_py-2026.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/sha256.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/shellingham-1.5.4-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/six-1.17.0-py2.py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/tenacity-9.1.4-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/tokenizers-0.23.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/tqdm-4.70.1-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/typer-0.27.2-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/typing_extensions-4.16.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/typing_inspection-0.4.4-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/urllib3-2.8.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/uvicorn-0.53.0-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/watchfiles-1.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/websocket_client-1.9.2-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/websockets-17.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260919/wheels/yarl-1.25.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/frontend-review-20260909/01-start-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/02-start-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
@@ -2998,7 +3516,417 @@ python scripts/render_learning_guide.py
 | `output/frontend-review-20260909/08-finding-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/interview-guide/validation.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1789819540315/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1789819540315/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1789819631631/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1789819631631/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1789822478251/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1789822478251/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1789822690756/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1789822690756/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-api/mini-drop-apiserver` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/pdf/双项目面试深挖报告.pdf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/review-pytest-20260919/test_analyzer_upload_binds_tem0/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/review-pytest-20260919/test_prepare_and_verify_local_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/review-pytest-20260919/test_prepare_rejects_declared_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/review-pytest-20260919/test_verify_rejects_tampered_l0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/fe18f4f3-28f9-46ac-9a01-b7c708ade75e/data_level0.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/fe18f4f3-28f9-46ac-9a01-b7c708ade75e/header.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/fe18f4f3-28f9-46ac-9a01-b7c708ade75e/length.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/index/fe18f4f3-28f9-46ac-9a01-b7c708ade75e/link_lists.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests-r2/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/3e989ace-7973-4b4f-a699-7317991c334f/data_level0.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/3e989ace-7973-4b4f-a699-7317991c334f/header.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/3e989ace-7973-4b4f-a699-7317991c334f/length.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/index/3e989ace-7973-4b4f-a699-7317991c334f/link_lists.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-chroma-tests/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_hybrid_retrieval_returns_0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_hybrid_retrieval_returns_0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/e0f92868-65ae-46a7-a6b6-150c7606f45a/data_level0.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/e0f92868-65ae-46a7-a6b6-150c7606f45a/header.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/e0f92868-65ae-46a7-a6b6-150c7606f45a/length.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/index/e0f92868-65ae-46a7-a6b6-150c7606f45a/link_lists.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_retrieval_returns_empty_f0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_retrieval_returns_empty_f0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_retrieval_trace_explicitl0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-final-validation/test_retrieval_trace_explicitl0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_hybrid_retrieval_returns_0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_hybrid_retrieval_returns_0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_retrieval_returns_empty_f0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_retrieval_returns_empty_f0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_retrieval_trace_explicitl0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-core/test_retrieval_trace_explicitl0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-final/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_pprof_int0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_pprof_int0/task-pprof/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_pprof_int0/task-pprof/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_speedscop0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_speedscop0/task-pyspy/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_runner_speedscop0/task-pyspy/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_analyzer_upload_binds_tem0/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_async_profiler_event_is_r0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_async_profiler_html_is_de0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_bounded_tail_reads_comple0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_build_call_graph_has_dire0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_build_call_graph_is_bound0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_campaign_persists_an_atom0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_changed_raw_evidence_is_r0/case.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_events_withou0/out/task-no-stacks/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_events_withou0/out/task-no-stacks/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_cli_rejects_header_only_p0/out/task-empty/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_conflicting_request_ids_f0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_maps_ea0/continuous-perf.tar` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_maps_ea0/task-1-window-0/callgraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_continuous_bundle_rejects0/continuous-perf.tar` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_ebpf_latency_is_explicitl0/ebpf.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_empty_collapsed_file0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_empty_input0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_failed_index_is_not_publi0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_failed_index_is_not_publi0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_hybrid_retrieval_returns_0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_hybrid_retrieval_returns_0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_java_flamegraph_merges_sa0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_java_flamegraph_merges_sa0/jvm-gc-metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_java_runtime_symbol_canno0/Hotspot.java` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_java_runtime_symbol_canno0/process_runner.cpp` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_lexical_chunk_can_be_read0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_lexical_chunk_can_be_read0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_lexical_chunk_can_be_read0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_load_output_dir_from_conf0/config.toml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_local_artifact_persists_v0/sample.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_malformed_lines_skipped0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_maps_cpp_qualified_functi0/worker.cpp` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_maps_go_method_and_report0/worker.go` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `HotLoop` |
+| `output/sre-agent-tests-full-r2/test_maps_java_nested_class_sy0/CPULoad.java` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_maps_python_hot_symbol_to0/service.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Worker` |
+| `output/sre-agent-tests-full-r2/test_maps_ruby_method_extent0/email_server.rb` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_memory_v2_derives_memory_0/memory.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_new_benchmark_is_large_bl0/sources.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_non_positive_or_frameless0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_observation_timing_is_not0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/callgraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/flamegraph.svg` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/suggestions.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_marks_va0/task-valid/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_rejects_0/task-empty/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_rejects_0/task-empty/flamegraph.svg` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/sre-agent-tests-full-r2/test_output_collector_rejects_0/task-empty/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_partial_lines_and_old_rec0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_perf_script_omits_event_p0/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_rejects_corrupt0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/out/task-pprof/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/out/task-pprof/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pprof_cli_writes_outputs0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_prepare_and_verify_local_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_prepare_rejects_declared_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_rejects_invalid0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/out/task-pyspy/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/out/task-pyspy/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_pyspy_cli_writes_outputs0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_real_chroma_snapshot_and_0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_real_chroma_snapshot_and_0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin1/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin2/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin3/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin4/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_reject_wrong_scope_nonfin5/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_repository_skill_instruct0/skills/python-runtime-diagnosis/SKILL.md` | python-runtime-diagnosis 的可审计诊断路线正文。 | — |
+| `output/sre-agent-tests-full-r2/test_resolve_under_root_reject0/outside.perf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_retrieval_returns_empty_f0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_retrieval_returns_empty_f0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_retrieval_trace_explicitl0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_retrieval_trace_explicitl0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_dataset_has_540/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_evaluator_runs0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_markdown_repor0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_root_cause_replay_is_dete0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_ruby_postfix_modifier_doe0/worker.rb` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_correlates_co0/container-sys-metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_v2_derives_me0/sys_metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_sys_metrics_v2_rejects_pi0/pid-reuse.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_top_functions_sorted0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_top_percent_sum0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_tree_depth_truncation0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_tree_has_root_structure0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_upload_returns_size0/test.dat` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_v2_evaluator_calls_produc0/sources.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full-r2/test_verify_rejects_tampered_l0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_pprof_int0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_pprof_int0/task-pprof/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_pprof_int0/task-pprof/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_speedscop0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_speedscop0/task-pyspy/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_runner_speedscop0/task-pyspy/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_analyzer_upload_binds_tem0/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_async_profiler_event_is_r0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_async_profiler_html_is_de0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_bounded_tail_reads_comple0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_build_call_graph_has_dire0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_build_call_graph_is_bound0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_campaign_persists_an_atom0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_changed_raw_evidence_is_r0/case.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_cli_rejects_events_withou0/out/task-no-stacks/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_cli_rejects_events_withou0/out/task-no-stacks/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_cli_rejects_header_only_p0/out/task-empty/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_conflicting_request_ids_f0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_continuous_bundle_maps_ea0/continuous-perf.tar` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_continuous_bundle_maps_ea0/task-1-window-0/callgraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_continuous_bundle_rejects0/continuous-perf.tar` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_ebpf_latency_is_explicitl0/ebpf.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_empty_collapsed_file0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_empty_input0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_fresh_run_has_disjoint_pe0/frozen-replay.db-journal` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_hybrid_retrieval_returns_0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_hybrid_retrieval_returns_0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_index_is_immutable_reusab0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_index_is_immutable_reusab0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_index_is_immutable_reusab0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_java_flamegraph_merges_sa0/java-flamegraph.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_java_flamegraph_merges_sa0/jvm-gc-metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_java_runtime_symbol_canno0/Hotspot.java` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_java_runtime_symbol_canno0/process_runner.cpp` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_load_output_dir_from_conf0/config.toml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_local_artifact_persists_v0/sample.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_malformed_lines_skipped0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_maps_cpp_qualified_functi0/worker.cpp` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_maps_go_method_and_report0/worker.go` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `HotLoop` |
+| `output/sre-agent-tests-full/test_maps_java_nested_class_sy0/CPULoad.java` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_maps_python_hot_symbol_to0/service.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Worker` |
+| `output/sre-agent-tests-full/test_maps_ruby_method_extent0/email_server.rb` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_memory_v2_derives_memory_0/memory.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_missing_index_does_not_ca0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_missing_index_does_not_ca0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_missing_index_does_not_ca0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_model_or_dimensions_chang0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_model_or_dimensions_chang0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_model_or_dimensions_chang0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_new_benchmark_is_large_bl0/sources.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_non_positive_or_frameless0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_observation_timing_is_not0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/callgraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/flamegraph.svg` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/suggestions.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_marks_va0/task-valid/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_rejects_0/task-empty/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_output_collector_rejects_0/task-empty/flamegraph.svg` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/sre-agent-tests-full/test_output_collector_rejects_0/task-empty/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_partial_lines_and_old_rec0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_perf_script_omits_event_p0/perf.script.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pprof_cli_rejects_corrupt0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/out/task-pprof/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/out/task-pprof/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pprof_cli_writes_outputs0/profile.pb.gz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_prepare_and_verify_local_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_prepare_rejects_declared_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_private_and_path_escape_d0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_private_and_path_escape_d0/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_private_and_path_escape_d0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pyspy_cli_rejects_invalid0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/out/task-pyspy/flamegraph.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/out/task-pyspy/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_pyspy_cli_writes_outputs0/pyspy-speedscope.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin0/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin1/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin2/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin3/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin4/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_reject_wrong_scope_nonfin5/memos.jsonl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_repository_skill_instruct0/skills/python-runtime-diagnosis/SKILL.md` | python-runtime-diagnosis 的可审计诊断路线正文。 | — |
+| `output/sre-agent-tests-full/test_resolve_under_root_reject0/outside.perf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_retrieval_returns_empty_f0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_retrieval_returns_empty_f0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_retrieval_trace_explicitl0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_retrieval_trace_explicitl0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_dataset_has_540/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_evaluator_runs0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_markdown_repor0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_root_cause_replay_is_dete0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_ruby_postfix_modifier_doe0/worker.rb` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_sys_metrics_correlates_co0/container-sys-metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_sys_metrics_v2_derives_me0/sys_metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_sys_metrics_v2_rejects_pi0/pid-reuse.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_top_functions_sorted0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_top_percent_sum0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_tree_depth_truncation0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_tree_has_root_structure0/collapsed.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_upload_returns_size0/test.dat` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/manifest.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/private/oracles.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/public/cases.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_v2_evaluator_calls_produc0/sources.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-full/test_verify_rejects_tampered_l0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_hybrid_retrieval_returns_0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_hybrid_retrieval_returns_0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_retrieval_returns_empty_f0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_retrieval_returns_empty_f0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_retrieval_trace_explicitl0/knowledge/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/sre-agent-tests-initial/test_retrieval_trace_explicitl0/knowledge/cpu.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/双项目面试问答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 
 ### 34.20 .github：持续集成

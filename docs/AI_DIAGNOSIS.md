@@ -1,5 +1,13 @@
 # AI 诊断方案
 
+## 2026-09-19 本地证据与策略合同
+
+`VERIFIED` 继续要求完整条件覆盖及既有独立反证/对照门禁，不能把覆盖 80% 解释成统计置信度。覆盖槽位由判据文本与证据域的真实匹配产生（`_criterion_text_indexes`），谓词不再硬编码槽位或默认补槽位 0；谓词未映射槽位时，方向性 claim 仍参与反证/对照判定，但不覆盖覆盖率分母。`generate_sre_remediation_advice` 只根据已验证 SUPPORT claim 的类型生成需评审的验证计划；证据不足不生成根因治理动作，不返回 shell 命令。前端不提供历史命令复制。
+
+新建诊断可在页面选择 LATS / ReAct；API 字段为 `budget.investigation_strategy`，默认 LATS。ReAct 使用同一模型、工具、目标绑定、证据门禁及轮次预算，按最新规划顺序选下一探针，不使用 UCT/PUCT 选择奖励。共用持久事件仍沿用 `lats.*` 名称，通过 `algorithm=REACT` 区分。这是可比较的顺序调查基线，不是已完成的算法胜负结论。
+
+检索、历史记忆、Grafana 观察统一是规划参考，不能伪造 Task/Artifact 或独立通过 Evidence Gate。Trace/Span ID 只是透传字段。具体配置、外部源适配限制和未完成工作见 [Agent Runtime](AGENT_RUNTIME.md)。本轮尚未发布，也未重跑真实故障修复实验。
+
 > 2026-09-14：业务 request_id 现在可从服务目录带入原诊断，并在创建事件记录结构化观察；它不是原生 profiler Evidence。实机修复了未知运行时回退到 JVM attach 的问题：服务端禁用未知绑定的专用采集器，原生 Agent 额外检查可执行 libjvm.so 映射，未确认时不运行 asprof。业务观察不授权 PID，也不允许用户描述覆盖已绑定但未知的运行时。详情见 [服务接入](SERVICE_INTEGRATION.md) 和 [本批验收](../reports/business-acceptance/轻量业务接入与验收-20260914.md)。
 
 

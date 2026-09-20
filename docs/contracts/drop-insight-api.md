@@ -1,5 +1,11 @@
 # Drop Insight V2 接口契约
 
+## 2026-09-19 调查策略扩展
+
+`CreateDiagnosisRequest.budget.investigation_strategy` 接受 `LATS`（默认）或 `REACT`；其他值按严格 schema 拒绝。ReAct 共享模型、工具和授权门禁，选择动作时按新规划次序，不用 UCT 分数。事件命名沿用 `lats.*`，`search.algorithm=REACT`、`execution_mode=BOUNDED_REACT` 标明真实策略。历史原始事件不迁移。
+
+报告 `verification.remediation.schema_version=2` 表示只提供取证或受控变更计划；不包含自动执行权限。检索与外部查询沿用 `planner.knowledge_retrieved` 的 retrieval_trace 保存，`tool` 区分知识、历史报告和 Grafana 观察，全部 `is_evidence=false`。
+
 当前公开前缀为 `/api/v2`。Go API 完成认证、请求限制和传输，Python Diagnosis Worker 通过私有
 gRPC 执行领域逻辑。机器可读路径以 `openapi.v1.json` 为准。
 

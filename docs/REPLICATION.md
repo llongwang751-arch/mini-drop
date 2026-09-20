@@ -1,5 +1,55 @@
 # 基础复刻
 
+## 2026-09-19 预算与验证缺口发布
+
+当前发布 `20260919T141800Z`，Worker 镜像 `mini-drop-knowledge:20260919T141800Z`。增量脚本 `--runtime` 的固定清单现为九个文件，新增 deadlines、service、claim_verifier；仅替换 Diagnosis Worker，其余服务不重建，无 schema 迁移。实际 Chroma 检索门禁通过，39 块索引复用。回滚使用本版 `private/rollback.compose.json` 恢复 diagnosis-worker，确认健康后将 current 指向 `20260919T141100Z`；该首轮预算版链路成功但模型全超时，之前 133900Z 镜像也保留。本次真实 LATS 回归及 HTTP timeout 限制见 [预算改进记录](../reports/architecture/agent-deadline-20260919.md)。
+
+## 2026-09-19 Agent Runtime 增量
+
+当前发布 `20260919T133900Z`。`release_knowledge_cloud.py --runtime` 额外复制固定的六个 Runtime/Planner 源文件，用于三路检索和工作记忆；默认不带此参数仍只更新知识。构建、建索引和检索门禁在切换前执行。本批仅更新 Diagnosis Worker，无 schema 迁移。回滚使用本目录 `private/rollback.compose.json` 仅恢复 diagnosis-worker，健康后指针回到 `20260919T132400Z`。
+
+## 2026-09-19 知识增量发布
+
+最新知识发布 `20260919T132400Z` 基于上一 Python 镜像增加知识文件，不重复安装依赖。`scripts/release_knowledge_cloud.py` 在新 release 目录构建层、建立不可变 Chroma 索引、运行实际混合检索评测，再仅替换 Diagnosis Worker，健康通过后切换 current。评测使用独立一次性容器，不改生产数据。两个初始尝试因容器入口降权后无法写结果目录而停止；通过仅对评测容器指定 Python entrypoint 修复，日志保留。
+
+回滚配置在该目录 `private/rollback.compose.json`，含凭据，不得输出或提交。仅执行 `docker compose -p mini-drop-control -f <该回滚文件> up -d --no-deps diagnosis-worker` 并验证健康，再恢复旧 current 指针。其他服务和知识快照保留，不使用 remove-orphans、down -v 或 prune。详情见 [质量记录](../reports/architecture/sre-quality-roadmap-20260919.md)。
+
+## 2026-09-19 v5 云端运行（最新）
+
+已发布 `20260919T123800Z`，运行入口仍为 `https://120.24.187.205/ai-diagnosis`。本批沿用旧原生/Go/存储服务，更新两个 Python Worker 和 Web，并增加内网 Chroma。当前 runtime Compose、离线依赖构建、真实验收结果、回滚命令统一见 [云端发布记录](../reports/architecture/cloud-release-20260919.md)。不要把下面本地无鉴权 Compose 用于云端，也不要清除旧卷或旧镜像。
+
+## 2026-09-19 云端恢复后的运行选择
+
+用户已恢复云服务器，当前使用 `https://120.24.187.205/ai-diagnosis`，不依赖 Windows Docker Desktop。云端沿用原容器部署，不把“不用本机 Docker”解释为卸载云端容器运行时。当前发布仍为 `20260914T073540Z`；本地通过的 Agent v5、Chroma 混合检索和 ReAct 选项尚未发布，见 [恢复与待发布范围](../reports/architecture/cloud-recovery-20260919.md)。
+
+恢复时两台 Worker 的 `mini-drop-control-tunnel.service` 显示 active，但 Native Agent 无法连接且心跳离线。重启该隧道与 `mini-drop-worker-agent-1` 后，三台 Agent ONLINE；原业务服务、镜像和数据卷均保留。以后以 API 新心跳为准，不能仅凭 systemd active 判断链路健康。
+
+## 2026-09-19 Windows 本地 SRE 环境
+
+本机使用桌面的 Docker Desktop“修复启动”快捷方式，其脚本 `D:\DockerRuntime\Start-Docker-Desktop.ps1` 将运行目录指向 `D:\DockerRuntime\LocalAppData`。这是本机环境修复，不是通用安装路径。不要使用 factory reset 或删除数据卷排障。
+
+入口为 `http://127.0.0.1:18080/ai-diagnosis`，仅绑定回环地址。独立项目 `mini-drop-local-sre` 包含 PostgreSQL、MinIO、Chroma、C++ Control/Agent、Go API、两个 Python Worker、Web 和 Python 受控故障服务。本地关闭 API/mTLS 鉴权，不可将此配置直接用于公网。Go/Java/C++ 演示故障服务本批未启动。
+
+```powershell
+python scripts/setup_local_sre.py  # 仅首次：隐藏输入密钥，已有配置不覆盖
+./scripts/local_sre.ps1 Build
+./scripts/local_sre.ps1 Start
+./scripts/local_sre.ps1 Index
+./scripts/local_sre.ps1 Status
+./scripts/local_sre.ps1 Stop       # 保留容器和卷
+```
+
+本地构建复用机器已有的 `mini-drop-python-worker:local`、`mini-drop-native-control:local`、`mini-drop-native-agent:local`、`mini-drop-apiserver:latest`、`mini-drop-web:latest` 基础镜像，不能视为全新机器的零依赖安装包。`Build` 重建当前 Web、Go API、Python Worker 和演示服务，未修改的原生组件复用现有镜像。构建中断曾留下空文件镜像，本批已无缓存重建并检查源码大小与依赖导入；数据库和对象卷没有清除。MinIO 本地健康检查直接请求 live 端点，避开缓存镜像损坏的 mc 配置。
+
+聊天模型使用 SiliconFlow DeepSeek-V3.2，Embedding/Reranker 使用 Qwen3-4B，知识索引与 Worker 共用 Chroma。设置 `MINI_DROP_AGENT_MODEL_TIMEOUT_SEC=90`、`MINI_DROP_SILICONFLOW_ENABLE_THINKING=false`；每请求无自动重试，超时最大允许 120 秒。这是单次模型请求超时，不是诊断总墙钟保证。修改模型配置后重启 Worker。前端构建使用单个 Rayon 线程降低本机内存峰值。
+
+```powershell
+python scripts/verify_local_sre.py --output reports/local-sre/<新的报告名>.json
+node scripts/verify_local_sre_browser.mjs <diagnosis_id>
+```
+
+验证脚本仅允许回环地址，临时注入 Python 源码热点，最多 300 秒自动撤销，并在 finally 再次停止。链路通过与报告证据门禁分别记录；`COMPLETED` 不代表根因已 VERIFIED，更不代表修复已验证。首次模型规划超时走规则兜底的报告保留为 `reports/local-sre/real-diagnosis-20260919-r1.json`。
+
 ## 2026-09-14 清理版本已发布
 
 已发布 `/opt/mini-drop-releases/20260914T073540Z`，更新 Web、Diagnosis Worker、Analyzer。三个 Agent 在线，五个业务被发现；四个轻量业务网页返回 200，34 个公网静态文件与本机构建哈希一致。删除旧组件和死代码、精简文档；采集、数据库 schema 与业务数据不变。发布镜像、回滚版本和检查见 [发布记录](../reports/cleanup-release-20260914.json)。下方带日期的记录属于历史批次，21 场景严格成绩仍为 1 项通过、20 项未通过。

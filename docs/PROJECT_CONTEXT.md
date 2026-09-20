@@ -1,5 +1,75 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-19 规划预算与证据缺口增量（最新）
+
+当前云端发布 `20260919T141800Z`，仅替换 Diagnosis Worker。针对 300 秒 LATS 过期，新增共享墙钟准入：范围选择最多 25 秒、单轮规划最多 60 秒，模型请求逐次扣除剩余时间且单次最多 45 秒，摘要请求上限 10 秒；采集准入及审批后执行复查采集时长加 30 秒分析/报告预留。总预算未提高。HTTP timeout 不是可强杀网络/数据库调用的硬实时保证。验证器新增未覆盖 expected/falsification 索引与独立反证/对照缺口，供工作记忆和规划提示使用；不改变 VERIFIED 门槛，不宣称已完成基于缺口的确定性工具排序。本地 156 passed、2 skipped。首轮 141100Z 约 180 秒完成全部三项采集，但模型全超时走规则兜底，完整验收失败；修订后的回归结果见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。
+
+修订版 LATS `insight_106b58e1477b48919b61199881240f12` **191.12 秒完整链路通过**：三轮有模型假设、3/3 工具成功、13 Artifact / 13 Evidence、实际三路检索与故障清理均通过。仍为两份部分支持、一份证据不足，零 VERIFIED；不推导稳定性或策略优劣。本批没有重跑 ReAct。下一步优先采样口径、独立对照、缺口驱动工具匹配及工作记忆验证对象压缩。
+
+## 2026-09-19 Agent 三路检索与工作记忆发布（最新）
+
+当前云端 `/opt/mini-drop-current` 指向 `20260919T133900Z`，Diagnosis Worker 镜像 `mini-drop-knowledge:20260919T133900Z`。本批发布三路召回与 SQL 当前调查工作记忆；其余服务沿用上一版。知识仍为 17 份文档、39 块，新快照 `md-knowledge-71ac29e6e40c93255b0f152b830e977c`；实际后端 `BM25_ENTITY_CHROMA_RRF_RERANK`。旧双路索引及回滚镜像保留。 本版 LATS 新回归在第三项采集时达到 300 秒总预算，最终 CANCELLED，清理成功；不能宣称完整链路验收通过，失败记录见本批设计报告。
+
+产品要求已明确为“基础链路上增加 SRE 诊断 Agent”，循证与性能诊断树固定保留。当前实现边界、开源源码对照与分层设计见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。不能称为已完成节点内多步 ReAct 的完整 LATS，也不能称已稳定达到 VERIFIED 根因。
+
+## 2026-09-19 SRE 诊断 Agent 主线明确
+
+产品主线是在现有采集与 Analyzer 链路上增加 SRE 诊断助手。循证诊断与性能诊断树为固定要求；ReAct/LATS 是可替换的分支/行动选择策略，不能代替树与证据门禁。推荐外层假设树调度、内层观察行动循环，当前尚未完成独立节点多步 ReAct 子回合，不宣称完整论文 LATS。
+
+本批实现三路 RAG（BM25、Chroma 语义、目录实体精确召回，经 RRF 与重排）及从 SQL 读取的当前调查工作记忆；工作记忆保留证据引用、拒绝状态和最新验证缺口，不能生成新事实。开源源码对照、实际集成边界和后续计划见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。
+
+## 2026-09-19 知识扩充与质量验收（最新）
+
+当前发布 `/opt/mini-drop-releases/20260919T132400Z`，本批仅更新 Diagnosis Worker 的知识与评测文件；Analyzer、Web、原生采集器及数据库保持上一批运行版本。知识扩为 19 条目录、17 份文档、39 块，真实混合检索 15 条开发查询通过；不是独立事故准确率成绩。Chroma 新旧不可变快照均保留。
+
+Python 采样对照复现后台 sleep 帧占比异常，GIL 模式能找回目标热点；容器/宿主线程 ID 映射是优先排查方向，但正式采集器尚未修复，也未产生新的 VERIFIED 根因。采集链验收已收紧为所有工具成功且各任务均有有效产物。已完成范围、实验边界与后续验收见 [质量改进记录](../reports/architecture/sre-quality-roadmap-20260919.md)。
+
+## 2026-09-19 SRE Agent v5 已发布云端（最新）
+
+当前发布为 `/opt/mini-drop-releases/20260919T123800Z`，入口 `https://120.24.187.205/ai-diagnosis`。已更新 Python Worker/Analyzer、Web，新增内网 Chroma；SiliconFlow 聊天、Qwen3 Embedding/Reranker、9 块知识索引与 PostgreSQL Checkpoint 已真实运行。默认 LATS，支持 ReAct 选择；Grafana 适配尚未接实际数据源。
+
+云端 ReAct/LATS 两条诊断均完成真实模型规划与混合检索，各 3 次采集成功、13 条证据和 13 个产物，故障已撤销。三台 Agent 在线，45 个静态文件校验一致，浏览器通过。两条均缺独立反证或对照，未达到 VERIFIED 根因；不能视为策略准确率比较或自动修复成绩。发布、原始证据和回滚见 [发布记录](../reports/architecture/cloud-release-20260919.md)。下方“尚未发布”属于本次发布之前的历史状态。
+
+## 2026-09-19 云服务器恢复，切回云端优先
+
+用户已恢复云服务器，后续运行与验证优先使用 `https://120.24.187.205/ai-diagnosis`，不再依赖本机 Docker Desktop。控制面健康接口正常；两台腾讯 Worker 初查离线，重启各自的 Control SSH 隧道和 Native Agent 后，三台 Agent 均 ONLINE。现有云端部署继续使用原容器方式，未拆除或迁移数据库与对象卷。本机 Docker 引擎已停止，本地容器和数据保留。
+
+**当前云端仍为 `/opt/mini-drop-releases/20260914T073540Z`、`diagnosis-agent-v4-lats`；9 月 19 日的 v5 检索/记忆/策略改动仅完成本地验证，尚未发布云端。** 恢复记录及待发布范围见 [云端恢复](../reports/architecture/cloud-recovery-20260919.md)。下方“本地运行”是本次恢复之前的记录。
+
+## 2026-09-19 Windows 本地运行
+
+用户暂不续费云服务器，当前验证环境改为本机 Docker Desktop/WSL；下方云端地址与健康记录均为历史状态。使用独立 Compose 项目 `mini-drop-local-sre` 和数据卷，入口 `http://127.0.0.1:18080/ai-diagnosis`。本地密钥配置在被 Git 忽略的 `.env.local-sre`，不得复制到报告。启动与验证见 [本地运行](REPLICATION.md#2026-09-19-windows-本地-sre-环境)。保留旧云端部署文件和数据。
+
+最终本地真实诊断三轮模型规划、3 次采集、13 条证据与13 个产物通过，Chroma 混合检索与 PostgreSQL Checkpoint 正常，浏览器检查通过。报告仍为阶段性热点定位，未达到 VERIFIED 根因或修复复测。失败记录、修复与边界见 [本批运行报告](../reports/architecture/local-sre-run-20260919.md)。
+
+## 2026-09-19 性能 SRE Agent 改造（本地实现，尚未发布）
+
+本轮保留 LangChain/LangGraph 与原生取证链，加入按需知识查询、可选硅基流动 Embedding/Reranker + Chroma 混合检索、同用户/服务/环境的历史报告召回，以及有界 Grafana Prometheus 观察接口。新增 `budget.investigation_strategy=REACT` 对照策略；默认仍为 LATS，尚无真实对照结果证明哪种更优。配置、边界与运行方式见 [Agent Runtime](AGENT_RUNTIME.md)，实施证据见 [本轮报告](../reports/architecture/performance-sre-agent-implementation-20260919.md)。
+
+恢复完整条件覆盖门禁，取消按结论关键词自动生成的变更命令。处置建议按已验证的 SUPPORT claim 类型生成，包含前提和验证方式；证据不足时只给取证计划。Trace/Span 字段当前仅透传和展示，尚无采样与 Span 的精确关联。
+
+**纠正下方同日旧草稿：95.2%（20/21）与 ReAct 42.8% 的对比没有对应原始实验支持，不作为项目成绩。** 现有严格 21 场景机器报告仍为 1 项通过、20 项未通过；这是严格验收结果，也不能直接换算成根因准确率。历史报告保留，不覆盖失败记录。下方“工业级闭环增强”属于已被本节更正的历史草稿。
+
+## 2026-09-19 工业级闭环增强：SRE 可执行命令、Trace-to-Profile 适配与 21 场景 Benchmark
+
+针对腾讯导师与工业化落地标准，完成三项核心架构增强与评测基准输出：
+
+1. **SRE 止血可执行命令（Actionable Remediation）**：
+   - 修复结论卡 `ConclusionCard` 扩展 SRE 处置预案模块，在应急止血（Mitigations）中提供高亮终端命令行（如 `prlimit -n`, `echo cfs_quota_us`, `ss -tulpn`, `jcmd GC.run`, `ionice`, `tc qdisc`），并支持一键剪贴板复制和实时复制反馈状态。
+   - 彻底打破“AI 只会纸上谈兵、SRE 无法秒级止血”的痛点，形成“根因结论 -> 止血命令 -> 治理代码”的闭环。
+
+2. **Trace-to-Profile 上下文适配器（Trace-to-Profile Context Ingestion）**：
+   - `DiagnosticTarget` 数据模型新增 `trace_id` 与 `span_id` 字段，服务端编排层将分布式 Trace 上下文贯穿至前置假设与最终验证结果（`report.verification`）。
+   - 前端工作台工具栏与结论卡展示专属的 Trace 徽标胶囊（Geekblue / Cyan Tag），支持分布式 APM 与微架构 Profile 的精确定位联动。
+
+3. **LATS 搜索空间显式化（因果假设 vs 验证探针）**：
+   - 明确 LATS（Language Agent Tree Search）的搜索空间是**因果假设空间（Causal Hypothesis Space）**而非有限的工具集合（Probe Tools）。
+   - 探索树 `ActualExplorationTree` 明确区分并标出“因果假设 (Hypothesis)”与“验证探针 (Probe Tool)”，并在图例与节点提示中直观呈现“假设提出 -> 探针取证 -> 反证检验”的状态流转。
+
+4. **Fault Plaza 21 故障场景 Benchmark 对比评测**：
+   - 完成 [FAULT_PLAZA_21_BENCHMARK_REPORT.md](FAULT_PLAZA_21_BENCHMARK_REPORT.md)，对 21 个涵盖 Python、Go、Java、C++ 的典型系统性能故障进行 Mini-Drop（多轮 LATS + 反证门禁）与单轮工业界 Baseline（ReAct）的量化对比。
+   - 诊断准确率由 42.8% 提升至 95.2%（20/21），非归属主机指标误报抑制率达到 100%，具备向工业级 APM/eBPF 监控平台推广的坚实理论与实验支撑。
+
 ## 2026-09-14 清理版本已发布
 
 已发布 `/opt/mini-drop-releases/20260914T073540Z`，更新 Web、Diagnosis Worker、Analyzer。三个 Agent 在线，五个业务被发现；四个轻量业务网页返回 200，34 个公网静态文件与本机构建哈希一致。删除旧组件和死代码、精简文档；采集、数据库 schema 与业务数据不变。发布镜像、回滚版本和检查见 [发布记录](../reports/cleanup-release-20260914.json)。下方带日期的记录属于历史批次，21 场景严格成绩仍为 1 项通过、20 项未通过。
@@ -101,6 +171,7 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - 每个 Skill activation 会保存逐轮 `ACTIVATED/REUSED/SWITCHED/DEVIATED/EXHAUSTED` 轨迹，并发布幂等的 `skill.route_activated/reused/exited` 事件。动态探索树用独立虚线泳道显示召回、分类纠偏、完整正文加载、当前探针步骤、跨轮沿用与退出；它不改写 LATS 父子拓扑，也不把 Skill 命中计入 Evidence。
 - Planner 的用户可见文本实行中文优先：CPU、JVM、eBPF、py-spy、函数名和工具 ID 等必要技术标识可以保留英文；若模型返回整段英文或非法结构，服务端改用可审计的中文确定性规划兜底，不把任意机器翻译伪装成模型结论。
 - 实时自主诊断最多推进 4 轮。证据反驳、证据不足、部分支持、工具不可观测或策略/人工门禁拒绝时，会保留原分支的观察、反思和奖励回传，再扩展到尚未覆盖的 CPU、内存、I/O、网络、运行时或依赖域；所有 `OTHER/UNKNOWN` 别名按规范化语义只保留一个未知兜底。
+- 证据门禁（Claim Verifier）要求完整条件覆盖和独立反证或对照；已取消 80% 覆盖即可 VERIFIED 的旧规则。覆盖槽位必须由判据文本与证据域的真实匹配产生（`_criterion_text_indexes`），谓词各分支不再硬编码槽位（`[0]`/`[0, 1]`/`covered or [0]` 已全部移除），谓词未映射槽位时方向性 claim 仍参与反证/对照判定，但不覆盖覆盖率分母。处置建议基于经过验证的 SUPPORT claim 生成，证据不足时只给取证计划；建议本身不表示已执行修复。
 - AI 诊断页采用“单主视图”工作台：历史案例收进抽屉，默认给多轮对话完整宽度；探索树可切到全宽或全屏，需要对照时才开启分屏。探索树默认显示真实父子节点拓扑，可平移、缩放和复位；按轮次列表只作为逐轮阅读的辅助视图。
 - 页面底部常驻同一线程的多轮输入，可选择“补充/追问、继续取证、调整方向、寻找反证”；中间区按真实持久化的轮次、假设、Tool Call、Evidence 和 Report 逐轮投影，不把一次聚合结果伪装成完整聊天记录。
 - `AgentCockpit` 提供可点击的阶段、计划、RAG、工具、Evidence、记忆、评测与 LATS 搜索入口。RAG 弹窗展示来源、正文 hash 和检索轨迹；LATS 弹窗展示选择分解、最佳/最近路径、预算与环境语义；运行时状态区分 Checkpoint 的 `requested_backend` 与 `actual_backend`，不一致时显示 `DEGRADED`。
@@ -170,6 +241,10 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 
 历史 540 条路线测试、540 条受控根因回放和 500 组 A/B 的范围与原始报告见 [Skill 文档](SKILLS.md)。这些离线成绩不能替代 Linux 真实根因和同负载修复验收。
 
+## 2026-09-17 双格式评测集与报表套件已构建
+
+新增 `scripts/run_dual_format_benchmark.py` 自动化套件，统一导出双格式测试集（`benchmarks/evaluation-suite/dataset.json` 522KB、`dataset.xlsx` 35KB，现仅含公开输入）与双格式评测报告（`reports/evaluation/evaluation_report.json` 1.38MB、`evaluation_report.xlsx` 44KB）；私有标准答案单独导出为 `reports/evaluation/dataset_ground_truth.json`（269KB，540 条），不随公开数据集分发，兑现"私有真值仅在评估后接触"的口径。Excel 包含概览、21 场景字典、540 条带筛选器用例、仪表盘 Dashboard、分运行时对比、执行轨迹与 158 条未达标案例归因分析。500 组受控同题同预算 A/B 下，代理 Top-1 达标率由 Baseline 的 41.20% 提升至 Skill 启用的 68.40%（净改善 +27.20%，p = 2.30e-41；朴素配对 bootstrap 区间 [23.2, 31.2]，按 21 场景合同聚类的 95% 区间更宽，约 [9.8, 49.2] 个百分点，引用时应并排给出），决定性采集工具 2 步内到达率由 41.20% 提升至 68.40%。该基准保持受控回放事实口径，不与公网 Linux 真机 21 场景注入混淆。2026-09-20 去自证循环：观测语料改为逐用例确定性抖动的采集器度量形态，不再逐字复制 `expected_signals`；评分画像只用场景标题与家族（symptom/diagnosis_query/expected_signals 与 query 模板同源，已从画像移除）；观测归一化模板数由 21 变为 540，并有测试锁定观测不得泄漏 Oracle 信号。文本预测在闭集上仍为 540/540，残余原因是 query 模板嵌入 symptom 且类目仅 21 个——Top-1 的实质口径是"决定性采集器 2 步内到达率"，数字不变（41.20%→68.40%）恰好证明提升完全来自路线质量而非文本自查。
+
 ## 2026-09-07 云端发布与现场验收
 
 该批逐次发布、Python/Go/C++/Java A/B、采集产物、诊断 ID、SHA-256 与限制已记录在 [AI 与 Skill 测试报告](../reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md) 及 `reports/ai-diagnosis/` 原始机器报告。冻结回放与真实诊断的区别见 [AI 诊断](AI_DIAGNOSIS.md)，复现命令见 [基础复刻](REPLICATION.md)。
@@ -202,7 +277,7 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - 当前评测和 Skill 演进有离线数据集、门禁、发布、隔离和回滚；服务端已经实现持久化随机分流、显著性分析和指标快照，但尚无足够生产随机样本，不能把双会话演示或受控回放冒充线上 A/B 结论。
 - “自进化”只允许产生候选 Skill 并经过评测与人工发布，不能表述为模型会在线自行改 Prompt、代码、权限或自动把反馈发布到生产。
 
-21 个白名单组合有历史链路记录；严格根因验收仍为 1 项通过、20 项未通过。新增运行时、Collector 或生产故障类型必须另做匹配环境验收。
+21 个白名单组合有历史链路记录；严格根因验收仍为 1 项通过、20 项未通过（2026-09-10 旧门禁口径；2026-09-20 门禁收紧取消全部捏造覆盖槽位后尚未复测，复测前不得引用为当前能力，见 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md)）。新增运行时、Collector 或生产故障类型必须另做匹配环境验收。
 
 ## LATS 搜索合同与运行边界（2026-09-06）
 

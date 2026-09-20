@@ -1,5 +1,43 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-19 规划预算增量（最新）
+
+当前云端 `20260919T141800Z`，仅 Worker 增量：范围 25 秒、规划单轮 60 秒、每请求最多 45 秒、摘要 10 秒；采集准入和审批后执行保留 30 秒分析/报告余量，总 300 秒不变。Verifier 明示未覆盖条件索引及独立对照缺口，循证门槛不降低。本地 156 passed、2 skipped，真实检索门禁通过。首轮 141100Z 的三个采集成功但模型全部超时，因此不能称 Agent 验收通过；修订结果和原始记录见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。旧发布、索引、卷与故障实验记录均保留；不要用清理换空间。
+
+修订实测已完成：`insight_106b58e1477b48919b61199881240f12`，191.12 秒，三轮 MODEL / MODEL_REPLAN、3/3 采集、13 产物及13证据、真实混合检索、故障清理全部通过；零 VERIFIED。故障已停止，没有待清理的本轮注入。不要再次重跑同批测试来“确认完成”；下一工作应针对 Python 采样口径与独立对照，以及工作记忆 verification 对象过大（曾超20KB）、确定性缺口→工具匹配，仍未实现这些事项。LATS 与 ReAct 的严格盲测比较、同负载修复闭环未完成。
+
+## 2026-09-19 Agent 三路检索与工作记忆发布（最新）
+
+当前云端 `/opt/mini-drop-current` 指向 `20260919T133900Z`，Diagnosis Worker 镜像 `mini-drop-knowledge:20260919T133900Z`。本批发布三路召回与 SQL 当前调查工作记忆；其余服务沿用上一版。知识仍为 17 份文档、39 块，新快照 `md-knowledge-71ac29e6e40c93255b0f152b830e977c`；实际后端 `BM25_ENTITY_CHROMA_RRF_RERANK`。旧双路索引及回滚镜像保留。 本版 LATS 新回归在第三项采集时达到 300 秒总预算，最终 CANCELLED，清理成功；不能宣称完整链路验收通过，失败记录见本批设计报告。
+
+产品要求已明确为“基础链路上增加 SRE 诊断 Agent”，循证与性能诊断树固定保留。当前实现边界、开源源码对照与分层设计见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。不能称为已完成节点内多步 ReAct 的完整 LATS，也不能称已稳定达到 VERIFIED 根因。
+
+## 2026-09-19 知识发布与采样排查（最新）
+
+当前云端指针为 `20260919T132400Z`，Diagnosis Worker 使用 `mini-drop-knowledge:20260919T132400Z`；其余服务沿用上一版。39 块知识的实际混合检索开发集通过。回滚使用该目录 `private/rollback.compose.json` 只恢复 diagnosis-worker，再把 current 指回 `20260919T123800Z`；私有配置不可打印。131700Z、132000Z 的结果目录权限失败记录保留，未发布。
+
+最新严格 ReAct 回归 `insight_33b3eaf7b0ec44cd83fbd06848654a9a`：3/3 工具成功、13 证据/13 产物、模型与混合检索通过、清理成功；报告仍未 VERIFIED。
+
+Python 默认采样会把 sleep 线程算作热点，GIL 对照约 99.4% 命中源码热点；尚未修改原生采集器，不可称诊断已修复。下一步依 [质量改进记录](../reports/architecture/sre-quality-roadmap-20260919.md) 处理采样语义、独立对照、同负载修复和配对实验。禁止启动本机 Docker 或删除云端卷。
+
+## 2026-09-19 v5 云端发布完成（最新）
+
+当前 `/opt/mini-drop-current` 指向 `20260919T123800Z`。使用云端入口，不启动本机 Docker。三台 Agent 在线，Runtime `diagnosis-agent-v5-retrieval`、PostgreSQL Checkpoint 正常，Chroma 实际混合检索通过。ReAct/LATS 两条真实链路各 3 次工具成功，但根因仍未 VERIFIED。
+
+本次三个更新服务和 Chroma 使用 `/opt/mini-drop-current/private/runtime.compose.json`；其中含凭据，不得打印或提交。其他原服务继续运行，不使用 `--remove-orphans` 或 `down -v`。旧版镜像和配置、所有卷与历史报告保留。完整命令和证据见 [云端发布记录](../reports/architecture/cloud-release-20260919.md)，下方旧版本状态不再作为最新交接依据。
+
+## 2026-09-19 云端已恢复（最新）
+
+用户确认云服务器恢复，后续使用 `https://120.24.187.205/ai-diagnosis`，不再启动本机 Docker。控制面健康、三台 Agent 在线；两个 Worker 的 SSH 隧道和采集 Agent 已恢复，业务容器与数据保持原样。云端仍是 9 月 14 日版本，9 月 19 日 Agent v5 改动尚未发布。详见 [恢复记录](../reports/architecture/cloud-recovery-20260919.md)。下方本地优先指令已被本节取代。
+
+## 2026-09-19 本地运行优先
+
+云服务器已过期，当前操作不连接云端。先打开桌面 Docker Desktop“修复启动”版，执行 `./scripts/local_sre.ps1 Start`；页面为 `http://127.0.0.1:18080/ai-diagnosis`。具体依赖、构建、索引和停止方式见 [REPLICATION.md](REPLICATION.md#2026-09-19-windows-本地-sre-环境)。不要重置 Docker 或删除数据卷；本地环境与旧项目使用不同 Compose 项目名。下方旧云端版本仅供历史参考。
+
+## 2026-09-19 本地 Agent 改造交接
+
+当前新增能力与限制见 [Agent Runtime](AGENT_RUNTIME.md) 和 [实施报告](../reports/architecture/performance-sre-agent-implementation-20260919.md)。本轮没有发布云端；不要把本地测试当成线上验收。Embedding/Reranker 的真实合成查询已通过，事故准确率及 ReAct/LATS 同负载对照尚未评估。旧 95.2% 草稿撤回为无证据结论，历史原始报告保持不变。
+
 ## 2026-09-14 清理版本已发布
 
 已发布 `/opt/mini-drop-releases/20260914T073540Z`，更新 Web、Diagnosis Worker、Analyzer。三个 Agent 在线，五个业务被发现；四个轻量业务网页返回 200，34 个公网静态文件与本机构建哈希一致。删除旧组件和死代码、精简文档；采集、数据库 schema 与业务数据不变。发布镜像、回滚版本和检查见 [发布记录](../reports/cleanup-release-20260914.json)。下方带日期的记录属于历史批次，21 场景严格成绩仍为 1 项通过、20 项未通过。
@@ -122,6 +160,9 @@ Java 图体、perf 有效样本检查、JVM 规划与模型反证纠正已修复
 - Skill：`docs/SKILLS.md`
 - 部署复刻：`docs/REPLICATION.md`
 - LATS 核心：`server/app/drop_insight/lats.py`
+- 事件存储原语（幂等追加/语义去重/outbox/CAS，从 service 拆出的叶子模块）：`server/app/drop_insight/event_store.py`
+- 假设谓词计算（覆盖槽位按判据文本匹配，不硬编码槽位）：`server/app/drop_insight/hypothesis_predicate.py`
+- 报告结论渲染：`server/app/drop_insight/report_conclusion.py`
 - 冻结回放提供者：`server/app/drop_insight/frozen_replay_showcase.py`
 - 页面回放面板：`web/src/components/LatsReplayPanel.jsx`
 - 公网验收脚本：`scripts/verify_lats_replay_showcase.py`

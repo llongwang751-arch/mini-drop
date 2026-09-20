@@ -161,6 +161,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "investigation_strategy": {"type": "string", "enum": ["LATS", "REACT"], "default": "LATS"},
           "max_duration_seconds": {"type": "integer", "minimum": 10, "maximum": 1800, "default": 300},
           "max_tool_calls": {"type": "integer", "minimum": 1, "maximum": 50, "default": 12},
           "min_diagnosis_rounds": {"type": "integer", "minimum": 1, "maximum": 4, "default": 1},
