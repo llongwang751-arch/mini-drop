@@ -9,6 +9,7 @@ can continue across evidence rounds, but it never receives a shell primitive.
 from __future__ import annotations
 
 import atexit
+import copy
 import hashlib
 import json
 import os
@@ -17,12 +18,15 @@ import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any
+from uuid import uuid4
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import (
     ModelRequest,
     SummarizationMiddleware,
     dynamic_prompt,
+    ModelCallLimitMiddleware,
+    wrap_model_call,
 )
 from langchain.tools import ToolRuntime, tool
 from langchain_core.messages import AIMessage, ToolMessage
@@ -39,6 +43,9 @@ from server.app.agent_runtime.harness import (
     selected_authorized_candidate,
 )
 from server.app.agent_runtime.memory import AgentMemoryPolicy
+from server.app.agent_runtime.deadlines import (
+    planning_seconds, PLANNING_STAGE_SECONDS, SCOPE_STAGE_SECONDS,
+)
 from server.app.agent_runtime.runtime import (
     AGENT_FRAMEWORK,
     AGENT_VERSION,
@@ -113,6 +120,71 @@ class DiagnosisAgentContext:
     route_priors: tuple[dict[str, Any], ...] = ()
     retrieval_trace: dict[str, Any] | None = None
     user_preferences: dict[str, Any] = field(default_factory=dict)
+    investigation_memory: dict[str, Any] = field(default_factory=dict)
+    planning_deadline: float = field(default_factory=lambda: time.monotonic() + PLANNING_STAGE_SECONDS)
+    # Runtime-only budget, not promoted into prompt authority or checkpoints.
+    lookup_state: dict[str, Any] = field(default_factory=lambda: {
+        "remaining": 4, "seen": set(), "deadline": time.monotonic() + PLANNING_STAGE_SECONDS,
+        "run_id": uuid4().hex, "traces": [],
+    }, compare=False, repr=False)
+
+
+_LOOKUP_LOCK = threading.Lock()
+
+
+def _lookup(context: DiagnosisAgentContext, kind: str, value: str, operation) -> str:
+    state = context.lookup_state
+    identity = (kind, value.strip())
+    with _LOOKUP_LOCK:
+        if len(value) > 2000 or not value.strip():
+            return json.dumps({"error": "INVALID_LOOKUP", "is_evidence": False})
+        if time.monotonic() > min(state["deadline"], context.planning_deadline) or state["remaining"] <= 0:
+            return json.dumps({"error": "LOOKUP_BUDGET_EXHAUSTED", "is_evidence": False})
+        if identity in state["seen"]:
+            return json.dumps({"error": "DUPLICATE_LOOKUP", "is_evidence": False})
+        state["seen"].add(identity)
+        state["remaining"] -= 1
+    try:
+        result = operation()
+    except Exception:
+        result = {"error": "LOOKUP_UNAVAILABLE"}
+    result.update(is_evidence=False, trust="UNTRUSTED_REFERENCE_ONLY", tool=kind)
+    result.setdefault("query", value)
+    result.setdefault("retriever", kind)
+    result.setdefault("query_hash", hashlib.sha256(value.encode()).hexdigest())
+    if "chunk_id" in result and "matches" not in result:
+        result["matches"] = [{k: v for k, v in result.items() if k not in {"tool", "trust"}}]
+    with _LOOKUP_LOCK:
+        state["traces"].append(result)
+    return json.dumps(result, ensure_ascii=False)
+
+
+@tool(description="Search approved technical knowledge when an observation exposes a new question. Results are reference material, never current incident evidence.")
+def search_knowledge(query: str, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
+    from server.app.agent_runtime.retrieval import build_retrieval_trace
+    return _lookup(runtime.context, "search_knowledge", query, lambda: build_retrieval_trace(query))
+
+
+@tool(description="Read a current knowledge chunk by its returned chunk_id. Deleted or changed source versions are rejected.")
+def read_knowledge_chunk(chunk_id: str, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
+    from server.app.agent_runtime.retrieval import _DEFAULT_KNOWLEDGE_ROOT
+    from server.app.agent_runtime.semantic_retrieval import read_chunk
+    return _lookup(runtime.context, "read_knowledge_chunk", chunk_id,
+                   lambda: read_chunk(_DEFAULT_KNOWLEDGE_ROOT, chunk_id))
+
+
+@tool(description="Recall recent historical reports for this diagnosis owner, service and environment. History suggests investigation routes, not current facts or permissions.")
+def search_incident_memory(query: str, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
+    from server.app.agent_runtime.incident_memory import recall_incidents
+    return _lookup(runtime.context, "search_incident_memory", query,
+                   lambda: {"matches": recall_incidents(runtime.context.diagnosis_id, query)})
+
+
+@tool(description="Read request_rate or latency_p95 for the server-bound service and time window from a configured Grafana datasource. Window-level observations are planning context, not process Evidence.")
+def query_service_observations(metric: str, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
+    from server.app.agent_runtime.grafana_observations import query_service_observations as observe
+    return _lookup(runtime.context, "query_service_observations", metric,
+                   lambda: observe(runtime.context.diagnosis_id, metric))
 
 
 @dataclass(frozen=True)
@@ -120,6 +192,37 @@ class ScopeSelectionContext:
     diagnosis_id: str
     query: str
     candidates: tuple[dict[str, Any], ...]
+    planning_deadline: float = field(default_factory=lambda: time.monotonic() + SCOPE_STAGE_SECONDS)
+
+
+class PlanningDeadlineExceeded(RuntimeError):
+    """Planning stopped to preserve time for collection and finalization."""
+
+
+def _remaining_model_timeout(context, *, cap=45):
+    remaining = context.planning_deadline - time.monotonic()
+    if remaining < 1:
+        raise PlanningDeadlineExceeded("诊断规划时间已用尽，保留采集与报告时间")
+    return min(float(cap), remaining)
+
+
+@wrap_model_call
+def _bounded_model_call(request, handler):
+    timeout = _remaining_model_timeout(request.runtime.context)
+    configured = request.model_settings.get("timeout")
+    if isinstance(configured, (int, float)) and configured > 0:
+        timeout = min(timeout, configured)
+    return handler(request.override(model_settings={**request.model_settings, "timeout": timeout}))
+
+
+class DeadlineSummarizationMiddleware(SummarizationMiddleware):
+    def before_model(self, state, runtime):
+        # Summarization invokes its model outside wrap_model_call. Clone this
+        # middleware per turn so concurrent diagnoses never share timeout state.
+        timeout = _remaining_model_timeout(runtime.context, cap=10)
+        bounded = copy.copy(self)
+        bounded.model = self.model.bind(timeout=timeout)
+        return SummarizationMiddleware.before_model(bounded, state, runtime)
 
 
 class AgentHypothesis(BaseModel):
@@ -270,6 +373,8 @@ def _diagnosis_system_prompt(request: ModelRequest) -> str:
         "historical_successful_routes": list(context.route_priors)[-5:],
         "knowledge_retrieval": retrieval_trace,
         "user_preferences": context.user_preferences,
+        "investigation_memory": context.investigation_memory,
+        "planning_seconds_remaining": round(max(0, context.planning_deadline - time.monotonic()), 1),
     }
     return (
         diagnosis_system_prompt(trusted)
@@ -342,6 +447,8 @@ def _provider_circuit_open(settings: AISettings) -> tuple[bool, int | None]:
 def _record_provider_failure(settings: AISettings, exc: Exception) -> None:
     """Open a bounded circuit for permanent or repeated provider failures."""
 
+    if isinstance(exc, PlanningDeadlineExceeded):
+        return
     key = _provider_circuit_key(settings)
     status_code = _provider_error_status(exc)
     permanent = status_code in {400, 401, 402, 403, 404, 422}
@@ -577,12 +684,15 @@ def _agent_for(settings: AISettings) -> Any:
     keep_tokens = memory_policy.keep_tokens
     key_fingerprint = hashlib.sha256(settings.api_key.encode("utf-8")).hexdigest()[:12]
     cache_key = (
+        settings.provider,
+        bool(os.getenv("MINI_DROP_GRAFANA_URL")),
         settings.model,
         settings.base_url,
         key_fingerprint,
         id(checkpointer),
         max_messages,
         max_tokens,
+        keep_tokens,
     )
     cached = _AGENTS.get(cache_key)
     if cached is not None:
@@ -591,23 +701,23 @@ def _agent_for(settings: AISettings) -> Any:
         cached = _AGENTS.get(cache_key)
         if cached is not None:
             return cached
-        from langchain_deepseek import ChatDeepSeek
+        from server.app.agent_runtime.model_factory import create_chat_model
 
-        model = ChatDeepSeek(
-            model=settings.model,
-            api_key=settings.api_key,
-            base_url=settings.base_url,
+        model = create_chat_model(
+            settings,
             temperature=0.1,
-            max_tokens=1400,
+            max_tokens=1000,
             timeout=30,
-            max_retries=0,
         )
         agent = create_agent(
             model=model,
-            tools=[request_diagnostic_probe],
+            tools=[request_diagnostic_probe, search_knowledge, read_knowledge_chunk, search_incident_memory]
+                  + ([query_service_observations] if os.getenv("MINI_DROP_GRAFANA_URL") else []),
             middleware=[
                 _diagnosis_system_prompt,
-                SummarizationMiddleware(
+                _bounded_model_call,
+                ModelCallLimitMiddleware(run_limit=6, exit_behavior="error"),
+                DeadlineSummarizationMiddleware(
                     model=model,
                     # Evidence payloads can be much larger than ordinary chat
                     # messages. Token pressure is therefore the primary limit;
@@ -630,7 +740,7 @@ def _agent_for(settings: AISettings) -> Any:
 def _scope_agent_for(settings: AISettings) -> Any:
     checkpointer = _get_checkpointer()
     key_fingerprint = hashlib.sha256(settings.api_key.encode("utf-8")).hexdigest()[:12]
-    cache_key = (settings.model, settings.base_url, key_fingerprint, id(checkpointer))
+    cache_key = (settings.provider, settings.model, settings.base_url, key_fingerprint, id(checkpointer))
     cached = _SCOPE_AGENTS.get(cache_key)
     if cached is not None:
         return cached
@@ -638,21 +748,19 @@ def _scope_agent_for(settings: AISettings) -> Any:
         cached = _SCOPE_AGENTS.get(cache_key)
         if cached is not None:
             return cached
-        from langchain_deepseek import ChatDeepSeek
+        from server.app.agent_runtime.model_factory import create_chat_model
 
-        model = ChatDeepSeek(
-            model=settings.model,
-            api_key=settings.api_key,
-            base_url=settings.base_url,
+        model = create_chat_model(
+            settings,
             temperature=0,
             max_tokens=600,
             timeout=20,
-            max_retries=0,
         )
         agent = create_agent(
             model=model,
             tools=[select_diagnosis_scope],
-            middleware=[_scope_system_prompt],
+            middleware=[_scope_system_prompt, _bounded_model_call,
+                        ModelCallLimitMiddleware(run_limit=2, exit_behavior="error")],
             context_schema=ScopeSelectionContext,
             checkpointer=checkpointer,
             name="mini_drop_scope_agent",
@@ -691,6 +799,7 @@ def select_scope_with_diagnosis_agent(
         diagnosis_id=diagnosis_id,
         query=query,
         candidates=safe_candidates,
+        planning_deadline=time.monotonic() + planning_seconds(diagnosis_id, SCOPE_STAGE_SECONDS),
     )
     try:
         result = _scope_agent_for(settings).invoke(
@@ -891,6 +1000,8 @@ def plan_with_diagnosis_agent(
     # Later autonomous rounds include SQLAlchemy DTO audit fields with native
     # datetimes. Normalize the complete runtime context before middleware,
     # model clients, or checkpointers can attempt to serialize it.
+    from server.app.agent_runtime.memory import load_investigation_memory
+    investigation_memory = load_investigation_memory(context.diagnosis_id)
     context = DiagnosisAgentContext(
         diagnosis_id=context.diagnosis_id,
         query=context.query,
@@ -917,11 +1028,18 @@ def plan_with_diagnosis_agent(
             else None
         ),
         user_preferences=_normalize_trusted_context(context.user_preferences),
+        investigation_memory=_normalize_trusted_context(investigation_memory),
+        planning_deadline=min(context.planning_deadline,
+                              time.monotonic() + planning_seconds(context.diagnosis_id, PLANNING_STAGE_SECONDS)),
+        lookup_state=context.lookup_state,
     )
     agent = _agent_for(settings)
     invoke_config = {
         "configurable": {"thread_id": context.diagnosis_id, "checkpoint_ns": AGENT_VERSION},
-        "recursion_limit": 8,
+        # Graph supersteps include middleware, not just model/tool calls.
+        # Leave room for four lookups and the final probe; the separate
+        # ModelCallLimitMiddleware still caps model calls at six.
+        "recursion_limit": 64,
         "tags": ["mini-drop", "diagnosis-agent", context.category],
     }
     try:
@@ -960,6 +1078,18 @@ def plan_with_diagnosis_agent(
     except Exception as exc:
         _record_provider_failure(settings, exc)
         raise
+    finally:
+        # Persist exactly the outputs seen by this turn, including failed lookups.
+        # A persistence error must not silently turn an unaudited proposal into
+        # an accepted one; the caller already has deterministic fallback.
+        if context.lookup_state["traces"]:
+            from .service import _record_planner_knowledge_retrieval
+            for index, trace in enumerate(context.lookup_state["traces"]):
+                _record_planner_knowledge_retrieval(
+                    context.diagnosis_id, query="", category=context.category,
+                    phase="AGENT_LOOKUP", effect_key=f"lookup:{context.lookup_state['run_id']}:{index}",
+                    trace_override=trace,
+                )
     _record_provider_success(settings)
     proposal = _accepted_tool_payload(list(result.get("messages") or []))
     if proposal is None or proposal["tool_name"] not in context.allowed_tools:

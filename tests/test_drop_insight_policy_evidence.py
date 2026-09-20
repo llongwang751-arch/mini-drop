@@ -190,3 +190,85 @@ def test_unvalidated_artifact_is_rejected():
 
     assert result["decision"] == "REJECT"
     assert "产物未经过 Analyzer Job 验证" in result["reasons"]
+
+
+def test_generate_sre_remediation_advice_categories():
+    from server.app.drop_insight.claim_verifier import generate_sre_remediation_advice
+
+    claims = [
+        {"claim_type": "SYS_METRIC_PROCESS_CPU_USAGE", "statement": "进程 CPU 1.8 核"},
+        {"claim_type": "SYS_METRIC_MUTEX_WAIT", "statement": "锁等待时间: 120ms", "json_pointer": "/process/mutex_wait_ms"},
+        {"claim_type": "SYS_METRIC_MEM_RSS", "statement": "物理内存: 4096MB", "json_pointer": "/summary/rss_mb"},
+        {"claim_type": "SYS_METRIC_IO_AWAIT", "statement": "I/O 等待: 25ms", "json_pointer": "/summary/io_await_ms"},
+        {"claim_type": "SYS_METRIC_TCP_RETRANS", "statement": "TCP 重传: 8%", "json_pointer": "/summary/tcp_retrans_pct"},
+        {"claim_type": "SYS_METRIC_FD_COUNT", "statement": "FD 句柄: 950", "json_pointer": "/summary/fd_count"},
+    ]
+    for claim in claims:
+        claim["direction"] = "SUPPORT"
+    advice = generate_sre_remediation_advice(claims, "VERIFIED", conclusion_text="CPU 与锁争用根因确认")
+    assert len(advice["mitigations"]) == 1
+    assert len(advice["root_cause_fixes"]) >= 6
+
+    # Verify specific mitigations exist
+    titles = [m["title"] for m in advice["root_cause_fixes"]]
+    assert any("CPU" in t for t in titles)
+    assert any("锁" in t for t in titles)
+    assert any("内存" in t for t in titles)
+    assert any("缓冲" in t or "I/O" in t for t in titles)
+    assert any("熔断" in t or "网络" in t for t in titles)
+    assert any("FD" in t for t in titles)
+
+
+def test_verification_result_requires_complete_criteria():
+    from server.app.drop_insight.claim_verifier import _verification_result
+
+    # 4 expected items, 4 covered (100%) -> VERIFIED
+    res1 = _verification_result(
+        claims=[{"direction": "SUPPORT"}, {"direction": "CONTROL"}],
+        rejected=[],
+        covered_expected={0, 1, 2, 3},
+        covered_falsification=set(),
+        n_expected=4,
+        n_falsification=0,
+    )
+    assert res1["status"] == "VERIFIED"
+    assert "remediation" in res1
+
+    # Missing criteria cannot be averaged away, even with a control.
+    res2 = _verification_result(
+        claims=[{"direction": "SUPPORT"}, {"direction": "CONTROL"}],
+        rejected=[],
+        covered_expected={0, 1, 2, 3},
+        covered_falsification=set(),
+        n_expected=5,
+        n_falsification=0,
+    )
+    assert res2["status"] == "PARTIAL_WITHOUT_COUNTER"
+    assert res2["coverage_ratio"] == 0.8
+
+    # 5 expected items, 3 covered (60%), 0 counters -> PARTIAL_WITHOUT_COUNTER
+    res3 = _verification_result(
+        claims=[{"direction": "SUPPORT"}, {"direction": "CONTROL"}],
+        rejected=[],
+        covered_expected={0, 1, 2},
+        covered_falsification=set(),
+        n_expected=5,
+        n_falsification=0,
+    )
+    assert res3["status"] == "PARTIAL_WITHOUT_COUNTER"
+
+
+def test_diagnostic_target_trace_context():
+    from server.app.drop_insight.schemas import DiagnosticTarget
+
+    target = DiagnosticTarget(
+        service="order-service",
+        agent_id="agent-prod-1",
+        pid=1024,
+        trace_id="4bf92f3577b34da6a3ce929d0e0e4736",
+        span_id="00f067aa0ba902b7",
+    )
+    dumped = target.model_dump(mode="json")
+    assert dumped["trace_id"] == "4bf92f3577b34da6a3ce929d0e0e4736"
+    assert dumped["span_id"] == "00f067aa0ba902b7"
+    assert dumped["service"] == "order-service"

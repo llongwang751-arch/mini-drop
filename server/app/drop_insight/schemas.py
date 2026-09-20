@@ -19,6 +19,8 @@ class DiagnosticTarget(StrictModel):
     container_id: str | None = None
     pid: int | None = Field(default=None, ge=1)
     instance_id: str | None = None
+    trace_id: str | None = Field(default=None, max_length=128)
+    span_id: str | None = Field(default=None, max_length=64)
 
 
 class DiagnosticTimeRange(StrictModel):
@@ -34,6 +36,7 @@ class DiagnosticTimeRange(StrictModel):
 
 
 class DiagnosisBudget(StrictModel):
+    investigation_strategy: Literal["LATS", "REACT"] = "LATS"
     max_duration_seconds: int = Field(default=300, ge=10, le=1800)
     max_tool_calls: int = Field(default=12, ge=1, le=50)
     min_diagnosis_rounds: int = Field(default=1, ge=1, le=4)

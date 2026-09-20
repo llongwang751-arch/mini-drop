@@ -22,6 +22,11 @@ shell command or dispatch a collector directly.
 from __future__ import annotations
 
 import hashlib
+
+# Report confidence is durably encoded on a 0..CONFIDENCE_SCALE integer grid
+# by the report writer (drop_insight.service).  reward_from_outcome decodes
+# with this named constant so the two ends cannot silently drift apart.
+CONFIDENCE_SCALE = 1000.0
 import json
 import math
 import re
@@ -557,7 +562,7 @@ def reward_from_outcome(
     status = str(verification_status or "UNKNOWN").upper()
     normalized_confidence = float(confidence or 0.0)
     if normalized_confidence > 1.0:
-        normalized_confidence /= 1000.0
+        normalized_confidence /= CONFIDENCE_SCALE
     normalized_confidence = min(1.0, max(0.0, normalized_confidence))
     normalized_tool_status = str(tool_status or "").upper()
     if normalized_tool_status in {"DENIED", "REJECTED"}:
@@ -1453,6 +1458,10 @@ def build_search_projection(
     folded["algorithm"] = (
         "LATS-UCT" if effective_policy == "UCT" else "LATS-PUCT-EXTENSION"
     )
+    if persisted_config.get("investigation_strategy") == "REACT":
+        folded["algorithm"] = "REACT"
+        search_config["selection_policy"] = "REACT"
+        search_config["investigation_strategy"] = "REACT"
     iterations_used = int(folded.get("iteration") or 0)
     termination = folded.get("termination")
     if termination is None:

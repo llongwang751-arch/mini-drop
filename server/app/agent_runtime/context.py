@@ -39,4 +39,6 @@ def normalize_trusted_context(value: Any) -> Any:
 def bounded_tail(values: list[Any] | tuple[Any, ...], limit: int) -> tuple[Any, ...]:
     """Keep the newest bounded records before token-level summarization."""
 
-    return tuple(normalize_trusted_context(list(values)[-max(0, limit):]))
+    if limit <= 0:
+        return ()
+    return tuple(normalize_trusted_context(list(values)[-limit:]))

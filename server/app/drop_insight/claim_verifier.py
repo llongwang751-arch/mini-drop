@@ -236,21 +236,31 @@ def _claim_candidates(role: str, envelope: EvidenceEnvelope) -> list[dict[str, A
     predicate = metadata.get("hypothesis_predicate")
     if isinstance(predicate, dict) and predicate.get("outcome") == role:
         raw_indexes = predicate.get("criterion_indexes")
-        indexes = raw_indexes if isinstance(raw_indexes, list) and raw_indexes else [0]
-        for index in indexes:
-            if not isinstance(index, int) or index < 0:
-                continue
-            candidates.append({
-                **base,
-                "claim_type": "HYPOTHESIS_PREDICATE",
-                "statement": str(predicate.get("reason") or f"evidence predicate is {role}"),
-                "json_pointer": "/metadata/hypothesis_predicate/outcome",
-                "claimed_value": predicate.get("outcome"),
-                "criterion": {
-                    "kind": "expected" if role == "SUPPORT" else "falsification",
-                    "index": index,
-                },
-            })
+        indexes = (
+            [index for index in raw_indexes if isinstance(index, int) and index >= 0]
+            if isinstance(raw_indexes, list)
+            else []
+        )
+        base_claim = {
+            **base,
+            "claim_type": "HYPOTHESIS_PREDICATE",
+            "statement": str(predicate.get("reason") or f"evidence predicate is {role}"),
+            "json_pointer": "/metadata/hypothesis_predicate/outcome",
+            "claimed_value": predicate.get("outcome"),
+        }
+        if indexes:
+            for index in indexes:
+                candidates.append({
+                    **base_claim,
+                    "criterion": {
+                        "kind": "expected" if role == "SUPPORT" else "falsification",
+                        "index": index,
+                    },
+                })
+        else:
+            # 谓词未映射到任何判据槽位时不得默认补槽位 0；方向性 claim
+            # 仍参与反证/对照判定，但不覆盖覆盖率分母。
+            candidates.append({**base_claim, "criterion": None})
 
     top_functions = metadata.get("top_functions")
     if isinstance(top_functions, list):
@@ -358,6 +368,46 @@ def _record_coverage(
         covered_falsification.add(int(index))
 
 
+def generate_sre_remediation_advice(
+    claims: list[dict[str, Any]],
+    verification_status: str,
+    conclusion_text: str = "",
+) -> dict[str, Any]:
+    """Return evidence-typed investigation plans, never unbound shell changes.
+
+    Free text (including negation and function names) is not a classifier.
+    Even VERIFIED identifies an observation, not authorization for a change.
+    """
+    if verification_status != "VERIFIED":
+        return {"schema_version": 2, "mitigations": [{
+            "title": "补齐证据与同负载对照", "urgency": "LOW",
+            "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。",
+        }], "root_cause_fixes": []}
+    groups = {
+        "CPU": ({"CPU_USER_PERCENT", "CPU_SYSTEM_PERCENT", "PROCESS_CPU_USAGE", "SYSTEM_LOAD"},
+                "比较热点自身采样、进程 CPU 与请求延迟；确认容量或算法瓶颈后制定限流或代码优化方案。"),
+        "锁": ({"DATABASE_LOCK_WAIT", "DATABASE_LOCK_WAIT_COUNT", "DATABASE_BLOCKING_SESSIONS", "MUTEX_WAIT"},
+                "关联持锁者、等待线程与业务延迟；在同负载环境验证缩短临界区或调整并发的效果。"),
+        "内存": ({"PROCESS_RSS", "PROCESS_RSS_MAX", "MEMORY_USAGE_PERCENT", "SWAP_USAGE", "JVM_GC_PAUSE", "JVM_GC_TIME_PERCENT", "JVM_FULL_GC_COUNT", "JVM_HEAP_USAGE", "MEM_RSS"},
+                "先确认运行时，区分堆内、堆外、瞬态分配和持续增长；验证对象生命周期与内存限制，不自动触发 GC 或发送信号。"),
+        "I/O": ({"IO_WAIT_PERCENT", "IO_LATENCY", "DISK_READ_THROUGHPUT", "DISK_WRITE_THROUGHPUT", "IO_AWAIT"},
+                "确认 I/O 归属与同步等待路径；评估缓冲或异步化时同时验证持久性要求，不直接降低刷盘保障。"),
+        "网络": ({"NETWORK_RX_THROUGHPUT", "NETWORK_TX_THROUGHPUT", "NETWORK_PACKET_LOSS", "TCP_RETRANSMIT", "TCP_RETRANSMIT_COUNT", "TCP_RETRANS"},
+                "关联请求与下游耗时；将超时、重试和熔断作为待验证变更，检查错误率与请求成功率。"),
+        "FD": ({"FD_COUNT", "FD_MAX", "FD_TREND", "FD_COUNT"},
+                "比较句柄增长与当前上限，定位未关闭资源；调整限制前检查系统容量和回滚值。"),
+    }
+    types = {str(c.get("claim_type", "")).removeprefix("SYS_METRIC_")
+             for c in claims if c.get("direction") == "SUPPORT" and c.get("valid", True)}
+    fixes = [{"title": f"{name} 治理验证计划", "action": action,
+              "scope": "REVIEW_REQUIRED", "preconditions": "确认目标身份、当前配置、业务负载与回滚方案",
+              "validation": "同负载比较 P95/P99、吞吐、错误率及对应资源指标"}
+             for name, (kinds, action) in groups.items() if kinds & types]
+    return {"schema_version": 2, "mitigations": [{"title": "制定受控变更计划", "urgency": "LOW",
+                            "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"}],
+            "root_cause_fixes": fixes}
+
+
 def _verification_result(
     claims: list[dict[str, Any]],
     rejected: list[dict[str, Any]],
@@ -386,6 +436,8 @@ def _verification_result(
     else:
         status = "INSUFFICIENT_EVIDENCE"
 
+    remediation = generate_sre_remediation_advice(claims, status)
+
     verification = {
         "status": status,
         "has_independent_counter_or_control": has_counter_or_control,
@@ -395,7 +447,11 @@ def _verification_result(
         "coverage_ratio": coverage_ratio,
         "covered_expected": sorted(covered_expected),
         "covered_falsification": sorted(covered_falsification),
+        "missing_expected": sorted(set(range(n_expected)) - covered_expected),
+        "missing_falsification": sorted(set(range(n_falsification)) - covered_falsification),
+        "needs_independent_counter_or_control": not has_counter_or_control,
         "rejected_count": len(rejected),
+        "remediation": remediation,
     }
     return {
         "status": status,
@@ -406,6 +462,7 @@ def _verification_result(
         "coverage_ratio": coverage_ratio,
         "has_independent_counter_or_control": has_counter_or_control,
         "control_claim_count": control_count,
+        "remediation": remediation,
         "verification": verification,
     }
 

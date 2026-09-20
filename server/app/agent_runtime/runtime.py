@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 
 
 AGENT_FRAMEWORK = "langchain-create-agent/langgraph"
-AGENT_VERSION = "diagnosis-agent-v4-lats"
+AGENT_VERSION = "diagnosis-agent-v5-retrieval"
 SCOPE_AGENT_VERSION = "scope-agent-v1"
 
 
@@ -17,7 +17,7 @@ class RuntimeDescriptor:
     shell_access: bool = False
     authority_model: str = "opaque-binding+policy+budget+evidence-gate"
     memory_model: str = (
-        "business-state+thread-checkpoint+published-skill+explicit-operator-preference"
+        "business-state+thread-checkpoint+published-skill+explicit-operator-preference+scoped-incident-reference"
     )
 
     def as_dict(self) -> dict[str, object]:

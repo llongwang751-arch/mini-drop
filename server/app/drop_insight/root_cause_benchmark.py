@@ -70,23 +70,16 @@ def _tokens(value: Any) -> set[str]:
 
 
 def _scenario_profiles() -> list[dict[str, Any]]:
+    # 画像只用公开的场景标题与家族：symptom / diagnosis_query /
+    # expected_signals 与 query 模板同源（query 由 symptom 拼装），
+    # 纳入画像会让"文本预测根因"变成模板自查，2026-09-20 起移除。
     return [
         {
             "scenario_id": item.scenario_id,
             "runtime": item.target_runtime,
             "family": item.family,
             "related_skill": item.related_skill,
-            "tokens": _tokens(
-                " ".join(
-                    [
-                        item.title,
-                        item.family,
-                        item.symptom,
-                        item.diagnosis_query,
-                        *item.expected_signals,
-                    ]
-                )
-            ),
+            "tokens": _tokens(f"{item.title} {item.family}"),
         }
         for item in SCENARIOS
     ]

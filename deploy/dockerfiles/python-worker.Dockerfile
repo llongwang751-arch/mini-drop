@@ -11,6 +11,7 @@ FROM python:3.11-slim
 ARG DEBIAN_MIRROR=""
 ARG DEBIAN_SECURITY_MIRROR=""
 ARG PIP_INDEX_URL=""
+ARG INSTALL_RETRIEVAL=0
 
 RUN if [ -n "$DEBIAN_MIRROR" ]; then \
         find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) \
@@ -28,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY pyproject.toml README.md alembic.ini ./
 RUN if [ -n "$PIP_INDEX_URL" ]; then export PIP_INDEX_URL; fi; \
-    python -c "import subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb')); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*data['project']['dependencies']])"
+    python -c "import os,subprocess,sys,tomllib; data=tomllib.load(open('pyproject.toml','rb'))['project']; deps=data['dependencies']+(data['optional-dependencies']['retrieval'] if os.getenv('INSTALL_RETRIEVAL')=='1' else []); subprocess.check_call([sys.executable,'-m','pip','install','--no-cache-dir',*deps])"
 
 COPY server/ ./server/
 COPY analyzer/ ./analyzer/

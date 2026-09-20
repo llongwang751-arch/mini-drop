@@ -22,6 +22,7 @@ from sqlalchemy.exc import IntegrityError
 
 from server.app.database import new_session
 from server.app.agent_runtime.retrieval import build_retrieval_trace
+from server.app.agent_runtime.deadlines import probe_deadline_check
 from server.app.models import (
     AgentModel,
     AnalysisJobModel,
@@ -47,7 +48,7 @@ from server.app.state_machine import Actor, TaskStatus, now_utc
 
 from .evidence import EvidenceEnvelope, calibrate_confidence, classify_evidence
 from .artifact_evidence import assess_artifact_evidence
-from .claim_verifier import verify_report_claims
+from .claim_verifier import generate_sre_remediation_advice, verify_report_claims
 from .policy import PolicyContext, evaluate_tool_call
 from .tools import TOOLS, TOOL_TO_COLLECTOR
 from server.app.artifact_contracts import CONTRACT_VERSION
@@ -78,6 +79,7 @@ from server.app.storage import presigned_put_url
 from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
 from .lats import (
+    CONFIDENCE_SCALE,
     LATSConfig,
     execution_semantics,
     hypothesis_path,
@@ -90,6 +92,39 @@ from .lats import (
     stable_candidate_key,
 )
 from .rounds import report_execution_rounds
+from .event_store import (
+    _SESSION_TRANSITIONS,
+    _append_event,
+    _cas_session_update,
+    _enqueue_diagnosis_event,
+    _event_semantic_scope,
+    _freeze_event_value,
+    _latest_semantic_event_has_payload,
+    _lock_diagnosis,
+)
+from .fix_verification import (
+    FIX_VERIFY_RELATIVE_THRESHOLD,
+    _as_utc_with_timezone,
+    _fix_view,
+    _parse_datetime,
+    _task_top_functions,
+    _time_ranges_overlap,
+    compare_before_after,
+    list_fix_verifications,
+    verify_diagnosis_fix,
+)
+from .hypothesis_predicate import (
+    _compute_hypothesis_predicate,
+    _criterion_text_indexes,
+    _derive_imported_evidence_role,
+    _safe_percent,
+    _structured_signal_predicate,
+)
+from .report_conclusion import (
+    _concrete_report_finding,
+    _derive_next_actions,
+    _derive_report_conclusion,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -1410,6 +1445,7 @@ def _record_planner_knowledge_retrieval(
     effect_key: str,
     user_correction: str = "",
     round_index: int | None = None,
+    trace_override: dict | None = None,
 ) -> dict:
     """Retrieve first, then persist the non-Evidence planner input exactly once."""
 
@@ -1418,7 +1454,7 @@ def _record_planner_knowledge_retrieval(
         for value in (str(query or "").strip(), category, user_correction.strip())
         if value
     )
-    trace = build_retrieval_trace(retrieval_query)
+    trace = trace_override if trace_override is not None else build_retrieval_trace(retrieval_query)
     session = new_session()
     try:
         if session.get(DropInsightSessionModel, diagnosis_id) is None:
@@ -1871,6 +1907,12 @@ def generate_report(
             verification_status=verification["status"],
         )
         assumptions = ["结论仅适用于当前诊断目标与时间窗口"]
+        target_info = diagnosis.target_json or {}
+        if target_info.get("trace_id"):
+            assumptions.append(f"关联分布式链路 Trace ID: {target_info['trace_id']}")
+            verification["trace_id"] = target_info["trace_id"]
+            if target_info.get("span_id"):
+                verification["span_id"] = target_info["span_id"]
         next_actions = _derive_next_actions(
             support_refs=support_refs,
             counter_refs=counter_refs,
@@ -1884,6 +1926,11 @@ def generate_report(
             if not support_refs:
                 conclusion = "尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。"
                 limitations.append("主机 I/O 仅作背景观察，不是目标进程的支持证据或反证。故障修复状态需独立复测。")
+        verification["remediation"] = generate_sre_remediation_advice(
+            verification.get("claims", []),
+            verification.get("status", ""),
+            conclusion_text=conclusion,
+        )
         round_contract = _diagnosis_round_contract(
             session,
             diagnosis,
@@ -1900,7 +1947,7 @@ def generate_report(
             diagnosis_id=diagnosis_id,
             hypothesis_id=payload.hypothesis_id,
             conclusion=conclusion,
-            confidence=round(confidence * 1000),
+            confidence=round(confidence * CONFIDENCE_SCALE),
             evidence_refs_json=support_refs,
             counter_evidence_refs_json=counter_refs,
             assumptions_json=assumptions,
@@ -3630,6 +3677,8 @@ def _replan_from_counter_evidence(
         "INSUFFICIENT_EVIDENCE",
     }:
         return None
+    if _stop_replanning_at_deadline(diagnosis, report_id):
+        return None
     previous = list_hypotheses(diagnosis_id)
     parent = next((item for item in previous if item.id == parent_hypothesis_id), None)
     if parent is None:
@@ -3937,6 +3986,18 @@ def _successful_tool_route_priors(limit: int = 20) -> list[dict]:
         session.close()
 
 
+def _stop_replanning_at_deadline(diagnosis, report_id: str) -> bool:
+    check = probe_deadline_check(diagnosis, "start_perf_profile", {"duration_seconds": 15})
+    if check["result"] == "PASS":
+        return False
+    _record_lats_termination(
+        diagnosis.id, reason="BUDGET_EXHAUSTED",
+        detail="剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+        effect_key=f"report:{report_id}:lats:wall-clock-terminated",
+    )
+    return True
+
+
 def _replan_after_insufficient_evidence(
     diagnosis_id: str,
     parent_hypothesis_id: str,
@@ -3950,6 +4011,8 @@ def _replan_after_insufficient_evidence(
         "COMPLETED",
         "INSUFFICIENT_EVIDENCE",
     }:
+        return None
+    if _stop_replanning_at_deadline(diagnosis, report_id):
         return None
     target = diagnosis.target_json or {}
     binding = _current_target_binding(diagnosis)
@@ -4308,7 +4371,10 @@ def _record_lats_expansion_and_selection(
             return dict(existing.payload_json or {})
 
         config = LATSConfig.from_budget(diagnosis.budget_json or {})
+        strategy = (diagnosis.budget_json or {}).get("investigation_strategy", "LATS")
         semantics = execution_semantics(diagnosis.mode)
+        if strategy == "REACT":
+            semantics = {**semantics, "execution_mode": "BOUNDED_REACT", "search_strategy": "REACT"}
         timestamp = now_utc()
         _append_event(
             session,
@@ -4317,18 +4383,19 @@ def _record_lats_expansion_and_selection(
             "SYSTEM",
             {
                 "algorithm": (
-                    "LATS-UCT"
-                    if config.selection_policy == "UCT"
-                    else "LATS-PUCT-EXTENSION"
+                    "REACT" if strategy == "REACT" else (
+                        "LATS-UCT" if config.selection_policy == "UCT" else "LATS-PUCT-EXTENSION"
+                    )
                 ),
                 "algorithm_version": "drop-insight-lats-v1",
                 "semantics": semantics,
                 "config": {
+                    "investigation_strategy": strategy,
                     "top_k": config.top_k,
                     "exploration_constant": config.exploration_constant,
                     "max_iterations": config.max_iterations,
                     "max_tool_calls": config.max_tool_calls,
-                    "selection_policy": config.selection_policy,
+                    "selection_policy": "REACT" if strategy == "REACT" else config.selection_policy,
                     "value_lambda": config.value_lambda,
                     "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
                     "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
@@ -4415,13 +4482,15 @@ def _record_lats_expansion_and_selection(
             timestamp,
             effect_key=f"{effect_prefix}:evaluated",
         )
-        selection = select_puct_candidate(
-            durable_candidates,
-            metrics,
-            parent_visits=parent_visits,
-            exploration_constant=config.exploration_constant,
-            selection_policy=config.selection_policy,
-        )
+        if strategy == "REACT":
+            from server.app.agent_runtime.investigation_strategy import select_react_candidate
+            selection = select_react_candidate(durable_candidates, metrics)
+        else:
+            selection = select_puct_candidate(
+                durable_candidates, metrics, parent_visits=parent_visits,
+                exploration_constant=config.exploration_constant,
+                selection_policy=config.selection_policy,
+            )
         if selection is None:
             return None
         payload = {
@@ -4431,7 +4500,7 @@ def _record_lats_expansion_and_selection(
             "round_index": round_index,
             "tree_depth": tree_depth or round_index,
             "parent_node_id": parent_node_id,
-            "selection_policy": config.selection_policy,
+            "selection_policy": "REACT" if strategy == "REACT" else config.selection_policy,
             "candidate_count": len(durable_candidates),
             "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING",
         }
@@ -6479,7 +6548,9 @@ def _evaluate_resource_budget(
         ("BUDGET_HOSTS", len(hosts), limits.get("max_hosts", 5)),
         ("BUDGET_ARTIFACT_BYTES", artifact_bytes, limits.get("max_artifact_bytes", 524_288_000)),
     )
-    failed = []
+    wall_clock = probe_deadline_check(diagnosis, tool_name, arguments)
+    checks.append(wall_clock)
+    failed = ["BUDGET_WALL_CLOCK insufficient finalization reserve"] if wall_clock["result"] == "FAIL" else []
     for name, reserved, limit in values:
         passed = reserved <= limit
         checks.append({
@@ -6685,6 +6756,18 @@ def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
         )
         if diagnosis is None:
             raise ValueError("diagnosis not found")
+        deadline_check = probe_deadline_check(diagnosis, model.tool_name, arguments, now=timestamp)
+        if deadline_check["result"] == "FAIL":
+            model.status = "FAILED"
+            model.result_json = {"error": "wall_clock_budget_exhausted", "check": deadline_check}
+            model.executed_at = timestamp
+            _release_budget_reservation(model, timestamp=timestamp, reason="wall_clock_budget_exhausted")
+            _append_event(session, model.diagnosis_id, "tool_call.failed", "POLICY",
+                          {"tool_call_id": model.id, "tool_name": model.tool_name,
+                           "reason": "wall_clock_budget_exhausted", "check": deadline_check}, timestamp)
+            session.commit()
+            session.refresh(model)
+            return model
         binding = _validated_target_binding(session, diagnosis, now=timestamp)
         if arguments.get("agent_id") != binding.agent_id:
             raise ValueError("tool call Agent disagrees with process binding")
@@ -8287,1456 +8370,6 @@ def import_task_evidence(
         return imported
     finally:
         session.close()
-
-
-def _append_event(
-    session,
-    diagnosis_id: str,
-    event_type: str,
-    actor: str,
-    payload: dict,
-    timestamp,
-    *,
-    effect_key: str | None = None,
-) -> bool:
-    session.execute(
-        select(DropInsightSessionModel.id)
-        .where(DropInsightSessionModel.id == diagnosis_id)
-        .with_for_update()
-    ).scalar_one()
-    if effect_key:
-        existing = session.execute(
-            select(DropInsightEventModel.id).where(
-                DropInsightEventModel.diagnosis_id == diagnosis_id,
-                DropInsightEventModel.effect_key == effect_key,
-            )
-        ).scalar_one_or_none()
-        if existing is not None:
-            return False
-    if _latest_semantic_event_has_payload(
-        session,
-        diagnosis_id,
-        event_type,
-        actor,
-        payload,
-    ):
-        return False
-    current = session.execute(
-        select(func.max(DropInsightEventModel.sequence)).where(
-            DropInsightEventModel.diagnosis_id == diagnosis_id
-        )
-    ).scalar_one()
-    sequence = int(current or 0) + 1
-    event = DropInsightEventModel(
-        id=f"event_{uuid4().hex}",
-        diagnosis_id=diagnosis_id,
-        sequence=sequence,
-        event_type=event_type,
-        actor=actor,
-        payload_json=payload,
-        effect_key=effect_key,
-        occurred_at=timestamp,
-    )
-    session.add(event)
-    _enqueue_diagnosis_event(session, event)
-    # A single state transition may append several durable events before the
-    # surrounding transaction commits (for example action_proposed followed
-    # by awaiting_approval, or simulation_started followed by
-    # action_dispatched).  Flush here so the next max(sequence) query observes
-    # this event and allocates the next sequence instead of reusing it.  The
-    # event and its outbox row still commit atomically in the caller's
-    # transaction.
-    session.flush()
-    return True
-
-
-_EVENT_SEMANTIC_SCOPE_KEYS = (
-    "round_index",
-    "iteration",
-    "hypothesis_id",
-    "parent_hypothesis_id",
-    "node_id",
-    "tool_call_id",
-    "task_id",
-    "task_attempt_id",
-    "report_id",
-    "evidence_id",
-    "intervention_id",
-    "observation_id",
-    "snapshot_id",
-)
-
-
-def _event_semantic_scope(payload: dict) -> tuple:
-    """Return the stable round/entity slot whose latest value an event describes.
-
-    Event payloads remain the source of truth; this scope is used only to find
-    the previous value for no-op suppression. Mutable fields such as status,
-    score and reward are deliberately excluded so a real A -> B -> A change is
-    retained instead of being mistaken for a historical duplicate.
-    """
-
-    scope = [
-        (key, _freeze_event_value(payload[key]))
-        for key in _EVENT_SEMANTIC_SCOPE_KEYS
-        if payload.get(key) is not None
-    ]
-    hypotheses = payload.get("hypotheses")
-    if isinstance(hypotheses, list):
-        hypothesis_scope = sorted(
-            (
-                str(item.get("hypothesis_id")),
-                item.get("round_index"),
-            )
-            for item in hypotheses
-            if isinstance(item, dict) and item.get("hypothesis_id")
-        )
-        if hypothesis_scope:
-            scope.append(("hypotheses", tuple(hypothesis_scope)))
-    return tuple(scope)
-
-
-def _freeze_event_value(value):
-    if isinstance(value, dict):
-        return tuple(
-            (str(key), _freeze_event_value(item))
-            for key, item in sorted(value.items(), key=lambda row: str(row[0]))
-        )
-    if isinstance(value, (list, tuple)):
-        return tuple(_freeze_event_value(item) for item in value)
-    return value
-
-
-def _latest_semantic_event_has_payload(
-    session,
-    diagnosis_id: str,
-    event_type: str,
-    actor: str,
-    payload: dict,
-) -> bool:
-    """Suppress only a repeated latest value in the same semantic slot.
-
-    The diagnosis row is already locked by ``_append_event``, so this check is
-    safe against concurrent pollers. Looking at the latest value per slot (not
-    every historical payload) preserves genuine state/score reversals and new
-    LATS iterations while making at-least-once orchestration a durable no-op.
-    """
-
-    semantic_scope = _event_semantic_scope(payload)
-    rows = session.execute(
-        select(DropInsightEventModel.payload_json)
-        .where(
-            DropInsightEventModel.diagnosis_id == diagnosis_id,
-            DropInsightEventModel.event_type == event_type,
-            DropInsightEventModel.actor == actor,
-        )
-        .order_by(DropInsightEventModel.sequence.desc())
-    ).scalars()
-    for existing_payload in rows:
-        existing_payload = dict(existing_payload or {})
-        if semantic_scope:
-            if _event_semantic_scope(existing_payload) != semantic_scope:
-                continue
-        return _freeze_event_value(existing_payload) == _freeze_event_value(payload)
-    return False
-
-
-def _enqueue_diagnosis_event(session, event: DropInsightEventModel) -> None:
-    """Persist SSE publication in the same transaction as the domain event."""
-    timestamp = event.occurred_at
-    session.add(
-        OutboxMessageModel(
-            id=f"outbox_{event.id}",
-            aggregate_type="diagnosis",
-            aggregate_id=event.diagnosis_id,
-            event_type=event.event_type,
-            payload_json={
-                "event_id": event.id,
-                "sequence": event.sequence,
-                "event_type": event.event_type,
-                "actor": event.actor,
-                "payload": event.payload_json or {},
-                "occurred_at": timestamp.isoformat(),
-            },
-            status="PENDING",
-            attempts=0,
-            next_attempt_at=timestamp,
-            created_at=timestamp,
-            updated_at=timestamp,
-        )
-    )
-
-
-def _lock_diagnosis(session, diagnosis_id: str, expected_version: int | None = None):
-    diagnosis = (
-        session.query(DropInsightSessionModel)
-        .filter(DropInsightSessionModel.id == diagnosis_id)
-        .with_for_update()
-        .first()
-    )
-    if diagnosis is not None and expected_version is not None:
-        if diagnosis.version != expected_version:
-            raise ValueError(
-                f"diagnosis version conflict: expected={expected_version}, "
-                f"actual={diagnosis.version}"
-            )
-    return diagnosis
-
-
-_SESSION_TRANSITIONS = {
-    "NEEDS_CLARIFICATION": {"UNDERSTANDING", "HYPOTHESIZING", "NEEDS_CLARIFICATION", "CANCELLED"},
-    "UNDERSTANDING": {"PLANNING", "HYPOTHESIZING", "NEEDS_CLARIFICATION", "UNDERSTANDING", "CANCELLED"},
-    "PLANNING": {"HYPOTHESIZING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "PLANNING", "CANCELLED"},
-    "HYPOTHESIZING": {"PLANNING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE", "HYPOTHESIZING", "CANCELLED"},
-    "COLLECTING_EVIDENCE": {"HYPOTHESIZING", "INSUFFICIENT_EVIDENCE", "COMPLETED", "COLLECTING_EVIDENCE", "CANCELLED"},
-    "INSUFFICIENT_EVIDENCE": {"HYPOTHESIZING", "PLANNING", "COLLECTING_EVIDENCE", "INSUFFICIENT_EVIDENCE"},
-    # A verified report remains immutable, but an explicit human turn may
-    # reopen the session and create a later auditable round.
-    "COMPLETED": {"COMPLETED", "HYPOTHESIZING"},
-}
-
-
-def _cas_session_update(session, diagnosis, *, status: str, timestamp) -> None:
-    allowed = _SESSION_TRANSITIONS.get(diagnosis.status, set())
-    if status not in allowed:
-        raise ValueError(
-            f"illegal diagnosis status transition: {diagnosis.status}->{status}"
-        )
-    expected_version = diagnosis.version
-    result = session.execute(
-        update(DropInsightSessionModel)
-        .where(
-            DropInsightSessionModel.id == diagnosis.id,
-            DropInsightSessionModel.version == expected_version,
-        )
-        .values(
-            status=status,
-            updated_at=timestamp,
-            version=expected_version + 1,
-        )
-    )
-    if result.rowcount != 1:
-        raise ValueError(
-            f"diagnosis version conflict: expected={expected_version}"
-        )
-    diagnosis.status = status
-    diagnosis.updated_at = timestamp
-    diagnosis.version = expected_version + 1
-
-
-def _derive_report_conclusion(
-    hypothesis_statement: str,
-    *,
-    support_refs: list[str],
-    counter_refs: list[str],
-    supporting: list[EvidenceEnvelope] | None = None,
-    verification_status: str | None = None,
-) -> str:
-    """Create a root-cause statement from accepted immutable evidence.
-
-    A hypothesis is only a question posed by the planner.  Repeating that
-    question after a SUPPORT predicate produced misleading reports such as
-    "JVM may have a hotspot, GC pressure or lock contention".  The report
-    instead names the concrete function/resource observed by the Analyzer and
-    keeps unverified causal alternatives outside the conclusion.
-    """
-
-    if not support_refs:
-        if counter_refs:
-            return (
-                "本轮判断：现有可信证据未支持该假设，且存在反证；"
-                f"暂不接受假设“{hypothesis_statement}”。"
-            )
-        return (
-            "本轮判断：当前没有能够支持该假设的可信证据；"
-            f"假设“{hypothesis_statement}”仍待验证。"
-        )
-
-    concrete_finding = _concrete_report_finding(supporting or [])
-    if counter_refs:
-        if concrete_finding:
-            return (
-                f"阶段性根因：{concrete_finding}但同一诊断中仍存在反证，"
-                "暂不能把它提升为最终根因。"
-            )
-        return (
-            "本轮判断：可信证据部分支持该假设，同时存在反证；"
-            f"假设“{hypothesis_statement}”需要继续证伪。"
-        )
-
-    if concrete_finding:
-        title = "根因结论" if verification_status == "VERIFIED" else "阶段性根因"
-        return f"{title}：{concrete_finding}"
-
-    return (
-        "阶段性判断：证据与候选假设一致，但尚未定位到具体函数、资源或依赖；"
-        f"不能把假设“{hypothesis_statement}”直接写成最终根因，需要继续取证。"
-    )
-
-
-def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
-    """Render the strongest evidence-derived finding without inventing data."""
-
-    candidates: list[tuple[int, EvidenceEnvelope, dict, dict]] = []
-    for envelope in supporting:
-        observation = envelope.observation if isinstance(envelope.observation, dict) else {}
-        metadata = observation.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        predicate = metadata.get("hypothesis_predicate")
-        if not isinstance(predicate, dict) or predicate.get("outcome") != "SUPPORT":
-            continue
-        metrics = predicate.get("metrics")
-        if not isinstance(metrics, dict):
-            metrics = {}
-        function_name = str(metrics.get("dominant_function") or "").strip()
-        try:
-            dominant_percent = float(metrics.get("dominant_percent") or 0.0)
-        except (TypeError, ValueError):
-            dominant_percent = 0.0
-        score = (100 if function_name else 0) + int(dominant_percent)
-        candidates.append((score, envelope, metadata, metrics))
-    if not candidates:
-        return None
-
-    _, envelope, metadata, metrics = max(candidates, key=lambda item: item[0])
-    function_name = str(metrics.get("dominant_function") or "").strip()
-    try:
-        dominant_percent = float(metrics.get("dominant_percent") or 0.0)
-    except (TypeError, ValueError):
-        dominant_percent = 0.0
-    percent_text = f"，占有效样本的 {dominant_percent:.1f}%" if dominant_percent > 0 else ""
-    sample_count = envelope.quality.sample_count if envelope.quality.sample_count_known else 0
-    sample_text = f"在 {sample_count} 个有效样本中，" if sample_count > 0 else ""
-    schema_version = str(metadata.get("schema_version") or "").casefold()
-    profile_event = str(
-        metrics.get("profile_event") or metadata.get("profile_event") or ""
-    ).casefold()
-    top_functions = metadata.get("top_functions")
-    top_functions = top_functions if isinstance(top_functions, list) else []
-
-    if schema_version.startswith("java_async_profile.") and function_name:
-        # async-profiler commonly places a generated ``$$Lambda...run``
-        # adapter above the actual application method. Prefer the first real
-        # Java business frame while keeping the exact observed symbol.
-        business_function = next(
-            (
-                str(row.get("name") or "").strip()
-                for row in top_functions
-                if isinstance(row, dict)
-                and str(row.get("name") or "").strip()
-                and "$$Lambda" not in str(row.get("name") or "")
-                and not str(row.get("name") or "").strip().endswith("[]")
-                and not str(row.get("name") or "").strip().startswith("java/")
-                and not str(row.get("name") or "").strip().startswith("jdk/")
-            ),
-            function_name,
-        )
-        event_labels = {
-            "alloc": "Java 对象分配热点",
-            "lock": "Java 锁等待热点",
-            "wall": "Java 阻塞/等待热点",
-            "cpu": "Java CPU 执行热点",
-        }
-        event_label = event_labels.get(profile_event, "Java 性能热点")
-        allocated_types = []
-        if profile_event == "alloc":
-            for row in top_functions:
-                if not isinstance(row, dict):
-                    continue
-                name = str(row.get("name") or "").strip()
-                if name.endswith("[]") and name not in allocated_types:
-                    allocated_types.append(name)
-        type_text = (
-            f"，主要分配对象为 {'、'.join(allocated_types[:3])}"
-            if allocated_types
-            else ""
-        )
-        gc_counters = metadata.get("jvm_gc_counters")
-        gc_counters = gc_counters if isinstance(gc_counters, dict) else {}
-        gc_delta = gc_counters.get("delta")
-        gc_delta = gc_delta if isinstance(gc_delta, dict) else {}
-        gc_count_delta = max(0, int(gc_delta.get("gc_count") or 0))
-        gc_time_delta = max(0, int(gc_delta.get("gc_time_ms") or 0))
-        allocated_delta = max(0, int(gc_delta.get("allocated_bytes") or 0))
-        allocation_boundary = (
-            f"同一采集窗口的独立 JVM 计数器同时记录到 GC {gc_count_delta} 次、"
-            f"GC 耗时增加 {gc_time_delta} ms、累计分配增加 {allocated_delta} 字节；"
-            "这确认了分配与 GC 活动相关，但仍不能冒充 Full GC 次数或停顿分位数。"
-            if gc_counters and (gc_count_delta > 0 or gc_time_delta > 0)
-            else "该证据确认了集中对象分配路径，但没有独立证明 GC 暂停或锁竞争是主瓶颈。"
-        )
-        boundary = {
-            "alloc": allocation_boundary,
-            "lock": "该证据确认了锁等待路径，但仍需修复前后对照证明它对整体延迟的因果贡献。",
-            "wall": "该证据确认了阻塞路径，但仍需依赖侧或系统侧证据区分具体等待来源。",
-            "cpu": "该证据确认了 CPU 热路径，但仍需修复前后对照确认其因果贡献。",
-        }.get(profile_event, "该证据定位了具体热路径，仍需修复前后对照完成因果验证。")
-        return (
-            f"{sample_text}{event_label}定位在业务调用路径 `{business_function}`"
-            f"{percent_text}{type_text}。{boundary}"
-        )
-
-    if function_name:
-        if schema_version.startswith("go_pprof_analysis."):
-            profile_label = "Go CPU 热点"
-        elif schema_version.startswith("pyspy_analysis."):
-            profile_label = "Python 源码热点"
-        else:
-            profile_label = "性能热点"
-        return (
-            f"{sample_text}{profile_label}定位在 `{function_name}`{percent_text}。"
-            "该函数是当前证据窗口内最集中的执行路径；仍需修复前后对照确认因果贡献。"
-        )
-
-    lock_wait_count = metrics.get("lock_wait_count")
-    blocker_count = metrics.get("blocker_count")
-    if lock_wait_count is not None or blocker_count is not None:
-        return (
-            f"数据库锁等待链已被结构化证据确认：等待会话 {int(lock_wait_count or 0)} 个，"
-            f"阻塞会话 {int(blocker_count or 0)} 个。需要解除阻塞并复测事务延迟。"
-        )
-    return None
-
-
-def _derive_next_actions(
-    *,
-    support_refs: list[str],
-    counter_refs: list[str],
-) -> list[str]:
-    if not support_refs:
-        return ["补充同一目标、同一时间窗口且经过 Analyzer 验证的结构化证据"]
-    if counter_refs:
-        return ["针对冲突证据执行独立的证伪采集，并比较同窗口结果"]
-    return ["在相同负载下执行修复前后复测，确认热点和副作用变化"]
-
-
-def _structured_signal_predicate(
-    hypothesis: DropInsightHypothesisModel,
-    metadata: dict,
-) -> dict | None:
-    """Match allow-listed Analyzer signals to the planned observation."""
-
-    signals = metadata.get("signals")
-    if not isinstance(signals, dict):
-        return None
-    expected = hypothesis.expected_observations_json or []
-    statement = str(hypothesis.statement or "").casefold()
-    hypothesis_text = " ".join(
-        [statement, *(str(item).casefold() for item in expected)]
-    )
-    signal_specs = (
-        (
-            "queue_backlog",
-            ("队列", "积压", "生产", "消费", "queue", "backlog", "consumer lag"),
-        ),
-        (
-            "load_saturation",
-            ("入口负载", "到达率", "完成率", "拒绝", "吞吐", "load saturation"),
-        ),
-        (
-            "noisy_neighbor",
-            ("噪声邻居", "同宿主机", "共享资源", "资源争抢", "noisy neighbor"),
-        ),
-        (
-            "lock_contention",
-            ("锁竞争", "锁等待", "futex", "mutex", "reentrantlock", "contention"),
-        ),
-        (
-            "jvm_gc",
-            ("jvm", "gc", "垃圾回收", "分配风暴", "allocation"),
-        ),
-        (
-            "downstream_latency",
-            ("下游", "依赖", "downstream", "响应慢", "端到端延迟"),
-        ),
-        (
-            "network_latency",
-            ("网络", "丢包", "重传", "network", "连接超时"),
-        ),
-        (
-            "io_latency",
-            ("磁盘", "块设备", "io 延迟", "i/o", "写入", "fdatasync", "fsync"),
-        ),
-        (
-            "io_activity",
-            ("磁盘", "i/o", "写入", "读取", "filechannel", "fdatasync", "fsync"),
-        ),
-        (
-            "memory_growth",
-            ("内存", "rss", "pss", "swap", "堆外", "offheap", "memory"),
-        ),
-        (
-            "cpu_hotspot",
-            ("cpu", "计算热点", "热点函数", "用户态热点", "cpu hotspot"),
-        ),
-    )
-    for signal_name, tokens in signal_specs:
-        if (
-            signal_name == "jvm_gc"
-            and str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1"
-        ):
-            # The dedicated JVM counter predicate below can promote this
-            # independent before/after window to CONTROL rather than SUPPORT.
-            continue
-        signal = signals.get(signal_name)
-        if not isinstance(signal, dict) or signal.get("detected") is not True:
-            continue
-        if not any(token in hypothesis_text for token in tokens):
-            continue
-        covered = [
-            index
-            for index, item in enumerate(expected)
-            if any(token in str(item).casefold() for token in tokens)
-        ]
-        return {
-            "outcome": "SUPPORT",
-            "version": "hypothesis-predicate-v3",
-            "reason": str(
-                signal.get("reason")
-                or f"structured analyzer signal {signal_name} was observed"
-            ),
-            "criterion_indexes": covered or ([0] if expected else []),
-            "metrics": dict(signal.get("metrics") or {}),
-            "signal": signal_name,
-        }
-    return None
-
-
-def _compute_hypothesis_predicate(
-    hypothesis: DropInsightHypothesisModel,
-    metadata: dict,
-) -> dict | None:
-    """Deterministically evaluate analyzer output against the hypothesis plan.
-
-    Produces a normalized predicate: a top function matching an expected
-    observation -> SUPPORT; matching a falsification criterion -> COUNTER;
-    otherwise None (the caller keeps the artifact NEUTRAL). This is what makes
-    the counter-evidence gate reachable: without a COUNTER path, no imported
-    artifact can ever satisfy ``has_independent_counter_or_control``.
-    """
-    expected = hypothesis.expected_observations_json or []
-    falsification = hypothesis.falsification_criteria_json or []
-    statement = str(hypothesis.statement or "").casefold()
-
-    if metadata.get("scope_semantics") == "HOST_BLOCK_DEVICE" and metadata.get("target_attributed") is not True:
-        return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3", "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联", "criterion_indexes": [], "metrics": {}}
-
-    structured_predicate = _structured_signal_predicate(hypothesis, metadata)
-    if structured_predicate is not None:
-        return structured_predicate
-
-    if str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1":
-        delta = metadata.get("delta")
-        delta = delta if isinstance(delta, dict) else {}
-        hypothesis_text = " ".join(
-            [statement, *(str(item).casefold() for item in expected)]
-        )
-        gc_hypothesis = any(
-            token in hypothesis_text
-            for token in ("gc", "垃圾回收", "分配", "allocation", "堆")
-        )
-        if gc_hypothesis:
-            gc_count_delta = max(0, int(delta.get("gc_count") or 0))
-            gc_time_delta = max(0, int(delta.get("gc_time_ms") or 0))
-            allocated_delta = max(0, int(delta.get("allocated_bytes") or 0))
-            metrics = {
-                "gc_count_delta": gc_count_delta,
-                "gc_time_ms_delta": gc_time_delta,
-                "allocated_bytes_delta": allocated_delta,
-                "window_duration_ms": max(
-                    0, int(metadata.get("window_duration_ms") or 0)
-                ),
-            }
-            if allocated_delta > 0 and (gc_count_delta > 0 or gc_time_delta > 0):
-                return {
-                    "outcome": "CONTROL",
-                    "version": "hypothesis-predicate-v2",
-                    "reason": (
-                        "same-window JVM counters independently observed "
-                        f"{gc_count_delta} GC cycle(s), {gc_time_delta} ms GC time, "
-                        f"and {allocated_delta} allocated bytes"
-                    ),
-                    "criterion_indexes": [0] if falsification else [],
-                    "metrics": metrics,
-                }
-            return {
-                "outcome": "COUNTER",
-                "version": "hypothesis-predicate-v2",
-                "reason": (
-                    "same-window JVM counters did not observe GC activity "
-                    "under allocation profiling"
-                ),
-                "criterion_indexes": [0] if falsification else [],
-                "metrics": metrics,
-            }
-
-    if str(metadata.get("schema_version") or "").startswith("database_lock."):
-        lock_wait_count = max(0, int(metadata.get("lock_wait_count") or 0))
-        blocker_count = max(0, int(metadata.get("blocker_count") or 0))
-        blocking_edge_count = max(
-            0,
-            int(
-                metadata.get("blocking_edge_count")
-                or min(lock_wait_count, blocker_count)
-            ),
-        )
-        max_wait_ms = max(0.0, float(metadata.get("max_wait_ms") or 0.0))
-        database_hypothesis = any(token in statement for token in (
-            "数据库", "锁等待", "阻塞", "deadlock", "database lock", "db lock",
-        ))
-        if database_hypothesis and lock_wait_count > 0 and blocker_count > 0:
-            covered_count = 3 if blocking_edge_count > 0 else 2
-            covered = list(range(min(covered_count, len(expected)))) or [0]
-            return {
-                "outcome": "SUPPORT",
-                "version": "hypothesis-predicate-v2",
-                "reason": (
-                    f"observed {lock_wait_count} lock-waiting session(s), "
-                    f"{blocker_count} blocker(s), max wait {max_wait_ms:.1f} ms"
-                ),
-                "criterion_indexes": covered,
-                "metrics": {
-                    "lock_wait_count": lock_wait_count,
-                    "blocker_count": blocker_count,
-                    "blocking_edge_count": blocking_edge_count,
-                    "lock_wait_ms": max_wait_ms,
-                },
-            }
-        if database_hypothesis and lock_wait_count == 0:
-            return {
-                "outcome": "COUNTER",
-                "version": "hypothesis-predicate-v2",
-                "reason": "bounded database snapshots contained no lock-waiting sessions",
-                "criterion_indexes": [0] if falsification else [],
-                "metrics": {
-                    "lock_wait_count": 0,
-                    "blocker_count": 0,
-                    "lock_wait_ms": 0.0,
-                },
-            }
-
-    top_functions = metadata.get("top_functions")
-    if not isinstance(top_functions, list):
-        return None
-    raw_named = [
-        row
-        for row in top_functions
-        if isinstance(row, dict)
-        and isinstance(row.get("name"), str)
-        and row["name"].strip()
-    ]
-    if not raw_named:
-        return None
-    # Source-aware analyzers intentionally keep one TopN row per file/line.
-    # Hypothesis scoring, however, reasons about functions.  A hot function
-    # sampled on several executable lines must not be mistaken for several
-    # unrelated weak hotspots (for example 40% + 25% + 10% in one loop).
-    aggregated: dict[str, dict] = {}
-    for row in raw_named:
-        name = row["name"].strip()
-        current = aggregated.setdefault(
-            name,
-            {
-                "name": name,
-                "percent": 0.0,
-                "samples": 0,
-                "self_percent": 0.0,
-                "self_samples": 0,
-                "locations": [],
-            },
-        )
-        current["percent"] += _safe_percent(row.get("percent"))
-        current["self_percent"] += _safe_percent(row.get("self_percent"))
-        try:
-            current["samples"] += max(0, int(row.get("samples") or 0))
-            current["self_samples"] += max(0, int(row.get("self_samples") or 0))
-        except (TypeError, ValueError):
-            pass
-        if row.get("file") or row.get("line"):
-            current["locations"].append({
-                "file": row.get("file"),
-                "line": row.get("line"),
-                "percent": _safe_percent(row.get("percent")),
-            })
-    named = list(aggregated.values())
-    perf_profile = str(metadata.get("schema_version") or "").casefold().startswith(
-        ("perf_analysis.", "continuous_perf_analysis.")
-    )
-
-    def _percent(row: dict) -> float:
-        return _safe_percent(row.get("percent"))
-
-    def _actionable_percent(row: dict) -> float:
-        if perf_profile and "self_percent" in row:
-            return _safe_percent(row.get("self_percent"))
-        return _percent(row)
-
-    def _is_kernel(name: str) -> bool:
-        value = name.casefold().strip()
-        markers = (
-            "[kernel", "vmlinux", "__x64_sys_", "do_syscall_", "entry_syscall_",
-            "schedule", "finish_task_switch", "irq", "softirq", "kworker",
-        )
-        return any(marker in value for marker in markers)
-
-    def _is_lock(name: str) -> bool:
-        value = name.casefold()
-        return any(marker in value for marker in (
-            "pthread_mutex", "futex", "spin_lock", "spinlock", "mutex_lock",
-            "rwsem", "sem_wait", "lock_slowpath",
-        ))
-
-    def _is_runtime_container(name: str) -> bool:
-        """Return whether a TopN row is a runtime/container frame, not code.
-
-        perf's folded-stack TopN is inclusive, so loader/runtime containers can
-        legitimately account for 100% of samples.  Treating ``[libpython]`` or
-        the ``python`` executable as a business function turns a useful profile
-        into a false source-hotspot predicate.
-        """
-
-        value = name.casefold().strip()
-        if value.startswith("[") and value.endswith("]"):
-            return True
-        return bool(re.fullmatch(
-            r"(?:python(?:\d+(?:\.\d+)*)?|java|node|ruby|php|perl)",
-            value,
-        ))
-
-    def _has_source_location(row: dict) -> bool:
-        for location in row.get("locations", []):
-            if not isinstance(location, dict):
-                continue
-            try:
-                line = int(location.get("line") or 0)
-            except (TypeError, ValueError):
-                line = 0
-            if (
-                isinstance(location.get("file"), str)
-                and bool(location["file"].strip())
-                and line > 0
-            ):
-                return True
-        return False
-
-    def _is_go_standard_frame(name: str) -> bool:
-        value = name.casefold().strip()
-        prefixes = (
-            "runtime.", "internal/", "internal.", "crypto/", "crypto.",
-            "sync.", "syscall.", "net/", "net.", "os.", "time.", "bytes.",
-            "hash/", "hash.", "encoding/", "encoding.", "reflect.",
-            "vendor/", "golang.org/",
-        )
-        return value in {"main.main", "runtime.main"} or value.startswith(prefixes)
-
-    def _predicate(outcome: str, reason: str, indexes: list[int], **metrics):
-        return {
-            "outcome": outcome,
-            "version": "hypothesis-predicate-v2",
-            "reason": reason,
-            "criterion_indexes": indexes,
-            "metrics": metrics,
-        }
-
-    significant = [row for row in named if _percent(row) >= 20.0]
-    user_rows = [row for row in named if not _is_kernel(str(row["name"]))]
-    actionable_user_rows = [
-        row for row in user_rows
-        if not _is_runtime_container(str(row["name"]))
-        and _actionable_percent(row) > 0.0
-    ]
-    kernel_rows = [row for row in named if _is_kernel(str(row["name"]))]
-    lock_rows = [row for row in named if _is_lock(str(row["name"]))]
-    dominant_user = max(user_rows, key=_percent, default=None)
-    dominant_actionable_user = max(
-        actionable_user_rows,
-        key=_actionable_percent,
-        default=None,
-    )
-    dominant_kernel = max(kernel_rows, key=_percent, default=None)
-    dominant_user_pct = _percent(dominant_user) if dominant_user else 0.0
-    dominant_actionable_user_pct = (
-        _actionable_percent(dominant_actionable_user)
-        if dominant_actionable_user
-        else 0.0
-    )
-    dominant_kernel_pct = _percent(dominant_kernel) if dominant_kernel else 0.0
-
-    hypothesis_text = " ".join(
-        [statement, *(str(item).casefold() for item in expected if isinstance(item, str))]
-    )
-    user_hypothesis = any(token in hypothesis_text for token in (
-        "用户态", "业务代码", "热点函数", "python hotspot",
-        "hot function", "user-space", "userspace", "函数集中", "样本集中",
-    )) or (
-        "python" in hypothesis_text
-        and "函数" in hypothesis_text
-        and any(token in hypothesis_text for token in ("集中", "热点", "占比"))
-    )
-    # A pure GIL causal claim often mentions a single hotspot in its
-    # falsification wording and must be scored before the generic user-hotspot
-    # branch.  A planner may also emit a disjunctive candidate such as
-    # ``热点函数或 GIL 竞争``.  That sentence intentionally keeps both causes
-    # open, so real hotspot evidence must be allowed through the user-space
-    # predicate instead of being swallowed by the GIL-only branch.
-    gil_mentioned = "gil" in statement
-    hotspot_mentioned = any(token in statement for token in (
-        "热点函数", "函数热点", "hot function", "source hotspot",
-    ))
-    disjunction_pattern = r"(?:或(?:者)?|/|\bor\b)"
-    mixed_gil_hotspot_hypothesis = bool(
-        gil_mentioned
-        and hotspot_mentioned
-        and (
-            re.search(
-                rf"(?:热点函数|函数热点|hot\s+function|source\s+hotspot)"
-                rf".{{0,32}}{disjunction_pattern}.{{0,32}}gil",
-                statement,
-            )
-            or re.search(
-                rf"gil.{{0,32}}{disjunction_pattern}.{{0,32}}"
-                rf"(?:热点函数|函数热点|hot\s+function|source\s+hotspot)",
-                statement,
-            )
-        )
-    )
-    gil_hypothesis = gil_mentioned and not mixed_gil_hotspot_hypothesis
-    kernel_hypothesis = any(token in statement for token in (
-        "内核态", "系统调用", "中断", "kernel", "syscall",
-    ))
-    lock_hypothesis = any(token in statement for token in (
-        "锁竞争", "自旋", "lock contention", "spin",
-    ))
-    source_mapping_expected = any(
-        any(token in str(item).casefold() for token in (
-            "源码", "文件", "行号", "source file", "source line",
-        ))
-        for item in expected
-        if isinstance(item, str)
-    )
-    pyspy_profile = str(metadata.get("schema_version") or "").casefold().startswith(
-        "pyspy_analysis."
-    )
-    go_pprof_profile = str(metadata.get("schema_version") or "").casefold().startswith(
-        "go_pprof_analysis."
-    )
-    java_profile = str(metadata.get("schema_version") or "").casefold().startswith(
-        "java_async_profile."
-    )
-
-    # py-spy reports self samples at individual source lines.  Aggregate those
-    # rows by function above, then evaluate the hypothesis' actual "one or a
-    # few functions" criterion by cumulative concentration.  Requiring real
-    # file+line locations keeps this separate from perf's inclusive runtime
-    # containers and makes the emitted function names evidence-derived.
-    source_functions = sorted(
-        (
-            row for row in actionable_user_rows
-            if _has_source_location(row) and _percent(row) > 0
-        ),
-        # Percentages are rounded in analyzer metadata.  For an apparent tie,
-        # prefer the function observed across more executable source lines;
-        # this is a structural signal from the profile rather than a special
-        # case for any demo function name.
-        key=lambda row: (
-            round(_percent(row), 1),
-            len(row.get("locations", [])),
-        ),
-        reverse=True,
-    )
-    significant_source_functions = [
-        row for row in source_functions if _percent(row) >= 10.0
-    ]
-    concentrated_source_functions = significant_source_functions[:3]
-    concentrated_source_pct = min(
-        100.0,
-        sum(_percent(row) for row in concentrated_source_functions),
-    )
-
-    # Go pprof TopN is inclusive: every frame in one stack receives the same
-    # sample weight, so a hot application path can legitimately produce more
-    # than three high-percentage rows. Evaluate source-mapped application
-    # frames directly and stop here; the generic token matcher below must not
-    # mistake the word ``CPU`` for the ``goCPUHotFunction`` symbol.
-    if go_pprof_profile:
-        go_application_rows = [
-            row
-            for row in source_functions
-            if not _is_go_standard_frame(str(row["name"]))
-        ]
-        dominant_go = max(go_application_rows, key=_percent, default=None)
-        # Runtime words alone only describe the probe.  They do not prove a
-        # waiting, networking or goroutine-contention hypothesis.  Claim a
-        # CPU hotspot only when the candidate itself asks about a hotspot or
-        # concentrated/high CPU execution.
-        go_hotspot_hypothesis = any(
-            token in hypothesis_text
-            for token in ("热点", "hotspot", "hot function")
-        ) or (
-            "cpu" in hypothesis_text
-            and any(
-                token in hypothesis_text
-                for token in (
-                    "集中", "升高", "持续", "占用", "主导", "dominant",
-                    "concentrat", "high", "saturat",
-                )
-            )
-        )
-        if (
-            go_hotspot_hypothesis
-            and dominant_go is not None
-            and _percent(dominant_go) >= 20.0
-        ):
-            covered_indexes = [
-                index
-                for index, item in enumerate(expected)
-                if isinstance(item, str)
-                and any(
-                    token in item.casefold()
-                    for token in (
-                        "pprof", "go ", "函数", "热点", "样本", "路径",
-                        "function", "hot", "sample", "path",
-                    )
-                )
-            ]
-            return _predicate(
-                "SUPPORT",
-                f"Go pprof captured source-mapped application hotspot "
-                f"{dominant_go['name']} at {_percent(dominant_go):.1f}%",
-                covered_indexes or [0],
-                dominant_function=dominant_go["name"],
-                dominant_percent=_percent(dominant_go),
-                source_locations=dominant_go.get("locations", []),
-                profile_semantics="inclusive",
-            )
-        return _predicate(
-            "NEUTRAL",
-            "Go pprof contains samples but no source-mapped application hotspot supports this hypothesis",
-            [],
-            profile_semantics="inclusive",
-        )
-
-    if java_profile:
-        profile_event = str(metadata.get("profile_event") or "unknown").casefold()
-        java_rows = sorted(actionable_user_rows, key=_percent, reverse=True)
-        application_rows = [
-            row
-            for row in java_rows
-            if any(
-                token in str(row["name"]).casefold()
-                for token in ("hotspot", "allocate", "reentrantlock", "filechannel")
-            )
-        ]
-        dominant_java = application_rows[0] if application_rows else None
-        gc_hypothesis = any(
-            token in hypothesis_text
-            for token in ("gc", "垃圾回收", "堆", "分配", "allocation")
-        )
-        lock_java_hypothesis = any(
-            token in hypothesis_text
-            for token in ("锁竞争", "reentrantlock", "lock contention")
-        )
-        wait_java_hypothesis = any(
-            token in hypothesis_text
-            for token in ("下游", "等待", "响应", "latency")
-        )
-        supported_event = (
-            (profile_event == "alloc" and gc_hypothesis)
-            or (profile_event == "lock" and lock_java_hypothesis)
-            or (profile_event == "wall" and wait_java_hypothesis)
-            or (profile_event == "cpu" and user_hypothesis)
-        )
-        if supported_event and dominant_java is not None:
-            covered_indexes = [
-                index
-                for index, item in enumerate(expected)
-                if isinstance(item, str)
-                and any(
-                    token in item.casefold()
-                    for token in (
-                        "jvm", "gc", "堆", "分配", "热点", "锁", "等待",
-                        "profile", "allocation", "lock", "wall",
-                    )
-                )
-            ]
-            return _predicate(
-                "SUPPORT",
-                f"async-profiler {profile_event} profile captured Java path "
-                f"{dominant_java['name']} at {_percent(dominant_java):.1f}%",
-                covered_indexes or [0],
-                dominant_function=dominant_java["name"],
-                dominant_percent=_percent(dominant_java),
-                profile_event=profile_event,
-                profile_semantics="inclusive",
-            )
-        return _predicate(
-            "NEUTRAL",
-            "Java profile contains real frames but its event/path does not support this hypothesis",
-            [],
-            profile_event=profile_event,
-            profile_semantics="inclusive",
-        )
-
-    # Planner prose describes signal classes rather than concrete symbols.
-    # Turn the Analyzer's TopN distribution into an explicit, auditable
-    # predicate so high-quality data is not incorrectly left neutral.
-    if gil_hypothesis:
-        if (
-            dominant_actionable_user
-            and dominant_actionable_user_pct >= 60.0
-            and 1 <= len(significant) <= 3
-        ):
-            return _predicate(
-                "COUNTER",
-                f"single dominant hotspot {dominant_actionable_user['name']} at "
-                f"{dominant_actionable_user_pct:.1f}% contradicts a "
-                "GIL-contention explanation",
-                [0, 1],
-                dominant_function=dominant_actionable_user["name"],
-                dominant_percent=dominant_actionable_user_pct,
-                significant_hotspot_count=len(significant),
-            )
-        return _predicate(
-            "NEUTRAL",
-            "TopN function distribution alone does not establish GIL contention",
-            [],
-        )
-    if user_hypothesis:
-        if (
-            pyspy_profile
-            and 1 <= len(concentrated_source_functions) <= 3
-            and len(significant_source_functions) <= 3
-            and concentrated_source_pct >= 70.0
-        ):
-            covered_indexes = [
-                index
-                for index, item in enumerate(expected)
-                if isinstance(item, str)
-                and (
-                    (
-                        any(token in item.casefold() for token in (
-                            "集中", "少数", "热点", "concentrat", "hot",
-                        ))
-                        and any(token in item.casefold() for token in (
-                            "函数", "function", "样本", "sample",
-                        ))
-                    )
-                    or (
-                        _has_source_location(concentrated_source_functions[0])
-                        and any(token in item.casefold() for token in (
-                            "源码", "文件", "行号", "source file", "source line",
-                        ))
-                    )
-                )
-            ]
-            return _predicate(
-                "SUPPORT",
-                f"{len(concentrated_source_functions)} source-mapped Python "
-                f"function(s) account for {concentrated_source_pct:.1f}% of "
-                "py-spy self samples",
-                covered_indexes or [0],
-                dominant_function=concentrated_source_functions[0]["name"],
-                dominant_percent=_percent(concentrated_source_functions[0]),
-                concentrated_percent=concentrated_source_pct,
-                concentrated_functions=[
-                    {
-                        "name": row["name"],
-                        "percent": _percent(row),
-                        "locations": row.get("locations", []),
-                    }
-                    for row in concentrated_source_functions
-                ],
-                source_mapped=True,
-            )
-        # Native perf TopN percentages are inclusive: every frame in a hot
-        # stack can appear near 100%, so counting those rows as independent
-        # hotspots incorrectly rejects a single hot leaf. The Analyzer's call
-        # graph records self samples, which identify where CPU time actually
-        # lands without relying on demo-specific function names.
-        native_self_hotspots = [
-            row
-            for row in actionable_user_rows
-            if _safe_percent(row.get("self_percent")) >= 20.0
-        ]
-        dominant_native_self = max(
-            native_self_hotspots,
-            key=lambda row: _safe_percent(row.get("self_percent")),
-            default=None,
-        )
-        if (
-            perf_profile
-            and dominant_native_self is not None
-            and _safe_percent(dominant_native_self.get("self_percent")) >= 60.0
-            and not source_mapping_expected
-        ):
-            return _predicate(
-                "SUPPORT",
-                f"native perf self samples identify hotspot "
-                f"{dominant_native_self['name']} at "
-                f"{_safe_percent(dominant_native_self.get('self_percent')):.1f}%",
-                [0],
-                dominant_function=dominant_native_self["name"],
-                dominant_percent=_safe_percent(
-                    dominant_native_self.get("self_percent")
-                ),
-                self_samples=dominant_native_self.get("self_samples", 0),
-                profile_semantics="self",
-            )
-        significant_actionable = [
-            row for row in actionable_user_rows if _percent(row) >= 20.0
-        ]
-        if (
-            dominant_actionable_user
-            and dominant_actionable_user_pct >= 60.0
-            and 1 <= len(significant_actionable) <= 3
-            # With native self weights available, a 100% ancestor/process
-            # wrapper cannot replace a missing identifiable hot leaf.
-            and not (perf_profile and any("self_percent" in row for row in named))
-            and (
-                not source_mapping_expected
-                or _has_source_location(dominant_actionable_user)
-            )
-        ):
-            return _predicate(
-                "SUPPORT",
-                f"dominant user-space hotspot {dominant_actionable_user['name']} accounts for "
-                f"{dominant_actionable_user_pct:.1f}% with "
-                f"{len(significant_actionable)} significant hotspot(s)",
-                [0, 1],
-                dominant_function=dominant_actionable_user["name"],
-                dominant_percent=dominant_actionable_user_pct,
-                significant_hotspot_count=len(significant_actionable),
-            )
-        if dominant_kernel and dominant_kernel_pct >= 40.0 and dominant_user_pct < 40.0:
-            return _predicate(
-                "COUNTER",
-                f"kernel hotspot {dominant_kernel['name']} dominates at {dominant_kernel_pct:.1f}%",
-                [0],
-                dominant_function=dominant_kernel["name"],
-                dominant_percent=dominant_kernel_pct,
-            )
-
-    if kernel_hypothesis:
-        if dominant_kernel and dominant_kernel_pct >= 40.0:
-            return _predicate(
-                "SUPPORT",
-                f"kernel/syscall hotspot {dominant_kernel['name']} accounts for {dominant_kernel_pct:.1f}%",
-                [0],
-                dominant_function=dominant_kernel["name"],
-                dominant_percent=dominant_kernel_pct,
-            )
-        # A DSO/process placeholder is not an attributable function. Treating
-        # [libpython...] as counterproof sends the next round back to the same
-        # unresolved runtime container instead of gathering independent data.
-        counter_hotspot = dominant_actionable_user
-        counter_percent = dominant_actionable_user_pct
-        if perf_profile and any("self_percent" in row for row in named):
-            counter_hotspot = max(actionable_user_rows, key=lambda row: _safe_percent(row.get("self_percent")), default=None)
-            counter_percent = _safe_percent(counter_hotspot.get("self_percent")) if counter_hotspot else 0.0
-        if (counter_hotspot and counter_percent >= 60.0
-                and dominant_kernel_pct < 20.0):
-            return _predicate(
-                "COUNTER",
-                f"user-space hotspot {counter_hotspot['name']} dominates while no kernel hotspot reaches 20%",
-                [0],
-                dominant_function=counter_hotspot["name"],
-                dominant_percent=counter_percent,
-            )
-
-    if lock_hypothesis:
-        dominant_lock = max(lock_rows, key=_percent, default=None)
-        if dominant_lock and _percent(dominant_lock) >= 5.0:
-            return _predicate(
-                "SUPPORT",
-                f"lock-related hotspot {dominant_lock['name']} accounts for {_percent(dominant_lock):.1f}%",
-                [0],
-                dominant_function=dominant_lock["name"],
-                dominant_percent=_percent(dominant_lock),
-            )
-        if (
-            dominant_actionable_user
-            and dominant_actionable_user_pct >= 60.0
-            and not lock_rows
-        ):
-            return _predicate(
-                "COUNTER",
-                "a strong non-lock user-space hotspot exists and no lock-related symbol was sampled",
-                [0],
-                dominant_function=dominant_actionable_user["name"],
-                dominant_percent=dominant_actionable_user_pct,
-            )
-
-    def _matches(text_entries, name):
-        lowered = name.casefold()
-        for entry in text_entries:
-            if not isinstance(entry, str):
-                continue
-            tokens = re.findall(r"[a-zA-Z_][a-zA-Z0-9_.]*", entry.casefold())
-            for token in tokens:
-                if len(token) < 3:
-                    continue
-                if token in lowered or lowered in token:
-                    return True
-        return False
-
-    for row in named:
-        name = str(row["name"])
-        if _is_runtime_container(name) or (
-            perf_profile and "self_percent" in row and _actionable_percent(row) <= 0.0
-        ):
-            continue
-        if _matches(expected, name):
-            return {
-                "outcome": "SUPPORT",
-                "version": "hypothesis-predicate-v2",
-                "reason": f"top function {name} matches an expected observation",
-                "criterion_indexes": [0],
-            }
-        if _matches(falsification, name):
-            return {
-                "outcome": "COUNTER",
-                "version": "hypothesis-predicate-v2",
-                "reason": f"top function {name} matches a falsification criterion",
-                "criterion_indexes": [0],
-            }
-    return None
-
-
-def _derive_imported_evidence_role(
-    hypothesis: DropInsightHypothesisModel,
-    artifact: ArtifactModel,
-    assessment,
-    predicate: dict | None = None,
-) -> str:
-    """Derive polarity from analyzer-produced predicates, never request data.
-
-    Analyzer outputs may expose a normalized ``hypothesis_predicate``.  For
-    perf TopN output we also accept the analyzer-produced top-functions list
-    and compare it with the hypothesis text.  Other artifacts remain NEUTRAL
-    instead of being optimistically labelled SUPPORT.
-    """
-
-    if not (assessment.schema_valid and assessment.analyzer_validated):
-        return "NEUTRAL"
-    metadata = artifact.meta_json or {}
-    if predicate is None:
-        predicate = metadata.get("hypothesis_predicate")
-    if isinstance(predicate, dict):
-        outcome = str(predicate.get("outcome") or "").upper()
-        if outcome in {"SUPPORT", "COUNTER", "CONTROL", "NEUTRAL"}:
-            return outcome
-
-    top_functions = metadata.get("top_functions")
-    if isinstance(top_functions, list):
-        statement = hypothesis.statement.casefold()
-        valid_rows = [row for row in top_functions if isinstance(row, dict)]
-        named = [
-            row for row in valid_rows
-            if isinstance(row.get("name"), str) and row["name"].strip()
-        ]
-        if any(row["name"].casefold() in statement for row in named):
-            return "SUPPORT"
-        if named and max(_safe_percent(row.get("percent")) for row in named) >= 30:
-            # A strong hotspot exists, but it does not substantiate this
-            # particular hypothesis.  It is useful context, not counterproof.
-            return "NEUTRAL"
-    return "NEUTRAL"
-
-
-def _safe_percent(value) -> float:
-    try:
-        return max(0.0, min(100.0, float(value or 0)))
-    except (TypeError, ValueError):
-        return 0.0
-
-
-def _parse_datetime(value):
-    if value is None or not isinstance(value, str):
-        return value
-    try:
-        from datetime import datetime
-
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-
-
-def _time_ranges_overlap(start, end, requested: dict) -> bool:
-    requested_start = requested.get("start")
-    requested_end = requested.get("end")
-    if not requested_start or not requested_end:
-        return True
-    try:
-        from datetime import datetime, timezone
-
-        if isinstance(requested_start, str):
-            requested_start = datetime.fromisoformat(requested_start.replace("Z", "+00:00"))
-        if isinstance(requested_end, str):
-            requested_end = datetime.fromisoformat(requested_end.replace("Z", "+00:00"))
-        start = _as_utc_with_timezone(start, timezone)
-        end = _as_utc_with_timezone(end, timezone)
-        requested_start = _as_utc_with_timezone(requested_start, timezone)
-        requested_end = _as_utc_with_timezone(requested_end, timezone)
-        return start < requested_end and end > requested_start
-    except (TypeError, ValueError):
-        return False
-
-
-def _as_utc_with_timezone(value, timezone):
-    if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
-
-
-# ── 修复前后 VERIFIED 验证闭环（guide #4.6）──────────────────
-
-FIX_VERIFY_RELATIVE_THRESHOLD = 0.3
-
-
-def compare_before_after(
-    before_top: list[dict] | None,
-    after_top: list[dict] | None,
-    *,
-    threshold: float = FIX_VERIFY_RELATIVE_THRESHOLD,
-) -> dict:
-    """Compare the dominant hotspot between a before and after profile task.
-
-    A fix is VERIFIED when the before-task hotspot function has disappeared
-    from the after top list or its percent dropped by at least ``threshold``
-    (relative). Pure and deterministic so it can be unit-tested.
-    """
-    def _hotspots(rows):
-        return sorted(
-            [row for row in (rows or []) if isinstance(row, dict)],
-            key=lambda row: float(row.get("percent") or 0),
-            reverse=True,
-        )
-
-    before = _hotspots(before_top)
-    after = _hotspots(after_top)
-    if not before:
-        return {
-            "outcome": "REJECTED",
-            "reason": "修复前任务没有有效 TopN 热点数据，无法建立对比基线",
-        }
-    if not after:
-        return {
-            "outcome": "REJECTED",
-            "reason": "修复后任务没有有效 TopN 热点数据，不能把数据缺失当作热点消失",
-        }
-    hotspot = before[0]
-    name = str(hotspot.get("name") or "")
-    before_pct = float(hotspot.get("percent") or 0)
-    after_names = {row.get("name") for row in after if row.get("name")}
-    after_same = next((row for row in after if row.get("name") == name), None)
-    after_pct = float(after_same.get("percent") or 0) if after_same else 0.0
-
-    if name and name not in after_names:
-        outcome, reason = "VERIFIED", f"修复后热点 {name} 已从 TopN 消失"
-    elif after_pct <= before_pct * (1 - threshold):
-        outcome, reason = (
-            "VERIFIED",
-            f"热点 {name} 占比由 {before_pct:.1f}% 降至 {after_pct:.1f}%",
-        )
-    else:
-        outcome, reason = (
-            "REJECTED",
-            f"热点 {name} 占比未显著下降（{before_pct:.1f}% -> {after_pct:.1f}%）",
-        )
-    return {
-        "outcome": outcome,
-        "reason": reason,
-        "before_hotspot": hotspot,
-        "after_hotspot": after_same,
-        "before_percent": before_pct,
-        "after_percent": after_pct,
-    }
-
-
-def _task_top_functions(task_id: str) -> list[dict]:
-    session = new_session()
-    try:
-        artifacts = (
-            session.query(ArtifactModel)
-            .filter(
-                ArtifactModel.task_id == task_id,
-                ArtifactModel.artifact_type == "top_json",
-            )
-            .all()
-        )
-        for artifact in artifacts:
-            top = (artifact.meta_json or {}).get("top_functions")
-            if isinstance(top, list):
-                return top
-        return []
-    finally:
-        session.close()
-
-
-def verify_diagnosis_fix(
-    diagnosis_id: str,
-    *,
-    before_task_id: str,
-    after_task_id: str,
-    fix_summary: str | None = None,
-    created_by: str | None = None,
-) -> dict | None:
-    """Apply-fix -> same-load re-test -> before/after comparison."""
-    before_top = _task_top_functions(before_task_id)
-    after_top = _task_top_functions(after_task_id)
-    comparison = compare_before_after(before_top, after_top)
-    session = new_session()
-    try:
-        model = FixVerificationModel(
-            id=f"fix_{uuid4().hex}",
-            diagnosis_id=diagnosis_id,
-            fix_summary=fix_summary,
-            before_task_id=before_task_id,
-            after_task_id=after_task_id,
-            outcome=comparison["outcome"],
-            before_hotspot_json=comparison.get("before_hotspot"),
-            after_hotspot_json=comparison.get("after_hotspot"),
-            comparison_json=comparison,
-            created_by=created_by,
-            created_at=now_utc(),
-        )
-        session.add(model)
-        session.commit()
-        session.refresh(model)
-        return _fix_view(model)
-    finally:
-        session.close()
-
-
-def list_fix_verifications(
-    diagnosis_id: str, *, limit: int = 50
-) -> list[dict]:
-    session = new_session()
-    try:
-        rows = (
-            session.query(FixVerificationModel)
-            .filter(FixVerificationModel.diagnosis_id == diagnosis_id)
-            .order_by(FixVerificationModel.created_at.desc())
-            .limit(max(1, int(limit)))
-            .all()
-        )
-        return [_fix_view(row) for row in rows]
-    finally:
-        session.close()
-
-
-def _fix_view(model) -> dict:
-    return {
-        "id": model.id,
-        "diagnosis_id": model.diagnosis_id,
-        "fix_summary": model.fix_summary,
-        "before_task_id": model.before_task_id,
-        "after_task_id": model.after_task_id,
-        "outcome": model.outcome,
-        "comparison": model.comparison_json or {},
-        "created_at": model.created_at,
-    }
 
 
 def clarify_diagnosis(

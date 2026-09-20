@@ -1,6 +1,6 @@
 """Deterministic, local retrieval for Mini-Drop diagnosis knowledge.
 
-This module deliberately has no vector database or model dependency.  The
+The default lexical path has no vector database or model dependency. The
 repository-owned ``knowledge/catalog.json`` and its Markdown documents are the
 only sources.  Retrieved text is a planning prior: it may suggest what to
 measure, but it is never admitted as incident Evidence.
@@ -11,13 +11,14 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
 
 
-RETRIEVER_VERSION = "knowledge-hybrid-lexical-v1"
+RETRIEVER_VERSION = "knowledge-hybrid-v3-three-route"
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 _DEFAULT_KNOWLEDGE_ROOT = _REPOSITORY_ROOT / "knowledge"
 _ENGLISH_TOKEN = re.compile(r"[a-z0-9][a-z0-9.+]*", re.IGNORECASE)
@@ -253,13 +254,15 @@ def retrieve_knowledge(
     candidates: list[dict[str, Any]] = []
     corpus: list[list[str]] = []
     for item in _catalog_entries(root):
+        if item.get("visibility", "PUBLIC") != "PUBLIC" or any(item.get(k) for k in ("tenant_id", "acl", "principal_id")):
+            continue
         knowledge_id = str(item.get("knowledge_id") or "").strip()
         title = str(item.get("title") or "").strip()
         document = str(item.get("document") or "").strip()
         if not knowledge_id or not title or not document:
             continue
         source_path = _safe_document_path(root, document)
-        if source_path is None:
+        if source_path is None or source_path.stat().st_size > 128 * 1024:
             continue
         try:
             raw_bytes = source_path.read_bytes()
@@ -320,6 +323,7 @@ def retrieve_knowledge(
             "title": candidate["title"],
             "document": candidate["document"],
             "content_hash": candidate["content_hash"],
+            "chunk_id": hashlib.sha256(f"{candidate['knowledge_id']}:{candidate['content_hash']}:{candidate['chunk_index']}:0".encode()).hexdigest(),
             "score": round(score, 6),
             "matched_terms": matched_terms,
             "required_evidence": _as_string_list(item.get("required_evidence")),
@@ -345,12 +349,22 @@ def build_retrieval_trace(
     """Build the auditable planner trace and state the Evidence boundary."""
 
     query = str(query or "").strip()
+    details = {"actual_backend": "BM25", "requested_backend": "BM25", "degraded_reasons": []}
     matches = retrieve_knowledge(
         query,
         top_k=top_k,
         knowledge_root=knowledge_root,
     )
+    if os.getenv("MINI_DROP_RETRIEVAL_MODE", "lexical").lower() == "hybrid":
+        from .semantic_retrieval import search
+        try:
+            details = search(query, Path(knowledge_root) if knowledge_root else _DEFAULT_KNOWLEDGE_ROOT, top_k)
+            matches = details.pop("matches")
+        except Exception:
+            details = {"actual_backend": "BM25", "requested_backend": "HYBRID",
+                       "degraded_reasons": ["HYBRID_UNAVAILABLE"]}
     return {
+        **details,
         "query": query,
         "query_hash": hashlib.sha256(query.encode("utf-8")).hexdigest(),
         "retriever": RETRIEVER_VERSION,

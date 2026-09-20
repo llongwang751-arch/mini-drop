@@ -265,7 +265,9 @@ def test_predicate_supports_generic_user_space_hotspot_hypothesis():
     )
     assert result is not None
     assert result["outcome"] == "SUPPORT"
-    assert result["criterion_indexes"] == [0, 1]
+    # 覆盖槽位由判据文本与证据域的匹配决定：三条 expected 都提到
+    # user/hot/函数域，全部被真实证据覆盖，而不是硬编码槽位。
+    assert result["criterion_indexes"] == [0, 1, 2]
     assert result["metrics"]["dominant_function"] == "go-hotspot"
 
 

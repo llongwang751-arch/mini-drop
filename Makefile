@@ -25,7 +25,8 @@ coverage:
 lint:
 	$(PYTHON) -m compileall -q server analyzer scripts
 	@echo "[lint] compileall passed"
-	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff check server analyzer scripts || echo "[lint] ruff not installed, skipping"
+	@$(PYTHON) -m ruff --version >/dev/null 2>&1 || { echo "[lint] ruff missing: pip install -e \".[dev]\""; exit 1; }
+	$(PYTHON) -m ruff check server analyzer scripts tests
 
 fmt:
 	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff format server analyzer scripts tests || echo "[fmt] ruff not installed, skipping"

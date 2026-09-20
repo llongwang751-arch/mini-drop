@@ -25,6 +25,8 @@ AGENT_ID = "agent-min-round-progression"
 @pytest.fixture(autouse=True)
 def isolated_database(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+    # These tests exercise fresh round progression, not stale-session expiry.
+    monkeypatch.setattr(__name__ + ".NOW", datetime.now(timezone.utc))
     reset_engine()
     init_db()
     yield
