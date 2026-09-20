@@ -173,6 +173,10 @@ services:
       MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE: ${MINI_DROP_GRPC_CLIENT_CERT_FILE:-/certs/client.crt}
       MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE: ${MINI_DROP_GRPC_CLIENT_KEY_FILE:-/certs/client.key}
       DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
+      # 注意：默认关闭 API 鉴权只为本地开发方便。任何可公网访问的部署
+      # 必须显式设置 MINI_DROP_API_AUTH_ENABLED=1 并配置 API Key 与
+      # principals；control compose（docker-compose.control.yml）通过
+      # control.env 注入生产值。
       MINI_DROP_API_AUTH_ENABLED: ${MINI_DROP_API_AUTH_ENABLED:-0}
       MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
       MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}

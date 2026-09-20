@@ -45,6 +45,8 @@ jobs:
           python scripts/check_openapi_routes.py
       - name: Lint (compileall)
         run: python -m compileall -q server analyzer
+      - name: Lint (ruff)
+        run: python -m ruff check server analyzer scripts tests
 
   business:
     name: Business HTTP acceptance and test-plan traceability
@@ -92,6 +94,31 @@ jobs:
         run: go vet ./...
       - name: Test
         run: go test ./...
+      # 先以 report-only 模式引入 golangci-lint：在日志中暴露问题但不阻断；
+      # 清理存量告警后再改为 --issues-exit-code=1 的硬门禁。
+      - name: Lint (golangci-lint, report-only)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: apiserver
+          args: --issues-exit-code=0
+
+  supply-chain:
+    name: Supply chain (trivy report)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      - name: Trivy filesystem scan (report-only)
+        run: |
+          trivy fs --scanners vuln,secret,misconfig --exit-code 0 \
+            --format json --output output/trivy-fs.json .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-fs-${{ github.sha }}
+          path: output/trivy-fs.json
 
   web:
     name: Web (React)
