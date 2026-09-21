@@ -7,7 +7,7 @@
 3. **前端**：fallback 树不再编造转向理由（推断事件显式标注）、缺失值不再画 0；`TOOL_LABELS`/终态集合/报告择优统一单一来源；control SSE 收敛为 `SSEProvider` 单连接（AppLayout 裸 EventSource 删除，Dashboard 走订阅，`useSSE` 增加向后兼容的 `enabled` 门控）。`virtual_loss` 经核实是文档化的保留评分组件（恒 0），不是死代码，未删除。
 4. **C++**：Agent worker 线程异常安全（try/catch → INTERNAL_ERROR TaskResult）、Control gRPC token 常量时间比对；在本机 Docker 按构建流程实测，agent 5/5 CTest 通过。
 5. **云端发布 `20260920T185032Z`**：替换 diagnosis-worker / analyzer / web 三服务，native 与 Go API 未动。由于 v5 起容器改由 `private/runtime.compose.json` 管理，`release_sre_cloud.py prepare` 的标签发现在第二代发布不适用——本次以 v5 的 runtime.compose 为基底生成回滚配置（回滚镜像 `mini-drop-sre-rollback:*-20260920T185032Z` 已标记，`previous_release=20260919T141800Z`），wheels 复用 `20260919T123800Z`，`deploy/env` 从 `/opt/mini-drop/deploy/env` 补入发布目录。构建后三服务 healthy，`/api/healthz` 三依赖 healthy。上一版本文档记录的 20260914T073540Z 早已被 09-19 的 v5（20260919T141800Z）取代，属文档滞后，随本节一并更正。
-6. **严格验收复测进行中**：入口 `output/acceptance/gate-tightening-20260920/run_strict_21.py`，输出 `reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`；新门禁下 21 场景的成绩以该报告为准，完成后更新 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md) 与验证中心投影。
+6. **严格验收复测已完成**：新门禁（无捏造覆盖槽位）下 21 场景结果为 **1 通过（java-gc-pressure）/ 20 未通过**，报告 `reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`，入口 `output/acceptance/gate-tightening-20260920/run_strict_21.py`。通过集合与旧门禁相同，但这次是收紧后口径：java-gc-pressure 的通过证明其判据-证据匹配是真实的；20 个失败项全部卡在 `root_gate_verified`（无 VERIFIED 报告），清理与链路合同 21/21 无失败。这是当前唯一可对外引用的严格成绩；提高通过率的下一步是独立对照采集可达性与服务端最小判据模板。详见 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md)。
 
 ## 2026-09-19 规划预算与证据缺口增量（最新）
 

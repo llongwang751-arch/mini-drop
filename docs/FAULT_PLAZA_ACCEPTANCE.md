@@ -77,4 +77,9 @@
 - 发布 `20260920T185032Z`（替换 diagnosis-worker / analyzer / web；native 与 Go API 未动）激活并三服务 healthy 后启动复测。
 - 运行入口：`output/acceptance/gate-tightening-20260920/run_strict_21.py`（沿用 r2 模式：认证 client 与只读实验室快照均凭据在内存读取）。
 - 输出：`reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`（RUNNING 期间增量写盘并附 sha256，不覆盖任何历史 campaign）。
-- 结果与解读在本报告完成前留空；完成后本节更新最终 passed/failed 与逐场景说明。
+
+**最终结果：21 项执行，1 项通过（java-gc-pressure），20 项未通过。** 与 2026-09-10 旧门禁的通过集合相同，但口径不同：
+
+- 20 个未通过项全部卡在 `root_gate_verified`（收紧后的门禁下没有产生 VERIFIED 报告）；注入观察、清理与链路合同本身没有失败项，`cleanup_verified` 21/21。
+- **java-gc-pressure 在取消捏造覆盖槽位后仍然通过**：其 `root_gate_verified` 依赖的是判据文本与 JVM 计数器证据的真实匹配，不是旧的 CONTROL 捷径。这是当前唯一在新门禁下成立的严格通过记录。
+- 本轮成绩即当前可引用的严格口径：`1/21`，通过数不是根因准确率，也不代表修复闭环（`fix_verified` 全部为 false）。下一步提高通过率的方向仍是：独立对照采集的可达性（20 个失败项的共同缺口）与服务端最小判据模板。
