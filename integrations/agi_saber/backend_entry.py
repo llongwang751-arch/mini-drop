@@ -5,6 +5,8 @@ repository; this entry only lets Uvicorn bind a private interface under systemd.
 """
 from main import build_deps
 
+from application_metrics import ApplicationMetricsMiddleware
+
 dependencies = build_deps()
-app = dependencies.app
-app.add_event_handler("shutdown", dependencies.inf.close)
+dependencies.app.add_event_handler("shutdown", dependencies.inf.close)
+app = ApplicationMetricsMiddleware(dependencies.app)

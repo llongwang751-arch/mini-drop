@@ -1,5 +1,9 @@
 # 真实后台服务接入
 
+## 2026-09-22 办公助手业务指标
+
+办公助手入口已加入依赖无关的 ASGI 聚合中间件，并发布到 `/opt/agi-office/releases/20260922T094352Z`。它只输出与当前进程 PID 绑定的请求数、5xx 数、处理中请求、累计耗时和最近 256 次请求的平均/P95，不保存 URL、正文、响应内容或凭据。systemd 的 `PrivateTmp=true` 保持不变；Native Agent 通过 `/proc/<pid>/root/tmp/mini-drop-app-metrics.json` 读取该进程自己的快照。Analyzer 执行 PID 身份核对与字段白名单，再把窗口前后差值写入 Evidence。该路径属于受限业务指标接入，不等于完整 OTel Trace；函数阶段、SQL span 与跨服务拓扑仍未接入。
+
 ## 2026-09-14 已运行的四个轻量业务
 
 四个业务的原网页、账号、数据库和文件独立保留。Mini-Drop 新增服务请求关联和采集保护，使用现有两台 Worker，不增加服务器。

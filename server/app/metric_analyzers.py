@@ -85,6 +85,12 @@ _APPLICATION_METRIC_FIELDS = {
     "downstream_failures",
     "downstream_average_latency_ms",
     "downstream_mean_latency_ms",
+    "http_requests",
+    "http_failures",
+    "http_duration_ms",
+    "http_inflight_requests",
+    "http_recent_average_latency_ms",
+    "http_recent_p95_latency_ms",
 }
 
 
@@ -544,6 +550,34 @@ def _derive_signals(
             average_latency_ms=downstream_latency,
             request_count_delta=downstream_requests,
             failure_count_delta=_metric(application, "delta", "downstream_failures"),
+        )
+
+    http_requests = _metric(application, "delta", "http_requests")
+    http_failures = _metric(application, "delta", "http_failures")
+    http_duration = _metric(application, "delta", "http_duration_ms")
+    http_average = (
+        http_duration / http_requests
+        if http_duration is not None and http_requests and http_requests > 0
+        else None
+    )
+    http_p95 = _metric(application, "max", "http_recent_p95_latency_ms")
+    http_failure_rate = (
+        http_failures / http_requests
+        if http_failures is not None and http_requests and http_requests > 0
+        else None
+    )
+    if (http_requests or 0) > 0 and (
+        (http_average or 0) >= 500.0
+        or (http_p95 or 0) >= 1000.0
+        or (http_failure_rate or 0) >= 0.05
+    ):
+        signals["http_service_degradation"] = _signal(
+            "instrumented HTTP requests observed elevated latency or server errors",
+            request_count_delta=http_requests,
+            failure_count_delta=http_failures,
+            failure_rate=http_failure_rate,
+            average_latency_ms=http_average,
+            recent_p95_latency_ms=http_p95,
         )
 
     lock_wait_delta = _metric(application, "delta", "lock_wait_ms")

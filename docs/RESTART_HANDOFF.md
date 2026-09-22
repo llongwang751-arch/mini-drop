@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-22 可观测摘要与业务指标发布（最新）
+
+当前平台 `/opt/mini-drop-current` 指向 `20260922T100300Z`，Web 为该标签镜像，Diagnosis Worker、Analyzer、Chroma 沿用 `20260922T094352Z` Python 镜像；四项均 healthy，公网健康三依赖 healthy。办公助手 `/opt/agi-office/current` 指向 `20260922T094352Z`，PID 会随重启变化，不得写死；ASGI 指标快照已由真实 Agent 采进 `application_metrics_analysis.v1` Evidence。正常窗口会显示进程 CPU/RSS/线程/FD，业务请求指标收在展开区；0 表示已接入但窗口无请求，“未采集”表示没有测量。回滚平台使用本版 `private/rollback.compose.json`，办公助手把 current 原子指回 `20260913T092221Z` 后重启；不要删除卷、历史 Evidence 或旧发布。发布细节见 [记录](../reports/architecture/observability-release-20260922.md)。
+
 ## 2026-09-19 规划预算增量（最新）
 
 当前云端 `20260919T141800Z`，仅 Worker 增量：范围 25 秒、规划单轮 60 秒、每请求最多 45 秒、摘要 10 秒；采集准入和审批后执行保留 30 秒分析/报告余量，总 300 秒不变。Verifier 明示未覆盖条件索引及独立对照缺口，循证门槛不降低。本地 156 passed、2 skipped，真实检索门禁通过。首轮 141100Z 的三个采集成功但模型全部超时，因此不能称 Agent 验收通过；修订结果和原始记录见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。旧发布、索引、卷与故障实验记录均保留；不要用清理换空间。

@@ -29,6 +29,7 @@ import {
 import ChatThread from "../components/ChatThread";
 import AgentCockpit from "../components/AgentCockpit";
 import DiagnosisFinding from "../components/DiagnosisFinding";
+import ObservabilityOverview from "../components/ObservabilityOverview";
 import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
@@ -896,7 +897,10 @@ export default function AIDiagnosis() {
               )}
 
               {detail && !frozenReplay && contentView !== "tree" && (
-                <DiagnosisFinding reports={resources.reports} status={detail.status} />
+                <>
+                  <DiagnosisFinding reports={resources.reports} status={detail.status} />
+                  <ObservabilityOverview detail={detail} resources={resources} />
+                </>
               )}
               {detail && (
                 <div className="diagnosis-cockpit-slot">

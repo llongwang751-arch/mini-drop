@@ -1,6 +1,14 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-09-20 证据门禁收紧、基准去自证循环与云端发布（最新）
+## 2026-09-22 诊断可观测摘要与业务指标（已发布）
+
+AI 诊断工作台新增低密度的“目标进程与性能观测”摘要。默认只显示本次窗口判断、服务/进程/PID 以及进程 CPU、RSS、线程、文件描述符；主机指标、探针参数、Evidence 准入、应用埋点状态和故障注入方式收在按需展开区。数字只从当前 Diagnosis 已持久化的 `sys_metrics` Evidence 和 Tool Call 投影，缺失保持“未采集”，不补零、不合成演示数据。
+
+完成会话若已经采到系统指标、但没有通过门禁的支持证据，页面显示“本次观测窗口未确认故障”。这是一种有边界的观测结果，不是 VERIFIED 根因，也不代表服务永久健康；没有系统指标基线时仍明确显示无法判断。系统级观测通过 Agent、`/proc`、perf 和运行时 profiler，无需修改业务代码；接口阶段、SQL、下游依赖和业务延迟仍需 OTel 或经审核的应用指标接入，缺失时页面明确标注。故障广场继续通过服务端白名单固定接口启停并自动撤销，不执行用户输入的任意命令。
+
+云端当前发布为 `/opt/mini-drop-releases/20260922T100300Z`：Python Worker/Analyzer 沿用本批 `20260922T094352Z` 镜像，Web 使用修正后 `20260922T100300Z` 镜像；四项服务健康且公网 `/api/healthz` 三依赖 healthy，上一平台发布和私有回滚配置保留。办公助手单独滚动到 `/opt/agi-office/releases/20260922T094352Z`：进程内 ASGI 埋点只累计 HTTP 请求、5xx、处理中请求和耗时，不记录 URL、正文或凭据；快照由 Agent 经目标 `/proc/<pid>/root/tmp` 读取并校验 PID。真实正常窗口 `insight_cf586d3ed6a742deb6bcc9756c4c8a2f` 已形成带 `application_metrics_analysis.v1` 的系统指标 Evidence，目标 PID 3137797，身份校验通过。业务指标存在不降低根因门禁，窗口无业务请求时增量为 0 是有效观测，不代表永久健康。发布记录见 [可观测摘要发布](../reports/architecture/observability-release-20260922.md)。
+
+## 2026-09-20 证据门禁收紧、基准去自证循环与云端发布
 
 1. **门禁收紧（本轮最高杠杆改动）**：假设谓词移除全部 12 处捏造覆盖槽位（`covered or [0]`、`[0] if falsification else []`、GIL/用户态分支硬编码 `[0, 1]` 等），`claim_verifier` 在谓词未映射槽位时不再默认补槽位 0；`VERIFIED` 的覆盖率只能由判据文本与证据域的真实匹配（`_criterion_text_indexes`）累积。`service.py` 拆出 `event_store` / `hypothesis_predicate` / `report_conclusion` / `fix_verification` 四个叶子模块（9930 → 8485 行，命名空间 re-export 兼容全部既有测试与补丁点）。
 2. **基准去自证循环**：观测语料改为逐用例确定性抖动的采集器度量形态（不再逐字复制 `expected_signals`），评分画像只用场景标题与家族；双格式导出公开输入与私有答案分离（`dataset_ground_truth.json`）。重跑后数字不变（41.20% → 68.40%，p=2.30e-41）——证明提升一直由"决定性采集器 2 步内到达率"驱动而非文本自查；新增测试锁定观测不得泄漏 Oracle 信号。95.2% 虚构对比正文已按用户决定从 FAULT_PLAZA_21_BENCHMARK_REPORT 删除。

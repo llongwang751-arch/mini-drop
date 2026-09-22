@@ -122,6 +122,37 @@ def test_sys_metrics_v2_derives_measured_signals_without_oracle_fields(
     assert "scenario_id" not in encoded_application
 
 
+def test_http_business_metrics_are_identity_checked_and_derive_degradation():
+    before = {
+        "schema_version": "mini-drop.application-metrics.v1",
+        "host_pid": 321,
+        "http_requests": 10,
+        "http_failures": 0,
+        "http_duration_ms": 1_000,
+        "http_inflight_requests": 0,
+        "http_recent_p95_latency_ms": 100,
+    }
+    after = {
+        **before,
+        "http_requests": 20,
+        "http_failures": 2,
+        "http_duration_ms": 8_000,
+        "http_recent_p95_latency_ms": 1_200,
+    }
+
+    application, signals = summarize_application_metric_window(before, after)
+
+    assert application["delta"]["http_requests"] == 10
+    assert application["delta"]["http_failures"] == 2
+    assert signals["http_service_degradation"]["metrics"] == {
+        "request_count_delta": 10.0,
+        "failure_count_delta": 2.0,
+        "failure_rate": 0.2,
+        "average_latency_ms": 700.0,
+        "recent_p95_latency_ms": 1200.0,
+    }
+
+
 def test_sys_metrics_v2_rejects_pid_reuse(tmp_path, monkeypatch):
     monkeypatch.setenv("MINI_DROP_ARTIFACT_ROOT", str(tmp_path))
     document = {

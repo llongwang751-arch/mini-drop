@@ -51,8 +51,9 @@ def prepare():
     old = inspect('diagnosis-worker')
     labels = old['Config']['Labels']
     args = ['docker', 'compose', '-p', 'mini-drop-control']
-    for f in labels['com.docker.compose.project.environment_file'].split(','):
-        args += ['--env-file', f]
+    for f in (labels.get('com.docker.compose.project.environment_file') or '').split(','):
+        if f:
+            args += ['--env-file', f]
     for f in labels['com.docker.compose.project.config_files'].split(','):
         args += ['-f', f]
     base = json.loads(subprocess.check_output(args + ['config', '--format', 'json']))
