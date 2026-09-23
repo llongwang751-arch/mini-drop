@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TERMINAL_DIAGNOSIS_STATUSES } from "../utils/diagnosisDisplay";
+import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
 import {
   Alert,
   Button,
@@ -483,7 +484,7 @@ export default function AIDiagnosis() {
 
   function archiveCase(item) {
     Modal.confirm({
-      title: `归档诊断「${item.query || item.case_id}」？`,
+      title: `归档诊断「${diagnosisDisplayQuery(item.query, item.case_id)}」？`,
       content: "归档后会从当前列表隐藏，但证据与审计记录继续保留。",
       okText: "归档",
       cancelText: "取消",
@@ -794,7 +795,7 @@ export default function AIDiagnosis() {
                 />
               </Space>
               <Text type="secondary">{workspaceView === "services" ? "业务后台" : workspaceView === "evaluation" ? "验证中心" : "当前诊断"}</Text>
-              <Title level={4}>{workspaceView === "services" ? "选择实际后台服务进行诊断" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : (detail?.query || selectedCase?.query || "开始一次新诊断")}</Title>
+              <Title level={4}>{workspaceView === "services" ? "选择实际后台服务进行诊断" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : diagnosisDisplayQuery(detail?.query || selectedCase?.query, "开始一次新诊断")}</Title>
             </div>
             {workspaceView === "workspace" && (
               <Space wrap>
@@ -898,8 +899,8 @@ export default function AIDiagnosis() {
 
               {detail && !frozenReplay && contentView !== "tree" && (
                 <>
-                  <DiagnosisFinding reports={resources.reports} status={detail.status} />
                   <ObservabilityOverview detail={detail} resources={resources} />
+                  <DiagnosisFinding reports={resources.reports} status={detail.status} />
                 </>
               )}
               {detail && (

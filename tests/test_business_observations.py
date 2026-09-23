@@ -69,3 +69,45 @@ def test_missing_and_not_configured_are_distinct(source,monkeypatch):
     assert observations.recent_observations(source[1])['status']=='NO_DATA'
     monkeypatch.delenv('MINI_DROP_BUSINESS_LOG_ROOT')
     assert observations.recent_observations(source[1])['status']=='NOT_CONFIGURED'
+
+
+def test_office_snapshot_keeps_request_stages_separate_from_process_evidence(tmp_path):
+    path = tmp_path / 'office.json'
+    now = datetime.now(timezone.utc).timestamp()
+    row = dict(request_id='b'*32, service_id='agi-office-backend', operation='rag.question',
+               method='POST', version='20260923T120000Z', status=200,
+               started_at_unix=now-.3, ended_at_unix=now, duration_ms=300, pid=1234,
+               stage_ms={'rewrite_ms': 50, 'retrieval_ms': 20, 'generation_ms': 210},
+               retrieval_mode='local', result='COMPLETED')
+    envelope = dict(schema_version='mini-drop.office-observations.v1',
+                    service_id='agi-office-backend', pid=1234, records=[row])
+    path.write_text(json.dumps(envelope), encoding='utf-8')
+    result = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert result['status'] == 'AVAILABLE'
+    item = result['items'][0]
+    assert item['stage_ms']['generation_ms'] == 210
+    assert item['business_result'] == 'COMPLETED'
+    assert item['process_identity'] == 'APPLICATION_REPORTED_NOT_BINDING'
+    assert '不同时间窗' in observations.diagnosis_context(item)
+    assert 'embedding_ms' not in item['stage_ms']
+
+
+@pytest.mark.parametrize('mutation', [
+    lambda row: row.update(pid=5678),
+    lambda row: row['stage_ms'].update(secret_ms=1),
+    lambda row: row['stage_ms'].update(generation_ms=float('nan')),
+    lambda row: row.update(query='private text'),
+])
+def test_office_snapshot_rejects_untrusted_or_sensitive_records(tmp_path, mutation):
+    path = tmp_path / 'office.json'
+    now = datetime.now(timezone.utc).timestamp()
+    row = dict(request_id='b'*32, service_id='agi-office-backend', operation='rag.question',
+               method='POST', version='20260923T120000Z', status=200,
+               started_at_unix=now-.3, ended_at_unix=now, duration_ms=300, pid=1234,
+               stage_ms={'generation_ms': 210}, retrieval_mode='local', result='COMPLETED')
+    mutation(row)
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                    service_id='agi-office-backend', pid=1234, records=[row])), encoding='utf-8')
+    result = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert result['items'] == []
+    assert result['invalid_records'] == 1

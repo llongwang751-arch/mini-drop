@@ -66,6 +66,10 @@ export function buildObservationModel(detail = {}, resources = {}) {
   const evidence = rows(resources.evidence);
   const toolCalls = rows(resources.toolCalls);
   const reports = rows(resources.reports);
+  const businessObservation = rows(resources.events)
+    .find((event) => event?.event_type === "diagnosis.created")?.payload_json?.business_observation
+    || rows(resources.events).find((event) => event?.event_type === "diagnosis.created")?.payload?.business_observation
+    || null;
   const metricEvidence = evidence.filter(isSystemMetrics).at(-1) || null;
   const metricMetadata = metricEvidence ? evidenceMetadata(metricEvidence) : {};
   const summary = metricMetadata.summary || {};
@@ -138,6 +142,7 @@ export function buildObservationModel(detail = {}, resources = {}) {
 
   return {
     assessment,
+    businessObservation,
     target: {
       service: target.service || detail.service || "未指定服务",
       pid: target.pid ?? binding.pid ?? processIdentity.pid,
@@ -211,6 +216,15 @@ export default function ObservabilityOverview({ detail, resources }) {
         </Tag>
       </div>
 
+      {model.businessObservation?.operation === "rag.question" && (
+        <div className="observation-request-summary">
+          <strong>关联 AGI-saber 知识库问答</strong>
+          <span>业务耗时 {compact(model.businessObservation.duration_ms)} ms</span>
+          <span>请求 {String(model.businessObservation.request_id || "").slice(0, 12)}…</span>
+          <span>后续进程采样是复现窗口</span>
+        </div>
+      )}
+
       <div className="observation-metrics" aria-label="当前性能数字">
         {model.metrics.filter((metric) => ["process-cpu", "rss", "threads", "fd"].includes(metric.key)).map((metric) => (
           <Tooltip title={metric.hint} key={metric.key}>
@@ -258,6 +272,17 @@ export default function ObservabilityOverview({ detail, resources }) {
                     <span>{metric.label}</span>
                     <strong>{metric.value}</strong>
                   </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {model.businessObservation?.operation === "rag.question" && (
+            <section className="observation-business-metrics" aria-label="关联问答阶段耗时">
+              <div><h4>这次问答的阶段</h4><p>由 AGI-saber 请求内计时；空白阶段表示未执行或未采集。</p></div>
+              <div className="observation-business-grid">
+                {[["rewrite_ms", "查询改写"], ["embedding_ms", "向量化"], ["retrieval_ms", "检索"], ["rerank_ms", "重排"], ["generation_ms", "生成"]].map(([key, label]) => (
+                  <div key={key}><span>{label}</span><strong>{number(model.businessObservation.stage_ms?.[key]) === null ? "未执行或未采集" : `${compact(model.businessObservation.stage_ms[key])} ms`}</strong></div>
                 ))}
               </div>
             </section>

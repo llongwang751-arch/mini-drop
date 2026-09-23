@@ -115,4 +115,17 @@ describe("ObservabilityOverview", () => {
     expect(within(business).getByText("120 ms")).toBeInTheDocument();
     expect(screen.getByText("已随本次采集返回业务指标。")).toBeInTheDocument();
   });
+
+  it("shows an associated RAG request without treating it as process evidence", () => {
+    const associated = { ...resources, events: [{ event_type: "diagnosis.created", payload: {
+      business_observation: { operation: "rag.question", request_id: "b".repeat(32), duration_ms: 320,
+        stage_ms: { rewrite_ms: 50, retrieval_ms: 30, generation_ms: 200 } },
+    } }] };
+    render(<ObservabilityOverview detail={detail} resources={associated} />);
+    expect(screen.getByText("业务耗时 320 ms")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("查看采集过程、完整指标和业务接入情况"));
+    const stages = screen.getByLabelText("关联问答阶段耗时");
+    expect(within(stages).getByText("200 ms")).toBeInTheDocument();
+    expect(within(stages).getAllByText("未执行或未采集")).toHaveLength(2);
+  });
 });

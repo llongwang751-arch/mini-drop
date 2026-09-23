@@ -90,6 +90,14 @@ def prepare():
                MINI_DROP_RETRIEVAL_MODE='hybrid', MINI_DROP_CHROMA_HOST='chroma', MINI_DROP_CHROMA_PORT='8000',
                MINI_DROP_EMBEDDING_MODEL='Qwen/Qwen3-Embedding-4B', MINI_DROP_EMBEDDING_DIMENSIONS='1024',
                MINI_DROP_RERANK_MODEL='Qwen/Qwen3-Reranker-4B', MINI_DROP_AGENT_MODEL_TIMEOUT_SEC='90', MINI_DROP_SILICONFLOW_ENABLE_THINKING='false')
+    office_directory = '/var/lib/agi-office/mini-drop-observations'
+    office_observations = office_directory + '/requests.json'
+    if Path(office_observations).is_file():
+        env['MINI_DROP_OFFICE_OBSERVATION_PATH'] = office_observations
+        mounts = new['services']['diagnosis-worker'].setdefault('volumes', [])
+        mounts[:] = [v for v in mounts if not isinstance(v, dict) or v.get('target') != '/var/lib/agi-office/mini-drop-rag-observations.json']
+        if not any(v.get('target') == office_directory for v in mounts if isinstance(v, dict)):
+            mounts.append({'type': 'bind', 'source': office_directory, 'target': office_directory, 'read_only': True})
     new['services']['chroma'] = {'image': python_image, 'pull_policy': 'never',
         'command': ['chroma', 'run', '--host', '0.0.0.0', '--port', '8000', '--path', '/var/lib/mini-drop-runtime/chroma'],
         'restart': 'unless-stopped', 'volumes': ['knowledge_chroma:/var/lib/mini-drop-runtime'],

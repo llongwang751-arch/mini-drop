@@ -1,5 +1,7 @@
 # Mini-Drop 如何接入业务：优化设计与执行顺序
 
+> 2026-09-23 增量：AGI-saber 已接入请求级 RAG 阶段计时，并在 Mini-Drop 中选择真实问答发起诊断。此项属于专用业务遥测，不等于下文设计中的通用 OTel 连接器、SQL span、跨服务拓扑或同负载修复复测。实际状态见 [服务接入](SERVICE_INTEGRATION.md)。
+
 > 2026-09-14 实施进展：首批 Memos、File Browser、linkding、ntfy 已运行并接入网关 request_id 与可信进程采集。八项基础操作通过；真实标题抓取与受控依赖延迟另测。详情见 [业务验收](../reports/business-acceptance/轻量业务接入与验收-20260914.md)。本文函数 span、数据库连接器与完整业务修复闭环仍属后续设计，不因部署了应用而视为完成。
 
 

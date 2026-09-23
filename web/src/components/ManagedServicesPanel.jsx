@@ -5,7 +5,8 @@ import { collectorMeta } from "../utils/collectors";
 
 const { Paragraph, Text } = Typography;
 const states = { OBSERVED: "已发现后台进程", OFFLINE: "未发现后台进程", STALE: "进程快照已过期", UNAVAILABLE: "暂时无法确认进程" };
-const operations = { "memo.records": "笔记读写", "memo.attachments": "笔记附件", "files.resources": "文件与目录", "files.download": "文件下载", "files.search": "文件搜索", "bookmarks.records": "书签读写", "bookmarks.tags": "书签标签", "notifications.subscribe": "订阅或读取消息", "notifications.publish": "通知发布" };
+const operations = { "rag.question": "知识库问答", "memo.records": "笔记读写", "memo.attachments": "笔记附件", "files.resources": "文件与目录", "files.download": "文件下载", "files.search": "文件搜索", "bookmarks.records": "书签读写", "bookmarks.tags": "书签标签", "notifications.subscribe": "订阅或读取消息", "notifications.publish": "通知发布" };
+const ragStages = [["rewrite_ms", "查询改写"], ["embedding_ms", "向量化"], ["retrieval_ms", "检索"], ["rerank_ms", "候选重排"], ["generation_ms", "生成"]];
 const requestStates = { NOT_CONFIGURED: "未配置请求观测", NO_DATA: "尚无业务请求", NO_RECENT_DATA: "最近 24 小时暂无可用请求", UNAVAILABLE: "请求观测暂时无法读取", INVALID: "请求观测存在冲突，暂不可使用" };
 function businessLink(item) {
   if (item.entry_path === "/api/office/") return item.entry_path;
@@ -39,8 +40,8 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
     return () => { generation.current += 1; clearInterval(timer); };
   }, []);
 
-  async function diagnose(item) {
-    const query = (queries[item.id] || "").trim();
+  async function diagnose(item, suggestedQuery = "") {
+    const query = (suggestedQuery || queries[item.id] || "").trim();
     if (query.length < 3) { message.info("请先描述后台服务的性能现象"); return; }
     setStarting(item.id);
     try {
@@ -93,7 +94,16 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
             label: `${new Date(row.ended_at).toLocaleTimeString()} · ${operations[row.operation] || row.operation} · ${row.method} · ${row.duration_ms} ms · HTTP ${row.status}` }))} />
         {item.business_requests?.status !== "AVAILABLE" && <Paragraph type="secondary">{requestStates[item.business_requests?.status] || "请求数据尚未返回"}</Paragraph>}
         {selectedRequests[item.id] && <Paragraph copyable style={{ overflowWrap: "anywhere" }}>请求 ID：{selectedRequests[item.id]}</Paragraph>}
-        <Paragraph type="secondary">耗时从网关接收请求计到连接结束。HTTP 成功不等于业务结果正确；稍后采集的是当前复现窗口，无法还原已结束请求的调用栈。</Paragraph>
+        {item.observation_source === "agi_office_rag_snapshot" && selectedRequests[item.id] && (() => {
+          const chosen = item.business_requests?.items?.find(row => row.request_id === selectedRequests[item.id]);
+          if (!chosen) return null;
+          return <div className="office-request-stages" aria-label="知识库请求阶段耗时">
+            <Text strong>这次知识库问答 · {chosen.duration_ms} ms · {chosen.business_result === "COMPLETED" ? "已完成" : chosen.business_result === "FAILED" ? "失败" : "已中断"}</Text>
+            <div>{ragStages.map(([key, label]) => <span key={key}>{label}：{chosen.stage_ms?.[key] == null ? "未执行或未采集" : `${chosen.stage_ms[key]} ms`}</span>)}</div>
+            <Text type="secondary">当前部署使用本地词法检索。向量化和重排没有启用时保留空值；阶段耗时属于已结束的业务请求。</Text>
+          </div>;
+        })()}
+        <Paragraph type="secondary">{item.observation_source === "agi_office_rag_snapshot" ? "业务阶段来自 AGI-saber 进程内计时；随后采集的是当前复现窗口，不能还原已结束请求的调用栈。" : "耗时从网关接收请求计到连接结束。HTTP 成功不等于业务结果正确；稍后采集的是当前复现窗口，无法还原已结束请求的调用栈。"}</Paragraph>
       </div>}
       <label htmlFor={`service-query-${item.id}`}>这个后台出现了什么性能问题？</label>
       <Input.TextArea id={`service-query-${item.id}`} rows={3} maxLength={2000}
@@ -103,6 +113,10 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
       <Button type="primary" aria-label="诊断这个后台" loading={starting === item.id}
         disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item)}>
         诊断这个后台
+      </Button>
+      <Button style={{ marginLeft: 8 }} aria-label="检查当前状态" loading={starting === item.id}
+        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前业务和进程是否存在可验证的性能故障")}>
+        检查当前状态
       </Button>
     </Card>)}
   </Space>;

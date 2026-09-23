@@ -1,5 +1,11 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-23 AGI-saber 请求级 RAG 观测
+
+最终云端平台 `/opt/mini-drop-current` 指向 `20260923T105000Z`：Web 为该标签，Diagnosis Worker/Analyzer/Chroma 为 `20260923T101442Z`；办公助手当前发布 `20260923T105939Z`。四项平台容器 healthy，公网真实问答、服务选择、正常窗口、关联诊断和浏览器验收均通过。该正常诊断的报告状态仍是 `INSUFFICIENT_EVIDENCE`，页面仅表示“本次观测窗口未确认故障”，不把正常展示冒充根因验证。
+
+AGI-saber 办公助手的真实问答现在在原业务进程内计时，并把最近 100 次 `rag.question` 的请求 ID、版本、状态、PID 和阶段耗时原子写入 `/var/lib/agi-office/mini-drop-observations/requests.json`。Mini-Drop Diagnosis Worker 只读挂载专用观测子目录，严格校验来源、字段、PID 一致性、时间与记录上限；“接入服务”可选择真实问答，并在诊断会话中同时展示该请求阶段及之后复现窗口的进程 CPU/RSS/线程/FD。阶段为查询改写、向量化、检索、重排、生成；未执行或未采到的阶段显示缺失，不补零。阶段计时不保存问题、答案、文档正文或凭据，也不代替原生 Agent 的进程身份和根因 Evidence。用户可不填写故障描述，直接点击“检查当前状态”做一次正常窗口观测。实际发布和验收结果见 [AGI-saber 接入发布](../reports/architecture/agi-saber-rag-release-20260923.md)。
+
 ## 2026-09-22 诊断可观测摘要与业务指标（已发布）
 
 AI 诊断工作台新增低密度的“目标进程与性能观测”摘要。默认只显示本次窗口判断、服务/进程/PID 以及进程 CPU、RSS、线程、文件描述符；主机指标、探针参数、Evidence 准入、应用埋点状态和故障注入方式收在按需展开区。数字只从当前 Diagnosis 已持久化的 `sys_metrics` Evidence 和 Tool Call 投影，缺失保持“未采集”，不补零、不合成演示数据。

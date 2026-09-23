@@ -1,5 +1,11 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-23 AGI-saber 请求级接入
+
+最终发布：平台 `/opt/mini-drop-current` → `20260923T105000Z`（只更新 Web），Python Worker/Analyzer/Chroma 为 `20260923T101442Z`，办公助手 `/opt/agi-office/current` → `20260923T105939Z`。公网真实问答和浏览器通过；诊断 `insight_31065996e81542658cd1800f2bdb00a4` 附着真实请求并采到 15 个系统样本，仍是 `INSUFFICIENT_EVIDENCE`，正常窗口卡片显示“未确认故障”。不要把重复问答的耗时差当作修复效果。详情和回滚见 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md)。
+
+办公助手最终滚动到 `/opt/agi-office/releases/20260923T105939Z`。首轮真实知识库问答返回 HTTP 200、答案校验通过，并生成同一 trace ID 的阶段快照；该次业务执行约 969 ms，其中生成约 942 ms、检索约 2 ms。快照在 `/var/lib/agi-office/mini-drop-observations/requests.json`，只含有界数字与状态，宿主业务根目录保持 0700，快照文件 0644，专用子目录由 Worker 只读挂载。平台完整接入发布 `/opt/mini-drop-releases/20260923T101442Z`，最终 Web 发布 `20260923T105000Z`，最终云端激活状态与页面验收以 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md) 为准。不得把请求内历史阶段耗时当作稍后进程采样的同一时间窗，也不得因为正常窗口结果就把根因门禁降为 VERIFIED。办公助手回滚是原子切换 `/opt/agi-office/current` 到 `20260922T094352Z` 并重启 systemd；平台回滚用新发布目录的私有 compose 配置，保留旧卷和证据。
+
 ## 2026-09-22 可观测摘要与业务指标发布（最新）
 
 当前平台 `/opt/mini-drop-current` 指向 `20260922T100300Z`，Web 为该标签镜像，Diagnosis Worker、Analyzer、Chroma 沿用 `20260922T094352Z` Python 镜像；四项均 healthy，公网健康三依赖 healthy。办公助手 `/opt/agi-office/current` 指向 `20260922T094352Z`，PID 会随重启变化，不得写死；ASGI 指标快照已由真实 Agent 采进 `application_metrics_analysis.v1` Evidence。正常窗口会显示进程 CPU/RSS/线程/FD，业务请求指标收在展开区；0 表示已接入但窗口无请求，“未采集”表示没有测量。回滚平台使用本版 `private/rollback.compose.json`，办公助手把 current 原子指回 `20260913T092221Z` 后重启；不要删除卷、历史 Evidence 或旧发布。发布细节见 [记录](../reports/architecture/observability-release-20260922.md)。

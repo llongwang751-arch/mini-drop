@@ -22,6 +22,30 @@ it("disables diagnosis for stale observations", async () => {
   await screen.findByText("进程快照已过期");
   expect(screen.getByRole("button", { name: "诊断这个后台" })).toBeDisabled();
 });
+it("checks the current state without requiring a fault description", async () => {
+  listManagedServices.mockResolvedValue({ items: [entry] });
+  startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "insight-normal" });
+  render(<ManagedServicesPanel />);
+  await screen.findByText("办公助手");
+  fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
+  await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
+    query: "检查当前业务和进程是否存在可验证的性能故障", mode: "AUTONOMOUS",
+  }));
+});
+
+it("shows real RAG stages and leaves unavailable stages empty", async () => {
+  const row = { request_id: "b".repeat(32), operation: "rag.question", method: "POST", status: 200,
+    duration_ms: 320, ended_at: "2026-09-23T12:00:00Z", business_result: "COMPLETED",
+    stage_ms: { rewrite_ms: 50, retrieval_ms: 30, generation_ms: 200 } };
+  listManagedServices.mockResolvedValue({ items: [{ ...entry, observation_source: "agi_office_rag_snapshot",
+    business_observations: true, business_requests: { status: "AVAILABLE", items: [row] } }] });
+  render(<ManagedServicesPanel />);
+  await screen.findByText("办公助手");
+  fireEvent.mouseDown(screen.getByRole("combobox"));
+  fireEvent.click(await screen.findByText(/320 ms/));
+  expect(screen.getByLabelText("知识库请求阶段耗时")).toHaveTextContent("生成：200 ms");
+  expect(screen.getByLabelText("知识库请求阶段耗时")).toHaveTextContent("向量化：未执行或未采集");
+});
 it("does not retain actionable status after a failed refresh", async () => {
   listManagedServices.mockResolvedValueOnce({ items: [entry] }).mockRejectedValueOnce(new Error("offline"));
   render(<ManagedServicesPanel />);

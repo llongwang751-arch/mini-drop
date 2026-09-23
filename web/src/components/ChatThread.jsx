@@ -10,6 +10,7 @@ import ScopeCard from "./ScopeCard";
 import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
 import { TOOL_LABELS, chineseDiagnosticText } from "../utils/diagnosisDisplay";
+import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
 import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
 import { selectBestReport } from "../utils/reportPresentation";
 
@@ -332,7 +333,7 @@ export default function ChatThread({
           <ConversationRound
             key={item.round}
             item={item}
-            initialQuery={detail.query || detail.id}
+            initialQuery={diagnosisDisplayQuery(detail.query, detail.id)}
             interventionLabels={interventionLabels}
             isLatest={index === conversationRounds.length - 1}
           />

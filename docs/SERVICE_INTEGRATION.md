@@ -1,5 +1,13 @@
 # 真实后台服务接入
 
+## 2026-09-23 AGI-saber 知识库问答阶段
+
+原办公助手保持 `/api/office/` 入口。`integrations/agi_saber/request_observations.py` 在部署入口 `backend_entry.py` 构造依赖前安装有界埋点：`LLMRewriter.rewrite`、`HybridStore.search_multi`、实际使用的 `_embed_fn`、启用时的 `HybridStore._finalize` 重排、`UnifiedAgent._llm_generate`，以及 `process_with_options`/`process_stream` 的总执行时间。多查询检索并发线程继承请求上下文；阶段只记录耗时，搜索阶段扣除向量化与重排，避免在页面上重复加总。生成的 request_id 采用原 `Response.trace_id` UUID；没有可用 UUID 时生成独立 ID。快照只保留最近 100 条、24 小时内读入、最大 256 KiB，不导出问答文本、文档或凭据。宿主业务根目录仍为 0700；Worker 只读挂载专用观测子目录以跟踪原子更新，0644 的快照文件供非特权 UID 读取，其他业务库和数据不挂载。
+
+Mini-Drop 从只读文件选择真实 `rag.question` 记录，诊断仍由登记服务和 Native Agent 重新发现、校验目标进程。请求记录中的 PID 只是应用自报，不授予采样权限；后续 CPU、RSS、栈与探针属于复现窗口，不是历史请求的执行轨迹。当前办公助手的实际模式是本地词法检索，因此向量化和远程重排阶段缺失属实。这个接入是专用请求级业务遥测，不是完整 OTel/跨服务 Trace，也没有 SQL span、首 token 计时或自动修复效果证明。真实验收与回滚见 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md)。
+
+快照将 HTTP 状态与业务结果分开记录：原接口即使在响应体返回错误时仍可能返回 HTTP 200，届时记录 `status=200`、`result=FAILED`，不会把业务失败冒充 HTTP 500。终态办公助手发布为 `20260923T105939Z`。
+
 ## 2026-09-22 办公助手业务指标
 
 办公助手入口已加入依赖无关的 ASGI 聚合中间件，并发布到 `/opt/agi-office/releases/20260922T094352Z`。它只输出与当前进程 PID 绑定的请求数、5xx 数、处理中请求、累计耗时和最近 256 次请求的平均/P95，不保存 URL、正文、响应内容或凭据。systemd 的 `PrivateTmp=true` 保持不变；Native Agent 通过 `/proc/<pid>/root/tmp/mini-drop-app-metrics.json` 读取该进程自己的快照。Analyzer 执行 PID 身份核对与字段白名单，再把窗口前后差值写入 Evidence。该路径属于受限业务指标接入，不等于完整 OTel Trace；函数阶段、SQL span 与跨服务拓扑仍未接入。
