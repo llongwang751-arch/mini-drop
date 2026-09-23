@@ -144,6 +144,33 @@ def test_office_snapshot_rejects_more_vectors_than_chunks(tmp_path):
     assert observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)['invalid_records'] == 1
 
 
+def test_office_v2_snapshot_keeps_prior_process_request_as_history(tmp_path):
+    path = tmp_path / 'office.json'
+    now = datetime.now(timezone.utc).timestamp()
+    prior = dict(request_id='a'*32, service_id='agi-office-backend', operation='rag.ingest',
+                 method='POST', version='20260923T152700Z', status=200,
+                 started_at_unix=now-22, ended_at_unix=now-20, duration_ms=2000,
+                 pid=1234, stage_ms={'embedding_ms': 1500}, result='COMPLETED',
+                 content_chars=1000, chunk_count=8, vector_indexed_count=8)
+    current = {**prior, 'request_id': 'b'*32, 'pid': 5678,
+               'started_at_unix': now-5, 'ended_at_unix': now-3}
+    envelope = dict(schema_version='mini-drop.office-observations.v2',
+                    service_id='agi-office-backend', pid=5678,
+                    producer_started_at_unix=now-10, records=[prior, current])
+    path.write_text(json.dumps(envelope), encoding='utf-8')
+    result = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert result['status'] == 'AVAILABLE'
+    assert [row['request_id'] for row in result['items']] == ['b'*32, 'a'*32]
+    assert result['items'][1]['pid'] == 1234
+    assert result['items'][1]['process_identity'] == 'APPLICATION_REPORTED_NOT_BINDING'
+    assert '不同时间窗' in observations.diagnosis_context(result['items'][1])
+    prior['ended_at_unix'] = now-2
+    path.write_text(json.dumps(envelope), encoding='utf-8')
+    invalid = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert invalid['invalid_records'] == 1
+    assert [row['request_id'] for row in invalid['items']] == ['b'*32]
+
+
 @pytest.mark.parametrize('mutation', [
     lambda row: row.update(pid=5678),
     lambda row: row['stage_ms'].update(secret_ms=1),

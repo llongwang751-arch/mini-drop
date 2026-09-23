@@ -192,7 +192,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
       </details>
       {item.business_observations && <div className="managed-service-request">
         <label htmlFor={`business-request-${item.id}`}>关联业务请求（可选）</label>
-        <Select id={`business-request-${item.id}`} aria-label={`${item.name}的业务请求`} allowClear
+        <Select id={`business-request-${item.id}`} aria-label={`${item.name}的业务请求`} allowClear showSearch optionFilterProp="label"
           style={{ width: "100%", margin: "8px 0" }} placeholder="选择一次操作，也可以只描述当前持续故障"
           disabled={Boolean(error) || item.business_requests?.status !== "AVAILABLE"}
           value={selectedRequests[item.id]}

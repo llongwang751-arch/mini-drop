@@ -2,9 +2,11 @@
 
 ## 2026-09-23 百万字向量上传与公网验收（最新）
 
-办公助手 `/opt/agi-office/current` → `20260923T152700Z`，硅基流动 `BAAI/bge-m3` + 本机 Milvus Lite；平台 `/opt/mini-drop-current` → `20260923T160200Z`，Worker 实际镜像保持 `20260923T154500Z`，Web 与办公助手专属 600 秒 Nginx 超时为新版本。办公助手服务 `MemoryMax=1G` 已持久化，原 512 MiB 不足；向量库、SQLite、平台卷保留。百万字 API 7,701 块 / 241 次 Embedding 成功，语义问答重启后通过。公网首轮百万字网页上传因旧 120 秒代理超时收到 504，后台后来成功入库；新配置下网页返回 HTTP 200、7,701 块，Mini-Drop 同 request_id 显示 7,701 已入库向量、向量化慢阶段与进程/cgroup 数字。最新结果、原始失败与具体步骤见 [长文档验收](../reports/business-acceptance/long-document-ingest-20260923.md) 与 [全链路步骤](FULL_CHAIN_ACCEPTANCE.md)。严格 AI 根因门禁仍为 1/21，业务阶段慢定位不冒充 VERIFIED。根盘 40 GiB 已用约 97%，只剩约 1.2 GiB，不能为扩容删除用户数据或旧发布。
+办公助手 `/opt/agi-office/current` → `20260923T162200Z`，硅基流动 `BAAI/bge-m3` + 本机 Milvus Lite；平台 `/opt/mini-drop-current` → `20260923T163300Z`，Worker 为 `20260923T162100Z`、Web 为 `20260923T163300Z`，办公助手专属 600 秒 Nginx 超时生效。办公助手服务 `MemoryMax=1536M`（1.5 GiB）已持久化：旧 512 MiB 不足，1 GiB 也在多篇百万字文档重启加载时发生过一次 OOM 自动重启；最终 1.5 GiB 干净重启峰值约 1.21 GiB，`NRestarts=0`、新 cgroup `oom=0`，向量库、SQLite、平台卷保留，网页百万字文档重启后语义问答通过。百万字 API 7,701 块 / 241 次 Embedding 成功。公网首轮百万字网页上传因旧 120 秒代理超时收到 504，后台后来成功入库；新配置下网页返回 HTTP 200、7,701 块，Mini-Drop 同 request_id 显示 7,701 已入库向量、向量化慢阶段与进程/cgroup 数字。最新结果、原始失败与具体步骤见 [长文档验收](../reports/business-acceptance/long-document-ingest-20260923.md) 与 [全链路步骤](FULL_CHAIN_ACCEPTANCE.md)。严格 AI 根因门禁仍为 1/21，业务阶段慢定位不冒充 VERIFIED。根盘 40 GiB 已用约 97%，只剩约 1.2 GiB，不能为扩容删除用户数据或旧发布。
 
-最终网页三段慢检索复测已通过：受控注入 0/2500/0 ms、检索 1457/3517/1204 ms，恢复窗口回落、同 PID/版本、无浏览器错误。早一次复测因旧 2000 ms 差值门槛误报未恢复，页面阈值已改成仍有 1500 ms 差值与注入标记联合判定。相关 AI 诊断 `insight_d913bd0a67784d25b6e707dde7912964` 在创建后进入循证流程；查看最终状态时不要将受控恢复当作 VERIFIED 根因。
+旧版 `requests.json` 会在新进程第一条请求后丢弃历史；v2 启动时只继承合格的数字记录。云端使用两份真实快照合并 12 条并保留部署前备份；新问答和再次重启后为 14 条、4 个历史 PID，百万字上传仍在 Mini-Drop 请求列表，`invalid_records=0`。旧 PID 不授权当前进程采集。办公助手旧发布 `20260923T152700Z` 和平台旧发布 `20260923T160200Z` 留存，数据目录不变。
+
+最终网页三段慢检索复测已通过：受控注入 0/2500/0 ms、检索 1457/3517/1204 ms，恢复窗口回落、同 PID/版本、无浏览器错误。早一次复测因旧 2000 ms 差值门槛误报未恢复，页面阈值已改成仍有 1500 ms 差值与注入标记联合判定。相关 AI 诊断 `insight_d913bd0a67784d25b6e707dde7912964` 最终为 `INSUFFICIENT_EVIDENCE`（4 工具、9 Evidence、3 Report），受控恢复不冒充 VERIFIED 根因。
 
 ## 2026-09-23 正常体检链路修复（最新）
 

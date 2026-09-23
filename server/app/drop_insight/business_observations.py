@@ -6,6 +6,7 @@ cause. Never accept a browser-supplied PID, log path, URL or observation body.
 from __future__ import annotations
 
 import json
+import math
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -81,18 +82,27 @@ def _read_office_snapshot(path: Path, entry: dict, *, limit: int) -> dict:
     except (OSError, ValueError):
         return {"status": "UNAVAILABLE", "items": [], "invalid_records": 0}
     if (not isinstance(envelope, dict)
-            or envelope.get("schema_version") != "mini-drop.office-observations.v1"
+            or envelope.get("schema_version") not in {"mini-drop.office-observations.v1", "mini-drop.office-observations.v2"}
             or envelope.get("service_id") != entry["id"]
+            or not isinstance(envelope.get("pid"), int) or envelope["pid"] <= 0
             or not isinstance(envelope.get("records"), list)
             or len(envelope["records"]) > 100):
         return {"status": "INVALID", "items": [], "invalid_records": 1}
     now = datetime.now(timezone.utc).timestamp()
+    historical = envelope["schema_version"].endswith(".v2")
+    producer_started = envelope.get("producer_started_at_unix")
+    if historical and (not isinstance(producer_started, (int, float))
+                       or isinstance(producer_started, bool)
+                       or not math.isfinite(producer_started)
+                       or producer_started < 0 or producer_started > now + 5):
+        return {"status": "INVALID", "items": [], "invalid_records": 1}
     records: dict[str, OfficeObservation] = {}
     invalid = 0
     for raw in envelope["records"]:
         try:
             row = OfficeObservation.model_validate(raw)
-            if (row.pid != envelope.get("pid")
+            if ((row.pid != envelope["pid"] and (not historical or row.ended_at_unix > producer_started + 5))
+                    or (historical and row.pid == envelope["pid"] and row.started_at_unix < producer_started - 5)
                     or row.ended_at_unix < row.started_at_unix
                     or row.ended_at_unix > now + 5
                     or (row.injected_delay_ms not in {0, 2500} if row.exercise_phase == "fault" else row.injected_delay_ms != 0)

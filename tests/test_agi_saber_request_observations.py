@@ -2,6 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 import asyncio
+import time
 
 
 def test_office_store_is_bounded_and_content_free(tmp_path):
@@ -14,9 +15,60 @@ def test_office_store_is_bounded_and_content_free(tmp_path):
     for i in range(3):
         store.append({'request_id': f'{i:032x}', 'stage_ms': {'retrieval_ms': i}})
     payload = json.loads(path.read_text(encoding='utf-8'))
-    assert payload['schema_version'] == 'mini-drop.office-observations.v1'
+    assert payload['schema_version'] == 'mini-drop.office-observations.v2'
     assert [row['request_id'] for row in payload['records']] == [f'{i:032x}' for i in (1, 2)]
     assert 'query' not in path.read_text(encoding='utf-8')
+
+
+def test_office_store_preserves_bounded_content_free_history_across_restart(tmp_path, monkeypatch):
+    source = Path(__file__).resolve().parents[1] / 'integrations' / 'agi_saber' / 'request_observations.py'
+    spec = importlib.util.spec_from_file_location('office_request_history', source)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    path = tmp_path / 'observations.json'
+    now = time.time()
+    old = dict(request_id='a' * 32, service_id='agi-office-backend', operation='rag.ingest',
+               method='POST', version='20260923T152700Z', status=200,
+               started_at_unix=now-22, ended_at_unix=now-20, duration_ms=2000,
+               pid=1234, stage_ms={'embedding_ms': 1500}, result='COMPLETED',
+               content_chars=1000, chunk_count=8, vector_indexed_count=8)
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                    service_id='agi-office-backend', pid=1234, records=[old])), encoding='utf-8')
+    monkeypatch.setattr(module.os, 'getpid', lambda: 5678)
+    store = module.OfficeObservationStore(path)
+    assert [row['request_id'] for row in store.records] == ['a' * 32]
+    current = {**old, 'request_id': 'b' * 32, 'pid': 5678,
+               'started_at_unix': store.producer_started_at_unix,
+               'ended_at_unix': store.producer_started_at_unix + 0.1}
+    store.append(current)
+    payload = json.loads(path.read_text(encoding='utf-8'))
+    assert payload['schema_version'] == 'mini-drop.office-observations.v2'
+    assert payload['pid'] == 5678
+    assert [row['request_id'] for row in payload['records']] == ['a' * 32, 'b' * 32]
+    monkeypatch.setattr(module.os, 'getpid', lambda: 9012)
+    restarted = module.OfficeObservationStore(path)
+    assert [row['request_id'] for row in restarted.records] == ['a' * 32, 'b' * 32]
+    restarted.append({**current, 'request_id': 'c' * 32, 'pid': 9012,
+                      'started_at_unix': restarted.producer_started_at_unix,
+                      'ended_at_unix': restarted.producer_started_at_unix + 0.1})
+    assert [row['request_id'] for row in json.loads(path.read_text())['records']] == ['a' * 32, 'b' * 32, 'c' * 32]
+
+
+def test_office_store_does_not_carry_forward_private_or_oversized_snapshot(tmp_path):
+    source = Path(__file__).resolve().parents[1] / 'integrations' / 'agi_saber' / 'request_observations.py'
+    spec = importlib.util.spec_from_file_location('office_request_private_history', source)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    path = tmp_path / 'observations.json'
+    old = dict(request_id='a' * 32, service_id='agi-office-backend', operation='rag.question',
+               method='POST', version='v1', status=200, started_at_unix=time.time()-2,
+               ended_at_unix=time.time()-1, duration_ms=1000, pid=1234,
+               stage_ms={'retrieval_ms': 100}, result='COMPLETED', query='private text')
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                    service_id='agi-office-backend', pid=1234, records=[old])), encoding='utf-8')
+    assert not module.OfficeObservationStore(path).records
+    path.write_text('x' * (256 * 1024 + 1), encoding='utf-8')
+    assert not module.OfficeObservationStore(path).records
 
 
 def test_exercise_scope_is_request_local_and_only_marks_chat():

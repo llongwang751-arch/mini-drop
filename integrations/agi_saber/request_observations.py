@@ -5,8 +5,10 @@ from collections import deque
 from contextvars import ContextVar
 from functools import wraps
 import json
+import math
 import os
 from pathlib import Path
+import re
 import threading
 import time
 from uuid import UUID, uuid4
@@ -18,6 +20,19 @@ _INGEST: ContextVar["_IngestWindow | None"] = ContextVar("mini_drop_ingest_windo
 _INSTALLED = False
 EXERCISE_QUESTION = "员工年假申请须提前多久提交？"
 EXERCISE_DELAY_MS = 2500
+_OBSERVATION_KEYS = frozenset({
+    "request_id", "service_id", "operation", "method", "version", "status",
+    "started_at_unix", "ended_at_unix", "duration_ms", "pid", "stage_ms",
+    "retrieval_mode", "result", "exercise_phase", "injected_delay_ms",
+    "content_chars", "chunk_count", "embed_calls", "embed_failures",
+    "vector_indexed_count", "process_cpu_ms", "rss_peak_mib", "service_cpu_ms",
+    "service_memory_peak_mib", "service_memory_limit_mib",
+})
+_OBSERVATION_STAGES = frozenset({
+    "rewrite_ms", "embedding_ms", "retrieval_ms", "rerank_ms", "generation_ms",
+    "split_ms", "index_ms", "vector_write_ms", "ingest_ms",
+    "document_write_ms", "parse_and_http_ms",
+})
 
 
 class ExerciseScope:
@@ -240,14 +255,67 @@ class OfficeObservationStore:
         self.path = Path(path)
         self.records: deque[dict] = deque(maxlen=limit)
         self.lock = threading.Lock()
+        self.producer_started_at_unix = time.time()
+        self._load_previous()
+
+    def _load_previous(self) -> None:
+        """Carry forward only bounded, content-free rows from a prior process."""
+        try:
+            if self.path.stat().st_size > 256 * 1024:
+                return
+            previous = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return
+        if (not isinstance(previous, dict)
+                or previous.get("schema_version") not in {"mini-drop.office-observations.v1", "mini-drop.office-observations.v2"}
+                or previous.get("service_id") != "agi-office-backend"
+                or not isinstance(previous.get("pid"), int)
+                or not isinstance(previous.get("records"), list)
+                or len(previous["records"]) > 100):
+            return
+        previous_started = previous.get("producer_started_at_unix")
+        if previous["schema_version"].endswith(".v2") and (
+                not isinstance(previous_started, (int, float))
+                or isinstance(previous_started, bool)
+                or not math.isfinite(previous_started)
+                or previous_started < 0
+                or previous_started > self.producer_started_at_unix + 5):
+            return
+        valid = []
+        for row in previous["records"]:
+            if not isinstance(row, dict) or not set(row).issubset(_OBSERVATION_KEYS):
+                continue
+            started, ended = row.get("started_at_unix"), row.get("ended_at_unix")
+            stages = row.get("stage_ms")
+            if (not isinstance(row.get("request_id"), str)
+                    or re.fullmatch(r"[a-f0-9]{32}", row["request_id"]) is None
+                    or row.get("service_id") != "agi-office-backend"
+                    or not isinstance(row.get("pid"), int) or row["pid"] <= 0
+                    or not isinstance(started, (int, float)) or not math.isfinite(started)
+                    or not isinstance(ended, (int, float)) or not math.isfinite(ended)
+                    or ended < started or ended > self.producer_started_at_unix + 5
+                    or self.producer_started_at_unix - ended > 24 * 3600
+                    or not isinstance(stages, dict)
+                    or any(key not in _OBSERVATION_STAGES or not isinstance(value, (int, float))
+                           or not math.isfinite(value) or value < 0 for key, value in stages.items())):
+                continue
+            if previous["schema_version"].endswith(".v1") and row["pid"] != previous["pid"]:
+                continue
+            if (previous["schema_version"].endswith(".v2")
+                    and row["pid"] != previous["pid"] and ended > previous_started + 5):
+                continue
+            valid.append(row)
+        for row in sorted(valid, key=lambda item: item["ended_at_unix"])[-self.records.maxlen:]:
+            self.records.append(row)
 
     def append(self, record: dict) -> None:
         with self.lock:
             self.records.append(record)
             payload = {
-                "schema_version": "mini-drop.office-observations.v1",
+                "schema_version": "mini-drop.office-observations.v2",
                 "service_id": "agi-office-backend",
                 "pid": os.getpid(),
+                "producer_started_at_unix": round(self.producer_started_at_unix, 3),
                 "records": list(self.records),
             }
             self.path.parent.mkdir(parents=True, exist_ok=True)
