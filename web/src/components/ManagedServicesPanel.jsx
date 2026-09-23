@@ -56,21 +56,22 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
     } finally { setStarting(""); }
   }
 
-  return <Space direction="vertical" size={16} style={{ width: "100%" }}>
-    <Card title="已接入的后台服务" extra={<Button aria-label="刷新服务" loading={loading} onClick={refresh}>刷新服务</Button>}>
-      <Paragraph>先在原业务页面完成一次操作，再选择该后台及对应请求发起诊断。Mini-Drop 会带入操作时间与耗时，核对当前进程后采集运行证据。</Paragraph>
-      <Text type="secondary">进程存在不代表业务健康。服务重启后会重新发现进程；每次诊断都重新绑定身份。这里不展示历史实验成绩。</Text>
+  return <Space direction="vertical" size={16} className="managed-service-exam">
+    <Card title="选择服务，开始体检" extra={<Button aria-label="刷新服务" loading={loading} onClick={refresh}>刷新服务</Button>}>
+      <Paragraph>可以直接检查当前状态；如果刚完成一次业务操作，先选中对应请求，体检会带上这次操作的时间与耗时。</Paragraph>
+      <div className="managed-service-steps" aria-label="服务体检流程"><span>1 选择服务</span><span>2 检查状态或描述异常</span><span>3 查看体检报告与排查树</span></div>
+      <details><summary>体检会采集什么？</summary><Text type="secondary">系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。</Text></details>
     </Card>
     {error && <Alert type="error" showIcon message="服务状态读取失败" description={error} />}
     {data && !data.items?.length && <Alert type="info" message="尚未配置接入服务" description="请按后台服务接入文档登记服务名与负责采集的 Agent。" />}
-    {(data?.items || []).map(item => <Card key={item.id} title={item.name}>
+    {(data?.items || []).map(item => <Card key={item.id} title={item.name} className="managed-service-card">
       <Space wrap style={{ marginBottom: 12 }}>
         <Tag color={!error && item.status === "OBSERVED" ? "blue" : "default"}>{error ? "状态待刷新" : states[item.status] || item.status}</Tag>
         <Tag>{item.runtime}</Tag><Tag>环境：{item.environment}</Tag>
         {businessLink(item) && <Button href={businessLink(item)} target="_blank" rel="noopener noreferrer">{item.entry_path === "/api/office/" ? "打开办公助手" : "打开业务页面"}</Button>}
         {item.version && <Tag>版本 {item.version}</Tag>}
       </Space>
-      <Paragraph>{item.description}</Paragraph>
+      <Paragraph className="managed-service-description">{item.description}</Paragraph>
       {item.maintenance_notice && <Alert type="warning" showIcon message={item.maintenance_notice} style={{ marginBottom: 12 }} />}
       <details style={{ marginBottom: 16 }}>
       <summary style={{ cursor: "pointer", marginBottom: 12 }}>查看采集进程与能力</summary>
@@ -83,8 +84,8 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
       </Paragraph>)}
       <Paragraph type="secondary">实际使用的采集器还会按进程运行时和权限检查；例如 Python 后台不会使用 JVM 采集器。</Paragraph>
       </details>
-      {item.business_observations && <div style={{ marginBottom: 16 }}>
-        <label htmlFor={`business-request-${item.id}`}>关联哪次业务请求？</label>
+      {item.business_observations && <div className="managed-service-request">
+        <label htmlFor={`business-request-${item.id}`}>关联业务请求（可选）</label>
         <Select id={`business-request-${item.id}`} aria-label={`${item.name}的业务请求`} allowClear
           style={{ width: "100%", margin: "8px 0" }} placeholder="选择一次操作，也可以只描述当前持续故障"
           disabled={Boolean(error) || item.business_requests?.status !== "AVAILABLE"}
@@ -93,7 +94,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
           options={(item.business_requests?.items || []).map(row => ({ value: row.request_id,
             label: `${new Date(row.ended_at).toLocaleTimeString()} · ${operations[row.operation] || row.operation} · ${row.method} · ${row.duration_ms} ms · HTTP ${row.status}` }))} />
         {item.business_requests?.status !== "AVAILABLE" && <Paragraph type="secondary">{requestStates[item.business_requests?.status] || "请求数据尚未返回"}</Paragraph>}
-        {selectedRequests[item.id] && <Paragraph copyable style={{ overflowWrap: "anywhere" }}>请求 ID：{selectedRequests[item.id]}</Paragraph>}
+        {selectedRequests[item.id] && <details><summary>查看请求 ID 与阶段耗时</summary><Paragraph copyable style={{ overflowWrap: "anywhere" }}>请求 ID：{selectedRequests[item.id]}</Paragraph>
         {item.observation_source === "agi_office_rag_snapshot" && selectedRequests[item.id] && (() => {
           const chosen = item.business_requests?.items?.find(row => row.request_id === selectedRequests[item.id]);
           if (!chosen) return null;
@@ -103,21 +104,21 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
             <Text type="secondary">当前部署使用本地词法检索。向量化和重排没有启用时保留空值；阶段耗时属于已结束的业务请求。</Text>
           </div>;
         })()}
-        <Paragraph type="secondary">{item.observation_source === "agi_office_rag_snapshot" ? "业务阶段来自 AGI-saber 进程内计时；随后采集的是当前复现窗口，不能还原已结束请求的调用栈。" : "耗时从网关接收请求计到连接结束。HTTP 成功不等于业务结果正确；稍后采集的是当前复现窗口，无法还原已结束请求的调用栈。"}</Paragraph>
+        <Paragraph type="secondary">{item.observation_source === "agi_office_rag_snapshot" ? "业务阶段来自 AGI-saber 进程内计时；随后采集的是当前复现窗口，不能还原已结束请求的调用栈。" : "耗时从网关接收请求计到连接结束。HTTP 成功不等于业务结果正确；稍后采集的是当前复现窗口，无法还原已结束请求的调用栈。"}</Paragraph></details>}
       </div>}
-      <label htmlFor={`service-query-${item.id}`}>这个后台出现了什么性能问题？</label>
-      <Input.TextArea id={`service-query-${item.id}`} rows={3} maxLength={2000}
+      <label htmlFor={`service-query-${item.id}`}>有异常现象？写在这里（可选）</label>
+      <Input.TextArea id={`service-query-${item.id}`} rows={2} maxLength={2000}
         placeholder="描述你做了什么、哪里变慢或失败。例如：上传文件时，其他页面也明显变慢。"
         value={queries[item.id] || ""} onChange={event => setQueries(old => ({ ...old, [item.id]: event.target.value }))}
         style={{ margin: "8px 0 12px" }} />
-      <Button type="primary" aria-label="诊断这个后台" loading={starting === item.id}
-        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item)}>
-        诊断这个后台
-      </Button>
-      <Button style={{ marginLeft: 8 }} aria-label="检查当前状态" loading={starting === item.id}
+      <div className="managed-service-actions"><Button type="primary" aria-label="检查当前状态" loading={starting === item.id}
         disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前业务和进程是否存在可验证的性能故障")}>
         检查当前状态
       </Button>
+      <Button aria-label="诊断这个后台" loading={starting === item.id}
+        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting) || !(queries[item.id] || "").trim()} onClick={() => diagnose(item)}>
+        排查描述的异常
+      </Button></div>
     </Card>)}
   </Space>;
 }

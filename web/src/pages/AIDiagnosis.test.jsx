@@ -137,13 +137,13 @@ describe("AIDiagnosis V2 workspace", () => {
 
     render(<AIDiagnosis />);
     expect(await screen.findByLabelText("Agent 可观测控制台")).toBeInTheDocument();
-    expect(document.querySelector(".diagnosis-workbench-grid.view-conversation")).not.toBeNull();
-    expect(screen.queryByLabelText("实时诊断探索树")).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("探索树"));
     expect(document.querySelector(".diagnosis-workbench-grid.view-tree")).not.toBeNull();
     expect(screen.getByLabelText("实时诊断探索树")).toBeInTheDocument();
     expect(screen.queryByLabelText("多轮诊断对话")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("调查记录"));
+    expect(document.querySelector(".diagnosis-workbench-grid.view-conversation")).not.toBeNull();
+    expect(screen.getByLabelText("多轮诊断对话")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("分屏"));
     expect(document.querySelector(".diagnosis-workbench-grid.view-split")).not.toBeNull();
@@ -153,6 +153,29 @@ describe("AIDiagnosis V2 workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "全屏查看探索树" }));
     const fullscreenTree = screen.getByRole("dialog", { name: "实时诊断探索树 · 全屏阅读" });
     expect(within(fullscreenTree).getByText("实时探索树")).toBeInTheDocument();
+  });
+
+  it("shows a measured normal window before the tree and keeps report limits available", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue({ ...diagnosis, target: { service: "orders-api", pid: 4201, agent_id: "worker-1" } });
+    api.listDropInsightEvidence.mockResolvedValue([{
+      evidence_id: "ev-sys-1", role: "NEUTRAL",
+      envelope: { evidence_type: "SYS_METRICS_SYS_METRICS", source: { tool_name: "sys_metrics" },
+        observation: { metadata: { summary: { process_cpu_core_usage: 2.4, vmrss_mb: 128, thread_count: 5, fd_count: 12 } } } },
+      classification: { decision: "ACCEPT_LIMITED", can_support_conclusion: false },
+    }]);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "r-normal", verification: { status: "INSUFFICIENT_EVIDENCE" }, evidence_refs: [] }]);
+    render(<AIDiagnosis />);
+
+    const assessment = await screen.findByText("本次观测窗口未确认故障");
+    const tree = screen.getByLabelText("实时诊断探索树");
+    expect(assessment.compareDocumentPosition(tree) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText("2.4%")).toBeInTheDocument();
+    const report = screen.getByText("查看完整报告与证据限制").closest("details");
+    expect(report).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("查看完整报告与证据限制"));
+    expect(report).toHaveAttribute("open");
   });
 
   it("lets the user review and edit a tree intervention before starting a new round", async () => {
@@ -181,7 +204,6 @@ describe("AIDiagnosis V2 workspace", () => {
 
     render(<AIDiagnosis />);
     await screen.findByLabelText("Agent 可观测控制台");
-    fireEvent.click(screen.getByText("探索树"));
     const tree = screen.getByLabelText("实时诊断探索树");
     fireEvent.click(within(tree).getByRole("button", { name: "寻找反证：用户态热点" }));
 
@@ -329,7 +351,6 @@ describe("AIDiagnosis V2 workspace", () => {
     expect(input).toBeDisabled();
     expect(screen.getByRole("button", { name: "回放只读" })).toBeDisabled();
 
-    fireEvent.click(screen.getByText("探索树"));
     expect(screen.getByText("探索树将在规划后逐节点出现")).toBeInTheDocument();
     expect(api.runDropInsightPlanner).not.toHaveBeenCalled();
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();

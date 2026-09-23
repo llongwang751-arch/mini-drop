@@ -83,6 +83,22 @@
 .diagnosis-start-intro { padding: 28px 24px 12px; }
 .diagnosis-start-intro h3 { margin: 0 0 8px; color: var(--diagnosis-ink); font-size: 24px; }
 .diagnosis-start-intro p { margin: 0 0 20px; color: #53647b; line-height: 1.7; }
+.diagnosis-start-intro .ant-btn-primary { min-height: 44px; padding-inline: 22px; }
+.diagnosis-start-intro .diagnosis-manual-intro { margin: 28px 0 12px; font-weight: 700; }
+.managed-service-exam.ant-space { display: flex; width: 100%; padding: 16px; }
+.managed-service-exam .ant-space-item { width: 100%; }
+.managed-service-exam .ant-card { border-radius: 12px; border-color: var(--diagnosis-line); box-shadow: 0 4px 16px rgba(20, 38, 66, 0.04); }
+.managed-service-exam .ant-card-head { min-height: 52px; }
+.managed-service-exam .ant-card-head-title { font-size: 17px; }
+.managed-service-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.managed-service-steps span { padding: 8px 11px; border-radius: 999px; color: #285281; background: #ecf3fb; font-size: 13px; font-weight: 650; }
+.managed-service-exam details > summary { cursor: pointer; color: #315474; }
+.managed-service-card .managed-service-description { margin-bottom: 12px; color: #53647b; }
+.managed-service-request { margin: 16px 0; padding: 14px; border: 1px solid #e0e9f3; border-radius: 10px; background: #f8fbff; }
+.managed-service-request label, .managed-service-card label { display: block; color: #243a56; font-weight: 650; }
+.managed-service-request details { margin-top: 8px; }
+.managed-service-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.managed-service-actions .ant-btn { min-height: 42px; }
 .diagnosis-example-queries { display: flex; flex-wrap: wrap; gap: 8px; }
 .diagnosis-example-queries .ant-btn { min-height: 38px; }
 .ai-diagnosis-page.is-start .ai-diagnosis-workspace { min-height: 0; }
@@ -448,6 +464,24 @@
   background: #fff;
   border-bottom: 1px solid var(--diagnosis-line);
 }
+.diagnosis-exam-journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 16px 18px; list-style: none; background: #fff; border-bottom: 1px solid var(--diagnosis-line); }
+.diagnosis-exam-journey li { display: flex; align-items: center; gap: 11px; min-width: 0; padding: 11px 14px; border: 1px solid #dde6f0; border-radius: 12px; background: #f9fbfd; }
+.diagnosis-exam-journey li.is-done { border-color: #bcdfce; background: #f4faf6; }
+.diagnosis-exam-journey li.is-limited { border-color: #eed7ae; background: #fffaf0; }
+.diagnosis-exam-number { display: grid; flex: 0 0 30px; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #315b9f; background: #e5efff; font-weight: 700; }
+.diagnosis-exam-journey li.is-done .diagnosis-exam-number { color: #08724d; background: #d9f1e3; }
+.diagnosis-exam-journey li.is-limited .diagnosis-exam-number { color: #906116; background: #fff0ce; }
+.diagnosis-exam-journey strong, .diagnosis-exam-journey small { display: block; }
+.diagnosis-exam-journey strong { color: #172b44; font-size: 14px; }
+.diagnosis-exam-journey small { margin-top: 2px; color: #53647b; font-size: 12px; line-height: 1.4; }
+.diagnosis-technical-details { margin: 0 16px 4px; border: 1px solid var(--diagnosis-line); border-radius: 10px; background: #fff; }
+.diagnosis-normal-report { margin: 0 16px 14px; border: 1px solid #dce8e2; border-radius: 10px; background: #f8fcfa; }
+.diagnosis-normal-report > summary { min-height: 44px; padding: 12px 16px; cursor: pointer; color: #245340; font-weight: 650; }
+.diagnosis-normal-report .diagnosis-finding { margin: 0; border: 0; border-top: 1px solid #dce8e2; border-radius: 0; }
+.diagnosis-technical-details > summary { min-height: 44px; padding: 12px 16px; cursor: pointer; color: #244366; font-weight: 700; }
+.diagnosis-technical-details > summary span { margin-left: 12px; color: #62758e; font-size: 12px; font-weight: 400; }
+.diagnosis-technical-details:focus-within { outline: 2px solid #93b9f7; outline-offset: 2px; }
+.diagnosis-technical-details .agent-cockpit { margin: 0; }
 .diagnosis-stage-rail .ant-steps { min-width: 44rem; }
 .diagnosis-stage-rail .ant-steps-item-title { color: #5d6f87 !important; font-size: 0.72rem; }
 .ai-diagnosis-resource-warning { margin: 0.85rem 1rem 0; }
@@ -463,6 +497,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
+.diagnosis-workbench-grid.has-diagnosis.view-tree { padding-top: 8px; }
 .diagnosis-workbench-grid.has-diagnosis.view-split {
   grid-template-columns: minmax(32rem, 1.08fr) minmax(27rem, 0.92fr);
   align-items: start;
@@ -946,4 +981,11 @@
 .diagnosis-remediation-copy-btn.ant-btn:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 720px) {
+  .diagnosis-exam-journey { grid-template-columns: 1fr; gap: 7px; padding: 12px; }
+  .diagnosis-exam-journey li { padding: 8px 11px; }
+  .diagnosis-technical-details { margin-inline: 12px; }
+  .diagnosis-technical-details > summary span { display: block; margin: 3px 0 0; }
 }

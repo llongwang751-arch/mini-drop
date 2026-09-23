@@ -55,7 +55,7 @@ describe("ActualExplorationTree", () => {
 
     expect(screen.getByText("实际探索树")).toBeInTheDocument();
     expect(screen.getByRole("tree", { name: "真实父子探索树" })).toBeInTheDocument();
-    expect(screen.getByText("剪枝 1 条")).toBeInTheDocument();
+    expect(screen.getByText("已排除 1 条方向")).toBeInTheDocument();
     expect(screen.getByText("方向切换 0 次")).toBeInTheDocument();
     expect(screen.getByText("推断方向变化 1 次")).toBeInTheDocument();
     expect(screen.getByText((_, element) => (
@@ -224,14 +224,15 @@ describe("ActualExplorationTree", () => {
     expect(selected).toHaveClass("is-lats-selected");
     expect(selected).toHaveClass("is-lats-best-path");
     expect(selected).toHaveAccessibleName(/访问 5 次/);
-    expect(within(selected).getByText("访问次数")).toBeInTheDocument();
-    expect(within(selected).getByText("1.420")).toBeInTheDocument();
+    expect(within(selected).queryByText("访问次数")).not.toBeInTheDocument();
 
     const scoreButton = screen.getByRole("button", { name: "查看 LATS 节点评分：I/O 队列拥塞" });
     fireEvent.pointerDown(scoreButton, { button: 0, pointerId: 1 });
     fireEvent.click(scoreButton);
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("LATS 节点评分详情")).toBeInTheDocument();
+    expect(within(dialog).getByText("访问次数")).toBeInTheDocument();
+    expect(within(dialog).getByText("1.420")).toBeInTheDocument();
     expect(within(dialog).getByText("评分字段怎么读")).toBeInTheDocument();
     expect(within(dialog).getByText("磁盘队列深度与延迟同窗上升")).toBeInTheDocument();
     expect(within(dialog).getByText("CPU 分支收益较低，转向 I/O")).toBeInTheDocument();
@@ -393,7 +394,7 @@ describe("ActualExplorationTree", () => {
       />,
     );
 
-    expect(screen.getByText("语义合并 1 个重复假设")).toBeInTheDocument();
+    expect(screen.getByText("合并重复假设 1 个")).toBeInTheDocument();
     const tree = screen.getByRole("tree", { name: "真实父子探索树" });
     expect(within(tree).getAllByRole("treeitem")).toHaveLength(4);
     const merged = container.querySelector('[data-node-id="hypothesis:hotspot-r3"]');
@@ -466,7 +467,7 @@ describe("ActualExplorationTree", () => {
     expect(within(lane).getByRole("button", { name: "查看 Skill 阶段：第 2 轮沿用" })).toBeInTheDocument();
     expect(within(lane).getByRole("button", { name: /内存.*当前步骤/ })).toBeInTheDocument();
     expect(screen.getByRole("tree", { name: "真实父子探索树" })).toBeInTheDocument();
-    expect(screen.getByText("Skill 路线（非证据）")).toBeInTheDocument();
+    expect(screen.getByText("查看每轮路线、转向和 Skill")).toBeInTheDocument();
 
     fireEvent.click(within(lane).getByRole("button", { name: "查看 Skill 阶段：第 3 轮沿用" }));
     const dialog = screen.getByRole("dialog");

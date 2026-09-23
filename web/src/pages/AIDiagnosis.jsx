@@ -10,7 +10,6 @@ import {
   Segmented,
   Space,
   Spin,
-  Steps,
   Tag,
   Typography,
   message,
@@ -30,7 +29,7 @@ import {
 import ChatThread from "../components/ChatThread";
 import AgentCockpit from "../components/AgentCockpit";
 import DiagnosisFinding from "../components/DiagnosisFinding";
-import ObservabilityOverview from "../components/ObservabilityOverview";
+import ObservabilityOverview, { buildObservationModel } from "../components/ObservabilityOverview";
 import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
@@ -204,7 +203,7 @@ export default function AIDiagnosis() {
   const [composerAction, setComposerAction] = useState("ADD_CONTEXT");
   // 每次进入诊断页都先给对话完整宽度。分屏是临时对照工具，不应因上一次
   // 浏览器偏好把用户永久困在狭窄的双栏布局中。
-  const [contentView, setContentView] = useState("conversation");
+  const [contentView, setContentView] = useState("tree");
   const [mode, setMode] = useState(() => {
     try {
       return window.localStorage.getItem("mini-drop-diagnosis-mode") === "expert" ? "expert" : "simple";
@@ -706,37 +705,34 @@ export default function AIDiagnosis() {
     }
   }
 
-  const diagnosisProcess = useMemo(() => {
+  const examProgress = useMemo(() => {
     const hasScope = Boolean(detail?.target?.agent_id || detail?.agent_id || detail?.target?.pid || detail?.pid);
-    let current = 0;
-    if (hasScope) current = 1;
-    if (resources.hypotheses.length) current = 2;
-    if (resources.toolCalls.length) current = 3;
-    if (resources.evidence.length) current = 4;
-    if (resources.reports.length || TERMINAL.has(detail?.status)) current = 5;
     return {
-      current,
-      items: ["理解问题", "确认范围", "生成假设", "决策树取证", "证据裁决", "结论验证"].map((title) => ({ title })),
+      hasScope,
+      hasEvidence: resources.evidence.length > 0,
+      evidenceCount: resources.evidence.length,
+      hasReport: resources.reports.length > 0,
+      terminal: TERMINAL.has(detail?.status),
     };
   }, [detail, resources]);
 
   const canonical = canonicalStatus(detail?.status || selectedCase?.status);
+  const normalObservation = detail && buildObservationModel(detail, resources).assessment.code === "NO_VERIFIED_FAULT";
   const treeStats = resources.explorationTree?.stats || {};
-  const treeRevision = resources.explorationTree?.revision || 0;
   const hasActiveDiagnosis = Boolean(detail || selectedCase);
 
   return (
     <div className={`ai-diagnosis-page ${hasActiveDiagnosis ? "has-session" : "is-start"} content-${contentView}`}>
       <header className="diagnosis-command-header is-compact">
         <div>
-          <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 智能诊断</div>
+          <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 服务体检</div>
           <Title level={2}>
             {hasActiveDiagnosis ? (treeStats.current_round ? `当前诊断 · 第 ${treeStats.current_round} 轮` : "当前诊断 · 轮次待同步") : "从异常现象，找到性能瓶颈"}
           </Title>
           <Paragraph>
             {hasActiveDiagnosis
-              ? "先看根因、可信度与建议；需要时再展开完整调查过程。"
-              : "描述服务、时间和异常表现，系统将逐步采集证据并验证原因。"}
+              ? "先看本次状态，再沿排查树查看证据与下一步。"
+              : "选择已接入的服务，检查当前状态；有异常时再沿证据逐步排查。"}
           </Paragraph>
         </div>
         <div className="diagnosis-live-signals">
@@ -744,7 +740,7 @@ export default function AIDiagnosis() {
             {sseConnected ? <WifiOutlined /> : <DisconnectOutlined />}
             {sseConnected ? "实时事件已连接" : "轮询兜底中"}
           </span>
-          {hasActiveDiagnosis && <span><BranchesOutlined /> 树版本 {treeRevision}</span>}
+          {hasActiveDiagnosis && <span><BranchesOutlined /> 第 {treeStats.current_round || 1} 轮排查</span>}
           <button type="button" className="diagnosis-help-button" onClick={() => setHelpOpen(true)}>诊断说明</button>
         </div>
       </header>
@@ -789,13 +785,13 @@ export default function AIDiagnosis() {
                 </Button>
                 {hasActiveDiagnosis && <Button onClick={startBlankDiagnosis}>新建诊断</Button>}
                 <Segmented
-                  options={[{ label: "接入服务", value: "services" }, { label: "Agent 工作台", value: "workspace" }, { label: "验证与 A/B", value: "evaluation" }]}
+                  options={[{ label: "选择服务", value: "services" }, { label: "体检报告", value: "workspace" }, { label: "案例验证", value: "evaluation" }]}
                   value={workspaceView}
                   onChange={setWorkspaceView}
                 />
               </Space>
-              <Text type="secondary">{workspaceView === "services" ? "业务后台" : workspaceView === "evaluation" ? "验证中心" : "当前诊断"}</Text>
-              <Title level={4}>{workspaceView === "services" ? "选择实际后台服务进行诊断" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : diagnosisDisplayQuery(detail?.query || selectedCase?.query, "开始一次新诊断")}</Title>
+              <Text type="secondary">{workspaceView === "services" ? "第一步 · 选择对象" : workspaceView === "evaluation" ? "受控案例" : "本次体检"}</Text>
+              <Title level={4}>{workspaceView === "services" ? "选择要检查的服务" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : diagnosisDisplayQuery(detail?.query || selectedCase?.query, "开始一次新诊断")}</Title>
             </div>
             {workspaceView === "workspace" && (
               <Space wrap>
@@ -816,7 +812,7 @@ export default function AIDiagnosis() {
                         try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
                       }}
                       options={[
-                        { label: "自主", value: "simple" },
+                        { label: "自动检查", value: "simple" },
                         { label: "人工审批", value: "expert" },
                       ]}
                     />
@@ -825,8 +821,8 @@ export default function AIDiagnosis() {
                     value={contentView}
                     onChange={setContentView}
                     options={[
-                      { label: "对话", value: "conversation" },
-                      { label: "探索树", value: "tree" },
+                      { label: "排查树", value: "tree" },
+                      { label: "调查记录", value: "conversation" },
                       { label: "分屏", value: "split" },
                     ]}
                     aria-label="工作台显示方式"
@@ -863,16 +859,18 @@ export default function AIDiagnosis() {
             </div>
           ) : (
             <>
-              {detail && contentView !== "tree" && (
-                <div className="diagnosis-stage-rail">
-                  <Steps
-                    size="small"
-                    responsive={false}
-                    current={diagnosisProcess.current}
-                    status={detail.status === "FAILED" ? "error" : "process"}
-                    items={diagnosisProcess.items}
-                  />
-                </div>
+              {detail && (
+                <ol className="diagnosis-exam-journey" aria-label="本次体检进度">
+                  <li className={examProgress.hasScope ? "is-done" : "is-current"}>
+                    <span className="diagnosis-exam-number">1</span><div><strong>确认对象</strong><small>{examProgress.hasScope ? "已找到目标进程" : "正在确认目标进程"}</small></div>
+                  </li>
+                  <li className={examProgress.hasEvidence ? "is-done" : examProgress.terminal ? "is-limited" : "is-current"}>
+                    <span className="diagnosis-exam-number">2</span><div><strong>采集证据</strong><small>{examProgress.hasEvidence ? `已记录 ${examProgress.evidenceCount} 条证据` : examProgress.terminal ? "本次没有可用证据" : "等待采样结果"}</small></div>
+                  </li>
+                  <li className={examProgress.hasReport ? "is-done" : examProgress.terminal ? "is-limited" : "is-current"}>
+                    <span className="diagnosis-exam-number">3</span><div><strong>给出判断</strong><small>{examProgress.hasReport ? "报告与下一步已生成" : examProgress.terminal ? "未形成报告" : "等待证据裁决"}</small></div>
+                  </li>
+                </ol>
               )}
               {resourceErrors.length > 0 && (
                 <Alert
@@ -897,29 +895,19 @@ export default function AIDiagnosis() {
                 />
               )}
 
-              {detail && !frozenReplay && contentView !== "tree" && (
+              {detail && !frozenReplay && (
                 <>
                   <ObservabilityOverview detail={detail} resources={resources} />
-                  <DiagnosisFinding reports={resources.reports} status={detail.status} />
+                  {!normalObservation && <DiagnosisFinding reports={resources.reports} status={detail.status} />}
                 </>
-              )}
-              {detail && (
-                <div className="diagnosis-cockpit-slot">
-                  <AgentCockpit
-                    compact={contentView === "tree" ? "tree" : true}
-                    detail={detail}
-                    resources={resources}
-                    sourceSkill={sourceSkill}
-                    connected={sseConnected}
-                    onOpenEvaluation={() => setWorkspaceView("evaluation")}
-                  />
-                </div>
               )}
 
               {!hasActiveDiagnosis && (
                 <section className="diagnosis-start-intro" aria-label="开始诊断">
-                  <h3>哪里出现了异常？</h3>
-                  <p>尽量描述服务或进程、发生时间，以及 CPU、内存或请求延迟的变化。</p>
+                  <h3>先选服务，做一次体检</h3>
+                  <p>已接入的业务可以直接检查当前状态。若有明显异常，也可以从下方描述现象开始。</p>
+                  <Button type="primary" size="large" onClick={() => setWorkspaceView("services")}>选择已接入服务</Button>
+                  <p className="diagnosis-manual-intro">或从异常现象开始排查</p>
                   <div className="diagnosis-example-queries">
                     {[
                       ["CPU 升高", "订单服务最近 5 分钟 CPU 持续升高，请定位热点并排除同机争抢。"],
@@ -979,6 +967,19 @@ export default function AIDiagnosis() {
                   )}
                 </div>
               </Spin>}
+
+              {normalObservation && <details className="diagnosis-normal-report"><summary>查看完整报告与证据限制</summary><DiagnosisFinding reports={resources.reports} status={detail.status} /></details>}
+              {detail && <details className="diagnosis-technical-details">
+                <summary>技术数据与采集状态 <span>需要排查工具、证据或模型过程时展开</span></summary>
+                <AgentCockpit
+                  compact={true}
+                  detail={detail}
+                  resources={resources}
+                  sourceSkill={sourceSkill}
+                  connected={sseConnected}
+                  onOpenEvaluation={() => setWorkspaceView("evaluation")}
+                />
+              </details>}
 
               <div className="diagnosis-composer-shell">
                 {frozenReplay && (

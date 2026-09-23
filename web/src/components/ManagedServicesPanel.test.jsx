@@ -11,7 +11,7 @@ it("starts diagnosis by service identity and symptoms without sending a PID", as
   const open = vi.fn();
   render(<ManagedServicesPanel onOpenDiagnosis={open} />);
   await screen.findByText("办公助手");
-  fireEvent.change(screen.getByLabelText("这个后台出现了什么性能问题？"), { target: { value: "知识库查询很慢" } });
+  fireEvent.change(screen.getByLabelText("有异常现象？写在这里（可选）"), { target: { value: "知识库查询很慢" } });
   fireEvent.click(screen.getByRole("button", { name: "诊断这个后台" }));
   await waitFor(() => expect(open).toHaveBeenCalledWith("insight-office"));
   expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", { query: "知识库查询很慢", mode: "AUTONOMOUS" });
@@ -64,7 +64,7 @@ it("submits only the selected request ID and rejects an expired selection", asyn
   await screen.findByText("办公助手");
   fireEvent.mouseDown(screen.getByRole("combobox"));
   fireEvent.click(await screen.findByText(/140 ms/));
-  fireEvent.change(screen.getByLabelText("这个后台出现了什么性能问题？"), { target: { value: "保存笔记明显变慢" } });
+  fireEvent.change(screen.getByLabelText("有异常现象？写在这里（可选）"), { target: { value: "保存笔记明显变慢" } });
   fireEvent.click(screen.getByRole("button", { name: "诊断这个后台" }));
   await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
     query: "保存笔记明显变慢", mode: "AUTONOMOUS", request_id: row.request_id,

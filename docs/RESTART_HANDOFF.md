@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-23 服务体检式页面发布
+
+平台 `/opt/mini-drop-current` → `/opt/mini-drop-releases/20260923T112700Z`，仅 Web 镜像更新；Worker/Analyzer/Chroma 保持 `20260923T101442Z`，AGI-saber 保持 `20260923T105939Z`。入口为“选择服务 → 检查当前状态/描述异常 → 体检报告与默认排查树”；完整报告、技术数据和路线按需展开。云端健康三依赖正常，历史真实案例浏览器无 JS/HTTP 错误。回滚用本发布 `private/rollback.compose.json` 恢复前一 Web 镜像，再原子指回 `20260923T112200Z`；不能删除卷、历史发布或 Evidence。验收与具体口径见 [发布记录](../reports/architecture/service-exam-release-20260923.md)。
+
 ## 2026-09-23 AGI-saber 请求级接入
 
 最终发布：平台 `/opt/mini-drop-current` → `20260923T105000Z`（只更新 Web），Python Worker/Analyzer/Chroma 为 `20260923T101442Z`，办公助手 `/opt/agi-office/current` → `20260923T105939Z`。公网真实问答和浏览器通过；诊断 `insight_31065996e81542658cd1800f2bdb00a4` 附着真实请求并采到 15 个系统样本，仍是 `INSUFFICIENT_EVIDENCE`，正常窗口卡片显示“未确认故障”。不要把重复问答的耗时差当作修复效果。详情和回滚见 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md)。
