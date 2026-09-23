@@ -25,7 +25,7 @@ def main():
                 continue
             if directory == 'web/dist' or path.suffix in EXTENSIONS or path.name in {'Dockerfile', 'CMakeLists.txt'}:
                 files.append(path)
-    files += [ROOT/name for name in ['pyproject.toml', 'README.md', 'alembic.ini', '.dockerignore']]
+    files += [ROOT/name for name in ['pyproject.toml', 'README.md', 'alembic.ini', '.dockerignore', 'deploy/nginx/control-tls.conf']]
     manifest = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tarfile.open(args.output, 'w:gz') as archive:

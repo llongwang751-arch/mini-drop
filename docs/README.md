@@ -1,5 +1,7 @@
 # 文档入口
 
+- [`FULL_CHAIN_ACCEPTANCE.md`](FULL_CHAIN_ACCEPTANCE.md)：AGI-saber 百万字上传、真实向量检索、Mini-Drop 后台指标/排查树、故障撤销与验收判据
+
 - [2026-09-19 Agent 预算与证据缺口改进](../reports/architecture/agent-deadline-20260919.md)：模型阶段预算、晚到审批拒绝、缺口字段与云端回归
 
 - [SRE 诊断 Agent 定位与开源源码对照](../reports/architecture/sre-diagnosis-agent-design-20260919.md)：循证、性能树、ReAct/LATS 分层、三路 RAG、记忆与 Harness

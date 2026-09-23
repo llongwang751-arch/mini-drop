@@ -1,5 +1,11 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-23 百万字向量上传与公网验收（最新）
+
+办公助手 `/opt/agi-office/current` → `20260923T152700Z`，硅基流动 `BAAI/bge-m3` + 本机 Milvus Lite；平台 `/opt/mini-drop-current` → `20260923T160200Z`，Worker 实际镜像保持 `20260923T154500Z`，Web 与办公助手专属 600 秒 Nginx 超时为新版本。办公助手服务 `MemoryMax=1G` 已持久化，原 512 MiB 不足；向量库、SQLite、平台卷保留。百万字 API 7,701 块 / 241 次 Embedding 成功，语义问答重启后通过。公网首轮百万字网页上传因旧 120 秒代理超时收到 504，后台后来成功入库；新配置下网页返回 HTTP 200、7,701 块，Mini-Drop 同 request_id 显示 7,701 已入库向量、向量化慢阶段与进程/cgroup 数字。最新结果、原始失败与具体步骤见 [长文档验收](../reports/business-acceptance/long-document-ingest-20260923.md) 与 [全链路步骤](FULL_CHAIN_ACCEPTANCE.md)。严格 AI 根因门禁仍为 1/21，业务阶段慢定位不冒充 VERIFIED。根盘 40 GiB 已用约 97%，只剩约 1.2 GiB，不能为扩容删除用户数据或旧发布。
+
+最终网页三段慢检索复测已通过：受控注入 0/2500/0 ms、检索 1457/3517/1204 ms，恢复窗口回落、同 PID/版本、无浏览器错误。早一次复测因旧 2000 ms 差值门槛误报未恢复，页面阈值已改成仍有 1500 ms 差值与注入标记联合判定。相关 AI 诊断 `insight_d913bd0a67784d25b6e707dde7912964` 在创建后进入循证流程；查看最终状态时不要将受控恢复当作 VERIFIED 根因。
+
 ## 2026-09-23 正常体检链路修复（最新）
 
 最终 `/opt/mini-drop-current` → `20260923T114300Z`，Diagnosis Worker 和 Web 使用本发布镜像；Analyzer/Chroma 保持 `20260923T101442Z`，AGI-saber 保持 `20260923T105939Z`。前一 Web-only 页面发布 `20260923T112700Z` 留存。初次真实“检查当前状态”被故障症状澄清阻断，旧失败会话保留；最终 Worker 对显式健康检查只做一次有界 `sys_metrics` 初筛。新公网会话 `insight_cdece16dd6da4944a3b38987b58abc0c` 约 29 秒完成 1 采集、2 Evidence、1 Report，页面有进程数字和树，结论为“本次观测窗口未确认故障”，Report 仍为 `INSUFFICIENT_EVIDENCE`。健康三依赖正常。回滚先用本发布 `private/rollback.compose.json` 恢复 Worker/Web，再原子指回 `20260923T112700Z`；保留卷、历史 Evidence 和旧发布。详见 [发布记录](../reports/architecture/service-exam-release-20260923.md)。

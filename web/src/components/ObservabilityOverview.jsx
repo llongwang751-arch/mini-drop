@@ -70,6 +70,17 @@ export function buildObservationModel(detail = {}, resources = {}) {
     .find((event) => event?.event_type === "diagnosis.created")?.payload_json?.business_observation
     || rows(resources.events).find((event) => event?.event_type === "diagnosis.created")?.payload?.business_observation
     || null;
+  const controlledFault = businessObservation?.source === "agi_office_rag_instrumentation"
+    && businessObservation?.exercise_phase === "fault"
+    && number(businessObservation?.injected_delay_ms) === 2500
+    && number(businessObservation?.stage_ms?.retrieval_ms) >= 2000;
+  const documentIngest = businessObservation?.source === "agi_office_rag_instrumentation"
+    && businessObservation?.operation === "rag.ingest";
+  const ingestStages = documentIngest
+    ? [["split_ms", "分块"], ["embedding_ms", "向量化"], ["index_ms", "索引入库"], ["parse_and_http_ms", "接收与解析"]]
+      .map(([key, label]) => ({ label, ms: number(businessObservation?.stage_ms?.[key]) }))
+      .filter((stage) => stage.ms !== null).sort((a, b) => b.ms - a.ms)
+    : [];
   const metricEvidence = evidence.filter(isSystemMetrics).at(-1) || null;
   const metricMetadata = metricEvidence ? evidenceMetadata(metricEvidence) : {};
   const summary = metricMetadata.summary || {};
@@ -104,6 +115,25 @@ export function buildObservationModel(detail = {}, resources = {}) {
       code: "FAULT_VERIFIED",
       title: "已定位有证据支持的异常",
       detail: "根因结论已通过当前报告的证据门禁，可继续查看调用栈与修复验证。",
+    };
+  } else if (controlledFault) {
+    assessment = {
+      code: "CONTROLLED_FAULT_OBSERVED",
+      title: "业务慢检索已观测，AI 根因尚未验证",
+      detail: "这次 AGI-saber 问答在检索路径记录到 2500 ms 受控延迟。后续进程采样属于另一时间窗；请返回服务页查看撤销后同请求复测。",
+    };
+  } else if (documentIngest) {
+    const dominant = ingestStages[0];
+    const slowStageObserved = businessObservation.business_result === "COMPLETED"
+      && ["索引入库", "向量化"].includes(dominant?.label)
+      && dominant.ms >= Number(businessObservation.duration_ms) * 0.6
+      && Number(businessObservation.chunk_count) >= 100;
+    assessment = {
+      code: "DOCUMENT_INGEST_OBSERVED",
+      title: businessObservation.business_result === "FAILED" ? "文档导入失败，后台阶段已留痕" : slowStageObserved ? `已定位慢阶段：${dominant.label}` : "文档导入已观测，后台阶段可核对",
+      detail: slowStageObserved
+        ? `这次导入的${dominant.label}阶段耗时 ${compact(dominant.ms)} ms，占总耗时 ${compact(dominant.ms / Number(businessObservation.duration_ms) * 100, 0)}%。这是业务阶段定位；具体代码原因需结合修复前后复测。`
+        : "上传请求的分块、向量化、索引和进程资源来自 AGI-saber 进程内观测；AI 根因仍按独立证据门禁判断。",
     };
   } else if (COMPLETED_WINDOWS.has(status) && metricEvidence && supportCount === 0) {
     assessment = {
@@ -143,6 +173,9 @@ export function buildObservationModel(detail = {}, resources = {}) {
   return {
     assessment,
     businessObservation,
+    controlledFault,
+    documentIngest,
+    dominantIngestStage: ingestStages[0] || null,
     target: {
       service: target.service || detail.service || "未指定服务",
       pid: target.pid ?? binding.pid ?? processIdentity.pid,
@@ -191,18 +224,20 @@ export default function ObservabilityOverview({ detail, resources }) {
   const { assessment, target } = model;
   const healthyWindow = assessment.code === "NO_VERIFIED_FAULT";
   const verifiedFault = assessment.code === "FAULT_VERIFIED";
+  const observedFault = assessment.code === "CONTROLLED_FAULT_OBSERVED";
+  const ingestObserved = assessment.code === "DOCUMENT_INGEST_OBSERVED";
 
   return (
     <section className="diagnosis-observation" aria-label="目标进程与性能观测">
       <header className={`observation-assessment is-${assessment.code.toLowerCase()}`}>
         <span className="observation-assessment-icon">
-          {verifiedFault ? <ExclamationCircleOutlined /> : healthyWindow ? <CheckCircleOutlined /> : <FundOutlined />}
+          {verifiedFault || observedFault ? <ExclamationCircleOutlined /> : healthyWindow ? <CheckCircleOutlined /> : <FundOutlined />}
         </span>
         <div>
           <h3>{assessment.title}</h3>
           <p>{assessment.detail}</p>
         </div>
-        <Tag color={verifiedFault ? "red" : healthyWindow ? "green" : "blue"}>
+        <Tag color={verifiedFault ? "red" : observedFault ? "orange" : healthyWindow ? "green" : "blue"}>
           {diagnosticStatusLabel(detail?.status, "状态同步中")}
         </Tag>
       </header>
@@ -220,10 +255,25 @@ export default function ObservabilityOverview({ detail, resources }) {
         <div className="observation-request-summary">
           <strong>关联 AGI-saber 知识库问答</strong>
           <span>业务耗时 {compact(model.businessObservation.duration_ms)} ms</span>
+          {model.controlledFault && <span>受控检索延迟 2500 ms</span>}
           <span>请求 {String(model.businessObservation.request_id || "").slice(0, 12)}…</span>
           <span>后续进程采样是复现窗口</span>
         </div>
       )}
+      {model.documentIngest && <div className="observation-request-summary">
+        <strong>关联 AGI-saber 文档导入</strong>
+        <span>正文 {compact(model.businessObservation.content_chars, 0)} 字</span>
+        <span>分块 {compact(model.businessObservation.chunk_count, 0)}</span>
+        <span>向量已入库 {compact(model.businessObservation.vector_indexed_count, 0)}</span>
+        <span>导入耗时 {compact(model.businessObservation.duration_ms)} ms</span>
+        {model.dominantIngestStage && <span>主要耗时 {model.dominantIngestStage.label} {compact(model.dominantIngestStage.ms)} ms</span>}
+        <span>进程 CPU {compact(model.businessObservation.process_cpu_ms)} ms / RSS 峰值 {compact(model.businessObservation.rss_peak_mib)} MiB</span>
+        <span>服务组 CPU {compact(model.businessObservation.service_cpu_ms)} ms / 内存峰值 {compact(model.businessObservation.service_memory_peak_mib)} MiB（限额 {compact(model.businessObservation.service_memory_limit_mib)} MiB）</span>
+        {model.businessObservation.embed_calls > 0 && model.businessObservation.embed_calls === model.businessObservation.embed_failures
+          && <span>向量化全部失败；本次为词法索引</span>}
+        {model.businessObservation.embed_calls > model.businessObservation.embed_failures && model.businessObservation.vector_indexed_count === 0
+          && <span>Embedding 已返回，但向量入库未确认</span>}
+      </div>}
 
       <div className="observation-metrics" aria-label="当前性能数字">
         {model.metrics.filter((metric) => ["process-cpu", "rss", "threads", "fd"].includes(metric.key)).map((metric) => (
@@ -287,6 +337,15 @@ export default function ObservabilityOverview({ detail, resources }) {
               </div>
             </section>
           )}
+          {model.documentIngest && <section className="observation-business-metrics" aria-label="关联导入阶段耗时">
+            <div><h4>这次上传的后台阶段</h4><p>来自真实 AGI-saber 请求。进程 CPU/RSS 包含同期其他请求，不是独占资源。</p></div>
+            <div className="observation-business-grid">
+              {[["parse_and_http_ms", "接收与解析"], ["split_ms", "文档分块"], ["embedding_ms", "向量化"], ["index_ms", "索引入库"], ["vector_write_ms", "其中向量库写入"]].map(([key, label]) => (
+                <div key={key}><span>{label}</span><strong>{number(model.businessObservation.stage_ms?.[key]) === null ? "未采集" : `${compact(model.businessObservation.stage_ms[key])} ms`}</strong></div>
+              ))}
+              <div><span>向量化调用 / 失败</span><strong>{compact(model.businessObservation.embed_calls, 0)} / {compact(model.businessObservation.embed_failures, 0)}</strong></div>
+            </div>
+          </section>}
 
           <div className="observation-provenance">
             <div className="observation-section-heading">

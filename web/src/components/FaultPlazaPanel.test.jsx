@@ -70,6 +70,15 @@ describe("FaultPlazaPanel", () => {
     );
   });
 
+  it("stops an injected fault when diagnosis creation fails", async () => {
+    api.stopFaultPlazaScenario.mockResolvedValue({ scenario: { active: false } });
+    const onStartDiagnosis = vi.fn().mockRejectedValue(new Error("diagnosis unavailable"));
+    render(<FaultPlazaPanel onStartDiagnosis={onStartDiagnosis} />);
+    await screen.findByText("CPU 热循环");
+    fireEvent.click(screen.getByRole("button", { name: /启动并诊断/ }));
+    await waitFor(() => expect(api.stopFaultPlazaScenario).toHaveBeenCalledWith("cpu-hot-loop"));
+  });
+
   it("silently refreshes while a visible fault scenario is active", async () => {
     const intervalSpy = vi.spyOn(window, "setInterval").mockImplementation(() => 17);
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");

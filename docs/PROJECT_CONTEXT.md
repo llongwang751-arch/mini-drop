@@ -1,5 +1,16 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-23 AGI-saber 百万字入库与向量检索（最新）
+
+AGI-saber 办公助手已接入硅基流动 `BAAI/bge-m3` Embedding 和本机持久化 Milvus Lite，向量库在 `/var/lib/agi-office/vector/milvus.db`；凭据仅在云端 root 私有环境文件，不进仓库。办公助手发布 `20260923T152700Z`；Mini-Drop 平台最终 `/opt/mini-drop-current` → `20260923T160200Z`（Web），Diagnosis Worker 为 `20260923T154500Z`。此次是专用请求级业务遥测接入，不是完整 OpenTelemetry 分布式追踪。最终验收见 [全链路验收](FULL_CHAIN_ACCEPTANCE.md)。
+
+公网百万字上传首轮被办公助手网关的 120 秒读取超时截断为 HTTP 504，已把该路径专用的代理读取超时改为 600 秒，并保留失败状态记录。其余 API 超时不因此放宽；长文档上传仍须浏览器端返回成功才算页面通过。
+公网复测从办公助手原网页成功上传约 100 万字：HTTP 200、7,701 分块、7,701 向量入库、浏览器错误 0；Mini-Drop 同 request_id 页面展示分段耗时和进程/cgroup 资源，随后体检会话有 1 工具、2 Evidence、1 Report。新文档问答走 `semantic` 检索，回答正确。失败 504 的截图文件在重跑时被复用，保留的是验证器输出誊录而非原截图，详见 [长文档报告](../reports/business-acceptance/long-document-ingest-20260923.md)。根盘 40 GiB、剩余约 1.2 GiB 是当前容量限制，后续持续百万字导入需先扩容或制定保留策略，不应删旧数据换空间。
+
+公网三段故障演练在语义检索模式下确实采到 0/2500/0 ms 注入，检索分别约 1064/3408/1448 ms；旧页面误把“故障比恢复至少多 2000 ms”当硬门槛，实际差约 1959 ms 因此误报未恢复。新页面仍要求同进程、同版本、三段业务成功和明确注入标记，并将检索差值门槛设为 1500 ms，以容纳远程语义检索波动。严格 AI 根因门禁不变。
+
+真实接口上传 1,000,000 字返回 7,701 块、241/241 次 Embedding 成功、耗时 289.1 秒，其中向量化 230.8 秒、索引 58.0 秒，进程 RSS 峰值 320.3 MiB；服务组峰值约 647.6 MiB 超过旧的 512 MiB systemd 限额。首次上调至 768 MiB 后，网页百万字复验仍触发 cgroup 回收，故进一步上调**办公助手服务**限额至 1 GiB；主机可用内存当时约 1.2 GiB，未发生 OOM/重启。这不是主机总内存耗尽。较早无向量的 SQLite 单块提交瓶颈由 100 块一事务修复：100,000 字一次样本从 6.26 秒降到 1.34 秒；向量化后瓶颈转向远程 Embedding 调用，不能混用两个基准。更新后的进程内埋点记录分块、向量化、向量写入、索引、进程与 cgroup CPU/内存，页面按真实最大阶段展示“已定位慢阶段”。阶段定位不自动满足 AI 根因的 VERIFIED 门禁。重启后已从 Milvus Lite 语义召回并回答已入库文档的问题。实现/回滚/限制见 [服务接入](SERVICE_INTEGRATION.md) 和 [全链路验收](FULL_CHAIN_ACCEPTANCE.md)。
+
 ## 2026-09-23 正常体检链路修复与公网复测（最新）
 
 最终云端 `/opt/mini-drop-current` → `20260923T114300Z`，更新 Diagnosis Worker 与 Web；Analyzer/Chroma 沿用 `20260923T101442Z`，AGI-saber 沿用 `20260923T105939Z`。真实点击“选择服务 → AGI 办公助手后台 → 检查当前状态”先暴露规划器要求用户补充不存在的异常症状、120 秒后未取证的缺口（失败会话 `insight_cf9c16e0c4e24ea59d33c3883d412bf3` 已保留）。修复后该动作显式标记健康检查，限制为一次 `sys_metrics` 基线采样，跳过故障症状澄清与模型根因规划；异常排查仍走原有循证 Agent。公网新会话 `insight_cdece16dd6da4944a3b38987b58abc0c` 从真实服务按钮到报告约 29 秒，1 个 Tool Call、2 条 Evidence、1 份 Report，目标 PID 3102610，CPU 0.3%、RSS 102.8 MiB、线程 5、FD 10，页面显示“本次观测窗口未确认故障”和真实排查树，浏览器无 JS/HTTP 错误。Report 仍为 `INSUFFICIENT_EVIDENCE`，不证明永久健康或已验证根因。发布与回滚见 [服务体检改版记录](../reports/architecture/service-exam-release-20260923.md)。

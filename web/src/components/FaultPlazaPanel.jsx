@@ -119,6 +119,7 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
   const [duration, setDuration] = useState(60);
   const [busyKey, setBusyKey] = useState("");
   const [runtimeFilter, setRuntimeFilter] = useState("recommended");
+  const [recentRecovery, setRecentRecovery] = useState("");
 
   const load = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
@@ -160,8 +161,9 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
     }
     const key = `${scenario.scenario_id}:${intent}`;
     setBusyKey(key);
+    let started;
     try {
-      const started = await startFaultPlazaScenario(scenario.scenario_id, duration);
+      started = await startFaultPlazaScenario(scenario.scenario_id, duration);
       await load();
       if (intent === "diagnosis") {
         if (!started?.diagnosis_request) throw new Error("故障场景没有返回诊断请求");
@@ -175,7 +177,15 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
         message.success(`${scenario.title}已启动，将在 ${started?.auto_stop_seconds || duration} 秒后自动停止`);
       }
     } catch (actionError) {
-      message.error(actionError?.message || "故障场景启动失败");
+      if (started) {
+        try {
+          await stopFaultPlazaScenario(scenario.scenario_id);
+          await load();
+          message.error("诊断未能启动；已撤销刚才注入的故障");
+        } catch {
+          message.error("诊断未能启动，故障停止回读失败；请点击停止并确认自动过期状态");
+        }
+      } else message.error(actionError?.message || "故障场景启动失败");
     } finally {
       setBusyKey("");
     }
@@ -185,9 +195,10 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
     const key = `${scenario.scenario_id}:stop`;
     setBusyKey(key);
     try {
-      await stopFaultPlazaScenario(scenario.scenario_id);
+      const stopped = await stopFaultPlazaScenario(scenario.scenario_id);
       await load();
-      message.success(`${scenario.title}已停止`);
+      setRecentRecovery(stopped?.scenario?.active === false ? scenario.scenario_id : "");
+      message.success(stopped?.scenario?.active === false ? `${scenario.title}已停止；仍需复测业务指标` : `${scenario.title}已发送停止请求，请刷新核对`);
     } catch (actionError) {
       message.error(actionError?.message || "故障场景停止失败");
     } finally {
@@ -229,16 +240,10 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
       <div className="showcase-section-header">
         <div>
           <Title level={4}>故障广场</Title>
-          <Paragraph>启动白名单内的真实故障，再让 AI 采集、裁决和验证。所有场景都有自动停止保护。</Paragraph>
+          <Paragraph>选择一个受控故障，查看诊断，再停止并核对恢复。所有场景都有自动停止保护。</Paragraph>
         </div>
         <Space wrap>
           <Tag color={meta.color}>{meta.text}</Tag>
-          <Segmented
-            aria-label="故障持续时间"
-            value={duration}
-            onChange={setDuration}
-            options={[30, 60, 120].map((value) => ({ value, label: `${value} 秒` }))}
-          />
           <Button icon={<ReloadOutlined />} onClick={() => load()} loading={loading}>刷新状态</Button>
         </Space>
       </div>
@@ -250,7 +255,7 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
           ? (globallyReady ? "仅对 demo-target 实验环境注入故障" : "部分故障场景已就绪")
           : (plaza?.reason || "受控故障实验室尚未启用")}
         description={ready
-          ? "页面只能调用服务端固定场景，不能提交 URL、命令、Agent 或 PID。不要把故障注入指向生产环境。"
+          ? "仅作用于独立实验进程；停止注入后，还需在相同负载下核对指标。"
           : "启动 demo-target profile，并配置服务端的 MINI_DROP_FAULT_LAB_URL 后再刷新。诊断功能本身不受影响。"}
       />
       {error && <Alert type="error" showIcon message="故障广场加载失败" description={error} action={<Button size="small" onClick={() => load()}>重试</Button>} />}
@@ -299,6 +304,25 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
                   <Paragraph>{chineseDiagnosticText(scenario.symptom)}</Paragraph>
                 </div>
               </div>
+              {recentRecovery === scenario.scenario_id && !scenario.active && <Text type="success">注入已停止；业务恢复仍待同负载验证</Text>}
+              <div className="fault-scenario-actions">
+                <Button
+                  type="primary"
+                  icon={<ExperimentOutlined />}
+                  disabled={!ready || !scenarioAvailable}
+                  title={!scenarioAvailable ? unavailableReason : undefined}
+                  loading={busyKey === `${scenario.scenario_id}:diagnosis`}
+                  onClick={() => startScenario(scenario, "diagnosis")}
+                >启动并诊断</Button>
+                <Button
+                  danger
+                  icon={<PauseCircleOutlined />}
+                  disabled={!ready || !scenario.active}
+                  loading={busyKey === `${scenario.scenario_id}:stop`}
+                  onClick={() => stopScenario(scenario)}
+                >停止并恢复</Button>
+              </div>
+              <details className="fault-scenario-details"><summary>查看采集方式、历史验收和其他操作</summary>
               <dl className="fault-scenario-facts">
                 <div><dt>目标运行时</dt><dd>{runtimeLabel(scenario.target_runtime)}</dd></div>
                 <div><dt>建议轮次</dt><dd>{scenario.minimum_diagnosis_rounds == null ? "服务端未说明" : `至少 ${scenario.minimum_diagnosis_rounds} 轮`}</dd></div>
@@ -333,27 +357,15 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
                   onClick={() => startScenario(scenario, "start")}
                 >启动故障</Button>
                 <Button
-                  type="primary"
-                  icon={<ExperimentOutlined />}
-                  disabled={!ready || !scenarioAvailable}
-                  title={!scenarioAvailable ? unavailableReason : undefined}
-                  loading={busyKey === `${scenario.scenario_id}:diagnosis`}
-                  onClick={() => startScenario(scenario, "diagnosis")}
-                >启动并诊断</Button>
-                <Button
                   disabled={!ready || !scenarioAvailable || !supportsSkillAB}
                   title={!scenarioAvailable ? unavailableReason : !supportsSkillAB ? skillABReason : undefined}
                   loading={busyKey === `${scenario.scenario_id}:ab`}
                   onClick={() => startScenario(scenario, "ab")}
                 >Skill A/B</Button>
-                <Button
-                  danger
-                  icon={<PauseCircleOutlined />}
-                  disabled={!ready || !scenario.active}
-                  loading={busyKey === `${scenario.scenario_id}:stop`}
-                  onClick={() => stopScenario(scenario)}
-                >停止</Button>
               </div>
+              <div className="fault-scenario-duration"><Text type="secondary">最长持续时间</Text><Segmented aria-label="故障持续时间" value={duration} onChange={setDuration}
+                options={[30, 60, 120].map((value) => ({ value, label: `${value} 秒` }))} /></div>
+              </details>
             </article>
             );
           })}

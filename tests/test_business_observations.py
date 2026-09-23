@@ -92,6 +92,58 @@ def test_office_snapshot_keeps_request_stages_separate_from_process_evidence(tmp
     assert 'embedding_ms' not in item['stage_ms']
 
 
+def test_office_snapshot_accepts_content_free_upload_performance(tmp_path):
+    path = tmp_path / 'office.json'
+    now = datetime.now(timezone.utc).timestamp()
+    row = dict(request_id='c'*32, service_id='agi-office-backend', operation='rag.ingest',
+               method='POST', version='20260923T120000Z', status=200,
+               started_at_unix=now-2, ended_at_unix=now, duration_ms=2000, pid=1234,
+               stage_ms={'split_ms': 200, 'embedding_ms': 500, 'index_ms': 800,
+                         'ingest_ms': 1700, 'document_write_ms': 100, 'parse_and_http_ms': 200},
+               result='COMPLETED', content_chars=100_000, chunk_count=500,
+               embed_calls=500, embed_failures=500, process_cpu_ms=900,
+               rss_peak_mib=140)
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                   service_id='agi-office-backend', pid=1234, records=[row])), encoding='utf-8')
+    result = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert result['status'] == 'AVAILABLE'
+    assert result['items'][0]['content_chars'] == 100_000
+    assert result['items'][0]['stage_ms']['index_ms'] == 800
+    assert 'embed_failures' in observations.diagnosis_context(result['items'][0])
+
+
+def test_office_snapshot_accepts_slow_vector_upload_with_service_cgroup_usage(tmp_path):
+    path = tmp_path / 'office.json'
+    now = datetime.now(timezone.utc).timestamp()
+    row = dict(request_id='d'*32, service_id='agi-office-backend', operation='rag.ingest',
+               method='POST', version='20260923T152500Z', status=200,
+               started_at_unix=now-289, ended_at_unix=now, duration_ms=289000, pid=1234,
+               stage_ms={'embedding_ms': 230000, 'index_ms': 58000, 'vector_write_ms': 22000},
+               result='COMPLETED', content_chars=1_000_000, chunk_count=7701,
+               embed_calls=241, embed_failures=0, vector_indexed_count=7701,
+               process_cpu_ms=46000, rss_peak_mib=320,
+               service_cpu_ms=80000, service_memory_peak_mib=648,
+               service_memory_limit_mib=768)
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                   service_id='agi-office-backend', pid=1234, records=[row])), encoding='utf-8')
+    result = observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)
+    assert result['status'] == 'AVAILABLE'
+    assert result['items'][0]['vector_indexed_count'] == 7701
+    assert result['items'][0]['service_memory_limit_mib'] == 768
+
+
+def test_office_snapshot_rejects_more_vectors_than_chunks(tmp_path):
+    now = datetime.now(timezone.utc).timestamp()
+    row = dict(request_id='d'*32, service_id='agi-office-backend', operation='rag.ingest',
+               method='POST', version='20260923T152500Z', status=200,
+               started_at_unix=now-1, ended_at_unix=now, duration_ms=1000, pid=1234,
+               stage_ms={}, result='COMPLETED', chunk_count=1, vector_indexed_count=2)
+    path = tmp_path / 'office.json'
+    path.write_text(json.dumps(dict(schema_version='mini-drop.office-observations.v1',
+                                   service_id='agi-office-backend', pid=1234, records=[row])), encoding='utf-8')
+    assert observations._read_office_snapshot(path, {'id': 'agi-office-backend'}, limit=30)['invalid_records'] == 1
+
+
 @pytest.mark.parametrize('mutation', [
     lambda row: row.update(pid=5678),
     lambda row: row['stage_ms'].update(secret_ms=1),

@@ -128,4 +128,46 @@ describe("ObservabilityOverview", () => {
     expect(within(stages).getByText("200 ms")).toBeInTheDocument();
     expect(within(stages).getAllByText("未执行或未采集")).toHaveLength(2);
   });
+
+  it("keeps an observed controlled business fault distinct from an unverified AI root cause", () => {
+    const associated = { ...resources, events: [{ event_type: "diagnosis.created", payload: {
+      business_observation: { operation: "rag.question", source: "agi_office_rag_instrumentation",
+        request_id: "c".repeat(32), duration_ms: 3100, exercise_phase: "fault",
+        injected_delay_ms: 2500, stage_ms: { retrieval_ms: 2501 } },
+    } }] };
+    render(<ObservabilityOverview detail={{ ...detail, status: "INSUFFICIENT_EVIDENCE" }} resources={associated} />);
+    expect(screen.getByText("业务慢检索已观测，AI 根因尚未验证")).toBeInTheDocument();
+    expect(screen.getByText("受控检索延迟 2500 ms")).toBeInTheDocument();
+    expect(screen.queryByText("本次观测窗口未确认故障")).not.toBeInTheDocument();
+  });
+
+  it("shows an uploaded document's actual ingest stages before any AI root-cause claim", () => {
+    const associated = { ...resources, events: [{ event_type: "diagnosis.created", payload: {
+      business_observation: { operation: "rag.ingest", source: "agi_office_rag_instrumentation",
+        request_id: "e".repeat(32), duration_ms: 9400, content_chars: 1000000,
+        chunk_count: 5200, process_cpu_ms: 4100, rss_peak_mib: 310,
+        embed_calls: 0, embed_failures: 0, vector_indexed_count: 0,
+        service_cpu_ms: 5000, service_memory_peak_mib: 330,
+        service_memory_limit_mib: 768, business_result: "COMPLETED",
+        stage_ms: { split_ms: 1200, index_ms: 6000 } },
+    } }] };
+    render(<ObservabilityOverview detail={{ ...detail, status: "INSUFFICIENT_EVIDENCE" }} resources={associated} />);
+    expect(screen.getByText("已定位慢阶段：索引入库")).toBeInTheDocument();
+    expect(screen.getByText("正文 1,000,000 字")).toBeInTheDocument();
+    expect(screen.getByText("服务组 CPU 5,000 ms / 内存峰值 330 MiB（限额 768 MiB）")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("查看采集过程、完整指标和业务接入情况"));
+    expect(within(screen.getByLabelText("关联导入阶段耗时")).getByText("6,000 ms")).toBeInTheDocument();
+  });
+
+  it("identifies remote embedding as the slow phase when measured time dominates", () => {
+    const associated = { ...resources, events: [{ event_type: "diagnosis.created", payload: {
+      business_observation: { operation: "rag.ingest", source: "agi_office_rag_instrumentation",
+        request_id: "f".repeat(32), duration_ms: 10000, content_chars: 20000,
+        chunk_count: 153, vector_indexed_count: 153, business_result: "COMPLETED",
+        stage_ms: { split_ms: 2, embedding_ms: 7600, index_ms: 900 } },
+    } }] };
+    render(<ObservabilityOverview detail={{ ...detail, status: "INSUFFICIENT_EVIDENCE" }} resources={associated} />);
+    expect(screen.getByText("已定位慢阶段：向量化")).toBeInTheDocument();
+    expect(screen.getByText(/向量化阶段耗时 7,600 ms，占总耗时 76%/)).toBeInTheDocument();
+  });
 });
