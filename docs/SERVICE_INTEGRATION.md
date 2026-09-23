@@ -1,5 +1,9 @@
 # 真实后台服务接入
 
+## 2026-09-24 云端样本文档清理
+
+旧的 14 篇办公助手 `user_upload` 验收样本已清除。应用 `DELETE /api/documents/{id}` 会删除检索块并把文档标为 `deleted`，但本地 SQLite 仍保留旧版本正文，且不可用的 Elasticsearch 投影任务会使旧 Milvus 删除任务在队列中滞留。因此清理先通过原接口按 ID 删除，确认全部旧文档已删除且检索块为 0；再停止办公助手，按已确认的 14 个 ID 移除旧版本和文档行、清空仅由这些检索块产生的投影任务、重建空 `rag_chunks` 向量集合，对 SQLite 运行 `VACUUM` 与完整性检查，最后重启服务。数据库文件、向量库目录与平台卷均未删除。新建的小型健康样本经重启后仍有 1 个 1024 维向量、语义召回和正确问答。旧请求观测仅保存数字，可在 24 小时内作历史记录，但对应文档已不可再查询。当前容量及步骤见 [清理验收](../reports/business-acceptance/cloud-data-cleanup-20260924.md)。
+
 ## 2026-09-23 百万字文档与真实向量库
 
 办公助手原网页 `/api/office/` 的上传仍由原 FastAPI 处理。原 SQLite 每个分块提交一次，百万字可形成 7,701 次提交；现在按最多 100 块一事务提交，Embedding 和向量写入按最多 32 块一批流式执行，避免构造整篇向量数组。已安装 `pymilvus==3.0.2` 与 `milvus-lite==3.2.1`，本机向量库位于 `/var/lib/agi-office/vector/milvus.db`，重启后显式 load collection。Embedding 使用硅基流动 OpenAI 兼容接口的 `BAAI/bge-m3`（1024 维）；API URL、模型、密钥和向量库路径由 `/etc/agi-office/backend.env` 注入，密钥绝不写进观察、Git 或网页。部署依赖见 `integrations/agi_saber/requirements-vector.txt`；对云端原始 AGI-saber 发布的补丁见 `integrations/agi_saber/patches/`，补丁需对记录的原始源码版本应用，不能盲目套用到其他版本。

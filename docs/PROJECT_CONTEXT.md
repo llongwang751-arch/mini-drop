@@ -1,5 +1,9 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-24 云端验收文档清理（最新）
+
+用户授权删除云端无用文档后，已按文档 ID 清除办公助手中 14 篇旧 `user_upload` 验收样本（含百万字上传），并在服务停止的维护窗口清除其残留正文、26,026 个检索块对应的过期投影任务和旧 Milvus 集合；未删除 SQLite 数据库文件、向量库目录、平台卷、历史发布或诊断证据。`application.db` 经完整性检查和 `VACUUM` 从约 1.6 GiB 缩为约 12 MiB；`docker builder prune -f` 回收 5.848 GB 无用构建缓存。根盘从约 1.2 GiB 可用、97% 使用改善为约 8.3 GiB 可用、78% 使用。旧百万字上传的无正文请求计时快照仍按 24 小时窗口留存，**不能再对已删除文档做语义问答**；下文 9 月 23 日的百万字结果是历史验收记录。当前仅新建一篇小型向量健康样本 `doc_3524a665221efaf9`，1 分块、1024 维 Embedding；重启后原接口问答仍走 `semantic`、返回 1 个候选并答对样本事实。当前办公助手服务 `MemoryMax=1.5 GiB`、`NRestarts=0`、新 cgroup `oom=0`，平台健康接口三依赖正常。后续百万字演示需重新上传，详见 [清理验收](../reports/business-acceptance/cloud-data-cleanup-20260924.md) 与 [全链路步骤](FULL_CHAIN_ACCEPTANCE.md)。
+
 ## 2026-09-23 AGI-saber 百万字入库与向量检索（最新）
 
 AGI-saber 办公助手已接入硅基流动 `BAAI/bge-m3` Embedding 和本机持久化 Milvus Lite，向量库在 `/var/lib/agi-office/vector/milvus.db`；凭据仅在云端 root 私有环境文件，不进仓库。办公助手最终发布 `20260923T162200Z`；Mini-Drop 平台 `/opt/mini-drop-current` → `20260923T163300Z`（Web），Diagnosis Worker 为 `20260923T162100Z`。此次是专用请求级业务遥测接入，不是完整 OpenTelemetry 分布式追踪。最终验收见 [全链路验收](FULL_CHAIN_ACCEPTANCE.md)。

@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-24 云端清理后状态（最新）
+
+14 篇旧办公助手验收上传已从应用及其本地 SQLite 正文、检索分块和 Milvus 索引中清除；只保留新建的 1 篇小型向量健康样本。原 `application.db` 从约 1.6 GiB 缩至约 12 MiB，Docker 构建缓存回收 5.848 GB，根盘现约 8.3 GiB 可用（78% 使用）。重启后小样本 Embedding 为 1024 维、语义检索返回 1 候选且回答正确；旧百万字结果只可作历史验收证据，继续演示须重新上传。办公助手当前活跃、`MemoryMax=1536M`、`NRestarts=0`、cgroup 无 OOM，平台 `/api/healthz` 三依赖健康。未删数据库文件、向量库目录、平台卷、历史发布或诊断证据。细节见 [清理验收](../reports/business-acceptance/cloud-data-cleanup-20260924.md)。下方 9 月 23 日记录是清理前状态。
+
 ## 2026-09-23 百万字向量上传与公网验收（最新）
 
 办公助手 `/opt/agi-office/current` → `20260923T162200Z`，硅基流动 `BAAI/bge-m3` + 本机 Milvus Lite；平台 `/opt/mini-drop-current` → `20260923T163300Z`，Worker 为 `20260923T162100Z`、Web 为 `20260923T163300Z`，办公助手专属 600 秒 Nginx 超时生效。办公助手服务 `MemoryMax=1536M`（1.5 GiB）已持久化：旧 512 MiB 不足，1 GiB 也在多篇百万字文档重启加载时发生过一次 OOM 自动重启；最终 1.5 GiB 干净重启峰值约 1.21 GiB，`NRestarts=0`、新 cgroup `oom=0`，向量库、SQLite、平台卷保留，网页百万字文档重启后语义问答通过。百万字 API 7,701 块 / 241 次 Embedding 成功。公网首轮百万字网页上传因旧 120 秒代理超时收到 504，后台后来成功入库；新配置下网页返回 HTTP 200、7,701 块，Mini-Drop 同 request_id 显示 7,701 已入库向量、向量化慢阶段与进程/cgroup 数字。最新结果、原始失败与具体步骤见 [长文档验收](../reports/business-acceptance/long-document-ingest-20260923.md) 与 [全链路步骤](FULL_CHAIN_ACCEPTANCE.md)。严格 AI 根因门禁仍为 1/21，业务阶段慢定位不冒充 VERIFIED。根盘 40 GiB 已用约 97%，只剩约 1.2 GiB，不能为扩容删除用户数据或旧发布。

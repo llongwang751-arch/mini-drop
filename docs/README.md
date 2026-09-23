@@ -1,5 +1,7 @@
 # 文档入口
 
+- [2026-09-24 云端验收数据清理](../reports/business-acceptance/cloud-data-cleanup-20260924.md)：旧长文档与构建缓存清理、磁盘回收、向量检索重启复验
+
 - [`FULL_CHAIN_ACCEPTANCE.md`](FULL_CHAIN_ACCEPTANCE.md)：AGI-saber 百万字上传、真实向量检索、Mini-Drop 后台指标/排查树、故障撤销与验收判据
 
 - [2026-09-19 Agent 预算与证据缺口改进](../reports/architecture/agent-deadline-20260919.md)：模型阶段预算、晚到审批拒绝、缺口字段与云端回归
