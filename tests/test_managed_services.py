@@ -4,6 +4,7 @@ from server.app.database import init_db, reset_engine
 from server.app.sql_repository import SqlRepository
 from server.app.state_machine import now_utc
 from server.app.drop_insight import managed_services as managed
+from server.app.drop_insight.schemas import RunPlannerRequest
 
 
 @pytest.fixture(autouse=True)
@@ -79,6 +80,21 @@ def test_business_request_is_resolved_server_side_before_creating_case(monkeypat
     with pytest.raises(ValueError, match="请求不存在"):
         managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
             query="这次问答等待很久",request_id="a"*32),principal="test:operator")
+
+
+def test_health_check_uses_one_real_system_baseline_without_fault_clarification(monkeypatch):
+    snapshot()
+    diagnosis = managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+        query="检查当前业务和进程是否存在可验证的性能故障", health_check=True), principal="test:operator")
+    assert diagnosis["status"] == "UNDERSTANDING"
+    assert diagnosis["target"]["pid"] == 100
+    assert diagnosis["budget"]["max_tool_calls"] == 1
+    assert diagnosis["budget"]["max_diagnosis_rounds"] == 1
+    monkeypatch.setattr(managed.service, "propose_hypothesis_plan", lambda **kwargs: pytest.fail("health check must not wait for model planning"))
+    result = managed.service.run_diagnosis_planner(diagnosis["diagnosis_id"], RunPlannerRequest())
+    assert result["category"] == "SYSTEM_RESOURCE"
+    assert result["tool_call"]["tool_name"] == "collect_sys_metrics"
+    assert managed.service.get_diagnosis(diagnosis["diagnosis_id"]).status != "NEEDS_CLARIFICATION"
 
 
 def test_worker_role_does_not_select_router_or_background_processor():

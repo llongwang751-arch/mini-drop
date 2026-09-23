@@ -1,8 +1,12 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-23 正常体检链路修复与公网复测（最新）
+
+最终云端 `/opt/mini-drop-current` → `20260923T114300Z`，更新 Diagnosis Worker 与 Web；Analyzer/Chroma 沿用 `20260923T101442Z`，AGI-saber 沿用 `20260923T105939Z`。真实点击“选择服务 → AGI 办公助手后台 → 检查当前状态”先暴露规划器要求用户补充不存在的异常症状、120 秒后未取证的缺口（失败会话 `insight_cf9c16e0c4e24ea59d33c3883d412bf3` 已保留）。修复后该动作显式标记健康检查，限制为一次 `sys_metrics` 基线采样，跳过故障症状澄清与模型根因规划；异常排查仍走原有循证 Agent。公网新会话 `insight_cdece16dd6da4944a3b38987b58abc0c` 从真实服务按钮到报告约 29 秒，1 个 Tool Call、2 条 Evidence、1 份 Report，目标 PID 3102610，CPU 0.3%、RSS 102.8 MiB、线程 5、FD 10，页面显示“本次观测窗口未确认故障”和真实排查树，浏览器无 JS/HTTP 错误。Report 仍为 `INSUFFICIENT_EVIDENCE`，不证明永久健康或已验证根因。发布与回滚见 [服务体检改版记录](../reports/architecture/service-exam-release-20260923.md)。
+
 ## 2026-09-23 服务体检式诊断页面（本次改版）
 
-导师纪要要求“结论先行、证据链清晰、树状展示、简化术语”，见用户提供的 `Mini-drop（小组3）周会4-元宝纪要.txt`。AI 诊断入口改为“选择服务 → 检查当前状态或描述异常 → 看体检报告与排查树”：已接入服务的正常检查无需故障描述；真实业务请求可选关联。报告页先展示目标身份、CPU/RSS/线程/FD、本次窗口判断和三步进度，默认展开真实父子探索树；逐轮记录、Agent 驾驶舱、LATS 评分、Skill 路线和请求阶段细节按需查看。树和摘要仍从当前会话的持久化数据投影，不把缺失值补零，也不把“未确认故障”升级为 VERIFIED。最终云端 Web 发布 `/opt/mini-drop-current` → `20260923T112700Z`，Python 服务和 AGI-saber 保持原发布；43 文件、196 项 Web 测试与生产构建通过，公网历史真案例浏览器无错误。详细交互与状态口径见 [AI 诊断](AI_DIAGNOSIS.md)，发布与回滚见 [服务体检改版记录](../reports/architecture/service-exam-release-20260923.md)。
+导师纪要要求“结论先行、证据链清晰、树状展示、简化术语”，见用户提供的 `Mini-drop（小组3）周会4-元宝纪要.txt`。AI 诊断入口改为“选择服务 → 检查当前状态或描述异常 → 看体检报告与排查树”：已接入服务的正常检查无需故障描述；真实业务请求可选关联。报告页先展示目标身份、CPU/RSS/线程/FD、本次窗口判断和三步进度，默认展开真实父子探索树；逐轮记录、Agent 驾驶舱、LATS 评分、Skill 路线和请求阶段细节按需查看。树和摘要仍从当前会话的持久化数据投影，不把缺失值补零，也不把“未确认故障”升级为 VERIFIED。页面首版 Web 发布 `/opt/mini-drop-current` → `20260923T112700Z`，Python 服务和 AGI-saber 保持原发布；43 文件、196 项 Web 测试与生产构建通过，公网历史真案例浏览器无错误。详细交互与状态口径见 [AI 诊断](AI_DIAGNOSIS.md)，发布与回滚见 [服务体检改版记录](../reports/architecture/service-exam-release-20260923.md)。
 
 ## 2026-09-23 AGI-saber 请求级 RAG 观测
 

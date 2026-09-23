@@ -29,7 +29,7 @@ it("checks the current state without requiring a fault description", async () =>
   await screen.findByText("办公助手");
   fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
   await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
-    query: "检查当前业务和进程是否存在可验证的性能故障", mode: "AUTONOMOUS",
+    query: "检查当前业务和进程是否存在可验证的性能故障", mode: "AUTONOMOUS", health_check: true,
   }));
 });
 

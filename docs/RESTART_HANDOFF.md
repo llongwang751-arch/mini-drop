@@ -1,6 +1,10 @@
 # Mini-Drop 重启交接点
 
-## 2026-09-23 服务体检式页面发布
+## 2026-09-23 正常体检链路修复（最新）
+
+最终 `/opt/mini-drop-current` → `20260923T114300Z`，Diagnosis Worker 和 Web 使用本发布镜像；Analyzer/Chroma 保持 `20260923T101442Z`，AGI-saber 保持 `20260923T105939Z`。前一 Web-only 页面发布 `20260923T112700Z` 留存。初次真实“检查当前状态”被故障症状澄清阻断，旧失败会话保留；最终 Worker 对显式健康检查只做一次有界 `sys_metrics` 初筛。新公网会话 `insight_cdece16dd6da4944a3b38987b58abc0c` 约 29 秒完成 1 采集、2 Evidence、1 Report，页面有进程数字和树，结论为“本次观测窗口未确认故障”，Report 仍为 `INSUFFICIENT_EVIDENCE`。健康三依赖正常。回滚先用本发布 `private/rollback.compose.json` 恢复 Worker/Web，再原子指回 `20260923T112700Z`；保留卷、历史 Evidence 和旧发布。详见 [发布记录](../reports/architecture/service-exam-release-20260923.md)。
+
+## 2026-09-23 服务体检式页面首版发布
 
 平台 `/opt/mini-drop-current` → `/opt/mini-drop-releases/20260923T112700Z`，仅 Web 镜像更新；Worker/Analyzer/Chroma 保持 `20260923T101442Z`，AGI-saber 保持 `20260923T105939Z`。入口为“选择服务 → 检查当前状态/描述异常 → 体检报告与默认排查树”；完整报告、技术数据和路线按需展开。云端健康三依赖正常，历史真实案例浏览器无 JS/HTTP 错误。回滚用本发布 `private/rollback.compose.json` 恢复前一 Web 镜像，再原子指回 `20260923T112200Z`；不能删除卷、历史发布或 Evidence。验收与具体口径见 [发布记录](../reports/architecture/service-exam-release-20260923.md)。
 

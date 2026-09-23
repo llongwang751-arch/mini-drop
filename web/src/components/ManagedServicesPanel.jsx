@@ -40,7 +40,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
     return () => { generation.current += 1; clearInterval(timer); };
   }, []);
 
-  async function diagnose(item, suggestedQuery = "") {
+  async function diagnose(item, suggestedQuery = "", healthCheck = false) {
     const query = (suggestedQuery || queries[item.id] || "").trim();
     if (query.length < 3) { message.info("请先描述后台服务的性能现象"); return; }
     setStarting(item.id);
@@ -49,7 +49,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
       if (requestId && !item.business_requests?.items?.some(row => row.request_id === requestId)) {
         message.info("所选请求已不在当前列表，请重新选择"); return;
       }
-      const created = await startManagedServiceDiagnosis(item.id, { query, mode: "AUTONOMOUS", ...(requestId ? { request_id: requestId } : {}) });
+      const created = await startManagedServiceDiagnosis(item.id, { query, mode: "AUTONOMOUS", ...(healthCheck ? { health_check: true } : {}), ...(requestId ? { request_id: requestId } : {}) });
       await onOpenDiagnosis?.(created.diagnosis_id || created.id);
     } catch (err) {
       message.error(err?.message || "创建服务诊断失败");
@@ -112,7 +112,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
         value={queries[item.id] || ""} onChange={event => setQueries(old => ({ ...old, [item.id]: event.target.value }))}
         style={{ margin: "8px 0 12px" }} />
       <div className="managed-service-actions"><Button type="primary" aria-label="检查当前状态" loading={starting === item.id}
-        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前业务和进程是否存在可验证的性能故障")}>
+        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前业务和进程是否存在可验证的性能故障", true)}>
         检查当前状态
       </Button>
       <Button aria-label="诊断这个后台" loading={starting === item.id}

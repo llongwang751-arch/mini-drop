@@ -76,6 +76,7 @@ class StartFrozenReplayRequest(StrictModel):
 
 class CreateDiagnosisRequestV2(StrictModel):
     query: str = Field(min_length=3, max_length=2000)
+    health_check: bool = False
     target: DiagnosticTarget = Field(default_factory=DiagnosticTarget)
     time_range: DiagnosticTimeRange | None = None
     auto_scope: bool = False

@@ -17,7 +17,7 @@ from ..database import new_session
 from ..models import AgentModel, ProcessCandidateModel, ProcessCandidateSnapshotModel
 from . import service
 from .business_observations import recent_observations, resolve_observation, diagnosis_context
-from .schemas import CreateDiagnosisRequestV2, ClarifyDiagnosisRequest, ClarificationTarget
+from .schemas import CreateDiagnosisRequestV2, ClarifyDiagnosisRequest, ClarificationTarget, DiagnosisBudget
 
 CATALOG = Path(__file__).with_name("managed_services.json")
 
@@ -27,6 +27,7 @@ class StartServiceDiagnosis(BaseModel):
     query: str = Field(min_length=3, max_length=2000)
     mode: Literal["AUTONOMOUS", "ASSISTED"] = "AUTONOMOUS"
     request_id: str | None = Field(default=None, pattern=r"^[a-f0-9]{32}$")
+    health_check: bool = False
 
 
 def catalog() -> list[dict]:
@@ -100,7 +101,9 @@ def start_service_diagnosis(service_id: str, payload: StartServiceDiagnosis, *, 
     if live["status"] != "OBSERVED":
         raise ValueError("服务没有新鲜的可信进程快照，请确认后台与 Agent 正在运行后刷新")
     diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
-        query=query, mode=payload.mode, auto_scope=False,
+        query=query, mode=payload.mode, auto_scope=False, health_check=payload.health_check,
+        budget=DiagnosisBudget(max_duration_seconds=120, max_tool_calls=1,
+                               max_diagnosis_rounds=1) if payload.health_check else DiagnosisBudget(),
         target={"service": entry["service_hint"]},
     ), created_by=principal, business_observation=observation)
     # Never let an autonomous fallback pick a different service. If a restart

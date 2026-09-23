@@ -984,6 +984,7 @@ def create_diagnosis(
             "skill_policy": payload.skill_policy,
             "created_by": created_by.strip() or "system:internal",
             "auto_scope": payload.auto_scope,
+            "health_check": payload.health_check,
             **({"business_observation": business_observation} if business_observation else {}),
         },
         occurred_at=timestamp,
@@ -3136,6 +3137,7 @@ def _planner_tool_arguments(
 
 
 _CATEGORY_TOOL_PREFERENCE = {
+    "SYSTEM_RESOURCE": ["collect_sys_metrics"],
     "DATABASE_LOCK": ["collect_database_diagnostics", "collect_sys_metrics"],
     "LOAD_SATURATION": ["collect_sys_metrics", "start_perf_profile"],
     "NETWORK_DEGRADATION": ["collect_sys_metrics"],
@@ -7429,13 +7431,29 @@ def run_diagnosis_planner(
         }
 
     query = (diagnosis.query or "").lower()
+    # A service health check is an explicit product action, not an incident
+    # description. It can establish a measured baseline without asking the
+    # user to invent an abnormal symptom or a suspected root cause.
+    created_event = next((event for event in list_events(diagnosis_id)
+                          if event.event_type == "diagnosis.created"), None)
+    health_check = bool((created_event.payload_json or {}).get("health_check")) if created_event else False
     # Route from positive symptom clauses. Requested counter-checks remain in
     # the full query for hypothesis generation, but cannot choose the primary
     # category merely because they mention I/O, GC or another alternative.
     intent_query = _primary_intent_query(query)
     triage_arguments = _planner_tool_arguments("collect_sys_metrics", target)
     questions: list[dict] | None = None
-    if _is_database_query(query):
+    if health_check:
+        plan = {
+            "planner_version": "health-check-v1",
+            "category": "SYSTEM_RESOURCE",
+            "statement": "目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线",
+            "expected": ["采到目标进程 CPU、RSS、线程和文件描述符的当前窗口指标"],
+            "falsification": ["当前窗口指标不支持资源异常，或没有取得可信系统指标"],
+            "tool_name": "collect_sys_metrics",
+            "arguments": triage_arguments,
+        }
+    elif _is_database_query(query):
         plan = {
             "planner_version": "rules-v2",
             "category": "DATABASE_LOCK",
@@ -7743,7 +7761,7 @@ def run_diagnosis_planner(
 
     # 已发布技能只提供经过门禁验证的探针顺序先验。环境漂移或类别不匹配
     # 时不会命中，规则规划器仍是可复现的安全兜底。
-    skill_activation = _apply_active_planner_skill(
+    skill_activation = None if health_check else _apply_active_planner_skill(
         diagnosis,
         diagnosis_id,
         plan,
@@ -7859,8 +7877,8 @@ def run_diagnosis_planner(
 
     # 规则负责范围/工具白名单，模型只在边界内提出和排序可证伪假设。
     # 模型不可用时保留确定性规则结果，且把来源显式展示给用户。
-    model_attempted = True
-    retrieval_trace = _record_planner_knowledge_retrieval(
+    model_attempted = not health_check
+    retrieval_trace = None if health_check else _record_planner_knowledge_retrieval(
         diagnosis_id,
         query=diagnosis.query,
         category=plan["category"],
@@ -7868,7 +7886,7 @@ def run_diagnosis_planner(
         effect_key=f"diagnosis:{diagnosis_id}:initial:knowledge_retrieval",
         round_index=1,
     )
-    proposal = propose_hypothesis_plan(
+    proposal = None if health_check else propose_hypothesis_plan(
         diagnosis_id=diagnosis_id,
         query=diagnosis.query,
         target=target,
