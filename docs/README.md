@@ -1,5 +1,7 @@
 # 文档入口
 
+- [`DEMO_WALKTHROUGH.md`](DEMO_WALKTHROUGH.md)：当前云端从 AGI-saber 上传、知识库问答到 Mini-Drop 指标、体检树和故障恢复的截图式演示步骤
+
 - [2026-09-24 云端验收数据清理](../reports/business-acceptance/cloud-data-cleanup-20260924.md)：旧长文档与构建缓存清理、磁盘回收、向量检索重启复验
 
 - [`FULL_CHAIN_ACCEPTANCE.md`](FULL_CHAIN_ACCEPTANCE.md)：AGI-saber 百万字上传、真实向量检索、Mini-Drop 后台指标/排查树、故障撤销与验收判据
