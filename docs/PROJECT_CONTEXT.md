@@ -1,16 +1,16 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-09-26 测试工程第三轮增量（本地，未推送）
+## 2026-09-26 测试工程第三轮增量（已推送，CI 待 PR 触发）
 
-同日第三轮：`fix_verification.py` 补测后分支覆盖率 13.64% → 100%，`critical_coverage` 下限钉到 100（`tests/test_fix_verification.py`，18 项行为测试）；`postgres_sessions`/`NOW` 收拢进 `tests/conftest.py`（skip 行为与收集数不变，PG 真跑仍待 CI）；hypothesis 进入 dev 依赖，新增 6 个 property 测试锁定业务验收统计与判定三角形（`tests/test_business_acceptance_properties.py`）。全量 **693 passed / 7 skipped**；门禁 `output/quality/qa-python-round3-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches。详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.7。
+同日第三轮：`fix_verification.py` 补测后分支覆盖率 13.64% → 100%，`critical_coverage` 下限钉到 100（`tests/test_fix_verification.py`，18 项行为测试）；`postgres_sessions`/`NOW` 收拢进 `tests/conftest.py`（skip 行为与收集数不变，PG 真跑仍待 CI）；hypothesis 进入 dev 依赖，新增 6 个 property 测试锁定业务验收统计与判定三角形（`tests/test_business_acceptance_properties.py`）。全量 **693 passed / 7 skipped**；门禁 `output/quality/qa-python-round3-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches。三轮测试工程改动已提交 `e4ff878` 并推送 `personal` 远端 release 分支；CI 仅由 pull_request/push main 触发，实际运行以 PR 执行结果为准。详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.7。
 
-## 2026-09-26 测试工程第二轮增量（本地，未推送）
+## 2026-09-26 测试工程第二轮增量（已推送，CI 待 PR 触发）
 
-同日第二轮测开增量：`run_business_acceptance.py --repeat N` 逐轮落盘独立 campaign 并聚合 P95 波动（`stability` profile 与 CI business 重复步骤），首次重复运行即暴露 RAG-03 场景缺陷——基线不含依赖耗时使 1.3× 恢复阈值随机器变快必然翻成 REJECTED，已把基线锚定到同一 10ms 依赖常数并保留失败证据（`output/qa-business-repeat-20260926/`）。`verify_frontend_workbench.mjs` 支持 Chrome 自动探测（chrome-win64/win/linux 布局）与 `--output`，断言随体检改版更新后 7 项全绿；新增 `web-browser` 套件、`browser` profile 与 CI web-browser 作业。`python-all` 开启分支覆盖并对 5 个关键模块设按模块下限（business_acceptance 94 / event_store 95 / hypothesis_predicate 85 / report_conclusion 69 / fix_verification 13，取自 2026-09-26 基线），门禁 `output/quality/qa-python-final-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches；全库口径变为语句 70.61%、分支 55.65%、合并 66.84%。Python 全量现为 669 passed / 7 skipped（新增 19 项测试）。所有新 CI 仍未推送运行；详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.4–3.6。
+同日第二轮测开增量：`run_business_acceptance.py --repeat N` 逐轮落盘独立 campaign 并聚合 P95 波动（`stability` profile 与 CI business 重复步骤），首次重复运行即暴露 RAG-03 场景缺陷——基线不含依赖耗时使 1.3× 恢复阈值随机器变快必然翻成 REJECTED，已把基线锚定到同一 10ms 依赖常数并保留失败证据（`output/qa-business-repeat-20260926/`）。`verify_frontend_workbench.mjs` 支持 Chrome 自动探测（chrome-win64/win/linux 布局）与 `--output`，断言随体检改版更新后 7 项全绿；新增 `web-browser` 套件、`browser` profile 与 CI web-browser 作业。`python-all` 开启分支覆盖并对 5 个关键模块设按模块下限（business_acceptance 94 / event_store 95 / hypothesis_predicate 85 / report_conclusion 69 / fix_verification 13，取自 2026-09-26 基线），门禁 `output/quality/qa-python-final-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches；全库口径变为语句 70.61%、分支 55.65%、合并 66.84%。Python 全量现为 669 passed / 7 skipped（新增 19 项测试）。所有新 CI 已随 `e4ff878` 推送、待 PR 实跑；详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.4–3.6。
 
 ## 2026-09-26 测试开发与质量工程完善（本地，未发布）
 
-产品继续保留证据驱动性能诊断主线，新增明确的测试工程入口：`contracts/quality_plan.json` 维护风险与测试套件映射，`scripts/run_quality_gate.py` 提供 smoke / python / local / business 配置，按实际命令及测试报告输出 HTML、JSON、JUnit、日志、源码摘要和覆盖率观测。未执行、允许跳过与成功分别记录；未知跳过、零测试、失败命令、报告缺失和超时不能判通过。Python CI 复用此入口；新增 PostgreSQL 16 临时测试库专项作业，强制执行 5 个 Python 并发用例与 1 个 Go 幂等竞争用例，Go 增加 race；Native Control 明示仅构建，Agent CTest 拒绝零测试。工作流已配置，尚未推送运行，不能称新 CI 或数据库实测已通过。
+产品继续保留证据驱动性能诊断主线，新增明确的测试工程入口：`contracts/quality_plan.json` 维护风险与测试套件映射，`scripts/run_quality_gate.py` 提供 smoke / python / local / business 配置，按实际命令及测试报告输出 HTML、JSON、JUnit、日志、源码摘要和覆盖率观测。未执行、允许跳过与成功分别记录；未知跳过、零测试、失败命令、报告缺失和超时不能判通过。Python CI 复用此入口；新增 PostgreSQL 16 临时测试库专项作业，强制执行 5 个 Python 并发用例与 1 个 Go 幂等竞争用例，Go 增加 race；Native Control 明示仅构建，Agent CTest 拒绝零测试。工作流已随 `e4ff878` 推送，CI 待 PR 实跑，不能称新 CI 或数据库实测已通过。
 
 业务验收修复两处误判：阶段耗时不再以零代替缺失观测，新增每阶段样本数；降级可用也必须满足质量阈值且不低于基线。旧实际 RAG 报告新增字段兼容只作用于重算校验，不改原始证据，不豁免旧指标或结论的错误。详细测试入口、评估、边界和待办见 [测试开发与质量工程](TEST_ENGINEERING.md)。本次没有修改云端部署、数据库或对象存储；严格根因最新历史成绩仍为 1/21。
 

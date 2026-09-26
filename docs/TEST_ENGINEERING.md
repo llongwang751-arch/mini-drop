@@ -85,7 +85,7 @@ python scripts/run_quality_gate.py --profile business
 
 Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试，因此工作流明确标记为只构建，避免零测试被称作通过。Python CI 复用统一质量入口并上传报告。
 
-本次只完成本地配置与静态校验，**尚未推送运行 GitHub Actions、没有实跑这份新 PostgreSQL 作业**。本机 Windows race 尝试因运行时错误 `0xc0000139` 退出；Linux CI 的实际 race 成绩仍待执行，不能写成已经通过。
+改动已随 `e4ff878` 推送 GitHub，但**尚未通过 PR 实跑这份新 PostgreSQL 作业**。本机 Windows race 尝试因运行时错误 `0xc0000139` 退出；Linux CI 的实际 race 成绩仍待执行，不能写成已经通过。
 
 ### 3.3 两个真实验收缺陷
 
@@ -100,7 +100,7 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 
 ### 3.4 重复性能回归，与它暴露的一个场景缺陷
 
-`scripts/run_business_acceptance.py` 新增 `--repeat N`（1..10）：每一轮都是独立 campaign（新服务、新窗口、新端口），逐轮落盘为 `campaign-rXX-cases/`，聚合报告写入 `repeat_summary`（`mini-drop.business-repeat-summary.v1`，标注 `ALL_RUNS_RECORDED; NOT_BEST_OF`）：逐场景 outcomes、`outcome_stable`，以及 baseline/fault/after 三个窗口的 P95 min/mean/max/stdev。`--require-outcomes` 语义为所有轮次都必须达标。质量门禁新增 `stability` profile（`business-stability` 套件，`--repeat 3`）；CI business 作业新增独立重复步骤（见 3.5 的“尚未推送”边界）。
+`scripts/run_business_acceptance.py` 新增 `--repeat N`（1..10）：每一轮都是独立 campaign（新服务、新窗口、新端口），逐轮落盘为 `campaign-rXX-cases/`，聚合报告写入 `repeat_summary`（`mini-drop.business-repeat-summary.v1`，标注 `ALL_RUNS_RECORDED; NOT_BEST_OF`）：逐场景 outcomes、`outcome_stable`，以及 baseline/fault/after 三个窗口的 P95 min/mean/max/stdev。`--require-outcomes` 语义为所有轮次都必须达标。质量门禁新增 `stability` profile（`business-stability` 套件，`--repeat 3`）；CI business 作业新增独立重复步骤（见 3.5 的“待 PR 实跑”边界）。
 
 **真实发现**：首次 `--repeat 2` 时 RAG-03 两轮均为 `REJECTED`（预期 `DEGRADED_AVAILABLE`），且稳定复现。根因是场景设计缺陷：旧基线不含任何依赖耗时（P95≈30ms），恢复阈值=基线×1.3≈39ms，而降级路径固定多出 10ms 超时等待（P95≈43ms）——机器越快越必然 REJECTED，此前通过只是因为当时基线绝对值更慢。修复：RAG-03 基线锚定为 `Settings(dependency_latency_ms=10)`，与处置后的超时常数一致，比值随机器缩放；修复后两轮均 `DEGRADED_AVAILABLE`，after/baseline≈1.02。两次 REJECTED 的原始证据保留在 `output/qa-business-repeat-20260926/campaign.json`，未删除；`tests/test_business_repeat.py::test_degradation_scenario_baseline_shares_the_dependency_constant` 防止场景回退。测试计划中 RAG-03 的 requirement 已同步。
 
@@ -108,7 +108,7 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 
 `scripts/verify_frontend_workbench.mjs` 三处更新：`MINI_DROP_ACCEPTANCE_CHROME` 优先，否则自动探测 `ms-playwright` 下最新 `chromium-*`（兼容 chrome-win64 / chrome-win / chrome-linux 布局，CI Linux 与本机共用一条路径）；新增 `--output` 参数供门禁隔离证据目录；断言随 9 月 23 日体检改版更新——结论摘要改为“首屏可见”并记录实测位置（当前 672px），排查树为默认视图后改为断言真实父子树画布渲染、全屏弹窗画布占满视口。当前 7 项检查、0 个浏览器异常（`output/qa-browser-20260926/browser8/result.json`）。
 
-`contracts/quality_plan.json` 新增 `web-browser` 套件（风险映射 ui-regression）与 `browser` profile，并把 `web-browser` 加入 `local`（需要先 `npm --prefix web run build`）；CI 新增独立 `web-browser` 作业（npm ci → 构建 → playwright chromium → 脚本）。与 3.2 相同的边界：**工作流已配置、本地已全绿，尚未推送运行 GitHub Actions，不能称 CI 已通过。**
+`contracts/quality_plan.json` 新增 `web-browser` 套件（风险映射 ui-regression）与 `browser` profile，并把 `web-browser` 加入 `local`（需要先 `npm --prefix web run build`）；CI 新增独立 `web-browser` 作业（npm ci → 构建 → playwright chromium → 脚本）。与 3.2 相同的边界：**工作流已推送、本地已全绿，但 CI 尚未通过 PR 实跑，不能称 CI 已通过。**
 
 ### 3.6 关键模块分支覆盖率门槛（先基线，后约束）
 

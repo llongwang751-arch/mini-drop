@@ -2,15 +2,17 @@
 
 ## 2026-09-26 测试工程第三轮增量（最新）
 
-第三轮：`fix_verification.py` 分支覆盖率 13.64%→100%（18 项行为测试，`tests/test_fix_verification.py`），`critical_coverage` 下限钉到 100；PG fixture 收拢进 `tests/conftest.py`（原模块保留 re-export，本地 skip 验证通过，PG 真跑待 CI）；hypothesis 进 dev 依赖，6 个 property 测试锁定业务验收统计/判定三角形（`tests/test_business_acceptance_properties.py`）。全量 693 passed / 7 skipped，门禁 `output/quality/qa-python-round3-20260926/` PASSED_WITH_SKIPS、0 breaches。**全部 CI 改动仍未推送运行**；推送后需网页创建 PR 才会触发 pull_request CI（本机无 gh CLI）。
+第三轮：`fix_verification.py` 分支覆盖率 13.64%→100%（18 项行为测试，`tests/test_fix_verification.py`），`critical_coverage` 下限钉到 100；PG fixture 收拢进 `tests/conftest.py`（原模块保留 re-export，本地 skip 验证通过，PG 真跑待 CI）；hypothesis 进 dev 依赖，6 个 property 测试锁定业务验收统计/判定三角形（`tests/test_business_acceptance_properties.py`）。全量 693 passed / 7 skipped，门禁 `output/quality/qa-python-round3-20260926/` PASSED_WITH_SKIPS、0 breaches。
+
+**提交与推送状态：三轮测试工程改动已提交为 `e4ff878` 并推送到 `personal` 远端的 `release/unified-ai-diagnosis-20260821`。CI 只在 push main/master 或 pull_request 时触发，因此实际运行仍差一步：在 GitHub 上从该分支向 main 创建 PR（本机无 gh CLI，无法代建）。PR 跑完后核对 PostgreSQL 并发作业（5+1 用例零跳过）、Go race、web-browser 与 business 重复步骤的真实结果，再更新本文。**
 
 ## 2026-09-26 测试工程第二轮增量
 
-在第一轮测试工程之上：业务验收新增 `--repeat`（逐轮独立、聚合 P95 波动，`stability` profile），重复运行暴露并修复 RAG-03 场景缺陷（基线现锚定 10ms 依赖常数；失败证据保留在 `output/qa-business-repeat-20260926/campaign.json`，修复后两轮 DEGRADED_AVAILABLE）；`verify_frontend_workbench.mjs` 自动探测 Chromium 并新增 `--output`，断言随体检改版更新（结论摘要首屏可见、全屏树占满视口），7 项检查 0 浏览器异常（`output/qa-browser-20260926/browser8/`）；`python-all` 开启分支覆盖，5 个关键模块按模块下限门禁（fix_verification 仅 13.64% 是已知最大补测目标），最终门禁 `output/quality/qa-python-final-20260926/` 为 PASSED_WITH_SKIPS，Python 全量 669 passed / 7 skipped。新增 `browser`/`stability` profile、CI web-browser 作业与 business 重复步骤。**全部 CI 改动仍未推送运行；不把本地全绿当成 CI 或生产验收。** 下一优先级见 [测试工程](TEST_ENGINEERING.md) 第 5 节。
+在第一轮测试工程之上：业务验收新增 `--repeat`（逐轮独立、聚合 P95 波动，`stability` profile），重复运行暴露并修复 RAG-03 场景缺陷（基线现锚定 10ms 依赖常数；失败证据保留在 `output/qa-business-repeat-20260926/campaign.json`，修复后两轮 DEGRADED_AVAILABLE）；`verify_frontend_workbench.mjs` 自动探测 Chromium 并新增 `--output`，断言随体检改版更新（结论摘要首屏可见、全屏树占满视口），7 项检查 0 浏览器异常（`output/qa-browser-20260926/browser8/`）；`python-all` 开启分支覆盖，5 个关键模块按模块下限门禁（fix_verification 仅 13.64% 是已知最大补测目标），最终门禁 `output/quality/qa-python-final-20260926/` 为 PASSED_WITH_SKIPS，Python 全量 669 passed / 7 skipped。新增 `browser`/`stability` profile、CI web-browser 作业与 business 重复步骤。三轮改动已随 `e4ff878` 推送 `personal` 远端；CI 待 PR 触发，不把本地全绿当成 CI 或生产验收。 下一优先级见 [测试工程](TEST_ENGINEERING.md) 第 5 节。
 
 ## 2026-09-26 测试工程本地增量
 
-用户主投测开岗位，本轮已补一键风险回归报告、CI PostgreSQL 并发专项、Go race 与 Agent 零测试拒绝，修复业务阶段缺失补零及低质量降级误通过。详细当前入口见 [测试工程](TEST_ENGINEERING.md)，运行结果在新的 `output/quality/`，不得覆盖历史报告。代码未部署、CI 未推送执行；不把本地全绿当成 PostgreSQL/原生 Linux 或生产验收。原云端状态仍以下文部署记录为准，不启动本机 Docker。后续优先真实浏览器 CI、可选 Chroma 集成、同负载重复性能实验及一个独立根因/修复闭环。
+用户主投测开岗位，本轮已补一键风险回归报告、CI PostgreSQL 并发专项、Go race 与 Agent 零测试拒绝，修复业务阶段缺失补零及低质量降级误通过。详细当前入口见 [测试工程](TEST_ENGINEERING.md)，运行结果在新的 `output/quality/`，不得覆盖历史报告。代码未部署；改动已随 `e4ff878` 推送，CI 实际运行待 PR 触发，不把本地全绿当成 PostgreSQL/原生 Linux 或生产验收。原云端状态仍以下文部署记录为准，不启动本机 Docker。后续优先真实浏览器 CI、可选 Chroma 集成、同负载重复性能实验及一个独立根因/修复闭环。
 
 ## 2026-09-24 图文演示复测（最新）
 
