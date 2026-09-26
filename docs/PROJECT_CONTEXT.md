@@ -1,5 +1,19 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-26 测试工程第三轮增量（本地，未推送）
+
+同日第三轮：`fix_verification.py` 补测后分支覆盖率 13.64% → 100%，`critical_coverage` 下限钉到 100（`tests/test_fix_verification.py`，18 项行为测试）；`postgres_sessions`/`NOW` 收拢进 `tests/conftest.py`（skip 行为与收集数不变，PG 真跑仍待 CI）；hypothesis 进入 dev 依赖，新增 6 个 property 测试锁定业务验收统计与判定三角形（`tests/test_business_acceptance_properties.py`）。全量 **693 passed / 7 skipped**；门禁 `output/quality/qa-python-round3-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches。详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.7。
+
+## 2026-09-26 测试工程第二轮增量（本地，未推送）
+
+同日第二轮测开增量：`run_business_acceptance.py --repeat N` 逐轮落盘独立 campaign 并聚合 P95 波动（`stability` profile 与 CI business 重复步骤），首次重复运行即暴露 RAG-03 场景缺陷——基线不含依赖耗时使 1.3× 恢复阈值随机器变快必然翻成 REJECTED，已把基线锚定到同一 10ms 依赖常数并保留失败证据（`output/qa-business-repeat-20260926/`）。`verify_frontend_workbench.mjs` 支持 Chrome 自动探测（chrome-win64/win/linux 布局）与 `--output`，断言随体检改版更新后 7 项全绿；新增 `web-browser` 套件、`browser` profile 与 CI web-browser 作业。`python-all` 开启分支覆盖并对 5 个关键模块设按模块下限（business_acceptance 94 / event_store 95 / hypothesis_predicate 85 / report_conclusion 69 / fix_verification 13，取自 2026-09-26 基线），门禁 `output/quality/qa-python-final-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches；全库口径变为语句 70.61%、分支 55.65%、合并 66.84%。Python 全量现为 669 passed / 7 skipped（新增 19 项测试）。所有新 CI 仍未推送运行；详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.4–3.6。
+
+## 2026-09-26 测试开发与质量工程完善（本地，未发布）
+
+产品继续保留证据驱动性能诊断主线，新增明确的测试工程入口：`contracts/quality_plan.json` 维护风险与测试套件映射，`scripts/run_quality_gate.py` 提供 smoke / python / local / business 配置，按实际命令及测试报告输出 HTML、JSON、JUnit、日志、源码摘要和覆盖率观测。未执行、允许跳过与成功分别记录；未知跳过、零测试、失败命令、报告缺失和超时不能判通过。Python CI 复用此入口；新增 PostgreSQL 16 临时测试库专项作业，强制执行 5 个 Python 并发用例与 1 个 Go 幂等竞争用例，Go 增加 race；Native Control 明示仅构建，Agent CTest 拒绝零测试。工作流已配置，尚未推送运行，不能称新 CI 或数据库实测已通过。
+
+业务验收修复两处误判：阶段耗时不再以零代替缺失观测，新增每阶段样本数；降级可用也必须满足质量阈值且不低于基线。旧实际 RAG 报告新增字段兼容只作用于重算校验，不改原始证据，不豁免旧指标或结论的错误。详细测试入口、评估、边界和待办见 [测试开发与质量工程](TEST_ENGINEERING.md)。本次没有修改云端部署、数据库或对象存储；严格根因最新历史成绩仍为 1/21。
+
 ## 2026-09-24 当前图文演示样本（最新）
 
 新 [图文演示步骤](DEMO_WALKTHROUGH.md) 使用办公助手原网页上传 20,000 字人工样本：HTTP 200、138 分块、138 向量入库，request_id `63c8a763b94e4ed1982c39e971fabcc1`；网页开启“知识库”后问答显示知识检索引用，Mini-Drop 同请求页面展示向量化为主要慢阶段及进程/服务组指标。新体检 `insight_8ad81b9f1e7047b6945dc8de41ba0082` 显示真实 PID、CPU/RSS、排查树，根因仍如实为 `INSUFFICIENT_EVIDENCE`。受控三段演练最新页面 `restored=true`、浏览器错误 0，检索约 13.6 → 2515.3 → 17.5 ms，注入标记 0 → 2500 → 0 ms。清理后原有 1 篇向量健康样本加上这篇新演示文档，当前为 **2 篇活跃文档、139 个 RAG 分块**；9 月 23 日百万字文档仍已删除。图文截图及可上传样本已入仓库。
@@ -217,7 +231,7 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - Python Analyzer 处理采集物；Python Diagnosis Worker 通过 LangGraph Runtime 推进受约束的 AI 调查。
 - AI 不直接拥有 shell，也不能绕过服务端签发的 Agent/PID 绑定、工具白名单、预算和证据门禁。
 - AI Runtime 已真实使用 `LangChain create_agent + LangGraph`；领域状态和执行授权仍由 Mini-Drop 管理。
-- Diagnosis Planner 已接入仓库内 `knowledge/catalog.json` 的确定性 Agentic RAG；每轮检索带 Markdown 源文件 hash 持久化为诊断事件，并明确 `is_evidence=false`，不会污染本次 Evidence 链。
+- Diagnosis Planner 的知识目录来源于仓库内 `knowledge/catalog.json`，当前已接入 BM25、Chroma 语义和目录实体三路召回，经 RRF 与重排；每轮检索带 Markdown 源文件 hash 持久化为诊断事件，并明确 `is_evidence=false`，不会污染本次 Evidence 链。Skill 的进程内检索是另一条链路。
 - `skills/catalog.json` 当前登记 13 个 Skill，覆盖 CPU、内存、I/O、网络、依赖、队列、锁、FD 以及 Python/Go/JVM/C++ 运行时等路线；Skill 只提供候选 Prior 和探针顺序，命中或未命中都必须重新采集当前会话 Evidence。
 - Skill 检索不依赖 Elasticsearch 或向量数据库。候选阶段使用进程内 Python BM25、512 维确定性哈希 n-gram/领域概念特征和结构上下文评分；环境、运行时锚点、目标子系统与 Collector 能力仍是硬门禁，类别只作为可纠正的先验。低分或前两名过近时主动弃权。
 - Skill 使用两级渐进式披露：先用 `catalog.json` 的轻量元数据召回；只有命中后才从 `skills/<slug>/SKILL.md` 读取完整正文，校验目录边界、UTF-8、128 KiB 上限、章节合同和 SHA-256，再把正文作为非 Evidence 的路线合同送入当前轮与后续重规划轮。数据库学习型 Skill 没有仓库正文时仍只使用结构化策略。
@@ -326,11 +340,11 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 - 已实现的是受约束、可审计的多轮性能调查：实时自主路径最多 4 轮；每轮可以重规划、检索知识、申请一个受控探针、接收人工干预，并从持久化领域事件重建对话和探索树。证据反驳、证据不足、部分支持、不可观测或门禁拒绝不会自动把当前假设写成结论，而会在预算和覆盖允许时切换到未探索的证据域。
 - LATS 有两条明确分开的执行路径：实时诊断使用 `BUDGETED_LATS` 调用真实工具；验证中心的白名单冻结 fixture 使用可复位 observation provider 运行 `FULL_LATS / FROZEN_REPLAY`。两者复用搜索事件和树投影，但事实口径不同。
 - 页面中的“记忆”同时展示本会话的领域事实和 Runtime 短期线程状态；只有领域事实、Evidence 与报告以 PostgreSQL 为权威。Checkpoint 实际降级到内存时，短期模型消息不能承诺跨进程重启恢复。
-- 当前 Knowledge 检索是仓库目录上的确定性混合词法检索，不是向量数据库，也不是可自行访问互联网的通用 RAG。
+- 当前 Knowledge 检索是仓库知识上的 BM25、Chroma 语义和目录实体三路检索，不是可自行访问互联网的通用 RAG；实际检索后端与降级状态须看运行记录。
 - 当前评测和 Skill 演进有离线数据集、门禁、发布、隔离和回滚；服务端已经实现持久化随机分流、显著性分析和指标快照，但尚无足够生产随机样本，不能把双会话演示或受控回放冒充线上 A/B 结论。
 - “自进化”只允许产生候选 Skill 并经过评测与人工发布，不能表述为模型会在线自行改 Prompt、代码、权限或自动把反馈发布到生产。
 
-21 个白名单组合有历史链路记录；严格根因验收仍为 1 项通过、20 项未通过（2026-09-10 旧门禁口径；2026-09-20 门禁收紧取消全部捏造覆盖槽位后尚未复测，复测前不得引用为当前能力，见 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md)）。新增运行时、Collector 或生产故障类型必须另做匹配环境验收。
+21 个白名单组合有历史链路记录；2026-09-20 已在取消捏造覆盖槽位的新门禁下完成复测，严格验收为 1 项通过、20 项未通过，见 [严格验收协议](FAULT_PLAZA_ACCEPTANCE.md)。这是该批历史受控实验，不是生产根因准确率。新增运行时、Collector 或生产故障类型必须另做匹配环境验收。
 
 ## LATS 搜索合同与运行边界（2026-09-06）
 

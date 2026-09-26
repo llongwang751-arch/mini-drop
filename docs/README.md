@@ -1,5 +1,7 @@
 # 文档入口
 
+- [`TEST_ENGINEERING.md`](TEST_ENGINEERING.md)：测试开发定位、风险矩阵、一键质量报告、并发 CI、真实验收缺陷复盘、开源对照与测开演示
+
 - [`DEMO_WALKTHROUGH.md`](DEMO_WALKTHROUGH.md)：当前云端从 AGI-saber 上传、知识库问答到 Mini-Drop 指标、体检树和故障恢复的截图式演示步骤
 
 - [2026-09-24 云端验收数据清理](../reports/business-acceptance/cloud-data-cleanup-20260924.md)：旧长文档与构建缓存清理、磁盘回收、向量检索重启复验

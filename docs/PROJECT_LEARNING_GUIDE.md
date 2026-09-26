@@ -1,5 +1,9 @@
 # Mini-Drop 从 0 到 1 学习手册
 
+## 2026-09-26 测试开发阅读路线
+
+投递测试开发岗位时，从 [测试开发与质量工程](TEST_ENGINEERING.md) 进入：先理解风险与测试用例的映射，再运行 `python scripts/run_quality_gate.py` 查看质量报告，最后追踪业务验收误判的失败输入、判据修复和防回归用例。新增工程入口不替代本教材的采集、诊断与证据链；测试数量、行覆盖率、模拟回放、数据库专项及真机根因验收要分别解释。
+
 ## 2026-09-23 服务体检页面更新
 
 后续公网验收发现通用“检查当前状态”曾被故障规划器要求补充异常症状，导致真实会话超时且无采集。现由服务入口显式声明健康检查，后端只做一次系统指标基线；这条路径无需先指定故障。异常诊断仍需真实症状和多轮取证，健康检查结果不能代替根因验证。修复和真机结果见 [服务体检改版记录](../reports/architecture/service-exam-release-20260923.md)。
@@ -1965,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1430 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1631 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 438 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 486 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2023,6 +2027,7 @@ python scripts/render_learning_guide.py
 | `deploy/vendor/` | vendor 子目录；部署、镜像、网络与环境配置。 |
 | `docs/` | 当前权威文档、教程、接口与复盘。 |
 | `docs/assets/` | assets 子目录；当前权威文档、教程、接口与复盘。 |
+| `docs/assets/demo-walkthrough-20260924/` | demo-walkthrough-20260924 子目录；当前权威文档、教程、接口与复盘。 |
 | `docs/assets/learning-guide/` | 保留拍摄时间的教材截图与历史证据。 |
 | `docs/assets/learning-guide/20260909/` | 本次真实云端截图、可见文字/控件清单与图片 hash。 |
 | `docs/assets/learning-guide/20260909-acceptance/` | 20260909-acceptance 子目录；保留拍摄时间的教材截图与历史证据。 |
@@ -2038,6 +2043,7 @@ python scripts/render_learning_guide.py
 | `docs/assets/learning-guide/20260914-lightweight-business/` | 20260914-lightweight-business 子目录；保留拍摄时间的教材截图与历史证据。 |
 | `docs/contracts/` | 公开 API、事件与跨服务语义文档。 |
 | `docs/contracts/task-parameters/` | task-parameters 子目录；公开 API、事件与跨服务语义文档。 |
+| `docs/demo/` | demo 子目录；当前权威文档、教程、接口与复盘。 |
 | `integrations/` | integrations 子目录；归属该顶层模块，按下方文件职责定位。 |
 | `integrations/agi_saber/` | agi_saber 子目录；归属该顶层模块，按下方文件职责定位。 |
 | `integrations/agi_saber/patches/` | patches 子目录；归属该顶层模块，按下方文件职责定位。 |
@@ -2054,6 +2060,18 @@ python scripts/render_learning_guide.py
 | `native/gperftools_bridge/` | gperftools 兼容桥与原生产物接入。 |
 | `native/gperftools_bridge/src/` | src 子目录；gperftools 兼容桥与原生产物接入。 |
 | `output/` | 交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/` | cloud-long-ingest-20260923T144300Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-original/` | cloud-original 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-source/` | cloud-source 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/` | patch-check 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/` | internal 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/application/` | application 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/infra/` | infra 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/rag/` | rag 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144800Z/` | cloud-long-ingest-20260923T144800Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144800Z/browser/` | browser 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/` | browser-vector 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/` | cloud-current 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-20260919/` | cloud-sre-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-20260919/tests-r2/` | tests-r2 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-20260919/tests-r2/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2064,6 +2082,22 @@ python scripts/render_learning_guide.py
 | `output/cloud-sre-20260919/tests-r2/test_private_and_path_escape_d0/` | test_private_and_path_escape_d0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-20260919/tests-r2/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-20260919/wheels/` | wheels 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260922T094352Z/` | cloud-sre-20260922T094352Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260922T100300Z/` | cloud-sre-20260922T100300Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T100428Z/` | cloud-sre-20260923T100428Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T101442Z/` | cloud-sre-20260923T101442Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160209345/` | browser-services-1790160209345 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160270558/` | browser-services-1790160270558 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160325436/` | browser-services-1790160325436 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160893114/` | browser-services-1790160893114 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T105000Z/` | cloud-sre-20260923T105000Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T112200Z/` | cloud-sre-20260923T112200Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T112700Z/` | cloud-sre-20260923T112700Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T112700Z/browser-flow/` | browser-flow 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-20260923T114300Z/` | cloud-sre-20260923T114300Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-exercise-20260923T141511Z/` | cloud-sre-exercise-20260923T141511Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/` | browser 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/demo-guide-20260924/` | demo-guide-20260924 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/frontend-review-20260909/` | frontend-review-20260909 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/interview-guide/` | interview-guide 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/` | local-sre-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2072,6 +2106,16 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1789819631631/` | browser-1789819631631 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1789822478251/` | browser-1789822478251 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1789822690756/` | browser-1789822690756 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790041836581/` | browser-1790041836581 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790041870931/` | browser-1790041870931 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790042122135/` | browser-1790042122135 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790042339922/` | browser-1790042339922 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790042654830/` | browser-1790042654830 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790160118074/` | browser-1790160118074 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790160416827/` | browser-1790160416827 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790160779094/` | browser-1790160779094 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790162584866/` | browser-1790162584866 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790162782469/` | browser-1790162782469 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2082,6 +2126,14 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-api/` | local-sre-api 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/pdf/` | pdf 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-compat-20260926/` | qa-business-compat-20260926 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-compat-20260926/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-compat-20260926/test_actual_source_projection_1/` | test_actual_source_projection_1 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-compat-20260926/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-fixes-20260926/` | qa-business-fixes-20260926 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-fixes-20260926/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/qa-business-fixes-20260926/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/resume/` | resume 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/review-pytest-20260919/` | review-pytest-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/review-pytest-20260919/test_analyzer_upload_binds_tem0/` | test_analyzer_upload_binds_tem0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/review-pytest-20260919/test_prepare_and_verify_local_0/` | test_prepare_and_verify_local_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2429,6 +2481,7 @@ python scripts/render_learning_guide.py
 | `docker-compose.retrieval.yml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `docker-compose.worker.yml` | 独立采集 Worker 的容器编排。 | — |
 | `docker-compose.yml` | 本地开发用的组合服务定义。 | — |
+| `interview_projects_deep_dive.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `Makefile` | 开发、测试、生成合同和容器操作的快捷命令。 | — |
 | `pyproject.toml` | Python 依赖、打包、pytest 与开发工具配置。 | — |
 | `README.md` | 项目首页，给出能力概览、快速启动和权威文档入口。 | — |
@@ -2497,11 +2550,13 @@ python scripts/render_learning_guide.py
 | `web/src/components/LatsReplayPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/LatsReplayPanel.jsx` | 创建并查看 FULL_LATS 冻结回放。 | `scenariosOf`、`newClientRunId`、`boundaryText`、`LatsReplayPanel` |
 | `web/src/components/LatsReplayPanel.test.jsx` | 前端自动化测试，验证同名模块的LATS 搜索与回放。 | — |
-| `web/src/components/ManagedServicesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `businessLink`、`ManagedServicesPanel` |
+| `web/src/components/ManagedServicesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `dominantIngestStage`、`OfficeExercise`、`businessLink`、`ManagedServicesPanel` |
 | `web/src/components/ManagedServicesPanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/MentorComplexShowcase.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/MentorComplexShowcase.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `reportConfidence`、`targetText`、`SkillDecision`、`MentorComplexShowcase` |
 | `web/src/components/MentorComplexShowcase.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `web/src/components/ObservabilityOverview.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `rows`、`number`、`compact`、`evidenceMetadata`、`evidenceSource` 等 9 个声明 |
+| `web/src/components/ObservabilityOverview.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/PlannerBlock.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `PlannerBlock` |
 | `web/src/components/PlannerBlock.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/SafeMarkdown.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `SafeMarkdown` |
@@ -2558,6 +2613,8 @@ python scripts/render_learning_guide.py
 | `web/src/utils/collectors.js` | React 前端模块，负责采集器的展示或交互。 | `collectorMeta`、`COLLECTOR_META`、`COLLECTOR_OPTIONS` |
 | `web/src/utils/diagnosisDisplay.js` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `normalizedCode`、`isProtocolLike`、`readableOrFallback`、`isKnownDiagnosticStatus`、`isKnownEvidenceRole` 等 26 个声明 |
 | `web/src/utils/diagnosisDisplay.test.js` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
+| `web/src/utils/diagnosisQuery.js` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `diagnosisDisplayQuery` |
+| `web/src/utils/diagnosisQuery.test.js` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `web/src/utils/html.js` | React 前端模块，负责对应模块行为的展示或交互。 | `escapeHtml` |
 | `web/src/utils/hypothesisSemantics.js` | React 前端模块，负责对应模块行为的展示或交互。 | `normalizedText`、`stableUnique`、`hypothesisSemanticKey`、`timestampOf`、`roundOf` 等 8 个声明 |
 | `web/src/utils/latsReplay.js` | React 前端模块，负责LATS 搜索与回放的展示或交互。 | `firstValue`、`upper`、`getFrozenReplayMeta` |
@@ -2657,7 +2714,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/benchmark_v2.py` | Python 服务模块，负责评测数据与指标。 | `canonical_sha256`、`load_json`、`evaluate_skill_reuse` |
 | `server/app/drop_insight/builtin_skills.py` | 把仓库 Skill catalog 同步到运行时数据库。 | `load_repository_skill_instructions`、`load_repository_skill_definitions`、`seed_repository_skills` 等 6 个声明 |
 | `server/app/drop_insight/business_acceptance.py` | 业务测量源合同与可比性、延迟、成功率、质量、降级门禁。 | `Contract`、`Workload`、`RequestOutcome`、`MeasurementWindow`、`AcceptancePolicy` 等 8 个声明 |
-| `server/app/drop_insight/business_observations.py` | Python 服务模块，负责对应模块行为。 | `GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` |
+| `server/app/drop_insight/business_observations.py` | Python 服务模块，负责对应模块行为。 | `OfficeObservation`、`GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` 等 7 个声明 |
 | `server/app/drop_insight/business_showcase.py` | 读取服务端固定且哈希校验的业务结果，仅提供只读展示。 | `get_business_acceptance` |
 | `server/app/drop_insight/campaign_matrix.py` | Python 服务模块，负责对应模块行为。 | `validate_collector_reports`、`build_campaign_admission` |
 | `server/app/drop_insight/claim_verifier.py` | 检查报告主张是否被当前 Evidence 引用和支持。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
@@ -2809,6 +2866,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `contracts/business_test_plan.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/error-codes.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `contracts/quality_plan.json` | 版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。 | — |
 | `contracts/task-statuses.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/taskkinds.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 
@@ -2834,10 +2892,16 @@ python scripts/render_learning_guide.py
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
 | `integrations/agi_saber/agi-office-backend.service` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `integrations/agi_saber/application_metrics.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ApplicationMetricsMiddleware` |
 | `integrations/agi_saber/backend-config.yaml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/backend-requirements.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/backend_entry.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/local-search-text-only.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `integrations/agi_saber/patches/long-ingest-batch.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `integrations/agi_saber/patches/milvus-lite.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `integrations/agi_saber/patches/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `integrations/agi_saber/request_observations.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
+| `integrations/agi_saber/requirements-vector.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/service.py` | 独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。 | `trace_identity`、`corpus`、`source_fingerprint`、`ActualRagService`、`serve` |
 | `integrations/agi_saber/traffic.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `main` |
 | `integrations/lightweight/artifact-lock.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -2916,6 +2980,8 @@ python scripts/render_learning_guide.py
 | `tests/test_agent_metrics_migration.py` | 验证指标迁移保留旧数据、默认缺失以及重复升级兼容性。 | `test_metrics_migration_preserves_existing_agent_and_null_is_not_zero` |
 | `tests/test_agent_model_options.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `test_provider_options_stay_scoped` |
 | `tests/test_agentic_rag.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `isolated_database`、`test_hybrid_retrieval_returns_auditable_source_and_best_markdown_chunk`、`test_retrieval_returns_empty_for_unrelated_query`、`test_retrieval_trace_explicitly_refuses_to_be_incident_evidence`、`test_langgraph_planner_receives_and_returns_the_same_retrieval_trace` 等 9 个声明 |
+| `tests/test_agi_saber_application_metrics.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_asgi_metrics_publish_bounded_request_aggregates` |
+| `tests/test_agi_saber_request_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_office_store_is_bounded_and_content_free`、`test_office_store_preserves_bounded_content_free_history_across_restart`、`test_office_store_does_not_carry_forward_private_or_oversized_snapshot`、`test_exercise_scope_is_request_local_and_only_marks_chat`、`test_retrieval_fault_is_bounded_to_one_call_per_window` 等 6 个声明 |
 | `tests/test_ai_provider.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_ai_defaults_use_official_deepseek_chat`、`test_ai_mode_none_disables_all`、`test_ai_mode_nlp_only`、`test_ai_custom_provider_env`、`test_ai_http_client_reuses_thread_local_connection_pool` 等 10 个声明 |
 | `tests/test_analysis_jobs.py` | Python 自动化测试，验证分析任务与质量状态的成功、失败与边界条件。 | `repo`、`test_enqueue_is_idempotent_for_same_input`、`test_analyzer_registry_is_version_aware`、`test_each_collector_contract_has_a_versioned_analyzer`、`test_analysis_job_can_enrich_existing_output_metadata` 等 24 个声明 |
 | `tests/test_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `TestParseTop`、`test_perf_script_omits_event_period_so_sample_count_is_observation_count`、`TestFlameTree`、`TestRules`、`TestAnalyzerConfig` 等 7 个声明 |
@@ -2925,8 +2991,8 @@ python scripts/render_learning_guide.py
 | `tests/test_artifact_lifecycle.py` | Python 自动化测试，验证采集产物、完整性和生命周期的成功、失败与边界条件。 | `test_classify_family_and_retention`、`test_reconcile_detects_missing_artifacts`、`test_reconcile_detects_orphan_objects`、`test_reconcile_flags_hash_mismatch`、`test_reconcile_flags_expired_objects_by_retention` 等 7 个声明 |
 | `tests/test_auto_scope_selection.py` | Python 自动化测试，验证目标发现与安全范围的成功、失败与边界条件。 | `isolated_database`、`test_background_scope_respects_explicit_manual_selection`、`test_background_scope_retries_when_user_enabled_discovery`、`test_ambiguous_autonomous_scope_uses_capability_aware_safe_fallback`、`test_autonomous_scope_never_selects_an_ineligible_candidate` 等 22 个声明 |
 | `tests/test_builtin_skills.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_repository_skill_catalog_is_executable`、`test_repository_skills_seed_idempotently`、`test_repository_skill_instruction_loader_rejects_tampered_source` |
-| `tests/test_business_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`test_same_load_improvement_requires_quality_and_non_degraded_results`、`test_reduced_load_and_changed_scope_cannot_pass`、`test_missing_requests_nan_and_reused_evidence_are_rejected`、`test_slow_or_unhealthy_baseline_and_load_generator_lag_do_not_pass` 等 9 个声明 |
-| `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 9 个声明 |
+| `tests/test_business_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`test_same_load_improvement_requires_quality_and_non_degraded_results`、`test_stage_percentiles_use_only_observed_samples_and_preserve_real_zero`、`test_missing_stage_telemetry_stays_missing`、`test_degraded_response_must_preserve_quality_threshold_and_baseline` 等 12 个声明 |
+| `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 15 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
 | `tests/test_current_architecture.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_removed_implementations_do_not_return`、`test_replication_topology_has_one_public_control_plane`、`test_ai_worker_contract_and_skill_pipeline_are_present` |
@@ -2965,8 +3031,8 @@ python scripts/render_learning_guide.py
 | `tests/test_lats_search.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `test_mode_string_does_not_self_certify_full_lats`、`test_top_k_expansion_keeps_open_world_sentinel_and_honest_values`、`test_server_computed_self_consistency_uses_documented_value_blend`、`test_deduplication_does_not_invent_self_consistency_from_duplicate_text`、`test_candidate_deduplication_ignores_round_label_and_unknown_aliases` 等 26 个声明 |
 | `tests/test_lats_service_acceptance.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `isolated_database`、`test_pending_approval_is_a_proposal_not_a_simulated_or_dispatched_action`、`test_approved_action_only_enters_simulation_after_a_task_exists`、`test_policy_rejection_backpropagates_and_switches_instead_of_stopping`、`test_rule_fallback_expands_fresh_chinese_candidates_across_evidence_domains` 等 17 个声明 |
 | `tests/test_logging_utils.py` | Python 自动化测试，验证日志和 Trace的成功、失败与边界条件。 | `test_log_event_redacts_nested_secrets`、`test_log_event_redacts_secrets_embedded_in_text`、`test_log_event_includes_bound_trace_id_and_resets_context` |
-| `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 10 个声明 |
-| `tests/test_metric_analyzers.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_sys_metrics_v2_derives_measured_signals_without_oracle_fields`、`test_sys_metrics_v2_rejects_pid_reuse`、`test_sys_metrics_correlates_container_namespace_pid`、`test_memory_v2_derives_memory_growth_from_same_target`、`test_ebpf_latency_is_explicitly_host_scoped` 等 8 个声明 |
+| `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 11 个声明 |
+| `tests/test_metric_analyzers.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_sys_metrics_v2_derives_measured_signals_without_oracle_fields`、`test_http_business_metrics_are_identity_checked_and_derive_degradation`、`test_sys_metrics_v2_rejects_pid_reuse`、`test_sys_metrics_correlates_container_namespace_pid`、`test_memory_v2_derives_memory_growth_from_same_target` 等 9 个声明 |
 | `tests/test_migrations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_current_baseline_creates_only_runtime_models`、`test_current_baseline_downgrade_is_clean`、`test_current_baseline_adopts_legacy_revision` |
 | `tests/test_multi_cloud_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `FakeClient`、`test_select_process_avoids_pid_one_when_possible`、`test_run_agent_requires_real_task_lineage` |
 | `tests/test_multilanguage_fault_demos.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_go_fault_lab_is_idle_bounded_and_allow_listed`、`test_go_pprof_is_reachable_from_the_host_network_interview_agent`、`test_java_fault_lab_is_idle_bounded_and_has_runtime_faults`、`test_cpp_fault_lab_is_idle_bounded_and_caps_memory`、`test_python_fault_lab_defaults_to_idle` 等 6 个声明 |
@@ -2977,6 +3043,7 @@ python scripts/render_learning_guide.py
 | `tests/test_profile_aggregation_benchmark.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `test_lossless_preaggregation_preserves_counts_and_reduces_transport_size` |
 | `tests/test_pyspy_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_speedscope_accepts_bytes`、`test_analyze_speedscope_rebuilds_top_and_flame_tree`、`test_analyze_speedscope_counts_fractional_sampling_intervals`、`test_analyze_speedscope_aggregates_all_thread_profiles`、`test_pyspy_cli_writes_outputs` 等 8 个声明 |
 | `tests/test_python_hotspot_memory_cleanup.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_memory_stop_releases_buffers_and_trims_linux_heap`、`test_demo_sets_a_stable_linux_process_name_for_agent_discovery` |
+| `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 18 个声明 |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_uses_final_root_cause_title`、`test_support_without_specific_finding_is_not_promoted_to_root_cause` |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
@@ -2996,6 +3063,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `scripts/benchmark_profile_aggregation.py` | 工程脚本，负责性能 Profile的生成、检查或验收。 | `run`、`main` |
 | `scripts/bootstrap_object_store.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/build_agi_saber_ingest_patch.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/build_ai_diagnosis_test_report_docx.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
 | `scripts/build_business_acceptance_view.py` | 从完成且哈希一致的业务报告生成页面投影。 | `verified`、`build` |
 | `scripts/build_fault_plaza_acceptance_index.py` | 校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。 | `verified_json`、`build` |
@@ -3033,6 +3101,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_fault_plaza_strict_acceptance.py` | 21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。 | `now`、`RecordingClient`、`measure`、`evaluate_intervention`、`evaluate_reports` 等 8 个声明 |
 | `scripts/run_live_skill_ab_campaign.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `Client`、`run_one`、`main` |
 | `scripts/run_multi_cloud_acceptance.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
+| `scripts/run_quality_gate.py` | 一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
 | `scripts/run_root_cause_benchmark.py` | 运行根因 Top-1 与 500 组 Skill A/B 并输出报告。 | `main` |
 | `scripts/run_scaled_skill_ab.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `main` |
 | `scripts/setup_local_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
@@ -3110,6 +3179,15 @@ python scripts/render_learning_guide.py
 | `docs/AGENT_RUNTIME.md` | Runtime、Harness、Theme、上下文、记忆和框架边界。 | — |
 | `docs/AI_DIAGNOSIS.md` | AI 范围、规划、Evidence Gate、LATS 和页面语义。 | — |
 | `docs/assets/architecture.svg` | README 静态架构图的可编辑源文件，展示平台、采集 Agent、业务进程与存储职责。 | — |
+| `docs/assets/demo-walkthrough-20260924/01-service.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/02-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/03-chat.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/04-request.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/05-report.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/07-fault-results.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/08-tree.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/09-million-historical.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/demo-walkthrough-20260924/10-fault-plaza.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `docs/assets/learning-guide/01-ai-diagnosis-workbench.png` | 总教材图 1：AI 诊断空白工作台和全局导航。 | — |
 | `docs/assets/learning-guide/02-diagnosis-case-drawer.png` | 总教材图 2：诊断历史抽屉、筛选和新建入口。 | — |
 | `docs/assets/learning-guide/02b-new-diagnosis-composer.png` | 总教材图 3：新诊断自然语言输入框和开始按钮。 | — |
@@ -3269,8 +3347,12 @@ python scripts/render_learning_guide.py
 | `docs/contracts/task-parameters/pyspy.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/task-parameters/sys_metrics.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/taskkind.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `docs/demo/generate_demo_text.py` | 项目设计、使用、部署、接口或验收说明。 | `main` |
+| `docs/demo/mini-drop-demo-20k.txt` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
+| `docs/FULL_CHAIN_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
 | `docs/PROJECT_CONTEXT.md` | 跨会话架构和当前事实总锚点。 | — |
@@ -3281,6 +3363,7 @@ python scripts/render_learning_guide.py
 | `docs/SERVICE_INTEGRATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/SKILL_AB_INSUFFICIENT_EVIDENCE_POSTMORTEM_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/SKILLS.md` | Skill 格式、检索、渐进披露、评测、发布与回滚。 | — |
+| `docs/TEST_ENGINEERING.md` | 测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。 | — |
 
 ### 34.18 reports：已经运行后产生的证据报告
 
@@ -3357,11 +3440,14 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/故障广场其余17场景全链路复验-20260909.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/项目全面检查与修复-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/agent-deadline-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/agi-saber-rag-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-recovery-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-release-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/service-exam-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-chroma-20260919-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-chroma-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-final-validation-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3370,6 +3456,9 @@ python scripts/render_learning_guide.py
 | `reports/architecture/sre-agent-targeted-final-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-diagnosis-agent-design-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-quality-roadmap-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/test-engineering-review-20260926.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/cloud-data-cleanup-20260924.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/long-document-ingest-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/实际RAG优化与AI联调-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/真实后台服务接入-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/轻量业务接入与验收-20260914.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3384,6 +3473,71 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `output/Agent开发一面问题逐题回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/Agent开发一面问题通用回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144300Z/baseline-100k.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-original/hybrid.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `HybridResult`、`HybridStore` |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-original/infra.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Status`、`LongTermRow`、`Infrastructure` 等 7 个声明 |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-original/local_repos.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `LocalPreferenceRepo`、`LocalChatHistoryRepo`、`LocalSnapshotRepo`、`LocalLongTermRepo`、`LocalDocumentRepo` 等 18 个声明 |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-original/rag.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Engine` |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-source/hybrid.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `HybridResult`、`HybridStore` |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-source/local_repos.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `LocalPreferenceRepo`、`LocalChatHistoryRepo`、`LocalSnapshotRepo`、`LocalLongTermRepo`、`LocalDocumentRepo` 等 18 个声明 |
+| `output/cloud-long-ingest-20260923T144300Z/cloud-source/rag.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Engine` |
+| `output/cloud-long-ingest-20260923T144300Z/deploy_office.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/application/local_repos.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `LocalPreferenceRepo`、`LocalChatHistoryRepo`、`LocalSnapshotRepo`、`LocalLongTermRepo`、`LocalDocumentRepo` 等 18 个声明 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/infra/infra.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Status`、`LongTermRow`、`Infrastructure` 等 7 个声明 |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/rag/hybrid.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `HybridResult`、`HybridStore` |
+| `output/cloud-long-ingest-20260923T144300Z/patch-check/internal/rag/rag.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Engine` |
+| `output/cloud-long-ingest-20260923T144300Z/run_upload.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `post`、`document` |
+| `output/cloud-long-ingest-20260923T144800Z/20-vector-memory.conf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/after-100k.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/first-504-observation.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/mini-drop-diagnosis.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/mini-drop-request.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/mini-drop-ui.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/office-million-upload.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser-vector/office-million-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser/office-million-upload.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/browser/office-million-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/cgroup-smoke-20k.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/config.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `APIConfig`、`default_config` 等 9 个声明 |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/infra.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Status`、`LongTermRow`、`Infrastructure` 等 7 个声明 |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/llm.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Message`、`Client` |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/rag.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Engine` |
+| `output/cloud-long-ingest-20260923T144800Z/cloud-current/ragchunk.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `Row`、`ESHit`、`MilvusHit`、`Store` |
+| `output/cloud-long-ingest-20260923T144800Z/configure_vector.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_cgroup_office.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_office.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_office_history.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `run`、`read_snapshot`、`merge_snapshots`、`switch`、`main` |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_platform.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `run`、`inspect`、`healthy`、`switch`、`main` |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_stream_office.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `switch` |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_vector_office.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `switch` |
+| `output/cloud-long-ingest-20260923T144800Z/deploy_worker_history.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `run`、`inspect`、`healthy`、`switch`、`main` |
+| `output/cloud-long-ingest-20260923T144800Z/inspect_case.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/inspect_live_vector.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/inspect_services.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/million-1m.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/million-vector.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-after-504.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-after-exercise.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-after-restart.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-after-timeout.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-final-exercise.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/office-observations-final.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/persist_memory_limit.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/platform-source-154900.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/platform-source-160200.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/platform-source-162100.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/platform-source-163300.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/platform-source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/probe_cloud.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/probe_milvus.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/probe_milvus_schema.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/probe_vector_state.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/restart-memory-1536.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/vector-100k.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/verify_browser_document_query.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/verify_ingest_ui.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/verify_upload_ui.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-long-ingest-20260923T144800Z/verify_vector_query.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-20260919/agent-modules-smoke.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-20260919/agent-runtime-release.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-20260919/agent-runtime-source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -3514,6 +3668,70 @@ python scripts/render_learning_guide.py
 | `output/cloud-sre-20260919/wheels/websocket_client-1.9.2-py3-none-any.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-20260919/wheels/websockets-17.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-20260919/wheels/yarl-1.25.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260922T094352Z/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260922T100300Z/source-final-r2.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T100428Z/live-rag-link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T100428Z/prepare_remote.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T100428Z/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T100428Z/verify_rag_link.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160209345/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160209345/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160270558/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160270558/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160325436/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160325436/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160893114/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-20260923T101442Z/browser-services-1790160893114/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/case-metrics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/inspect_rag_case.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/run_services_browser.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T101442Z/verify_services_browser.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T105000Z/release_web_only.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T105000Z/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T105000Z/verify_final_service.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112200Z/release_web_only.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112200Z/source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/browser-flow/normal-flow.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/browser-flow/normal-flow.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-20260923T112700Z/inspect_normal_case.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/release_web_only.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/verify_service_flow.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T112700Z/verify_service_flow.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-20260923T114300Z/release_health_check.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `up`、`healthy` |
+| `output/cloud-sre-20260923T114300Z/source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/exercise.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/exercise.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/fault-plaza-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/fault-plaza-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/browser/fault-plaza-ui.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/deploy.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `run`、`inspect`、`healthy`、`switch`、`main` 等 6 个声明 |
+| `output/cloud-sre-exercise-20260923T141511Z/fault-controls-21.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/source-final.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/source.tgz` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/verify_browser.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/verify_browser.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/verify_business.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `post` |
+| `output/cloud-sre-exercise-20260923T141511Z/verify_fault_controls.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/cloud-sre-exercise-20260923T141511Z/verify_fault_ui.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/01-service.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/02-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/03-chat.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/04-request.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/05-report.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/06-fault-overview.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/07-fault-results.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/08-tree.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/demo-guide-20260924/capture.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/capture.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/capture.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/fault.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/fault.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/followup.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/followup.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/inspect.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/demo-guide-20260924/tree.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/frontend-review-20260909/01-start-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/02-start-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
@@ -3533,6 +3751,26 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1789822478251/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1789822690756/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1789822690756/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790041836581/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790041836581/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790041870931/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790041870931/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790042122135/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790042122135/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790042339922/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790042339922/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790042654830/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790042654830/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790160118074/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790160118074/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790160416827/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790160416827/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790160779094/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790160779094/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790162584866/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790162584866/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790162782469/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790162782469/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -3558,6 +3796,21 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-api/mini-drop-apiserver` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/pdf/双项目面试深挖报告.pdf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_1/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_1/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_actual_source_projection_1/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-compat-20260926/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-fixes-20260926/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-fixes-20260926/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-fixes-20260926/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/qa-business-fixes-20260926/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/resume/李明远-两个项目技术细节自然表达版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/resume/李明远-两个项目生产化面试深挖版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/resume/李明远-两个项目纯技术细节版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/resume/李明远-两个项目面试详细总结.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/review-pytest-20260919/test_analyzer_upload_binds_tem0/top.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/review-pytest-20260919/test_prepare_and_verify_local_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/review-pytest-20260919/test_prepare_rejects_declared_0/artifact.bin` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

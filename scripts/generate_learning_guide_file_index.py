@@ -43,6 +43,10 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "docs/TEST_ENGINEERING.md": "测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。",
+    "contracts/quality_plan.json": "版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。",
+    "scripts/run_quality_gate.py": "一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。",
+    "tests/test_quality_gate.py": "防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。",
     "docs/assets/architecture.svg": "README 静态架构图的可编辑源文件，展示平台、采集 Agent、业务进程与存储职责。",
     "docs/BUSINESS_ONBOARDING_DESIGN.md": "业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。",
     "integrations/agi_saber/service.py": "独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。",

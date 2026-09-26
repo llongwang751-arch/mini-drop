@@ -86,14 +86,21 @@ def summarize(window: MeasurementWindow) -> dict:
     def percentile(values, fraction):
         return sorted(values)[max(0, math.ceil(len(values)*fraction)-1)]
     values = [r.latency_ms for r in rows]
+    # Missing stages mean not observed, not zero time. Keep actual zero-valued
+    # measurements, and expose each percentile's denominator independently of
+    # the total request count (failed requests may have no stage telemetry).
+    stage_values = {
+        stage: [r.stage_ms[stage] for r in rows if stage in r.stage_ms]
+        for stage in sorted({stage for r in rows for stage in r.stage_ms})
+    }
     return {"request_count": len(rows), "success_rate": sum(r.success for r in rows)/len(rows),
             "quality_rate": sum(r.quality_passed for r in rows)/len(rows),
             "degraded_count": sum(r.degraded for r in rows),
             "p50_ms": percentile(values,.5), "p95_ms": percentile(values,.95),
             "p99_ms": percentile(values,.99) if len(rows)>=1000 else None,
             "completed_rps": len(rows)/window.elapsed_seconds,
-            "stage_p95_ms": {s: percentile([r.stage_ms.get(s,0) for r in rows],.95)
-                             for s in sorted({s for r in rows for s in r.stage_ms})}}
+            "stage_p95_ms": {stage: percentile(samples, .95) for stage, samples in stage_values.items()},
+            "stage_sample_counts": {stage: len(samples) for stage, samples in stage_values.items()}}
 
 
 def compare_business_windows(baseline: MeasurementWindow, fault: MeasurementWindow,
@@ -121,10 +128,13 @@ def compare_business_windows(baseline: MeasurementWindow, fault: MeasurementWind
               or f['success_rate']<policy.minimum_success_rate)
     if not injected: reasons.append("FAULT_NOT_OBSERVED")
     if reasons: outcome="INCOMPARABLE"
-    elif a['degraded_count']: outcome="DEGRADED_AVAILABLE" if a['success_rate']>=policy.minimum_success_rate and a['p95_ms']<=threshold else "REJECTED"
-    elif a['success_rate']>=policy.minimum_success_rate and a['quality_rate']>=max(policy.minimum_quality_rate,b['quality_rate']) and a['p95_ms']<=threshold:
+    elif (a['success_rate'] < policy.minimum_success_rate
+          or a['quality_rate'] < max(policy.minimum_quality_rate, b['quality_rate'])
+          or a['p95_ms'] > threshold):
+        outcome="REJECTED"
+    elif a['degraded_count']: outcome="DEGRADED_AVAILABLE"
+    else:
         outcome="IMPROVEMENT_VERIFIED"
-    else: outcome="REJECTED"
     return {"schema":"mini-drop.business-comparison.v1","outcome":outcome,"reasons":reasons,
             "summaries":summaries,"policy":policy.model_dump(),"recovery_p95_limit_ms":threshold,
             "change_summary":change_summary,"window_hashes":[canonical_hash(w.model_dump()) for w in windows],

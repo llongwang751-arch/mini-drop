@@ -1,7 +1,7 @@
 // Local browser regression with explicitly synthetic API fixtures. No cloud
 // connection, credentials, fault injection or production data modification.
 import http from "node:http";
-import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { readFile, mkdir, writeFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
@@ -10,7 +10,8 @@ import assert from "node:assert/strict";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dist = path.join(root, "web/dist");
-const output = path.join(root, "output/frontend-review-20260909");
+const outputIndex = process.argv.indexOf("--output");
+const output = path.resolve(root, outputIndex > 0 ? process.argv[outputIndex + 1] : "output/frontend-review-20260909");
 await mkdir(output, { recursive: true });
 const diagnosis = {
   diagnosis_id: "ui-fixture", query: "[界面测试数据] 订单服务 CPU 升高，检查业务热点与同机争抢",
@@ -75,8 +76,31 @@ const server = http.createServer(async (req, res) => {
   } catch { res.writeHead(404); res.end(); }
 });
 await new Promise((resolve) => server.listen(5174, "127.0.0.1", resolve));
-const chrome = process.env.MINI_DROP_ACCEPTANCE_CHROME || path.join(process.env.LOCALAPPDATA, "ms-playwright/chromium-1161/chrome-win/chrome.exe");
-assert(existsSync(chrome), "Set MINI_DROP_ACCEPTANCE_CHROME to a Chromium executable");
+// MINI_DROP_ACCEPTANCE_CHROME wins; otherwise use the newest installed
+// Playwright Chromium (Windows and Linux layouts) so CI and local runs share one path.
+async function resolveChrome() {
+  if (process.env.MINI_DROP_ACCEPTANCE_CHROME) return process.env.MINI_DROP_ACCEPTANCE_CHROME;
+  const bases = process.platform === "win32"
+    ? [path.join(process.env.LOCALAPPDATA ?? "", "ms-playwright")]
+    : [path.join(os.homedir(), ".cache", "ms-playwright")];
+  const layouts = process.platform === "win32"
+    ? [path.join("chrome-win64", "chrome.exe"), path.join("chrome-win", "chrome.exe")]
+    : [path.join("chrome-linux", "chrome")];
+  for (const base of bases) {
+    if (!existsSync(base)) continue;
+    const revisions = (await readdir(base)).filter((name) => name.startsWith("chromium-"))
+      .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    for (const revision of revisions) {
+      for (const layout of layouts) {
+        const executable = path.join(base, revision, layout);
+        if (existsSync(executable)) return executable;
+      }
+    }
+  }
+  return path.join(process.env.LOCALAPPDATA ?? "", "ms-playwright/chromium-1161/chrome-win/chrome.exe");
+}
+const chrome = await resolveChrome();
+assert(existsSync(chrome), `Set MINI_DROP_ACCEPTANCE_CHROME to a Chromium executable (looked for: ${chrome})`);
 const browser = spawn(chrome, ["--headless=new", "--remote-debugging-port=9336", `--user-data-dir=${path.join(os.tmpdir(), `mini-drop-ui-${process.pid}`)}`, "--no-first-run", "about:blank"], { windowsHide: true, stdio: "ignore" });
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let socket;
@@ -132,8 +156,12 @@ try {
   await screenshot("02-start-mobile.png"); checks.push("mobile no page overflow");
   await viewport(1366, 768); await navigate("/ai-diagnosis?case=drop_insight_v2%3Aui-fixture");
   await waitFor("Boolean(document.querySelector('.diagnosis-finding'))");
-  assert(await evaluate("document.querySelector('.diagnosis-finding').getBoundingClientRect().top < 500"));
-  await screenshot("03-finding-desktop.png"); checks.push("persisted finding above investigation");
+  const findingTop = await evaluate("document.querySelector('.diagnosis-finding').getBoundingClientRect().top");
+  // The exam-workflow redesign renders the observability summary above the
+  // finding; the finding itself must still start inside the first viewport.
+  const viewportHeight = await evaluate("innerHeight");
+  assert(findingTop < viewportHeight, `Persisted finding must be visible without scrolling; measured top=${findingTop} vs viewport=${viewportHeight}`);
+  await screenshot("03-finding-desktop.png"); checks.push(`persisted finding visible in first viewport (top=${Math.round(findingTop)}px)`);
   await viewport(1093, 768); await pause(300);
   assert(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), "Narrow laptop must not overflow");
   await screenshot("07-finding-narrow.png");
@@ -142,13 +170,16 @@ try {
   await screenshot("08-finding-mobile.png"); checks.push("active diagnosis fits narrow laptop and mobile");
   await viewport(1366, 768); await navigate("/ai-diagnosis?case=drop_insight_v2%3Aui-fixture");
   await waitFor("Boolean(document.querySelector('.diagnosis-finding'))");
-  await clickText("探索树");
+  // The exam redesign makes the real parent-child tree the default workbench view;
+  // the canvas sits below the exam journey and observability summary, so the
+  // position is no longer asserted here — the fullscreen canvas must fill the viewport.
   await waitFor("Boolean(document.querySelector('[aria-label=\"真实父子探索树\"]'))");
-  assert(await evaluate("document.querySelector('.diagnosis-tree-fit-viewport').getBoundingClientRect().top < 650"), "Tree canvas must start in laptop viewport");
-  await screenshot("04-tree-desktop.png");
+  await screenshot("04-tree-desktop.png"); checks.push("default workbench view renders the real parent-child tree");
   await evaluate("document.querySelector('[aria-label=\"全屏查看探索树\"]').click()");
   await waitFor("Boolean(document.querySelector('.diagnosis-tree-fullscreen-modal'))");
-  await screenshot("05-tree-fullscreen.png"); checks.push("tree and fullscreen controls work");
+  const fullscreenHeight = await evaluate("document.querySelector('.diagnosis-tree-fullscreen-modal .diagnosis-tree-fit-viewport').getBoundingClientRect().height");
+  assert(fullscreenHeight > 600, `Fullscreen tree canvas must fill the viewport; measured height=${fullscreenHeight}`);
+  await screenshot("05-tree-fullscreen.png"); checks.push(`fullscreen tree canvas fills viewport (height=${Math.round(fullscreenHeight)}px)`);
   await navigate("/ai-diagnosis?case=drop_insight_v2%3Aui-fixture");
   await waitFor("Boolean(document.querySelector('.diagnosis-finding'))");
   failReports = true;

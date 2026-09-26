@@ -1,0 +1,121 @@
+{
+  "schema": "mini-drop.quality-plan.v1",
+  "scope": "Repository regression only; live diagnosis, capacity and production release are separate acceptances.",
+  "risks": {
+    "contract-drift": "跨语言协议或生成物漂移",
+    "task-lifecycle": "非法状态迁移、重复效果与预算泄漏",
+    "false-conclusion": "无效证据或缺失观测被误判为已验证",
+    "business-regression": "降低负载或牺牲回答质量换取更快延迟",
+    "ui-regression": "页面状态、异步竞争与报告展示错误",
+    "api-regression": "接口鉴权、调度与并发行为回归",
+    "test-harness": "测试未执行、跳过或报告损坏却被判通过"
+  },
+  "profiles": {
+    "smoke": ["contracts", "critical-python"],
+    "python": ["contracts", "python-all"],
+    "local": ["contracts", "python-all", "web", "web-browser", "go", "go-demo"],
+    "business": ["business-http"],
+    "browser": ["web-browser"],
+    "stability": ["business-stability"]
+  },
+  "suites": {
+    "contracts": {
+      "title": "协议与业务测试计划一致性",
+      "risks": ["contract-drift"],
+      "cwd": ".",
+      "timeout_seconds": 120,
+      "commands": [
+        ["{python}", "scripts/generate_taskkind_contracts.py", "--check"],
+        ["{python}", "scripts/generate_status_contracts.py", "--check"],
+        ["{python}", "scripts/generate_error_code_contracts.py", "--check"],
+        ["{python}", "scripts/generate_business_contracts.py", "--check"],
+        ["{python}", "scripts/check_openapi_routes.py"],
+        ["{python}", "scripts/check_business_test_plan.py"]
+      ],
+      "report": "exit-code"
+    },
+    "critical-python": {
+      "title": "高风险行为回归",
+      "risks": ["task-lifecycle", "false-conclusion", "business-regression", "test-harness"],
+      "cwd": ".",
+      "timeout_seconds": 300,
+      "commands": [["{python}", "-m", "pytest", "-q", "tests/test_state_machine.py", "tests/test_drop_insight_budget.py", "tests/test_drop_insight_policy_evidence.py", "tests/test_artifact_integrity.py", "tests/test_analyzer_runner_quality.py", "tests/test_business_acceptance.py", "tests/test_quality_gate.py", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml"]],
+      "report": "junit",
+      "allowed_skips": []
+    },
+    "python-all": {
+      "title": "Python 全量回归与覆盖率观测",
+      "risks": ["task-lifecycle", "false-conclusion", "business-regression", "test-harness"],
+      "cwd": ".",
+      "timeout_seconds": 900,
+      "commands": [["{python}", "-m", "pytest", "tests", "-q", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml", "--cov=server", "--cov=analyzer", "--cov-branch", "--cov-report=json:{output}/coverage.json", "--cov-report=term"]],
+      "report": "junit",
+      "critical_coverage": {
+        "floor_note": "各模块分支含行覆盖率的下限。business_acceptance/event_store/hypothesis_predicate/report_conclusion 取 2026-09-26 基线（94.69/95.70/85.39/69.40）向下取整；fix_verification 于同日从 13.64% 补测至 100%，下限钉在 100：新增分支必须带测试进门禁。",
+        "modules": {
+          "server/app/drop_insight/business_acceptance.py": 94,
+          "server/app/drop_insight/event_store.py": 95,
+          "server/app/drop_insight/hypothesis_predicate.py": 85,
+          "server/app/drop_insight/report_conclusion.py": 69,
+          "server/app/drop_insight/fix_verification.py": 100
+        }
+      },
+      "allowed_skips": [
+        {"class": "tests.test_drop_insight_report_effects_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行"},
+        {"class": "tests.test_outbox_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行"},
+        {"class": "tests.test_sre_agent_upgrade", "reason": "could not import 'chromadb'", "boundary": "可选 retrieval 依赖；未执行不能证明真实向量检索"}
+      ]
+    },
+    "web": {
+      "title": "React 页面与组件回归",
+      "risks": ["ui-regression"],
+      "cwd": "web",
+      "timeout_seconds": 600,
+      "commands": [["node", "node_modules/vitest/vitest.mjs", "run", "--maxWorkers=2", "--reporter=default", "--reporter=junit", "--outputFile.junit={output}/junit.xml"]],
+      "report": "junit",
+      "allowed_skips": []
+    },
+    "web-browser": {
+      "title": "真实 Chromium 界面回归（合成 API 数据；需先 npm --prefix web run build）",
+      "risks": ["ui-regression"],
+      "cwd": ".",
+      "timeout_seconds": 300,
+      "commands": [["node", "scripts/verify_frontend_workbench.mjs", "--output", "{output}/browser"]],
+      "report": "exit-code",
+      "allowed_skips": []
+    },
+    "go": {
+      "title": "Go API 回归（race 在 Linux CI 执行）",
+      "risks": ["api-regression"],
+      "cwd": "apiserver",
+      "timeout_seconds": 600,
+      "commands": [["go", "test", "-json", "-count=1", "./..."]],
+      "report": "go-json",
+      "allowed_skips": ["TestPostgresIdempotencyRaceWithOneConnection"]
+    },
+    "go-demo": {
+      "title": "Go 故障目标可编译性",
+      "risks": ["api-regression"],
+      "cwd": "demo/go-hotspot",
+      "timeout_seconds": 120,
+      "commands": [["go", "test", "./..."]],
+      "report": "exit-code"
+    },
+    "business-http": {
+      "title": "本机真实 HTTP 同负载三窗实验",
+      "risks": ["business-regression"],
+      "cwd": ".",
+      "timeout_seconds": 300,
+      "commands": [["{python}", "scripts/check_business_test_plan.py"], ["{python}", "scripts/run_business_acceptance.py", "--output", "{output}/campaign.json", "--require-outcomes"]],
+      "report": "business-campaign"
+    },
+    "business-stability": {
+      "title": "同负载三窗实验独立重复 3 次，记录全部结果与 P95 波动",
+      "risks": ["business-regression"],
+      "cwd": ".",
+      "timeout_seconds": 900,
+      "commands": [["{python}", "scripts/check_business_test_plan.py"], ["{python}", "scripts/run_business_acceptance.py", "--output", "{output}/campaign.json", "--repeat", "3", "--require-outcomes"]],
+      "report": "business-campaign"
+    }
+  }
+}

@@ -35,23 +35,171 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Tests
-        run: python -m pytest tests -q
-      - name: Generated contract drift
-        run: |
-          python scripts/generate_taskkind_contracts.py --check
-          python scripts/generate_status_contracts.py --check
-          python scripts/generate_error_code_contracts.py --check
-          python scripts/check_openapi_routes.py
+      - name: Risk-based Python quality gate and generated contract drift
+        run: python scripts/run_quality_gate.py --profile python --output output/quality-python
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-quality-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/quality-python/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
       - name: Lint (compileall)
         run: python -m compileall -q server analyzer
       - name: Lint (ruff)
         run: python -m ruff check server analyzer scripts tests
 
+  postgres:
+    name: PostgreSQL transactions and concurrency (no skips)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    services:
+      # Disposable runner-local database: never inherit a deployed DATABASE_URL.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mini_drop_ci
+          POSTGRES_PASSWORD: mini_drop_ci_ephemeral
+          POSTGRES_DB: mini_drop_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mini_drop_ci -d mini_drop_ci_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apiserver/go.mod
+          cache-dependency-path: apiserver/go.sum
+      - name: Prepare evidence directory
+        run: mkdir -p output/postgres-ci
+      - name: Install Python test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Record isolated database and runtime
+        env:
+          MINI_DROP_TEST_POSTGRES_URL: postgresql://mini_drop_ci:mini_drop_ci_ephemeral@127.0.0.1:5432/mini_drop_ci_test
+        run: |
+          python - <<'PY'
+          import json, os, platform
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import psycopg
+
+          with psycopg.connect(os.environ["MINI_DROP_TEST_POSTGRES_URL"]) as connection:
+              database, postgres = connection.execute("SELECT current_database(), version()").fetchone()
+          assert database == "mini_drop_ci_test", "Refusing a non-CI database"
+          runtime = {
+              "commit": os.environ["GITHUB_SHA"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "created_at": datetime.now(timezone.utc).isoformat(),
+              "python": platform.python_version(),
+              "platform": platform.platform(),
+              "database": database,
+              "postgres": postgres,
+              "scope": "runner-local PostgreSQL; each fixture owns a temporary schema",
+          }
+          Path("output/postgres-ci/runtime.json").write_text(json.dumps(runtime, indent=2) + "\n")
+          PY
+          go version > output/postgres-ci/go-version.txt
+      - name: Python lease, fencing, uniqueness and Outbox transactions
+        env:
+          RUN_POSTGRES_TESTS: "1"
+          MINI_DROP_TEST_POSTGRES_URL: postgresql+psycopg://mini_drop_ci:mini_drop_ci_ephemeral@127.0.0.1:5432/mini_drop_ci_test
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/test_drop_insight_report_effects_postgres.py tests/test_outbox_postgres.py \
+            -vv -ra --junitxml=output/postgres-ci/python.junit.xml \
+            2>&1 | tee output/postgres-ci/python.log
+      - name: Go real idempotency conflict with race detector
+        if: ${{ !cancelled() }}
+        working-directory: apiserver
+        env:
+          MINI_DROP_TEST_POSTGRES_URL: postgresql://mini_drop_ci:mini_drop_ci_ephemeral@127.0.0.1:5432/mini_drop_ci_test?sslmode=disable
+          CGO_ENABLED: "1"
+        shell: bash
+        run: |
+          set -o pipefail
+          go test -race -count=1 -timeout=90s -json \
+            -run '^TestPostgresIdempotencyRaceWithOneConnection$' ./internal/repository \
+            2>../output/postgres-ci/go.stderr.log | tee ../output/postgres-ci/go.jsonl
+      - name: Reject skipped, missing or failed integration evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          root = Path("output/postgres-ci")
+          root.mkdir(parents=True, exist_ok=True)
+          problems = []
+          expected = {
+              "test_postgres_claim_lease_takeover_and_fencing",
+              "test_postgres_session_lock_serializes_event_effect_identity",
+              "test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+              "test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+              "test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+          }
+          try:
+              cases = list(ET.parse(root / "python.junit.xml").iter("testcase"))
+              executed = {case.attrib["name"] for case in cases}
+              problems.extend(f"Missing Python test: {name}" for name in sorted(expected - executed))
+              for case in cases:
+                  if any(case.find(state) is not None for state in ("skipped", "failure", "error")):
+                      problems.append(f"Python test did not pass: {case.attrib.get('name')}")
+          except (OSError, ET.ParseError, KeyError) as error:
+              problems.append(f"Missing or invalid Python JUnit: {type(error).__name__}")
+          target = "TestPostgresIdempotencyRaceWithOneConnection"
+          try:
+              events = [json.loads(line) for line in (root / "go.jsonl").read_text().splitlines() if line.strip()]
+              if not any(event.get("Test") == target and event.get("Action") == "pass" for event in events):
+                  problems.append("Go PostgreSQL idempotency test has no PASS evidence")
+              if not any("Test" not in event and event.get("Action") == "pass" for event in events):
+                  problems.append("Go repository package has no PASS evidence")
+              if any(event.get("Action") in {"skip", "fail"} for event in events):
+                  problems.append("Go integration run contains a skip or failure")
+          except (OSError, ValueError) as error:
+              problems.append(f"Missing or invalid Go JSON: {type(error).__name__}")
+          if not (root / "runtime.json").is_file():
+              problems.append("Isolated database runtime metadata is missing")
+          result = {"status": "FAILED" if problems else "PASSED", "problems": problems,
+                    "commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"],
+                    "required_python_tests": sorted(expected), "required_go_test": target}
+          (root / "gate.json").write_text(json.dumps(result, indent=2) + "\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("### PostgreSQL concurrency gate: " + result["status"] + "\n\n")
+              summary.write("5 Python cases + 1 Go idempotency case with race detection; zero skips required.\n\n")
+              summary.write("\n".join("- " + problem for problem in problems) + "\n")
+          print(json.dumps(result, indent=2))
+          raise SystemExit(1 if problems else 0)
+          PY
+      - name: Collect PostgreSQL service logs
+        if: always()
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: docker logs "$POSTGRES_CONTAINER" > output/postgres-ci/postgres.log 2>&1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: postgres-concurrency-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/postgres-ci/
+          if-no-files-found: error
+          retention-days: 14
+
   business:
     name: Business HTTP acceptance and test-plan traceability
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,6 +220,8 @@ jobs:
         run: python scripts/check_business_test_plan.py --base "$BASE_SHA" --head "$HEAD_SHA" --output output/business-impact.json
       - name: Real HTTP workload and quality gates
         run: python scripts/run_business_acceptance.py --output output/business-campaign.json --require-outcomes
+      - name: Repeat stability (3 independent campaigns, all recorded)
+        run: python scripts/run_business_acceptance.py --output output/business-stability.json --repeat 3 --require-outcomes
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -93,7 +243,7 @@ jobs:
       - name: Vet
         run: go vet ./...
       - name: Test
-        run: go test ./...
+        run: go test -race -count=1 ./...
       # 先以 report-only 模式引入 golangci-lint：在日志中暴露问题但不阻断；
       # 清理存量告警后再改为 --issues-exit-code=1 的硬门禁。
       - name: Lint (golangci-lint, report-only)
@@ -142,8 +292,35 @@ jobs:
       - name: Build
         run: npm run build:check
 
+  web-browser:
+    name: Web (real Chromium, synthetic fixtures)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+      - name: Install frontend dependencies
+        run: npm --prefix web ci
+      - name: Build frontend bundle
+        run: npm --prefix web run build
+      - name: Install Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Browser regression against synthetic API fixtures
+        run: node scripts/verify_frontend_workbench.mjs --output output/web-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-browser-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/web-browser/
+          if-no-files-found: error
+          retention-days: 14
+
   native:
-    name: Native (C++ ${{ matrix.component }})
+    name: Native (C++ ${{ matrix.component }}, ${{ matrix.component == 'agent' && 'build + CTest' || 'build only' }})
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -161,5 +338,6 @@ jobs:
         run: cmake -S native/${{ matrix.component }} -B /tmp/build-${{ matrix.component }} -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build /tmp/build-${{ matrix.component }} --parallel
-      - name: Test
-        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure
+      - name: Agent CTest (registered tests required)
+        if: matrix.component == 'agent'
+        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure --no-tests=error

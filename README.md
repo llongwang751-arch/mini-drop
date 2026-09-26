@@ -6,7 +6,9 @@ Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述
 
 [项目教程](docs/PROJECT_LEARNING_GUIDE.md) · [演示指南](docs/INTERVIEW_DEMO_GUIDE.md) · [业务接入](docs/SERVICE_INTEGRATION.md) · [部署文档](docs/REPLICATION.md) · [面试深挖](docs/INTERVIEW_DEEP_DIVE.md) · [全部文档](docs/README.md)
 
-> 状态说明更新于 **2026-09-14**。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
+**测试开发入口：** 本项目也用于多语言服务的性能与可靠性测试：从风险和测试计划出发，执行自动化回归、受控故障与同负载对照，再用采集证据辅助定位失败。运行 `python scripts/run_quality_gate.py` 可生成本机质量报告；分层测试、真实缺陷复盘、开源对照及测开演示见 [测试开发与质量工程](docs/TEST_ENGINEERING.md)。
+
+> 测试工程说明更新于 **2026-09-26**，下文截图保留原拍摄日期。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
 
 ## 目录
 
@@ -128,7 +130,7 @@ Task 记录一次采集要求，Attempt 记录执行尝试，Artifact 保存产�
 
 仓库当前登记 **13 个诊断 Skill**。系统先召回轻量元数据，再按需读取完整 `SKILL.md`，校验目录、章节和摘要，并记录沿用、切换、偏离与退出轨迹。Skill 提供探针路线，不提供本次故障答案。
 
-知识检索读取 [knowledge/](knowledge/)；Skill 检索使用进程内词法与确定性特征匹配，当前未使用外部向量数据库。领域状态以 PostgreSQL 为权威；LangGraph Checkpoint 的请求后端与实际后端分别显示，降级到内存时不承诺跨进程恢复。长期偏好与本次诊断事实也分别管理。
+知识检索读取 [knowledge/](knowledge/)，当前诊断知识链支持 BM25、Chroma 语义与目录实体三路召回；Skill 检索仍使用进程内词法与确定性特征匹配，两者不是同一条检索链。领域状态以 PostgreSQL 为权威；LangGraph Checkpoint 的请求后端与实际后端分别显示，降级到内存时不承诺跨进程恢复。长期偏好与本次诊断事实也分别管理。
 
 ### 执行与数据保护
 
@@ -258,6 +260,18 @@ curl --fail http://localhost/api/healthz
 首次部署需要完成证书签发、网络可达性、存储上传地址和环境变量配置，再启动服务；完整命令见 [部署文档](docs/REPLICATION.md)。在已有环境发布时保留版本目录和回滚镜像，只更新受影响服务，不重新初始化 CA 或清理数据库与对象存储卷。
 
 ## 开发与测试
+
+先安装已有的开发依赖，再使用统一质量入口。报告默认写入新的 `output/quality/<run-id>/`，保留 HTML、JSON、JUnit、日志和源码摘要；不会覆盖旧运行。
+
+```powershell
+python scripts/run_quality_gate.py --profile smoke      # 高风险回归与协议检查
+python scripts/run_quality_gate.py --profile local      # Python + Web + 真浏览器 + Go 本地回归
+python scripts/run_quality_gate.py --profile business   # 本机 HTTP 同负载三窗实验
+python scripts/run_quality_gate.py --profile stability  # 三窗实验独立重复 3 次与 P95 波动
+python scripts/run_quality_gate.py --profile browser    # 真实 Chromium 界面回归（合成数据）
+```
+
+`local` 需要已安装 Web 依赖和 Go，浏览器套件还需要先 `npm --prefix web run build` 生成 `web/dist`；它不启动 Docker。PostgreSQL 并发测试由独立 CI 临时库作业执行，Linux 原生采集由现有真机验收负责。允许跳过的可选集成项显示 `PASSED_WITH_SKIPS`，没有报告、未知跳过、全跳过、命令失败或超时都会失败。覆盖率观测现包含分支；`python-all` 对 5 个证据/幂等/验收关键模块执行按模块下限门槛（2026-09-26 基线），防止新增未测分支。
 
 下面每组命令均从仓库根目录执行。测试依赖与生产依赖分别由 `pyproject.toml`、`web/package.json` 和 Go 模块声明。
 

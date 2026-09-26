@@ -1,5 +1,6 @@
 """Generate a read-only UI projection from intact, completed measurements."""
 import argparse
+from copy import deepcopy
 import json
 from pathlib import Path
 import sys
@@ -40,7 +41,15 @@ def build(source, actual_rag=None, diagnosis=None):
         from server.app.drop_insight.business_acceptance import MeasurementWindow,AcceptancePolicy,compare_business_windows
         comparison=compare_business_windows(*(MeasurementWindow.model_validate(actual['windows'][n])
             for n in ('baseline','fault','after')),AcceptancePolicy.model_validate(actual['policy']),actual['change'])
-        if comparison!=actual['comparison']:raise ValueError('actual RAG comparison does not match measurements')
+        # Stage sample counts are additive. Old reports cannot contain them,
+        # but every pre-existing verdict, metric and raw-window hash must still
+        # agree. The projection uses the enriched recalculation; source evidence
+        # remains untouched. Incorrect historical zero-filled P95s still fail.
+        comparable=deepcopy(comparison)
+        for name, summary in comparable['summaries'].items():
+            if 'stage_sample_counts' not in actual['comparison'].get('summaries',{}).get(name,{}):
+                summary.pop('stage_sample_counts',None)
+        if comparable!=actual['comparison']:raise ValueError('actual RAG comparison does not match measurements')
         row={'scenario_id':'RAG-ACTUAL-01','title':'实际办公助手：本地检索读取了无用向量',
             'comparison':comparison,'ai_root_cause_verified':False,'case_sha256':actual['sha256'],
             'source_kind':'ACTUAL_RAG_ENGINE','environment':actual['windows']['fault']['workload']['environment'],
