@@ -103,3 +103,11 @@
 Java `java-downstream-latency` 则有一份门禁 VERIFIED 报告，但场景词汇匹配为 false，最终未接受。下一步应人工核对报告是否解释注入的下游延迟及词汇判据是否过窄，不能仅凭 VERIFIED 字段把整场改成通过。网络、文件 I/O 和 C++ 锁等链路失败项排在后面，先解决可采集性再运行昂贵的诊断。
 
 本轮另新增本机独立 HTTP 进程的阶梯/恢复/持续实验，能测请求排队与业务 SLO，但它不是以上云端 AI 根因复验；两者成绩分开保留。
+
+## 隔离 CI 的 Python/Go 独立 CPU 对照
+
+执行入口 `python scripts/run_quality_gate.py --profile hotspot-controls`，限隔离 Linux，需 Go 与 psutil。只启动当前仓库 demo 子进程：端口占用时拒绝启动；API 返回 PID 必须属于自己创建的进程；不接受任意目标地址。故障白名单为 Python source / Go cpu，注入 60 秒自动截止，finally 撤销并回读，最终回收目标进程。
+
+每种运行时记录 4 秒正常、8 秒故障、4 秒恢复三个 OS CPU 时间窗，目标 PID/create_time 必须一致。故障 CPU 至少单核 25%、相对基线增加至少 20 个百分点，恢复不得高于 max(10%, baseline+5 个百分点)。Python 现有合作式栈采样需新增至少 20 个 `source_hot_function` 样本；它是业务内插桩，不能称外部随机采样器。Go 保存 5 秒实际 pprof，至少 1 CPU 秒样本，`main.goCPUHotFunction` 累计占比至少 50%。原始 profile、快照、版本与判据保留。
+
+该实验提供函数采样与操作系统 CPU 计数的独立观察方法，结果叫 CONTROL_VERIFIED。它未经过原生 Agent 远程采集、AI 假设编排、身份签名/Artifact 入库及严格反证门禁，因此不自动补齐云端历史 1/21。撤销故障减少 CPU 工作量，所以 fix_verified 始终 false。下一步若接入云端证据，必须复用真实目标身份、窗口和来源合同，不能把本报告直接灌进证据表。

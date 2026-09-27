@@ -6,6 +6,29 @@ on:
   pull_request:
 
 jobs:
+  hotspot-controls:
+    name: Python and Go independent CPU controls
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: demo/go-hotspot/go.mod
+      - run: python -m pip install "psutil>=7.2,<8"
+      - name: Real demo processes, OS CPU windows and function profiles
+        run: python scripts/run_quality_gate.py --profile hotspot-controls --output output/quality-hotspot-controls
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hotspot-controls-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/quality-hotspot-controls/
+          if-no-files-found: error
+          retention-days: 14
+
   endurance:
     name: HTTP load and recovery (short regression)
     runs-on: ubuntu-22.04
@@ -15,6 +38,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install process resource sampler
+        run: python -m pip install "psutil>=7.2,<8"
       - name: Bounded staircase, recovery and continuous fixture process
         run: python scripts/run_quality_gate.py --profile endurance --output output/quality-endurance
       - uses: actions/upload-artifact@v4

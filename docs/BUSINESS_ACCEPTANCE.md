@@ -161,3 +161,11 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 原始请求、报告和源码哈希方便独立复算。尚未采集目标 RSS/CPU、句柄或文件描述符，故不能证明无内存泄漏；压测端与服务仍共享本机，结果只能描述该配置和该次环境。与独立重复三窗实验、外部实际 RAG 引擎实验分开解释。
 
 本轮默认配置实测完成（代码 `be34ff5`）：5/20/40 请求每秒通过，80 档 P95 480.44ms 超过 200ms；全档无漏发，成功/引用检查均 100%。降载后 P95 40.82ms；600 秒持续阶段 3000 请求、P95 39.85ms，20 窗 P95 38.93–41.10ms 均通过。全部 5250 请求、原始报告、CI 版本与容量边界说明见 [实测记录](../reports/architecture/load-endurance-20260927.md)。
+
+## 资源增长筛查（2026-09-27）
+
+`run_load_endurance.py` 现在需要开发依赖中的 `psutil>=7.2,<8`。仅观察当前自己创建的目标进程，以 PID 和 create_time 检查进程身份；每秒采样到 `resources.jsonl`，CPU 是 CPU 秒增量 / 单调墙钟增量，100% 表示一个逻辑核，首个样本为 null。RSS 单位 bytes，线程计数；Windows handles 与 POSIX FD 明确标注，不跨平台混作同一数值。
+
+持续阶段比较首末三分之一样本中位数，固定预算 RSS 增长不超过 32MiB、线程不超过 8、句柄/FD 不超过 32；峰值仍保留，不把瞬时峰值自动称为泄漏。样本须至少覆盖计划数的 80% 且不少于 5 个，间隔超过预定值 5 倍或任何读取失败会判 INVALID；增长超预算判 GROWTH_DETECTED 并让主报告 FAILED。该筛查只针对这次样例进程，不覆盖子进程树、内核泄漏或所有生产风险。
+
+30 分钟入口：`python scripts/run_load_endurance.py --soak-seconds 1800 --output output/quality/resources-new`。不得同时在本机跑 CPU 密集型对照；隔离 Linux CI 的短回归与本机实测分开计数。历史 600 秒报告没有资源数据，不回填数值。

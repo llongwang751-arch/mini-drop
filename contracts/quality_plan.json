@@ -18,9 +18,18 @@
     "browser": ["web-browser"],
     "stability": ["business-stability"],
     "retrieval": ["retrieval-integration"],
-    "endurance": ["load-endurance-smoke"]
+    "endurance": ["load-endurance-smoke"],
+    "hotspot-controls": ["hotspot-controls"]
   },
   "suites": {
+    "hotspot-controls": {
+      "title": "隔离 Linux Python/Go 热点与独立 CPU 对照（不是云端 AI 根因验收）",
+      "risks": ["false-conclusion", "test-harness"],
+      "cwd": ".",
+      "timeout_seconds": 300,
+      "commands": [["{python}", "scripts/verify_hotspot_controls.py", "--output", "{output}/measurement"]],
+      "report": "exit-code"
+    },
     "load-endurance-smoke": {
       "title": "独立 HTTP 进程阶梯负载、恢复与持续运行短回归（非长稳成绩）",
       "risks": ["business-regression", "test-harness"],

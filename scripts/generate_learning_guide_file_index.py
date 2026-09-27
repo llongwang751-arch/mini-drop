@@ -43,6 +43,8 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/process_resource_monitor.py": "独立目标进程资源采样、PID 身份、缺样拒绝和持续窗口增长预算。",
+    "scripts/verify_hotspot_controls.py": "隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。",
     "scripts/run_load_endurance.py": "独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。",
     "tests/test_load_endurance.py": "发压端有界性、分母、尾延迟、样本边界、容量与持续窗口判定回归。",
     "scripts/verify_actual_rag_search.py": "对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。",

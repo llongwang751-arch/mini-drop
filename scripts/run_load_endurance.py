@@ -27,6 +27,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from demo.rag_service.app import DATASET_SHA, QUESTIONS, KnowledgeService, Settings, serve
+from scripts.process_resource_monitor import ResourceMonitor, summarize_resources
 
 
 @dataclass(frozen=True)
@@ -250,7 +251,7 @@ def fixture(output, plan):
 
 
 def source_hashes():
-    paths = ("scripts/run_load_endurance.py", "demo/rag_service/app.py")
+    paths = ("scripts/run_load_endurance.py", "scripts/process_resource_monitor.py", "demo/rag_service/app.py")
     return {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in paths}
 
 
@@ -264,7 +265,7 @@ def run(output, plan):
               "environment": {"platform": platform.platform(), "python": platform.python_version(),
                               "cpu_count": os.cpu_count()},
               "scope": "ISOLATED_LOCAL_HTTP_FIXTURE; CONTROLLED_DEPENDENCY_DELAY; NO_LIVE_LLM",
-              "limitations": ["No production capacity claim", "No service RSS/CPU or memory leak measurement",
+              "limitations": ["No production capacity claim", "Resource growth screen does not prove absence of leaks",
                               "Shared host with generator; invalid generator stages cannot prove server capacity"],
               "stages": []}
     report["git_head"] = subprocess.check_output(
@@ -284,13 +285,16 @@ def run(output, plan):
             phases = [(f"step-{i + 1}", rate, plan.step_seconds) for i, rate in enumerate(plan.rates)]
             phases += [("recovery", plan.soak_rate, plan.recovery_seconds),
                        ("soak", plan.soak_rate, plan.soak_seconds)]
-            for name, rate, duration in phases:
-                stage = measure(endpoint, name, rate, duration, plan, output)
-                report["stages"].append(stage)
-                write_json(path, report)
-                print(json.dumps({"phase": name, "summary": stage["summary"]}), flush=True)
-                if process.poll() is not None:
-                    raise RuntimeError("fixture exited during measurement")
+            with ResourceMonitor(process.pid, output / "resources.jsonl") as monitor:
+                for name, rate, duration in phases:
+                    monitor.phase = name
+                    stage = measure(endpoint, name, rate, duration, plan, output)
+                    report["stages"].append(stage)
+                    write_json(path, report)
+                    print(json.dumps({"phase": name, "summary": stage["summary"]}), flush=True)
+                    if process.poll() is not None:
+                        raise RuntimeError("fixture exited during measurement")
+            report["resources"] = summarize_resources(monitor.rows, plan.soak_seconds)
             capacity = report["stages"][:-2]
             recovery, soak = report["stages"][-2:]
             report["capacity"] = capacity_summary(capacity)
@@ -299,6 +303,8 @@ def run(output, plan):
                                       all(b["summary"]["status"] == "PASSED" for b in soak["buckets"])
                                       else "FAILED")
             report["status"] = campaign_status(report["stages"])
+            if report["resources"]["status"] != "PASSED":
+                report["status"] = "INVALID" if report["resources"]["status"] == "INVALID" else "FAILED"
         if source_hashes() != report["source_hashes"]:
             raise RuntimeError("measurement source changed during run")
     except BaseException as exc:
