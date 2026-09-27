@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1630 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1632 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3028,6 +3028,7 @@ python scripts/render_learning_guide.py
 | `tests/test_lats_replay_acceptance_script.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `test_acceptance_reads_snapshot_proof_from_folded_search_projection` |
 | `tests/test_lats_search.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `test_mode_string_does_not_self_certify_full_lats`、`test_top_k_expansion_keeps_open_world_sentinel_and_honest_values`、`test_server_computed_self_consistency_uses_documented_value_blend`、`test_deduplication_does_not_invent_self_consistency_from_duplicate_text`、`test_candidate_deduplication_ignores_round_label_and_unknown_aliases` 等 26 个声明 |
 | `tests/test_lats_service_acceptance.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `isolated_database`、`test_pending_approval_is_a_proposal_not_a_simulated_or_dispatched_action`、`test_approved_action_only_enters_simulation_after_a_task_exists`、`test_policy_rejection_backpropagates_and_switches_instead_of_stopping`、`test_rule_fallback_expands_fresh_chinese_candidates_across_evidence_domains` 等 17 个声明 |
+| `tests/test_load_endurance.py` | 发压端有界性、分母、尾延迟、样本边界、容量与持续窗口判定回归。 | `request_row`、`stage`、`test_plan_refuses_unbounded_or_nonfinite_load_before_creating_evidence`、`test_unsent_work_stays_in_quality_denominator_and_has_no_fake_latency`、`test_failed_attempts_remain_in_tail_latency_and_success_denominator` 等 15 个声明 |
 | `tests/test_logging_utils.py` | Python 自动化测试，验证日志和 Trace的成功、失败与边界条件。 | `test_log_event_redacts_nested_secrets`、`test_log_event_redacts_secrets_embedded_in_text`、`test_log_event_includes_bound_trace_id_and_resets_context` |
 | `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 11 个声明 |
 | `tests/test_metric_analyzers.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_sys_metrics_v2_derives_measured_signals_without_oracle_fields`、`test_http_business_metrics_are_identity_checked_and_derive_degradation`、`test_sys_metrics_v2_rejects_pid_reuse`、`test_sys_metrics_correlates_container_namespace_pid`、`test_memory_v2_derives_memory_growth_from_same_target` 等 9 个声明 |
@@ -3098,6 +3099,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_fault_plaza_closure_campaign.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
 | `scripts/run_fault_plaza_strict_acceptance.py` | 21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。 | `now`、`RecordingClient`、`measure`、`evaluate_intervention`、`evaluate_reports` 等 8 个声明 |
 | `scripts/run_live_skill_ab_campaign.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `Client`、`run_one`、`main` |
+| `scripts/run_load_endurance.py` | 独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。 | `Plan`、`write_json`、`percentile`、`summarize`、`capacity_summary` 等 11 个声明 |
 | `scripts/run_multi_cloud_acceptance.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
 | `scripts/run_quality_gate.py` | 一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
 | `scripts/run_root_cause_benchmark.py` | 运行根因 Top-1 与 500 组 Skill A/B 并输出报告。 | `main` |

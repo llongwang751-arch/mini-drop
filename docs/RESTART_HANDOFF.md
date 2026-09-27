@@ -1,5 +1,12 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-27 阶梯负载与持续运行（本轮待实测）
+
+新增 `scripts/run_load_endurance.py`：在独立本机子进程启动现有 SQLite FTS5 HTTP 样例，同一 PID 执行阶梯负载、卸载后恢复和 600 秒持续请求。固定到达速率，有界在途请求，每个未发出槽位仍记录；延迟从计划到达时刻计算，失败请求不从分母删除，发压端迟到/饱和与服务 SLO 失败分别报告。持续阶段按 30 秒到达窗口判定，任何窗口不达标不能用整体平均掩盖。版本、源码/语料指纹、原始 JSONL、失败报告与哈希保留。
+
+新增 `endurance` 质量 profile 与 Linux 短版 CI（12 秒持续阶段，仅验证执行链路）；本轮 27 项新门禁回归通过，长版及远程结果待实测。所有流量只到新建回环地址子进程，不启动本机 Docker，不触碰云端。当前没有服务 RSS/CPU 或泄漏指标，不能称生产容量/小时级长稳已验收。运行说明见 [业务验收](BUSINESS_ACCEPTANCE.md#阶梯负载与持续运行2026-09-27)。
+
+
 ## 2026-09-27 远程 CI 与实际检索回归（最新）
 
 已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，目标分支为 `master`。第二轮 CI `36296726561` 中 PostgreSQL 并发 5+1、Go race、真实 Chromium、三轮业务验收、Web、原生构建/Agent CTest、仓库质量及 Chroma 专项（37 passed，零跳过）通过；Python 暴露新机器启动时间依赖；修复后的[第三轮 CI 36297143120](https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120) **11/11 作业全部通过**，Python **696 passed / 7 skipped**，7 个依赖相关跳过由 PostgreSQL/Chroma 专项实际覆盖。被验证的 PR head 为 `bed58b0`（GitHub 测试 merge 为 `ea09f10c`）；之后仅归档文档和证据。Worker 首轮实验评估现在以 `None` 区分“尚未执行”，不依赖系统 monotonic 已经过 300 秒；测试固定 0/12/900000 秒启动时间，并验证 299.999/300 秒间隔边界。

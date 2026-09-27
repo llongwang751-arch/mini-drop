@@ -17,9 +17,18 @@
     "business": ["business-http"],
     "browser": ["web-browser"],
     "stability": ["business-stability"],
-    "retrieval": ["retrieval-integration"]
+    "retrieval": ["retrieval-integration"],
+    "endurance": ["load-endurance-smoke"]
   },
   "suites": {
+    "load-endurance-smoke": {
+      "title": "独立 HTTP 进程阶梯负载、恢复与持续运行短回归（非长稳成绩）",
+      "risks": ["business-regression", "test-harness"],
+      "cwd": ".",
+      "timeout_seconds": 180,
+      "commands": [["{python}", "scripts/run_load_endurance.py", "--quick", "--output", "{output}/measurement"]],
+      "report": "exit-code"
+    },
     "contracts": {
       "title": "协议与业务测试计划一致性",
       "risks": ["contract-drift"],

@@ -137,7 +137,7 @@ def test_timeout_leaves_log_and_fails(tmp_path):
 
 def test_plan_requires_real_test_paths_and_valid_risk_references(tmp_path):
     plan = gate.load_plan()
-    assert set(plan["profiles"]) == {"smoke", "python", "local", "business", "browser", "stability", "retrieval"}
+    assert set(plan["profiles"]) == {"smoke", "python", "local", "business", "browser", "stability", "retrieval", "endurance"}
     assert plan["suites"]["retrieval-integration"]["allowed_skips"] == []
     invalid = deepcopy(plan)
     invalid["suites"]["critical-python"]["commands"][0].append("tests/nonexistent_quality_test.py")

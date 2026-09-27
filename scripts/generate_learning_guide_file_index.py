@@ -43,6 +43,8 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/run_load_endurance.py": "独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。",
+    "tests/test_load_endurance.py": "发压端有界性、分母、尾延迟、样本边界、容量与持续窗口判定回归。",
     "scripts/verify_actual_rag_search.py": "对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。",
     "docs/TEST_ENGINEERING.md": "测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。",
     "contracts/quality_plan.json": "版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。",

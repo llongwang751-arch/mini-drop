@@ -6,6 +6,25 @@ on:
   pull_request:
 
 jobs:
+  endurance:
+    name: HTTP load and recovery (short regression)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Bounded staircase, recovery and continuous fixture process
+        run: python scripts/run_quality_gate.py --profile endurance --output output/quality-endurance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: load-endurance-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/quality-endurance/
+          if-no-files-found: error
+          retention-days: 14
+
   quality:
     name: Repository quality
     runs-on: ubuntu-22.04

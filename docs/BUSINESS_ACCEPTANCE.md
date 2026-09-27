@@ -138,3 +138,24 @@ CI 的 business job 校验计划、检查生成合同、生成 PR 影响清单�
 ![业务结果桌面实拍](assets/learning-guide/20260913-business-acceptance/business-results-desktop.png)
 
 ![业务结果手机宽度实拍](assets/learning-guide/20260913-business-acceptance/business-results-mobile.png)
+
+## 阶梯负载与持续运行（2026-09-27）
+
+```powershell
+# 短 CI 回归，不能作为长时间稳定性成绩
+python scripts/run_quality_gate.py --profile endurance
+# 默认：5/20/40/80 请求每秒，各 15 秒；恢复 15 秒；同一进程持续 600 秒
+python scripts/run_load_endurance.py --output output/quality/endurance-new
+# 有界自定义：最长 3600 秒、每档最长 60 秒、速率最多 500、总请求最多 100000
+python scripts/run_load_endurance.py --output output/quality/endurance-custom --rates 5 10 20 --step-seconds 20 --soak-seconds 600
+```
+
+执行器只启动独立、临时、本机回环 HTTP 样例进程，SQLite 在内存，测试结束回收该子进程；不接受任意目标 URL，不向云端发压。依赖耗时固定为 10ms 的受控模拟，问答为固定语料本地摘录。阶梯、恢复和持续阶段使用同一 PID/语料/配置；运行前 4 次预热单独保留，不进入测量分母。压力结束后先等待客户端已发出的请求返回/超时，再低负载检查恢复，整个持续阶段不中途重建进程。
+
+默认判据：每阶段至少 30 个请求，成功率/固定引用质量均至少 99%，计划到达至响应结束的 P95 不超过 200ms，发压迟到不超过 250ms。短 CI P95 门槛 500ms，配置完整写进报告，不能与默认实验混用。只有至少 100 个实际发出样本才报告 P99。持续阶段按计划到达时刻分 30 秒窗口，短尾窗口样本不足也明确判 INVALID。窗口为到达队列，不把窗口成功数除以时长冒充完成吞吐；整阶段吞吐包含排空时间。
+
+每个到达槽位都写入独占 JSONL：在途上限已满时不继续向线程池无界堆积，也不隐式降速重试，而是保留 `CLIENT_INFLIGHT_LIMIT`。这类记录延迟为缺失，仍计入成功/质量分母；整个阶段 INVALID，不能据此宣布服务容量。发压迟到或样本不足同样 INVALID。有效发压但 P95/成功/质量不达标才是 SLO_FAILED。容量只给连续通过档位的最高速率及首个未通过档位；全部档位通过则 NOT_REACHED，不猜最大容量。
+
+整体 PASSED 表示测量有效、至少一个低负载档达标、卸载恢复与持续阶段每个窗口通过；高阶梯有效地触发 SLO_FAILED 是容量探索的预期结果，不等于生产缺陷。任意发压无效会让整体 INVALID，恢复或持续不达标则 FAILED，CLI 非零退出。错误、中断和源码变化保留 FAILED 报告；拒绝覆盖已有输出目录。
+
+原始请求、报告和源码哈希方便独立复算。尚未采集目标 RSS/CPU、句柄或文件描述符，故不能证明无内存泄漏；压测端与服务仍共享本机，结果只能描述该配置和该次环境。与独立重复三窗实验、外部实际 RAG 引擎实验分开解释。
