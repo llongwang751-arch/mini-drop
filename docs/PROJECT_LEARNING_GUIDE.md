@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1643 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1645 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3032,6 +3032,7 @@ python scripts/render_learning_guide.py
 | `tests/test_lats_service_acceptance.py` | Python 自动化测试，验证LATS 搜索与回放的成功、失败与边界条件。 | `isolated_database`、`test_pending_approval_is_a_proposal_not_a_simulated_or_dispatched_action`、`test_approved_action_only_enters_simulation_after_a_task_exists`、`test_policy_rejection_backpropagates_and_switches_instead_of_stopping`、`test_rule_fallback_expands_fresh_chinese_candidates_across_evidence_domains` 等 17 个声明 |
 | `tests/test_load_endurance.py` | 发压端有界性、分母、尾延迟、样本边界、容量与持续窗口判定回归。 | `request_row`、`stage`、`test_plan_refuses_unbounded_or_nonfinite_load_before_creating_evidence`、`test_unsent_work_stays_in_quality_denominator_and_has_no_fake_latency`、`test_failed_attempts_remain_in_tail_latency_and_success_denominator` 等 15 个声明 |
 | `tests/test_load_report_integrity.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `save`、`fixture`、`test_complete_raw_evidence_is_verified_without_inventing_resources`、`test_raw_corruption_is_rejected`、`test_rehashed_manifest_cannot_override_raw_measurement` 等 11 个声明 |
+| `tests/test_load_report_render.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_invalid_results_missing_latency_and_unsent_requests_stay_visible`、`test_embedded_report_escapes_untrusted_strings_and_has_no_external_assets`、`test_resource_units_growth_and_missing_observations_are_explicit` |
 | `tests/test_logging_utils.py` | Python 自动化测试，验证日志和 Trace的成功、失败与边界条件。 | `test_log_event_redacts_nested_secrets`、`test_log_event_redacts_secrets_embedded_in_text`、`test_log_event_includes_bound_trace_id_and_resets_context` |
 | `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 11 个声明 |
 | `tests/test_metric_analyzers.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_sys_metrics_v2_derives_measured_signals_without_oracle_fields`、`test_http_business_metrics_are_identity_checked_and_derive_degradation`、`test_sys_metrics_v2_rejects_pid_reuse`、`test_sys_metrics_correlates_container_namespace_pid`、`test_memory_v2_derives_memory_growth_from_same_target` 等 9 个声明 |
@@ -3097,6 +3098,7 @@ python scripts/render_learning_guide.py
 | `scripts/render_business_acceptance.py` | 从业务原始报告生成 Markdown 对比结果。 | `render` |
 | `scripts/render_fault_plaza_acceptance.py` | 从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。 | `render` |
 | `scripts/render_learning_guide.py` | 把唯一 Markdown 教材生成离线 HTML 阅读版，内嵌截图、目录搜索和图片放大，并校验链接。 | `build` |
+| `scripts/render_load_report.py` | 复核原始负载证据后生成带延迟/资源图表的自包含 HTML，保留无效结果和缺失值。 | `figure`、`html`、`render` |
 | `scripts/run_actual_rag_acceptance.py` | 冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。 | `get`、`measure`、`run` |
 | `scripts/run_business_acceptance.py` | 真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。 | `write_json`、`measure`、`aggregate_repeats`、`run` |
 | `scripts/run_diagnosis_benchmark_v2.py` | 运行生产 Skill 选择器 Benchmark。 | `main` |

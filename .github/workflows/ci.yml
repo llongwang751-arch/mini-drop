@@ -39,9 +39,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install process resource sampler
-        run: python -m pip install "psutil>=7.2,<8"
+        run: python -m pip install "psutil>=7.2,<8" "matplotlib>=3.8,<4"
       - name: Bounded staircase, recovery and continuous fixture process
         run: python scripts/run_quality_gate.py --profile endurance --output output/quality-endurance
+      - name: Render verified evidence as a self-contained report
+        run: python scripts/render_load_report.py output/quality-endurance/load-endurance-smoke/measurement/report.json --output output/quality-endurance/load-endurance-smoke/measurement/report.html
       - uses: actions/upload-artifact@v4
         if: always()
         with:

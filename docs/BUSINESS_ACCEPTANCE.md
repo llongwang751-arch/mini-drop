@@ -175,3 +175,7 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 运行 `python scripts/verify_load_report.py <report.json> --require-pass`。复核器校验完整清单与每个 JSONL 哈希，检查请求槽位不缺失/不重复、计划速率和窗口时长、未发出请求不虚构延迟、排队时间进入延迟；从逐请求记录重算每阶段、每窗口和容量结论。资源记录还须属于报告指定 PID/启动时间，时间递增、计数有限且非负，不能把有资源采样的报告降级为“无资源数据”来跳过门禁。只有重算结论与报告一致且最终 PASSED 才允许 `--require-pass` 成功。
 
 不带 `--require-pass` 可检查完整 INVALID/FAILED 测量的可追溯性；运行中或缺少阶段的失败报告保持证据，但不算完整可复核测量。历史无资源版本可以复核，输出 `resources_present=false`，不补资源结论。哈希用于发现损坏或摘要篡改，不是对任意人整体伪造运行记录的密码学证明。`endurance` 质量配置现在在实际执行后再次调用复核器。
+
+## 可分享的图表报告
+
+安装可选报告依赖 `python -m pip install -e ".[dev,reports]"` 后，运行 `python scripts/render_load_report.py <report.json> --output <新的report.html>`。渲染前强制复核原始证据；HTML 自包含 PNG 图表、阶段表、资源增长表和完整机器报告，不访问 CDN。图表覆盖所有阶段 P95、持续窗口 P95、目标 RSS 和单核口径 CPU；缺失值显示缺失/断点，不补零。INVALID 和未发出请求显式保留，历史无资源报告显示“未采集”。CI 已生成短版图表制品，不能把它当成本机长版测量。

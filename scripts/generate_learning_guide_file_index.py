@@ -43,6 +43,7 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/render_load_report.py": "复核原始负载证据后生成带延迟/资源图表的自包含 HTML，保留无效结果和缺失值。",
     "scripts/verify_load_report.py": "校验原始负载/资源证据、槽位完整性并重算摘要，防止被篡改的报告通过门禁。",
     "scripts/process_resource_monitor.py": "独立目标进程资源采样、PID 身份、缺样拒绝和持续窗口增长预算。",
     "scripts/verify_hotspot_controls.py": "隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。",
