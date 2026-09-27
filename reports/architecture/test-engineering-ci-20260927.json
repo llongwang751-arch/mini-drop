@@ -1,0 +1,346 @@
+{
+  "run_id": 36297143120,
+  "head_sha": "bed58b0027bb37b5706607fc031e98c6dcd5cd56",
+  "tested_pr_merge_sha": "ea09f10c3f7ed65de671922fe99281bdf9d666a7",
+  "url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120",
+  "jobs": [
+    {
+      "id": 108557990084,
+      "name": "Python (pytest)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990084"
+    },
+    {
+      "id": 108557990189,
+      "name": "Repository quality",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990189"
+    },
+    {
+      "id": 108557990199,
+      "name": "Supply chain (trivy report)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990199"
+    },
+    {
+      "id": 108557990212,
+      "name": "Go (apiserver)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990212"
+    },
+    {
+      "id": 108557990226,
+      "name": "Business HTTP acceptance and test-plan traceability",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990226"
+    },
+    {
+      "id": 108557990228,
+      "name": "Native (C++ agent, build + CTest)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990228"
+    },
+    {
+      "id": 108557990231,
+      "name": "Web (React)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990231"
+    },
+    {
+      "id": 108557990236,
+      "name": "Web (real Chromium, synthetic fixtures)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990236"
+    },
+    {
+      "id": 108557990239,
+      "name": "Native (C++ control, build only)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990239"
+    },
+    {
+      "id": 108557990247,
+      "name": "Chroma integration (no skips, local test embeddings)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990247"
+    },
+    {
+      "id": 108557990249,
+      "name": "PostgreSQL transactions and concurrency (no skips)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120/job/108557990249"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "retrieval-quality-ea09f10c3f7ed65de671922fe99281bdf9d666a7-1",
+      "id": 10924815463,
+      "archive_sha256": "03f3336548ffcbb0ad3c36e3518c038151d122f2b7c974051eae6d65c85e9b83",
+      "reports": [
+        {
+          "path": "report.json",
+          "sha256": "208bb59c734af74985941d87e18571c48f4763f8eed79d94d162396a298daeae",
+          "status": "PASSED",
+          "suites": [
+            {
+              "id": "retrieval-integration",
+              "status": "PASSED",
+              "counts": {
+                "total": 37,
+                "passed": 37,
+                "failed": 0,
+                "skipped": 0,
+                "unexpected_skips": [],
+                "failures": [],
+                "skips": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "python-quality-ea09f10c3f7ed65de671922fe99281bdf9d666a7-1",
+      "id": 10924810670,
+      "archive_sha256": "cf7c74126e0e0ac905def93e8266c182b337c5b8f0a35e10e65fc9b7676ddf82",
+      "reports": [
+        {
+          "path": "report.json",
+          "sha256": "9dbad7982295dee718c336a694f9bbe8ab49deb4e960d9cebee6deee7ba7c6fd",
+          "status": "PASSED_WITH_SKIPS",
+          "suites": [
+            {
+              "id": "contracts",
+              "status": "PASSED",
+              "counts": null
+            },
+            {
+              "id": "python-all",
+              "status": "PASSED_WITH_SKIPS",
+              "counts": {
+                "total": 703,
+                "passed": 696,
+                "failed": 0,
+                "skipped": 7,
+                "unexpected_skips": [],
+                "failures": [],
+                "skips": [
+                  {
+                    "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_claim_lease_takeover_and_fencing",
+                    "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+                  },
+                  {
+                    "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_session_lock_serializes_event_effect_identity",
+                    "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+                  },
+                  {
+                    "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+                    "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+                  },
+                  {
+                    "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+                    "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+                  },
+                  {
+                    "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+                    "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+                  },
+                  {
+                    "test": "tests.test_sre_agent_upgrade::test_real_chroma_snapshot_and_retrieval",
+                    "reason": "could not import 'chromadb': No module named 'chromadb'"
+                  },
+                  {
+                    "test": "tests.test_sre_agent_upgrade::test_chroma_http_requests_are_bounded_from_startup",
+                    "reason": "could not import 'chromadb': No module named 'chromadb'"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "business-measurements-ea09f10c3f7ed65de671922fe99281bdf9d666a7",
+      "id": 10924666289,
+      "archive_sha256": "1296f58a4f0fd36204dc510dd8d812839e1e4a3dae10c5482fe5b502d77a78b0",
+      "reports": [
+        {
+          "path": "business-stability.json",
+          "sha256": "e9f359ab4516a2aa7558bfbdf82266a658150a5060825d2825f304375f272dd2",
+          "result": {
+            "status": "COMPLETED",
+            "repeat_summary": {
+              "schema": "mini-drop.business-repeat-summary.v1",
+              "selection": "ALL_RUNS_RECORDED; NOT_BEST_OF",
+              "scenarios": {
+                "RAG-01": {
+                  "runs": 3,
+                  "run_indexes": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "outcomes": [
+                    "IMPROVEMENT_VERIFIED",
+                    "IMPROVEMENT_VERIFIED",
+                    "IMPROVEMENT_VERIFIED"
+                  ],
+                  "outcome_stable": true,
+                  "p95_ms": {
+                    "baseline": {
+                      "min": 6.493786000021373,
+                      "mean": 6.567936888889865,
+                      "max": 6.615016333341828,
+                      "stdev": 0.06499112059616367,
+                      "samples": 3
+                    },
+                    "fault": {
+                      "min": 174.47215066664512,
+                      "mean": 176.02605133329993,
+                      "max": 177.80634833326303,
+                      "stdev": 1.6785886913778683,
+                      "samples": 3
+                    },
+                    "after": {
+                      "min": 6.398513666653116,
+                      "mean": 6.406525111107915,
+                      "max": 6.416737666654626,
+                      "stdev": 0.009309254080911102,
+                      "samples": 3
+                    }
+                  }
+                },
+                "RAG-02": {
+                  "runs": 3,
+                  "run_indexes": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "outcomes": [
+                    "IMPROVEMENT_VERIFIED",
+                    "IMPROVEMENT_VERIFIED",
+                    "IMPROVEMENT_VERIFIED"
+                  ],
+                  "outcome_stable": true,
+                  "p95_ms": {
+                    "baseline": {
+                      "min": 6.7717629999890505,
+                      "mean": 6.920223999988669,
+                      "max": 7.001682999998593,
+                      "stdev": 0.12877403699139545,
+                      "samples": 3
+                    },
+                    "fault": {
+                      "min": 126.7818860000034,
+                      "mean": 127.4960523333372,
+                      "max": 127.87260700002889,
+                      "stdev": 0.6187926171697603,
+                      "samples": 3
+                    },
+                    "after": {
+                      "min": 7.016516000021511,
+                      "mean": 7.221725333333022,
+                      "max": 7.524759999967046,
+                      "stdev": 0.2678718681569694,
+                      "samples": 3
+                    }
+                  }
+                },
+                "RAG-03": {
+                  "runs": 3,
+                  "run_indexes": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "outcomes": [
+                    "DEGRADED_AVAILABLE",
+                    "DEGRADED_AVAILABLE",
+                    "DEGRADED_AVAILABLE"
+                  ],
+                  "outcome_stable": true,
+                  "p95_ms": {
+                    "baseline": {
+                      "min": 16.47017366664727,
+                      "mean": 16.59080777776012,
+                      "max": 16.757463333306077,
+                      "stdev": 0.14907152026129766,
+                      "samples": 3
+                    },
+                    "fault": {
+                      "min": 126.84852099999944,
+                      "mean": 126.8717194444567,
+                      "max": 126.91512566669871,
+                      "stdev": 0.03762062092494577,
+                      "samples": 3
+                    },
+                    "after": {
+                      "min": 16.608591333294953,
+                      "mean": 16.6484821111131,
+                      "max": 16.6703500000267,
+                      "stdev": 0.034599878937217006,
+                      "samples": 3
+                    }
+                  }
+                }
+              },
+              "all_outcome_stable": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "postgres-concurrency-ea09f10c3f7ed65de671922fe99281bdf9d666a7-1",
+      "id": 10924516630,
+      "archive_sha256": "8eaf9a2913c43ec7185eb1c0795791017eddbbe25b0d7fc34461c74bc7053386",
+      "reports": [
+        {
+          "path": "gate.json",
+          "sha256": "dda1f1d2749aada0800396388cebe7658107cb39cf40c2dae370d9d84827de91",
+          "result": {
+            "status": "PASSED",
+            "problems": [],
+            "commit": "ea09f10c3f7ed65de671922fe99281bdf9d666a7",
+            "run_id": "36297143120",
+            "required_python_tests": [
+              "test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+              "test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+              "test_postgres_claim_lease_takeover_and_fencing",
+              "test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+              "test_postgres_session_lock_serializes_event_effect_identity"
+            ],
+            "required_go_test": "TestPostgresIdempotencyRaceWithOneConnection"
+          }
+        }
+      ]
+    },
+    {
+      "name": "web-browser-ea09f10c3f7ed65de671922fe99281bdf9d666a7-1",
+      "id": 10923314885,
+      "archive_sha256": "3e522cf911d46d428c6650a8d703336e4ce3e1c29e5fa311eb06f1e37059c28d",
+      "reports": [
+        {
+          "path": "result.json",
+          "sha256": "adb6590c7b33b38a6aa31ad48b693f25e855151550478530a83631c45f34e189",
+          "result": {
+            "scope": "LOCAL_SYNTHETIC_UI_FIXTURES",
+            "checks": [
+              "desktop composer visible; example fills input",
+              "mobile no page overflow",
+              "persisted finding visible in first viewport (top=672px)",
+              "active diagnosis fits narrow laptop and mobile",
+              "default workbench view renders the real parent-child tree",
+              "fullscreen tree canvas fills viewport (height=620px)",
+              "failed refresh retains report; retry clears warning"
+            ],
+            "browserExceptions": [],
+            "passed": true
+          }
+        }
+      ]
+    }
+  ]
+}

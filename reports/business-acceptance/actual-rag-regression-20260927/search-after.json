@@ -1,0 +1,204 @@
+{
+  "schema": "mini-drop.actual-rag-search-regression.v1",
+  "status": "PASSED",
+  "started_at": "2026-09-27T05:19:05.253466+00:00",
+  "source_sha256": "a1a90b112093bae2c430a07909aa93cbeb3a8144a01cd76982a59745a6fa7f56",
+  "scope": "FROZEN_EXTERNAL_SOURCE; ISOLATED_SQLITE; SYNTHETIC_DATA; NO_LIVE_AI",
+  "checks": [
+    "independent score oracle and deterministic id tie-break",
+    "cross-tenant search and delete isolation",
+    "empty / unmatched query and top-k lower bound",
+    "insert / update / delete freshness without rebuilding service"
+  ],
+  "profile": {
+    "queries": 6,
+    "owner_rows": 603,
+    "embedding_dimensions": 1536,
+    "total_seconds": 0.08674869999999997,
+    "top_cumulative": [
+      {
+        "file": "local_repos.py",
+        "line": 773,
+        "function": "search_local",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 0.0001554,
+        "cumulative_seconds": 0.0867962
+      },
+      {
+        "file": "heapq.py",
+        "line": 476,
+        "function": "nsmallest",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 6.340000000000001e-05,
+        "cumulative_seconds": 0.079444
+      },
+      {
+        "file": "local_repos.py",
+        "line": 792,
+        "function": "candidates",
+        "primitive_calls": 24,
+        "calls": 24,
+        "self_seconds": 0.0072017,
+        "cumulative_seconds": 0.0793433
+      },
+      {
+        "file": "local_repos.py",
+        "line": 576,
+        "function": "_search_tokens",
+        "primitive_calls": 3624,
+        "calls": 3624,
+        "self_seconds": 0.027330100000000003,
+        "cumulative_seconds": 0.042199600000000004
+      },
+      {
+        "file": "result.py",
+        "line": 526,
+        "function": "iterrows",
+        "primitive_calls": 3624,
+        "calls": 3624,
+        "self_seconds": 0.0018262,
+        "cumulative_seconds": 0.0164913
+      },
+      {
+        "file": "loading.py",
+        "line": 207,
+        "function": "chunks",
+        "primitive_calls": 36,
+        "calls": 36,
+        "self_seconds": 0.0033265,
+        "cumulative_seconds": 0.012489
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "function": "<method 'isalnum' of 'str' objects>",
+        "primitive_calls": 132168,
+        "calls": 132168,
+        "self_seconds": 0.012009800000000001,
+        "cumulative_seconds": 0.012009800000000001
+      },
+      {
+        "file": "__init__.py",
+        "line": 602,
+        "function": "__init__",
+        "primitive_calls": 3624,
+        "calls": 3624,
+        "self_seconds": 0.0027503000000000002,
+        "cumulative_seconds": 0.0086133
+      },
+      {
+        "file": "result.py",
+        "line": 1346,
+        "function": "fetchmany",
+        "primitive_calls": 36,
+        "calls": 36,
+        "self_seconds": 3.24e-05,
+        "cumulative_seconds": 0.0084218
+      },
+      {
+        "file": "result.py",
+        "line": 705,
+        "function": "manyrows",
+        "primitive_calls": 36,
+        "calls": 36,
+        "self_seconds": 0.0011438000000000002,
+        "cumulative_seconds": 0.0083526
+      },
+      {
+        "file": "__init__.py",
+        "line": 679,
+        "function": "update",
+        "primitive_calls": 3624,
+        "calls": 3624,
+        "self_seconds": 0.001456,
+        "cumulative_seconds": 0.005863
+      },
+      {
+        "file": "cursor.py",
+        "line": 2137,
+        "function": "_fetchmany_impl",
+        "primitive_calls": 36,
+        "calls": 36,
+        "self_seconds": 3.66e-05,
+        "cumulative_seconds": 0.005394
+      },
+      {
+        "file": "cursor.py",
+        "line": 1247,
+        "function": "fetchmany",
+        "primitive_calls": 36,
+        "calls": 36,
+        "self_seconds": 0.0005568,
+        "cumulative_seconds": 0.0053574
+      },
+      {
+        "file": "session.py",
+        "line": 2305,
+        "function": "execute",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.2600000000000001e-05,
+        "cumulative_seconds": 0.0049232
+      },
+      {
+        "file": "session.py",
+        "line": 2138,
+        "function": "_execute_internal",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 7.94e-05,
+        "cumulative_seconds": 0.0049106
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "function": "<method 'fetchmany' of 'sqlite3.Cursor' objects>",
+        "primitive_calls": 42,
+        "calls": 42,
+        "self_seconds": 0.0044402,
+        "cumulative_seconds": 0.0044402
+      },
+      {
+        "file": "context.py",
+        "line": 296,
+        "function": "orm_execute_statement",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.62e-05,
+        "cumulative_seconds": 0.0040337
+      },
+      {
+        "file": "_py_row.py",
+        "line": 38,
+        "function": "__init__",
+        "primitive_calls": 7236,
+        "calls": 7236,
+        "self_seconds": 0.0039887,
+        "cumulative_seconds": 0.0039887
+      },
+      {
+        "file": "base.py",
+        "line": 1371,
+        "function": "execute",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.3700000000000001e-05,
+        "cumulative_seconds": 0.0036791000000000003
+      },
+      {
+        "file": "elements.py",
+        "line": 514,
+        "function": "_execute_on_connection",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.15e-05,
+        "cumulative_seconds": 0.0036567
+      }
+    ],
+    "json_decode": []
+  },
+  "finished_at": "2026-09-27T05:19:06.323642+00:00",
+  "sha256": "64fa8f73612455c94e6671d059c93fc868aa46c442b9fbca8f7ee42b87156d1e"
+}

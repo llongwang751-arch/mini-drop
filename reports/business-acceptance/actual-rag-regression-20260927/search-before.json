@@ -1,0 +1,232 @@
+{
+  "schema": "mini-drop.actual-rag-search-regression.v1",
+  "status": "PASSED",
+  "started_at": "2026-09-27T05:18:45.665325+00:00",
+  "source_sha256": "d85a41d8d1f7593b9276d9a43bae43b76ad15ed71908e5889dac1616851c419a",
+  "scope": "FROZEN_EXTERNAL_SOURCE; ISOLATED_SQLITE; SYNTHETIC_DATA; NO_LIVE_AI",
+  "checks": [
+    "independent score oracle and deterministic id tie-break",
+    "cross-tenant search and delete isolation",
+    "empty / unmatched query and top-k lower bound",
+    "insert / update / delete freshness without rebuilding service"
+  ],
+  "profile": {
+    "queries": 6,
+    "owner_rows": 603,
+    "embedding_dimensions": 1536,
+    "total_seconds": 4.329379199999993,
+    "top_cumulative": [
+      {
+        "file": "local_repos.py",
+        "line": 772,
+        "function": "search_local",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 0.0094629,
+        "cumulative_seconds": 4.3260237
+      },
+      {
+        "file": "result.py",
+        "line": 1766,
+        "function": "all",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.59e-05,
+        "cumulative_seconds": 4.0766997
+      },
+      {
+        "file": "result.py",
+        "line": 543,
+        "function": "_allrows",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 4.3700000000000005e-05,
+        "cumulative_seconds": 4.0766838000000005
+      },
+      {
+        "file": "result.py",
+        "line": 1680,
+        "function": "_fetchall_impl",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.15e-05,
+        "cumulative_seconds": 4.076597700000001
+      },
+      {
+        "file": "result.py",
+        "line": 2271,
+        "function": "_fetchall_impl",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 0.0005982,
+        "cumulative_seconds": 4.0765862
+      },
+      {
+        "file": "loading.py",
+        "line": 207,
+        "function": "chunks",
+        "primitive_calls": 12,
+        "calls": 12,
+        "self_seconds": 0.0214475,
+        "cumulative_seconds": 4.0757928
+      },
+      {
+        "file": "result.py",
+        "line": 537,
+        "function": "_raw_all_rows",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 0.0097482,
+        "cumulative_seconds": 3.9524212000000003
+      },
+      {
+        "file": "_py_row.py",
+        "line": 38,
+        "function": "__init__",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.035796,
+        "cumulative_seconds": 3.3014747
+      },
+      {
+        "file": "base.py",
+        "line": 1025,
+        "function": "process",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0031492,
+        "cumulative_seconds": 3.2567456000000004
+      },
+      {
+        "file": "sqltypes.py",
+        "line": 2806,
+        "function": "process",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0057973,
+        "cumulative_seconds": 3.2535964
+      },
+      {
+        "file": "__init__.py",
+        "line": 299,
+        "function": "loads",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0089037,
+        "cumulative_seconds": 3.2477991000000004
+      },
+      {
+        "file": "decoder.py",
+        "line": 340,
+        "function": "decode",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0179617,
+        "cumulative_seconds": 3.23573
+      },
+      {
+        "file": "decoder.py",
+        "line": 351,
+        "function": "raw_decode",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 3.2014509,
+        "cumulative_seconds": 3.2014509
+      },
+      {
+        "file": "cursor.py",
+        "line": 2134,
+        "function": "_fetchall_impl",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 1.4700000000000002e-05,
+        "cumulative_seconds": 0.6411983
+      },
+      {
+        "file": "cursor.py",
+        "line": 1131,
+        "function": "fetchall",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 5.2000000000000004e-05,
+        "cumulative_seconds": 0.6411836000000001
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+        "primitive_calls": 6,
+        "calls": 6,
+        "self_seconds": 0.6410520000000001,
+        "cumulative_seconds": 0.6410520000000001
+      },
+      {
+        "file": "local_repos.py",
+        "line": 594,
+        "function": "_lexical_score",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.029446200000000002,
+        "cumulative_seconds": 0.215338
+      },
+      {
+        "file": "local_repos.py",
+        "line": 575,
+        "function": "_search_tokens",
+        "primitive_calls": 7236,
+        "calls": 7236,
+        "self_seconds": 0.0753419,
+        "cumulative_seconds": 0.11630280000000001
+      },
+      {
+        "file": "loading.py",
+        "line": 1067,
+        "function": "_instance",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0187458,
+        "cumulative_seconds": 0.1019241
+      },
+      {
+        "file": "loading.py",
+        "line": 1325,
+        "function": "_populate_full",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0320782,
+        "cumulative_seconds": 0.0395515
+      }
+    ],
+    "json_decode": [
+      {
+        "file": "__init__.py",
+        "line": 299,
+        "function": "loads",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0089037,
+        "cumulative_seconds": 3.2477991000000004
+      },
+      {
+        "file": "decoder.py",
+        "line": 351,
+        "function": "raw_decode",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 3.2014509,
+        "cumulative_seconds": 3.2014509
+      },
+      {
+        "file": "decoder.py",
+        "line": 340,
+        "function": "decode",
+        "primitive_calls": 3618,
+        "calls": 3618,
+        "self_seconds": 0.0179617,
+        "cumulative_seconds": 3.23573
+      }
+    ]
+  },
+  "finished_at": "2026-09-27T05:18:53.988980+00:00",
+  "sha256": "5ec635ddc5116ca77c3c2ae52f37281bd4453e0175ff87acf9d6d4001cccb5bb"
+}

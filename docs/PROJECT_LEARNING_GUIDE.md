@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1626 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1630 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 479 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 480 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2419,6 +2419,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/rendered-v3/` | rendered-v3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/architecture/` | architecture 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/` | business-acceptance 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/business-acceptance/actual-rag-regression-20260927/` | actual-rag-regression-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `scripts/` | 可重复运行的生成、检验、截图、评测与运维辅助入口。 |
 | `server/` | Python 服务包。 |
@@ -3454,8 +3455,12 @@ python scripts/render_learning_guide.py
 | `reports/architecture/sre-agent-targeted-final-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-diagnosis-agent-design-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-quality-roadmap-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/test-engineering-ci-20260927.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/test-engineering-ci-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/test-engineering-review-20260926.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/actual-rag-regression-20260927/http-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/actual-rag-regression-20260927/search-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/actual-rag-regression-20260927/search-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/cloud-data-cleanup-20260924.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/long-document-ingest-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/实际RAG优化与AI联调-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

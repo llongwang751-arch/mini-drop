@@ -1,0 +1,1257 @@
+{
+  "schema": "mini-drop.actual-rag-acceptance.v1",
+  "status": "COMPLETED",
+  "started_at": "2026-09-27T05:17:04.041546+00:00",
+  "resources": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "cpu_count": 24,
+    "python": "3.14.0"
+  },
+  "scope": "ACTUAL_RAG_ENGINE; SYNTHETIC_CORPUS; LOCAL_RETRIEVAL; EXTRACTIVE_ANSWER",
+  "dataset": {
+    "rows": 600,
+    "embedding_dimensions": 1536,
+    "query_count": 6
+  },
+  "business_description": "知识库分块增加后，本地查询读取完整向量并反复计算词项，导致回答等待增加。",
+  "change": "只读取文本列、按批流式处理、查询词项计算一次、用有界 TopK 保留原排序。仍是线性扫描，不宣称已使用 FTS5。",
+  "policy": {
+    "minimum_requests": 30,
+    "recovery_p95_ratio": 1.3,
+    "minimum_success_rate": 0.98,
+    "minimum_quality_rate": 0.98,
+    "minimum_fault_ratio": 1.5,
+    "max_dispatch_lag_ms": 150,
+    "latency_floor_ms": 20
+  },
+  "windows": {
+    "baseline": {
+      "window_id": "874d60cf4bce42219440991f08f49bbd",
+      "workload": {
+        "dataset_sha256": "a17eb766aa88ba0eedd2947e3a853edd2dab51af0739a6730e4b6c2dcbd57681",
+        "request_set_sha256": "f64742007265b4072015964d0fcef56b241d7c10e5788f466c4e0152e9f0ccf4",
+        "arrival_rate": 1.0,
+        "request_count": 30,
+        "concurrency_limit": 4,
+        "seed": 912,
+        "warmup_requests": 4,
+        "environment": "isolated-windows",
+        "service": "agi-saber-rag",
+        "resources_sha256": "f9fba977478c641596ae84f85662fe9ab275609a06025dbe22804ecc4b0e2571"
+      },
+      "revision": "a1a90b112093bae2c430a07909aa93cbeb3a8144a01cd76982a59745a6fa7f56",
+      "config_sha256": "cb6e6100b53e543f0ac7f0e8609bd1340302beaff871ca7dac1206ced5bdf653",
+      "generator": "EXTRACTIVE_LOCAL",
+      "elapsed_seconds": 29.031014099999993,
+      "max_dispatch_lag_ms": 1.1018000000149186,
+      "requests": [
+        {
+          "request_id": "q-0",
+          "latency_ms": 7.820100000117236,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.571099999746366,
+            "answer_composition": 0.01629999997021514
+          },
+          "trace_id": "63385238c42a46e6abc2df4daf6256b7"
+        },
+        {
+          "request_id": "q-1",
+          "latency_ms": 9.337100000266219,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.031399999959831,
+            "answer_composition": 0.018399999589746585
+          },
+          "trace_id": "0a93e6d2062e4392bca89bf7fa4cbd9e"
+        },
+        {
+          "request_id": "q-2",
+          "latency_ms": 26.863399999911053,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.666600000244216,
+            "answer_composition": 0.020599999970727367
+          },
+          "trace_id": "83d03e06121d4eeeb50be0d806239696"
+        },
+        {
+          "request_id": "q-3",
+          "latency_ms": 9.020299999974668,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.8277999998827,
+            "answer_composition": 0.019100000372418435
+          },
+          "trace_id": "c8f7581b2c8c46da916872299d24f10c"
+        },
+        {
+          "request_id": "q-4",
+          "latency_ms": 8.661100000153965,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.8568000001505425,
+            "answer_composition": 0.02610000001368462
+          },
+          "trace_id": "8f49a9de9710404e8573f460fe0c4def"
+        },
+        {
+          "request_id": "q-5",
+          "latency_ms": 29.543200000262004,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.032499999695574,
+            "answer_composition": 0.0183000001925393
+          },
+          "trace_id": "45a2627afe7146fe9c4959ec85ff68b0"
+        },
+        {
+          "request_id": "q-6",
+          "latency_ms": 35.27170000006663,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 9.632700000111072,
+            "answer_composition": 0.018899999759014463
+          },
+          "trace_id": "2dce6e3cf9ef465380db71d0d5da0ce3"
+        },
+        {
+          "request_id": "q-7",
+          "latency_ms": 31.433300000117015,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.737299999665993,
+            "answer_composition": 0.017099999695346924
+          },
+          "trace_id": "4edfad5d005247a6b6ec7d0d114f8b5c"
+        },
+        {
+          "request_id": "q-8",
+          "latency_ms": 24.912100000165083,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.749800000307005,
+            "answer_composition": 0.022000000171829015
+          },
+          "trace_id": "0e60a61c189d442ab11115770718cb36"
+        },
+        {
+          "request_id": "q-9",
+          "latency_ms": 33.135199999833276,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.268399999702524,
+            "answer_composition": 0.020599999970727367
+          },
+          "trace_id": "8407e529251d4fe3a0d46d29b24f2638"
+        },
+        {
+          "request_id": "q-10",
+          "latency_ms": 35.24960000004285,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 9.774499999821273,
+            "answer_composition": 0.017300000308750896
+          },
+          "trace_id": "5f500507f961443fbd46e4fdda5d0e4b"
+        },
+        {
+          "request_id": "q-11",
+          "latency_ms": 27.060599999913393,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.710400000178197,
+            "answer_composition": 0.017100000150094274
+          },
+          "trace_id": "38ce6be55e914508a1f721ab5fa8d50e"
+        },
+        {
+          "request_id": "q-12",
+          "latency_ms": 24.891500000194355,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.889900000212947,
+            "answer_composition": 0.018600000203150557
+          },
+          "trace_id": "1caf75f6490448aa8c2a14f1756d1193"
+        },
+        {
+          "request_id": "q-13",
+          "latency_ms": 31.924899999921763,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.031399999959831,
+            "answer_composition": 0.01810000003388268
+          },
+          "trace_id": "55a61a7d03594b6c98bf2e356e7ef3a5"
+        },
+        {
+          "request_id": "q-14",
+          "latency_ms": 11.022400000001653,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.080900000095426,
+            "answer_composition": 0.017700000171316788
+          },
+          "trace_id": "127ed10b79ae44b2970c8b5010900d20"
+        },
+        {
+          "request_id": "q-15",
+          "latency_ms": 18.628000000262546,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.760299999768904,
+            "answer_composition": 0.018899999759014463
+          },
+          "trace_id": "a412724a619945ad83f18d2fcfc450a2"
+        },
+        {
+          "request_id": "q-16",
+          "latency_ms": 26.37349999986327,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.669999999961874,
+            "answer_composition": 0.020199999653414125
+          },
+          "trace_id": "dac920bbdfe14cfbbb3465346f46dce7"
+        },
+        {
+          "request_id": "q-17",
+          "latency_ms": 23.546100000203296,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.961300000009942,
+            "answer_composition": 0.017100000150094274
+          },
+          "trace_id": "ce70c1ccda3742f7963d70cd3f3f7cb1"
+        },
+        {
+          "request_id": "q-18",
+          "latency_ms": 30.528700000104436,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.987900000240188,
+            "answer_composition": 0.018600000203150557
+          },
+          "trace_id": "598daa9cf4fc4c6abd1a2c73ac40eb67"
+        },
+        {
+          "request_id": "q-19",
+          "latency_ms": 9.202900000218506,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.024699999874429,
+            "answer_composition": 0.02230000018244027
+          },
+          "trace_id": "500a331f3ff34b2e9263871e042b824c"
+        },
+        {
+          "request_id": "q-20",
+          "latency_ms": 34.509800000250834,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.136299999932817,
+            "answer_composition": 0.024200000098062446
+          },
+          "trace_id": "e2a1377907764c609178e73a14261951"
+        },
+        {
+          "request_id": "q-21",
+          "latency_ms": 28.000900000279216,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.310399999823858,
+            "answer_composition": 0.019799999790848233
+          },
+          "trace_id": "0580e3b07fe248309b87165a4d8f234f"
+        },
+        {
+          "request_id": "q-22",
+          "latency_ms": 19.968600000083825,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.758400000057009,
+            "answer_composition": 0.01650000012887176
+          },
+          "trace_id": "ff8dd73a2845463890d6787274082b3d"
+        },
+        {
+          "request_id": "q-23",
+          "latency_ms": 21.799399999963498,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 9.783299999980954,
+            "answer_composition": 0.02029999996011611
+          },
+          "trace_id": "f48fe60368064c1994f176225a9c61ef"
+        },
+        {
+          "request_id": "q-24",
+          "latency_ms": 31.912299999930838,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.835200000045006,
+            "answer_composition": 0.01720000000204891
+          },
+          "trace_id": "be079ab5839040c6a5ab62e1212ff30e"
+        },
+        {
+          "request_id": "q-25",
+          "latency_ms": 21.079200000258425,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.84509999994043,
+            "answer_composition": 0.01720000000204891
+          },
+          "trace_id": "2f60536f08d44dc28b50501688a44eec"
+        },
+        {
+          "request_id": "q-26",
+          "latency_ms": 31.98389999988649,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.835499999804597,
+            "answer_composition": 0.03299999980299617
+          },
+          "trace_id": "a1c9f75d7dec4ae6a94e75e25ac413f7"
+        },
+        {
+          "request_id": "q-27",
+          "latency_ms": 22.58849999998347,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.769899999857444,
+            "answer_composition": 0.019099999917671084
+          },
+          "trace_id": "6631e5ef6f3e4434a7d80ffafadf98ce"
+        },
+        {
+          "request_id": "q-28",
+          "latency_ms": 36.0593999998855,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.97160000022268,
+            "answer_composition": 0.018600000203150557
+          },
+          "trace_id": "b71c793a5fbe4634894a6cd1f3cc867e"
+        },
+        {
+          "request_id": "q-29",
+          "latency_ms": 30.864500000006956,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.192599999802042,
+            "answer_composition": 0.017500000012660166
+          },
+          "trace_id": "12db4d6196a24bd0a64379c9774894b2"
+        }
+      ]
+    },
+    "fault": {
+      "window_id": "208ba49a87314fe68f56fe81b606e45d",
+      "workload": {
+        "dataset_sha256": "a17eb766aa88ba0eedd2947e3a853edd2dab51af0739a6730e4b6c2dcbd57681",
+        "request_set_sha256": "f64742007265b4072015964d0fcef56b241d7c10e5788f466c4e0152e9f0ccf4",
+        "arrival_rate": 1.0,
+        "request_count": 30,
+        "concurrency_limit": 4,
+        "seed": 912,
+        "warmup_requests": 4,
+        "environment": "isolated-windows",
+        "service": "agi-saber-rag",
+        "resources_sha256": "f9fba977478c641596ae84f85662fe9ab275609a06025dbe22804ecc4b0e2571"
+      },
+      "revision": "d85a41d8d1f7593b9276d9a43bae43b76ad15ed71908e5889dac1616851c419a",
+      "config_sha256": "cb6e6100b53e543f0ac7f0e8609bd1340302beaff871ca7dac1206ced5bdf653",
+      "generator": "EXTRACTIVE_LOCAL",
+      "elapsed_seconds": 29.250587099999848,
+      "max_dispatch_lag_ms": 1.0971000001518405,
+      "requests": [
+        {
+          "request_id": "q-0",
+          "latency_ms": 271.13039999994726,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 247.01239999967584,
+            "answer_composition": 0.04189999981463188
+          },
+          "trace_id": "977ba5412a574d9092d3ee75c251921e"
+        },
+        {
+          "request_id": "q-1",
+          "latency_ms": 250.63039999986358,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 235.28529999975945,
+            "answer_composition": 0.030700000024808105
+          },
+          "trace_id": "b1a3ee2ba87245d991cb761100d97f6e"
+        },
+        {
+          "request_id": "q-2",
+          "latency_ms": 279.50120000014067,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 257.5363999999354,
+            "answer_composition": 0.03460000016275444
+          },
+          "trace_id": "84e6885c969149fc8d1cbb77d7f52856"
+        },
+        {
+          "request_id": "q-3",
+          "latency_ms": 236.4698999999746,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 219.7888000000603,
+            "answer_composition": 0.030300000162242213
+          },
+          "trace_id": "dd3c5f7f7d034558bb8def8e0c0d154f"
+        },
+        {
+          "request_id": "q-4",
+          "latency_ms": 239.67420000008133,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 226.037400000223,
+            "answer_composition": 0.03799999967668555
+          },
+          "trace_id": "989876b966554053bf6b1aaf638ef1d8"
+        },
+        {
+          "request_id": "q-5",
+          "latency_ms": 249.81269999989308,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 226.21610000032888,
+            "answer_composition": 0.02499999982319423
+          },
+          "trace_id": "cdf03e9c587b415bae2142de381451a3"
+        },
+        {
+          "request_id": "q-6",
+          "latency_ms": 242.88679999972373,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 224.16659999998956,
+            "answer_composition": 0.02769999991869554
+          },
+          "trace_id": "8f044bfbfee44fb9a520dde72c475755"
+        },
+        {
+          "request_id": "q-7",
+          "latency_ms": 261.3734999999906,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 248.24730000000272,
+            "answer_composition": 0.03220000007786439
+          },
+          "trace_id": "d49b9e490a154134adf691278d1be841"
+        },
+        {
+          "request_id": "q-8",
+          "latency_ms": 255.18179999971835,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 230.83260000021255,
+            "answer_composition": 0.03390000028957729
+          },
+          "trace_id": "5a12e718cf6748a7b2c5a6671b332b6a"
+        },
+        {
+          "request_id": "q-9",
+          "latency_ms": 257.61289999991277,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 239.09279999998034,
+            "answer_composition": 0.03620000006776536
+          },
+          "trace_id": "c1ab9373fd40480abdad81eafd36ba69"
+        },
+        {
+          "request_id": "q-10",
+          "latency_ms": 269.40449999983684,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 243.5723999997208,
+            "answer_composition": 0.028500000098574674
+          },
+          "trace_id": "463644f61b554feb9896ab01261742df"
+        },
+        {
+          "request_id": "q-11",
+          "latency_ms": 267.1872999999323,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 247.08379999992758,
+            "answer_composition": 0.031200000194075983
+          },
+          "trace_id": "f871572dbc4a48eca94585a25b671236"
+        },
+        {
+          "request_id": "q-12",
+          "latency_ms": 248.2970999999452,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 229.74870000007286,
+            "answer_composition": 0.026300000172341242
+          },
+          "trace_id": "fd7329255a5d4c569ae4538e51c61390"
+        },
+        {
+          "request_id": "q-13",
+          "latency_ms": 265.27649999979985,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 237.8779000000577,
+            "answer_composition": 0.030899999728717376
+          },
+          "trace_id": "0c333531cebb4fb8a35b4ca0b4192eff"
+        },
+        {
+          "request_id": "q-14",
+          "latency_ms": 246.7728999999963,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 222.5629000004119,
+            "answer_composition": 0.03190000006725313
+          },
+          "trace_id": "4c4297f992e44b34aa6ca313183e1b61"
+        },
+        {
+          "request_id": "q-15",
+          "latency_ms": 239.85820000007152,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 222.64469999981884,
+            "answer_composition": 0.02880000010918593
+          },
+          "trace_id": "22979610488d476ba60814387b1d7490"
+        },
+        {
+          "request_id": "q-16",
+          "latency_ms": 240.6581999998707,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 238.23270000002594,
+            "answer_composition": 0.031600000056641875
+          },
+          "trace_id": "7201e04be7ca455e90017d32eca2da4d"
+        },
+        {
+          "request_id": "q-17",
+          "latency_ms": 251.30739999985963,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 236.8714999997792,
+            "answer_composition": 0.03319999996165279
+          },
+          "trace_id": "8ce1351261ad4ae89917074ee5a1e676"
+        },
+        {
+          "request_id": "q-18",
+          "latency_ms": 252.59779999987586,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 235.39430000028005,
+            "answer_composition": 0.031600000056641875
+          },
+          "trace_id": "a99a74e650ce4f8ca39e375ccd709bb6"
+        },
+        {
+          "request_id": "q-19",
+          "latency_ms": 253.02419999979975,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 234.73260000037044,
+            "answer_composition": 0.028899999961140566
+          },
+          "trace_id": "3be9343d47fd4f11b73aa1c918e413c8"
+        },
+        {
+          "request_id": "q-20",
+          "latency_ms": 247.37679999998363,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 235.03580000033253,
+            "answer_composition": 0.032700000247132266
+          },
+          "trace_id": "867220ba68f84f1e885566a2ee68d3b2"
+        },
+        {
+          "request_id": "q-21",
+          "latency_ms": 268.2959999997365,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 250.44690000004266,
+            "answer_composition": 0.02770000037344289
+          },
+          "trace_id": "01d5cef15af042f59fd89ccb5b7f46bd"
+        },
+        {
+          "request_id": "q-22",
+          "latency_ms": 257.4589000000742,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 235.37609999993947,
+            "answer_composition": 0.03100000003541936
+          },
+          "trace_id": "8f2b54a062064ecfaf7e2ac8bc09ee65"
+        },
+        {
+          "request_id": "q-23",
+          "latency_ms": 247.49609999980748,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 234.93920000009894,
+            "answer_composition": 0.028299999939918052
+          },
+          "trace_id": "ca83d83c3dc54bf58dfdc276a78aab88"
+        },
+        {
+          "request_id": "q-24",
+          "latency_ms": 241.84900000000198,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 226.59969999995155,
+            "answer_composition": 0.025999999706982635
+          },
+          "trace_id": "31a7f722c15c46f98fad54f3fbdba1e6"
+        },
+        {
+          "request_id": "q-25",
+          "latency_ms": 255.05569999995714,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 231.44049999973504,
+            "answer_composition": 0.028700000257231295
+          },
+          "trace_id": "07cbb60f38dd4c499a344e5afea5c204"
+        },
+        {
+          "request_id": "q-26",
+          "latency_ms": 223.5299999997551,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 220.3628000002027,
+            "answer_composition": 0.02880000010918593
+          },
+          "trace_id": "2fa518d6cdab4eedbe9914b3d806a1f2"
+        },
+        {
+          "request_id": "q-27",
+          "latency_ms": 265.0997999999163,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 240.22420000028433,
+            "answer_composition": 0.025899999855028
+          },
+          "trace_id": "161cfad422e049648d3622e08e8b034e"
+        },
+        {
+          "request_id": "q-28",
+          "latency_ms": 267.0656999998755,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 249.76070000002437,
+            "answer_composition": 0.03339999966556206
+          },
+          "trace_id": "94276b2a52964ba09f3c3a64aef27dd6"
+        },
+        {
+          "request_id": "q-29",
+          "latency_ms": 250.37979999979143,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 226.73290000011548,
+            "answer_composition": 0.02969999968627235
+          },
+          "trace_id": "36dfc416a5324f5ea049b63a2a36ce45"
+        }
+      ]
+    },
+    "after": {
+      "window_id": "b3e46b1451b14bcfbb29123f64e26f5f",
+      "workload": {
+        "dataset_sha256": "a17eb766aa88ba0eedd2947e3a853edd2dab51af0739a6730e4b6c2dcbd57681",
+        "request_set_sha256": "f64742007265b4072015964d0fcef56b241d7c10e5788f466c4e0152e9f0ccf4",
+        "arrival_rate": 1.0,
+        "request_count": 30,
+        "concurrency_limit": 4,
+        "seed": 912,
+        "warmup_requests": 4,
+        "environment": "isolated-windows",
+        "service": "agi-saber-rag",
+        "resources_sha256": "f9fba977478c641596ae84f85662fe9ab275609a06025dbe22804ecc4b0e2571"
+      },
+      "revision": "a1a90b112093bae2c430a07909aa93cbeb3a8144a01cd76982a59745a6fa7f56",
+      "config_sha256": "cb6e6100b53e543f0ac7f0e8609bd1340302beaff871ca7dac1206ced5bdf653",
+      "generator": "EXTRACTIVE_LOCAL",
+      "elapsed_seconds": 29.03331040000012,
+      "max_dispatch_lag_ms": 1.065299999936542,
+      "requests": [
+        {
+          "request_id": "q-0",
+          "latency_ms": 8.417300000019168,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.047699999930046,
+            "answer_composition": 0.01990000009755022
+          },
+          "trace_id": "1971cbf79050486b9026ff73e5e8023d"
+        },
+        {
+          "request_id": "q-1",
+          "latency_ms": 31.074600000010832,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.630400000129157,
+            "answer_composition": 0.03240000023652101
+          },
+          "trace_id": "ea249ad4a821458e904726c98ff714a3"
+        },
+        {
+          "request_id": "q-2",
+          "latency_ms": 24.283100000047853,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.034700000076555,
+            "answer_composition": 0.019699999938893598
+          },
+          "trace_id": "39c1356800054f6896f78824dd17ee9d"
+        },
+        {
+          "request_id": "q-3",
+          "latency_ms": 21.483100000295963,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.500199999867618,
+            "answer_composition": 0.021099999685247894
+          },
+          "trace_id": "e9d5c40391c04777b8ae71c2a8fbcee8"
+        },
+        {
+          "request_id": "q-4",
+          "latency_ms": 32.583100000010745,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.569799999851966,
+            "answer_composition": 0.021300000298651867
+          },
+          "trace_id": "4b0e02da7c8f4f1593a8d2c18ab8b9b4"
+        },
+        {
+          "request_id": "q-5",
+          "latency_ms": 27.704300000095827,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.679000000076485,
+            "answer_composition": 0.018799999907059828
+          },
+          "trace_id": "984800f8598347939373f60878cb3a87"
+        },
+        {
+          "request_id": "q-6",
+          "latency_ms": 21.296300000358315,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.495999999922788,
+            "answer_composition": 0.01939999992828234
+          },
+          "trace_id": "4e12356d40a740aa8356407b35c4809e"
+        },
+        {
+          "request_id": "q-7",
+          "latency_ms": 24.32470000030662,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.624299999657524,
+            "answer_composition": 0.018700000055105193
+          },
+          "trace_id": "a043874617b6470a9b378c1f97247301"
+        },
+        {
+          "request_id": "q-8",
+          "latency_ms": 31.006100000013248,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.890900000144029,
+            "answer_composition": 0.01939999992828234
+          },
+          "trace_id": "027b57b4cb60455db513bb0b64ce982e"
+        },
+        {
+          "request_id": "q-9",
+          "latency_ms": 10.693900000205758,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.701899999778107,
+            "answer_composition": 0.026900000193563756
+          },
+          "trace_id": "7eaa5d7866e64990af966df798345e5f"
+        },
+        {
+          "request_id": "q-10",
+          "latency_ms": 31.698600000254373,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 9.403600000041479,
+            "answer_composition": 0.031600000056641875
+          },
+          "trace_id": "ce4765aed93343198b6ec54b90b388df"
+        },
+        {
+          "request_id": "q-11",
+          "latency_ms": 19.246400000156427,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.887399999617628,
+            "answer_composition": 0.022700000045006163
+          },
+          "trace_id": "435eba89bacd4254a9c910a839ad2b54"
+        },
+        {
+          "request_id": "q-12",
+          "latency_ms": 25.594200000341516,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.33150000016758,
+            "answer_composition": 0.026900000193563756
+          },
+          "trace_id": "f7baa82ca37c4f93b59f685bfa356a9c"
+        },
+        {
+          "request_id": "q-13",
+          "latency_ms": 28.056000000105996,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.143799999994371,
+            "answer_composition": 0.022000000171829015
+          },
+          "trace_id": "f01b1af63aa8455d99676acfe370db8f"
+        },
+        {
+          "request_id": "q-14",
+          "latency_ms": 34.172900000157824,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.02019999971526,
+            "answer_composition": 0.019600000086938962
+          },
+          "trace_id": "3ee7f9b28d024b1fa6aacf0e568de7ee"
+        },
+        {
+          "request_id": "q-15",
+          "latency_ms": 24.65570000003936,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.708499999807827,
+            "answer_composition": 0.021800000013172394
+          },
+          "trace_id": "64b75fb06c2940088d0d7cdee53ada31"
+        },
+        {
+          "request_id": "q-16",
+          "latency_ms": 31.72560000029989,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 8.545000000140135,
+            "answer_composition": 0.021599999854515772
+          },
+          "trace_id": "4e0a782516eb423c862182e71a5d1d27"
+        },
+        {
+          "request_id": "q-17",
+          "latency_ms": 33.228799999960756,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 6.953399999929388,
+            "answer_composition": 0.018199999885837315
+          },
+          "trace_id": "276a11be0a63447ca755ae66a1e58d70"
+        },
+        {
+          "request_id": "q-18",
+          "latency_ms": 24.281800000153453,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.084299999860377,
+            "answer_composition": 0.020700000277429353
+          },
+          "trace_id": "88bd6944b6e94ef0b1eff5f71a106d71"
+        },
+        {
+          "request_id": "q-19",
+          "latency_ms": 30.112500000086584,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.502999999815074,
+            "answer_composition": 0.0266000001829525
+          },
+          "trace_id": "1ef9564b363e4c659f7dc6688311dd6a"
+        },
+        {
+          "request_id": "q-20",
+          "latency_ms": 9.659800000008545,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.648799999969924,
+            "answer_composition": 0.02229999972769292
+          },
+          "trace_id": "c18eb713b6214e19a728d6bc773c8925"
+        },
+        {
+          "request_id": "q-21",
+          "latency_ms": 9.712400000353227,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 7.95940000034534,
+            "answer_composition": 0.023500000224885298
+          },
+          "trace_id": "20c92c24abbb441f8b92773684638007"
+        },
+        {
+          "request_id": "q-22",
+          "latency_ms": 15.851200000270182,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 13.076299999738694,
+            "answer_composition": 0.03310000010969816
+          },
+          "trace_id": "c0f186e927504b2596c8ecd3cf74b882"
+        },
+        {
+          "request_id": "q-23",
+          "latency_ms": 28.005600000142294,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 13.525899999876856,
+            "answer_composition": 0.03990000004705507
+          },
+          "trace_id": "4cc5364741554afdaa06e6fdc03dfa2e"
+        },
+        {
+          "request_id": "q-24",
+          "latency_ms": 29.606500000227243,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 15.66850000017439,
+            "answer_composition": 0.043900000036956044
+          },
+          "trace_id": "d41942884fe543459743c7619e0cb457"
+        },
+        {
+          "request_id": "q-25",
+          "latency_ms": 42.23219999994399,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 15.15030000018669,
+            "answer_composition": 0.04269999999451102
+          },
+          "trace_id": "00c09fac4c9c4111957a947919ab4afb"
+        },
+        {
+          "request_id": "q-26",
+          "latency_ms": 37.61639999993349,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 13.456299999688781,
+            "answer_composition": 0.044999999772699084
+          },
+          "trace_id": "a0c44d8a8b2b4daebb7251e4628c0781"
+        },
+        {
+          "request_id": "q-27",
+          "latency_ms": 37.9851000002418,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 14.279200000146375,
+            "answer_composition": 0.041000000237545464
+          },
+          "trace_id": "00a6294b88664d308557a04d534a5238"
+        },
+        {
+          "request_id": "q-28",
+          "latency_ms": 16.27989999997226,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 13.399200000094424,
+            "answer_composition": 0.0372999998035084
+          },
+          "trace_id": "49e4fae1a3974e558878f0e79642fd06"
+        },
+        {
+          "request_id": "q-29",
+          "latency_ms": 33.088600000155566,
+          "success": true,
+          "quality_passed": true,
+          "degraded": false,
+          "stage_ms": {
+            "local_search": 10.283199999776116,
+            "answer_composition": 0.029400000130408444
+          },
+          "trace_id": "dbf66483bf6943da99a4d96621c69827"
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "schema": "mini-drop.business-comparison.v1",
+    "outcome": "IMPROVEMENT_VERIFIED",
+    "reasons": [],
+    "summaries": {
+      "baseline": {
+        "request_count": 30,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "degraded_count": 0,
+        "p50_ms": 26.37349999986327,
+        "p95_ms": 35.27170000006663,
+        "p99_ms": null,
+        "completed_rps": 1.033377611152757,
+        "stage_p95_ms": {
+          "answer_composition": 0.02610000001368462,
+          "local_search": 9.774499999821273
+        },
+        "stage_sample_counts": {
+          "answer_composition": 30,
+          "local_search": 30
+        }
+      },
+      "fault": {
+        "request_count": 30,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "degraded_count": 0,
+        "p50_ms": 251.30739999985963,
+        "p95_ms": 271.13039999994726,
+        "p99_ms": null,
+        "completed_rps": 1.0256204395979511,
+        "stage_p95_ms": {
+          "answer_composition": 0.03799999967668555,
+          "local_search": 250.44690000004266
+        },
+        "stage_sample_counts": {
+          "answer_composition": 30,
+          "local_search": 30
+        }
+      },
+      "after": {
+        "request_count": 30,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "degraded_count": 0,
+        "p50_ms": 27.704300000095827,
+        "p95_ms": 37.9851000002418,
+        "p99_ms": null,
+        "completed_rps": 1.03329587934278,
+        "stage_p95_ms": {
+          "answer_composition": 0.043900000036956044,
+          "local_search": 15.15030000018669
+        },
+        "stage_sample_counts": {
+          "answer_composition": 30,
+          "local_search": 30
+        }
+      }
+    },
+    "policy": {
+      "minimum_requests": 30,
+      "recovery_p95_ratio": 1.3,
+      "minimum_success_rate": 0.98,
+      "minimum_quality_rate": 0.98,
+      "minimum_fault_ratio": 1.5,
+      "max_dispatch_lag_ms": 150,
+      "latency_floor_ms": 20
+    },
+    "recovery_p95_limit_ms": 45.85321000008662,
+    "change_summary": "只读取文本列、按批流式处理、查询词项计算一次、用有界 TopK 保留原排序。仍是线性扫描，不宣称已使用 FTS5。",
+    "window_hashes": [
+      "70124580d541d887549e8a99c52a4c116ced0e0eef9b7511ba3ab0aeafbf080f",
+      "1aa3764eea5a6a1095ce4a5caa89e15853d6fa601c7684871ff4016ef14be819",
+      "982b191d63044a038f3d75c35f0db3ced38b552959cc16ed48b057f4938c26cc"
+    ],
+    "scope": "BUSINESS_MEASUREMENT_ONLY; NOT_AI_ROOT_CAUSE_ACCEPTANCE"
+  },
+  "completed_at": "2026-09-27T05:18:37.319972+00:00",
+  "ai_root_cause_verified": false,
+  "sha256": "8c97a0b99fbb764e3d4ed76e990ccc525c1907cbe0d9a9fb9bc727ffad6fb527"
+}
