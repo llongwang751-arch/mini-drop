@@ -1,17 +1,19 @@
 # Mini-Drop 重启交接点
 
-## 2026-09-27 资源稳定性与独立热点对照（进行中）
+## 2026-09-27 资源稳定性与独立热点对照（已实测，归档中）
 
-持续请求验收新增 `psutil` 目标进程观测：只采新建子进程，校验 PID/启动时间，CPU 用操作系统累计时间差计算，首样本缺失；RSS、线程、Windows 句柄/Linux FD 分开记录。持续阶段比较首末三分之一中位数，RSS 增长 >32MiB、线程 >8 或句柄/FD >32 拒绝；这些是固定样例筛查预算，不是生产 SLO 或无泄漏证明。缺样、失败或过大采样间隔判 INVALID。短版已实测通过，30 分钟版本在本机运行。
+新增目标进程 CPU/RSS/线程/句柄采样、原始 JSONL 重算复核、自包含 HTML 图表，以及隔离 Linux Python/Go 操作系统 CPU 与函数 profile 对照。资源缺失、启动延迟或跨阶段断档拒绝通过；首末三分之一中位数增长预算仅为样例筛查，不能证明无泄漏。README 与面试演示入口已按测试工程风险和证据组织。
 
-新增 `hotspot-controls` profile 与隔离 Linux CI：真实 Python/Go demo 进程基线/注入/撤销三窗操作系统 CPU 计数，Python 合作式源码栈采样及 Go pprof 交叉检查。结果单独记为 CONTROL_VERIFIED，不写入 AI Evidence，不提升历史 1/21，不将撤销负载冒充同负载代码修复。两项实现与实测结果待本轮远程验证；不部署云端、不启动本机 Docker。详见 [业务验收](BUSINESS_ACCEPTANCE.md) 和 [严格故障验收](FAULT_PLAZA_ACCEPTANCE.md)。
+本机 30 分钟持续阶段 9000/9000 请求成功且引用检查通过，P95 41.15ms；1780 个持续资源样本、0 失败，RSS 中位数增长 -598016 bytes、线程/Windows 句柄增长均 0。整轮仍为 INVALID：80 RPS 档 211 个请求未发出，不能据此认定服务容量；原始失败保留，正在细化容量档位复测。实验从 `782b4a8` 工作树启动，以报告中精确源码哈希追溯，运行中未改测量源码。
+
+[CI 36300865297](https://github.com/llongwang751-arch/mini-drop/actions/runs/36300865297) 13/13 作业通过，Python 775 passed / 7 skipped。随后补充采样启动/跨阶段断档及 Go 错函数拒绝、撤销后同 PID 回读，57 项针对性回归通过，待新提交远程验证。独立热点结果为 CONTROL_VERIFIED，AI 根因仍为历史 1/21；撤销负载不是代码修复，不部署云端、不启动本机 Docker。详见 [业务验收](BUSINESS_ACCEPTANCE.md)、[测试工程](TEST_ENGINEERING.md) 和 [严格故障验收](FAULT_PLAZA_ACCEPTANCE.md)。
 
 
 ## 2026-09-27 阶梯负载与持续运行（已实测，未部署）
 
 新增 `scripts/run_load_endurance.py`：在独立本机子进程启动现有 SQLite FTS5 HTTP 样例，同一 PID 执行阶梯负载、卸载后恢复和 600 秒持续请求。固定到达速率，有界在途请求，每个未发出槽位仍记录；延迟从计划到达时刻计算，失败请求不从分母删除，发压端迟到/饱和与服务 SLO 失败分别报告。持续阶段按 30 秒到达窗口判定，任何窗口不达标不能用整体平均掩盖。版本、源码/语料指纹、原始 JSONL、失败报告与哈希保留。
 
-新增 `endurance` 质量 profile 与 Linux 短版 CI（12 秒持续阶段，仅验证执行链路）；本轮 27 项新门禁回归通过，[远程 CI 36298996094](https://github.com/llongwang751-arch/mini-drop/actions/runs/36298996094) **12/12 作业通过**、Python **723 passed / 7 skipped**，代码版本 `be34ff5`。本机默认 600 秒持续阶段完成 3000 请求、成功/引用检查均 100%，P95 39.85ms，20 个窗口均通过。阶梯 5/20/40 请求每秒通过，80 请求每秒因 P95 480.44ms 超过 200ms 判 SLO_FAILED；降载后 P95 40.82ms，完整实验有效且恢复/持续通过。全部 5250 请求、计划、版本、原始失败档与哈希已归档，见 [实测报告](../reports/architecture/load-endurance-20260927.md)。所有流量只到新建回环地址子进程，不启动本机 Docker，不触碰云端。当前没有服务 RSS/CPU 或泄漏指标，不能称生产容量/小时级长稳已验收。运行说明见 [业务验收](BUSINESS_ACCEPTANCE.md#阶梯负载与持续运行2026-09-27)。
+新增 `endurance` 质量 profile 与 Linux 短版 CI（12 秒持续阶段，仅验证执行链路）；本轮 27 项新门禁回归通过，[远程 CI 36298996094](https://github.com/llongwang751-arch/mini-drop/actions/runs/36298996094) **12/12 作业通过**、Python **723 passed / 7 skipped**，代码版本 `be34ff5`。本机默认 600 秒持续阶段完成 3000 请求、成功/引用检查均 100%，P95 39.85ms，20 个窗口均通过。阶梯 5/20/40 请求每秒通过，80 请求每秒因 P95 480.44ms 超过 200ms 判 SLO_FAILED；降载后 P95 40.82ms，完整实验有效且恢复/持续通过。全部 5250 请求、计划、版本、原始失败档与哈希已归档，见 [实测报告](../reports/architecture/load-endurance-20260927.md)。所有流量只到新建回环地址子进程，不启动本机 Docker，不触碰云端。该历史批次没有服务 RSS/CPU 指标；新增资源批次见本文顶部，仍不能称生产容量或小时级长稳已验收。运行说明见 [业务验收](BUSINESS_ACCEPTANCE.md#阶梯负载与持续运行2026-09-27)。
 
 
 ## 2026-09-27 远程 CI 与实际检索回归（最新）

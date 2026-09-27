@@ -21,8 +21,11 @@ def summarize_resources(rows, soak_seconds, interval=1.0):
         reasons.append("RESOURCE_OBSERVATION_FAILED")
     if len(soak) < max(5, math.floor(expected * .8)):
         reasons.append("INSUFFICIENT_RESOURCE_SAMPLES")
-    offsets = [r["elapsed_seconds"] for r in soak]
-    if any(b - a > interval * 5 for a, b in zip(offsets, offsets[1:])):
+    # The sampler is continuous across phases, including its initial startup.
+    offsets = [r["elapsed_seconds"] for r in rows if "elapsed_seconds" in r]
+    if (offsets and offsets[0] > interval * 5) or any(
+        b - a > interval * 5 for a, b in zip(offsets, offsets[1:])
+    ):
         reasons.append("RESOURCE_SAMPLING_GAP")
     invalid = bool(reasons)
     trends = {}

@@ -1,4 +1,6 @@
 from types import SimpleNamespace
+import json
+import threading
 
 import pytest
 
@@ -52,6 +54,23 @@ def test_sampler_gap_is_invalid_even_with_enough_samples():
     for row in samples[15:]:
         row["elapsed_seconds"] += 10
     assert "RESOURCE_SAMPLING_GAP" in resources.summarize_resources(samples, 30)["reasons"]
+
+
+def test_sampler_gap_across_phase_boundary_is_not_hidden_by_full_soak_count():
+    samples = rows()
+    for row in samples:
+        row["elapsed_seconds"] += 60
+    samples.insert(0, {**rows(1)[0], "phase": "recovery"})
+    result = resources.summarize_resources(samples, 30)
+    assert result["status"] == "INVALID"
+    assert "RESOURCE_SAMPLING_GAP" in result["reasons"]
+
+
+def test_delayed_first_resource_sample_cannot_hide_sampler_startup_gap():
+    samples = rows()
+    for row in samples:
+        row["elapsed_seconds"] += 20
+    assert resources.summarize_resources(samples, 30)["status"] == "INVALID"
 
 
 class Process:
@@ -108,3 +127,46 @@ def test_windows_handles_are_named_separately(tmp_path, monkeypatch):
     monkeypatch.setattr(resources.psutil, "Process", lambda pid: process)
     sample = resources.ResourceMonitor(42, tmp_path / "resources.jsonl").sample()
     assert sample["handle_kind"] == "windows_handles" and sample["handles_or_fds"] == 23
+
+
+def test_monitor_flushes_evidence_and_joins_sampler_on_exit(tmp_path, monkeypatch):
+    monkeypatch.setattr(resources.psutil, "Process", Process)
+    destination = tmp_path / "resources.jsonl"
+    monitor = resources.ResourceMonitor(42, destination, interval=60)
+    observed = threading.Event()
+    original = monitor.sample
+
+    def sample():
+        value = original()
+        observed.set()
+        return value
+
+    monitor.sample = sample
+    with monitor:
+        assert observed.wait(timeout=2)
+    assert not monitor.thread.is_alive() and monitor.stream.closed
+    saved = [json.loads(line) for line in destination.read_text().splitlines()]
+    assert saved and saved[0]["pid"] == 42 and saved[0]["status"] == "OK"
+
+
+def test_resource_write_failure_is_not_silently_ignored(tmp_path, monkeypatch):
+    monkeypatch.setattr(resources.psutil, "Process", Process)
+    monitor = resources.ResourceMonitor(42, tmp_path / "unused")
+    attempted = threading.Event()
+
+    class BrokenStream:
+        closed = False
+
+        def write(self, value):
+            attempted.set()
+            raise OSError("disk unavailable")
+
+        def close(self):
+            self.closed = True
+
+    stream = BrokenStream()
+    monitor.output = SimpleNamespace(open=lambda *args, **kwargs: stream)
+    with pytest.raises(RuntimeError, match="evidence write failed"):
+        with monitor:
+            assert attempted.wait(timeout=2)
+    assert not monitor.thread.is_alive() and stream.closed

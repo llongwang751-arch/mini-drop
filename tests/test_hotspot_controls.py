@@ -11,7 +11,7 @@ def case(runtime="python"):
         for name, cpu in [("baseline", 1), ("fault", 80), ("recovery", 2)]},
         "injection_active_through_fault_window": True, "cleanup_verified": True,
         "profile": {"function": "source_hot_function", "new_hot_samples": 100, "new_total_samples": 100}
-        if runtime == "python" else {"sample_cpu_seconds": 4.5, "cumulative_percent": 98}}
+        if runtime == "python" else {"function": "main.goCPUHotFunction", "sample_cpu_seconds": 4.5, "cumulative_percent": 98}}
 
 
 @pytest.mark.parametrize("runtime", ["python", "go"])
@@ -76,3 +76,9 @@ def test_same_high_cpu_without_contrast_is_not_confirmation():
     before = deepcopy(data)
     assert "CPU_EFFECT_NOT_OBSERVED" in evaluate(data)["reasons"]
     assert before == data
+
+
+def test_go_profile_cannot_substitute_an_unrelated_hot_function():
+    data = case("go")
+    data["profile"]["function"] = "unrelated.hotLoop"
+    assert "PPROF_HOTSPOT_INSUFFICIENT" in evaluate(data)["reasons"]

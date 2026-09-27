@@ -1,6 +1,6 @@
-# Mini-Drop · Linux 多节点性能诊断平台
+# Mini-Drop · Linux 多节点性能测试与诊断平台
 
-Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述“哪个后台、什么操作变慢”，系统绑定真实运行进程，选择采集工具，分析调用栈与资源指标，再生成带证据引用的诊断报告。
+Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验收与进程诊断。测试先根据请求成功率、回答引用、尾延迟和资源观测判定结果；出现异常后，再关联目标进程、调用栈和 AI 调查，保留可追溯的失败证据。
 
 项目包含两条入口：**基础采集**由用户选择目标与采集器；**AI 诊断**由受约束的 Agent 在预算内提出假设、调用工具、寻找反证并继续调查。二者共用任务、采集、分析和存储链路。
 
@@ -8,7 +8,30 @@ Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述
 
 **测试开发入口：** 本项目也用于多语言服务的性能与可靠性测试：从风险和测试计划出发，执行自动化回归、受控故障与同负载对照，再用采集证据辅助定位失败。运行 `python scripts/run_quality_gate.py` 可生成本机质量报告；分层测试、真实缺陷复盘、开源对照及测开演示见 [测试开发与质量工程](docs/TEST_ENGINEERING.md)。
 
-> 测试工程说明更新于 **2026-09-26**，下文截图保留原拍摄日期。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
+> 测试工程说明更新于 **2026-09-27**，下文截图保留原拍摄日期。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
+
+## 从测试到定位
+
+| 要验证的风险 | 实现入口 | 可审阅证据 |
+| --- | --- | --- |
+| 跳过、缺报告或损坏数据却显示通过 | 风险质量计划 + 原始报告复核 | [质量门禁](scripts/run_quality_gate.py)、[逐请求重算](scripts/verify_load_report.py) |
+| HTTP 200 但延迟、引用质量不达标 | 三窗对照、阶梯负载、持续窗口验收 | [10 分钟实测](reports/architecture/load-endurance-20260927.md)、[业务验收](docs/BUSINESS_ACCEPTANCE.md) |
+| 并发重入、租约接管、重复效果 | 真实 PostgreSQL 事务竞争、Go race | [CI 与缺陷复盘](reports/architecture/test-engineering-ci-20260927.md) |
+| 目标进程资源持续增长 | 按 PID/启动时间采样 RSS、CPU、线程、句柄/FD | [资源判定与范围](docs/BUSINESS_ACCEPTANCE.md#资源增长筛查2026-09-27) |
+| 有热点采样，却没有独立对照 | 隔离 Python/Go 真实进程、OS CPU 时间窗、函数采样 | [独立 CPU 对照](docs/FAULT_PLAZA_ACCEPTANCE.md#隔离-ci-的-pythongo-独立-cpu-对照) |
+| 优化更快但破坏业务行为 | 冻结检索源码的排序、隔离、增删改回归 | [实际 RAG 复验](reports/architecture/test-engineering-ci-20260927.md#实际检索缺陷闭环) |
+
+### 本机体验一条测开链路
+
+下面只启动临时回环 HTTP 样例进程，约半分钟完成短回归，不需要云端、Docker 或真实 LLM。输出目录必须全新，再次运行请换一个目录名。
+
+```powershell
+python -m pip install -e ".[dev,reports]"
+python scripts/run_quality_gate.py --profile endurance --output output/quality/demo-endurance-001
+python scripts/render_load_report.py output/quality/demo-endurance-001/load-endurance-smoke/measurement/report.json --output output/quality/demo-endurance-001/report.html
+```
+
+打开生成的 `report.html`，查看阶段延迟、持续窗口、进程 RSS/CPU 和资源增长表。报告渲染前会复核原始 JSONL，INVALID 不会被改成通过。短回归只验证执行链路；更长运行、容量边界及生产验收分别计数。完整 [测开讲解路线](docs/TEST_ENGINEERING.md) 与 [真实 CI 检查](https://github.com/llongwang751-arch/mini-drop/pull/1) 可对照阅读。
 
 ## 目录
 

@@ -23,8 +23,9 @@ def figure(report, samples):
     stages = report["stages"]
     colors = {"PASSED": "#24755b", "INVALID": "#b56b13", "SLO_FAILED": "#b6473d"}
     ax = axes[0, 0]
-    ax.bar([s["name"] for s in stages], [s["summary"]["p95_ms"] if s["summary"]["p95_ms"] is not None else float("nan") for s in stages],
-           color=[colors.get(s["summary"]["status"], "#737373") for s in stages])
+    bars = ax.bar([s["name"] for s in stages], [s["summary"]["p95_ms"] if s["summary"]["p95_ms"] is not None else float("nan") for s in stages],
+                  color=[colors.get(s["summary"]["status"], "#737373") for s in stages])
+    ax.bar_label(bars, fmt="%.1f", padding=3)
     ax.axhline(report["plan"]["p95_limit_ms"], color="#b6473d", linestyle="--", label="P95 limit")
     ax.set(title="All stages (including rejected / invalid)", ylabel="P95 ms")
     ax.tick_params(axis="x", rotation=25)
@@ -43,14 +44,25 @@ def figure(report, samples):
         (axes[1, 1], "cpu_percent", 1, "Target CPU (100% = one logical core)", "CPU %"),
     ]:
         if samples:
-            x = [r["elapsed_seconds"] / 60 for r in samples]
-            y = [r.get(key) / scale if r.get("status") == "OK" and r.get(key) is not None else float("nan")
-                 for r in samples]
+            x, y, previous = [], [], None
+            for sample in samples:
+                elapsed = sample["elapsed_seconds"]
+                if previous is not None and elapsed - previous > 5:
+                    x.append(elapsed / 60)
+                    y.append(float("nan"))
+                x.append(elapsed / 60)
+                y.append(sample[key] / scale if sample.get("status") == "OK" and sample.get(key) is not None
+                         else float("nan"))
+                previous = elapsed
             ax.plot(x, y, color="#285f9b", linewidth=1)
             ax.set(xlabel="Minutes since resource sampler start", ylabel=ylabel)
+            ax.set_xlim(left=0)
         else:
             ax.text(.5, .5, "NOT OBSERVED", ha="center", va="center", transform=ax.transAxes)
         ax.set_title(title)
+        # Absolute resource charts start at zero so tiny normal allocator/CPU
+        # changes do not visually resemble a large leak or utilization spike.
+        ax.set_ylim(bottom=0)
     for ax in axes.flat:
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(axis="y", alpha=.18)

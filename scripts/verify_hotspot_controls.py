@@ -79,7 +79,8 @@ def evaluate(case):
                 or profile.get("new_total_samples", 0) < profile.get("new_hot_samples", 0)):
             reasons.append("SOURCE_SAMPLES_INSUFFICIENT")
     elif case["runtime"] == "go":
-        if (not finite(profile.get("sample_cpu_seconds")) or profile["sample_cpu_seconds"] < 1
+        if (profile.get("function") != "main.goCPUHotFunction"
+                or not finite(profile.get("sample_cpu_seconds")) or profile["sample_cpu_seconds"] < 1
                 or not finite(profile.get("cumulative_percent")) or not 50 <= profile["cumulative_percent"] <= 100):
             reasons.append("PPROF_HOTSPOT_INSUFFICIENT")
     else:
@@ -190,10 +191,15 @@ def run_case(runtime, output):
                 if not process.is_running() or api(base, "/snapshot")["pid"] != process.pid:
                     raise RuntimeError("target identity lost before cleanup; refusing control request")
                 stopped = api(base, f"/faults/{switch}/stop", {})
+                write(output / "cleanup-snapshot.json", stopped)
                 case["cleanup_verified"] = stopped.get(active_key) is False
                 write(path, case)
             time.sleep(.5)
             case["windows"]["recovery"] = cpu_window(process, base, 4)
+            recovered = api(base, "/snapshot")
+            write(output / "recovery-snapshot.json", recovered)
+            case["cleanup_verified"] = (case["cleanup_verified"] and recovered.get(active_key) is False
+                                         and recovered.get("pid") == process.pid)
             case.update(evaluate(case))
     except Exception as exc:
         case.update(status="FAILED", error=f"{type(exc).__name__}: {exc}")
