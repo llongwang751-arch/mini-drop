@@ -43,6 +43,7 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/verify_load_report.py": "校验原始负载/资源证据、槽位完整性并重算摘要，防止被篡改的报告通过门禁。",
     "scripts/process_resource_monitor.py": "独立目标进程资源采样、PID 身份、缺样拒绝和持续窗口增长预算。",
     "scripts/verify_hotspot_controls.py": "隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。",
     "scripts/run_load_endurance.py": "独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。",

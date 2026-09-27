@@ -4,7 +4,7 @@
 
 持续请求验收新增 `psutil` 目标进程观测：只采新建子进程，校验 PID/启动时间，CPU 用操作系统累计时间差计算，首样本缺失；RSS、线程、Windows 句柄/Linux FD 分开记录。持续阶段比较首末三分之一中位数，RSS 增长 >32MiB、线程 >8 或句柄/FD >32 拒绝；这些是固定样例筛查预算，不是生产 SLO 或无泄漏证明。缺样、失败或过大采样间隔判 INVALID。短版已实测通过，30 分钟版本在本机运行。
 
-新增 `hotspot-controls` profile 与隔离 Linux CI：真实 Python/Go demo 进程基线/注入/撤销三窗操作系统 CPU 计数，Python 合作式源码栈采样及 Go pprof 交叉检查。结果单独记为 CONTROL_VERIFIED，不写入 AI Evidence，不提升历史 1/21，不将撤销负载冒充同负载代码修复。两项实现与实测结果待本轮远程验证；不部署云端、不启动本机 Docker。详见 [业务验收](BUSINESS_ACCEPTANCE.md) 和 [严格故障验收](FAULT_PLAZA_ACCEPTANCE.md)。
+新增 `hotspot-controls` profile 与隔离 Linux CI：真实 Python/Go demo 进程基线/注入/撤销三窗操作系统 CPU 计数，Python 合作式源码栈采样及 Go pprof 交叉检查。结果单独记为 CONTROL_VERIFIED，不写入 AI Evidence，不提升历史 1/21，不将撤销负载冒充同负载代码修复。首轮远程 `36300370913` 已通过两项新作业：Python CPU 0.75→94.12→0.25%、目标函数新增 1363 样本；Go CPU 1.00→104.87→0.75%、pprof 目标累计 95.63%。报告新增从原始记录重算与完整性复核器，正接入下一轮 CI；30 分钟资源实测仍在进行，80 RPS 档存在发压端饱和、整体不能称全绿；不部署云端、不启动本机 Docker。详见 [业务验收](BUSINESS_ACCEPTANCE.md) 和 [严格故障验收](FAULT_PLAZA_ACCEPTANCE.md)。
 
 
 ## 2026-09-27 阶梯负载与持续运行（已实测，未部署）

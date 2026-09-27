@@ -169,3 +169,9 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 持续阶段比较首末三分之一样本中位数，固定预算 RSS 增长不超过 32MiB、线程不超过 8、句柄/FD 不超过 32；峰值仍保留，不把瞬时峰值自动称为泄漏。样本须至少覆盖计划数的 80% 且不少于 5 个，间隔超过预定值 5 倍或任何读取失败会判 INVALID；增长超预算判 GROWTH_DETECTED 并让主报告 FAILED。该筛查只针对这次样例进程，不覆盖子进程树、内核泄漏或所有生产风险。
 
 30 分钟入口：`python scripts/run_load_endurance.py --soak-seconds 1800 --output output/quality/resources-new`。不得同时在本机跑 CPU 密集型对照；隔离 Linux CI 的短回归与本机实测分开计数。历史 600 秒报告没有资源数据，不回填数值。
+
+## 原始报告独立复核
+
+运行 `python scripts/verify_load_report.py <report.json> --require-pass`。复核器校验完整清单与每个 JSONL 哈希，检查请求槽位不缺失/不重复、计划速率和窗口时长、未发出请求不虚构延迟、排队时间进入延迟；从逐请求记录重算每阶段、每窗口和容量结论。资源记录还须属于报告指定 PID/启动时间，时间递增、计数有限且非负，不能把有资源采样的报告降级为“无资源数据”来跳过门禁。只有重算结论与报告一致且最终 PASSED 才允许 `--require-pass` 成功。
+
+不带 `--require-pass` 可检查完整 INVALID/FAILED 测量的可追溯性；运行中或缺少阶段的失败报告保持证据，但不算完整可复核测量。历史无资源版本可以复核，输出 `resources_present=false`，不补资源结论。哈希用于发现损坏或摘要篡改，不是对任意人整体伪造运行记录的密码学证明。`endurance` 质量配置现在在实际执行后再次调用复核器。

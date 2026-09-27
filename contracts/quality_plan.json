@@ -35,7 +35,7 @@
       "risks": ["business-regression", "test-harness"],
       "cwd": ".",
       "timeout_seconds": 180,
-      "commands": [["{python}", "scripts/run_load_endurance.py", "--quick", "--output", "{output}/measurement"]],
+      "commands": [["{python}", "scripts/run_load_endurance.py", "--quick", "--output", "{output}/measurement"], ["{python}", "scripts/verify_load_report.py", "{output}/measurement/report.json", "--require-pass"]],
       "report": "exit-code"
     },
     "contracts": {
