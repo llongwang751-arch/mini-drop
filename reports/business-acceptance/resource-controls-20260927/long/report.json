@@ -1,0 +1,1499 @@
+{
+  "schema": "mini-drop.load-endurance.v1",
+  "status": "INVALID",
+  "started_at": "2026-09-27T06:25:58.107887+00:00",
+  "plan": {
+    "rates": [
+      5,
+      20,
+      40,
+      80
+    ],
+    "step_seconds": 15,
+    "soak_rate": 5,
+    "soak_seconds": 1800,
+    "recovery_seconds": 15,
+    "bucket_seconds": 30,
+    "concurrency": 64,
+    "timeout_seconds": 5,
+    "p95_limit_ms": 200,
+    "minimum_success_rate": 0.99,
+    "minimum_quality_rate": 0.99,
+    "max_dispatch_lag_ms": 250,
+    "minimum_samples": 30,
+    "dependency_latency_ms": 10
+  },
+  "source_hashes": {
+    "scripts/run_load_endurance.py": "844a741b47893aeb22dc0c0beea79a4bdb2e3c5073d119802673fa62a930b9a5",
+    "scripts/process_resource_monitor.py": "8b99aae403125063e491eeb31b98a69bb8d05df2e987632aa8f79641cfe8c3d7",
+    "demo/rag_service/app.py": "9293bd0204c7700778d3110ceff2fb6f9af853696d7e63dc8a4517cee6c93df2"
+  },
+  "dataset_sha256": "21d055283e22f5ab714a908655a67dab2623502518f9ae46441b8304f11587ab",
+  "question_set_sha256": "e52f25b4e94664ecd7b55a666909dc7d2ee1295fba9ee49cfad71730f8f0a611",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.0",
+    "cpu_count": 24
+  },
+  "scope": "ISOLATED_LOCAL_HTTP_FIXTURE; CONTROLLED_DEPENDENCY_DELAY; NO_LIVE_LLM",
+  "limitations": [
+    "No production capacity claim",
+    "Resource growth screen does not prove absence of leaks",
+    "Shared host with generator; invalid generator stages cannot prove server capacity"
+  ],
+  "stages": [
+    {
+      "name": "step-1",
+      "rate": 5,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.000987200000054,
+      "raw_file": "step-1.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 75,
+        "sent": 75,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 35.199500000089756,
+        "p95_ms": 45.121199999812234,
+        "p99_ms": null,
+        "latency_sample_count": 75,
+        "max_dispatch_lag_ms": 2.4602000003142166,
+        "successful_rps_including_drain": 4.999670954988864
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 75,
+            "sent": 75,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.199500000089756,
+            "p95_ms": 45.121199999812234,
+            "p99_ms": null,
+            "latency_sample_count": 75,
+            "max_dispatch_lag_ms": 2.4602000003142166
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-2",
+      "rate": 20,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.000462199999674,
+      "raw_file": "step-2.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 300,
+        "sent": 300,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 34.83849999975064,
+        "p95_ms": 44.69769999923301,
+        "p99_ms": 45.89269999996759,
+        "latency_sample_count": 300,
+        "max_dispatch_lag_ms": 7.807099999808997,
+        "successful_rps_including_drain": 19.999383752322412
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 300,
+            "sent": 300,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 34.83849999975064,
+            "p95_ms": 44.69769999923301,
+            "p99_ms": 45.89269999996759,
+            "latency_sample_count": 300,
+            "max_dispatch_lag_ms": 7.807099999808997
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-3",
+      "rate": 40,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.01815549999992,
+      "raw_file": "step-3.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 600,
+        "sent": 600,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 36.1825999998473,
+        "p95_ms": 46.269000000393135,
+        "p99_ms": 49.36519999955635,
+        "latency_sample_count": 600,
+        "max_dispatch_lag_ms": 10.399799999504467,
+        "successful_rps_including_drain": 39.95164386199112
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 600,
+            "sent": 600,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 36.1825999998473,
+            "p95_ms": 46.269000000393135,
+            "p99_ms": 49.36519999955635,
+            "latency_sample_count": 600,
+            "max_dispatch_lag_ms": 10.399799999504467
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-4",
+      "rate": 80,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 16.010723100000178,
+      "raw_file": "step-4.jsonl",
+      "summary": {
+        "status": "INVALID",
+        "reasons": [
+          "CLIENT_INFLIGHT_LIMIT",
+          "SUCCESS_RATE",
+          "QUALITY_RATE",
+          "P95_LIMIT"
+        ],
+        "offered": 1200,
+        "sent": 989,
+        "unsent": 211,
+        "success_rate": 0.8241666666666667,
+        "quality_rate": 0.8241666666666667,
+        "p50_ms": 1017.2351000001072,
+        "p95_ms": 1065.719100000024,
+        "p99_ms": 1083.6033000005045,
+        "latency_sample_count": 989,
+        "max_dispatch_lag_ms": 8.245900000474649,
+        "successful_rps_including_drain": 61.7711013939145
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "INVALID",
+            "reasons": [
+              "CLIENT_INFLIGHT_LIMIT",
+              "SUCCESS_RATE",
+              "QUALITY_RATE",
+              "P95_LIMIT"
+            ],
+            "offered": 1200,
+            "sent": 989,
+            "unsent": 211,
+            "success_rate": 0.8241666666666667,
+            "quality_rate": 0.8241666666666667,
+            "p50_ms": 1017.2351000001072,
+            "p95_ms": 1065.719100000024,
+            "p99_ms": 1083.6033000005045,
+            "latency_sample_count": 989,
+            "max_dispatch_lag_ms": 8.245900000474649
+          }
+        }
+      ]
+    },
+    {
+      "name": "recovery",
+      "rate": 5,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.000633800000287,
+      "raw_file": "recovery.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 75,
+        "sent": 75,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 36.244799999622046,
+        "p95_ms": 48.730600000453705,
+        "p99_ms": null,
+        "latency_sample_count": 75,
+        "max_dispatch_lag_ms": 4.30060000053345,
+        "successful_rps_including_drain": 4.9997887422595815
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 75,
+            "sent": 75,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 36.244799999622046,
+            "p95_ms": 48.730600000453705,
+            "p99_ms": null,
+            "latency_sample_count": 75,
+            "max_dispatch_lag_ms": 4.30060000053345
+          }
+        }
+      ]
+    },
+    {
+      "name": "soak",
+      "rate": 5,
+      "duration_seconds": 1800,
+      "elapsed_with_drain_seconds": 1800.0014457000007,
+      "raw_file": "soak.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 9000,
+        "sent": 9000,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 32.60450000016135,
+        "p95_ms": 41.15440000077797,
+        "p99_ms": 45.24000000037631,
+        "latency_sample_count": 9000,
+        "max_dispatch_lag_ms": 11.045700000977376,
+        "successful_rps_including_drain": 4.999995984169891
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 34.88110000034794,
+            "p95_ms": 44.24940000080824,
+            "p99_ms": 49.22660000011092,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.62150000071415
+          }
+        },
+        {
+          "offset_seconds": 30,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 33.5322000000815,
+            "p95_ms": 42.95240000010381,
+            "p99_ms": 47.66459999973449,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 9.74789999963832
+          }
+        },
+        {
+          "offset_seconds": 60,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.70120000040333,
+            "p95_ms": 45.21230000045762,
+            "p99_ms": 48.76180000064778,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 6.331100000352308
+          }
+        },
+        {
+          "offset_seconds": 90,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 34.78770000037912,
+            "p95_ms": 44.402000000445696,
+            "p99_ms": 47.05380000086734,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 11.045700000977376
+          }
+        },
+        {
+          "offset_seconds": 120,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 33.945500000299944,
+            "p95_ms": 45.17580000083399,
+            "p99_ms": 49.040500000955944,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 8.244399999966845
+          }
+        },
+        {
+          "offset_seconds": 150,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.363700000838435,
+            "p95_ms": 39.4311000009111,
+            "p99_ms": 41.761200000109966,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 3.093000000262691
+          }
+        },
+        {
+          "offset_seconds": 180,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.10570000010193,
+            "p95_ms": 39.407100000971695,
+            "p99_ms": 41.482100000393984,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.2852000010971096
+          }
+        },
+        {
+          "offset_seconds": 210,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.470300000568386,
+            "p95_ms": 40.287600000738166,
+            "p99_ms": 41.56130000046687,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.9879999999830034
+          }
+        },
+        {
+          "offset_seconds": 240,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 30.822500000795117,
+            "p95_ms": 39.22890000012558,
+            "p99_ms": 41.638000000602915,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.2556000001495704
+          }
+        },
+        {
+          "offset_seconds": 270,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.144200000402634,
+            "p95_ms": 39.123100000324484,
+            "p99_ms": 42.51860000022134,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.57430000117165
+          }
+        },
+        {
+          "offset_seconds": 300,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.167500000265136,
+            "p95_ms": 39.34360000039305,
+            "p99_ms": 41.64160000073025,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 3.0914999997548875
+          }
+        },
+        {
+          "offset_seconds": 330,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.677100000910286,
+            "p95_ms": 39.66320000017731,
+            "p99_ms": 43.70269999981247,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.0662000004231231
+          }
+        },
+        {
+          "offset_seconds": 360,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.43320000001404,
+            "p95_ms": 39.64390000055573,
+            "p99_ms": 42.32080000019778,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.009600000244973
+          }
+        },
+        {
+          "offset_seconds": 390,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.45390000029147,
+            "p95_ms": 40.15140000046813,
+            "p99_ms": 42.55670000020473,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.0706000001810025
+          }
+        },
+        {
+          "offset_seconds": 420,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 30.64350000113336,
+            "p95_ms": 39.38010000001668,
+            "p99_ms": 41.376900000614114,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.203100000268023
+          }
+        },
+        {
+          "offset_seconds": 450,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.94069999992644,
+            "p95_ms": 40.562600000157545,
+            "p99_ms": 41.97440000007191,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.265100000338862
+          }
+        },
+        {
+          "offset_seconds": 480,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.085900000311085,
+            "p95_ms": 40.46379999999772,
+            "p99_ms": 42.14090000004944,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.8233000006803195
+          }
+        },
+        {
+          "offset_seconds": 510,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.591799999659997,
+            "p95_ms": 39.30800000034651,
+            "p99_ms": 40.08400000020629,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.7047999999704189
+          }
+        },
+        {
+          "offset_seconds": 540,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.76400000029389,
+            "p95_ms": 39.29290000087349,
+            "p99_ms": 40.0671000006696,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 0.9517000007690513
+          }
+        },
+        {
+          "offset_seconds": 570,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.17610000046989,
+            "p95_ms": 39.176200000838435,
+            "p99_ms": 40.38730000047508,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 0.9142000008068862
+          }
+        },
+        {
+          "offset_seconds": 600,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.18310000011115,
+            "p95_ms": 39.22990000046411,
+            "p99_ms": 40.321700000276905,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.001800001176889
+          }
+        },
+        {
+          "offset_seconds": 630,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.459799999742245,
+            "p95_ms": 39.409700000760495,
+            "p99_ms": 44.771200000468525,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1627000003500143
+          }
+        },
+        {
+          "offset_seconds": 660,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.73770000012155,
+            "p95_ms": 39.480000000367,
+            "p99_ms": 41.84650000024703,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.9373000006671646
+          }
+        },
+        {
+          "offset_seconds": 690,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.70460000001185,
+            "p95_ms": 39.04719999991357,
+            "p99_ms": 40.8424000006562,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.7246000006707618
+          }
+        },
+        {
+          "offset_seconds": 720,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.483599999774015,
+            "p95_ms": 39.126300001044,
+            "p99_ms": 39.92050000033487,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.3396000003922381
+          }
+        },
+        {
+          "offset_seconds": 750,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.23770000022341,
+            "p95_ms": 39.997699999730685,
+            "p99_ms": 42.10180000063701,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.9426000010062126
+          }
+        },
+        {
+          "offset_seconds": 780,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 30.994100000498293,
+            "p95_ms": 39.205000000038126,
+            "p99_ms": 40.323900000657886,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 0.9781000007933471
+          }
+        },
+        {
+          "offset_seconds": 810,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.41710000020248,
+            "p95_ms": 39.31920000104583,
+            "p99_ms": 40.666600000804465,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.718199999842909
+          }
+        },
+        {
+          "offset_seconds": 840,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.19410000019707,
+            "p95_ms": 39.12360000049375,
+            "p99_ms": 39.74330000073678,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.0588000004645437
+          }
+        },
+        {
+          "offset_seconds": 870,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.40610000011657,
+            "p95_ms": 39.39300000001822,
+            "p99_ms": 40.78089999984513,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.2181000001874054
+          }
+        },
+        {
+          "offset_seconds": 900,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 30.558500000552158,
+            "p95_ms": 39.15760000018054,
+            "p99_ms": 40.42300000037358,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.5809999997363775
+          }
+        },
+        {
+          "offset_seconds": 930,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.60089999983029,
+            "p95_ms": 39.45980000116833,
+            "p99_ms": 40.7271000003675,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1322000000291155
+          }
+        },
+        {
+          "offset_seconds": 960,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.38400000009278,
+            "p95_ms": 39.538200000606594,
+            "p99_ms": 40.93960000045627,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1408999998820946
+          }
+        },
+        {
+          "offset_seconds": 990,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.74700000019948,
+            "p95_ms": 40.22450000047684,
+            "p99_ms": 43.71179999998276,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.665900000167312
+          }
+        },
+        {
+          "offset_seconds": 1020,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.71410000070318,
+            "p95_ms": 40.786100000332226,
+            "p99_ms": 43.86990000057267,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.551700000069104
+          }
+        },
+        {
+          "offset_seconds": 1050,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.079800000246905,
+            "p95_ms": 40.3812000004109,
+            "p99_ms": 41.46500000024389,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 3.161800000270887
+          }
+        },
+        {
+          "offset_seconds": 1080,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.621999999719264,
+            "p95_ms": 40.168000000448956,
+            "p99_ms": 42.71169999992708,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.527299999812385
+          }
+        },
+        {
+          "offset_seconds": 1110,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.511800000771473,
+            "p95_ms": 40.336500000194064,
+            "p99_ms": 42.13600000002771,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.166600000942708
+          }
+        },
+        {
+          "offset_seconds": 1140,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.66460000031657,
+            "p95_ms": 41.287300000476534,
+            "p99_ms": 43.306500000653614,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 5.00350000038452
+          }
+        },
+        {
+          "offset_seconds": 1170,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.746400000178255,
+            "p95_ms": 39.718400000310794,
+            "p99_ms": 43.518900000890426,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.058000000739412
+          }
+        },
+        {
+          "offset_seconds": 1200,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.52809999958117,
+            "p95_ms": 40.39120000015828,
+            "p99_ms": 42.10880000027828,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 6.086500000492379
+          }
+        },
+        {
+          "offset_seconds": 1230,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.74790000068606,
+            "p95_ms": 41.04930000085005,
+            "p99_ms": 42.5799000013285,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.241400000253634
+          }
+        },
+        {
+          "offset_seconds": 1260,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.02880000026198,
+            "p95_ms": 40.35030000068218,
+            "p99_ms": 41.475800000625895,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.2453000008463277
+          }
+        },
+        {
+          "offset_seconds": 1290,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.837800000175775,
+            "p95_ms": 40.21610000017972,
+            "p99_ms": 42.41880000063247,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1597000002439017
+          }
+        },
+        {
+          "offset_seconds": 1320,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.51319999981206,
+            "p95_ms": 40.608800000882184,
+            "p99_ms": 42.68380000030447,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 4.224200000862766
+          }
+        },
+        {
+          "offset_seconds": 1350,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.37200000057783,
+            "p95_ms": 39.613299999473384,
+            "p99_ms": 40.47989999980928,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.132500000494474
+          }
+        },
+        {
+          "offset_seconds": 1380,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.48180000082357,
+            "p95_ms": 39.77100000065548,
+            "p99_ms": 41.48150000037276,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.340100000561506
+          }
+        },
+        {
+          "offset_seconds": 1410,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.130600001437415,
+            "p95_ms": 39.8895000007542,
+            "p99_ms": 40.75589999956719,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 2.361600000767794
+          }
+        },
+        {
+          "offset_seconds": 1440,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.709100000829494,
+            "p95_ms": 39.8962000008396,
+            "p99_ms": 41.66420000001381,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.2621999994735233
+          }
+        },
+        {
+          "offset_seconds": 1470,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.70840000004682,
+            "p95_ms": 40.448500000820786,
+            "p99_ms": 44.066100000236474,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.2349999997240957
+          }
+        },
+        {
+          "offset_seconds": 1500,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.82790000028035,
+            "p95_ms": 39.51580000011745,
+            "p99_ms": 42.249800000718096,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 8.037800000238349
+          }
+        },
+        {
+          "offset_seconds": 1530,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 33.15270000075543,
+            "p95_ms": 40.28380000090692,
+            "p99_ms": 41.371600000275066,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.4402000006157323
+          }
+        },
+        {
+          "offset_seconds": 1560,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 32.08950000043842,
+            "p95_ms": 39.61890000027779,
+            "p99_ms": 41.77059999983612,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 3.0340000012074597
+          }
+        },
+        {
+          "offset_seconds": 1590,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 31.660600000577688,
+            "p95_ms": 40.196900000410096,
+            "p99_ms": 42.81880000144156,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 3.7017000004198053
+          }
+        },
+        {
+          "offset_seconds": 1620,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.205900000619295,
+            "p95_ms": 44.490300000688876,
+            "p99_ms": 49.11790000005567,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 7.420800000545569
+          }
+        },
+        {
+          "offset_seconds": 1650,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.99769999982527,
+            "p95_ms": 46.89350000080594,
+            "p99_ms": 52.1865999999136,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 7.7538000005006324
+          }
+        },
+        {
+          "offset_seconds": 1680,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.60430000015913,
+            "p95_ms": 44.12400000001071,
+            "p99_ms": 49.06810000011319,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 6.486400000540016
+          }
+        },
+        {
+          "offset_seconds": 1710,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.09840000060649,
+            "p95_ms": 45.27979999966192,
+            "p99_ms": 47.86290000083682,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.424600000063947
+          }
+        },
+        {
+          "offset_seconds": 1740,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 151,
+            "sent": 151,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 35.5295000008482,
+            "p95_ms": 46.30340000039723,
+            "p99_ms": 48.51870000038616,
+            "latency_sample_count": 151,
+            "max_dispatch_lag_ms": 5.663300000378513
+          }
+        },
+        {
+          "offset_seconds": 1770,
+          "duration_seconds": 30,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 149,
+            "sent": 149,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 36.5367000013066,
+            "p95_ms": 46.73440000078699,
+            "p99_ms": 49.51740000069549,
+            "latency_sample_count": 149,
+            "max_dispatch_lag_ms": 6.033600000591832
+          }
+        }
+      ]
+    }
+  ],
+  "git_head": "782b4a8723788a03a9177001f88eb414bfe5d176",
+  "fixture_pid": 22508,
+  "warmup": [
+    {
+      "index": 0,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0012000000424450263,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "951fc65141454919b6a7852d8c5770a3",
+      "stage_ms": {
+        "queue": 0.1345999999102787,
+        "retrieval": 0.31769999986863695,
+        "rerank": 1.4614000001529348,
+        "generation": 10.24280000001454
+      },
+      "latency_ms": 40.772800000013376
+    },
+    {
+      "index": 1,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0008000006346264854,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "d47de05435724854b07f5987858e8729",
+      "stage_ms": {
+        "queue": 0.06570000005012844,
+        "retrieval": 0.5161999997653766,
+        "rerank": 3.617899999881047,
+        "generation": 10.404900000139605
+      },
+      "latency_ms": 38.11290000066947
+    },
+    {
+      "index": 2,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0007999997251317836,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "5843cd1a335c4111a77c8feea490e244",
+      "stage_ms": {
+        "queue": 0.05710000004910398,
+        "retrieval": 0.48969999988912605,
+        "rerank": 2.863700000489189,
+        "generation": 10.228000000097381
+      },
+      "latency_ms": 15.391199999612581
+    },
+    {
+      "index": 3,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0006000000212225132,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "4b6fe5d943c54b31b31ab619ba0cbcc8",
+      "stage_ms": {
+        "queue": 0.11809999978140695,
+        "retrieval": 0.4076000004715752,
+        "rerank": 2.6465999999345513,
+        "generation": 10.467400000379712
+      },
+      "latency_ms": 30.5915000008099
+    }
+  ],
+  "resources": {
+    "status": "PASSED",
+    "reasons": [],
+    "samples": 1856,
+    "soak_samples": 1780,
+    "error_samples": 0,
+    "soak_trends": {
+      "rss_bytes": {
+        "first_third_median": 38850560,
+        "last_third_median": 38252544,
+        "growth": -598016,
+        "growth_limit": 33554432,
+        "peak": 39018496
+      },
+      "threads": {
+        "first_third_median": 2,
+        "last_third_median": 2,
+        "growth": 0,
+        "growth_limit": 8,
+        "peak": 5
+      },
+      "handles_or_fds": {
+        "first_third_median": 166,
+        "last_third_median": 166,
+        "growth": 0,
+        "growth_limit": 32,
+        "peak": 172
+      }
+    },
+    "cpu_percent_scope": "100 percent equals one logical core; first sample is null",
+    "handle_kind": "windows_handles",
+    "cpu_peak_percent": 10.822163870772098,
+    "boundary": "Growth screen for this PID and window, not proof of absence of leaks"
+  },
+  "capacity": {
+    "highest_contiguous_passing_rps": 40,
+    "first_nonpassing_rps": 80,
+    "boundary": "GENERATOR_OR_SAMPLE_LIMIT",
+    "scope": "LOCAL_FIXTURE_TESTED_RATES_ONLY; NOT_PRODUCTION_CAPACITY"
+  },
+  "recovery_status": "PASSED",
+  "soak_status": "PASSED",
+  "finished_at": "2026-09-27T06:57:14.638396+00:00",
+  "artifact_sha256": {
+    "recovery.jsonl": "0422e2ddded6a2e68c120ad01cd41806bcfe2f27d94d3c3043d6f78e682128bc",
+    "resources.jsonl": "a2314821224afa4e13492fbc5f3030df3a70b2761d22714260d2a77ee61c24f0",
+    "soak.jsonl": "12c6e726e95eba35938fc1864954f8fa322a94954ba976e15fdcb9b06ed0710a",
+    "step-1.jsonl": "8eb68a9cb5a3f0352b9b5ffe9e927edfeb8a5934c95414acf7d44827e17e8653",
+    "step-2.jsonl": "f3fe6cddb3720a52f8b16bb0bc5be54b196c877f8b988345dacc7b015f6f4107",
+    "step-3.jsonl": "1c1ba0d29e2f13cb1cba39c0144536251677a218156506d01d6ac55776c8564f",
+    "step-4.jsonl": "75b1ca34390c84c4f56caa6e8543f265d9fe8eb44734b88e5a582ff67f89bba2"
+  },
+  "sha256": "80132f0dc6c2d32cbaf0afb3566e1ce29c4b2a88ba115f56b6ed64f82c1be386"
+}

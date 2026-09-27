@@ -155,13 +155,13 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 | 已实跑 | web-browser 与 business 重复步骤 | 真实 Chromium 与 3 次重复实验已在 Linux CI 通过，保留 artifact |
 | 已实跑 | Chroma 集成作业 | 安装 retrieval，37 项通过且零跳过，使用隔离持久化索引与本地测试 embedding |
 | 已复验 | RAG JSON 解码历史修复 | 新增独立排序/隔离/新鲜度回归、cProfile 和同负载 HTTP 对照；非生产/真实模型指标 |
-| P1 | 严格根因门禁缺少独立对照 | 针对 20 个失败项补采集可达性和判据映射，不降低门禁换通过率 |
+| 部分完成 / P1 | 严格根因门禁缺少独立对照 | Python/Go 隔离 CI 已有 OS CPU 和函数 profile 三窗对照；仍须接入真实云端身份与来源合同后重新验收 20 个失败项，不降低门禁 |
 | P2 | 拆分仍约 8,500 行的 `drop_insight/service.py` | 以状态、取证、报告等真实边界拆分，保持行为回归，不把“拆文件”本身当收益 |
 | P2 | 扩大关键模块清单并逐步上调下限 | 新增预算、幂等相关模块入 `critical_coverage`（如 `report_conclusion.py` 69% 仍可提高）；随债务清偿上调既有下限 |
 
 重复性能回归（多次独立运行、记录 P95 波动）已在 3.4 完成；`fix_verification.py` 补测、conftest 收拢与 hypothesis property-based 测试已在 3.7 完成。
 
-还未解决的边界：本机已增加 10 分钟样例持续测量及阶梯边界，但小时级 soak、资源泄漏与独立压测机上的容量极限仍未实测；受限资源账号目前采取明确拒绝，并未实现完整多租户资源过滤；Trivy 和 Go lint 的部分检查仍为 report-only，不能称全部安全规则阻断发布。多语言架构便于展示跨栈能力，也增加依赖和维护成本，下一步应优先闭环测试，不再扩展技术栈。
+还未解决的边界：本机已增加 30 分钟持续请求与资源增长筛查，但小时级 soak、完整泄漏诊断与独立压测机上的容量极限仍未实测；受限资源账号目前采取明确拒绝，并未实现完整多租户资源过滤；Trivy 和 Go lint 的部分检查仍为 report-only，不能称全部安全规则阻断发布。多语言架构便于展示跨栈能力，也增加依赖和维护成本，下一步应优先闭环测试，不再扩展技术栈。
 
 ## 6. 测开面试演示路线
 
@@ -192,3 +192,6 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 隔离 Linux `hotspot-controls` 实际执行 Python/Go demo，使用 OS CPU 累计时间和函数采样做正常/故障/撤销对照；三窗同进程，快照与 pprof 留存。它为下一步云端独立取证提供可运行的方法，但没有提升历史 AI 根因成绩，也不声称完成同负载代码修复。资源实测和最新作业结果以 PROJECT_CONTEXT 顶部与原始报告为准。
 
 项目 README 已提供本机短回归与图表命令，面试讲解顺序见 [演示手册](INTERVIEW_DEMO_GUIDE.md#测开岗位先演示这一条2026-09-27)。
+
+
+本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。

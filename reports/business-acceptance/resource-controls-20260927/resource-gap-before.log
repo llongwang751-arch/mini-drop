@@ -1,0 +1,40 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+___ test_sampler_gap_across_phase_boundary_is_not_hidden_by_full_soak_count ___
+
+    def test_sampler_gap_across_phase_boundary_is_not_hidden_by_full_soak_count():
+        samples = rows()
+        for row in samples:
+            row["elapsed_seconds"] += 60
+        samples.insert(0, {**rows(1)[0], "phase": "recovery"})
+        result = resources.summarize_resources(samples, 30)
+>       assert result["status"] == "INVALID"
+E       AssertionError: assert 'PASSED' == 'INVALID'
+E         
+E         - INVALID
+E         + PASSED
+
+tests\test_process_resource_monitor.py:63: AssertionError
+_____ test_delayed_first_resource_sample_cannot_hide_sampler_startup_gap ______
+
+    def test_delayed_first_resource_sample_cannot_hide_sampler_startup_gap():
+        samples = rows()
+        for row in samples:
+            row["elapsed_seconds"] += 20
+>       assert resources.summarize_resources(samples, 30)["status"] == "INVALID"
+E       AssertionError: assert 'PASSED' == 'INVALID'
+E         
+E         - INVALID
+E         + PASSED
+
+tests\test_process_resource_monitor.py:71: AssertionError
+============================== warnings summary ===============================
+tests/test_process_resource_monitor.py::test_sampler_gap_across_phase_boundary_is_not_hidden_by_full_soak_count
+  D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\pytest_asyncio\plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_process_resource_monitor.py::test_sampler_gap_across_phase_boundary_is_not_hidden_by_full_soak_count
+FAILED tests/test_process_resource_monitor.py::test_delayed_first_resource_sample_cannot_hide_sampler_startup_gap
+2 failed, 13 deselected, 1 warning in 0.38s

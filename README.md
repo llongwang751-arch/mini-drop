@@ -15,7 +15,7 @@ Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验�
 | 要验证的风险 | 实现入口 | 可审阅证据 |
 | --- | --- | --- |
 | 跳过、缺报告或损坏数据却显示通过 | 风险质量计划 + 原始报告复核 | [质量门禁](scripts/run_quality_gate.py)、[逐请求重算](scripts/verify_load_report.py) |
-| HTTP 200 但延迟、引用质量不达标 | 三窗对照、阶梯负载、持续窗口验收 | [10 分钟实测](reports/architecture/load-endurance-20260927.md)、[业务验收](docs/BUSINESS_ACCEPTANCE.md) |
+| HTTP 200 但延迟、引用质量不达标 | 三窗对照、阶梯负载、持续窗口验收 | [30 分钟与容量实测](reports/architecture/resource-controls-20260927.md)、[业务验收](docs/BUSINESS_ACCEPTANCE.md) |
 | 并发重入、租约接管、重复效果 | 真实 PostgreSQL 事务竞争、Go race | [CI 与缺陷复盘](reports/architecture/test-engineering-ci-20260927.md) |
 | 目标进程资源持续增长 | 按 PID/启动时间采样 RSS、CPU、线程、句柄/FD | [资源判定与范围](docs/BUSINESS_ACCEPTANCE.md#资源增长筛查2026-09-27) |
 | 有热点采样，却没有独立对照 | 隔离 Python/Go 真实进程、OS CPU 时间窗、函数采样 | [独立 CPU 对照](docs/FAULT_PLAZA_ACCEPTANCE.md#隔离-ci-的-pythongo-独立-cpu-对照) |
@@ -28,10 +28,12 @@ Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验�
 ```powershell
 python -m pip install -e ".[dev,reports]"
 python scripts/run_quality_gate.py --profile endurance --output output/quality/demo-endurance-001
-python scripts/render_load_report.py output/quality/demo-endurance-001/load-endurance-smoke/measurement/report.json --output output/quality/demo-endurance-001/report.html
+python scripts/render_load_report.py output/quality/demo-endurance-001/load-endurance-smoke/measurement/report.json --output output/quality/demo-endurance-001/report-charts.html
 ```
 
-打开生成的 `report.html`，查看阶段延迟、持续窗口、进程 RSS/CPU 和资源增长表。报告渲染前会复核原始 JSONL，INVALID 不会被改成通过。短回归只验证执行链路；更长运行、容量边界及生产验收分别计数。完整 [测开讲解路线](docs/TEST_ENGINEERING.md) 与 [真实 CI 检查](https://github.com/llongwang751-arch/mini-drop/pull/1) 可对照阅读。
+打开生成的 `report-charts.html`，查看阶段延迟、持续窗口、进程 RSS/CPU 和资源增长表。报告渲染前会复核原始 JSONL，INVALID 不会被改成通过。短回归只验证执行链路；更长运行、容量边界及生产验收分别计数。完整 [测开讲解路线](docs/TEST_ENGINEERING.md) 与 [真实 CI 检查](https://github.com/llongwang751-arch/mini-drop/pull/1) 可对照阅读。
+
+已归档的 [30 分钟图表](reports/business-acceptance/resource-controls-20260927/long/report.html)、[容量复测图表](reports/business-acceptance/resource-controls-20260927/refined/report.html) 可直接下载打开；判定说明与原始证据见 [本轮实测](reports/architecture/resource-controls-20260927.md)。
 
 ## 目录
 

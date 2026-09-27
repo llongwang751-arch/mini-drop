@@ -5,5 +5,8 @@ Dockerfile text eol=lf
 *.Dockerfile text eol=lf
 # Unified patch context and raw historical test output retain their original whitespace.
 *.patch whitespace=-blank-at-eol
+# Raw measurement bytes are hashed by manifests; never normalize their line endings.
+reports/business-acceptance/resource-controls-20260927/** -text whitespace=cr-at-eol
+reports/business-acceptance/resource-controls-20260927/resource-gap-before.log whitespace=cr-at-eol,-blank-at-eol
 reports/ai-diagnosis/postgres-concurrency-20260909.txt whitespace=-blank-at-eol
 "reports/ai-diagnosis/项目全面检查与修复-20260910.md" whitespace=-blank-at-eof

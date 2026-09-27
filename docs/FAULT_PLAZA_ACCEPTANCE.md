@@ -111,3 +111,6 @@ Java `java-downstream-latency` 则有一份门禁 VERIFIED 报告，但场景词
 每种运行时记录 4 秒正常、8 秒故障、4 秒恢复三个 OS CPU 时间窗，目标 PID/create_time 必须一致。故障 CPU 至少单核 25%、相对基线增加至少 20 个百分点，恢复不得高于 max(10%, baseline+5 个百分点)。Python 现有合作式栈采样需新增至少 20 个 `source_hot_function` 样本；它是业务内插桩，不能称外部随机采样器。Go 保存 5 秒实际 pprof，至少 1 CPU 秒样本，`main.goCPUHotFunction` 累计占比至少 50%。原始 profile、快照、版本与判据保留。
 
 该实验提供函数采样与操作系统 CPU 计数的独立观察方法，结果叫 CONTROL_VERIFIED。它未经过原生 Agent 远程采集、AI 假设编排、身份签名/Artifact 入库及严格反证门禁，因此不自动补齐云端历史 1/21。撤销故障减少 CPU 工作量，所以 fix_verified 始终 false。下一步若接入云端证据，必须复用真实目标身份、窗口和来源合同，不能把本报告直接灌进证据表。
+
+
+本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。

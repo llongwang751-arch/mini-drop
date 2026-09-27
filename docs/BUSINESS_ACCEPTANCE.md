@@ -158,7 +158,7 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 
 整体 PASSED 表示测量有效、至少一个低负载档达标、卸载恢复与持续阶段每个窗口通过；高阶梯有效地触发 SLO_FAILED 是容量探索的预期结果，不等于生产缺陷。任意发压无效会让整体 INVALID，恢复或持续不达标则 FAILED，CLI 非零退出。错误、中断和源码变化保留 FAILED 报告；拒绝覆盖已有输出目录。
 
-原始请求、报告和源码哈希方便独立复算。尚未采集目标 RSS/CPU、句柄或文件描述符，故不能证明无内存泄漏；压测端与服务仍共享本机，结果只能描述该配置和该次环境。与独立重复三窗实验、外部实际 RAG 引擎实验分开解释。
+原始请求、报告和源码哈希方便独立复算。最初 600 秒批次未采集资源；新增采样见下节，也不能证明无内存泄漏；压测端与服务仍共享本机，结果只能描述该配置和该次环境。与独立重复三窗实验、外部实际 RAG 引擎实验分开解释。
 
 本轮默认配置实测完成（代码 `be34ff5`）：5/20/40 请求每秒通过，80 档 P95 480.44ms 超过 200ms；全档无漏发，成功/引用检查均 100%。降载后 P95 40.82ms；600 秒持续阶段 3000 请求、P95 39.85ms，20 窗 P95 38.93–41.10ms 均通过。全部 5250 请求、原始报告、CI 版本与容量边界说明见 [实测记录](../reports/architecture/load-endurance-20260927.md)。
 
@@ -166,7 +166,7 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 
 `run_load_endurance.py` 现在需要开发依赖中的 `psutil>=7.2,<8`。仅观察当前自己创建的目标进程，以 PID 和 create_time 检查进程身份；每秒采样到 `resources.jsonl`，CPU 是 CPU 秒增量 / 单调墙钟增量，100% 表示一个逻辑核，首个样本为 null。RSS 单位 bytes，线程计数；Windows handles 与 POSIX FD 明确标注，不跨平台混作同一数值。
 
-持续阶段比较首末三分之一样本中位数，固定预算 RSS 增长不超过 32MiB、线程不超过 8、句柄/FD 不超过 32；峰值仍保留，不把瞬时峰值自动称为泄漏。样本须至少覆盖计划数的 80% 且不少于 5 个，间隔超过预定值 5 倍或任何读取失败会判 INVALID；增长超预算判 GROWTH_DETECTED 并让主报告 FAILED。该筛查只针对这次样例进程，不覆盖子进程树、内核泄漏或所有生产风险。
+持续阶段比较首末三分之一样本中位数，固定预算 RSS 增长不超过 32MiB、线程不超过 8、句柄/FD 不超过 32；峰值仍保留，不把瞬时峰值自动称为泄漏。样本须至少覆盖计划数的 80% 且不少于 5 个，首次采样延迟或任意相邻样本间隔（包括跨阶段）超过预定值 5 倍，或任何读取失败会判 INVALID；增长超预算判 GROWTH_DETECTED 并让主报告 FAILED。该筛查只针对这次样例进程，不覆盖子进程树、内核泄漏或所有生产风险。
 
 30 分钟入口：`python scripts/run_load_endurance.py --soak-seconds 1800 --output output/quality/resources-new`。不得同时在本机跑 CPU 密集型对照；隔离 Linux CI 的短回归与本机实测分开计数。历史 600 秒报告没有资源数据，不回填数值。
 
@@ -179,3 +179,6 @@ python scripts/run_load_endurance.py --output output/quality/endurance-custom --
 ## 可分享的图表报告
 
 安装可选报告依赖 `python -m pip install -e ".[dev,reports]"` 后，运行 `python scripts/render_load_report.py <report.json> --output <新的report.html>`。渲染前强制复核原始证据；HTML 自包含 PNG 图表、阶段表、资源增长表和完整机器报告，不访问 CDN。图表覆盖所有阶段 P95、持续窗口 P95、目标 RSS 和单核口径 CPU；缺失值显示缺失/断点，不补零。INVALID 和未发出请求显式保留，历史无资源报告显示“未采集”。CI 已生成短版图表制品，不能把它当成本机长版测量。
+
+
+本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。
