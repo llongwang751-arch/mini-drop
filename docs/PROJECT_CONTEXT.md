@@ -1,5 +1,9 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-09-27 远程 CI 实跑与剩余门禁（进行中）
+
+已为现有 release 分支向个人仓库 `master` 建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，首轮 CI `36296547283` 实际完成 PostgreSQL 5+1 零跳过、Go race、真实 Chromium、Web 与原生构建/Agent CTest；Python 作业也已通过。整个工作流尚未通过：历史原始 JUnit XML 的尾空白阻断质量作业，Compose 在干净检出中也缺少 `.env`，业务重复作业仍待结果。本轮保留原始 XML，空白检查仅豁免报告 XML；Compose 检查在临时 runner 从 `.env.example` 准备配置。新增零跳过 `retrieval` profile 与 Chroma CI 专项，修复关键覆盖率文件缺失时门禁可能假绿。以上新增改动待推送复验；不合并 PR、不部署云端。最新证据保存在 `output/quality/ci-validation-20260927/`。
+
 ## 2026-09-26 测试工程第三轮增量（已推送，CI 待 PR 触发）
 
 同日第三轮：`fix_verification.py` 补测后分支覆盖率 13.64% → 100%，`critical_coverage` 下限钉到 100（`tests/test_fix_verification.py`，18 项行为测试）；`postgres_sessions`/`NOW` 收拢进 `tests/conftest.py`（skip 行为与收集数不变，PG 真跑仍待 CI）；hypothesis 进入 dev 依赖，新增 6 个 property 测试锁定业务验收统计与判定三角形（`tests/test_business_acceptance_properties.py`）。全量 **693 passed / 7 skipped**；门禁 `output/quality/qa-python-round3-20260926/` 为 `PASSED_WITH_SKIPS`、0 breaches。三轮测试工程改动已提交 `e4ff878` 并推送 `personal` 远端 release 分支；CI 仅由 pull_request/push main 触发，实际运行以 PR 执行结果为准。详见 [测试开发与质量工程](TEST_ENGINEERING.md) 3.7。

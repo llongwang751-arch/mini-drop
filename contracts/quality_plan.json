@@ -16,7 +16,8 @@
     "local": ["contracts", "python-all", "web", "web-browser", "go", "go-demo"],
     "business": ["business-http"],
     "browser": ["web-browser"],
-    "stability": ["business-stability"]
+    "stability": ["business-stability"],
+    "retrieval": ["retrieval-integration"]
   },
   "suites": {
     "contracts": {
@@ -65,6 +66,15 @@
         {"class": "tests.test_outbox_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行"},
         {"class": "tests.test_sre_agent_upgrade", "reason": "could not import 'chromadb'", "boundary": "可选 retrieval 依赖；未执行不能证明真实向量检索"}
       ]
+    },
+    "retrieval-integration": {
+      "title": "真实 Chroma 持久化索引与检索边界（需 retrieval 依赖，零跳过）",
+      "risks": ["false-conclusion", "test-harness"],
+      "cwd": ".",
+      "timeout_seconds": 300,
+      "commands": [["{python}", "-m", "pytest", "tests/test_sre_agent_upgrade.py", "tests/test_three_route_retrieval.py", "tests/test_agentic_rag.py", "-q", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml"]],
+      "report": "junit",
+      "allowed_skips": []
     },
     "web": {
       "title": "React 页面与组件回归",

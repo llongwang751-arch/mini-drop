@@ -15,12 +15,17 @@ jobs:
           fetch-depth: 0
       - name: Whitespace errors in pull request
         if: github.event_name == 'pull_request'
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.sha }}"
+        # Preserve raw historical JUnit evidence byte-for-byte. Source and prose
+        # still obey whitespace checks; generated XML logs have their own format.
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.sha }}" -- . ':(glob,exclude)reports/**/*.xml'
       - name: Whitespace errors in push
         if: github.event_name == 'push'
-        run: git diff --check "${{ github.event.before }}" "${{ github.sha }}"
+        run: git diff --check "${{ github.event.before }}" "${{ github.sha }}" -- . ':(glob,exclude)reports/**/*.xml'
       - name: Validate Compose configuration
-        run: docker compose config --quiet
+        run: |
+          # Runner-only example values; never fetch a deployment's private env.
+          test -f .env || cp .env.example .env
+          docker compose config --quiet
 
   python:
     name: Python (pytest)
@@ -49,6 +54,30 @@ jobs:
         run: python -m compileall -q server analyzer
       - name: Lint (ruff)
         run: python -m ruff check server analyzer scripts tests
+
+  retrieval:
+    name: Chroma integration (no skips, local test embeddings)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      ANONYMIZED_TELEMETRY: "False"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install retrieval and test dependencies
+        run: python -m pip install -e ".[dev,retrieval]"
+      - name: Persistent Chroma and bounded HTTP regression
+        run: python scripts/run_quality_gate.py --profile retrieval --output output/quality-retrieval
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrieval-quality-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/quality-retrieval/
+          if-no-files-found: error
+          retention-days: 14
 
   postgres:
     name: PostgreSQL transactions and concurrency (no skips)

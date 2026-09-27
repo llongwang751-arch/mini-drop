@@ -198,6 +198,8 @@ def run_suite(name, spec, output):
                 raise ValueError("business campaign incomplete")
             result["business_outcomes"] = campaign["results"]
         coverage = suite_dir / "coverage.json"
+        if spec.get("critical_coverage") and not coverage.is_file():
+            raise ValueError("CRITICAL_COVERAGE_REPORT_MISSING")
         if coverage.is_file():
             data = json.loads(coverage.read_text())
             result["coverage"] = {"mode": "OBSERVATION_ONLY", **data["totals"]}

@@ -137,7 +137,8 @@ def test_timeout_leaves_log_and_fails(tmp_path):
 
 def test_plan_requires_real_test_paths_and_valid_risk_references(tmp_path):
     plan = gate.load_plan()
-    assert set(plan["profiles"]) == {"smoke", "python", "local", "business", "browser", "stability"}
+    assert set(plan["profiles"]) == {"smoke", "python", "local", "business", "browser", "stability", "retrieval"}
+    assert plan["suites"]["retrieval-integration"]["allowed_skips"] == []
     invalid = deepcopy(plan)
     invalid["suites"]["critical-python"]["commands"][0].append("tests/nonexistent_quality_test.py")
     path = tmp_path / "plan.json"
@@ -166,6 +167,15 @@ def test_critical_coverage_below_floor_cannot_pass(tmp_path):
     module = result["critical_coverage"]["modules"]["server/app/drop_insight/event_store.py"]
     assert module["observed"] is True and module["floor"] == 80
     assert result["critical_coverage"]["breaches"] == ["server/app/drop_insight/event_store.py"]
+
+
+def test_missing_coverage_file_cannot_bypass_required_module_floors(tmp_path):
+    spec = critical_suite(95.5)
+    spec["commands"] = [["{python}", "-c", "print('command passed without coverage')"]]
+    result = gate.run_suite("critical", spec, tmp_path)
+    assert result["returncodes"] == [0]
+    assert result["status"] == "FAILED"
+    assert "CRITICAL_COVERAGE_REPORT_MISSING" in result["error"]
 
 
 def test_critical_module_missing_from_report_is_never_a_pass(tmp_path):
