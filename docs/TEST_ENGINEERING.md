@@ -2,7 +2,7 @@
 
 本文维护测试工程的执行入口与能力边界，评估日期为 2026-09-26。架构及云端状态仍以 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) 为准；业务测量标准维护在 [BUSINESS_ACCEPTANCE.md](BUSINESS_ACCEPTANCE.md)，真机故障标准维护在 [FAULT_PLAZA_ACCEPTANCE.md](FAULT_PLAZA_ACCEPTANCE.md)。
 
-2026-09-27：已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，真实 PostgreSQL、Go race、Chromium、业务三轮重复与 Chroma 37 项零跳过已通过。第二轮 Python 暴露 Worker 首轮评估受机器启动时间影响，已修复并补确定性边界回归，待再次 CI。新增 `retrieval` profile（安装 `.[dev,retrieval]`，临时 Chroma + 本地测试 embedding），关键覆盖率文件缺失时拒绝通过。实际外部检索源的独立回归与 HTTP 复验见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。下方“待 PR 触发”保留历史批次时间，最新状态以此处和项目上下文为准。
+2026-09-27：已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，真实 PostgreSQL、Go race、Chromium、业务三轮重复与 Chroma 37 项零跳过已通过。第二轮 Python 暴露 Worker 首轮评估受机器启动时间影响，已修复并补确定性边界回归；[第三轮 CI](https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120) **11/11 作业全部通过**，Python **696 passed / 7 skipped**（依赖相关跳过由专项实际执行覆盖），PR head `bed58b0`。新增 `retrieval` profile（安装 `.[dev,retrieval]`，临时 Chroma + 本地测试 embedding），关键覆盖率文件缺失时拒绝通过。实际外部检索源的独立回归与 HTTP 复验见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。下方“待 PR 触发”保留历史批次时间，最新状态以此处和项目上下文为准。
 
 ## 1. 项目评估与求职定位
 
@@ -87,7 +87,7 @@ python scripts/run_quality_gate.py --profile business
 
 Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试，因此工作流明确标记为只构建，避免零测试被称作通过。Python CI 复用统一质量入口并上传报告。
 
-改动已随 `e4ff878` 推送 GitHub，但**尚未通过 PR 实跑这份新 PostgreSQL 作业**。本机 Windows race 尝试因运行时错误 `0xc0000139` 退出；Linux CI 的实际 race 成绩仍待执行，不能写成已经通过。
+历史批次 `e4ff878` 推送时 PostgreSQL 和 Linux race 尚未实跑；本机 Windows race 曾因 `0xc0000139` 退出。2026-09-27 已经通过 PR 实际执行：PostgreSQL 5+1 零跳过、Linux Go race 通过，见本页首段与本轮复盘。
 
 ### 3.3 两个真实验收缺陷
 
@@ -147,15 +147,14 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 
 本项目有辨识度的部分是测试失败后的证据链和受约束诊断。成熟开源项目在通用负载、实验编排、查询体验和生态上更完整，不适合声称本项目已达到这些工具的生产成熟度。
 
-## 5. 接下来最值得优化的事项
+## 5. 本轮完成情况与后续优化
 
 | 优先级 | 问题与动作 | 完成标准 |
 | --- | --- | --- |
-| P0 | 在新 CI 实际执行 PostgreSQL 并发与 Linux race | 5+1 指定测试零跳过，报告和构建版本可追溯；工作流全通过 |
-| P0 | 推送并实跑本轮新增 CI：web-browser 作业与 business 重复步骤 | 真浏览器与 3 次重复实验在 Linux CI 全通过，证据 artifact 可追溯 |
-| P1 | 关键真实浏览器回归接 CI | 已配置并本地全绿（3.5）；剩余同 P0 推送执行，不能用 jsdom 代替浏览器 |
-| P1 | 补可选 Chroma 集成作业 | 安装 retrieval 依赖，独立索引目录，两个真实检索用例不跳过；留出评估数据 |
-| P1 | 做透一个真实业务缺陷闭环 | 回归失败→Profile 定位→最小修复→排序/隔离/新鲜度回归→同负载复测；优先复用已有 RAG JSON 解码案例 |
+| 已实跑 | PostgreSQL 并发与 Linux race | 远程 PostgreSQL 5+1 零跳过、Go race 通过；完整工作流结果见本轮复盘 |
+| 已实跑 | web-browser 与 business 重复步骤 | 真实 Chromium 与 3 次重复实验已在 Linux CI 通过，保留 artifact |
+| 已实跑 | Chroma 集成作业 | 安装 retrieval，37 项通过且零跳过，使用隔离持久化索引与本地测试 embedding |
+| 已复验 | RAG JSON 解码历史修复 | 新增独立排序/隔离/新鲜度回归、cProfile 和同负载 HTTP 对照；非生产/真实模型指标 |
 | P1 | 严格根因门禁缺少独立对照 | 针对 20 个失败项补采集可达性和判据映射，不降低门禁换通过率 |
 | P2 | 拆分仍约 8,500 行的 `drop_insight/service.py` | 以状态、取证、报告等真实边界拆分，保持行为回归，不把“拆文件”本身当收益 |
 | P2 | 扩大关键模块清单并逐步上调下限 | 新增预算、幂等相关模块入 `critical_coverage`（如 `report_conclusion.py` 69% 仍可提高）；随债务清偿上调既有下限 |

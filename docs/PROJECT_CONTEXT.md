@@ -2,7 +2,7 @@
 
 ## 2026-09-27 远程 CI 与实际检索回归（最新）
 
-已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，目标分支为 `master`。第二轮 CI `36296726561` 中 PostgreSQL 并发 5+1、Go race、真实 Chromium、三轮业务验收、Web、原生构建/Agent CTest、仓库质量及 Chroma 专项（37 passed，零跳过）通过；Python 暴露新机器启动时间依赖，修复后待下一轮远程复验。Worker 首轮实验评估现在以 `None` 区分“尚未执行”，不依赖系统 monotonic 已经过 300 秒；测试固定 0/12/900000 秒启动时间，并验证 299.999/300 秒间隔边界。
+已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，目标分支为 `master`。第二轮 CI `36296726561` 中 PostgreSQL 并发 5+1、Go race、真实 Chromium、三轮业务验收、Web、原生构建/Agent CTest、仓库质量及 Chroma 专项（37 passed，零跳过）通过；Python 暴露新机器启动时间依赖；修复后的[第三轮 CI 36297143120](https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120) **11/11 作业全部通过**，Python **696 passed / 7 skipped**，7 个依赖相关跳过由 PostgreSQL/Chroma 专项实际覆盖。被验证的 PR head 为 `bed58b0`（GitHub 测试 merge 为 `ea09f10c`）；之后仅归档文档和证据。Worker 首轮实验评估现在以 `None` 区分“尚未执行”，不依赖系统 monotonic 已经过 300 秒；测试固定 0/12/900000 秒启动时间，并验证 299.999/300 秒间隔边界。
 
 实际 RAG 历史修复已用冻结源码重新验证：本机 HTTP 三窗 P95 35.27/271.13/37.99ms，结论 `IMPROVEMENT_VERIFIED`。新增独立检索回归脚本检验排序、租户隔离、边界与增删改新鲜度，并保存 cProfile。它需要外部冻结源码，不属于常规 CI，不把合成数据本机结果当作生产指标或 AI VERIFIED 根因。代码未合并、未部署；原始失败和证据均保留。详细命令与证据见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。
 

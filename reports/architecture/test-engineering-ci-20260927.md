@@ -6,9 +6,11 @@
 
 1. [首轮 36296547283](https://github.com/llongwang751-arch/mini-drop/actions/runs/36296547283)：原始 JUnit XML 的尾空白使仓库质量检查失败。保留历史 XML，空白检查仅排除 reports 下 XML；代码和文档仍检查。干净 runner 用 `.env.example` 准备 Compose 检查配置。
 2. [第二轮 36296726561](https://github.com/llongwang751-arch/mini-drop/actions/runs/36296726561)：10 个作业成功，Python 失败。`test_worker_starts_and_advances_autonomous_sessions` 得到 22 而非 28。初始 `_last_experiment_evaluation=0` 错把单调时钟原点当成首次执行时间，机器启动不足 300 秒时跳过首轮评估。本地长时间运行的机器掩盖了问题。
-3. 修复采用 `None` 表示尚未执行；测试固定启动时间 0、12、900000 秒，检查首轮执行、间隔不足不执行、刚到 300 秒执行一次。同一时间重复轮询不重复评估。没有增加 sleep 或放宽断言。远程修复结果待下一轮记录。
+3. 修复采用 `None` 表示尚未执行；测试固定启动时间 0、12、900000 秒，检查首轮执行、间隔不足不执行、刚到 300 秒执行一次。同一时间重复轮询不重复评估。没有增加 sleep 或放宽断言。[第三轮 36297143120](https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120) **11/11 作业全部通过**。PR head `bed58b0027bb37b5706607fc031e98c6dcd5cd56`，实际测试 GitHub merge `ea09f10c3f7ed65de671922fe99281bdf9d666a7`；之后只归档文档与证据。Python **696 passed / 7 skipped**；依赖相关跳过由 PostgreSQL 和 Chroma 专项实际覆盖。
 
 第二轮已实际通过 PostgreSQL Python 5 项与 Go 幂等竞争 1 项、Go race、真实 Chromium、三轮 HTTP 业务验收、Web 测试和构建、Agent CTest、Control 构建、仓库质量与 Chroma 37 项零跳过。Chroma 使用临时本地数据库和测试 embedding，不访问外部模型；普通 Python 配置允许的数据库/检索跳过由专项实际执行覆盖。供应链作业为报告模式，成功不等于零漏洞。
+
+最终三轮业务重复：RAG-01、RAG-02 各三次均 `IMPROVEMENT_VERIFIED`，RAG-03 三次均 `DEGRADED_AVAILABLE`；全部轮次保留而非择优。各窗口 P95 范围、标准差、测试计数、CI 作业链接和原始制品 SHA-256 见[机器可读证据索引](test-engineering-ci-20260927.json)。
 
 另修复质量执行器在关键覆盖率报告缺失时可能假绿的问题，加入负向回归。Worker 与门禁定向测试共 37 passed。
 
@@ -43,7 +45,9 @@ python scripts/run_actual_rag_acceptance.py --before output/acceptance/actual-ra
 python scripts/run_quality_gate.py --profile retrieval
 ```
 
-本轮原始证据（仓库本机保留）：
+可随仓库审阅的原始 JSON 副本（按字节复制，保留原报告哈希）：[HTTP 三窗](../business-acceptance/actual-rag-regression-20260927/http-report.json)、[修复前检索](../business-acceptance/actual-rag-regression-20260927/search-before.json)、[修复后检索](../business-acceptance/actual-rag-regression-20260927/search-after.json)。
+
+本轮更完整的原始证据（仓库本机保留）：
 
 - `output/quality/actual-rag-closure-20260927/report.json`：三窗原始请求、比较判据、资源和指纹。
 - `output/quality/rag-search-before-20260927/`、`output/quality/rag-search-after-20260927/`：各自 report.json、search.prof、全新 fixture.db。
