@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1631 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1626 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 486 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 479 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2126,13 +2126,6 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/` | test_real_chroma_snapshot_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-api/` | local-sre-api 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/pdf/` | pdf 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-compat-20260926/` | qa-business-compat-20260926 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-compat-20260926/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-compat-20260926/test_actual_source_projection_1/` | test_actual_source_projection_1 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-compat-20260926/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-fixes-20260926/` | qa-business-fixes-20260926 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-fixes-20260926/test_actual_source_projection_0/` | test_actual_source_projection_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
-| `output/qa-business-fixes-20260926/test_readonly_report_hash_and_0/` | test_readonly_report_hash_and_0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/resume/` | resume 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/review-pytest-20260919/` | review-pytest-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/review-pytest-20260919/test_analyzer_upload_binds_tem0/` | test_analyzer_upload_binds_tem0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2975,6 +2968,7 @@ python scripts/render_learning_guide.py
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
 | `tests/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `tests/conftest.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `postgres_sessions` |
 | `tests/test_actual_rag_adapter.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_service`、`test_trace_context_rejects_zero_or_malformed_ids_and_isolates_requests`、`test_failure_observations_and_bounded_retention_are_truthful`、`test_http_only_exposes_bounded_query_and_redacted_observations` |
 | `tests/test_agent_deadlines.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `diagnosis`、`test_wall_clock_includes_planning_and_reserves_finalization`、`test_verifier_exposes_gaps_without_upgrading_partial_report`、`test_model_calls_share_deadline_and_override_provider_timeout`、`test_summarization_uses_bounded_copy` 等 7 个声明 |
 | `tests/test_agent_metrics_migration.py` | 验证指标迁移保留旧数据、默认缺失以及重复升级兼容性。 | `test_metrics_migration_preserves_existing_agent_and_null_is_not_zero` |
@@ -2992,7 +2986,9 @@ python scripts/render_learning_guide.py
 | `tests/test_auto_scope_selection.py` | Python 自动化测试，验证目标发现与安全范围的成功、失败与边界条件。 | `isolated_database`、`test_background_scope_respects_explicit_manual_selection`、`test_background_scope_retries_when_user_enabled_discovery`、`test_ambiguous_autonomous_scope_uses_capability_aware_safe_fallback`、`test_autonomous_scope_never_selects_an_ineligible_candidate` 等 22 个声明 |
 | `tests/test_builtin_skills.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_repository_skill_catalog_is_executable`、`test_repository_skills_seed_idempotently`、`test_repository_skill_instruction_loader_rejects_tampered_source` |
 | `tests/test_business_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`test_same_load_improvement_requires_quality_and_non_degraded_results`、`test_stage_percentiles_use_only_observed_samples_and_preserve_real_zero`、`test_missing_stage_telemetry_stays_missing`、`test_degraded_response_must_preserve_quality_threshold_and_baseline` 等 12 个声明 |
+| `tests/test_business_acceptance_properties.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `workload`、`clean_window`、`sparse_windows`、`after_windows`、`test_percentiles_are_observed_latencies_in_nearest_rank_order` 等 10 个声明 |
 | `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 15 个声明 |
+| `tests/test_business_repeat.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`row`、`test_aggregate_records_every_run_and_reports_spread`、`test_stable_outcomes_aggregate_to_a_single_verdict`、`test_aggregate_refuses_to_fabricate_statistics_from_no_runs` 等 11 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
 | `tests/test_current_architecture.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_removed_implementations_do_not_return`、`test_replication_topology_has_one_public_control_plane`、`test_ai_worker_contract_and_skill_pipeline_are_present` |
@@ -3011,7 +3007,7 @@ python scripts/render_learning_guide.py
 | `tests/test_diagnostic_skill_evolution.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_latest_verified_report_can_generate_candidate_before_human_publish_approval`、`test_verified_trajectory_becomes_versioned_active_skill_once`、`test_failed_cross_environment_campaign_blocks_publish`、`test_verified_campaign_trust_chain_can_become_candidate_without_tool_call` 等 21 个声明 |
 | `tests/test_drop_insight_budget.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_budget_denies_when_artifact_bytes_exceed_limit`、`test_settle_uses_actual_artifact_bytes`、`test_release_frees_reservation_on_failure` 等 6 个声明 |
 | `tests/test_drop_insight_policy_evidence.py` | Python 自动化测试，验证Evidence 分类与门禁的成功、失败与边界条件。 | `policy_context`、`test_policy_requires_human_approval_for_perf`、`test_autonomous_session_pre_authorizes_registered_perf_only`、`test_policy_denies_unknown_argument_and_out_of_scope_agent`、`test_host_io_cannot_support_target_process_even_with_legacy_support_predicate` 等 15 个声明 |
-| `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `postgres_sessions`、`test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity`、`test_postgres_report_and_event_constraints_reject_concurrent_duplicates` 等 7 个声明 |
+| `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity`、`test_postgres_report_and_event_constraints_reject_concurrent_duplicates` |
 | `tests/test_drop_insight_session_cas.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_illegal_status_transition_is_rejected_by_table`、`test_valid_transition_increments_version_via_cas`、`test_stale_version_conflicts_under_optimistic_lock` |
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
@@ -3020,6 +3016,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fault_plaza.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_fault_plaza_is_explicitly_disabled_without_server_url`、`test_fault_plaza_marks_only_published_skill_routes_as_ab_supported`、`test_fault_plaza_exposes_multilanguage_routes_and_multiround_contract`、`test_fault_plaza_reports_availability_per_runtime`、`test_start_fault_uses_only_allow_listed_endpoint_and_bounded_duration` 等 10 个声明 |
 | `tests/test_fault_plaza_closure_campaign.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_decisive_collector_is_scenario_evidence_contract_not_list_position`、`test_scenario_pass_requires_diagnosis_chain_and_cleanup`、`test_scenario_keeps_diagnosis_failure_and_still_cleans_up`、`test_scenario_caps_diagnosis_before_the_fault_lab_dead_man_switch`、`test_campaign_persists_an_atomic_running_checkpoint` 等 6 个声明 |
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed` |
+| `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 34 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -3043,7 +3040,7 @@ python scripts/render_learning_guide.py
 | `tests/test_profile_aggregation_benchmark.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `test_lossless_preaggregation_preserves_counts_and_reduces_transport_size` |
 | `tests/test_pyspy_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_speedscope_accepts_bytes`、`test_analyze_speedscope_rebuilds_top_and_flame_tree`、`test_analyze_speedscope_counts_fractional_sampling_intervals`、`test_analyze_speedscope_aggregates_all_thread_profiles`、`test_pyspy_cli_writes_outputs` 等 8 个声明 |
 | `tests/test_python_hotspot_memory_cleanup.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_memory_stop_releases_buffers_and_trims_linux_heap`、`test_demo_sets_a_stable_linux_process_name_for_agent_discovery` |
-| `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 18 个声明 |
+| `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 25 个声明 |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_uses_final_root_cause_title`、`test_support_without_specific_finding_is_not_promoted_to_root_cause` |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
@@ -3094,7 +3091,7 @@ python scripts/render_learning_guide.py
 | `scripts/render_fault_plaza_acceptance.py` | 从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。 | `render` |
 | `scripts/render_learning_guide.py` | 把唯一 Markdown 教材生成离线 HTML 阅读版，内嵌截图、目录搜索和图片放大，并校验链接。 | `build` |
 | `scripts/run_actual_rag_acceptance.py` | 冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。 | `get`、`measure`、`run` |
-| `scripts/run_business_acceptance.py` | 真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。 | `write_json`、`measure`、`run` |
+| `scripts/run_business_acceptance.py` | 真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。 | `write_json`、`measure`、`aggregate_repeats`、`run` |
 | `scripts/run_diagnosis_benchmark_v2.py` | 运行生产 Skill 选择器 Benchmark。 | `main` |
 | `scripts/run_dual_format_benchmark.py` | 工程脚本，负责评测数据与指标的生成、检查或验收。 | `generate_dataset_files`、`generate_evaluation_reports`、`main` |
 | `scripts/run_fault_plaza_closure_campaign.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
@@ -3106,6 +3103,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_scaled_skill_ab.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `main` |
 | `scripts/setup_local_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/start_demo_wsl.ps1` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_actual_rag_search.py` | 对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。 | `verify` |
 | `scripts/verify_backup_restore.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `run`、`main` |
 | `scripts/verify_backup_restore.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_cloud_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
@@ -3456,6 +3454,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/sre-agent-targeted-final-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-diagnosis-agent-design-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-quality-roadmap-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/test-engineering-ci-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/test-engineering-review-20260926.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/cloud-data-cleanup-20260924.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/long-document-ingest-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3796,17 +3795,6 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/tests-r3/test_real_chroma_snapshot_and_0/io.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-api/mini-drop-apiserver` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/pdf/双项目面试深挖报告.pdf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_1/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_1/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_actual_source_projection_1/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-compat-20260926/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-fixes-20260926/test_actual_source_projection_0/actual.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-fixes-20260926/test_actual_source_projection_0/campaign.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-fixes-20260926/test_actual_source_projection_0/link.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/qa-business-fixes-20260926/test_readonly_report_hash_and_0/view.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/resume/李明远-两个项目技术细节自然表达版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/resume/李明远-两个项目生产化面试深挖版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/resume/李明远-两个项目纯技术细节版.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

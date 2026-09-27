@@ -43,6 +43,7 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/verify_actual_rag_search.py": "对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。",
     "docs/TEST_ENGINEERING.md": "测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。",
     "contracts/quality_plan.json": "版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。",
     "scripts/run_quality_gate.py": "一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。",
@@ -335,7 +336,7 @@ def current_files() -> list[str]:
     paths = []
     for raw in result.stdout.splitlines():
         path = raw.replace("\\", "/").strip()
-        if path.startswith(("output/learning-guide/", "output/acceptance/")):
+        if path.startswith(("output/learning-guide/", "output/acceptance/", "output/qa-")):
             continue
         if path and (ROOT / path).is_file():
             paths.append(path)

@@ -304,7 +304,7 @@ class DiagnosisWorker:
             30.0,
             float(os.getenv("MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC", "300")),
         )
-        self._last_experiment_evaluation = 0.0
+        self._last_experiment_evaluation: float | None = None
 
     def process_once(self) -> int:
         """推进所有可运行诊断。
@@ -343,7 +343,10 @@ class DiagnosisWorker:
         )
         experiments_evaluated = 0
         now = time.monotonic()
-        if now - self._last_experiment_evaluation >= self.experiment_evaluation_interval:
+        if (
+            self._last_experiment_evaluation is None
+            or now - self._last_experiment_evaluation >= self.experiment_evaluation_interval
+        ):
             self._last_experiment_evaluation = now
             experiments_evaluated = (
                 self.experiment_evaluator()

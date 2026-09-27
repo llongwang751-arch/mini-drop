@@ -1,8 +1,10 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-09-27 远程 CI 实跑与剩余门禁（进行中）
+## 2026-09-27 远程 CI 与实际检索回归（最新）
 
-已为现有 release 分支向个人仓库 `master` 建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，首轮 CI `36296547283` 实际完成 PostgreSQL 5+1 零跳过、Go race、真实 Chromium、Web 与原生构建/Agent CTest；Python 作业也已通过。整个工作流尚未通过：历史原始 JUnit XML 的尾空白阻断质量作业，Compose 在干净检出中也缺少 `.env`，业务重复作业仍待结果。本轮保留原始 XML，空白检查仅豁免报告 XML；Compose 检查在临时 runner 从 `.env.example` 准备配置。新增零跳过 `retrieval` profile 与 Chroma CI 专项，修复关键覆盖率文件缺失时门禁可能假绿。以上新增改动待推送复验；不合并 PR、不部署云端。最新证据保存在 `output/quality/ci-validation-20260927/`。
+已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，目标分支为 `master`。第二轮 CI `36296726561` 中 PostgreSQL 并发 5+1、Go race、真实 Chromium、三轮业务验收、Web、原生构建/Agent CTest、仓库质量及 Chroma 专项（37 passed，零跳过）通过；Python 暴露新机器启动时间依赖，修复后待下一轮远程复验。Worker 首轮实验评估现在以 `None` 区分“尚未执行”，不依赖系统 monotonic 已经过 300 秒；测试固定 0/12/900000 秒启动时间，并验证 299.999/300 秒间隔边界。
+
+实际 RAG 历史修复已用冻结源码重新验证：本机 HTTP 三窗 P95 35.27/271.13/37.99ms，结论 `IMPROVEMENT_VERIFIED`。新增独立检索回归脚本检验排序、租户隔离、边界与增删改新鲜度，并保存 cProfile。它需要外部冻结源码，不属于常规 CI，不把合成数据本机结果当作生产指标或 AI VERIFIED 根因。代码未合并、未部署；原始失败和证据均保留。详细命令与证据见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。
 
 ## 2026-09-26 测试工程第三轮增量（已推送，CI 待 PR 触发）
 

@@ -2,7 +2,7 @@
 
 本文维护测试工程的执行入口与能力边界，评估日期为 2026-09-26。架构及云端状态仍以 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) 为准；业务测量标准维护在 [BUSINESS_ACCEPTANCE.md](BUSINESS_ACCEPTANCE.md)，真机故障标准维护在 [FAULT_PLAZA_ACCEPTANCE.md](FAULT_PLAZA_ACCEPTANCE.md)。
 
-2026-09-27：已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，首次实际远程 CI 中 PostgreSQL 并发 5+1、Go race、Python、Web、真实 Chromium 与原生构建/Agent CTest 已通过，整个工作流仍在修复/验证中。新增 `python scripts/run_quality_gate.py --profile retrieval`，必须安装 `.[dev,retrieval]`；测试使用临时 Chroma 持久化目录和本地测试 embedding，不访问外部模型，任何跳过都失败。关键模块要求覆盖率报告时，文件缺失也失败。下方“待 PR 触发”描述保留其批次时间，最新状态以项目上下文和 PR 检查为准。
+2026-09-27：已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，真实 PostgreSQL、Go race、Chromium、业务三轮重复与 Chroma 37 项零跳过已通过。第二轮 Python 暴露 Worker 首轮评估受机器启动时间影响，已修复并补确定性边界回归，待再次 CI。新增 `retrieval` profile（安装 `.[dev,retrieval]`，临时 Chroma + 本地测试 embedding），关键覆盖率文件缺失时拒绝通过。实际外部检索源的独立回归与 HTTP 复验见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。下方“待 PR 触发”保留历史批次时间，最新状态以此处和项目上下文为准。
 
 ## 1. 项目评估与求职定位
 

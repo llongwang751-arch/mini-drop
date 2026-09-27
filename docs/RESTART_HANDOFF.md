@@ -1,6 +1,13 @@
 # Mini-Drop 重启交接点
 
-## 2026-09-26 测试工程第三轮增量（最新）
+## 2026-09-27 远程 CI 与实际检索回归（最新）
+
+已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，目标分支为 `master`。第二轮 CI `36296726561` 中 PostgreSQL 并发 5+1、Go race、真实 Chromium、三轮业务验收、Web、原生构建/Agent CTest、仓库质量及 Chroma 专项（37 passed，零跳过）通过；Python 暴露新机器启动时间依赖，修复后待下一轮远程复验。Worker 首轮实验评估现在以 `None` 区分“尚未执行”，不依赖系统 monotonic 已经过 300 秒；测试固定 0/12/900000 秒启动时间，并验证 299.999/300 秒间隔边界。
+
+实际 RAG 历史修复已用冻结源码重新验证：本机 HTTP 三窗 P95 35.27/271.13/37.99ms，结论 `IMPROVEMENT_VERIFIED`。新增独立检索回归脚本检验排序、租户隔离、边界与增删改新鲜度，并保存 cProfile。它需要外部冻结源码，不属于常规 CI，不把合成数据本机结果当作生产指标或 AI VERIFIED 根因。代码未合并、未部署；原始失败和证据均保留。详细命令与证据见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。
+
+
+## 2026-09-26 测试工程第三轮增量（历史批次）
 
 第三轮：`fix_verification.py` 分支覆盖率 13.64%→100%（18 项行为测试，`tests/test_fix_verification.py`），`critical_coverage` 下限钉到 100；PG fixture 收拢进 `tests/conftest.py`（原模块保留 re-export，本地 skip 验证通过，PG 真跑待 CI）；hypothesis 进 dev 依赖，6 个 property 测试锁定业务验收统计/判定三角形（`tests/test_business_acceptance_properties.py`）。全量 693 passed / 7 skipped，门禁 `output/quality/qa-python-round3-20260926/` PASSED_WITH_SKIPS、0 breaches。
 

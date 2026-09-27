@@ -1,3 +1,5 @@
+import pytest
+
 from server.app.diagnosis_worker import DiagnosisWorker, _has_process_binding_authority
 
 
@@ -26,7 +28,11 @@ def test_process_binding_authority_accepts_attested_target() -> None:
     )
 
 
-def test_worker_starts_and_advances_autonomous_sessions() -> None:
+@pytest.mark.parametrize("initial_uptime", [0.0, 12.0, 900000.0])
+def test_worker_starts_and_advances_autonomous_sessions(monkeypatch, initial_uptime) -> None:
+    clock = [initial_uptime]
+    monkeypatch.setattr("server.app.diagnosis_worker.time.monotonic", lambda: clock[0])
+    monkeypatch.setenv("MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC", "300")
     calls = []
     worker = DiagnosisWorker(
         drop_insight_advancer=lambda: calls.append("advance") or 2,
@@ -44,3 +50,12 @@ def test_worker_starts_and_advances_autonomous_sessions() -> None:
     # create duplicate long-term metric snapshots.
     assert worker.process_once() == 22
     assert calls.count("experiment") == 1
+
+    clock[0] = initial_uptime + 299.999
+    assert worker.process_once() == 22
+    assert calls.count("experiment") == 1
+    clock[0] = initial_uptime + 300
+    assert worker.process_once() == 28
+    assert calls.count("experiment") == 2
+    assert worker.process_once() == 22
+    assert calls.count("experiment") == 2
