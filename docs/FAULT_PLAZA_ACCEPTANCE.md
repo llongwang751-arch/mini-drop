@@ -87,3 +87,19 @@
 - 20 个未通过项全部卡在 `root_gate_verified`（收紧后的门禁下没有产生 VERIFIED 报告）；注入观察、清理与链路合同本身没有失败项，`cleanup_verified` 21/21。
 - **java-gc-pressure 在取消捏造覆盖槽位后仍然通过**：其 `root_gate_verified` 依赖的是判据文本与 JVM 计数器证据的真实匹配，不是旧的 CONTROL 捷径。这是当前唯一在新门禁下成立的严格通过记录。
 - 本轮成绩即当前可引用的严格口径：`1/21`，通过数不是根因准确率，也不代表修复闭环（`fix_verified` 全部为 false）。下一步提高通过率的方向仍是：独立对照采集的可达性（20 个失败项的共同缺口）与服务端最小判据模板。
+
+## 2026-09-27 只读失败分层与下一批顺序
+
+本次重新读取现有 `fault-plaza-acceptance-index.json`，并沿每项 `source_report` 核对对应 campaign 的 `report_evaluation`。这是对 2026-09-10 历史数据的只读整理，没有重新向云端注入故障，也不改变任何原始判定：21 项中链路通过 12、严格通过 1、撤销恢复 21、清理 21、代码修复验证 0。
+
+| 分组 | 数量 | 下一步证据标准 |
+| --- | --- | --- |
+| 链路未通过 | 9 | 先检查目标 PID/身份、采集器可达性、产物解析和任务失败，再讨论根因 |
+| 链路通过但根因未通过 | 11 | 检查具体发现、独立反证/对照和场景匹配，不能用重复支持采样冒充对照 |
+| 严格通过 | 1 | Java GC 压力；仍没有同负载代码修复复测，不能称自动修复完成 |
+
+优先取 Python `source-hotspot` 和 Go `go-cpu-hotspot` 做下一批受控复验：历史最终报告已经有 `concrete_finding=true` 与 `oracle_vocabulary_match=true`，但仍是 `PARTIAL_WITHOUT_COUNTER`。需要补可验证的独立对照并保留同一目标、请求负载和版本证据，不应继续只堆支持采样。对应源分别为 `fault-plaza-fixes-retest-20260910.json` 和 `fault-plaza-predicate-retest-20260910.json`。
+
+Java `java-downstream-latency` 则有一份门禁 VERIFIED 报告，但场景词汇匹配为 false，最终未接受。下一步应人工核对报告是否解释注入的下游延迟及词汇判据是否过窄，不能仅凭 VERIFIED 字段把整场改成通过。网络、文件 I/O 和 C++ 锁等链路失败项排在后面，先解决可采集性再运行昂贵的诊断。
+
+本轮另新增本机独立 HTTP 进程的阶梯/恢复/持续实验，能测请求排队与业务 SLO，但它不是以上云端 AI 根因复验；两者成绩分开保留。
