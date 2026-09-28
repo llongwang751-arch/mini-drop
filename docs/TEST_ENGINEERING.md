@@ -195,3 +195,10 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 
 
 本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。
+
+
+## 9. 结论可信度负向测试（2026-09-28）
+
+本轮从剩余 69.4% 的 report_conclusion 覆盖缺口切入，先复现 Java 替换函数却沿用包装帧占比、非法数值导致崩溃/误判、缺失 GC/数据库计数生成反证等问题，保存修复前 24 项失败。新增语义与边界测试验证真实零值和缺失必须区分、GC 活动与分配因果关系分开、异常百分比不能支持/反驳、数据库延迟字段兼容与缺失、反证不能被 VERIFIED 标题覆盖。
+
+report_conclusion 的行+分支覆盖达到 100%，quality_plan 下限由 69 上调为 100；既有 100% fix_verification 门槛保持。覆盖率证明这些路径执行过，正确性仍由独立预期断言与修复前失败证据支撑。最后执行数量与 CI 以 PROJECT_CONTEXT 顶部为准。

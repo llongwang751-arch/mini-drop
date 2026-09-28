@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+import pytest
+
 from server.app.drop_insight.artifact_evidence import assess_artifact_evidence
 from server.app.drop_insight.service import _compute_hypothesis_predicate
 from server.app.drop_insight.service import _derive_imported_evidence_role
@@ -794,3 +796,84 @@ def test_predicate_counters_database_lock_hypothesis_without_waiters():
     )
     assert result is not None
     assert result["outcome"] == "COUNTER"
+
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf"), True, 101, -1, None, "bad"])
+def test_invalid_top_function_ratio_cannot_support_or_refute(value):
+    h = _hypothesis(expected=["calculate_price 热点"], falsification=["其他函数占主导"])
+    result = _compute_hypothesis_predicate(h, {"top_functions": [{"name": "calculate_price", "percent": value}]})
+    assert result is None or result["outcome"] == "NEUTRAL"
+
+
+@pytest.mark.parametrize("schema,statement,metadata", [
+    ("jvm_gc_metrics.v1", "GC 分配压力", {}),
+    ("jvm_gc_metrics.v1", "GC 分配压力", {"delta": {"gc_count": -1, "gc_time_ms": 0, "allocated_bytes": 0}}),
+    ("database_lock.v1", "数据库锁等待", {}),
+    ("database_lock.v1", "数据库锁等待", {"lock_wait_count": -1, "blocker_count": 0}),
+])
+def test_missing_or_reset_counters_cannot_be_counter_evidence(schema, statement, metadata):
+    h = _hypothesis(); h.statement = statement
+    result = _compute_hypothesis_predicate(h, {"schema_version": schema, **metadata})
+    assert result is None or result["outcome"] == "NEUTRAL"
+
+
+@pytest.mark.parametrize("counts,outcome", [((0, 0, 0), "COUNTER"),
+    ((2, 4, 100), "CONTROL"), ((2, 4, 0), "NEUTRAL")])
+def test_gc_true_zero_is_distinct_from_partial_causal_observation(counts, outcome):
+    h = _hypothesis(); h.statement = "GC 分配压力"
+    result = _compute_hypothesis_predicate(h, {"schema_version": "jvm_gc_metrics.v1",
+        "window_duration_ms": 1000, "delta": dict(zip(("gc_count", "gc_time_ms", "allocated_bytes"), counts))})
+    assert result["outcome"] == outcome
+
+
+@pytest.mark.parametrize("field", ["gc_count", "gc_time_ms", "allocated_bytes"])
+@pytest.mark.parametrize("value", [None, "bad", float("inf"), True, -1, 1.5])
+def test_malformed_gc_count_stays_neutral(field, value):
+    h = _hypothesis(); h.statement = "GC 分配压力"
+    delta = {"gc_count": 2, "gc_time_ms": 3, "allocated_bytes": 100}; delta[field] = value
+    assert _compute_hypothesis_predicate(h, {"schema_version": "jvm_gc_metrics.v1",
+        "window_duration_ms": 1000, "delta": delta})["outcome"] == "NEUTRAL"
+
+
+@pytest.mark.parametrize("wait_key", ["lock_wait_ms", "max_wait_ms"])
+def test_database_wait_duration_uses_the_observed_alias(wait_key):
+    h = _hypothesis(); h.statement = "数据库锁等待"
+    r = _compute_hypothesis_predicate(h, {"schema_version": "database_lock.v1",
+        "lock_wait_count": 2, "blocker_count": 1, wait_key: 1840.5})
+    assert r["metrics"]["lock_wait_ms"] == 1840.5
+    assert "1840.5" in r["reason"]
+    assert r["metrics"]["blocking_edge_count"] is None
+
+
+@pytest.mark.parametrize("extra", [{"blocking_edge_count": "bad"}, {"lock_wait_ms": float("nan")},
+    {"lock_wait_ms": 5, "max_wait_ms": 10}, {"lock_wait_count": True}])
+def test_database_invalid_optional_observation_cannot_be_promoted(extra):
+    h = _hypothesis(); h.statement = "数据库锁等待"
+    r = _compute_hypothesis_predicate(h, {"schema_version": "database_lock.v1",
+        "lock_wait_count": 2, "blocker_count": 1, **extra})
+    assert r["outcome"] == "NEUTRAL"
+
+
+@pytest.mark.parametrize("duration", [None, 0, -1, float("inf"), True])
+def test_gc_control_requires_a_real_positive_window(duration):
+    h = _hypothesis(); h.statement = "GC 分配压力"
+    r = _compute_hypothesis_predicate(h, {"schema_version": "jvm_gc_metrics.v1",
+        "window_duration_ms": duration, "delta": {"gc_count": 1, "gc_time_ms": 2, "allocated_bytes": 100}})
+    assert r["outcome"] == "NEUTRAL"
+
+
+def test_invalid_peer_ratio_cannot_prove_the_valid_function_is_dominant():
+    h = _hypothesis(expected=["calculate_price 热点"])
+    r = _compute_hypothesis_predicate(h, {"top_functions": [
+        {"name": "calculate_price", "percent": 90}, {"name": "unknown", "percent": None}]})
+    assert r["outcome"] == "NEUTRAL"
+
+
+def test_database_missing_wait_time_is_unknown_not_zero():
+    h = _hypothesis(); h.statement = "数据库锁等待"
+    r = _compute_hypothesis_predicate(h, {"schema_version": "database_lock.v1",
+        "lock_wait_count": 2, "blocker_count": 1})
+    assert r["outcome"] == "SUPPORT"
+    assert r["metrics"]["lock_wait_ms"] is None
+    assert "max wait" not in r["reason"]

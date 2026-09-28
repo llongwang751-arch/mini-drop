@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1674 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1692 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 487 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 490 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2041,6 +2041,7 @@ python scripts/render_learning_guide.py
 | `docs/assets/learning-guide/20260913-business-acceptance/` | 20260913-business-acceptance 子目录；保留拍摄时间的教材截图与历史证据。 |
 | `docs/assets/learning-guide/20260913-service-integration/` | 20260913-service-integration 子目录；保留拍摄时间的教材截图与历史证据。 |
 | `docs/assets/learning-guide/20260914-lightweight-business/` | 20260914-lightweight-business 子目录；保留拍摄时间的教材截图与历史证据。 |
+| `docs/assets/learning-guide/20260928-sdet/` | 20260928-sdet 子目录；保留拍摄时间的教材截图与历史证据。 |
 | `docs/contracts/` | 公开 API、事件与跨服务语义文档。 |
 | `docs/contracts/task-parameters/` | task-parameters 子目录；公开 API、事件与跨服务语义文档。 |
 | `docs/demo/` | demo 子目录；当前权威文档、教程、接口与复盘。 |
@@ -2100,6 +2101,8 @@ python scripts/render_learning_guide.py
 | `output/demo-guide-20260924/` | demo-guide-20260924 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/frontend-review-20260909/` | frontend-review-20260909 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/interview-guide/` | interview-guide 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/learning-route/` | learning-route 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/learning-route/20260928-sdet/` | 20260928-sdet 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/` | local-sre-20260919 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser/` | browser 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1789819540315/` | browser-1789819540315 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2721,13 +2724,13 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/claim_verifier.py` | 检查报告主张是否被当前 Evidence 引用和支持。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
 | `server/app/drop_insight/diagnosis_agent.py` | LangChain create_agent 与 LangGraph Checkpoint 适配。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
 | `server/app/drop_insight/event_store.py` | Python 服务模块，负责对应模块行为。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
-| `server/app/drop_insight/evidence.py` | Python 服务模块，负责Evidence 分类与门禁。 | `StrictModel`、`EvidenceSource`、`EvidenceScope`、`EvidenceTimeRange`、`EvidenceQuality` 等 8 个声明 |
+| `server/app/drop_insight/evidence.py` | Python 服务模块，负责Evidence 分类与门禁。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
 | `server/app/drop_insight/exploration_tree.py` | 从领域记录重建可恢复的探索树快照。 | `get_live_exploration_tree` 等 11 个声明 |
 | `server/app/drop_insight/fault_acceptance.py` | 读取并校验只读挂载的验收索引，为故障广场提供真实最近验收结果。 | `latest_acceptance` |
 | `server/app/drop_insight/fault_plaza.py` | 四运行时 21 个故障场景的服务端白名单。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
 | `server/app/drop_insight/fix_verification.py` | Python 服务模块，负责对应模块行为。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
 | `server/app/drop_insight/frozen_replay_showcase.py` | 冻结 fixture 到持久化 FULL_LATS 会话的桥。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
-| `server/app/drop_insight/hypothesis_predicate.py` | Python 服务模块，负责对应模块行为。 | `_structured_signal_predicate`、`_criterion_text_indexes`、`_compute_hypothesis_predicate`、`_derive_imported_evidence_role`、`_safe_percent` |
+| `server/app/drop_insight/hypothesis_predicate.py` | Python 服务模块，负责对应模块行为。 | `_invalid_numeric_observation`、`_structured_signal_predicate`、`_criterion_text_indexes`、`_compute_hypothesis_predicate`、`_derive_imported_evidence_role` 等 6 个声明 |
 | `server/app/drop_insight/lats.py` | UCT/PUCT、Selection、Expansion、Simulation、Reflection 和价值回传原语。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
 | `server/app/drop_insight/managed_services.json` | Python 服务模块，负责对应模块行为。 | — |
 | `server/app/drop_insight/managed_services.py` | Python 服务模块，负责对应模块行为。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
@@ -3027,7 +3030,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 9 个声明 |
-| `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 34 个声明 |
+| `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
 | `tests/test_investigation_memory.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_working_notebook_preserves_rejection_and_truncation`、`test_working_memory_reads_only_current_investigation` |
 | `tests/test_jvm_profile_planning.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `test_jvm_profile_event_follows_diagnosis_intent`、`test_lock_probe_follows_bound_runtime_identity`、`test_later_gc_counterexample_does_not_turn_lock_capture_into_allocation`、`test_unknown_business_executable_cannot_fall_back_to_jvm_attach`、`test_uwsgi_has_python_profiler_but_no_jvm_attach` 等 6 个声明 |
@@ -3054,7 +3057,7 @@ python scripts/render_learning_guide.py
 | `tests/test_pyspy_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_speedscope_accepts_bytes`、`test_analyze_speedscope_rebuilds_top_and_flame_tree`、`test_analyze_speedscope_counts_fractional_sampling_intervals`、`test_analyze_speedscope_aggregates_all_thread_profiles`、`test_pyspy_cli_writes_outputs` 等 8 个声明 |
 | `tests/test_python_hotspot_memory_cleanup.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_memory_stop_releases_buffers_and_trims_linux_heap`、`test_demo_sets_a_stable_linux_process_name_for_agent_discovery` |
 | `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 25 个声明 |
-| `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_uses_final_root_cause_title`、`test_support_without_specific_finding_is_not_promoted_to_root_cause` |
+| `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_uses_final_root_cause_title`、`test_support_without_specific_finding_is_not_promoted_to_root_cause`、`test_java_relabelled_frame_uses_its_own_percentage` 等 22 个声明 |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
 | `tests/test_skill_policy.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_skill_policy_defaults_to_auto_and_is_persisted`、`test_disabled_skill_policy_is_persisted`、`test_disabled_policy_bypasses_skill_retrieval`、`test_skill_round_metadata_and_full_instructions_are_forwarded` 等 9 个声明 |
@@ -3342,6 +3345,7 @@ python scripts/render_learning_guide.py
 | `docs/assets/learning-guide/20260914-lightweight-business/manifest.json` | 截图取证元数据：页面文字、控件、路径、时间、图片 hash 或批次清单。 | — |
 | `docs/assets/learning-guide/20260914-lightweight-business/memos-original-business.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `docs/assets/learning-guide/20260914-lightweight-business/ntfy-original-business.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `docs/assets/learning-guide/20260928-sdet/roadmap.workflow.json` | 截图取证元数据：页面文字、控件、路径、时间、图片 hash 或批次清单。 | — |
 | `docs/BUSINESS_ACCEPTANCE.md` | 业务测量、同负载修复比较、知识库样例、CI 计划及本地/AI 验收边界。 | — |
 | `docs/BUSINESS_ONBOARDING_DESIGN.md` | 业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。 | — |
 | `docs/COMPETITOR_DESIGN_DECISIONS.md` | 开源/商业竞品机制到本项目设计决策的证据链。 | — |
@@ -3798,6 +3802,23 @@ python scripts/render_learning_guide.py
 | `output/frontend-review-20260909/08-finding-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/interview-guide/validation.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/20260928-sdet/HANDOFF.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/20260928-sdet/roadmap.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.1440x900.dark.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.1440x900.light.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.2048x1320.dark.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.2048x1320.light.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/20260928-sdet/roadmap.visual-check.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.1440x900.dark.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.1440x900.light.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.2048x1320.dark.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.2048x1320.light.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/chapter1-diagnosis-flow.visual-check.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/learning-route/mini-drop-learning-map.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1789819540315/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1789819540315/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1789819631631/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |

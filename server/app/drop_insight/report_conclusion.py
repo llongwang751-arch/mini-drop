@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from .evidence import EvidenceEnvelope
+from .evidence import EvidenceEnvelope, observed_count, observed_nonnegative
 
 
 def _derive_report_conclusion(
@@ -75,22 +75,16 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
         if not isinstance(metrics, dict):
             metrics = {}
         function_name = str(metrics.get("dominant_function") or "").strip()
-        try:
-            dominant_percent = float(metrics.get("dominant_percent") or 0.0)
-        except (TypeError, ValueError):
-            dominant_percent = 0.0
-        score = (100 if function_name else 0) + int(dominant_percent)
+        dominant_percent = observed_nonnegative(metrics.get("dominant_percent"), maximum=100)
+        score = (100 if function_name else 0) + int(dominant_percent or 0)
         candidates.append((score, envelope, metadata, metrics))
     if not candidates:
         return None
 
     _, envelope, metadata, metrics = max(candidates, key=lambda item: item[0])
     function_name = str(metrics.get("dominant_function") or "").strip()
-    try:
-        dominant_percent = float(metrics.get("dominant_percent") or 0.0)
-    except (TypeError, ValueError):
-        dominant_percent = 0.0
-    percent_text = f"，占有效样本的 {dominant_percent:.1f}%" if dominant_percent > 0 else ""
+    dominant_percent = observed_nonnegative(metrics.get("dominant_percent"), maximum=100)
+    percent_text = f"，占有效样本的 {dominant_percent:.1f}%" if dominant_percent is not None else ""
     sample_count = envelope.quality.sample_count if envelope.quality.sample_count_known else 0
     sample_text = f"在 {sample_count} 个有效样本中，" if sample_count > 0 else ""
     schema_version = str(metadata.get("schema_version") or "").casefold()
@@ -117,6 +111,12 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
             ),
             function_name,
         )
+        if business_function != function_name:
+            # A displayed frame must carry its own observed ratio, never its wrapper's.
+            frame = next(row for row in top_functions if isinstance(row, dict)
+                         and str(row.get("name") or "").strip() == business_function)
+            frame_percent = observed_nonnegative(frame.get("percent"), maximum=100)
+            percent_text = f"，占有效样本的 {frame_percent:.1f}%" if frame_percent is not None else ""
         event_labels = {
             "alloc": "Java 对象分配热点",
             "lock": "Java 锁等待热点",
@@ -141,14 +141,15 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
         gc_counters = gc_counters if isinstance(gc_counters, dict) else {}
         gc_delta = gc_counters.get("delta")
         gc_delta = gc_delta if isinstance(gc_delta, dict) else {}
-        gc_count_delta = max(0, int(gc_delta.get("gc_count") or 0))
-        gc_time_delta = max(0, int(gc_delta.get("gc_time_ms") or 0))
-        allocated_delta = max(0, int(gc_delta.get("allocated_bytes") or 0))
+        gc_count_delta = observed_count(gc_delta.get("gc_count"))
+        gc_time_delta = observed_count(gc_delta.get("gc_time_ms"))
+        allocated_delta = observed_count(gc_delta.get("allocated_bytes"))
         allocation_boundary = (
             f"同一采集窗口的独立 JVM 计数器同时记录到 GC {gc_count_delta} 次、"
             f"GC 耗时增加 {gc_time_delta} ms、累计分配增加 {allocated_delta} 字节；"
             "这确认了分配与 GC 活动相关，但仍不能冒充 Full GC 次数或停顿分位数。"
-            if gc_counters and (gc_count_delta > 0 or gc_time_delta > 0)
+            if None not in (gc_count_delta, gc_time_delta, allocated_delta)
+            and (gc_count_delta > 0 or gc_time_delta > 0)
             else "该证据确认了集中对象分配路径，但没有独立证明 GC 暂停或锁竞争是主瓶颈。"
         )
         boundary = {
@@ -174,12 +175,12 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
             "该函数是当前证据窗口内最集中的执行路径；仍需修复前后对照确认因果贡献。"
         )
 
-    lock_wait_count = metrics.get("lock_wait_count")
-    blocker_count = metrics.get("blocker_count")
-    if lock_wait_count is not None or blocker_count is not None:
+    lock_wait_count = observed_count(metrics.get("lock_wait_count"))
+    blocker_count = observed_count(metrics.get("blocker_count"))
+    if lock_wait_count is not None and blocker_count is not None and lock_wait_count > 0 and blocker_count > 0:
         return (
-            f"数据库锁等待链已被结构化证据确认：等待会话 {int(lock_wait_count or 0)} 个，"
-            f"阻塞会话 {int(blocker_count or 0)} 个。需要解除阻塞并复测事务延迟。"
+            f"数据库锁等待链已被结构化证据确认：等待会话 {lock_wait_count} 个，"
+            f"阻塞会话 {blocker_count} 个。需要解除阻塞并复测事务延迟。"
         )
     return None
 

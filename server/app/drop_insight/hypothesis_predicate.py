@@ -9,6 +9,13 @@ from __future__ import annotations
 import re
 
 from server.app.models import ArtifactModel, DropInsightHypothesisModel
+from .evidence import observed_count, observed_nonnegative
+
+
+def _invalid_numeric_observation(reason: str = "Required numeric observation is missing, invalid or outside its domain") -> dict:
+    return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3",
+            "reason": reason,
+            "criterion_indexes": [], "metrics": {}}
 
 
 def _structured_signal_predicate(
@@ -155,16 +162,17 @@ def _compute_hypothesis_predicate(
             for token in ("gc", "垃圾回收", "分配", "allocation", "堆")
         )
         if gc_hypothesis:
-            gc_count_delta = max(0, int(delta.get("gc_count") or 0))
-            gc_time_delta = max(0, int(delta.get("gc_time_ms") or 0))
-            allocated_delta = max(0, int(delta.get("allocated_bytes") or 0))
+            gc_count_delta = observed_count(delta.get("gc_count"))
+            gc_time_delta = observed_count(delta.get("gc_time_ms"))
+            allocated_delta = observed_count(delta.get("allocated_bytes"))
+            duration = observed_nonnegative(metadata.get("window_duration_ms"))
+            if None in (gc_count_delta, gc_time_delta, allocated_delta, duration) or duration == 0:
+                return _invalid_numeric_observation()
             metrics = {
                 "gc_count_delta": gc_count_delta,
                 "gc_time_ms_delta": gc_time_delta,
                 "allocated_bytes_delta": allocated_delta,
-                "window_duration_ms": max(
-                    0, int(metadata.get("window_duration_ms") or 0)
-                ),
+                "window_duration_ms": duration,
             }
             gc_falsification_hits = _criterion_text_indexes(
                 falsification,
@@ -182,6 +190,9 @@ def _compute_hypothesis_predicate(
                     "criterion_indexes": gc_falsification_hits,
                     "metrics": metrics,
                 }
+            if gc_count_delta > 0 or gc_time_delta > 0:
+                # GC was observed, but an allocation relationship was not.
+                return _invalid_numeric_observation("GC activity was observed without a positive allocation delta; the proposed relationship is unverified")
             return {
                 "outcome": "COUNTER",
                 "version": "hypothesis-predicate-v2",
@@ -194,16 +205,21 @@ def _compute_hypothesis_predicate(
             }
 
     if str(metadata.get("schema_version") or "").startswith("database_lock."):
-        lock_wait_count = max(0, int(metadata.get("lock_wait_count") or 0))
-        blocker_count = max(0, int(metadata.get("blocker_count") or 0))
-        blocking_edge_count = max(
-            0,
-            int(
-                metadata.get("blocking_edge_count")
-                or min(lock_wait_count, blocker_count)
-            ),
-        )
-        max_wait_ms = max(0.0, float(metadata.get("max_wait_ms") or 0.0))
+        lock_wait_count = observed_count(metadata.get("lock_wait_count"))
+        blocker_count = observed_count(metadata.get("blocker_count"))
+        if lock_wait_count is None or blocker_count is None:
+            return _invalid_numeric_observation()
+        blocking_edge_count = observed_count(metadata.get("blocking_edge_count"))
+        wait_key = "lock_wait_ms" if "lock_wait_ms" in metadata else "max_wait_ms"
+        max_wait_ms = observed_nonnegative(metadata.get(wait_key))
+        if ("blocking_edge_count" in metadata and blocking_edge_count is None) or (
+            wait_key in metadata and max_wait_ms is None
+        ):
+            return _invalid_numeric_observation()
+        if "lock_wait_ms" in metadata and "max_wait_ms" in metadata and (
+            observed_nonnegative(metadata["max_wait_ms"]) != max_wait_ms
+        ):
+            return _invalid_numeric_observation()
         database_hypothesis = any(token in statement for token in (
             "数据库", "锁等待", "阻塞", "deadlock", "database lock", "db lock",
         ))
@@ -217,7 +233,8 @@ def _compute_hypothesis_predicate(
                 "version": "hypothesis-predicate-v2",
                 "reason": (
                     f"observed {lock_wait_count} lock-waiting session(s), "
-                    f"{blocker_count} blocker(s), max wait {max_wait_ms:.1f} ms"
+                    f"{blocker_count} blocker(s)"
+                    + (f", max wait {max_wait_ms:.1f} ms" if max_wait_ms is not None else "")
                 ),
                 "criterion_indexes": covered,
                 "metrics": {
@@ -238,8 +255,8 @@ def _compute_hypothesis_predicate(
                 ),
                 "metrics": {
                     "lock_wait_count": 0,
-                    "blocker_count": 0,
-                    "lock_wait_ms": 0.0,
+                    "blocker_count": blocker_count,
+                    "lock_wait_ms": max_wait_ms,
                 },
             }
 
@@ -255,6 +272,11 @@ def _compute_hypothesis_predicate(
     ]
     if not raw_named:
         return None
+    # Missing or malformed ratios cannot prove either dominance or its absence.
+    if any(observed_nonnegative(row.get("percent"), maximum=100) is None
+           or ("self_percent" in row and observed_nonnegative(row["self_percent"], maximum=100) is None)
+           for row in raw_named):
+        return _invalid_numeric_observation()
     # Source-aware analyzers intentionally keep one TopN row per file/line.
     # Hypothesis scoring, however, reasons about functions.  A hot function
     # sampled on several executable lines must not be mistaken for several
@@ -278,7 +300,7 @@ def _compute_hypothesis_predicate(
         try:
             current["samples"] += max(0, int(row.get("samples") or 0))
             current["self_samples"] += max(0, int(row.get("self_samples") or 0))
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             pass
         if row.get("file") or row.get("line"):
             current["locations"].append({
@@ -908,7 +930,7 @@ def _derive_imported_evidence_role(
 
 
 def _safe_percent(value) -> float:
-    try:
-        return max(0.0, min(100.0, float(value or 0)))
-    except (TypeError, ValueError):
-        return 0.0
+    # Aggregated valid rows can exceed 100 through inclusive frames; cap only
+    # that sum. Raw observations are domain-validated before aggregation.
+    number = observed_nonnegative(value)
+    return min(100.0, number) if number is not None else 0.0

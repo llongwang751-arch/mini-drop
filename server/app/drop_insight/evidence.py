@@ -1,9 +1,36 @@
 from __future__ import annotations
 
 from datetime import datetime
+import math
 from typing import Any, Literal
 
 from pydantic import ConfigDict, BaseModel, Field
+
+
+def observed_nonnegative(value: Any, *, maximum: float | None = None) -> float | None:
+    """Missing/invalid observations stay unknown, including bool and nonfinite numbers."""
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return None
+    try:
+        number = float(value)
+    except (ValueError, OverflowError):
+        return None
+    if not math.isfinite(number) or number < 0 or (maximum is not None and number > maximum):
+        return None
+    return number
+
+
+def observed_count(value: Any) -> int | None:
+    """Read exact nonnegative integral counts without truncation or zero imputation."""
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return None
+    if isinstance(value, float) and (not math.isfinite(value) or not value.is_integer()):
+        return None
+    try:
+        count = int(value)
+    except ValueError:
+        return None
+    return count if count >= 0 else None
 
 
 class StrictModel(BaseModel):
