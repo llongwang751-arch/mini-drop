@@ -78,6 +78,12 @@ DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT = (
     "只能保留一个兜底候选。"
     "falsification_criteria 必须描述采集成功时与假设相反的可观察结果；"
     "采集失败、权限不足、无法附加、样本不足只能表示不可观测，不能作为反证。"
+    "CPU 热点假设应把函数分布与操作系统进程 CPU 占用分开验证：运行时 Profile "
+    "用于定位函数，collect_sys_metrics 可独立读取同一目标的 /proc CPU 计数。"
+    "若用 CPU 占用作证伪条件，写出单核口径的明确百分比阈值，例如"
+    "‘目标进程 CPU 占用率低于 50%’，阈值须符合当前假设；不要把 CPU、I/O、"
+    "锁或函数分布塞进同一条件，也不要让 CPU 计数覆盖这些不同证据域。"
+    "只有确实需要验证 CPU 条件时才采集该工具，不以重复 Profile 充当独立对照。"
 )
 
 SKILL_PROGRESSIVE_DISCLOSURE_REQUIREMENT = (

@@ -656,16 +656,22 @@ def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
     source_schema = str(document.get("schema_version") or "")
     if source_schema not in {"sys_metrics.v1", "sys_metrics.v2"}:
         raise ValueError("unsupported sys_metrics schema")
-    target_pid = int(_number(document.get("pid"), field="pid"))
-    if target_pid <= 0:
-        raise ValueError("sys_metrics pid must be positive")
-    target_namespace_pid = int(
-        _optional_number(document.get("namespace_pid")) or target_pid
+    def positive_integer(value: Any, field: str) -> int:
+        number = _number(value, field=field)
+        if number <= 0 or not number.is_integer():
+            raise ValueError(f"sys_metrics {field} must be a positive integer")
+        return int(number)
+
+    target_pid = positive_integer(document.get("pid"), "pid")
+    target_namespace_pid = positive_integer(
+        document.get("namespace_pid", target_pid), "namespace_pid"
     )
-    if target_namespace_pid <= 0:
-        raise ValueError("sys_metrics namespace pid must be positive")
     samples = _validated_samples(document, source_schema)
     duration = _duration_seconds(samples)
+
+    if source_schema == "sys_metrics.v2":
+        for sample in samples:
+            positive_integer(sample.get("process_start_ticks"), "process_start_ticks")
 
     start_ticks = {
         int(value)
@@ -751,15 +757,46 @@ def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
         target_namespace_pid=target_namespace_pid,
     )
     signals = _derive_signals(summary, application)
+    # Keep the operating-system counter window distinct from optional
+    # application snapshots. Missing samples cannot become a CPU control.
+    cpu_window = None
+    raw_ticks = [_optional_number(row.get("process_cpu_ticks")) for row in samples]
+    raw_starts = [_optional_number(row.get("process_start_ticks")) for row in samples]
+    raw_hz = _optional_number(document.get("clock_ticks_per_second"))
+    timestamps = [_optional_number(row.get("captured_at_unix_ms")) for row in samples]
+    if (
+        identity_verified and len(samples) >= 2
+        and raw_hz is not None and raw_hz > 0 and raw_hz.is_integer()
+        and all(value is not None and value >= 0 and value.is_integer() for value in raw_ticks)
+        and all(value is not None and value > 0 and value.is_integer() for value in raw_starts)
+        and len(set(raw_starts)) == 1
+        and all(right >= left for left, right in zip(raw_ticks, raw_ticks[1:]))
+        and all(value is not None and value > 0 for value in timestamps)
+        and all(right > left for left, right in zip(timestamps, timestamps[1:]))
+        and timestamps[-1] - timestamps[0] >= 1000
+    ):
+        cpu_window = {
+            "source": "linux_proc_stat",
+            "clock_ticks_per_second": int(raw_hz),
+            "start_cpu_ticks": int(raw_ticks[0]),
+            "end_cpu_ticks": int(raw_ticks[-1]),
+            "start_unix_ms": timestamps[0],
+            "end_unix_ms": timestamps[-1],
+            "sample_count": len(samples),
+            "process_cpu_core_usage": (raw_ticks[-1] - raw_ticks[0]) / raw_hz
+            / ((timestamps[-1] - timestamps[0]) / 1000) * 100,
+        }
     limitations = []
     if not identity_verified:
         limitations.append(
             "legacy sys_metrics.v1 has no process start time; PID reuse cannot be independently checked"
         )
-    if application is None:
-        limitations.append(
-            "target application did not expose the optional bounded metrics snapshot"
-        )
+    # Missing optional application telemetry limits that domain only. It
+    # cannot invalidate independently collected /proc process observations.
+    application_limitations = (
+        ["target application did not expose the optional bounded metrics snapshot"]
+        if application is None else []
+    )
     return {
         "schema_version": "sys_metrics_analysis.v2",
         "source_schema_version": source_schema,
@@ -772,7 +809,10 @@ def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
             "verified": identity_verified,
         },
         "summary": summary,
+        "process_cpu_window": cpu_window,
         "application_metrics": application,
+        "application_metrics_status": "AVAILABLE" if application is not None else "UNAVAILABLE",
+        "application_metrics_limitations": application_limitations,
         "signals": signals,
         "analysis_limitations": limitations,
     }

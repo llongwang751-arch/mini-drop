@@ -1,5 +1,14 @@
 # Mini-Drop 测试开发与质量工程
 
+## 2026-09-28 部署前回归与独立测量入口
+
+本轮最终本机 Python 质量门禁执行 **1000 passed / 7 skipped**，状态 `PASSED_WITH_SKIPS`，关键模块覆盖率无违约，测量期间源码未变化（`source_unchanged=true`）。本机报告为 [`output/quality/deployment-python-final-20260928/report.json`](../output/quality/deployment-python-final-20260928/report.json)。这是部署前回归结果，不代表远程 CI 已完成，也不代表云端严格根因或一小时稳定性已通过。真实部署、远端测试和复验成绩继续以 PROJECT_CONTEXT 的实际执行记录为准。
+
+新增 `tests/test_process_cpu_control.py` 的 63 项回归覆盖真实 Analyzer 计数到谓词与 Evidence 门禁：数值阈值两侧及边界、中英文明确判据、复合/无关判据拒绝、缺失与非有限计数、分数 PID、PID 复用、采样时钟倒退、名义循环秒数与真实耗时差异、缺少可选应用快照、错误 SHA/Analyzer/目标/样本量，以及 CPU 采样窗口越出任务区间。来源负测先确认完整基线可通过，再破坏单项条件，避免本来无效的样本使测试假通过。CPU CONTROL 单独不能验证函数根因；相关域约束见 [AI 诊断](AI_DIAGNOSIS.md#2026-09-28-进程-cpu-独立对照本地验证待云端复验)。
+
+新增 [双机负载与一小时资源观测](DISTRIBUTED_LOAD.md) 执行入口，分开发压端和一次性目标进程，校验两端身份、测量源码字节及远端资源记录。SSH 隧道与网络耗时计入端到端延迟；执行器及其测试通过只说明链路具备可验证的入口，小时级指标必须来自完成的实测。严格故障验收继续保留每轮独立 Campaign、失败和清理记录，不用重跑成功覆盖旧失败。
+
+
 本文维护测试工程的执行入口与能力边界，评估日期为 2026-09-26。架构及云端状态仍以 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) 为准；业务测量标准维护在 [BUSINESS_ACCEPTANCE.md](BUSINESS_ACCEPTANCE.md)，真机故障标准维护在 [FAULT_PLAZA_ACCEPTANCE.md](FAULT_PLAZA_ACCEPTANCE.md)。
 
 2026-09-27：已建立 [草稿 PR #1](https://github.com/llongwang751-arch/mini-drop/pull/1)，真实 PostgreSQL、Go race、Chromium、业务三轮重复与 Chroma 37 项零跳过已通过。第二轮 Python 暴露 Worker 首轮评估受机器启动时间影响，已修复并补确定性边界回归；[第三轮 CI](https://github.com/llongwang751-arch/mini-drop/actions/runs/36297143120) **11/11 作业全部通过**，Python **696 passed / 7 skipped**（依赖相关跳过由专项实际执行覆盖），PR head `bed58b0`。新增 `retrieval` profile（安装 `.[dev,retrieval]`，临时 Chroma + 本地测试 embedding），关键覆盖率文件缺失时拒绝通过。实际外部检索源的独立回归与 HTTP 复验见 [本轮复盘](../reports/architecture/test-engineering-ci-20260927.md)。下方“待 PR 触发”保留历史批次时间，最新状态以此处和项目上下文为准。

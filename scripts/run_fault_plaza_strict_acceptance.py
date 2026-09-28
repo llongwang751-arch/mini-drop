@@ -8,6 +8,8 @@ Every case retains the original diagnostic reports, including rejected claims.
 from __future__ import annotations
 
 import json
+import hashlib
+import subprocess
 import math
 import time
 from datetime import datetime, timezone
@@ -72,25 +74,68 @@ def measure(provider: Callable, lab: str, seconds: float):
     return {"first": first, "last": last, "elapsed_seconds": time.monotonic() - start}
 
 
+def _finite_number(value, *, positive=False):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError("measurement must be numeric and not boolean")
+    if not math.isfinite(value) or value < 0 or (positive and value <= 0):
+        raise ValueError("measurement must be finite and nonnegative; windows must be positive")
+    return float(value)
+
+
+def evaluate_window_identity(windows):
+    """Require host-observed process lifetime identity in all six snapshots.
+
+    Namespace PID 1 and application fault-start timestamps are not lifetime
+    identities. The read-only provider captures container and /proc identity
+    around each snapshot; these observations remain outside Agent evidence.
+    """
+    identities = []
+    try:
+        for stage in ("baseline", "fault", "recovery"):
+            for endpoint in ("first", "last"):
+                snapshot = windows[stage][endpoint]["snapshot"]
+                identity = snapshot["acceptance_process_identity"]
+                if not isinstance(identity, dict) or identity.get("source") != "host_proc_and_docker_inspect":
+                    raise ValueError("missing independently observed process identity")
+                for key in ("host_pid", "start_ticks", "namespace_pid"):
+                    value = identity.get(key)
+                    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                        raise ValueError("invalid process identity integer")
+                for key in ("boot_id", "container_id", "container_started_at"):
+                    if not isinstance(identity.get(key), str) or not identity[key].strip():
+                        raise ValueError("missing process lifetime field: " + key)
+                if snapshot.get("pid") != identity["namespace_pid"] or isinstance(snapshot.get("pid"), bool):
+                    raise ValueError("snapshot PID disagrees with namespace identity")
+                identities.append({key: identity[key] for key in (
+                    "source", "host_pid", "namespace_pid", "start_ticks", "boot_id", "container_id", "container_started_at")})
+        if any(identity != identities[0] for identity in identities[1:]):
+            raise ValueError("target process lifetime changed across observation windows")
+        return {"verified": True, "identity": identities[0], "snapshot_count": len(identities)}
+    except (KeyError, TypeError, ValueError) as exc:
+        return {"verified": False, "error": str(exc), "snapshot_count": len(identities)}
+
+
 def evaluate_intervention(scenario_id, windows):
     field, mode, threshold, _ = ORACLES[scenario_id]
     values = {}
+    identity = evaluate_window_identity(windows)
     try:
+        if not identity["verified"]:
+            raise ValueError(identity["error"])
         for stage in ("baseline", "fault", "recovery"):
             window = windows[stage]
-            first, last = (float(window[key]["snapshot"][field]) for key in ("first", "last"))
-            if not all(math.isfinite(value) for value in (first, last, window["elapsed_seconds"])):
-                raise ValueError(f"{stage}: non-finite measurement")
+            first, last = (_finite_number(window[key]["snapshot"][field]) for key in ("first", "last"))
+            elapsed = _finite_number(window["elapsed_seconds"], positive=True)
             if mode == "counter" and last < first:
                 raise ValueError(f"{stage}: counter reset inside observation window")
-            values[stage] = (last - first) / window["elapsed_seconds"] if mode == "counter" else last
+            values[stage] = (last - first) / elapsed if mode == "counter" else last
         injected = values["fault"] >= threshold
         recovered = injected and values["recovery"] <= max(values["baseline"] * 1.2, values["fault"] * 0.2)
-        return {"field": field, "mode": mode, "values": values,
+        return {"field": field, "mode": mode, "values": values, "process_identity": identity,
                 "injection_observed": injected, "recovery_observed": recovered,
                 "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"}
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
-        return {"field": field, "values": values, "injection_observed": False,
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, OverflowError) as exc:
+        return {"field": field, "values": values, "process_identity": identity, "injection_observed": False,
                 "recovery_observed": False, "error": str(exc)}
 
 
@@ -100,9 +145,13 @@ def evaluate_reports(scenario_id, reports):
     for report in reports:
         gate = report.get("verification") or {}
         conclusion = str(report.get("conclusion") or "")
+        try:
+            coverage = _finite_number(gate.get("coverage_ratio"))
+        except (ValueError, TypeError, OverflowError):
+            coverage = None
         verified = (gate.get("status") == "VERIFIED"
                     and gate.get("has_independent_counter_or_control") is True
-                    and float(gate.get("coverage_ratio") or 0) >= 1
+                    and coverage == 1.0
                     and bool(report.get("evidence_refs")))
         # Merely repeating an unverified hypothesis must never match the oracle.
         concrete = bool(conclusion) and not report.get("counter_evidence_refs") and not any(x in conclusion for x in (
@@ -206,16 +255,39 @@ def run_case(client, scenario, provider, case_path: Path, *, agent_id, window_se
     return row
 
 
-def run_campaign(client, provider, output: Path, *, agent_id="control-interview-demo-agent", scenario_ids=None):
+def run_campaign(client, provider, output: Path, *, agent_id="control-interview-demo-agent", scenario_ids=None,
+                 deployment_provenance=None):
+    output = Path(output)
+    case_dir = output.parent / (output.stem + "-cases")
+    if output.exists() or case_dir.exists():
+        raise FileExistsError("Refusing to overwrite campaign or case evidence")
+    if scenario_ids is not None:
+        if not scenario_ids or len(set(scenario_ids)) != len(scenario_ids) or set(scenario_ids) - ORACLES.keys():
+            raise ValueError("scenario selection must be nonempty, unique, and known")
     plaza = _get_plaza(client)
     scenarios = items_of(plaza.get("scenarios"))
     if scenario_ids:
         scenarios = [row for row in scenarios if row["scenario_id"] in scenario_ids]
     if not scenarios or any(row["scenario_id"] not in ORACLES for row in scenarios):
         raise ValueError("missing strict scenario contract")
+    if scenario_ids is not None and {row["scenario_id"] for row in scenarios} != set(scenario_ids):
+        raise ValueError("requested scenario missing from deployed plaza")
+    if len({row["scenario_id"] for row in scenarios}) != len(scenarios):
+        raise ValueError("duplicate deployed scenario")
     if any(row.get("active") for row in items_of(plaza.get("scenarios"))):
         raise RuntimeError("a fault is already active; campaign not started")
-    report = {"schema": "mini-drop.fault-plaza-strict-acceptance.v2", "started_at": now(),
+    root = Path(__file__).resolve().parents[1]
+    sources = [Path(__file__), root / "scripts/run_fault_plaza_closure_campaign.py", root / "scripts/verify_interview_demo.py"]
+    provenance = {"source_sha256": {str(p.relative_to(root)).replace("\\", "/"): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},
+                  "deployment": deployment_provenance or {"status": "NOT_PROVIDED"}}
+    try:
+        provenance["git_head"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    except (OSError, subprocess.CalledProcessError):
+        provenance["git_head"] = None
+    # Reserve both destinations before performing any fault mutation.
+    case_dir.mkdir(parents=True, exist_ok=False)
+    output.open("x", encoding="utf-8").close()
+    report = {"provenance": provenance, "schema": "mini-drop.fault-plaza-strict-acceptance.v2", "started_at": now(),
               "run_status": "RUNNING", "selected_count": len(scenarios), "results": [],
               "truth_boundary": "PASS requires legacy lineage, verified concrete scenario-matching root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports."}
     def checkpoint():

@@ -27,6 +27,7 @@
 - [`REPLICATION.md`](REPLICATION.md)：单机/多机复刻、真实故障与 FULL_LATS 冻结回放验收
 - [`AI_DIAGNOSIS.md`](AI_DIAGNOSIS.md)：AI 诊断流程、自动范围、LATS 运行语义与证据门禁
 - [`FAULT_PLAZA_ACCEPTANCE.md`](FAULT_PLAZA_ACCEPTANCE.md)：21 场景严格验收协议、链路/根因/恢复的分项口径与原始证据位置
+- [`DISTRIBUTED_LOAD.md`](DISTRIBUTED_LOAD.md)：独立发压端、SSH 隧道、一次性目标进程及一小时资源观测；身份/源码一致性、原始证据与测量限制
 - [`BUSINESS_ACCEPTANCE.md`](BUSINESS_ACCEPTANCE.md)：业务请求样例、同负载修复比较、测试计划与 CI、页面入口；明确本地测量与 AI 根因验收边界
 - [`SERVICE_INTEGRATION.md`](SERVICE_INTEGRATION.md)：原办公助手及四个轻量业务的独立部署、原网页、request_id 关联、可信进程绑定与 JVM 采集保护
 - [`BUSINESS_ONBOARDING_DESIGN.md`](BUSINESS_ONBOARDING_DESIGN.md)：业务方如何接入、请求与阶段关联、当前代码缺口、一个完整修复案例的实施顺序；首批四业务已接入请求关联，函数阶段、数据库连接器与完整修复闭环仍为后续设计

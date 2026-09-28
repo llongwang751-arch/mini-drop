@@ -128,6 +128,66 @@ def _criterion_text_indexes(
     ]
 
 
+def _process_cpu_control(hypothesis, metadata: dict) -> dict | None:
+    """Evaluate only an explicit process-CPU threshold, never an I/O proxy.
+
+    Linux /proc counters are independent of function profile samples. This
+    observation does not prove that a particular function caused the CPU use.
+    The usual signed artifact, target identity and time scope checks still
+    apply when the predicate is imported as Evidence.
+    """
+    if metadata.get("schema_version") != "sys_metrics_analysis.v2":
+        return None
+    if not any(token in str(hypothesis.statement).casefold()
+               for token in ("cpu", "热点", "hotspot", "计算")):
+        return None
+    patterns = (
+        r"(?:target )?process cpu(?: usage)? (?:is |remains )?(?:below|less than) (\d+(?:\.\d+)?)\s*%[.]?",
+        r"(?:目标)?进程\s*cpu(?:\s*占用(?:率)?)?\s*(?:低于|小于)\s*(\d+(?:\.\d+)?)\s*%[。]?",
+    )
+    criteria = []
+    for index, criterion in enumerate(hypothesis.falsification_criteria_json or []):
+        for pattern in patterns:
+            match = re.fullmatch(pattern, str(criterion).strip().casefold())
+            if match and 0 < float(match[1]) <= 10000:
+                criteria.append((index, float(match[1])))
+                break
+    if not criteria:
+        return None
+    identity = metadata.get("process_identity") or {}
+    window = metadata.get("process_cpu_window") or {}
+    if not isinstance(identity, dict) or not isinstance(window, dict):
+        return _invalid_numeric_observation()
+    counts = {key: observed_count(window.get(key)) for key in
+              ("clock_ticks_per_second", "start_cpu_ticks", "end_cpu_ticks", "sample_count")}
+    start = observed_nonnegative(window.get("start_unix_ms"))
+    end = observed_nonnegative(window.get("end_unix_ms"))
+    usage = observed_nonnegative(window.get("process_cpu_core_usage"))
+    if (metadata.get("source_schema_version") != "sys_metrics.v2"
+        or identity.get("verified") is not True
+        or not observed_count(identity.get("pid"))
+        or not observed_count(identity.get("start_ticks"))
+        or window.get("source") != "linux_proc_stat"
+        or None in (*counts.values(), start, end, usage)
+        or not counts["clock_ticks_per_second"] or counts["sample_count"] < 2
+        or start == 0 or end - start < 1000 or counts["end_cpu_ticks"] < counts["start_cpu_ticks"]):
+        return _invalid_numeric_observation("Independent process CPU counter window is incomplete")
+    recomputed = (counts["end_cpu_ticks"] - counts["start_cpu_ticks"]) / counts["clock_ticks_per_second"] / ((end - start) / 1000) * 100
+    if abs(usage - recomputed) > 1e-9:
+        return _invalid_numeric_observation("Process CPU value disagrees with its counter window")
+    counters = [index for index, threshold in criteria if usage < threshold]
+    controls = [index for index, threshold in criteria if usage >= threshold]
+    # A refuting observation wins; mixed thresholds cannot erase a counter.
+    outcome = "COUNTER" if counters else "CONTROL"
+    return {
+        "outcome": outcome, "version": "hypothesis-predicate-v3",
+        "reason": f"Independent Linux process CPU counters measured {usage:.3f}% of one core over {(end - start) / 1000:.3f}s; "
+                  + ("the specified low-CPU falsification was observed" if counters else "the specified low-CPU falsification was not observed"),
+        "criterion_indexes": counters if counters else controls,
+        "metrics": {**window, "pid": identity["pid"], "start_ticks": identity["start_ticks"]},
+    }
+
+
 def _compute_hypothesis_predicate(
     hypothesis: DropInsightHypothesisModel,
     metadata: dict,
@@ -147,6 +207,9 @@ def _compute_hypothesis_predicate(
     if metadata.get("scope_semantics") == "HOST_BLOCK_DEVICE" and metadata.get("target_attributed") is not True:
         return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3", "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联", "criterion_indexes": [], "metrics": {}}
 
+    cpu_control = _process_cpu_control(hypothesis, metadata)
+    if cpu_control is not None:
+        return cpu_control
     structured_predicate = _structured_signal_predicate(hypothesis, metadata)
     if structured_predicate is not None:
         return structured_predicate

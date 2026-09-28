@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 import math
 from typing import Any, Literal
 
@@ -91,6 +91,25 @@ class EvidenceEnvelope(StrictModel):
 
 def classify_evidence(envelope: EvidenceEnvelope) -> dict[str, Any]:
     reasons = []
+    metadata = envelope.observation.get("metadata")
+    metadata = metadata if isinstance(metadata, dict) else {}
+    window = metadata.get("process_cpu_window")
+    if window is not None:
+        identity = metadata.get("process_identity")
+        identity = identity if isinstance(identity, dict) else {}
+        if not envelope.scope.pid or observed_count(identity.get("pid")) != envelope.scope.pid:
+            reasons.append("CPU counter process identity does not match Evidence scope")
+        start = observed_nonnegative(window.get("start_unix_ms")) if isinstance(window, dict) else None
+        end = observed_nonnegative(window.get("end_unix_ms")) if isinstance(window, dict) else None
+        # Database timestamps can be naive UTC; never apply the workstation's
+        # local timezone when checking a persisted collection interval.
+        def unix_ms(value: datetime) -> float:
+            return (value if value.tzinfo else value.replace(tzinfo=timezone.utc)).timestamp() * 1000
+
+        if (start is None or end is None or start <= 0 or end <= start
+            or start < unix_ms(envelope.time_range.start)
+            or end > unix_ms(envelope.time_range.end)):
+            reasons.append("CPU counter capture window is outside the Evidence collection interval")
     if not envelope.quality.target_match:
         reasons.append("目标不匹配")
     if not envelope.quality.time_overlap:

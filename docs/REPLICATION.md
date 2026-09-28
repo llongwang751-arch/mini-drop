@@ -1,5 +1,11 @@
 # 基础复刻
 
+## 2026-09-28 发布执行约束（部署中）
+
+本轮复用既有 Control 与两个 Worker，不启动 Windows Docker。只对 Diagnosis Worker 和 Analyzer 做现有镜像上的源码覆盖层；分别保留旧镜像标签与实际运行环境生成的私有 rollback.compose.json，在新版本导入与健康探针通过后切换 current。数据库、对象存储、办公助手、原生 Agent 与 Web 不迁移、不重建。候选版本与部署状态以 PROJECT_CONTEXT 顶部及实际 deployment 元数据为准。
+
+独立 Worker1 的专用回环检索 fixture 通过 SSH 隧道供 Windows 发压，安装在隔离目录与 venv，使用不同于 Control 故障注入的主机。完整命令与清理协议见 [双机负载](DISTRIBUTED_LOAD.md)。
+
 ## 2026-09-19 预算与验证缺口发布
 
 当前发布 `20260919T141800Z`，Worker 镜像 `mini-drop-knowledge:20260919T141800Z`。增量脚本 `--runtime` 的固定清单现为九个文件，新增 deadlines、service、claim_verifier；仅替换 Diagnosis Worker，其余服务不重建，无 schema 迁移。实际 Chroma 检索门禁通过，39 块索引复用。回滚使用本版 `private/rollback.compose.json` 恢复 diagnosis-worker，确认健康后将 current 指向 `20260919T141100Z`；该首轮预算版链路成功但模型全超时，之前 133900Z 镜像也保留。本次真实 LATS 回归及 HTTP timeout 限制见 [预算改进记录](../reports/architecture/agent-deadline-20260919.md)。

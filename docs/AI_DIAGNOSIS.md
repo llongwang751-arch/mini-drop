@@ -1,5 +1,16 @@
 # AI 诊断方案
 
+## 2026-09-28 进程 CPU 独立对照（本地验证，待云端复验）
+
+`sys_metrics.v2` 的真实 Native Agent 采集链提供 Linux `/proc` 进程 CPU 累计 ticks、时钟频率、PID/namespace PID、进程启动 ticks 和采样时刻。Analyzer 新增 `process_cpu_window`，保存首尾计数、真实 `captured_at_unix_ms`、样本数及按单核 100% 计算的 CPU 占用。`offset_sec` 在当前 Native 实现中是循环序号，不能当作实际耗时；计数缺失、回退、非法数值、窗口不足一秒或身份不完整不能形成有效对照。
+
+假设可以明确写出数值反证，例如 `Target process CPU usage is below 50%` 或“目标进程 CPU 占用率低于 50%”。阈值由调查假设声明，不是所有故障统一的根因门槛。谓词重新计算原始计数：低于阈值为 COUNTER；达到阈值表示这项低 CPU 反证未出现，可作为 CONTROL。仅覆盖完整匹配的进程 CPU 判据；CPU 样本分布、具体函数是否出现、I/O 等待、锁竞争、宿主机负载以及复合命题不能因此获得覆盖。多个阈值产生冲突方向时保留 COUNTER。
+
+Evidence 仍须通过原有 Artifact SHA-256、Analyzer Job、样本质量和目标/时间门禁，`sys_metrics` 至少五个样本。新增边界要求 CPU 窗口 PID 等于 Evidence 目标 PID，首尾采样时刻完整位于任务起止区间内，不使用时间容差；数据库无时区时间按 UTC 处理。分数 PID、namespace PID 或启动 ticks 不得截断后冒充可信身份。可选应用快照缺失仍保留 `application_metrics=None`，由 `application_metrics_status=UNAVAILABLE` 和 `application_metrics_limitations` 明示；它不否定独立 `/proc` 观测，也不产生缺失的业务指标。旧版无法验证进程身份等全域限制保持有效。
+
+操作系统 CPU 与函数 profile 是不同来源的观测，但可能先后采集。它们至多支持同一故障期间的独立观察，不能声称天然处于同一采样窗，更不能仅凭 CPU 达标证明某函数导致请求延迟。单独 CONTROL 不会补齐函数级 SUPPORT 或其余判据。故障注入快照与注入时间属于验收方记录，不写入 Agent Evidence；云端复验另行核对采样、注入、恢复与清理。历史报告及 1/21 成绩不因本地回归通过自动改写。
+
+
 
 ## 2026-09-28 数值观测与结论展示（未部署）
 
