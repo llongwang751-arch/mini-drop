@@ -157,7 +157,7 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 | 已复验 | RAG JSON 解码历史修复 | 新增独立排序/隔离/新鲜度回归、cProfile 和同负载 HTTP 对照；非生产/真实模型指标 |
 | 部分完成 / P1 | 严格根因门禁缺少独立对照 | Python/Go 隔离 CI 已有 OS CPU 和函数 profile 三窗对照；仍须接入真实云端身份与来源合同后重新验收 20 个失败项，不降低门禁 |
 | P2 | 拆分仍约 8,500 行的 `drop_insight/service.py` | 以状态、取证、报告等真实边界拆分，保持行为回归，不把“拆文件”本身当收益 |
-| P2 | 扩大关键模块清单并逐步上调下限 | 新增预算、幂等相关模块入 `critical_coverage`（如 `report_conclusion.py` 69% 仍可提高）；随债务清偿上调既有下限 |
+| P2 | 扩大关键模块清单并逐步上调下限 | 新增预算、幂等相关模块入 `critical_coverage`（report_conclusion 已在 9 月 28 日提升到 100%，后续选取未纳入的预算/幂等模块）；随债务清偿上调既有下限 |
 
 重复性能回归（多次独立运行、记录 P95 波动）已在 3.4 完成；`fix_verification.py` 补测、conftest 收拢与 hypothesis property-based 测试已在 3.7 完成。
 
@@ -202,3 +202,5 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 本轮从剩余 69.4% 的 report_conclusion 覆盖缺口切入，先复现 Java 替换函数却沿用包装帧占比、非法数值导致崩溃/误判、缺失 GC/数据库计数生成反证等问题，保存修复前 24 项失败。新增语义与边界测试验证真实零值和缺失必须区分、GC 活动与分配因果关系分开、异常百分比不能支持/反驳、数据库延迟字段兼容与缺失、反证不能被 VERIFIED 标题覆盖。
 
 report_conclusion 的行+分支覆盖达到 100%，quality_plan 下限由 69 上调为 100；既有 100% fix_verification 门槛保持。覆盖率证明这些路径执行过，正确性仍由独立预期断言与修复前失败证据支撑。最后执行数量与 CI 以 PROJECT_CONTEXT 顶部为准。
+
+最终 [CI 与缺陷证据](../reports/architecture/conclusion-integrity-20260928.md)：代码 `6fb7124` 的 13/13 作业通过，Python 865 passed / 7 skipped，report_conclusion 与 fix_verification 行+分支均 100%。

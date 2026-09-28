@@ -14,6 +14,7 @@ Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验�
 
 | 要验证的风险 | 实现入口 | 可审阅证据 |
 | --- | --- | --- |
+| 缺失观测被误作反证、函数占比错配 | 非法数值/真零值/缺失的判据与结论回归 | [结论可信度缺陷复盘](reports/architecture/conclusion-integrity-20260928.md) |
 | 跳过、缺报告或损坏数据却显示通过 | 风险质量计划 + 原始报告复核 | [质量门禁](scripts/run_quality_gate.py)、[逐请求重算](scripts/verify_load_report.py) |
 | HTTP 200 但延迟、引用质量不达标 | 三窗对照、阶梯负载、持续窗口验收 | [30 分钟与容量实测](reports/architecture/resource-controls-20260927.md)、[业务验收](docs/BUSINESS_ACCEPTANCE.md) |
 | 并发重入、租约接管、重复效果 | 真实 PostgreSQL 事务竞争、Go race | [CI 与缺陷复盘](reports/architecture/test-engineering-ci-20260927.md) |
