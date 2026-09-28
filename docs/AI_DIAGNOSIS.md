@@ -1,5 +1,14 @@
 # AI 诊断方案
 
+## 2026-09-28 Pilot 后的计划与报告前补采（待二次发布）
+
+真实 Python/Go pilot 严格 0/2，但取证链及撤销恢复均通过。修复不回写旧结果：共享精确 CPU 阈值语法供模型计划准入与谓词复用，明确 CPU 升高类假设没有可执行独立反证时，返回既有一次纠正反馈；中英文、两种 planner runtime 均生效。普通 GIL/锁或仅 profile 集中不被强制当作 CPU 饱和。
+
+每个假设只有一份不可变报告，因此独立补采在首次报告生成之前完成。只有预登记全部为精确 CPU 阈值、可信运行时 profile SUPPORT、没有既有报告/独立对照时，对原 hypothesis_id 请求一次 collect_sys_metrics；权限、预算、截止时间、Agent能力与effect-key去重不变。等待审批/采集时延迟报告，拒绝或失败后仍可输出不足结论，不能无限重试。低 CPU 会真实反驳假设，不以验证字段单独冒充已证实根因。
+
+同一假设两次采集仍只算一轮；没有为凑三轮增加计数或降低严格验收条件。新增独立 worker 集成覆盖等待、重复、失败、反证和旧报告不变。后续根因与lineage仍须分项记录，代码验证不代表云端通过。
+
+
 ## 2026-09-28 进程 CPU 独立对照（本地验证，待云端复验）
 
 `sys_metrics.v2` 的真实 Native Agent 采集链提供 Linux `/proc` 进程 CPU 累计 ticks、时钟频率、PID/namespace PID、进程启动 ticks 和采样时刻。Analyzer 新增 `process_cpu_window`，保存首尾计数、真实 `captured_at_unix_ms`、样本数及按单核 100% 计算的 CPU 占用。`offset_sec` 在当前 Native 实现中是循环序号，不能当作实际耗时；计数缺失、回退、非法数值、窗口不足一秒或身份不完整不能形成有效对照。

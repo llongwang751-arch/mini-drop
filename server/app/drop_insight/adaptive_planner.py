@@ -9,6 +9,7 @@ from typing import Any
 from server.app.ai_provider import chat_completions, get_ai_settings, is_feature_enabled
 from server.app.agent_runtime.retrieval import build_retrieval_trace
 from server.app.logging_utils import log_event
+from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT, cpu_plan_validation_error
 
 
 SYSTEM_PROMPT = """你是性能诊断假设规划器。基于问题、可信范围、已有证据和用户纠错，
@@ -147,7 +148,7 @@ def propose_hypothesis_plan(
         response = chat_completions({
             "model": settings.model,
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": SYSTEM_PROMPT + "\n" + EVIDENCE_PLANNING_REQUIREMENT},
                 {"role": "user", "content": (
                     "<trusted_diagnosis_context>\n" + json.dumps(trusted, ensure_ascii=False)
                     + "\n</trusted_diagnosis_context>\n<untrusted_user_problem>\n"
@@ -167,6 +168,8 @@ def propose_hypothesis_plan(
         result = json.loads(raw) if isinstance(raw, str) else raw
         if result.get("tool_name") not in allowed or not result.get("hypotheses"):
             return None
+        if cpu_plan_validation_error(result["hypotheses"]):
+            return None
         from .diagnosis_agent import normalize_diagnosis_plan_for_display
 
         result = normalize_diagnosis_plan_for_display(
@@ -176,6 +179,8 @@ def propose_hypothesis_plan(
                 (user_preferences or {}).get("response_language") or "zh-CN"
             ),
         )
+        if cpu_plan_validation_error(result["hypotheses"]):
+            return None
         result["retrieval_trace"] = retrieval_trace
         return result
     except Exception:

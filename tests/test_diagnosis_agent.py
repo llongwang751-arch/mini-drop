@@ -53,7 +53,7 @@ def _proposal(tool_name="start_pyspy_profile"):
             {
                 "statement": "CPU 由少数 Python 热点函数主导",
                 "expected_observations": ["采样集中在少数调用栈"],
-                "falsification_criteria": ["样本分散且无显著热点"],
+                "falsification_criteria": ["目标进程 CPU 占用率低于 50%"],
                 "rationale": "规则基线和服务运行时均指向 Python",
             }
         ],

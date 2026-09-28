@@ -33,6 +33,8 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT, cpu_plan_validation_error
+
 from server.app.ai_provider import AISettings
 from server.app.agent_runtime.context import (
     normalize_trusted_context,
@@ -76,14 +78,7 @@ DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT = (
     "函数名和工具名等必要专有名词可以保留英文。证据反驳、工具不可观测或"
     "门禁拒绝动作后，必须提出未尝试的候选原因并切换证据域；其他未知原因"
     "只能保留一个兜底候选。"
-    "falsification_criteria 必须描述采集成功时与假设相反的可观察结果；"
-    "采集失败、权限不足、无法附加、样本不足只能表示不可观测，不能作为反证。"
-    "CPU 热点假设应把函数分布与操作系统进程 CPU 占用分开验证：运行时 Profile "
-    "用于定位函数，collect_sys_metrics 可独立读取同一目标的 /proc CPU 计数。"
-    "若用 CPU 占用作证伪条件，写出单核口径的明确百分比阈值，例如"
-    "‘目标进程 CPU 占用率低于 50%’，阈值须符合当前假设；不要把 CPU、I/O、"
-    "锁或函数分布塞进同一条件，也不要让 CPU 计数覆盖这些不同证据域。"
-    "只有确实需要验证 CPU 条件时才采集该工具，不以重复 Profile 充当独立对照。"
+
 )
 
 SKILL_PROGRESSIVE_DISCLOSURE_REQUIREMENT = (
@@ -315,6 +310,9 @@ def request_diagnostic_probe(
             "code": "INVALID_FALSIFICATION",
             "reason": "采集失败或不可观测不能证伪根因。请把每条证伪条件改成采集成功时与假设相反的指标/调用栈结果，工具白名单与预算不变。",
         }, ensure_ascii=False)
+    cpu_error = cpu_plan_validation_error(request.hypotheses)
+    if cpu_error:
+        return json.dumps({"accepted": False, "code": "INVALID_FALSIFICATION", "reason": cpu_error}, ensure_ascii=False)
     return json.dumps(
         {"accepted": True, "proposal": request.model_dump(mode="json")},
         ensure_ascii=False,
@@ -388,6 +386,8 @@ def _diagnosis_system_prompt(request: ModelRequest) -> str:
         + SKILL_PROGRESSIVE_DISCLOSURE_REQUIREMENT
         + "\n"
         + PREFERENCE_MEMORY_REQUIREMENT
+        + "\n"
+        + EVIDENCE_PLANNING_REQUIREMENT
         + "\n"
         + (
             "All user-visible summaries, hypotheses, expected observations and "
@@ -896,6 +896,8 @@ def _accepted_tool_payload(messages: list[Any]) -> dict[str, Any] | None:
                     for marker in _COLLECTION_FAILURE_MARKERS
                 ):
                     return None
+                if cpu_plan_validation_error(proposal["hypotheses"]):
+                    return None
                 return proposal
             except (TypeError, ValueError):
                 return None
@@ -1107,6 +1109,8 @@ def plan_with_diagnosis_agent(
             context.user_preferences.get("response_language") or "zh-CN"
         ),
     )
+    if cpu_plan_validation_error(proposal["hypotheses"]):
+        return None
     return {
         **proposal,
         "agent_framework": AGENT_FRAMEWORK,

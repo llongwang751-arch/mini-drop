@@ -10,6 +10,7 @@ import re
 
 from server.app.models import ArtifactModel, DropInsightHypothesisModel
 from .evidence import observed_count, observed_nonnegative
+from .cpu_criteria import process_cpu_thresholds
 
 
 def _invalid_numeric_observation(reason: str = "Required numeric observation is missing, invalid or outside its domain") -> dict:
@@ -141,17 +142,7 @@ def _process_cpu_control(hypothesis, metadata: dict) -> dict | None:
     if not any(token in str(hypothesis.statement).casefold()
                for token in ("cpu", "热点", "hotspot", "计算")):
         return None
-    patterns = (
-        r"(?:target )?process cpu(?: usage)? (?:is |remains )?(?:below|less than) (\d+(?:\.\d+)?)\s*%[.]?",
-        r"(?:目标)?进程\s*cpu(?:\s*占用(?:率)?)?\s*(?:低于|小于)\s*(\d+(?:\.\d+)?)\s*%[。]?",
-    )
-    criteria = []
-    for index, criterion in enumerate(hypothesis.falsification_criteria_json or []):
-        for pattern in patterns:
-            match = re.fullmatch(pattern, str(criterion).strip().casefold())
-            if match and 0 < float(match[1]) <= 10000:
-                criteria.append((index, float(match[1])))
-                break
+    criteria = process_cpu_thresholds(hypothesis.falsification_criteria_json or [])
     if not criteria:
         return None
     identity = metadata.get("process_identity") or {}

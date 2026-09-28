@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1703 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1728 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 491 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 493 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2417,6 +2417,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/.qa-report-20260906-2248/` | .qa-report-20260906-2248 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/.qa-report-20260906-final/` | .qa-report-20260906-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/.qa-report-20260906-final2/` | .qa-report-20260906-final2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/` | fault-plaza-strict-pilot-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered/` | rendered 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered-v2/` | rendered-v2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered-v3/` | rendered-v3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2424,6 +2425,7 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/` | business-acceptance 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/actual-rag-regression-20260927/` | actual-rag-regression-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/conclusion-integrity-20260928/` | conclusion-integrity-20260928 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/business-acceptance/deployment-20260928/` | deployment-20260928 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/endurance-20260927/` | endurance-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/resource-controls-20260927/` | resource-controls-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/resource-controls-20260927/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2723,6 +2725,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/business_showcase.py` | 读取服务端固定且哈希校验的业务结果，仅提供只读展示。 | `get_business_acceptance` |
 | `server/app/drop_insight/campaign_matrix.py` | Python 服务模块，负责对应模块行为。 | `validate_collector_reports`、`build_campaign_admission` |
 | `server/app/drop_insight/claim_verifier.py` | 检查报告主张是否被当前 Evidence 引用和支持。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
+| `server/app/drop_insight/cpu_criteria.py` | Python 服务模块，负责对应模块行为。 | `process_cpu_thresholds`、`cpu_utilization_hypothesis`、`cpu_plan_validation_error` |
 | `server/app/drop_insight/diagnosis_agent.py` | LangChain create_agent 与 LangGraph Checkpoint 适配。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
 | `server/app/drop_insight/event_store.py` | Python 服务模块，负责对应模块行为。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
 | `server/app/drop_insight/evidence.py` | Python 服务模块，负责Evidence 分类与门禁。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
@@ -2744,7 +2747,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/rounds.py` | Python 服务模块，负责对应模块行为。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
 | `server/app/drop_insight/scaled_skill_ab.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
 | `server/app/drop_insight/schemas.py` | Python 服务模块，负责对应模块行为。 | `StrictModel`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget`、`StartFrozenReplayRequest` 等 29 个声明 |
-| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 129 个声明 |
+| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 131 个声明 |
 | `server/app/drop_insight/showcase.py` | Python 服务模块，负责对应模块行为。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
 | `server/app/drop_insight/skill_benchmark.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
 | `server/app/drop_insight/skill_evolution.py` | Skill 混合检索、激活、跨轮沿用、候选演进和发布门禁。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
@@ -3003,6 +3006,9 @@ python scripts/render_learning_guide.py
 | `tests/test_business_repeat.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`row`、`test_aggregate_records_every_run_and_reports_spread`、`test_stable_outcomes_aggregate_to_a_single_verdict`、`test_aggregate_refuses_to_fabricate_statistics_from_no_runs` 等 11 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
+| `tests/test_cpu_control_continuation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `seeded`、`call`、`test_same_hypothesis_immutable_criteria_and_real_policy_approved`、`test_repeated_pending_requests_reuse_one_effect_and_one_reservation`、`test_vague_mixed_or_missing_criteria_do_not_dispatch` 等 16 个声明 |
+| `tests/test_cpu_control_worker_flow.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `flow`、`add_task`、`add_evidence`、`add_cpu`、`reports` 等 9 个声明 |
+| `tests/test_cpu_plan_contract.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `evaluate`、`test_real_pilot_high_cpu_proposal_without_independent_counter_is_rejected`、`test_explicit_threshold_addition_is_accepted_without_deleting_existing_criteria`、`test_compound_or_other_domain_counter_cannot_satisfy_cpu_plan`、`test_non_cpu_utilization_claim_is_not_forced_to_invent_cpu_threshold` 等 9 个声明 |
 | `tests/test_current_architecture.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_removed_implementations_do_not_return`、`test_replication_topology_has_one_public_control_plane`、`test_ai_worker_contract_and_skill_pipeline_are_present` |
 | `tests/test_database.py` | Python 自动化测试，验证数据库与迁移的成功、失败与边界条件。 | `test_fresh_session_initialization_does_not_deadlock`、`test_init_db_upgrades_legacy_drop_insight_contract`、`test_init_db_preserves_established_requested_scope`、`test_init_db_rejects_duplicate_drop_insight_reports`、`test_managed_schema_rejects_missing_drop_insight_column` 等 24 个声明 |
 | `tests/test_deployment_image_contract.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_python_worker_image_contains_runtime_import_roots`、`test_compose_migration_bootstraps_object_store_after_minio_is_healthy`、`test_multi_node_control_compose_exposes_only_required_host_ports`、`test_control_interview_demo_is_opt_in_bounded_and_uses_a_distinct_mtls_agent`、`test_multi_node_worker_is_one_secure_host_pid_agent` 等 9 个声明 |
@@ -3428,6 +3434,9 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260905.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/backup-restore-run-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260905.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260906.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/postgres-concurrency-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3466,6 +3475,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/项目全面检查与修复-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/agent-deadline-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/agi-saber-rag-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/cloud-deployment-and-strict-retest-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-recovery-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-release-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/conclusion-integrity-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3497,6 +3507,23 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/conclusion-integrity-20260928/ci-python-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/conclusion-integrity-20260928/ci.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/conclusion-integrity-20260928/regression-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/ci-artifact-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/ci-python-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/ci-python-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/cpu-plan-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/cpu-plan-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/deployment-source-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/health-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/historical-matrix.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/historical-matrix.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/local-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/local-regression-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/pilot-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/pilot-followup-regression.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260928/runtime-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci-short-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

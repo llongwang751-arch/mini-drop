@@ -78,6 +78,7 @@ from server.app.sql_repository import SqlRepository
 from server.app.storage import presigned_put_url
 from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
+from .cpu_criteria import process_cpu_thresholds, cpu_utilization_hypothesis
 from .lats import (
     CONFIDENCE_SCALE,
     LATSConfig,
@@ -4000,6 +4001,70 @@ def _stop_replanning_at_deadline(diagnosis, report_id: str) -> bool:
     return True
 
 
+def _request_cpu_control_before_report(diagnosis_id: str, hypothesis_id: str):
+    """Complete one pre-registered CPU check before freezing an immutable report.
+
+    Neither the hypothesis nor an existing Report is revised. A denied/failed
+    attempt remains an attempt and cannot turn this path into an infinite retry.
+    """
+    session = new_session()
+    try:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        parent = session.get(DropInsightHypothesisModel, hypothesis_id)
+        if (diagnosis is None or parent is None or parent.diagnosis_id != diagnosis_id
+                or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED"}):
+            return None
+        criteria = list(parent.falsification_criteria_json or [])
+        if (not cpu_utilization_hypothesis(parent.statement) or not criteria
+                or len(process_cpu_thresholds(criteria)) != len(criteria)):
+            return None
+        if session.query(DropInsightReportModel).filter_by(
+            diagnosis_id=diagnosis_id, hypothesis_id=hypothesis_id
+        ).first() is not None:
+            return None
+        rows = session.query(DropInsightEvidenceModel).filter_by(
+            diagnosis_id=diagnosis_id, hypothesis_id=hypothesis_id
+        ).all()
+        accepted = [row for row in rows
+                    if (row.classification_json or {}).get("can_support_conclusion") is True]
+        if any(row.role in {"COUNTER", "CONTROL"} for row in accepted):
+            return None
+        if not any(row.role == "SUPPORT" and
+                   (row.classification_json or {}).get("decision") == "ACCEPT_SUPPORT" and
+                   ((row.envelope_json or {}).get("source") or {}).get("tool_name") in {
+                       "pyspy", "go_pprof", "perf_cpu", "continuous_perf", "java_async"
+                   }
+                   for row in accepted):
+            return None
+        prior = session.query(DropInsightToolCallModel).filter_by(
+            diagnosis_id=diagnosis_id, hypothesis_id=hypothesis_id,
+            tool_name="collect_sys_metrics",
+        ).first()
+        if prior is not None:
+            # Await an already requested probe; terminal attempts never retry.
+            return prior
+        binding = _current_target_binding(diagnosis)
+        agent = session.get(AgentModel, binding.agent_id)
+        if agent is None or agent.status != "ONLINE" or "sys_metrics" not in (agent.capabilities or []):
+            return None
+        if "collect_sys_metrics" not in _available_planner_tools(diagnosis, binding):
+            return None
+        # This is an additional action within the existing hypothesis round.
+        # request_tool_call applies the persisted deadline, policy and budgets.
+        arguments = _planner_tool_arguments("collect_sys_metrics", diagnosis.target_json or {},
+                                            query=diagnosis.query)
+    finally:
+        session.close()
+    call = request_tool_call(diagnosis_id, CreateToolCallRequest(
+        hypothesis_id=hypothesis_id, tool_name="collect_sys_metrics", arguments=arguments),
+        requested_by="system:cpu-control-before-report",
+        effect_key=f"hypothesis:{hypothesis_id}:cpu-control:tool_call")
+    if call is not None:
+        _record_lats_action_dispatched(diagnosis_id, hypothesis_id, call,
+                                      effect_prefix=f"hypothesis:{hypothesis_id}:cpu-control:lats")
+    return call
+
+
 def _replan_after_insufficient_evidence(
     diagnosis_id: str,
     parent_hypothesis_id: str,
@@ -6343,6 +6408,12 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
             session.close()
         report = None
         if hypothesis_exists:
+            control_call = _request_cpu_control_before_report(
+                diagnosis_id, snapshot["hypothesis_id"]
+            )
+            control_pending = control_call is not None and control_call.status in {
+                "PROPOSED", "PENDING_APPROVAL", "APPROVED", "TASK_CREATED", "RUNNING"
+            }
             # A diagnosis round may dispatch more than one independent probe.
             # Do not freeze an immutable report until every sibling probe has
             # imported its Analyzer-validated evidence. A sibling task can be
@@ -6367,7 +6438,7 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                 ]
             finally:
                 session.close()
-            if not pending_siblings:
+            if not pending_siblings and not control_pending:
                 report = generate_report(
                     diagnosis_id,
                     GenerateReportRequest(
@@ -6380,6 +6451,7 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                     "task_id": snapshot["task_id"],
                     "action": "WAIT_FOR_ROUND_EVIDENCE",
                     "pending_task_count": len(pending_siblings),
+                    "pending_cpu_control": control_pending,
                 })
 
         session = new_session()
@@ -7392,6 +7464,18 @@ def _record_skill_route_decision(
         session.close()
 
 
+def _cpu_rule_plan_for_query(plan: dict, query: str) -> dict:
+    """State the CPU test boundary up front, only for an explicit CPU symptom."""
+    if (plan.get("category") not in {"CPU_HOTSPOT", "PYTHON_RUNTIME", "GO_RUNTIME"}
+            or not cpu_utilization_hypothesis(query)):
+        return plan
+    return {
+        **plan,
+        "statement": "目标进程 CPU 占用率可能升高并由计算热点主导（单核 100% 口径，以 50% 为本轮待验证阈值）",
+        "falsification": ["目标进程 CPU 占用率低于 50%"],
+    }
+
+
 def run_diagnosis_planner(
     diagnosis_id: str,
     payload: RunPlannerRequest,
@@ -7749,6 +7833,7 @@ def run_diagnosis_planner(
             "arguments": triage_arguments,
         }
 
+    plan = _cpu_rule_plan_for_query(plan, diagnosis.query)
     available_tools = _available_planner_tools(diagnosis, binding)
     allowed_tools = _category_allowed_tools(plan["category"], available_tools)
     if not allowed_tools:

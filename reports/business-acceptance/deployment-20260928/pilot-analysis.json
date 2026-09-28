@@ -1,0 +1,303 @@
+{
+  "status": "FAILED_ROOT_GATE_ONLY",
+  "rows": [
+    {
+      "scenario_id": "source-hotspot",
+      "diagnosis_id": "insight_7260d649a57f4dab8cfc24342f40815a",
+      "passed": false,
+      "lineage_verified": true,
+      "recovery_observed": true,
+      "identity_verified": true,
+      "cleanup_verified": true,
+      "case_path": "reports\\ai-diagnosis\\fault-plaza-strict-pilot-20260928-cases\\source-hotspot.json",
+      "sha256": "24cbc630670fe3be867ea179fcb3c44071aedbeea2b2068559f402f9b8ad5e08",
+      "cpu_windows": [
+        {
+          "evidence_id": "ev_task_task_20260928_140704_14bb58_4022",
+          "hypothesis_id": "hyp_dfe264af76e64ab59f8ecc134542fc87",
+          "classification": {
+            "decision": "ACCEPT_SUPPORT",
+            "can_support_conclusion": true,
+            "reasons": []
+          },
+          "window": {
+            "source": "linux_proc_stat",
+            "clock_ticks_per_second": 100,
+            "start_cpu_ticks": 1106032,
+            "end_cpu_ticks": 1107270,
+            "start_unix_ms": 1790604425904.0,
+            "end_unix_ms": 1790604439911.0,
+            "sample_count": 15,
+            "process_cpu_core_usage": 88.38437923895196
+          },
+          "predicate": {
+            "outcome": "SUPPORT",
+            "version": "hypothesis-predicate-v3",
+            "reason": "target process consumed sustained CPU or advanced its measured compute loop",
+            "criterion_indexes": [
+              0
+            ],
+            "metrics": {
+              "process_cpu_core_usage": 88.384,
+              "application_cpu_percent": 97.16,
+              "cpu_operations_delta": 0.0
+            },
+            "signal": "cpu_hotspot"
+          },
+          "time_range": {
+            "start": "2026-09-28T14:07:05.860670Z",
+            "end": "2026-09-28T14:07:22.098770Z",
+            "timezone": "Asia/Shanghai"
+          }
+        }
+      ],
+      "hypotheses": [
+        {
+          "hypothesis_id": "hyp_a966a102be7d4c3b9b706b23deeb45a7",
+          "statement": "目标 Python 进程存在用户态热点函数，导致 CPU 持续升高",
+          "expected_observations": [
+            "py-spy 样本集中在少数 Python 函数（如 Top3 函数占比超过 50%）",
+            "火焰图显示明显的函数调用热点区域"
+          ],
+          "falsification_criteria": [
+            "Python 栈样本均匀分布，无明显热点函数集中",
+            "主要样本落在解释器内部或系统库而非用户代码"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_a68df868bfc14e83a1b9385528638fda",
+          "statement": "目标 Python 进程存在 GIL 竞争或线程调度问题",
+          "expected_observations": [
+            "多个线程的等待/运行分布不均，部分线程长时间等待 GIL",
+            "GIL 相关栈（如 PyEval_EvalFrameEx）出现在多个线程"
+          ],
+          "falsification_criteria": [
+            "线程间样本分布均匀，无明显等待模式",
+            "GIL 相关栈占比很低或均匀分布"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_b125bd43b7a2443b96ce0345fba1481f",
+          "statement": "Python 事件循环存在阻塞或长耗时回调",
+          "expected_observations": [
+            "主要样本稳定落在同步阻塞调用或长耗时回调函数",
+            "事件循环相关栈（如 asyncio、select）占用显著比例"
+          ],
+          "falsification_criteria": [
+            "事件循环栈占比很低，样本主要分布在业务逻辑",
+            "无明显同步阻塞调用模式"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_35996515e37e46449118da25cc0c74ba",
+          "statement": "其他未知原因（OTHER/UNKNOWN）",
+          "expected_observations": [
+            "存在尚未被既有候选假设充分解释的观测现象"
+          ],
+          "falsification_criteria": [
+            "所有观测现象均能被既有候选假设充分解释"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_dfe264af76e64ab59f8ecc134542fc87",
+          "statement": "第 2 轮：异常可能来自主机资源基线或共享资源争抢，而非单一运行时路径",
+          "expected_observations": [
+            "CPU、内存、磁盘 I/O 或网络指标至少一项与故障时间窗同步异常"
+          ],
+          "falsification_criteria": [
+            "系统基线在故障时间窗内保持平稳，且与异常没有相关性"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_8d1f1a21098a4401869dcea734932770",
+          "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+          "expected_observations": [
+            "CPU 样本稳定集中在可归属的调用路径或等待路径"
+          ],
+          "falsification_criteria": [
+            "调用栈样本分散，未出现稳定热点或等待路径"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_228924154410430eacb3ffbfa6fc56e5",
+          "statement": "第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+          "expected_observations": [
+            "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+          ],
+          "falsification_criteria": [
+            "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_ed80dea9bd184627b09e115692b3d481",
+          "statement": "第 3 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+          "expected_observations": [
+            "RSS、PSS、swap 或内存映射变化与故障时间窗一致"
+          ],
+          "falsification_criteria": [
+            "目标进程内存足迹稳定，且没有换页或映射异常"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_82874905c27f4a69b02f340576d00935",
+          "statement": "第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖",
+          "expected_observations": [
+            "连续采样的至少一个窗口捕获稳定热点及其时间变化"
+          ],
+          "falsification_criteria": [
+            "多个连续窗口均未捕获稳定热点或明显漂移"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_d8b45f422cec4790bf9e4b0a408b4ecc",
+      "passed": false,
+      "lineage_verified": true,
+      "recovery_observed": true,
+      "identity_verified": true,
+      "cleanup_verified": true,
+      "case_path": "reports\\ai-diagnosis\\fault-plaza-strict-pilot-20260928-cases\\go-cpu-hotspot.json",
+      "sha256": "9b025483dbe7db1a6bf8f4fb3786033b839f1390a7eb665c71f3bd3922823d60",
+      "cpu_windows": [
+        {
+          "evidence_id": "ev_task_task_20260928_141045_00877f_4035",
+          "hypothesis_id": "hyp_6bb8502ea4354d23ab355b16a3e46fce",
+          "classification": {
+            "decision": "ACCEPT_SUPPORT",
+            "can_support_conclusion": true,
+            "reasons": []
+          },
+          "window": {
+            "source": "linux_proc_stat",
+            "clock_ticks_per_second": 100,
+            "start_cpu_ticks": 1073371,
+            "end_cpu_ticks": 1074276,
+            "start_unix_ms": 1790604649661.0,
+            "end_unix_ms": 1790604663666.0,
+            "sample_count": 15,
+            "process_cpu_core_usage": 64.61977865048198
+          },
+          "predicate": {
+            "outcome": "SUPPORT",
+            "version": "hypothesis-predicate-v3",
+            "reason": "target process consumed sustained CPU or advanced its measured compute loop",
+            "criterion_indexes": [
+              0
+            ],
+            "metrics": {
+              "process_cpu_core_usage": 64.62,
+              "cpu_operations_delta": 97258500.0
+            },
+            "signal": "cpu_hotspot"
+          },
+          "time_range": {
+            "start": "2026-09-28T14:10:49.592752Z",
+            "end": "2026-09-28T14:11:05.464951Z",
+            "timezone": "Asia/Shanghai"
+          }
+        }
+      ],
+      "hypotheses": [
+        {
+          "hypothesis_id": "hyp_3a1d1ec9b521435eb314799ead25b18c",
+          "statement": "Go服务存在CPU计算热点，pprof样本集中在少数Go函数",
+          "expected_observations": [
+            "pprof TopN函数占用超过50%的CPU样本",
+            "CPU profile显示明确的业务函数调用链"
+          ],
+          "falsification_criteria": [
+            "pprof样本分散在多个函数且无主导热点（Top3函数合计低于30%）",
+            "CPU profile显示主要时间消耗在runtime或系统调用等待"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_1f3c3c2637ba4e73901b2ebdc5c916f5",
+          "statement": "其他未知原因（OTHER/UNKNOWN）",
+          "expected_observations": [
+            "存在尚未被既有候选假设充分解释的观测现象"
+          ],
+          "falsification_criteria": [
+            "所有观测现象均能被既有候选假设充分解释"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_6bb8502ea4354d23ab355b16a3e46fce",
+          "statement": "第 2 轮：异常可能来自主机资源基线或共享资源争抢，而非单一运行时路径",
+          "expected_observations": [
+            "CPU、内存、磁盘 I/O 或网络指标至少一项与故障时间窗同步异常"
+          ],
+          "falsification_criteria": [
+            "系统基线在故障时间窗内保持平稳，且与异常没有相关性"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_d9d50711b22d4d96894bbba663d8b4d0",
+          "statement": "目标进程CPU占用与故障时间窗同步异常，支持计算热点假设",
+          "expected_observations": [
+            "目标进程CPU占用率在故障时间窗内显著升高（例如超过50%）",
+            "系统CPU user比例与目标进程CPU变化同步"
+          ],
+          "falsification_criteria": [
+            "目标进程CPU占用率在故障时间窗内保持平稳且低于30%",
+            "系统CPU user比例与目标进程CPU变化无相关性"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_85c2f7c044da4aa1944fb07e26d35856",
+          "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+          "expected_observations": [
+            "CPU 样本稳定集中在可归属的调用路径或等待路径"
+          ],
+          "falsification_criteria": [
+            "调用栈样本分散，未出现稳定热点或等待路径"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_999c2ba2ef0645149d0e40af5e5a4df5",
+          "statement": "目标进程存在原生调用栈热点，主要消耗在用户态计算而非系统调用等待",
+          "expected_observations": [
+            "perf样本稳定集中在可归属的Go用户态调用路径",
+            "系统调用开销占比低于10%"
+          ],
+          "falsification_criteria": [
+            "perf样本分散在多个内核函数或系统调用",
+            "系统调用或内核等待开销占比超过30%"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_bff606fb6e45497a88a342fb7a40605f",
+          "statement": "第 3 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+          "expected_observations": [
+            "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+          ],
+          "falsification_criteria": [
+            "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_87bbaf561ab54c908a1a75b2042f2f58",
+          "statement": "第 4 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+          "expected_observations": [
+            "RSS、PSS、swap 或内存映射变化与故障时间窗一致"
+          ],
+          "falsification_criteria": [
+            "目标进程内存足迹稳定，且没有换页或映射异常"
+          ]
+        },
+        {
+          "hypothesis_id": "hyp_689c702d00394949987e872aa99aa6ee",
+          "statement": "第 4 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖",
+          "expected_observations": [
+            "连续采样的至少一个窗口捕获稳定热点及其时间变化"
+          ],
+          "falsification_criteria": [
+            "多个连续窗口均未捕获稳定热点或明显漂移"
+          ]
+        }
+      ]
+    }
+  ],
+  "finding": "Independent Linux CPU windows are present and trusted; planner generated profile-only or compound falsification criteria, and later CPU evidence belongs to a different hypothesis. Do not change existing criteria or promote historical evidence after observing results."
+}
