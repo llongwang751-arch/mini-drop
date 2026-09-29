@@ -27,7 +27,7 @@ def figure(report, samples):
                   color=[colors.get(s["summary"]["status"], "#737373") for s in stages])
     ax.bar_label(bars, fmt="%.1f", padding=3)
     ax.axhline(report["plan"]["p95_limit_ms"], color="#b6473d", linestyle="--", label="P95 limit")
-    ax.set(title="All stages (including rejected / invalid)", ylabel="P95 ms")
+    ax.set(title="Whole-stage aggregates (see window results)", ylabel="P95 ms")
     ax.tick_params(axis="x", rotation=25)
     ax.legend()
 
@@ -67,7 +67,8 @@ def figure(report, samples):
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(axis="y", alpha=.18)
         ax.set_axisbelow(True)
-    fig.suptitle("Local fixture evidence — " + report["status"], fontsize=16)
+    scope = "Two-host fixture evidence" if report.get("scope", "").startswith("TWO_HOST_") else "Local fixture evidence"
+    fig.suptitle(scope + " — " + report["status"], fontsize=16)
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png", dpi=140)
     plt.close(fig)
@@ -86,6 +87,8 @@ def html(report, png):
             f"{summary['offered']} / {summary['sent']} / {summary['unsent']}",
             number(summary["p95_ms"]), number(summary["p99_ms"]),
             f"{summary['success_rate']:.2%} / {summary['quality_rate']:.2%}",
+            (f"{sum(b['summary']['status'] != 'PASSED' for b in phase['buckets'])} / {len(phase['buckets'])}"
+             if "buckets" in phase else "未记录"),
             summary["status"], ", ".join(summary["reasons"]) or "—")) + "</tr>")
     resource = report.get("resources")
     resource_text = "该历史报告未采集目标进程资源，不能补作稳定性结论。"
@@ -103,14 +106,16 @@ def html(report, png):
     status = report["status"]
     theme = "pass" if status == "PASSED" else "fail"
     image = base64.b64encode(png).decode("ascii")
+    scope_text = ("本次双机隔离样例配置；公网、SSH 隧道及客户端开销计入端到端延迟"
+                  if report.get("scope", "").startswith("TWO_HOST_") else "本机隔离样例和本次配置")
     return f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>负载与资源验收 · {escape(status)}</title>
 <style>body{{font:16px/1.65 system-ui,sans-serif;color:#202b34;background:#f5f6f7;margin:0}}main{{max-width:1180px;margin:auto;padding:32px 24px}}h1{{font-size:30px;margin:8px 0}}h2{{font-size:21px;margin-top:32px}}.label{{color:#536573}}.verdict{{padding:18px;border-left:5px solid;background:white}}.pass{{border-color:#24755b}}.fail{{border-color:#b56b13}}img{{width:100%;height:auto;background:white}}table{{border-collapse:collapse;width:100%;font-size:14px;background:white}}td,th{{padding:10px;text-align:left;border-bottom:1px solid #d8dee3;vertical-align:top}}th{{white-space:nowrap}}.scroll{{overflow-x:auto}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px;font-size:12px}}summary{{cursor:pointer}}.note{{color:#536573}}code{{overflow-wrap:anywhere}}</style>
 <main><div class="label">Mini-Drop · 测试开发证据报告</div><h1>负载、恢复与资源增长验收</h1>
 <div class="verdict {theme}"><strong>{escape(status)}</strong> · 原始证据完整性已复核
-<p>只描述本机隔离样例和本次配置，不是生产容量、AI 根因或无泄漏证明。INVALID 表示至少一项测量前提未成立，不能当作通过。</p></div>
+<p>只描述{scope_text}，不是生产容量、AI 根因或无泄漏证明。INVALID 表示至少一项测量前提未成立，不能当作通过。</p></div>
 <p>CPU、RSS 来自自己创建的目标进程；CPU 100% 表示一个逻辑核。缺失观测不填零。高负载 SLO 失败和发压端无效均保留在下表。</p>
-<h2>阶段结果</h2><div class="scroll"><table><thead><tr><th>阶段</th><th>请求/秒</th><th>秒</th><th>计划 / 实发 / 未发</th><th>P95 ms</th><th>P99 ms</th><th>成功 / 引用检查</th><th>判定</th><th>原因</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
+<h2>阶段结果</h2><p>阶段总体 P95 达标不能覆盖分窗失败；持续阶段须每个窗口均达标。</p><div class="scroll"><table><thead><tr><th>阶段</th><th>请求/秒</th><th>秒</th><th>计划 / 实发 / 未发</th><th>P95 ms</th><th>P99 ms</th><th>成功 / 引用检查</th><th>失败窗 / 总窗</th><th>阶段总体判定</th><th>原因</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
 <h2>延迟与目标进程资源</h2><img alt="各阶段 P95、持续窗口 P95、目标 RSS 和单核口径 CPU 时间序列；精确值见表格和完整报告" src="data:image/png;base64,{image}">
 <p>{escape(resource_text)}</p><div class="scroll">{growth}</div>
 <p class="note">资源增长为持续阶段末三分之一与首三分之一样本中位数之差。瞬时峰值不等于泄漏；预算以下也不证明所有泄漏不存在。采样空缺在图中保留为断点。</p>
@@ -120,8 +125,12 @@ def html(report, png):
 
 
 def render(source, output):
-    verify(source)
     report = json.loads(source.read_text(encoding="utf-8"))
+    if report.get("scope", "").startswith("TWO_HOST_"):
+        from scripts.run_distributed_endurance import verify_distributed
+        verify_distributed(source)
+    else:
+        verify(source)
     samples = []
     if "resources" in report:
         samples = [json.loads(line) for line in (source.parent / "resources.jsonl").read_text(encoding="utf-8").splitlines()]

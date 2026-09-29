@@ -78,7 +78,8 @@ from server.app.sql_repository import SqlRepository
 from server.app.storage import presigned_put_url
 from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
-from .cpu_criteria import process_cpu_thresholds, cpu_utilization_hypothesis
+from .cpu_criteria import (cpu_utilization_hypothesis, compile_cpu_observation_contract,
+                           cpu_observation_plan)
 from .lats import (
     CONFIDENCE_SCALE,
     LATSConfig,
@@ -1525,6 +1526,16 @@ def create_hypothesis(
             )
             if existing is not None:
                 return existing
+        contract = compile_cpu_observation_contract(
+            payload.statement, payload.expected_observations, payload.falsification_criteria,
+            runtime=_diagnosis_runtime_family(diagnosis),
+        )
+        if contract["status"] == "UNSUPPORTED":
+            details = "; ".join(
+                f"{slot['kind']}[{slot.get('index')}]: {slot['reason']}"
+                for slot in contract["unsupported_slots"]
+            )
+            raise ValueError(f"CPU_OBSERVATION_CONTRACT_UNSUPPORTED: {details}")
         timestamp = now_utc()
         model = DropInsightHypothesisModel(
             id=f"hyp_{uuid4().hex}",
@@ -1551,6 +1562,12 @@ def create_hypothesis(
                 "source": source,
                 "round_index": round_index,
                 "parent_hypothesis_id": parent_hypothesis_id,
+                **({"observation_contract": {
+                    "contract_id": contract["contract_id"], "runtime": contract["runtime"],
+                    "cpu_threshold": contract["cpu_threshold"],
+                    "profile_threshold": contract["profile_threshold"],
+                    "scope": "SEPARATELY_COLLECTED_OBSERVATIONS_NOT_CAUSATION",
+                }} if contract["status"] == "SUPPORTED" else {}),
             },
             timestamp,
         )
@@ -1867,6 +1884,24 @@ def generate_report(
             expected_observations=hypothesis.expected_observations_json or [],
             falsification_criteria=hypothesis.falsification_criteria_json or [],
         )
+        observation_contract = compile_cpu_observation_contract(
+            hypothesis.statement,
+            hypothesis.expected_observations_json or [],
+            hypothesis.falsification_criteria_json or [],
+            runtime=_diagnosis_runtime_family(diagnosis),
+        )
+        if observation_contract["status"] == "SUPPORTED":
+            # A verified conjunction of observations is not a causal finding.
+            # Existing reports return above and retain their original scope.
+            verification["claim_scope"] = "BOUNDED_OBSERVATION"
+            verification["causal_root_cause_verified"] = False
+            verification["observation_contract"] = {
+                key: observation_contract[key]
+                for key in ("contract_id", "runtime", "cpu_threshold", "profile_threshold")
+            }
+            verification["observation_contract"]["temporal_relationship"] = (
+                "SEPARATE_COLLECTION_WINDOWS"
+            )
         coverage_ratio = verification["coverage_ratio"]
         confidence = calibrate_confidence(supporting, counter, coverage_ratio)
         support_refs = sorted({
@@ -4014,9 +4049,11 @@ def _request_cpu_control_before_report(diagnosis_id: str, hypothesis_id: str):
         if (diagnosis is None or parent is None or parent.diagnosis_id != diagnosis_id
                 or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED"}):
             return None
-        criteria = list(parent.falsification_criteria_json or [])
-        if (not cpu_utilization_hypothesis(parent.statement) or not criteria
-                or len(process_cpu_thresholds(criteria)) != len(criteria)):
+        contract = compile_cpu_observation_contract(
+            parent.statement, parent.expected_observations_json or [], parent.falsification_criteria_json or [],
+            runtime=_diagnosis_runtime_family(diagnosis),
+        )
+        if contract["status"] != "SUPPORTED":
             return None
         if session.query(DropInsightReportModel).filter_by(
             diagnosis_id=diagnosis_id, hypothesis_id=hypothesis_id
@@ -4031,9 +4068,8 @@ def _request_cpu_control_before_report(diagnosis_id: str, hypothesis_id: str):
             return None
         if not any(row.role == "SUPPORT" and
                    (row.classification_json or {}).get("decision") == "ACCEPT_SUPPORT" and
-                   ((row.envelope_json or {}).get("source") or {}).get("tool_name") in {
-                       "pyspy", "go_pprof", "perf_cpu", "continuous_perf", "java_async"
-                   }
+                   ((row.envelope_json or {}).get("source") or {}).get("tool_name") in
+                   {"PYTHON": {"pyspy"}, "GO": {"go_pprof"}}[contract["runtime"]]
                    for row in accepted):
             return None
         prior = session.query(DropInsightToolCallModel).filter_by(
@@ -4599,6 +4635,48 @@ def _record_lats_expansion_and_selection(
         session.close()
 
 
+def _admit_cpu_observation_candidates(diagnosis, candidates: list[dict], *, source: str, effect_prefix: str) -> list[dict]:
+    """Reject an entire unsupported proposal without retrying a permanent error.
+
+    Persist its original terms and the failed slots; do not trim criteria or
+    relabel a strong causal claim as a bounded observation.
+    """
+    accepted = []
+    rejected = []
+    for candidate in candidates:
+        contract = compile_cpu_observation_contract(
+            candidate["statement"], candidate.get("expected_observations") or [],
+            candidate.get("falsification_criteria") or [],
+            runtime=_diagnosis_runtime_family(diagnosis),
+        )
+        if contract["status"] != "UNSUPPORTED":
+            accepted.append(candidate)
+            continue
+        original = {"statement": candidate["statement"],
+                    "expected_observations": candidate.get("expected_observations") or [],
+                    "falsification_criteria": candidate.get("falsification_criteria") or []}
+        identity = hashlib.sha256(repr((source, original)).encode()).hexdigest()[:20]
+        rejected.append((f"{effect_prefix}:cpu-contract:{identity}", {
+            "source": source, "candidate": original, "unsupported_slots": contract["unsupported_slots"],
+            "reason": "The complete proposed hypothesis is not executable by the registered observation contract",
+            "criteria_rewritten": False, "dispatched": False,
+        }))
+    if rejected:
+        session = new_session()
+        try:
+            persisted = _lock_diagnosis(session, diagnosis.id)
+            if persisted is not None:
+                for effect_key, payload in rejected:
+                    _append_event(session, diagnosis.id, "planner.cpu_contract_rejected", "SYSTEM",
+                                  payload, now_utc(), effect_key=effect_key)
+                session.commit()
+        finally:
+            session.close()
+    if rejected and not any(not candidate.get("is_open_world_sentinel") for candidate in accepted):
+        return []
+    return accepted
+
+
 def _create_and_select_lats_round(
     diagnosis_id: str,
     raw_candidates: list[dict],
@@ -4662,6 +4740,9 @@ def _create_and_select_lats_round(
         top_k=config.top_k,
         default_tool=default_tool,
         value_lambda=config.value_lambda,
+    )
+    prepared = _admit_cpu_observation_candidates(
+        diagnosis, prepared, source=source, effect_prefix=effect_prefix
     )
     existing_hypotheses = list_hypotheses(diagnosis_id)
     known_candidate_keys = {
@@ -4794,8 +4875,9 @@ def _create_and_select_lats_round(
     if not frontier:
         _record_lats_termination(
             diagnosis_id,
-            reason="COVERAGE_EXHAUSTED",
-            detail="候选原因与可观测证据域均已覆盖，没有尚未访问的安全分支。",
+            reason="NO_ELIGIBLE_CHILD" if not prepared else "COVERAGE_EXHAUSTED",
+            detail=("新候选观察合同不可执行，且没有可继续的既有安全分支。"
+                    if not prepared else "候选原因与可观测证据域均已覆盖，没有尚未访问的安全分支。"),
             effect_key=f"{effect_prefix}:lats:frontier-terminated",
         )
         return None, None, None
@@ -7464,16 +7546,18 @@ def _record_skill_route_decision(
         session.close()
 
 
-def _cpu_rule_plan_for_query(plan: dict, query: str) -> dict:
-    """State the CPU test boundary up front, only for an explicit CPU symptom."""
+def _cpu_rule_plan_for_query(plan: dict, query: str, *, runtime: str | None = None) -> dict:
+    """Choose a bounded observation before collection, never rewrite a stored claim."""
     if (plan.get("category") not in {"CPU_HOTSPOT", "PYTHON_RUNTIME", "GO_RUNTIME"}
             or not cpu_utilization_hypothesis(query)):
         return plan
-    return {
-        **plan,
-        "statement": "目标进程 CPU 占用率可能升高并由计算热点主导（单核 100% 口径，以 50% 为本轮待验证阈值）",
-        "falsification": ["目标进程 CPU 占用率低于 50%"],
-    }
+    family = runtime or {"PYTHON_RUNTIME": "PYTHON", "GO_RUNTIME": "GO"}.get(plan.get("category"))
+    if family not in {"PYTHON", "GO"}:
+        return plan
+    observation = cpu_observation_plan(family, threshold=50)
+    return {**plan, "statement": observation["statement"],
+            "expected": observation["expected_observations"],
+            "falsification": observation["falsification_criteria"]}
 
 
 def run_diagnosis_planner(
@@ -7485,6 +7569,9 @@ def run_diagnosis_planner(
     diagnosis = get_diagnosis(diagnosis_id)
     if diagnosis is None:
         return None
+    if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED"}:
+        return {"planner_kind": "TERMINAL_SESSION", "status": diagnosis.status,
+                "hypothesis": None, "tool_call": None}
     validation_session = new_session()
     try:
         binding = _validated_target_binding(validation_session, diagnosis)
@@ -7833,7 +7920,7 @@ def run_diagnosis_planner(
             "arguments": triage_arguments,
         }
 
-    plan = _cpu_rule_plan_for_query(plan, diagnosis.query)
+    plan = _cpu_rule_plan_for_query(plan, diagnosis.query, runtime=_diagnosis_runtime_family(diagnosis))
     available_tools = _available_planner_tools(diagnosis, binding)
     allowed_tools = _category_allowed_tools(plan["category"], available_tools)
     if not allowed_tools:
@@ -8027,6 +8114,18 @@ def run_diagnosis_planner(
         default_tool=plan["tool_name"],
         value_lambda=lats_config.value_lambda,
     )
+    prepared_candidates = _admit_cpu_observation_candidates(
+        diagnosis, prepared_candidates, source=source,
+        effect_prefix=f"diagnosis:{diagnosis_id}:initial",
+    )
+    if not any(not candidate.get("is_open_world_sentinel") for candidate in prepared_candidates):
+        _record_lats_termination(
+            diagnosis_id, reason="NO_ELIGIBLE_CHILD",
+            detail="新计划没有可执行观察合同；原候选与不支持的槽位已保留，未创建采集任务。",
+            effect_key=f"diagnosis:{diagnosis_id}:initial:unsupported-contract-terminated",
+        )
+        return {"planner_kind": "CONTRACT_REJECTED", "status": "INSUFFICIENT_EVIDENCE",
+                "reason": "NO_EXECUTABLE_OBSERVATION_CONTRACT", "hypothesis": None, "tool_call": None}
     durable_candidates: list[dict] = []
     known_by_statement = {
         stable_candidate_key(item.statement): item

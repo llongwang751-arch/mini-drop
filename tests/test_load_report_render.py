@@ -38,3 +38,29 @@ def test_resource_units_growth_and_missing_observations_are_explicit():
     document = html(data, b"test-image")
     for value in ['GROWTH_DETECTED', 'windows_handles', '缺失 1', 'rss_bytes', '2,048.00']:
         assert value in document
+
+
+def test_distributed_report_exposes_network_scope_and_failed_windows():
+    data = report()
+    data["scope"] = "TWO_HOST_SSH_HTTP_FIXTURE; NETWORK_AND_TUNNEL_INCLUDED; NO_LIVE_LLM"
+    data["stages"][0]["buckets"] = [
+        {"summary": {"status": "PASSED"}}, {"summary": {"status": "SLO_FAILED"}},
+    ]
+    document = html(data, b"test-image")
+    assert "双机隔离样例" in document and "SSH 隧道" in document
+    assert "本机隔离样例" not in document
+    assert "失败窗 / 总窗" in document and "<td>1 / 2</td>" in document
+
+
+def test_distributed_render_requires_host_identity_verification(tmp_path, monkeypatch):
+    import json
+    import pytest
+    from scripts import render_load_report, run_distributed_endurance
+    source = tmp_path / "report.json"
+    source.write_text(json.dumps({"scope": "TWO_HOST_SSH_HTTP_FIXTURE"}), encoding="utf-8")
+    def reject(_):
+        raise ValueError("two distinct host identities are required")
+    monkeypatch.setattr(run_distributed_endurance, "verify_distributed", reject)
+    with pytest.raises(ValueError, match="distinct host"):
+        render_load_report.render(source, tmp_path / "report.html")
+    assert not (tmp_path / "report.html").exists()

@@ -1,0 +1,146 @@
+{
+  "run_id": 36435478810,
+  "url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810",
+  "head_sha": "240019025473b3e85f1e7828251afcbdc0f96284",
+  "test_merge_sha": "eeeda1c92627a4533f34b59478039e9157ed7368",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "Supply chain (trivy report)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972172514"
+    },
+    {
+      "name": "HTTP load and recovery (short regression)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972172945"
+    },
+    {
+      "name": "Repository quality",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972172965"
+    },
+    {
+      "name": "Native (C++ control, build only)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173009"
+    },
+    {
+      "name": "PostgreSQL transactions and concurrency (no skips)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173049"
+    },
+    {
+      "name": "Chroma integration (no skips, local test embeddings)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173076"
+    },
+    {
+      "name": "Python and Go independent CPU controls",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173181"
+    },
+    {
+      "name": "Web (React)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173211"
+    },
+    {
+      "name": "Business HTTP acceptance and test-plan traceability",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173219"
+    },
+    {
+      "name": "Native (C++ agent, build + CTest)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173302"
+    },
+    {
+      "name": "Python (pytest)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173314"
+    },
+    {
+      "name": "Web (real Chromium, synthetic fixtures)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972173407"
+    },
+    {
+      "name": "Go (apiserver)",
+      "conclusion": "success",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810/job/108972174082"
+    }
+  ],
+  "python_counts": {
+    "total": 1078,
+    "passed": 1071,
+    "failed": 0,
+    "skipped": 7,
+    "unexpected_skips": [],
+    "failures": [],
+    "skips": [
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_claim_lease_takeover_and_fencing",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_session_lock_serializes_event_effect_identity",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_sre_agent_upgrade::test_real_chroma_snapshot_and_retrieval",
+        "reason": "could not import 'chromadb': No module named 'chromadb'"
+      },
+      {
+        "test": "tests.test_sre_agent_upgrade::test_chroma_http_requests_are_bounded_from_startup",
+        "reason": "could not import 'chromadb': No module named 'chromadb'"
+      }
+    ]
+  },
+  "critical_coverage": {
+    "mode": "GATED",
+    "minimum": 88.26,
+    "modules": {
+      "server/app/drop_insight/business_acceptance.py": {
+        "percent_covered": 94.69,
+        "floor": 94,
+        "observed": true
+      },
+      "server/app/drop_insight/event_store.py": {
+        "percent_covered": 95.7,
+        "floor": 95,
+        "observed": true
+      },
+      "server/app/drop_insight/hypothesis_predicate.py": {
+        "percent_covered": 88.26,
+        "floor": 85,
+        "observed": true
+      },
+      "server/app/drop_insight/report_conclusion.py": {
+        "percent_covered": 100.0,
+        "floor": 100,
+        "observed": true
+      },
+      "server/app/drop_insight/fix_verification.py": {
+        "percent_covered": 100.0,
+        "floor": 100,
+        "observed": true
+      }
+    },
+    "breaches": []
+  },
+  "source_unchanged": true,
+  "measurement_source_sha256": "153ebe0cc0300e018eb74be3586381446b5b59bee49c61eb50c4e3a94391e5b6"
+}

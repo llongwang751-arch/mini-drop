@@ -9,6 +9,7 @@ import pytest
 
 from server.app.database import init_db, new_session, reset_engine
 from server.app.drop_insight import service
+from server.app.drop_insight.cpu_criteria import cpu_observation_plan
 from server.app.drop_insight.evidence import EvidenceEnvelope, classify_evidence
 from server.app.drop_insight.hypothesis_predicate import _compute_hypothesis_predicate
 from server.app.drop_insight.schemas import GenerateReportRequest
@@ -19,6 +20,7 @@ from server.app.models import (AgentModel, TaskModel, DropInsightSessionModel,
 
 NOW = datetime(2026, 9, 28, 14, tzinfo=timezone.utc)
 DID, HID = "cpu-worker-flow", "cpu-original-hypothesis"
+PLAN = cpu_observation_plan("PYTHON")
 
 
 @pytest.fixture
@@ -47,7 +49,7 @@ def flow(monkeypatch):
     with new_session() as s:
         s.add(AgentModel(id="agent", hostname="test", ip_addr="127.0.0.1", capabilities=["pyspy", "sys_metrics"], status="ONLINE", last_heartbeat_at=NOW, created_at=NOW, updated_at=NOW))
         s.add(DropInsightSessionModel(id=DID, query="Python CPU high", target_json={"agent_id": "agent", "pid": 123}, time_range_json={}, mode="AUTONOMOUS", skill_policy="AUTO", budget_json={"min_diagnosis_rounds": 3}, status="COLLECTING_EVIDENCE", version=1, created_at=NOW, updated_at=NOW))
-        s.add(DropInsightHypothesisModel(id=HID, diagnosis_id=DID, statement="Target Python process CPU usage is high", expected_observations_json=["Python source function samples concentrate in source_hot_function"], falsification_criteria_json=["Target process CPU usage is below 50%"], status="OPEN", source="MODEL", round_index=1, created_at=NOW, updated_at=NOW))
+        s.add(DropInsightHypothesisModel(id=HID, diagnosis_id=DID, statement=PLAN["statement"], expected_observations_json=PLAN["expected_observations"], falsification_criteria_json=PLAN["falsification_criteria"], status="OPEN", source="MODEL", round_index=1, created_at=NOW, updated_at=NOW))
         s.commit()
     dispatches = []
     def dispatch(diagnosis_id, payload, **kwargs):
@@ -137,6 +139,13 @@ def test_same_hypothesis_waits_for_control_then_freezes_one_report(flow):
     saved = reports()
     assert len(saved) == 1
     assert saved[0].verification_json["status"] == "VERIFIED"
+    assert saved[0].verification_json["claim_scope"] == "BOUNDED_OBSERVATION"
+    assert saved[0].verification_json["causal_root_cause_verified"] is False
+    assert saved[0].to_dict()["verification"]["observation_contract"]["temporal_relationship"] == "SEPARATE_COLLECTION_WINDOWS"
+    assert saved[0].conclusion.startswith("已验证观测")
+    assert "根因" not in saved[0].conclusion
+    assert "不证明同窗一致" in saved[0].conclusion
+    assert "因果贡献" in saved[0].conclusion
     assert set(saved[0].evidence_refs_json) == {"profile"}
     service.advance_diagnosis(DID)
     assert len(reports()) == 1 and len(flow) == 1
@@ -166,6 +175,8 @@ def test_low_cpu_is_counter_and_strict_root_remains_rejected(flow):
     service.advance_diagnosis(DID)
     report = reports()[0]
     assert report.counter_evidence_refs_json == ["cpu"]
+    assert report.conclusion.startswith("阶段性观测")
+    assert "根因" not in report.conclusion
     from scripts.run_fault_plaza_strict_acceptance import evaluate_reports
     assert not evaluate_reports("source-hotspot", [report.to_dict()])["root_cause_accepted"]
 
@@ -178,3 +189,19 @@ def test_existing_immutable_partial_report_is_never_upgraded(flow):
     add_cpu(90)
     again = service.generate_report(DID, GenerateReportRequest(hypothesis_id=HID))
     assert again.to_dict() == before
+
+
+def test_legacy_stronger_hypothesis_is_not_rewritten_to_new_observation_contract(flow):
+    old_statement = "Python CPU high causes all slow requests in the same window"
+    old_expected = ["source_hot_function accounts for more than 99% of every slow request"]
+    with new_session() as s:
+        h = s.get(DropInsightHypothesisModel, HID)
+        h.statement = old_statement
+        h.expected_observations_json = old_expected
+        s.commit()
+    assert service._request_cpu_control_before_report(DID, HID) is None
+    assert flow == []
+    with new_session() as s:
+        h = s.get(DropInsightHypothesisModel, HID)
+        assert h.statement == old_statement
+        assert h.expected_observations_json == old_expected

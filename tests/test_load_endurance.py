@@ -176,3 +176,40 @@ def test_campaign_error_preserves_failed_manifest(tmp_path, monkeypatch):
     assert report["finished_at"] and report["sha256"]
     with pytest.raises(FileExistsError):
         load.run(out, load.Plan())
+
+
+@pytest.mark.parametrize("boundary_offset", [5.999999999999993, 6.0, 6.000000000000007])
+def test_bucket_membership_uses_planned_slot_not_clock_subtraction(tmp_path, monkeypatch, boundary_offset):
+    class Clock:
+        now = 58.0
+        def sleep(self, seconds):
+            self.now += seconds
+
+    class Future:
+        def __init__(self, index):
+            self.index = index
+        def done(self):
+            return True
+        def result(self):
+            return request_row(self.index, scheduled_offset_seconds=(
+                boundary_offset if self.index == 30 else self.index / 5))
+
+    class Pool:
+        def __init__(self, max_workers):
+            pass
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def submit(self, fn, endpoint, index, *args):
+            return Future(index)
+
+    clock = Clock()
+    monkeypatch.setattr(load.time, "perf_counter", lambda: clock.now)
+    monkeypatch.setattr(load.time, "sleep", clock.sleep)
+    monkeypatch.setattr(load, "ThreadPoolExecutor", Pool)
+    result = load.measure("unused", "soak", 5, 12, replace(load.Plan(), bucket_seconds=6), tmp_path)
+    rows = [json.loads(line) for line in (tmp_path / "soak.jsonl").read_text().splitlines()]
+    assert [bucket["summary"]["offered"] for bucket in result["buckets"]] == [30, 30]
+    assert all(bucket["summary"]["status"] == "PASSED" for bucket in result["buckets"])
+    assert all(row["scheduled_offset_seconds"] == row["index"] / 5 for row in rows)

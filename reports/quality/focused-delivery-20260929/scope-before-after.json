@@ -1,0 +1,52 @@
+{
+  "boundary": "Synthetic negative control, not cloud root-cause accuracy. Same input on frozen old and current evaluators.",
+  "baseline_commit": "240019025473b3e85f1e7828251afcbdc0f96284",
+  "baseline_source_sha256": "f97bb07194be34d82afe4ae39b96ca04da705b11004454ac714f190f67c19888",
+  "current_source_sha256": "993effdd6b93e954d29f3595396c6397bfcb6da2eaa49dd298d7b53f27f4308d",
+  "input": {
+    "report_id": "synthetic-negative-control",
+    "conclusion": "已验证观测：source_hot_function。分别采集不证明因果。",
+    "evidence_refs": [
+      "synthetic-ref"
+    ],
+    "verification": {
+      "status": "VERIFIED",
+      "coverage_ratio": 1,
+      "has_independent_counter_or_control": true,
+      "claim_scope": "BOUNDED_OBSERVATION",
+      "causal_root_cause_verified": false
+    }
+  },
+  "before": {
+    "reports": [
+      {
+        "report_id": "synthetic-negative-control",
+        "gate_status": "VERIFIED",
+        "verified": true,
+        "concrete_finding": true,
+        "oracle_vocabulary_match": true,
+        "accepted": true
+      }
+    ],
+    "root_gate_verified": true,
+    "root_cause_accepted": true,
+    "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+  },
+  "after": {
+    "reports": [
+      {
+        "report_id": "synthetic-negative-control",
+        "gate_status": "VERIFIED",
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "scope_allows_root_cause": false,
+        "verified": false,
+        "concrete_finding": true,
+        "oracle_vocabulary_match": true,
+        "accepted": false
+      }
+    ],
+    "root_gate_verified": false,
+    "root_cause_accepted": false,
+    "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+  }
+}

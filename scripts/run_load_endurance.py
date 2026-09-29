@@ -185,6 +185,9 @@ def measure(endpoint, name, rate, seconds, plan, output):
     next_progress = origin + 30
     with (output / f"{name}.jsonl").open("x", encoding="utf-8") as raw:
         def record(row):
+            # Scheduling is index/rate; subtracting two large clock values can
+            # move exact bucket-boundary arrivals into the preceding cohort.
+            row["scheduled_offset_seconds"] = row["index"] / rate
             rows.append(row)
             raw.write(json.dumps(row, allow_nan=False) + "\n")
             raw.flush()

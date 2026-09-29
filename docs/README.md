@@ -1,5 +1,7 @@
 # 文档入口
 
+- [`ENGINEERING_DELIVERY.md`](ENGINEERING_DELIVERY.md)：测试开发、后端与Agent开发的三个缺陷闭环、可复现命令、源码/证据和明确暂缓范围
+
 - [`TEST_ENGINEERING.md`](TEST_ENGINEERING.md)：测试开发定位、风险矩阵、一键质量报告、并发 CI、真实验收缺陷复盘、开源对照与测开演示
 
 - [`DEMO_WALKTHROUGH.md`](DEMO_WALKTHROUGH.md)：当前云端从 AGI-saber 上传、知识库问答到 Mini-Drop 指标、体检树和故障恢复的截图式演示步骤

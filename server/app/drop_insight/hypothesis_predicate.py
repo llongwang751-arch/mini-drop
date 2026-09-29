@@ -10,7 +10,7 @@ import re
 
 from server.app.models import ArtifactModel, DropInsightHypothesisModel
 from .evidence import observed_count, observed_nonnegative
-from .cpu_criteria import process_cpu_thresholds
+from .cpu_criteria import process_cpu_thresholds, compile_cpu_observation_contract
 
 
 def _invalid_numeric_observation(reason: str = "Required numeric observation is missing, invalid or outside its domain") -> dict:
@@ -198,12 +198,23 @@ def _compute_hypothesis_predicate(
     if metadata.get("scope_semantics") == "HOST_BLOCK_DEVICE" and metadata.get("target_attributed") is not True:
         return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3", "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联", "criterion_indexes": [], "metrics": {}}
 
+    schema = str(metadata.get("schema_version") or "")
+    profile_runtime = "PYTHON" if schema.startswith("pyspy_analysis.") else "GO" if schema.startswith("go_pprof_analysis.") else None
+    observation_contract = compile_cpu_observation_contract(statement, expected, falsification, runtime=profile_runtime)
+    if observation_contract["status"] == "UNSUPPORTED":
+        return _invalid_numeric_observation("CPU observation contract has unsupported slots: " + str(observation_contract["unsupported_slots"]))
+    if observation_contract["status"] == "SUPPORTED" and schema != "sys_metrics_analysis.v2" and profile_runtime != observation_contract["runtime"]:
+        return _invalid_numeric_observation("This artifact does not implement the registered CPU observation domain")
+
     cpu_control = _process_cpu_control(hypothesis, metadata)
     if cpu_control is not None:
         return cpu_control
     structured_predicate = _structured_signal_predicate(hypothesis, metadata)
     if structured_predicate is not None:
-        return structured_predicate
+        if not (profile_runtime and structured_predicate.get("signal") == "cpu_hotspot"):
+            return structured_predicate
+        # A CPU signal label is not an evaluator for a profile coverage slot.
+        # Continue through the registered evaluator or legacy SUPPORT guard.
 
     if str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1":
         delta = metadata.get("delta")
@@ -434,6 +445,8 @@ def _compute_hypothesis_predicate(
         return value in {"main.main", "runtime.main"} or value.startswith(prefixes)
 
     def _predicate(outcome: str, reason: str, indexes: list[int], **metrics):
+        if outcome == "SUPPORT" and profile_runtime and observation_contract["status"] != "SUPPORTED":
+            return _invalid_numeric_observation("Unregistered profile observation cannot cover a free-text expected condition")
         return {
             "outcome": outcome,
             "version": "hypothesis-predicate-v2",
@@ -556,6 +569,27 @@ def _compute_hypothesis_predicate(
         100.0,
         sum(_percent(row) for row in concentrated_source_functions),
     )
+
+    if observation_contract["status"] == "SUPPORTED":
+        if observation_contract["runtime"] == "PYTHON":
+            if (1 <= len(concentrated_source_functions) <= 3
+                and len(significant_source_functions) <= 3
+                and concentrated_source_pct >= observation_contract["profile_threshold"]):
+                dominant = concentrated_source_functions[0]
+                return _predicate("SUPPORT", "Registered Python source-profile concentration was observed in its own collection window",
+                    observation_contract["expected_indexes"], dominant_function=dominant["name"], dominant_percent=_percent(dominant),
+                    concentrated_percent=concentrated_source_pct,
+                    concentrated_functions=[{"name": row["name"], "percent": _percent(row), "locations": row.get("locations", [])} for row in concentrated_source_functions],
+                    profile_semantics="source_function_share", observation_contract=observation_contract["contract_id"])
+        else:
+            applications = [row for row in source_functions if not _is_go_standard_frame(str(row["name"]))]
+            dominant = max(applications, key=_percent, default=None)
+            if dominant is not None and _percent(dominant) >= observation_contract["profile_threshold"]:
+                return _predicate("SUPPORT", "Registered Go source-mapped application path was observed in its own inclusive profile window",
+                    observation_contract["expected_indexes"], dominant_function=dominant["name"], dominant_percent=_percent(dominant),
+                    source_locations=dominant.get("locations", []), profile_semantics="inclusive",
+                    observation_contract=observation_contract["contract_id"])
+        return _invalid_numeric_observation("Profile did not establish the registered source-path observation")
 
     # Go pprof TopN is inclusive: every frame in one stack receives the same
     # sample weight, so a hot application path can legitimately produce more
@@ -908,6 +942,9 @@ def _compute_hypothesis_predicate(
                 if token in lowered or lowered in token:
                     return True
         return False
+
+    if profile_runtime and observation_contract["status"] != "SUPPORTED":
+        return _invalid_numeric_observation("Unregistered profile observation cannot cover a free-text expected condition")
 
     for row in named:
         name = str(row["name"])

@@ -149,7 +149,13 @@ def evaluate_reports(scenario_id, reports):
             coverage = _finite_number(gate.get("coverage_ratio"))
         except (ValueError, TypeError, OverflowError):
             coverage = None
-        verified = (gate.get("status") == "VERIFIED"
+        scope = gate.get("claim_scope")
+        # Legacy reports have no scope. New bounded observations must never
+        # become causal findings merely by matching a scenario's vocabulary.
+        scope_allows_root = ("claim_scope" not in gate or scope == "CAUSAL_ROOT_CAUSE")
+        if "causal_root_cause_verified" in gate:
+            scope_allows_root = scope_allows_root and gate["causal_root_cause_verified"] is True
+        verified = (scope_allows_root and gate.get("status") == "VERIFIED"
                     and gate.get("has_independent_counter_or_control") is True
                     and coverage == 1.0
                     and bool(report.get("evidence_refs")))
@@ -158,6 +164,7 @@ def evaluate_reports(scenario_id, reports):
             "尚未定位", "未定位到", "不能把假设", "仍待验证", "当前没有能够支持"))
         matches = concrete and any(token.casefold() in conclusion.casefold() for token in tokens)
         decisions.append({"report_id": report.get("report_id"), "gate_status": gate.get("status"),
+                          "claim_scope": scope, "scope_allows_root_cause": scope_allows_root,
                           "verified": verified, "concrete_finding": concrete,
                           "oracle_vocabulary_match": matches, "accepted": verified and matches})
     return {"reports": decisions, "root_gate_verified": any(x["verified"] for x in decisions),

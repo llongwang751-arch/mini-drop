@@ -9,6 +9,10 @@ from __future__ import annotations
 from .evidence import EvidenceEnvelope, observed_count, observed_nonnegative
 
 
+class _ObservationFinding(str):
+    """Rendered registered observation, explicitly not a causal finding."""
+
+
 def _derive_report_conclusion(
     hypothesis_statement: str,
     *,
@@ -39,6 +43,8 @@ def _derive_report_conclusion(
 
     concrete_finding = _concrete_report_finding(supporting or [])
     if counter_refs:
+        if isinstance(concrete_finding, _ObservationFinding):
+            return f"阶段性观测：{concrete_finding}本次诊断另有反证，完整观察合同尚未成立。"
         if concrete_finding:
             return (
                 f"阶段性根因：{concrete_finding}但同一诊断中仍存在反证，"
@@ -50,7 +56,10 @@ def _derive_report_conclusion(
         )
 
     if concrete_finding:
-        title = "根因结论" if verification_status == "VERIFIED" else "阶段性根因"
+        if isinstance(concrete_finding, _ObservationFinding):
+            title = "已验证观测" if verification_status == "VERIFIED" else "阶段性观测"
+        else:
+            title = "根因结论" if verification_status == "VERIFIED" else "阶段性根因"
         return f"{title}：{concrete_finding}"
 
     return (
@@ -164,6 +173,15 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
         )
 
     if function_name:
+        observation_contract = metrics.get("observation_contract")
+        if observation_contract in {"python-profile-and-os-cpu.v1", "go-profile-and-os-cpu.v1"}:
+            measure = "累计采样占比" if observation_contract == "go-profile-and-os-cpu.v1" else "按函数归并的采样占比"
+            measured = f"，{measure} {dominant_percent:.1f}%" if dominant_percent is not None else ""
+            return _ObservationFinding(
+                f"{sample_text}在 Profile 采集窗口观察到可归属路径 `{function_name}`{measured}。"
+                "这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。"
+                "分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。"
+            )
         if schema_version.startswith("go_pprof_analysis."):
             profile_label = "Go CPU 热点"
         elif schema_version.startswith("pyspy_analysis."):

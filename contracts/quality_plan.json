@@ -58,7 +58,7 @@
       "risks": ["task-lifecycle", "false-conclusion", "business-regression", "test-harness"],
       "cwd": ".",
       "timeout_seconds": 300,
-      "commands": [["{python}", "-m", "pytest", "-q", "tests/test_state_machine.py", "tests/test_drop_insight_budget.py", "tests/test_drop_insight_policy_evidence.py", "tests/test_artifact_integrity.py", "tests/test_analyzer_runner_quality.py", "tests/test_business_acceptance.py", "tests/test_quality_gate.py", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml"]],
+      "commands": [["{python}", "-m", "pytest", "-q", "tests/test_state_machine.py", "tests/test_drop_insight_budget.py", "tests/test_drop_insight_policy_evidence.py", "tests/test_artifact_integrity.py", "tests/test_analyzer_runner_quality.py", "tests/test_cpu_observation_registry.py", "tests/test_cpu_contract_persistence.py", "tests/test_cpu_control_worker_flow.py", "tests/test_business_acceptance.py", "tests/test_quality_gate.py", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml"]],
       "report": "junit",
       "allowed_skips": []
     },
@@ -70,7 +70,7 @@
       "commands": [["{python}", "-m", "pytest", "tests", "-q", "--basetemp={output}/tmp", "--junitxml={output}/junit.xml", "--cov=server", "--cov=analyzer", "--cov-branch", "--cov-report=json:{output}/coverage.json", "--cov-report=term"]],
       "report": "junit",
       "critical_coverage": {
-        "floor_note": "各模块分支含行覆盖率的下限。business_acceptance/event_store/hypothesis_predicate/report_conclusion 取 2026-09-26 基线（94.69/95.70/85.39/69.40）向下取整；fix_verification 于同日从 13.64% 补测至 100%，下限钉在 100：新增分支必须带测试进门禁。",
+        "floor_note": "各模块行与分支合并覆盖率的下限。business_acceptance/event_store/hypothesis_predicate 取 2026-09-26 基线（94.69/95.70/85.39）向下取整；fix_verification 于同日从 13.64% 补测至 100%，report_conclusion 于 2026-09-28 补测至 100%，两者下限钉在 100：新增分支必须带测试进门禁。",
         "modules": {
           "server/app/drop_insight/business_acceptance.py": 94,
           "server/app/drop_insight/event_store.py": 95,

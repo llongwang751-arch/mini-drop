@@ -52,6 +52,29 @@ import pytest
 from scripts import run_fault_plaza_strict_acceptance as strict
 
 
+@pytest.mark.parametrize("scope", ["BOUNDED_OBSERVATION", "UNKNOWN", "", None, {}, [], True])
+def test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary(scope):
+    report = {"conclusion": "source_hot_function", "evidence_refs": ["e"],
+              "verification": {"status": "VERIFIED", "coverage_ratio": 1,
+                               "has_independent_counter_or_control": True}}
+    assert evaluate_reports("source-hotspot", [report])["root_cause_accepted"]
+    report["verification"]["claim_scope"] = scope
+    result = evaluate_reports("source-hotspot", [report])
+    assert result["reports"][0]["oracle_vocabulary_match"]
+    assert not result["root_gate_verified"] and not result["root_cause_accepted"]
+
+
+@pytest.mark.parametrize("flag", [False, 0, 1, "true", None, [], {}])
+def test_explicit_causal_flag_must_be_true_boolean(flag):
+    report = {"conclusion": "source_hot_function", "evidence_refs": ["e"],
+              "verification": {"status": "VERIFIED", "coverage_ratio": 1,
+                               "has_independent_counter_or_control": True,
+                               "claim_scope": "CAUSAL_ROOT_CAUSE", "causal_root_cause_verified": True}}
+    assert evaluate_reports("source-hotspot", [report])["root_cause_accepted"]
+    report["verification"]["causal_root_cause_verified"] = flag
+    assert not evaluate_reports("source-hotspot", [report])["root_cause_accepted"]
+
+
 @pytest.mark.parametrize("coverage", [True, False, float("inf"), float("nan"), -1, 1.01, "1", {}, None])
 def test_invalid_coverage_never_promotes_or_crashes(coverage):
     report = {"conclusion": "source_hot_function", "evidence_refs": ["e"],

@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
+from server.app.drop_insight.cpu_criteria import cpu_observation_plan
 
 from server.app.drop_insight.artifact_evidence import assess_artifact_evidence
 from server.app.drop_insight.service import _compute_hypothesis_predicate
@@ -327,11 +328,9 @@ def test_continuous_perf_zero_self_process_wrapper_is_not_a_root_or_counter():
 
 
 def test_go_pprof_supports_source_mapped_application_hotspot():
-    hypothesis = _hypothesis(
-        expected=["pprof 样本集中在少数 Go 函数或运行时路径"],
-        falsification=["Go CPU 样本分散且系统资源处于基线"],
-    )
-    hypothesis.statement = "目标 Go 服务可能存在 CPU 热点或 goroutine 执行路径异常"
+    plan = cpu_observation_plan("GO")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
         {
@@ -401,14 +400,12 @@ def test_go_pprof_does_not_match_cpu_word_inside_a_symbol_as_counterevidence():
 
 
 def test_predicate_aggregates_source_lines_for_one_hot_function():
-    hypothesis = _hypothesis(
-        expected=["py-spy samples concentrate in one Python hotspot function"],
-        falsification=["Python samples are evenly distributed"],
-    )
-    hypothesis.statement = "CPU 飙高由单个 Python 热点函数集中占用导致"
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
-        {"top_functions": [
+        {"schema_version": "pyspy_analysis.v1", "top_functions": [
             {"name": "source_hot_function", "file": "/app/app.py", "line": 139, "percent": 40.7},
             {"name": "source_hot_function", "file": "/app/app.py", "line": 141, "percent": 24.7},
             {"name": "source_hot_function", "file": "/app/app.py", "line": 140, "percent": 9.6},
@@ -422,7 +419,7 @@ def test_predicate_aggregates_source_lines_for_one_hot_function():
     assert result["metrics"]["dominant_percent"] == 80.2
 
 
-def test_predicate_recognizes_model_wording_about_concentrated_python_functions():
+def test_predicate_rejects_unregistered_model_wording_about_concentrated_python_functions():
     hypothesis = _hypothesis(
         expected=["py-spy 样本集中在少数（1-3 个）Python 函数"],
         falsification=["Python 栈样本均匀分布"],
@@ -436,10 +433,10 @@ def test_predicate_recognizes_model_wording_about_concentrated_python_functions(
             {"name": "sampler", "line": 200, "percent": 20.0},
         ]},
     )
-    assert result is not None and result["outcome"] == "SUPPORT"
+    assert result is not None and result["outcome"] == "NEUTRAL"
 
 
-def test_predicate_recognizes_python_functions_with_concentration_word_order():
+def test_predicate_rejects_unregistered_python_functions_with_concentration_word_order():
     hypothesis = _hypothesis(
         expected=["前几个函数累计占比显著（如 >50%）"],
         falsification=["样本在所有函数间均匀分布"],
@@ -455,26 +452,13 @@ def test_predicate_recognizes_python_functions_with_concentration_word_order():
             {"name": "sampler", "percent": 16.9},
         ]},
     )
-    assert result is not None and result["outcome"] == "SUPPORT"
+    assert result is not None and result["outcome"] == "NEUTRAL"
 
 
 def test_pyspy_predicate_uses_cumulative_source_function_concentration():
-    hypothesis = _hypothesis(
-        expected=[
-            "py-spy 采样样本集中在少数几个 Python 函数",
-            "存在单个或少数线程占用大部分 CPU 时间",
-            "热点函数可映射到具体源码文件与行号",
-        ],
-        falsification=[
-            "py-spy 样本在大量 Python 函数间均匀分布",
-            "所有线程 CPU 占用均低且无明显热点",
-            "采样期间进程几乎无 CPU 活动",
-        ],
-    )
-    hypothesis.statement = (
-        "python-hotspot 进程存在用户态 CPU 热点，"
-        "py-spy 样本集中在少数 Python 函数"
-    )
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
         {
@@ -493,7 +477,7 @@ def test_pyspy_predicate_uses_cumulative_source_function_concentration():
 
     assert result is not None
     assert result["outcome"] == "SUPPORT"
-    assert result["criterion_indexes"] == [0, 2]
+    assert result["criterion_indexes"] == [0]
     assert result["metrics"]["dominant_function"] == "source_hot_function"
     assert result["metrics"]["concentrated_percent"] == 99.6
     assert {row["name"] for row in result["metrics"]["concentrated_functions"]} == {
@@ -503,14 +487,9 @@ def test_pyspy_predicate_uses_cumulative_source_function_concentration():
 
 
 def test_pyspy_concentration_predicate_is_not_function_name_specific():
-    hypothesis = _hypothesis(
-        expected=[
-            "py-spy 样本集中在少数 Python 函数",
-            "热点函数映射到源码文件和行号",
-        ],
-        falsification=["样本在大量函数间均匀分布"],
-    )
-    hypothesis.statement = "用户态 CPU 时间集中在少数 Python 热点函数"
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
         {
@@ -529,14 +508,9 @@ def test_pyspy_concentration_predicate_is_not_function_name_specific():
 
 
 def test_perf_runtime_container_is_not_business_source_hotspot():
-    hypothesis = _hypothesis(
-        expected=[
-            "用户态样本集中在少数 Python 业务函数",
-            "热点函数可映射到源码文件与行号",
-        ],
-        falsification=["内核态等待路径占主导"],
-    )
-    hypothesis.statement = "业务源码中的少数 Python 函数形成 CPU 热点"
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
         {
@@ -549,7 +523,7 @@ def test_perf_runtime_container_is_not_business_source_hotspot():
         },
     )
 
-    assert result is None
+    assert result["outcome"] == "NEUTRAL"
 
 
 def test_unresolved_native_leaf_does_not_promote_process_wrapper_to_root_cause():
@@ -620,11 +594,9 @@ def test_native_perf_uses_leaf_self_samples_for_disjunctive_cpu_hotspot():
 
 
 def test_pyspy_even_distribution_across_many_source_functions_stays_neutral():
-    hypothesis = _hypothesis(
-        expected=["py-spy 样本集中在一到三个 Python 函数"],
-        falsification=["样本在大量 Python 函数间均匀分布"],
-    )
-    hypothesis.statement = "少数 Python 业务函数形成用户态 CPU 热点"
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     result = _compute_hypothesis_predicate(
         hypothesis,
         {
@@ -641,18 +613,13 @@ def test_pyspy_even_distribution_across_many_source_functions_stays_neutral():
         },
     )
 
-    assert result is None
+    assert result["outcome"] == "NEUTRAL"
 
 
 def test_pyspy_analyzed_artifacts_accept_evidence_derived_predicate():
-    hypothesis = _hypothesis(
-        expected=[
-            "py-spy 样本集中在少数 Python 函数",
-            "热点函数可映射到源码文件与行号",
-        ],
-        falsification=["样本在大量 Python 函数间均匀分布"],
-    )
-    hypothesis.statement = "用户态 CPU 热点集中在少数 Python 业务函数"
+    plan = cpu_observation_plan("PYTHON")
+    hypothesis = _hypothesis(expected=plan["expected_observations"], falsification=plan["falsification_criteria"])
+    hypothesis.statement = plan["statement"]
     metadata = {
         "schema_version": "pyspy_analysis.v1",
         "sample_count": 200,
@@ -697,7 +664,7 @@ def test_gil_causal_claim_is_not_misread_as_hotspot_support():
     assert result is not None and result["outcome"] == "COUNTER"
 
 
-def test_disjunctive_hotspot_or_gil_candidate_accepts_real_pyspy_hotspot():
+def test_disjunctive_hotspot_or_gil_candidate_does_not_verify_from_pyspy_hotspot():
     hypothesis = _hypothesis(
         expected=[
             "py-spy 样本集中在少数 Python 函数",
@@ -749,8 +716,8 @@ def test_disjunctive_hotspot_or_gil_candidate_accepts_real_pyspy_hotspot():
     )
 
     assert result is not None
-    assert result["outcome"] == "SUPPORT"
-    assert result["metrics"]["concentrated_percent"] == 99.6
+    assert result["outcome"] == "NEUTRAL"
+    assert result["criterion_indexes"] == []
 
 
 def test_predicate_supports_redacted_database_lock_evidence():

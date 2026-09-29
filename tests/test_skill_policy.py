@@ -204,6 +204,7 @@ def test_unknown_keyword_route_can_be_corrected_by_skill_before_clarification(
 ) -> None:
     diagnosis = SimpleNamespace(
         id="insight-skill-corrects-unknown",
+        status="PLANNING",
         query="订单处理表现异常，请定位真正原因",
         target_json={"service": "orders", "environment": "demo"},
         budget_json={"lats_top_k": 3},
@@ -340,6 +341,7 @@ def test_planner_routes_from_positive_symptom_not_counter_clause(
 ) -> None:
     diagnosis = SimpleNamespace(
         id=f"insight-intent-{expected_category.casefold()}",
+        status="PLANNING",
         query=query,
         target_json={"service": "python-hotspot", "environment": "demo"},
         budget_json={"lats_top_k": 3},

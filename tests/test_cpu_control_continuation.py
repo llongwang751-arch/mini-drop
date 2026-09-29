@@ -15,6 +15,7 @@ def seeded(monkeypatch):
     reset_engine()
     init_db()
     now = datetime.now(timezone.utc)
+    contract = service.cpu_observation_plan("PYTHON")
     binding = SimpleNamespace(agent_id="agent", pid=123)
     monkeypatch.setattr(service, "_current_target_binding", lambda diagnosis: binding)
     monkeypatch.setattr(service, "_validated_target_binding", lambda *args, **kwargs: binding)
@@ -32,9 +33,9 @@ def seeded(monkeypatch):
             mode="OBSERVE_ONLY", status="COLLECTING_EVIDENCE", budget_json={"max_risk_level": "R2"},
             time_range_json={}, requested_time_range_json={}, effective_time_range_json={},
             clarification_questions_json=[], version=1, created_at=now, updated_at=now))
-        db.add(DropInsightHypothesisModel(id="hyp", diagnosis_id="diag", statement="Target process CPU usage is high",
-            expected_observations_json=["source_hot_function dominates function samples"],
-            falsification_criteria_json=["Target process CPU usage is below 50%"],
+        db.add(DropInsightHypothesisModel(id="hyp", diagnosis_id="diag", statement=contract["statement"],
+            expected_observations_json=contract["expected_observations"],
+            falsification_criteria_json=contract["falsification_criteria"],
             status="OPEN", source="MODEL", round_index=1, created_at=now, updated_at=now))
         db.add(DropInsightEvidenceModel(id="support", diagnosis_id="diag", hypothesis_id="hyp",
             role="SUPPORT", envelope_json={"source": {"tool_name": "pyspy"}}, classification_json={"decision": "ACCEPT_SUPPORT",
@@ -57,7 +58,7 @@ def test_same_hypothesis_immutable_criteria_and_real_policy_approved(seeded):
     assert result.arguments_json == {"agent_id": "agent", "pid": 123, "duration_seconds": 15}
     with new_session() as db:
         h = db.get(DropInsightHypothesisModel, "hyp")
-        assert h.falsification_criteria_json == ["Target process CPU usage is below 50%"]
+        assert h.falsification_criteria_json == service.cpu_observation_plan("PYTHON")["falsification_criteria"]
         assert h.round_index == 1
         assert db.query(DropInsightHypothesisModel).count() == 1
         assert db.query(DropInsightReportModel).count() == 0
@@ -187,9 +188,10 @@ def test_explicit_cpu_query_rule_fallback_declares_threshold_before_sampling(que
     plan = {"category": "PYTHON_RUNTIME", "statement": "Python runtime issue",
             "expected": ["profile identifies function"], "falsification": ["uniform stack"]}
     bound = service._cpu_rule_plan_for_query(plan, query)
-    assert bound["falsification"] == ["目标进程 CPU 占用率低于 50%"]
-    assert "待验证阈值" in bound["statement"]
-    assert bound["expected"] == plan["expected"]
+    contract = service.cpu_observation_plan("PYTHON")
+    assert bound["falsification"] == contract["falsification_criteria"]
+    assert bound["statement"] == contract["statement"]
+    assert bound["expected"] == contract["expected_observations"]
     assert plan["falsification"] == ["uniform stack"]
 
 

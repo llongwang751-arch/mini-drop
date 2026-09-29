@@ -2,7 +2,7 @@
 
 ## 2026-09-28 Python 服务增量发布
 
-发布 `20260928T140102Z` 已激活，源码 `1d010cc`，Diagnosis Worker 与 Analyzer 健康，其他11个运行容器未重建。回滚配置位于本发布目录的 `private/rollback.compose.json`（含运行凭据，不能提交）；逐服务恢复并通过健康检查后，将 `/opt/mini-drop-current` 恢复到 `/opt/mini-drop-releases/20260923T163300Z`。
+当前发布 `20260928T142312Z` 已激活，源码 `2400190`，Diagnosis Worker 与 Analyzer 健康，其他11个运行容器未重建。回滚配置位于本发布目录的 `private/rollback.compose.json`（含运行凭据，不能提交）；逐服务恢复并通过健康检查后，将 `/opt/mini-drop-current` 恢复到 `/opt/mini-drop-releases/20260928T140102Z`；该首版及更早的 `20260923T163300Z` 均保留。
 
 本轮复用既有 Control 与两个 Worker，不启动 Windows Docker。只对 Diagnosis Worker 和 Analyzer 做现有镜像上的源码覆盖层；分别保留旧镜像标签与实际运行环境生成的私有 rollback.compose.json，在新版本导入与健康探针通过后切换 current。数据库、对象存储、办公助手、原生 Agent 与 Web 不迁移、不重建。候选版本与部署状态以 PROJECT_CONTEXT 顶部及实际 deployment 元数据为准。
 

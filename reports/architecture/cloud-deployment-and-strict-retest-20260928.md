@@ -32,3 +32,16 @@ Python 的真实 `/proc` 计数从 1106032 增至 1107270、Hz100、14.007 秒�
 
 
 实际报告契约要求每个假设唯一且不可变，补采必须在首次报告之前。新增 worker 流程测试使用真实谓词、Evidence Gate 和报告持久化，仅模拟远端采集边界，验证补采等待、拒绝/失败收束、低 CPU 反证与旧报告保护。同假设两次取证仍只算一轮，不能冒充完成严格协议的三轮要求。模型计划准入的真实前后证据保留原 proposal，不自动删除、替换旧反证。
+
+
+## 二次发布与完整复验
+
+当前版本为 `20260928T142312Z`，源码 `240019025473b3e85f1e7828251afcbdc0f96284`；首次发布保留为回滚目标。两服务健康，各183个文件逐字节匹配清单，其他11个运行容器不变，API三依赖healthy。[二次部署元数据](../business-acceptance/deployment-20260928/runtime-v2-deployment.json)、[运行源码核对](../business-acceptance/deployment-20260928/runtime-v2-runtime-source-verification.json)、[精确源码包](../business-acceptance/deployment-20260928/runtime-v2-source-evidence.zip) 均已归档。
+
+[CI 36435478810](https://github.com/llongwang751-arch/mini-drop/actions/runs/36435478810) 13/13通过，Python1071 passed / 7 expected skips，critical coverage无违约；测试merge `eeeda1c92627a4533f34b59478039e9157ed7368`，执行前后源码哈希一致。[CI清单](../business-acceptance/deployment-20260928/ci-followup-run.json) 与原始JUnit/日志/覆盖率分别保留，不覆盖首版CI。新CPU合同模块23条语句和10个分支均覆盖；覆盖率本身不代表模型规划一定通过实测。
+
+完整21场景从2026-09-28T14:30:46Z开始在此冻结版本执行，正常根因失败继续采集，只有清理或会话收敛不安全才中止。完成前不预填新分数。
+
+## 双机小时实验结果
+
+完整实验与原始证据见[双机负载](../../docs/DISTRIBUTED_LOAD.md)。19,950/19,950请求成功且固定质量检查通过，资源增长与完整性检查通过；恢复P95 267.92ms、持续120窗中5窗超限，因此整体FAILED。持续总体P95 143.88ms不能覆盖失败窗口。测量源码冻结到退出后再修浮点分桶，旧报告未重算；公网/隧道/未插桩耗时仍未完成单独归因。

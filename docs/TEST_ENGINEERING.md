@@ -1,5 +1,15 @@
 # Mini-Drop 测试开发与质量工程
 
+## 2026-09-29 聚焦测开、后端与 Agent 开发的交付（本机验证完成，CI待执行）
+
+用户已恢复有明确范围的工程收尾。本轮完成可执行Python/Go观察合同、不可执行候选幂等拒绝与正常收束、报告观测范围、最终验收拒绝弱观察冒充根因、浮点分桶和双机报告展示修复；不扩展诊断故障域，不重启已停止的21场景或小时实验。后续入口为[工程交付](ENGINEERING_DELIVERY.md)。
+
+本机全量1170 passed / 7 expected skips，关键覆盖率无违约；快速门禁175 passed、零跳过。最初9项失败定位为两处旧测试替身缺status字段，补齐字段后恢复通过，终态保护未放松。原始失败、最终JUnit/覆盖率与前后负向复现已归档到 `reports/quality/focused-delivery-20260929/`。依赖专项与远程CI尚待本轮执行，不能沿用旧版本成绩。
+
+新报告 `verification.claim_scope=BOUNDED_OBSERVATION`、`causal_root_cause_verified=false`，明确Profile和OS分别窗口；即使VERIFIED与函数词汇命中，也不能计入新根因成绩。最终汇总器补丁已应用；未知/非法scope、非布尔因果标记同样拒绝，历史无scope记录保持兼容且不改写。新口径不与旧分数拼接。
+
+云端仍保持 `20260928T142312Z` / `2400190`，本轮候选未部署。9/21中断批次保持STOPPED_BY_USER、严格0/9、原根因字段1/9，所有故障已停用；一小时原测量FAILED保留。学习课程正文属于用户改动，单独保留；仅由生成器维护文件索引。
+
 ## 2026-09-28 部署前回归与独立测量入口
 
 本轮最终本机 Python 质量门禁执行 **1000 passed / 7 skipped**，状态 `PASSED_WITH_SKIPS`，关键模块覆盖率无违约，测量期间源码未变化（`source_unchanged=true`）。本机报告为 [`output/quality/deployment-python-final-20260928/report.json`](../output/quality/deployment-python-final-20260928/report.json)。这是部署前回归结果，不代表远程 CI 已完成，也不代表云端严格根因或一小时稳定性已通过。真实部署、远端测试和复验成绩继续以 PROJECT_CONTEXT 的实际执行记录为准。

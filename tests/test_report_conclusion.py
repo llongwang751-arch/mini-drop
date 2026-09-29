@@ -288,3 +288,32 @@ def test_stronger_valid_finding_is_selected_without_invalid_ratio_dominance():
             "dominant_function": name, "dominant_percent": ratio}}})
     text = _concrete_report_finding([evidence("bad", float("inf")), evidence("real", "75")])
     assert "real" in text and "75.0%" in text and "bad" not in text
+
+
+@pytest.mark.parametrize("contract,percent,label", [
+    ("go-profile-and-os-cpu.v1", 25, "累计采样占比 25.0%"),
+    ("python-profile-and-os-cpu.v1", 33.3, "按函数归并的采样占比 33.3%"),
+    ("go-profile-and-os-cpu.v1", None, None),
+])
+def test_registered_profile_observation_does_not_claim_dominance_or_causation(contract, percent, label):
+    evidence = _profile_evidence({"schema_version": "go_pprof_analysis.v1", "hypothesis_predicate": {
+        "outcome": "SUPPORT", "metrics": {"dominant_function": "observed_path", "dominant_percent": percent,
+                                              "observation_contract": contract}}})
+    result = _concrete_report_finding([evidence])
+    assert "观察到可归属路径 `observed_path`" in result
+    assert "最集中" not in result
+    assert "不证明同窗一致、跨窗稳定" in result
+    if label:
+        assert label in result
+    else:
+        assert "%" not in result
+
+
+@pytest.mark.parametrize("status,counter,title", [("VERIFIED", [], "已验证观测"), ("PARTIAL", [], "阶段性观测"), ("VERIFIED", ["counter"], "阶段性观测")])
+def test_registered_observation_outer_title_never_claims_root_cause(status, counter, title):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {
+        "dominant_function": "work", "dominant_percent": 25, "observation_contract": "go-profile-and-os-cpu.v1"}}})
+    text = _derive_report_conclusion("observation", support_refs=["s"], counter_refs=counter, supporting=[evidence], verification_status=status)
+    assert text.startswith(title)
+    assert "根因" not in text
+    assert "不证明同窗一致、跨窗稳定" in text

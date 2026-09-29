@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import json
 import pytest
 
-from server.app.drop_insight.cpu_criteria import cpu_utilization_hypothesis, process_cpu_thresholds
+from server.app.drop_insight.cpu_criteria import cpu_utilization_hypothesis, process_cpu_thresholds, cpu_observation_plan
 from server.app.drop_insight.diagnosis_agent import request_diagnostic_probe, DiagnosisAgentContext, _diagnosis_system_prompt
 
 # Exact first MODEL proposal from the preserved 2026-09-28 Python pilot.
@@ -24,12 +24,12 @@ def test_real_pilot_high_cpu_proposal_without_independent_counter_is_rejected():
 
 
 @pytest.mark.parametrize("criterion", ["目标进程 CPU 占用率低于 50%", "Target process CPU usage is below 30%"])
-def test_explicit_threshold_addition_is_accepted_without_deleting_existing_criteria(criterion):
+def test_adding_cpu_threshold_cannot_silently_validate_old_stronger_claim(criterion):
     proposal = deepcopy(PILOT_PROPOSAL)
     proposal["hypotheses"][0]["falsification_criteria"].append(criterion)
     result = evaluate(proposal)
-    assert result["accepted"] is True
-    assert result["proposal"]["hypotheses"][0]["falsification_criteria"] == proposal["hypotheses"][0]["falsification_criteria"]
+    assert result["accepted"] is False
+    assert proposal["hypotheses"][0]["falsification_criteria"][-1] == criterion
 
 
 @pytest.mark.parametrize("criterion", ["目标进程CPU占用率在故障时间窗内保持平稳且低于30%", "Target process CPU below 50% and I/O is high", "Python 栈样本分散", "目标进程 CPU 低于 0%"])
@@ -75,7 +75,7 @@ def test_legacy_runtime_validates_actual_model_proposal_and_preserves_contract(m
     from server.app.drop_insight import adaptive_planner
     proposal = deepcopy(PILOT_PROPOSAL)
     if with_threshold:
-        proposal["hypotheses"][0]["falsification_criteria"].append("目标进程 CPU 占用率低于 50%")
+        proposal["hypotheses"][0].update(cpu_observation_plan("PYTHON"))
     captured = []
     def chat(payload, timeout):
         captured.append(payload)
