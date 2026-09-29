@@ -1,10 +1,10 @@
 # Mini-Drop 重启交接点
 
-## 2026-09-29 聚焦测开、后端与 Agent 开发的交付（本机验证完成，CI待执行）
+## 2026-09-29—30 聚焦测开、后端与 Agent 开发的交付（代码及CI已验证，未部署）
 
 用户已恢复有明确范围的工程收尾。本轮完成可执行Python/Go观察合同、不可执行候选幂等拒绝与正常收束、报告观测范围、最终验收拒绝弱观察冒充根因、浮点分桶和双机报告展示修复；不扩展诊断故障域，不重启已停止的21场景或小时实验。后续入口为[工程交付](ENGINEERING_DELIVERY.md)。
 
-本机全量1170 passed / 7 expected skips，关键覆盖率无违约；快速门禁175 passed、零跳过。最初9项失败定位为两处旧测试替身缺status字段，补齐字段后恢复通过，终态保护未放松。原始失败、最终JUnit/覆盖率与前后负向复现已归档到 `reports/quality/focused-delivery-20260929/`。依赖专项与远程CI尚待本轮执行，不能沿用旧版本成绩。
+本机全量1170 passed / 7 expected skips，关键覆盖率无违约；快速门禁175 passed、零跳过。最初9项失败定位为两处旧测试替身缺status字段，补齐字段后恢复通过，终态保护未放松。原始失败、最终JUnit/覆盖率与前后负向复现已归档到 `reports/quality/focused-delivery-20260929/`。[CI 36595478139](https://github.com/llongwang751-arch/mini-drop/actions/runs/36595478139) **13/13作业通过**，测试代码 `9d0231dbf4cb6c4beca346230967b0b139be3c29`，测试merge `be98350e1568d71e0411f3eea7d13ecb20d75f2e`。Python1174 passed / 7 expected skips；PostgreSQL、Chroma、Go race、Chromium、业务重复验收及Linux独立热点均由专项实跑。Trivy/部分lint仍为report-only，通过不表示所有安全规则阻断发布。 首次CI `36594980233` 的CPU控制浮点误差失败保留；新增4项反例在旧版失败，按记录端点计算后修复，未钳制负值或放松阈值。后续文档/证据归档提交不与已测试源码混淆。
 
 新报告 `verification.claim_scope=BOUNDED_OBSERVATION`、`causal_root_cause_verified=false`，明确Profile和OS分别窗口；即使VERIFIED与函数词汇命中，也不能计入新根因成绩。最终汇总器补丁已应用；未知/非法scope、非布尔因果标记同样拒绝，历史无scope记录保持兼容且不改写。新口径不与旧分数拼接。
 

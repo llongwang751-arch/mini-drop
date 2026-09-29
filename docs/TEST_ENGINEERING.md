@@ -1,10 +1,10 @@
 # Mini-Drop 测试开发与质量工程
 
-## 2026-09-29 聚焦测开、后端与 Agent 开发的交付（本机验证完成，CI待执行）
+## 2026-09-29—30 聚焦测开、后端与 Agent 开发的交付（代码及CI已验证，未部署）
 
 用户已恢复有明确范围的工程收尾。本轮完成可执行Python/Go观察合同、不可执行候选幂等拒绝与正常收束、报告观测范围、最终验收拒绝弱观察冒充根因、浮点分桶和双机报告展示修复；不扩展诊断故障域，不重启已停止的21场景或小时实验。后续入口为[工程交付](ENGINEERING_DELIVERY.md)。
 
-本机全量1170 passed / 7 expected skips，关键覆盖率无违约；快速门禁175 passed、零跳过。最初9项失败定位为两处旧测试替身缺status字段，补齐字段后恢复通过，终态保护未放松。原始失败、最终JUnit/覆盖率与前后负向复现已归档到 `reports/quality/focused-delivery-20260929/`。依赖专项与远程CI尚待本轮执行，不能沿用旧版本成绩。
+本机全量1170 passed / 7 expected skips，关键覆盖率无违约；快速门禁175 passed、零跳过。最初9项失败定位为两处旧测试替身缺status字段，补齐字段后恢复通过，终态保护未放松。原始失败、最终JUnit/覆盖率与前后负向复现已归档到 `reports/quality/focused-delivery-20260929/`。[CI 36595478139](https://github.com/llongwang751-arch/mini-drop/actions/runs/36595478139) **13/13作业通过**，测试代码 `9d0231dbf4cb6c4beca346230967b0b139be3c29`，测试merge `be98350e1568d71e0411f3eea7d13ecb20d75f2e`。Python1174 passed / 7 expected skips；PostgreSQL、Chroma、Go race、Chromium、业务重复验收及Linux独立热点均由专项实跑。Trivy/部分lint仍为report-only，通过不表示所有安全规则阻断发布。 首次CI `36594980233` 的CPU控制浮点误差失败保留；新增4项反例在旧版失败，按记录端点计算后修复，未钳制负值或放松阈值。后续文档/证据归档提交不与已测试源码混淆。
 
 新报告 `verification.claim_scope=BOUNDED_OBSERVATION`、`causal_root_cause_verified=false`，明确Profile和OS分别窗口；即使VERIFIED与函数词汇命中，也不能计入新根因成绩。最终汇总器补丁已应用；未知/非法scope、非布尔因果标记同样拒绝，历史无scope记录保持兼容且不改写。新口径不与旧分数拼接。
 
@@ -174,13 +174,13 @@ Native Agent 使用 `ctest --no-tests=error`；Control 当前没有注册测试�
 | 已实跑 | web-browser 与 business 重复步骤 | 真实 Chromium 与 3 次重复实验已在 Linux CI 通过，保留 artifact |
 | 已实跑 | Chroma 集成作业 | 安装 retrieval，37 项通过且零跳过，使用隔离持久化索引与本地测试 embedding |
 | 已复验 | RAG JSON 解码历史修复 | 新增独立排序/隔离/新鲜度回归、cProfile 和同负载 HTTP 对照；非生产/真实模型指标 |
-| 部分完成 / P1 | 严格根因门禁缺少独立对照 | Python/Go 隔离 CI 已有 OS CPU 和函数 profile 三窗对照；仍须接入真实云端身份与来源合同后重新验收 20 个失败项，不降低门禁 |
+| 部分完成 / P1 | 严格根因门禁缺少独立对照 | Python/Go 隔离 CI 已有 OS CPU 和函数 profile 三窗对照；已接入云端身份与来源合同，Go原假设补采已有实测；其他故障域仍缺对照，不降低门禁，也不重启已停止的整轮验收 |
 | P2 | 拆分仍约 8,500 行的 `drop_insight/service.py` | 以状态、取证、报告等真实边界拆分，保持行为回归，不把“拆文件”本身当收益 |
 | P2 | 扩大关键模块清单并逐步上调下限 | 新增预算、幂等相关模块入 `critical_coverage`（report_conclusion 已在 9 月 28 日提升到 100%，后续选取未纳入的预算/幂等模块）；随债务清偿上调既有下限 |
 
 重复性能回归（多次独立运行、记录 P95 波动）已在 3.4 完成；`fix_verification.py` 补测、conftest 收拢与 hypothesis property-based 测试已在 3.7 完成。
 
-还未解决的边界：本机已增加 30 分钟持续请求与资源增长筛查，但小时级 soak、完整泄漏诊断与独立压测机上的容量极限仍未实测；受限资源账号目前采取明确拒绝，并未实现完整多租户资源过滤；Trivy 和 Go lint 的部分检查仍为 report-only，不能称全部安全规则阻断发布。多语言架构便于展示跨栈能力，也增加依赖和维护成本，下一步应优先闭环测试，不再扩展技术栈。
+还未解决的边界：本机已增加 30 分钟持续请求与资源增长筛查，小时级双机soak现已完成但整轮FAILED（恢复及5/120持续窗口超限），完整泄漏诊断与生产容量极限仍未验证；受限资源账号目前采取明确拒绝，并未实现完整多租户资源过滤；Trivy 和 Go lint 的部分检查仍为 report-only，不能称全部安全规则阻断发布。多语言架构便于展示跨栈能力，也增加依赖和维护成本，下一步应优先闭环测试，不再扩展技术栈。
 
 ## 6. 测开面试演示路线
 

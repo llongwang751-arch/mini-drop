@@ -55,4 +55,4 @@ python scripts/run_quality_gate.py --profile business
 
 ## Linux CI新增缺陷复盘
 
-CI `36594980233` 的Python独立CPU对照出现相同起止总量却得到负CPU（约-1.3e-16%）的确定性浮点运算缺陷。计算改为直接使用报告记录的起止总量差；不将负数钳制为零，不放宽窗口门槛。新增4项在旧源码全部失败，修后此组20项通过；原失败CI产物和前后JUnit见[原始包](../reports/quality/focused-delivery-20260929/cpu-roundoff-regression.zip)。Linux新实跑以随后CI结果为准。
+CI `36594980233` 的Python独立CPU对照出现相同起止总量却得到负CPU（约-1.3e-16%）的确定性浮点运算缺陷。计算改为直接使用报告记录的起止总量差；不将负数钳制为零，不放宽窗口门槛。新增4项在旧源码全部失败，修后此组20项通过；原失败CI产物和前后JUnit见[原始包](../reports/quality/focused-delivery-20260929/cpu-roundoff-regression.zip)。[CI 36595478139](https://github.com/llongwang751-arch/mini-drop/actions/runs/36595478139) **13/13作业通过**，测试代码 `9d0231dbf4cb6c4beca346230967b0b139be3c29`，测试merge `be98350e1568d71e0411f3eea7d13ecb20d75f2e`。Python1174 passed / 7 expected skips；PostgreSQL、Chroma、Go race、Chromium、业务重复验收及Linux独立热点均由专项实跑。Trivy/部分lint仍为report-only，通过不表示所有安全规则阻断发布。 [CI原始清单](../reports/quality/focused-delivery-20260929/ci-run.json)。代码已提交推送；云端发布仍为2400190，本轮未部署。

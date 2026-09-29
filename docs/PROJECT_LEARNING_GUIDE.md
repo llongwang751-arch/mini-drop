@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1766 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1779 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3044,7 +3044,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed`、`test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary` 等 18 个声明 |
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
-| `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 9 个声明 |
+| `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
 | `tests/test_investigation_memory.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_working_notebook_preserves_rejection_and_truncation`、`test_working_memory_reads_only_current_investigation` |
@@ -3601,6 +3601,19 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/首轮业务验收-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/cleanup-release-20260914.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/evaluation/evaluation_report.xlsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-business-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-hotspot-failure.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-hotspot-fixed.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-initial-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-python-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-python-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-python-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-retrieval-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/cpu-roundoff-fix.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/focused-delivery-20260929/cpu-roundoff-regression.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/local-python.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/local-smoke.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

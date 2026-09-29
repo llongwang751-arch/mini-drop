@@ -1,0 +1,243 @@
+{
+  "schema": "mini-drop.quality-report.v1",
+  "run_id": "20260929T160838Z-0408ef99",
+  "state": "COMPLETED",
+  "profile": "python",
+  "started_at": "2026-09-29T16:08:38.172851+00:00",
+  "scope": "Repository regression only; live diagnosis, capacity and production release are separate acceptances.",
+  "plan_sha256": "daa78f1d39ccf956de25285383d9db4e12e5a0ef56c616f627e82fe64cfcc48c",
+  "environment": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "be98350e1568d71e0411f3eea7d13ecb20d75f2e",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": false,
+    "source_sha256": "8752edfc4eebd5492a95bd53da017a465c802f2c7702222ae104e058791a44d9",
+    "source_files": 423
+  },
+  "selected_suites": [
+    "contracts",
+    "python-all"
+  ],
+  "suites": [
+    {
+      "id": "contracts",
+      "title": "协议与业务测试计划一致性",
+      "risks": [
+        "contract-drift"
+      ],
+      "started_at": "2026-09-29T16:08:38.615800+00:00",
+      "returncodes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "logs": [
+        "contracts/command-1.log",
+        "contracts/command-2.log",
+        "contracts/command-3.log",
+        "contracts/command-4.log",
+        "contracts/command-5.log",
+        "contracts/command-6.log"
+      ],
+      "counts": null,
+      "duration_seconds": 0.838,
+      "status": "PASSED",
+      "artifacts": {
+        "contracts/command-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-6.log": "03ca5b60889c7297bd777d757c300cfe78d0ee1d15201969e70df827e594c87b",
+        "contracts/command-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-5.log": "eb6e683a63fe2723c991724c833edd32bb8e9982bb7b5213b2fe6f96b9475fd1"
+      }
+    },
+    {
+      "id": "python-all",
+      "title": "Python 全量回归与覆盖率观测",
+      "risks": [
+        "task-lifecycle",
+        "false-conclusion",
+        "business-regression",
+        "test-harness"
+      ],
+      "started_at": "2026-09-29T16:08:39.454309+00:00",
+      "returncodes": [
+        0
+      ],
+      "logs": [
+        "python-all/command-1.log"
+      ],
+      "counts": {
+        "total": 1181,
+        "passed": 1174,
+        "failed": 0,
+        "skipped": 7,
+        "unexpected_skips": [],
+        "failures": [],
+        "skips": [
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_claim_lease_takeover_and_fencing",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_session_lock_serializes_event_effect_identity",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_sre_agent_upgrade::test_real_chroma_snapshot_and_retrieval",
+            "reason": "could not import 'chromadb': No module named 'chromadb'"
+          },
+          {
+            "test": "tests.test_sre_agent_upgrade::test_chroma_http_requests_are_bounded_from_startup",
+            "reason": "could not import 'chromadb': No module named 'chromadb'"
+          }
+        ]
+      },
+      "coverage": {
+        "mode": "OBSERVATION_ONLY",
+        "covered_lines": 10806,
+        "num_statements": 14677,
+        "percent_covered": 70.27988012393966,
+        "percent_covered_display": "70",
+        "missing_lines": 3871,
+        "excluded_lines": 17,
+        "percent_statements_covered": 73.62540028616202,
+        "percent_statements_covered_display": "74",
+        "num_branches": 5010,
+        "num_partial_branches": 978,
+        "covered_branches": 3030,
+        "missing_branches": 1980,
+        "percent_branches_covered": 60.47904191616767,
+        "percent_branches_covered_display": "60"
+      },
+      "critical_coverage": {
+        "mode": "GATED",
+        "minimum": 88.41,
+        "modules": {
+          "server/app/drop_insight/business_acceptance.py": {
+            "percent_covered": 94.69,
+            "floor": 94,
+            "observed": true
+          },
+          "server/app/drop_insight/event_store.py": {
+            "percent_covered": 95.7,
+            "floor": 95,
+            "observed": true
+          },
+          "server/app/drop_insight/hypothesis_predicate.py": {
+            "percent_covered": 88.41,
+            "floor": 85,
+            "observed": true
+          },
+          "server/app/drop_insight/report_conclusion.py": {
+            "percent_covered": 100.0,
+            "floor": 100,
+            "observed": true
+          },
+          "server/app/drop_insight/fix_verification.py": {
+            "percent_covered": 100.0,
+            "floor": 100,
+            "observed": true
+          }
+        },
+        "breaches": []
+      },
+      "duration_seconds": 72.254,
+      "status": "PASSED_WITH_SKIPS",
+      "artifacts": {
+        "python-all/coverage.json": "a558de9bcd75b629778952bdd932292f5002fceef181187f2cf6a45aad45c52d",
+        "python-all/junit.xml": "643b6eb9dd70b301a25b7a366d3d05ebb83c0c5746d3cd067cb3e0af1f26abd5",
+        "python-all/command-1.log": "a0bb21ba39d681b0d5ad8db0ef2ab5b24c90dadf5fd2d223723896457a44b6a3",
+        "python-all/.coverage": "f006dd8be2dbf7a9fc227fe1b2bb98c2211e00480d06dc1abb8bc4721ec730ea"
+      }
+    }
+  ],
+  "status": "PASSED_WITH_SKIPS",
+  "risk_results": {
+    "contract-drift": {
+      "description": "跨语言协议或生成物漂移",
+      "suites": [
+        "contracts"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "task-lifecycle": {
+      "description": "非法状态迁移、重复效果与预算泄漏",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "false-conclusion": {
+      "description": "无效证据或缺失观测被误判为已验证",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "business-regression": {
+      "description": "降低负载或牺牲回答质量换取更快延迟",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "ui-regression": {
+      "description": "页面状态、异步竞争与报告展示错误",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "api-regression": {
+      "description": "接口鉴权、调度与并发行为回归",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "test-harness": {
+      "description": "测试未执行、跳过或报告损坏却被判通过",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    }
+  },
+  "finished_at": "2026-09-29T16:09:51.711563+00:00",
+  "environment_after": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "be98350e1568d71e0411f3eea7d13ecb20d75f2e",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": true,
+    "source_sha256": "8752edfc4eebd5492a95bd53da017a465c802f2c7702222ae104e058791a44d9",
+    "source_files": 423
+  }
+}
