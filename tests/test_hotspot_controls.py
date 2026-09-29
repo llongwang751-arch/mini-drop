@@ -82,3 +82,31 @@ def test_go_profile_cannot_substitute_an_unrelated_hot_function():
     data = case("go")
     data["profile"]["function"] = "unrelated.hotLoop"
     assert "PPROF_HOTSPOT_INSUFFICIENT" in evaluate(data)["reasons"]
+
+
+@pytest.mark.parametrize("before,after,expected", [
+    ((.06, .01), (.06, .01), 0),
+    ((.03, .04), (.03, .04), 0),
+    ((.1, .2), (.3, .4), 10),
+    ((.06, .01), (.01, .01), -1.25),
+])
+def test_cpu_window_matches_recorded_endpoints_without_clamping(monkeypatch, before, after, expected):
+    from types import SimpleNamespace
+    from scripts import verify_hotspot_controls as controls
+    samples = iter(SimpleNamespace(user=u, system=s) for u, s in (before, after))
+    clock = iter([100.0, 104.0])
+    process = SimpleNamespace(pid=42, create_time=lambda: 123, is_running=lambda: True,
+                              cpu_times=lambda: next(samples))
+    monkeypatch.setattr(controls, "api", lambda *_: {"pid": 42})
+    monkeypatch.setattr(controls.time, "sleep", lambda _: None)
+    monkeypatch.setattr(controls.time, "perf_counter", lambda: next(clock))
+    window = controls.cpu_window(process, "unused", 4)
+    assert window["cpu_percent"] == 100 * (window["cpu_end_seconds"] - window["cpu_start_seconds"]) / 4
+    if expected == 0:
+        assert window["cpu_percent"] == 0
+    else:
+        assert window["cpu_percent"] == pytest.approx(expected)
+    if expected < 0:
+        data = case()
+        data["windows"]["baseline"]["cpu_percent"] = window["cpu_percent"]
+        assert "INVALID_CPU_WINDOW" in evaluate(data)["reasons"]

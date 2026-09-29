@@ -52,3 +52,7 @@ python scripts/run_quality_gate.py --profile business
 - 不引入任意Shell、自动修改生产代码或通用自修改Agent；这些不属于本轮交付目标。
 
 恢复后优先修复有独立复现证据的缺陷。本轮交付标准是代码回归与依赖专项验证通过、失败证据可追溯、说明与实际能力一致，不以21场景全绿作为完成条件。
+
+## Linux CI新增缺陷复盘
+
+CI `36594980233` 的Python独立CPU对照出现相同起止总量却得到负CPU（约-1.3e-16%）的确定性浮点运算缺陷。计算改为直接使用报告记录的起止总量差；不将负数钳制为零，不放宽窗口门槛。新增4项在旧源码全部失败，修后此组20项通过；原失败CI产物和前后JUnit见[原始包](../reports/quality/focused-delivery-20260929/cpu-roundoff-regression.zip)。Linux新实跑以随后CI结果为准。

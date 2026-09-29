@@ -100,9 +100,11 @@ def cpu_window(process, base, seconds):
     duration = time.perf_counter() - started
     if not process.is_running() or process.create_time() != identity:
         raise RuntimeError("target changed during observation")
+    cpu_start = before.user + before.system
+    cpu_end = after.user + after.system
     return {"pid": process.pid, "create_time": identity, "duration_seconds": duration,
-            "cpu_start_seconds": before.user + before.system, "cpu_end_seconds": after.user + after.system,
-            "cpu_percent": 100 * (after.user + after.system - before.user - before.system) / duration,
+            "cpu_start_seconds": cpu_start, "cpu_end_seconds": cpu_end,
+            "cpu_percent": 100 * (cpu_end - cpu_start) / duration,
             "observer": "OS process CPU times / monotonic wall time; one-core percent"}
 
 
