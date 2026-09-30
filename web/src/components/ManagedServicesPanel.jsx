@@ -21,6 +21,7 @@ function OfficeExercise({ item, onOpenDiagnosis }) {
   const [running, setRunning] = useState(false);
   const [rows, setRows] = useState([]);
   const [diagnosisId, setDiagnosisId] = useState("");
+  const [preparation, setPreparation] = useState(null);
   const [error, setError] = useState("");
 
   async function oneRequest(phase) {
@@ -51,10 +52,13 @@ function OfficeExercise({ item, onOpenDiagnosis }) {
   }
 
   async function run() {
-    setRunning(true); setRows([]); setDiagnosisId(""); setError("");
+    setRunning(true); setRows([]); setPreparation(null); setDiagnosisId(""); setError("");
     let faultAttempted = false;
     let faultRow = null;
     try {
+      // One fixed preparation request controls cold query extraction. Its
+      // evidence stays visible and is excluded from the three comparisons.
+      setPreparation(await oneRequest(""));
       const baseline = await oneRequest("baseline");
       setRows([baseline]);
       faultAttempted = true;
@@ -90,12 +94,13 @@ function OfficeExercise({ item, onOpenDiagnosis }) {
     fault.injected_delay_ms === 2500 && recovery.injected_delay_ms === 0 &&
     baseline.pid === fault.pid && fault.pid === recovery.pid &&
     baseline.version === fault.version && fault.version === recovery.version &&
-    fault.stage_ms?.retrieval_ms >= baseline.stage_ms?.retrieval_ms + 1500 &&
-    fault.stage_ms?.retrieval_ms >= recovery.stage_ms?.retrieval_ms + 1500);
+    fault.stage_ms?.retrieval_ms >= baseline.stage_ms?.retrieval_ms + 2000 &&
+    fault.stage_ms?.retrieval_ms >= recovery.stage_ms?.retrieval_ms + 2000);
   return <div className="office-exercise" aria-label="AGI-saber 真实问答验收">
     <Text strong>真实问答：故障与恢复</Text>
-    <Paragraph type="secondary">用已登录的办公助手账号，对同一个知识库问题依次发出正常、受控慢检索和撤销后请求。故障仅作用于带标记的这一次请求。</Paragraph>
+    <Paragraph type="secondary">用已登录的办公助手账号，先对同一个知识库问题发送一次准备请求，再依次发出正常、受控慢检索和撤销后请求。准备请求不计入三段比较。故障仅作用于带标记的这一次请求。</Paragraph>
     <Button onClick={run} loading={running} disabled={running || item.status !== "OBSERVED"}>运行三段验收</Button>
+    {preparation && <Paragraph type="secondary">准备请求完成：{preparation.duration_ms} ms · 请求 {preparation.request_id}（不计入三段比较）</Paragraph>}
     {error && <Alert type="warning" showIcon message={error} style={{ marginTop: 12 }} />}
     {rows.length > 0 && <div className="office-exercise-results">
       {exercisePhases.map(([phase, label]) => {

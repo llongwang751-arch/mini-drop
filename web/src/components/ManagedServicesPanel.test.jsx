@@ -97,14 +97,14 @@ it("submits only the selected request ID and rejects an expired selection", asyn
   expect(startManagedServiceDiagnosis).toHaveBeenCalledTimes(1);
 });
 
-it("accepts scoped fault and recovery with the measured semantic retrieval variance", async () => {
+it.each([[3507, true], [3407, false]])("checks both original 2000ms comparisons after preparation (%s)", async (faultMs, restored) => {
   const office = { ...entry, id: "agi-office-backend", observation_source: "agi_office_rag_snapshot" };
-  const phases = ["baseline", "fault", "recovery"];
+  const phases = ["", "baseline", "fault", "recovery"];
   let current = -1;
   const rows = phases.map((phase, index) => ({ request_id: String(index + 1).repeat(32),
     exercise_phase: phase, injected_delay_ms: phase === "fault" ? 2500 : 0,
-    duration_ms: [2519, 4770, 2867][index], business_result: "COMPLETED",
-    stage_ms: { retrieval_ms: [1063, 3407, 1448][index] }, pid: 123, version: "test-v1" }));
+    duration_ms: [5000, 2519, 4770, 2867][index], business_result: "COMPLETED",
+    stage_ms: { retrieval_ms: [3500, 1063, faultMs, 1448][index] }, pid: 123, version: "test-v1" }));
   listManagedServices.mockImplementation(async () => ({ items: [{ ...office,
     business_requests: { status: "AVAILABLE", items: current < 0 ? [] : [rows[current]] } }] }));
   startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "insight-exercise" });
@@ -120,9 +120,12 @@ it("accepts scoped fault and recovery with the measured semantic retrieval varia
     render(<ManagedServicesPanel onOpenDiagnosis={open} />);
     await screen.findByLabelText("AGI-saber 真实问答验收");
     fireEvent.click(screen.getByRole("button", { name: "运行三段验收" }));
-    expect(await screen.findByText("受控慢检索已定位并撤销：同一进程与版本下，检索耗时回落")).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledTimes(3);
-    expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("agi-office-backend", expect.objectContaining({ request_id: rows[1].request_id }));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
+    await waitFor(() => expect(screen.getByRole("button", { name: "运行三段验收" })).not.toBeDisabled());
+    expect(screen.getByText(restored ? "受控慢检索已定位并撤销：同一进程与版本下，检索耗时回落" : "尚不能确认恢复；请核对三段原始请求")).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledTimes(4);
+    expect(screen.getByText(/准备请求完成/)).toBeInTheDocument();
+    expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("agi-office-backend", expect.objectContaining({ request_id: rows[2].request_id }));
     fireEvent.click(screen.getByRole("button", { name: "查看本次诊断与证据树" }));
     expect(open).toHaveBeenCalledWith("insight-exercise");
   } finally {
