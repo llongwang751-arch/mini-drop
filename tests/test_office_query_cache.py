@@ -67,3 +67,41 @@ def test_restored_instances_reuse_query_extraction_but_always_read_current_graph
     cfg.model='b'
     assert store.search('leave',1)==2
     assert len(calls)==4
+
+
+@pytest.mark.parametrize('response,expected_calls', [
+    ('{"entities":[],"relations":[]}',1),
+    ('```json\n{"entities":[],"relations":[]}\n```',1),
+    ('invalid json',2),
+    ('{}',2),
+    ('{"entities":"wrong","relations":[]}',2),
+    (RuntimeError('model offline'),2),
+])
+def test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses(response,expected_calls):
+    import json
+    calls=[]
+    def llm(*args):
+        calls.append(1)
+        if isinstance(response,Exception):raise response
+        return response
+    class Extractor:
+        def __init__(self,llm_fn):self.llm_fn=llm_fn
+        def extract(self,text):
+            try:
+                raw=self.llm_fn('system',text).strip()
+                if raw.startswith('```json'):raw=raw[7:]
+                if raw.endswith('```'):raw=raw[:-3]
+                json.loads(raw.strip())
+            except Exception:pass
+            return SimpleNamespace(entities=[],relations=[])
+    class Store:
+        def __init__(self,cfg,user_id):
+            self.user_id=user_id;self.extractor=Extractor(llm)
+        def search(self,text):return self.extractor.extract(text)
+    cache=QueryExtractionCache();install_on(Store,Extractor,cache)
+    store=Store('config','alice')
+    store.search('leave');store.search('leave')
+    assert len(calls)==expected_calls
+    # Even valid-empty query results cannot bypass document indexing calls.
+    store.extractor.extract('leave')
+    assert len(calls)==expected_calls+1

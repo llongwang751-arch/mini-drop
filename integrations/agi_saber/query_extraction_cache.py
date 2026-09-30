@@ -4,10 +4,12 @@ from contextvars import ContextVar
 from copy import deepcopy
 from functools import wraps
 import hashlib
+import json
 import threading
 import time
 
 _SEARCH = ContextVar('office_graph_search_cache', default=None)
+_VALID_EMPTY = ContextVar('office_valid_empty_extraction', default=None)
 _INSTALLED = False
 
 
@@ -17,7 +19,7 @@ class QueryExtractionCache:
         self.entries = OrderedDict()
         self.lock = threading.Lock()
 
-    def get(self, scope, text, compute):
+    def get(self, scope, text, compute, *, confirmed_empty=lambda: False):
         if not isinstance(text, str) or len(text) > 2048:
             return compute()
         key = (*scope, text)
@@ -32,9 +34,10 @@ class QueryExtractionCache:
         # Do not hold a process-wide lock across a remote model invocation.
         result = compute()
         entities, relations = getattr(result, 'entities', []), getattr(result, 'relations', [])
-        # Empty results also represent model/parse failures in the original
-        # Extractor. Do not turn a transient failure into five minutes of misses.
-        if entities and len(entities) <= 64 and len(relations) <= 128:
+        # The original Extractor collapses valid empty and failed output.
+        # Cache empty only when the model callback proved an explicit valid JSON.
+        eligible = bool(entities) or (not relations and confirmed_empty())
+        if eligible and len(entities) <= 64 and len(relations) <= 128:
             copied = deepcopy(result)
             with self.lock:
                 self.entries[key] = (self.clock()+self.ttl, copied)
@@ -48,6 +51,38 @@ def install_on(graph_store, extractor_type, cache):
     original_init = graph_store.__init__
     original_search = graph_store.search
     original_extract = extractor_type.extract
+    original_extractor_init = extractor_type.__init__
+
+    @wraps(original_extractor_init)
+    def extractor_initialized(self, *args, **kwargs):
+        original_extractor_init(self, *args, **kwargs)
+        llm = getattr(self, "llm_fn", None)
+        if not callable(llm):
+            return
+
+        @wraps(llm)
+        def validated(*args, **kwargs):
+            raw = llm(*args, **kwargs)
+            if _VALID_EMPTY.get() is not None and isinstance(raw, str):
+                cleaned = raw.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                elif cleaned.startswith("```"):
+                    cleaned = cleaned[3:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                try:
+                    parsed = json.loads(cleaned.strip())
+                except (ValueError, TypeError):
+                    parsed = None
+                # Only explicit, schema-valid empty model output is reusable.
+                # Missing keys, malformed JSON and swallowed model failures
+                # remain misses; indexing runs outside this context.
+                if isinstance(parsed, dict) and parsed.get("entities") == [] and parsed.get("relations") == []:
+                    _VALID_EMPTY.set(True)
+            return raw
+
+        self.llm_fn = validated
 
     @wraps(original_init)
     def initialized(self, cfg, *args, **kwargs):
@@ -70,9 +105,21 @@ def install_on(graph_store, extractor_type, cache):
         active = _SEARCH.get()
         if active is None or active[0] is not self:
             return original_extract(self, text)
-        return cache.get(active[1], text, lambda: original_extract(self, text))
+        confirmed = [False]
+
+        def compute():
+            token = _VALID_EMPTY.set(False)
+            try:
+                result = original_extract(self, text)
+                confirmed[0] = _VALID_EMPTY.get() is True
+                return result
+            finally:
+                _VALID_EMPTY.reset(token)
+
+        return cache.get(active[1], text, compute, confirmed_empty=lambda: confirmed[0])
 
     graph_store.__init__, graph_store.search, extractor_type.extract = initialized, search, extract
+    extractor_type.__init__ = extractor_initialized
 
 
 def install():
