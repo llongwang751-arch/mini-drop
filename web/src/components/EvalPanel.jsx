@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { listDiagnosticSkills } from "../api/client";
 import FaultPlazaPanel from "./FaultPlazaPanel";
+import EngineeringCasesPanel from "./EngineeringCasesPanel";
 import BusinessAcceptancePanel from "./BusinessAcceptancePanel";
 import LatsReplayPanel from "./LatsReplayPanel";
 import SkillABPanel from "./SkillABPanel";
@@ -30,9 +31,10 @@ import "./EvalPanel.css";
 const { Paragraph, Text, Title } = Typography;
 
 const NAV_ITEMS = [
+  { label: "已验证缺陷", value: "defects", icon: <SafetyCertificateOutlined /> },
   { label: "评测总览", value: "overview", icon: <ReadOutlined /> },
   { label: "业务案例", value: "business", icon: <ExperimentOutlined /> },
-  { label: "故障广场", value: "faults", icon: <BugOutlined /> },
+  { label: "历史故障实验", value: "faults", icon: <BugOutlined /> },
   { label: "Skill A/B", value: "skill-ab", icon: <ExperimentOutlined /> },
   { label: "Skill 示例与沉淀", value: "skills", icon: <BranchesOutlined /> },
 ];
@@ -155,21 +157,21 @@ function OverviewPanel({ onOpenSkills }) {
 }
 
 export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesChanged }) {
-  const [section, setSection] = useState("overview");
+  const [section, setSection] = useState("defects");
   const [skillABSeed, setSkillABSeed] = useState(null);
 
   return (
     <div className="eval-center">
       <header className="eval-center-header">
         <div>
-          <Text className="eval-eyebrow">诊断验证</Text>
-          <Title level={3}>诊断验证中心</Title>
-          <Paragraph>查看真实故障、诊断过程与 Skill 评测，按证据判断结论是否成立。</Paragraph>
+          <Text className="eval-eyebrow">工程验证</Text>
+          <Title level={3}>工程验证中心</Title>
+          <Paragraph>从真实缺陷的失败复现、原因定位到修复回归，查看可复核的工程证据。</Paragraph>
         </div>
         <div className="eval-header-status">
           <span className="eval-status-dot" />
-          <Text strong>当前评测体系</Text>
-          <Text type="secondary">离线评测 · 真机验收 · 过程回放</Text>
+          <Text strong>测试与修复闭环</Text>
+          <Text type="secondary">缺陷回归 · 业务验收 · 历史实验</Text>
         </div>
       </header>
 
@@ -182,6 +184,7 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
       />
 
       <main className="eval-center-content">
+        {section === "defects" && <EngineeringCasesPanel onOpenHistorical={() => setSection("faults")} />}
         {section === "overview" && <OverviewPanel onOpenSkills={() => setSection("skills")} />}
         {section === "business" && <BusinessAcceptancePanel />}
         {section === "faults" && (

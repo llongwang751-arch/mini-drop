@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2237 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2272 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 541 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 548 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2452,6 +2452,8 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/resource-controls-20260927/refined/` | refined 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/` | quality 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-cases-20261001/` | engineering-cases-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-cases-20261001/__pycache__/` | __pycache__ 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-fix-20260930/` | performance-fix-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2509,6 +2511,11 @@ python scripts/render_learning_guide.py
 | `web/` | React 前端工程，含依赖、构建配置、页面与测试。 |
 | `web/public/` | 随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/` | report-assets 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-cases/` | engineering-cases 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-cases/empty-query-cache/` | empty-query-cache 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-cases/notification-lifecycle/` | notification-lifecycle 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-cases/parallel-timing/` | parallel-timing 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-cases/skill-first-insert-race/` | skill-first-insert-race 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/evaluation/` | evaluation 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/profiling/` | profiling 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/skill-evolution/` | skill-evolution 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
@@ -2551,6 +2558,16 @@ python scripts/render_learning_guide.py
 | `web/public/favicon.svg` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `web/public/report-assets/complex-showcase-capture.html` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/complex-showcase.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `web/public/report-assets/engineering-cases/empty-query-cache/cache-empty-before.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/empty-query-cache/cache-empty-targeted.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/index.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/notification-lifecycle/notification-after.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/notification-lifecycle/toast-before.log` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/parallel-timing/parallel-timing.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/parallel-timing/timing-after.py` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
+| `web/public/report-assets/engineering-cases/parallel-timing/timing-before.py` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
+| `web/public/report-assets/engineering-cases/skill-first-insert-race/postgres-race-after.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-cases/skill-first-insert-race/postgres-race-before.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/evaluation/root-cause-skill-ab.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/profiling/aggregation-report.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/report-check-1.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
@@ -2588,6 +2605,9 @@ python scripts/render_learning_guide.py
 | `web/src/components/DiagnosisSkillOutcomeCard.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `routeText`、`DiagnosisSkillOutcomeCard` |
 | `web/src/components/DiagnosisSkillOutcomeCard.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | `candidate` |
 | `web/src/components/EBPFHistogram.jsx` | eBPF I/O 延迟直方图。 | `parseRangeMidpoint`、`EBPFHistogram` |
+| `web/src/components/EngineeringCasesPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/components/EngineeringCasesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `validCounts`、`validateCatalog`、`EngineeringCasesPanel` |
+| `web/src/components/EngineeringCasesPanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/ErrorAlert.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `ErrorAlert` |
 | `web/src/components/ErrorBoundary.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/components/EvalPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
@@ -2922,6 +2942,7 @@ python scripts/render_learning_guide.py
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
 | `contracts/business_test_plan.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `contracts/engineering_cases.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/error-codes.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/quality_plan.json` | 版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。 | — |
 | `contracts/task-statuses.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
@@ -3084,6 +3105,7 @@ python scripts/render_learning_guide.py
 | `tests/test_drop_insight_session_cas.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_illegal_status_transition_is_rejected_by_table`、`test_valid_transition_increments_version_via_cas`、`test_stale_version_conflicts_under_optimistic_lock` |
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
+| `tests/test_engineering_case_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_catalog_grades_engineering_defects_separately_from_ai_roots`、`test_exact_frozen_code_reproduces_parallel_overlap_defect`、`test_missing_and_duplicate_tests_are_rejected`、`isolated_case`、`test_hash_tampering_is_rejected` 等 8 个声明 |
 | `tests/test_exploration_tree.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_live_tree_revision_grows_when_evidence_replans_a_new_round`、`test_live_tree_projects_backtracked_sibling_into_actual_lats_iteration`、`test_live_tree_projects_skill_trace_and_route_overlay` 等 6 个声明 |
 | `tests/test_fault_acceptance_index.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_projection_does_not_promote_partial_or_malformed_results`、`test_changed_raw_evidence_is_rejected` |
 | `tests/test_fault_diagnosis_instance_context.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_acceptance_preserves_operator_instance_without_injecting_oracle_pid` |
@@ -3146,6 +3168,7 @@ python scripts/render_learning_guide.py
 | `scripts/build_agi_saber_ingest_patch.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/build_ai_diagnosis_test_report_docx.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
 | `scripts/build_business_acceptance_view.py` | 从完成且哈希一致的业务报告生成页面投影。 | `verified`、`build` |
+| `scripts/build_engineering_case_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
 | `scripts/build_fault_plaza_acceptance_index.py` | 校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。 | `verified_json`、`build` |
 | `scripts/build_knowledge_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/capture_learning_guide_screenshots.py` | 通过临时无头浏览器抓取当前云端只读页面，生成总教材使用的可复现截图。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
@@ -3176,6 +3199,7 @@ python scripts/render_learning_guide.py
 | `scripts/render_fault_plaza_acceptance.py` | 从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。 | `render` |
 | `scripts/render_learning_guide.py` | 把唯一 Markdown 教材生成离线 HTML 阅读版，内嵌截图、目录搜索和图片放大，并校验链接。 | `build` |
 | `scripts/render_load_report.py` | 复核原始负载证据后生成带延迟/资源图表的自包含 HTML，保留无效结果和缺失值。 | `figure`、`html`、`render` |
+| `scripts/reproduce_parallel_timing_defect.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `reproduce` |
 | `scripts/run_actual_rag_acceptance.py` | 冻结原 RAG 修复前后源码，按相同语料和流量执行真实 HTTP 三窗对照。 | `get`、`measure`、`run` |
 | `scripts/run_business_acceptance.py` | 真实本地 HTTP 查询、并发导入和三个测量窗口的可重复业务验收。 | `write_json`、`measure`、`aggregate_repeats`、`run` |
 | `scripts/run_diagnosis_benchmark_v2.py` | 运行生产 Skill 选择器 Benchmark。 | `main` |
@@ -3440,6 +3464,7 @@ python scripts/render_learning_guide.py
 | `docs/demo/mini-drop-demo-20k.txt` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/DISTRIBUTED_LOAD.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/ENGINEERING_CASES.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/ENGINEERING_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
@@ -3737,6 +3762,23 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/首轮业务验收-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/cleanup-release-20260914.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/evaluation/evaluation_report.xlsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/__pycache__/timing-after.cpython-314.pyc` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/catalog-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/local-validation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/notification-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/parallel-timing.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/python-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/python-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/python-quality-report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/python-quality-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/timing-after.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
+| `reports/quality/engineering-cases-20261001/timing-before.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
+| `reports/quality/engineering-cases-20261001/web-audit.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/web-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/web-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/web-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/ci-business-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/ci-hotspot-failure.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/ci-hotspot-fixed.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

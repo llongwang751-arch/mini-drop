@@ -1,5 +1,7 @@
 # 文档入口
 
+- [`ENGINEERING_CASES.md`](ENGINEERING_CASES.md)：默认面试演示的4个真实缺陷、修复前失败与修复后回归、证据生成合同及旧21类历史入口
+
 - [性能修复与最终验收](../reports/architecture/performance-fix-20260930.md)：双机完整小时、HTTP复用/排序缓存、并行窗口计时、查询实体缓存、真实两组三段与浏览器、原始失败保留及根因能力边界
 
 - [安全门禁、诊断取消与当前版本彩排](../reports/architecture/security-cancel-delivery-20260930.md)：Go调用路径/二进制与lint阻断、真实PG竞争、四服务部署与回滚、取消真机上界、正常业务链及额外延迟彩排失败

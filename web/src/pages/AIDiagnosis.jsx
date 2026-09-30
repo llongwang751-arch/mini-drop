@@ -1090,7 +1090,7 @@ export default function AIDiagnosis() {
                 </div>
                 {!hasActiveDiagnosis && <div className="diagnosis-start-footnote">
                   <span>Enter 开始诊断 · Shift + Enter 换行</span>
-                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>用故障广场开始演示</Button>
+                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>查看已验证缺陷</Button>
                 </div>}
               </div>
             </>
