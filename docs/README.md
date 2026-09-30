@@ -1,5 +1,7 @@
 # 文档入口
 
+- [本轮三个缺陷闭环与部署复验](../reports/architecture/instance-scope-fix-20260930.md)：实例身份、真实PG竞争、新Java观测范围及两次传输失败的独立安全核验
+
 - [`REMAINING_WORK_20260930.md`](REMAINING_WORK_20260930.md)：面试版本的剩余工程、依赖安全审查和能力边界
 
 - [`ENGINEERING_DELIVERY.md`](ENGINEERING_DELIVERY.md)：测试开发、后端与Agent开发的三个缺陷闭环、可复现命令、源码/证据和明确暂缓范围

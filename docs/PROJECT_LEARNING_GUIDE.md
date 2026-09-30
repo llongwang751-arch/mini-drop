@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1854 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1943 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 505 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 511 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2122,6 +2122,7 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790753041327/` | browser-1790753041327 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790753916581/` | browser-1790753916581 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790757941555/` | browser-1790757941555 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790763568593/` | browser-1790763568593 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2420,6 +2421,10 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/.qa-report-20260906-2248/` | .qa-report-20260906-2248 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/.qa-report-20260906-final/` | .qa-report-20260906-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/.qa-report-20260906-final2/` | .qa-report-20260906-final2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-after-race-deployed-20260930-cases/` | fault-plaza-instance-scope-1-after-race-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-deployed-20260930-cases/` | fault-plaza-instance-scope-1-bounded-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-retry-deployed-20260930-cases/` | fault-plaza-instance-scope-1-bounded-retry-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/` | fault-plaza-instance-scope-3-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/` | fault-plaza-strict-21-deployed-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/` | fault-plaza-strict-21-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/` | fault-plaza-strict-pilot-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2446,6 +2451,7 @@ python scripts/render_learning_guide.py
 | `reports/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/` | quality 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `scripts/` | 可重复运行的生成、检验、截图、评测与运维辅助入口。 |
 | `server/` | Python 服务包。 |
 | `server/app/` | Python 服务基础能力、数据模型、Worker 和分析调度。 |
@@ -3011,7 +3017,7 @@ python scripts/render_learning_guide.py
 | `tests/test_analyzer_runner_quality.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_raw_perf_runner_preserves_structured_empty_sample_failure`、`test_output_collector_rejects_zero_sample_flamegraph`、`test_output_collector_marks_valid_profile_as_usable`、`test_async_profiler_html_is_decoded_without_executing_javascript`、`test_async_profiler_event_is_read_from_the_real_h1_heading` 等 7 个声明 |
 | `tests/test_artifact_integrity.py` | Python 自动化测试，验证采集产物、完整性和生命周期的成功、失败与边界条件。 | `test_prepare_and_verify_local_artifact`、`test_prepare_rejects_declared_hash_mismatch`、`test_verify_rejects_tampered_local_artifact`、`test_legacy_artifact_is_explicitly_unverified`、`test_analyzer_upload_binds_temporary_output_to_verified_digest` |
 | `tests/test_artifact_lifecycle.py` | Python 自动化测试，验证采集产物、完整性和生命周期的成功、失败与边界条件。 | `test_classify_family_and_retention`、`test_reconcile_detects_missing_artifacts`、`test_reconcile_detects_orphan_objects`、`test_reconcile_flags_hash_mismatch`、`test_reconcile_flags_expired_objects_by_retention` 等 7 个声明 |
-| `tests/test_auto_scope_selection.py` | Python 自动化测试，验证目标发现与安全范围的成功、失败与边界条件。 | `isolated_database`、`test_background_scope_respects_explicit_manual_selection`、`test_background_scope_retries_when_user_enabled_discovery`、`test_ambiguous_autonomous_scope_uses_capability_aware_safe_fallback`、`test_autonomous_scope_never_selects_an_ineligible_candidate` 等 22 个声明 |
+| `tests/test_auto_scope_selection.py` | Python 自动化测试，验证目标发现与安全范围的成功、失败与边界条件。 | `isolated_database`、`test_background_scope_respects_explicit_manual_selection`、`test_background_scope_retries_when_user_enabled_discovery`、`test_ambiguous_autonomous_scope_uses_capability_aware_safe_fallback`、`test_autonomous_scope_never_selects_an_ineligible_candidate` 等 28 个声明 |
 | `tests/test_builtin_skills.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_repository_skill_catalog_is_executable`、`test_repository_skills_seed_idempotently`、`test_repository_skill_instruction_loader_rejects_tampered_source` |
 | `tests/test_business_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`test_same_load_improvement_requires_quality_and_non_degraded_results`、`test_stage_percentiles_use_only_observed_samples_and_preserve_real_zero`、`test_missing_stage_telemetry_stays_missing`、`test_degraded_response_must_preserve_quality_threshold_and_baseline` 等 12 个声明 |
 | `tests/test_business_acceptance_properties.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `workload`、`clean_window`、`sparse_windows`、`after_windows`、`test_percentiles_are_observed_latencies_in_nearest_rank_order` 等 10 个声明 |
@@ -3041,13 +3047,14 @@ python scripts/render_learning_guide.py
 | `tests/test_distributed_endurance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `ready`、`test_remote_identity_requires_distinct_machines_and_frozen_source`、`test_mismatched_or_invalid_identity_rejected`、`test_ssh_option_and_shell_injection_rejected`、`test_ssh_requires_known_host_and_noninteractive_login` 等 10 个声明 |
 | `tests/test_drop_insight_budget.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_budget_denies_when_artifact_bytes_exceed_limit`、`test_settle_uses_actual_artifact_bytes`、`test_release_frees_reservation_on_failure` 等 6 个声明 |
 | `tests/test_drop_insight_policy_evidence.py` | Python 自动化测试，验证Evidence 分类与门禁的成功、失败与边界条件。 | `policy_context`、`test_policy_requires_human_approval_for_perf`、`test_autonomous_session_pre_authorizes_registered_perf_only`、`test_policy_denies_unknown_argument_and_out_of_scope_agent`、`test_host_io_cannot_support_target_process_even_with_legacy_support_predicate` 等 15 个声明 |
-| `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity`、`test_postgres_report_and_event_constraints_reject_concurrent_duplicates` |
+| `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_postgres_skill_activation_serializes_competing_planners`、`test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity`、`test_postgres_report_and_event_constraints_reject_concurrent_duplicates` 等 6 个声明 |
 | `tests/test_drop_insight_session_cas.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_illegal_status_transition_is_rejected_by_table`、`test_valid_transition_increments_version_via_cas`、`test_stale_version_conflicts_under_optimistic_lock` |
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
 | `tests/test_exploration_tree.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_live_tree_revision_grows_when_evidence_replans_a_new_round`、`test_live_tree_projects_backtracked_sibling_into_actual_lats_iteration`、`test_live_tree_projects_skill_trace_and_route_overlay` 等 6 个声明 |
 | `tests/test_fault_acceptance_index.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_projection_does_not_promote_partial_or_malformed_results`、`test_changed_raw_evidence_is_rejected` |
-| `tests/test_fault_plaza.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_fault_plaza_is_explicitly_disabled_without_server_url`、`test_fault_plaza_marks_only_published_skill_routes_as_ab_supported`、`test_fault_plaza_exposes_multilanguage_routes_and_multiround_contract`、`test_fault_plaza_reports_availability_per_runtime`、`test_start_fault_uses_only_allow_listed_endpoint_and_bounded_duration` 等 10 个声明 |
+| `tests/test_fault_diagnosis_instance_context.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_acceptance_preserves_operator_instance_without_injecting_oracle_pid` |
+| `tests/test_fault_plaza.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `configured_lab_agent`、`test_missing_lab_agent_rejects_before_injection`、`test_fault_request_carries_operator_agent_without_snapshot_pid`、`test_fault_plaza_is_explicitly_disabled_without_server_url`、`test_fault_plaza_marks_only_published_skill_routes_as_ab_supported` 等 13 个声明 |
 | `tests/test_fault_plaza_closure_campaign.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_decisive_collector_is_scenario_evidence_contract_not_list_position`、`test_scenario_pass_requires_diagnosis_chain_and_cleanup`、`test_scenario_keeps_diagnosis_failure_and_still_cleans_up`、`test_scenario_caps_diagnosis_before_the_fault_lab_dead_man_switch`、`test_campaign_persists_an_atomic_running_checkpoint` 等 6 个声明 |
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed`、`test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary` 等 18 个声明 |
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
@@ -3056,6 +3063,7 @@ python scripts/render_learning_guide.py
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
 | `tests/test_investigation_memory.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_working_notebook_preserves_rejection_and_truncation`、`test_working_memory_reads_only_current_investigation` |
+| `tests/test_java_observation_report_scope.py` | Python 自动化测试，验证目标发现与安全范围的成功、失败与边界条件。 | `cloud_gc`、`test_new_gc_report_marks_observation_without_changing_its_verified_measurements`、`test_replay_of_existing_gc_report_preserves_legacy_scope_and_text` |
 | `tests/test_jvm_profile_planning.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `test_jvm_profile_event_follows_diagnosis_intent`、`test_lock_probe_follows_bound_runtime_identity`、`test_later_gc_counterexample_does_not_turn_lock_capture_into_allocation`、`test_unknown_business_executable_cannot_fall_back_to_jvm_attach`、`test_uwsgi_has_python_profiler_but_no_jvm_attach` 等 6 个声明 |
 | `tests/test_k8s_manifests.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_k8s_base_has_unique_resources_and_does_not_embed_example_secret`、`test_k8s_control_services_are_replicated_and_disruption_bounded`、`test_k8s_agent_is_one_host_pid_collector_per_node` |
 | `tests/test_kernel_compatibility.py` | Python 自动化测试，验证Linux 内核兼容性的成功、失败与边界条件。 | `test_modern_cap_perfmon_supports_perf_without_sys_admin`、`test_restricted_host_falls_back_without_claiming_a_profile`、`test_gperftools_requires_explicit_app_opt_in`、`test_pyspy_does_not_ignore_a_restrictive_ptrace_policy` |
@@ -3452,6 +3460,16 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/backup-restore-run-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-acceptance-index.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-after-race-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-after-race-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-retry-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-retry-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/java-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/java-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3530,6 +3548,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/cloud-release-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/conclusion-integrity-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/deployment-validation-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/instance-scope-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3695,6 +3714,80 @@ python scripts/render_learning_guide.py
 | `reports/quality/focused-delivery-20260929/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/regression-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/scope-before-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/campaign-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/ci-first-failure-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/fault-3-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/fault-3-artifacts.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/fault-after-race-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/fault-after-race-artifacts.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/final-evidence-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/harness-after.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/harness-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/instance-scope-after.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/instance-scope-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/instance-scope-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/instance-scope-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/instance-scope-race.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-after.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-browser.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-browser.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-campaign-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-final-health.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-final-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-first-campaign.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-independent-safety-recovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-recovered-session.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-retry-campaign.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-retry-independent-safety.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-retry-tools.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/java-scope-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-after-initial.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-after-initial.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-after.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres-race-final-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/postgres_race_runner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `remote` |
+| `reports/quality/instance-scope-20260930/python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/runtime-source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-campaign-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-runtime-source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-unit-final.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/skill-race-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/instance-scope-20260930/worker-rpc-errors.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/面试反馈与项目优化方案-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 
 ### 34.19 output：交付型派生材料
@@ -4024,6 +4117,8 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790753916581/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1790757941555/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1790757941555/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790763568593/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790763568593/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

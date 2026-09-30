@@ -1,5 +1,9 @@
 # 21 场景严格验收
 
+## 本轮子集与完整成绩的边界
+
+实例范围三项新批次目标正确3/3、清理与恢复3/3，严格根因0/3。Skill修复后的历史GC协议成绩1/1保留，但该报告只有分配/GC相关且缺范围，不能称因果证明。当前Java新报告为BOUNDED_OBSERVATION、causal=false；即使VERIFIED也应拒绝因果根因成绩。范围修复首批遇TLS/读取错误，原STOPPED_UNSAFE_TO_CONTINUE记录保留，独立安全清理另存。[本轮证据](../reports/architecture/instance-scope-fix-20260930.md)与原完整21场景分开；公开latest_acceptance仍读取原完整批次，不拼接或重写历史分数。
+
 ## 2026-09-30 最新交付
 
 后端及Web新代码已部署并复核；完整21场景严格根因0/21、已验证观测4/21，撤销/清理21/21；一小时请求19,950全成功，但60RPS与9个持续窗口延迟超限，整体未通过。Web观测范围误标及HTTP409已修复，224项测试与CI13/13通过，云端同会话复验通过。详情和能力边界见[本次部署验收](../reports/architecture/deployment-validation-20260930.md)。下方带日期记录保留当时状态。

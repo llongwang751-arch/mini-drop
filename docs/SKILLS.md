@@ -1,8 +1,8 @@
 # Skills
 
-## 2026-09-30 并发激活事务（候选）
+## 2026-09-30 并发激活事务（已部署）
 
-HTTP规划与后台规划可同时使用同一Skill；候选在`apply_active_skill`读取激活记录前锁定诊断父行，保护首次插入及复用trace的读改写。每个diagnosis/skill仍只允许一条记录，不放松唯一约束，不修改既有记录格式。事务关闭/提交释放锁；不同诊断使用不同父行。真实PostgreSQL竞争测试验证等待、单条记录及两轮trace，SQLite的单元通过不能代替该验证。最终部署状态以PROJECT_CONTEXT为准。
+HTTP规划与后台规划可同时使用同一Skill；现在在`apply_active_skill`读取激活记录前锁定诊断父行，保护首次插入及复用trace的读改写。每个diagnosis/skill仍只允许一条记录，不放松唯一约束，不修改既有记录格式。事务关闭/提交释放锁；不同诊断使用不同父行。真实PostgreSQL竞争测试验证等待、单条记录及两轮trace，SQLite的单元通过不能代替该验证。最终部署状态以PROJECT_CONTEXT为准。
 
 ## 2026-09-10 评测口径修正
 

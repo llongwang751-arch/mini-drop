@@ -1,5 +1,9 @@
 # 基础复刻
 
+## 当前运行版本（2026-09-30）
+
+后端`20260930T100034Z`/`d26bc2c`已部署，Worker/Analyzer各183源码文件一致，其他11容器不变；Web保持`20260930T084451Z`/`c9b9964`。本轮没有数据库迁移、数据卷清理或镜像删除。回滚配置为`/opt/mini-drop-releases/20260930T100034Z/private/rollback.compose.json`，含前版实际环境；完整证据见[本轮报告](../reports/architecture/instance-scope-fix-20260930.md)。下方旧日期记录保留当时状态。
+
 ## 受控实验室的实例登记
 
 启用故障注入时，必须配置`MINI_DROP_FAULT_LAB_AGENT_ID`为负责四个实验室的已注册Agent ID。Control示例在`deploy/env/interview-demo.env`，单机默认跟随`NATIVE_AGENT_ID`。未配置时启动故障被拒绝；该值仅缩小发现范围，仍必须有新鲜可信进程快照。不要填实验室返回的PID或借用其他主机身份。部署脚本沿用实际运行环境时须显式带入此新增变量，并为前版保留不含该变更的回滚配置。
