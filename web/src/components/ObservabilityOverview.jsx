@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Tag, Tooltip } from "antd";
 import { diagnosticStatusLabel, diagnosticToolLabel } from "../utils/diagnosisDisplay";
+import { isCausalRootReport, isObservationReport } from "../utils/reportPresentation";
 
 const FINISHED = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
 const COMPLETED_WINDOWS = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "PARTIAL", "PARTIAL_COMPLETED"]);
@@ -88,7 +89,9 @@ export function buildObservationModel(detail = {}, resources = {}) {
   const target = detail.target || {};
   const binding = target.process_binding || {};
   const status = String(detail.status || "").toUpperCase();
-  const verified = reports.some((report) => String(report?.verification?.status || "").toUpperCase() === "VERIFIED");
+  const verified = reports.some(isCausalRootReport);
+  const observed = reports.some(report => isObservationReport(report)
+    && String(report?.verification?.status || "").toUpperCase() === "VERIFIED");
   const supportCount = evidence.filter((item) => {
     const role = String(item?.role || "").toUpperCase();
     return ["SUPPORT", "SUPPORTS", "SUPPORTED"].includes(role)
@@ -115,6 +118,12 @@ export function buildObservationModel(detail = {}, resources = {}) {
       code: "FAULT_VERIFIED",
       title: "已定位有证据支持的异常",
       detail: "根因结论已通过当前报告的证据门禁，可继续查看调用栈与修复验证。",
+    };
+  } else if (observed) {
+    assessment = {
+      code: "OBSERVATION_VERIFIED",
+      title: "已验证性能观测，根因仍待确认",
+      detail: "分别采集的调用栈与系统指标已通过观测规则；仍需独立实验确认它们对业务异常的因果贡献。",
     };
   } else if (controlledFault) {
     assessment = {

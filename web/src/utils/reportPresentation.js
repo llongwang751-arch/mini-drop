@@ -1,14 +1,39 @@
 import { chineseDiagnosticText } from "./diagnosisDisplay";
 
 function verificationStatus(report) {
-  return String(report?.verification?.status || "").toUpperCase();
+  return String(report?.verification?.status || report?.verification_status || "").toUpperCase();
+}
+
+export function isCausalRootReport(report) {
+  const verification = report?.verification || {};
+  const scopeAllowed = !Object.hasOwn(verification, "claim_scope")
+    || verification.claim_scope === "CAUSAL_ROOT_CAUSE";
+  const causalAllowed = !Object.hasOwn(verification, "causal_root_cause_verified")
+    || verification.causal_root_cause_verified === true;
+  return verificationStatus(report) === "VERIFIED" && scopeAllowed && causalAllowed
+    && !hasUnattributedHostIO(report);
+}
+
+export function isObservationReport(report) {
+  return report?.verification?.claim_scope === "BOUNDED_OBSERVATION"
+    || report?.verification?.causal_root_cause_verified === false;
+}
+
+export function projectReportScopes(tree, reports = []) {
+  if (!tree?.nodes) return tree;
+  const byId = new Map(reports.map(report => [`report:${report.report_id}`, report]));
+  return { ...tree, nodes: tree.nodes.map(node => {
+    const report = byId.get(node.id);
+    return report ? { ...node, title: reportConclusionTitle(report) } : node;
+  }) };
 }
 
 export function reportConclusionTitle(report) {
   if (hasUnattributedHostIO(report)) return "尚未定位根因";
   const status = verificationStatus(report);
   if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return "尚未定位根因";
-  if (status === "VERIFIED") return "根因结论";
+  if (isObservationReport(report)) return status === "VERIFIED" ? "已验证观测" : "阶段性观测";
+  if (status === "VERIFIED") return isCausalRootReport(report) ? "根因结论" : "已验证证据（范围未确认）";
   if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性发现（待验证）";
   if (["INSUFFICIENT_EVIDENCE", "FALSIFIED", "REJECTED"].includes(status)) {
     return "本轮判断";
@@ -119,7 +144,8 @@ export function selectBestReport(reports = []) {
   const rank = { VERIFIED: 3, PARTIAL_WITHOUT_COUNTER: 2, INSUFFICIENT_EVIDENCE: 1 };
   return [...reports].sort((left, right) => {
     const status = (item) => String(item?.verification?.status || item?.verification_status || "").toUpperCase();
-    return (rank[status(right)] || 0) - (rank[status(left)] || 0)
+    const score = item => isCausalRootReport(item) ? 4 : (rank[status(item)] || 0);
+    return score(right) - score(left)
       || (right?.evidence_refs?.length || 0) - (left?.evidence_refs?.length || 0)
       || Number(right?.confidence || 0) - Number(left?.confidence || 0)
       || new Date(right?.updated_at || right?.created_at || 0) - new Date(left?.updated_at || left?.created_at || 0)
@@ -158,7 +184,7 @@ export function reportRemediation(report) {
     ((Array.isArray(remediation.mitigations) && remediation.mitigations.length > 0) ||
       (Array.isArray(remediation.root_cause_fixes) && remediation.root_cause_fixes.length > 0))
   ) {
-    return { ...remediation, root_cause_fixes: report?.verification?.status === "VERIFIED" ? remediation.root_cause_fixes : [] };
+    return { ...remediation, root_cause_fixes: isCausalRootReport(report) ? remediation.root_cause_fixes : [] };
   }
   return null;
 }

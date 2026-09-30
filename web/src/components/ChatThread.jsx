@@ -12,7 +12,7 @@ import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
 import { TOOL_LABELS, chineseDiagnosticText } from "../utils/diagnosisDisplay";
 import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
 import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
-import { selectBestReport } from "../utils/reportPresentation";
+import { selectBestReport, isCausalRootReport } from "../utils/reportPresentation";
 
 const { Text } = Typography;
 
@@ -178,8 +178,7 @@ export default function ChatThread({
     );
   }
   const latestFeedback = feedbackRows[0] || null;
-  const reportVerificationStatus = latestReport?.verification?.status;
-  const hasVerifiedRootCause = reportVerificationStatus === "VERIFIED";
+  const hasVerifiedRootCause = isCausalRootReport(latestReport);
   const sortedTools = [...(toolCalls || [])].sort(
     (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
   );

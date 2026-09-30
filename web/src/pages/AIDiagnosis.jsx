@@ -39,6 +39,7 @@ import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
 import useSSE from "../hooks/useSSE";
 import { getFrozenReplayMeta } from "../utils/latsReplay";
+import { isCausalRootReport, projectReportScopes } from "../utils/reportPresentation";
 import {
   advanceDropInsightOrchestrator,
   clarifyDropInsightDiagnosis,
@@ -160,7 +161,7 @@ function isVerifiedReport(report) {
     || report?.verification_status
     || report?.status;
   const evidenceRefs = report?.evidence_refs || report?.evidence_refs_json || [];
-  return String(verificationStatus || "").toUpperCase() === "VERIFIED"
+  return isCausalRootReport({ ...report, verification: { ...report?.verification, status: verificationStatus } })
     && Array.isArray(evidenceRefs)
     && evidenceRefs.length > 0;
 }
@@ -406,10 +407,19 @@ export default function AIDiagnosis() {
     () => (resources.reports || []).find(isVerifiedReport) || null,
     [resources.reports],
   );
+  const displayExplorationTree = useMemo(
+    () => projectReportScopes(resources.explorationTree, resources.reports),
+    [resources.explorationTree, resources.reports],
+  );
 
   useEffect(() => {
     if (!selectedId || sourceSkill || !latestVerifiedReport || frozenReplay) return;
-    if (!TERMINAL.has(String(detail?.status || "").toUpperCase())) return;
+    if (String(detail?.status || "").toUpperCase() !== "COMPLETED") return;
+    // The server extracts only the most recently created report. An earlier
+    // verified branch cannot make a later insufficient report eligible.
+    const newest = [...(resources.reports || [])].sort((a, b) =>
+      new Date(b.created_at || 0) - new Date(a.created_at || 0))[0];
+    if (!isVerifiedReport(newest)) return;
     if (automaticSkillAttempts.current.has(selectedId)) return;
     automaticSkillAttempts.current.add(selectedId);
     materializeDiagnosticSkill(selectedId, { notify: true }).catch((error) => {
@@ -417,7 +427,7 @@ export default function AIDiagnosis() {
         message.info(error?.message || "本次可信诊断暂未形成可复用 Skill");
       }
     });
-  }, [detail?.status, frozenReplay, latestVerifiedReport, materializeDiagnosticSkill, selectedId, sourceSkill]);
+  }, [detail?.status, frozenReplay, latestVerifiedReport, materializeDiagnosticSkill, selectedId, sourceSkill, resources.reports]);
 
   const pollSelectedDetail = useCallback(async () => {
     if (!selectedId || settled) return;
@@ -947,7 +957,7 @@ export default function AIDiagnosis() {
                   {detail && contentView !== "conversation" && (
                     <aside className="diagnosis-tree-panel" aria-label="实时诊断探索树">
                       <ActualExplorationTree
-                        tree={resources.explorationTree}
+                        tree={displayExplorationTree}
                         hypotheses={resources.hypotheses}
                         toolCalls={resources.toolCalls}
                         report={latestVerifiedReport || resources.reports?.[0]}
@@ -1086,7 +1096,7 @@ export default function AIDiagnosis() {
       >
         {detail && (
           <ActualExplorationTree
-            tree={resources.explorationTree}
+            tree={displayExplorationTree}
             hypotheses={resources.hypotheses}
             toolCalls={resources.toolCalls}
             report={latestVerifiedReport || resources.reports?.[0]}
@@ -1163,7 +1173,7 @@ export default function AIDiagnosis() {
         open={replayOpen}
         loading={loading}
         detail={detail}
-        explorationTree={resources.explorationTree}
+        explorationTree={displayExplorationTree}
         hypotheses={resources.hypotheses}
         toolCalls={resources.toolCalls}
         evidence={resources.evidence}

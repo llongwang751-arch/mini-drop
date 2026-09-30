@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1779 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1791 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 498 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 502 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2119,6 +2119,8 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790160779094/` | browser-1790160779094 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790162584866/` | browser-1790162584866 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790162782469/` | browser-1790162782469 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790753041327/` | browser-1790753041327 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790753916581/` | browser-1790753916581 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2429,6 +2431,8 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/deployment-20260928/` | deployment-20260928 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/deployment-20260928/distributed-hour/` | distributed-hour 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/deployment-20260928/distributed-quick/` | distributed-quick 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/business-acceptance/deployment-20260930/` | deployment-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/business-acceptance/deployment-20260930/distributed-quick/` | distributed-quick 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/endurance-20260927/` | endurance-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/resource-controls-20260927/` | resource-controls-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/resource-controls-20260927/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2638,7 +2642,8 @@ python scripts/render_learning_guide.py
 | `web/src/utils/parseJsonOffMainThread.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/parseJsonPayload.js` | React 前端模块，负责对应模块行为的展示或交互。 | `limitTree`、`parseJsonPayload` |
 | `web/src/utils/parseJsonPayload.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
-| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`reportConclusionTitle`、`hasUnattributedHostIO`、`reportLimitations`、`reportNextActions` 等 12 个声明 |
+| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`projectReportScopes`、`reportConclusionTitle` 等 15 个声明 |
+| `web/src/utils/reportPresentation.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/skillBenchmark.js` | React 前端模块，负责Skill 检索、策略与演进的展示或交互。 | `validateSkillBenchmark` |
 | `web/src/utils/skillBenchmark.test.js` | 前端自动化测试，验证同名模块的Skill 检索、策略与演进。 | — |
 | `web/src/utils/status.js` | React 前端模块，负责对应模块行为的展示或交互。 | `statusColor`、`isTaskActive`、`ACTIVE_TASK_STATUSES` |
@@ -3397,6 +3402,7 @@ python scripts/render_learning_guide.py
 | `docs/PROJECT_CONTEXT.md` | 跨会话架构和当前事实总锚点。 | — |
 | `docs/PROJECT_LEARNING_GUIDE.md` | 当前这份从页面到源码、测试和面试的唯一总教材。 | — |
 | `docs/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `docs/REMAINING_WORK_20260930.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/REPLICATION.md` | 本地、云端和多 Worker 的复刻部署。 | — |
 | `docs/RESTART_HANDOFF.md` | 电脑或会话重启后的精确恢复入口。 | — |
 | `docs/SERVICE_INTEGRATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
@@ -3562,6 +3568,12 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/deployment-20260928/runtime-v2-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260928/runtime-v2-runtime-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260928/runtime-v2-source-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-case-before.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-quick/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-quick/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/security-audit.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-regression.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci-short-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3942,6 +3954,10 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790162584866/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1790162782469/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1790162782469/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790753041327/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790753041327/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790753916581/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790753916581/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

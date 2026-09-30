@@ -65,6 +65,14 @@ const resources = {
 };
 
 describe("ObservabilityOverview", () => {
+  it("shows independently verified observations without claiming a causal root", () => {
+    const model = buildObservationModel(detail, { ...resources, reports: [{ verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+    } }] });
+    expect(model.assessment.code).toBe("OBSERVATION_VERIFIED");
+    expect(model.assessment.title).toBe("已验证性能观测，根因仍待确认");
+    expect(model.assessment.detail).not.toContain("根因结论已通过");
+  });
   it("treats a completed measured window without support as no verified fault", () => {
     const model = buildObservationModel(detail, resources);
     expect(model.assessment.code).toBe("NO_VERIFIED_FAULT");

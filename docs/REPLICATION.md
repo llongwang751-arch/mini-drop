@@ -1,5 +1,11 @@
 # 基础复刻
 
+## 2026-09-30 新代码发布与独立复验（进行中）
+
+用户已明确恢复部署、历史21故障验收与一小时压测。已发布 `20260930T071955Z`，源码 `3d8e41437de80a9fc5cd831c8e1d62ae0718e9e4`（CI 36596317523成功）；仅更新Diagnosis Worker与Analyzer，两容器各183文件SHA核对通过，其他11个运行容器不变，API三依赖healthy。回滚保留 `/opt/mini-drop-releases/20260930T071955Z/private/rollback.compose.json`，前版 `20260928T142312Z` 不删除。
+
+新批次 `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930.json` 在Control串行执行；小时实验在独立Worker1运行，输出 `output/quality/distributed-hour-20260930/`。短测315/315通过，身份/源码/清理复核通过。二者未完成前不宣布通过；历史停止批次和失败小时报告均保留。测量源码运行期间冻结，不修改门槛或回写历史成绩。部署元数据与日志：`output/acceptance/deployment-20260930/`。
+
 ## 2026-09-28 Python 服务增量发布
 
 当前发布 `20260928T142312Z` 已激活，源码 `2400190`，Diagnosis Worker 与 Analyzer 健康，其他11个运行容器未重建。回滚配置位于本发布目录的 `private/rollback.compose.json`（含运行凭据，不能提交）；逐服务恢复并通过健康检查后，将 `/opt/mini-drop-current` 恢复到 `/opt/mini-drop-releases/20260928T140102Z`；该首版及更早的 `20260923T163300Z` 均保留。

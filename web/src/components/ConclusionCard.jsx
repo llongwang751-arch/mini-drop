@@ -18,6 +18,8 @@ import {
   reportNextActions,
   reportRemediation,
   hasUnattributedHostIO,
+  isCausalRootReport,
+  isObservationReport,
 } from "../utils/reportPresentation";
 
 const { Text } = Typography;
@@ -30,6 +32,8 @@ export default function ConclusionCard({ report }) {
   const confidence = report.confidence ?? 0;
   const verification = report.verification || {};
   const verificationStatus = verification.status;
+  const causalRoot = isCausalRootReport(report);
+  const observation = isObservationReport(report);
   const conclusionTitle = reportConclusionTitle(report);
   const limitations = reportLimitations(report);
   const nextActions = reportNextActions(report);
@@ -48,7 +52,7 @@ export default function ConclusionCard({ report }) {
       className={`diagnosis-conclusion-card ${verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? "is-verified" : "is-limited"}`}
       title={
         <Space>
-          {verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? <TrophyOutlined /> : <InfoCircleOutlined />}
+          {causalRoot ? <TrophyOutlined /> : <InfoCircleOutlined />}
           {conclusionTitle}
         </Space>
       }
@@ -58,7 +62,7 @@ export default function ConclusionCard({ report }) {
           <Tag color={verificationStatus === "VERIFIED" && !hasUnattributedHostIO(report) ? "green" : "orange"}>
             {hasUnattributedHostIO(report) ? "历史评分不可用于进程归因" : `证据评分 ${(confidence * 100).toFixed(0)} / 100`}
           </Tag>
-          {verificationStatus && <Tag color={hasUnattributedHostIO(report) ? "orange" : verColor}>证据门禁：{hasUnattributedHostIO(report) ? "主机观察，目标归因未通过" : verificationStatusLabel(verificationStatus)}</Tag>}
+          {verificationStatus && <Tag color={hasUnattributedHostIO(report) ? "orange" : verColor}>{observation ? "观测门禁" : "证据门禁"}：{hasUnattributedHostIO(report) ? "主机观察，目标归因未通过" : observation && verificationStatus === "VERIFIED" ? "观测已验证" : verificationStatusLabel(verificationStatus)}</Tag>}
           {(verification.trace_id || report.trace_id) && (
             <Tag color="geekblue" title={verification.span_id || report.span_id ? `Span ID: ${verification.span_id || report.span_id}` : undefined}>
               Trace: {verification.trace_id || report.trace_id}

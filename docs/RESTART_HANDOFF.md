@@ -1,5 +1,13 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-30 新代码发布与独立复验（进行中）
+
+真实新会话页面发现旧Web把BOUNDED_OBSERVATION展示为根因，并自动请求不满足条件的Skill候选。前端候选修复统一报告摘要/探索树/修复入口/A-B对比的范围规则，按服务器最新报告限定候选请求；12项负向测试已在旧源码失败。候选本机44文件/224测试和构建包体检查通过，CI尚待执行，之后再发布Web；故障Worker与测量源码保持冻结。
+
+用户已明确恢复部署、历史21故障验收与一小时压测。已发布 `20260930T071955Z`，源码 `3d8e41437de80a9fc5cd831c8e1d62ae0718e9e4`（CI 36596317523成功）；仅更新Diagnosis Worker与Analyzer，两容器各183文件SHA核对通过，其他11个运行容器不变，API三依赖healthy。回滚保留 `/opt/mini-drop-releases/20260930T071955Z/private/rollback.compose.json`，前版 `20260928T142312Z` 不删除。
+
+新批次 `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930.json` 在Control串行执行；小时实验在独立Worker1运行，输出 `output/quality/distributed-hour-20260930/`。短测315/315通过，身份/源码/清理复核通过。二者未完成前不宣布通过；历史停止批次和失败小时报告均保留。测量源码运行期间冻结，不修改门槛或回写历史成绩。部署元数据与日志：`output/acceptance/deployment-20260930/`。
+
 ## 2026-09-29—30 聚焦测开、后端与 Agent 开发的交付（代码及CI已验证，未部署）
 
 用户已恢复有明确范围的工程收尾。本轮完成可执行Python/Go观察合同、不可执行候选幂等拒绝与正常收束、报告观测范围、最终验收拒绝弱观察冒充根因、浮点分桶和双机报告展示修复；不扩展诊断故障域，不重启已停止的21场景或小时实验。后续入口为[工程交付](ENGINEERING_DELIVERY.md)。

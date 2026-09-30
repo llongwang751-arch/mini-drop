@@ -68,6 +68,48 @@ describe("AIDiagnosis V2 workspace", () => {
 
   afterEach(cleanup);
 
+  it("does not automatically generate a skill from a bounded observation", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{
+      report_id: "observation-1", conclusion: "已验证观测：样本热点", evidence_refs: ["ev-1"],
+      verification: { status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false },
+    }]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    await waitFor(() => expect(api.listDiagnosticSkills).toHaveBeenCalled());
+    expect(api.createDiagnosticSkillCandidate).not.toHaveBeenCalled();
+  });
+
+  it("does not use an earlier verified branch to generate a skill from a later insufficient report", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([
+      { report_id: "new", created_at: "2026-09-30T07:00:00Z", verification: { status: "INSUFFICIENT_EVIDENCE" } },
+      { report_id: "old", created_at: "2026-09-30T06:00:00Z", evidence_refs: ["ev-1"], verification: { status: "VERIFIED" } },
+    ]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    await waitFor(() => expect(api.listDiagnosticSkills).toHaveBeenCalled());
+    expect(api.createDiagnosticSkillCandidate).not.toHaveBeenCalled();
+  });
+
+  it("still generates a candidate from a completed diagnosis with an eligible latest report", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "root-1", evidence_refs: ["ev-1"], verification: {
+      status: "VERIFIED", claim_scope: "CAUSAL_ROOT_CAUSE", causal_root_cause_verified: true,
+    } }]);
+    api.createDiagnosticSkillCandidate.mockResolvedValue({ skill_id: "skill-1", version: 1 });
+    api.evaluateDiagnosticSkill.mockResolvedValue({ skill_id: "skill-1", gate_metrics: { eligible: false } });
+    render(<AIDiagnosis />);
+    await waitFor(() => expect(api.createDiagnosticSkillCandidate).toHaveBeenCalledWith("diag-1"));
+    expect(api.evaluateDiagnosticSkill).toHaveBeenCalledWith("skill-1");
+  });
+
   it("preserves a same-session report on partial and core refresh failures, but clears it when switching sessions", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
     const second = { ...diagnosis, diagnosis_id: "diag-2", query: "检查另一个进程" };

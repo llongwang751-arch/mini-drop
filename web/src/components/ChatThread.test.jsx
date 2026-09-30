@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ChatThread from "./ChatThread";
 
-vi.mock("./FixVerificationPanel", () => ({ default: () => <div>fix verification</div> }));
+vi.mock("./FixVerificationPanel", () => ({ default: ({ canVerify }) => <div data-testid="fix-gate" data-enabled={String(canVerify)}>fix verification</div> }));
 vi.mock("./DiagnosisFeedbackCard", () => ({ default: () => <div>feedback card</div> }));
 
 const report = {
@@ -26,6 +26,19 @@ const baseProps = {
 afterEach(cleanup);
 
 describe("ChatThread conclusion-first mode", () => {
+  it.each(["simple", "expert"])("keeps fix verification disabled for an observation in %s mode", mode => {
+    render(<ChatThread {...baseProps} mode={mode} reports={[{ ...report, verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+    } }]} />);
+    expect(screen.getByTestId("fix-gate")).toHaveAttribute("data-enabled", "false");
+  });
+
+  it("keeps the fix workflow available for an explicitly causal report", () => {
+    render(<ChatThread {...baseProps} mode="expert" reports={[{ ...report, verification: {
+      status: "VERIFIED", claim_scope: "CAUSAL_ROOT_CAUSE", causal_root_cause_verified: true,
+    } }]} />);
+    expect(screen.getByTestId("fix-gate")).toHaveAttribute("data-enabled", "true");
+  });
   it("puts the conclusion before the investigation details in simple mode", () => {
     render(<ChatThread {...baseProps} mode="simple" />);
 

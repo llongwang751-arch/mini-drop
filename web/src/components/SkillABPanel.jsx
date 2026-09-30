@@ -27,7 +27,7 @@ import {
   skillPolicyLabel,
   TERMINAL_DIAGNOSIS_STATUSES as TERMINAL,
 } from "../utils/diagnosisDisplay";
-import { selectBestReport } from "../utils/reportPresentation";
+import { selectBestReport, isCausalRootReport, isObservationReport } from "../utils/reportPresentation";
 import { shortDiagnosisId } from "../utils/hypothesisSemantics";
 import "./DiagnosisShowcase.css";
 
@@ -202,7 +202,7 @@ function evidenceLimitation(evidence = []) {
 
 function reportLabel(report) {
   const status = String(report?.verification?.status || report?.verification_status || "").toUpperCase();
-  if (status === "VERIFIED") return "已验证";
+  if (status === "VERIFIED") return isObservationReport(report) ? "观测已验证" : isCausalRootReport(report) ? "已验证" : "范围未确认";
   if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性结论";
   if (status === "INSUFFICIENT_EVIDENCE") return "证据不足";
   return report ? "待校验" : "尚未生成";
@@ -219,8 +219,7 @@ function routePosition(route, toolName) {
 
 function reportResult(arm) {
   const report = bestReport(arm?.reports || []);
-  const verification = String(report?.verification?.status || report?.verification_status || "").toUpperCase();
-  const verified = verification === "VERIFIED";
+  const verified = isCausalRootReport(report);
   return {
     report,
     verified,

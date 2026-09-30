@@ -44,6 +44,16 @@ afterEach(() => {
 });
 
 describe("SkillABPanel", () => {
+  it("does not score two verified observations as two verified roots", () => {
+    const observation = { confidence: .95, verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+    } };
+    const comparison = buildLiveComparison({
+      auto: { reports: [observation], evidence: [], tools: [] },
+      disabled: { reports: [observation], evidence: [], tools: [] },
+    });
+    expect(comparison.rootTitle).toBe("当前不能判断哪组根因更准");
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
