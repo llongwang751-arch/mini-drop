@@ -1,0 +1,367 @@
+{
+  "report_sha256": "988b54053a511024750b40ccde3fb24fc6e7333257199db63ae3965d5de598ca",
+  "measurement_status": "FAILED",
+  "boundary": "Residual includes uninstrumented server work, network, SSH and client overhead. It does not identify their individual causal contributions. Percentiles use nearest rank.",
+  "stages": [
+    {
+      "name": "step-1",
+      "status": "PASSED",
+      "timing_breakdown": {
+        "requests": 75,
+        "successful": 75,
+        "latency_p95_ms": 120.081900000514,
+        "dispatch_lag_p95_ms": 0.8701000006112736,
+        "sum_reported_server_stages_p95_ms": 16.06025593355298,
+        "latency_minus_reported_stages_p95_ms": 105.08679816121003
+      },
+      "failed_buckets": []
+    },
+    {
+      "name": "step-2",
+      "status": "PASSED",
+      "timing_breakdown": {
+        "requests": 300,
+        "successful": 300,
+        "latency_p95_ms": 116.51680000068154,
+        "dispatch_lag_p95_ms": 0.844899999719928,
+        "sum_reported_server_stages_p95_ms": 19.44992272183299,
+        "latency_minus_reported_stages_p95_ms": 101.61907259316649
+      },
+      "failed_buckets": []
+    },
+    {
+      "name": "step-3",
+      "status": "PASSED",
+      "timing_breakdown": {
+        "requests": 600,
+        "successful": 600,
+        "latency_p95_ms": 104.82919999776641,
+        "dispatch_lag_p95_ms": 0.8462999994662823,
+        "sum_reported_server_stages_p95_ms": 31.351796817034483,
+        "latency_minus_reported_stages_p95_ms": 88.71757335509756
+      },
+      "failed_buckets": []
+    },
+    {
+      "name": "step-4",
+      "status": "SLO_FAILED",
+      "timing_breakdown": {
+        "requests": 900,
+        "successful": 900,
+        "latency_p95_ms": 294.3239333326346,
+        "dispatch_lag_p95_ms": 0.7635333349753637,
+        "sum_reported_server_stages_p95_ms": 207.1450068615377,
+        "latency_minus_reported_stages_p95_ms": 80.10337844461901
+      },
+      "failed_buckets": [
+        {
+          "offset_seconds": 0,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 900,
+            "sent": 900,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 78.84606666812033,
+            "p95_ms": 294.3239333326346,
+            "p99_ms": 391.73420000042825,
+            "latency_sample_count": 900,
+            "max_dispatch_lag_ms": 1.564133333886275
+          },
+          "timing_breakdown": {
+            "requests": 900,
+            "successful": 900,
+            "latency_p95_ms": 294.3239333326346,
+            "dispatch_lag_p95_ms": 0.7635333349753637,
+            "sum_reported_server_stages_p95_ms": 207.1450068615377,
+            "latency_minus_reported_stages_p95_ms": 80.10337844461901
+          }
+        }
+      ]
+    },
+    {
+      "name": "recovery",
+      "status": "PASSED",
+      "timing_breakdown": {
+        "requests": 75,
+        "successful": 75,
+        "latency_p95_ms": 108.49829999824578,
+        "dispatch_lag_p95_ms": 0.789099998655729,
+        "sum_reported_server_stages_p95_ms": 15.299174468964338,
+        "latency_minus_reported_stages_p95_ms": 94.36372321579256
+      },
+      "failed_buckets": []
+    },
+    {
+      "name": "soak",
+      "status": "PASSED",
+      "timing_breakdown": {
+        "requests": 18000,
+        "successful": 18000,
+        "latency_p95_ms": 160.5368999989878,
+        "dispatch_lag_p95_ms": 0.8330000018759165,
+        "sum_reported_server_stages_p95_ms": 15.24583250284195,
+        "latency_minus_reported_stages_p95_ms": 145.84472566639306
+      },
+      "failed_buckets": [
+        {
+          "offset_seconds": 510,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 117.91099999754806,
+            "p95_ms": 444.9237000007997,
+            "p99_ms": 475.1072999970347,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1455999992904253
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 444.9237000007997,
+            "dispatch_lag_p95_ms": 0.8507999991707038,
+            "sum_reported_server_stages_p95_ms": 15.414806548506021,
+            "latency_minus_reported_stages_p95_ms": 431.85714136780007
+          }
+        },
+        {
+          "offset_seconds": 540,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 268.8250999999582,
+            "p95_ms": 416.40109999934793,
+            "p99_ms": 728.5279999996419,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1449000012362376
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 416.40109999934793,
+            "dispatch_lag_p95_ms": 0.8635999984107912,
+            "sum_reported_server_stages_p95_ms": 17.481927294284105,
+            "latency_minus_reported_stages_p95_ms": 403.14208122799755
+          }
+        },
+        {
+          "offset_seconds": 720,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 96.37859999929788,
+            "p95_ms": 208.28249999976833,
+            "p99_ms": 589.8654999982682,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1575999997148756
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 208.28249999976833,
+            "dispatch_lag_p95_ms": 0.9467999989283271,
+            "sum_reported_server_stages_p95_ms": 15.264086425304413,
+            "latency_minus_reported_stages_p95_ms": 187.80596652504755
+          }
+        },
+        {
+          "offset_seconds": 900,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 214.126099999703,
+            "p95_ms": 525.0308999966364,
+            "p99_ms": 679.2195999987598,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.310299998294795
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 525.0308999966364,
+            "dispatch_lag_p95_ms": 0.8129999987431802,
+            "sum_reported_server_stages_p95_ms": 27.71101798862219,
+            "latency_minus_reported_stages_p95_ms": 511.847715562908
+          }
+        },
+        {
+          "offset_seconds": 930,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 150.9857999990345,
+            "p95_ms": 496.74169999707374,
+            "p99_ms": 773.5726999999315,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.3538999992306344
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 496.74169999707374,
+            "dispatch_lag_p95_ms": 0.7528999994974583,
+            "sum_reported_server_stages_p95_ms": 28.104625176638365,
+            "latency_minus_reported_stages_p95_ms": 478.1586021890689
+          }
+        },
+        {
+          "offset_seconds": 960,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 97.94390000024578,
+            "p95_ms": 263.2668999976886,
+            "p99_ms": 504.01609999971697,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.0617999978421722
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 263.2668999976886,
+            "dispatch_lag_p95_ms": 0.7862999991630204,
+            "sum_reported_server_stages_p95_ms": 15.260264277458191,
+            "latency_minus_reported_stages_p95_ms": 248.09422847101814
+          }
+        },
+        {
+          "offset_seconds": 1140,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 97.3731999984011,
+            "p95_ms": 291.7860000015935,
+            "p99_ms": 611.3841000005777,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.008499999443302
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 291.7860000015935,
+            "dispatch_lag_p95_ms": 0.8109000009426381,
+            "sum_reported_server_stages_p95_ms": 15.270705800503492,
+            "latency_minus_reported_stages_p95_ms": 278.5894105763873
+          }
+        },
+        {
+          "offset_seconds": 3270,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 100.36140000011073,
+            "p95_ms": 338.245700000698,
+            "p99_ms": 389.2328000001726,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.1273999989498407
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 338.245700000698,
+            "dispatch_lag_p95_ms": 0.8536999994248617,
+            "sum_reported_server_stages_p95_ms": 15.443410258740187,
+            "latency_minus_reported_stages_p95_ms": 323.507051802153
+          }
+        },
+        {
+          "offset_seconds": 3300,
+          "status": "SLO_FAILED",
+          "recorded_summary": {
+            "status": "SLO_FAILED",
+            "reasons": [
+              "P95_LIMIT"
+            ],
+            "offered": 150,
+            "sent": 150,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 101.9613999997091,
+            "p95_ms": 355.51610000038636,
+            "p99_ms": 457.7958000008948,
+            "latency_sample_count": 150,
+            "max_dispatch_lag_ms": 1.5662000005249865
+          },
+          "timing_breakdown": {
+            "requests": 150,
+            "successful": 150,
+            "latency_p95_ms": 355.51610000038636,
+            "dispatch_lag_p95_ms": 0.8232000000134576,
+            "sum_reported_server_stages_p95_ms": 15.350385569036007,
+            "latency_minus_reported_stages_p95_ms": 342.326220288669
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2752 @@
+{
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "993effdd6b93e954d29f3595396c6397bfcb6da2eaa49dd298d7b53f27f4308d",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "64fd2e00be03733babab78c925053e2e39d89af1d4e245277d52f691aebe5a49"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20260930T071955Z",
+      "previous_release": "/opt/mini-drop-releases/20260928T142312Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "bb9e89ae0dc554369f2a63a63aa63963147d768ba04a8230f3cf47442083d3e9",
+      "source_head": "3d8e41437de80a9fc5cd831c8e1d62ae0718e9e4",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:67a321472c6565b2c20c7532864f1c372d560d053315b61794a5a020449b50a7",
+          "new": "sha256:995fea24ead3a4995e75c2352eb45c4dedf6caaed31bcd902ef111425b30a46f",
+          "tag": "mini-drop-diagnosis-worker:20260930T071955Z"
+        },
+        "analyzer": {
+          "old": "sha256:b673c95fb3ff11737273f9301c7a49bf1b89bdf9f8b0c6cff816768ca0b9c7e3",
+          "new": "sha256:161ad845bf4075430a81ec11f84d9aa8fdce74c6b18895593454dc5baa36c4ba",
+          "tag": "mini-drop-analyzer:20260930T071955Z"
+        }
+      },
+      "untouched_container_count": 11,
+      "rollback_config": "/opt/mini-drop-releases/20260930T071955Z/private/rollback.compose.json"
+    },
+    "git_head": "3d8e41437de80a9fc5cd831c8e1d62ae0718e9e4"
+  },
+  "schema": "mini-drop.fault-plaza-strict-acceptance.v2",
+  "started_at": "2026-09-30T07:23:26.898410+00:00",
+  "run_status": "COMPLETED",
+  "selected_count": 21,
+  "results": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "title": "CPU 计算热点",
+      "started_at": "2026-09-30T07:23:26.900312+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "diagnosis_id": "insight_037ff1a933194733b4e52874fa974358",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:27:20.869263+00:00",
+        "snapshot": {
+          "timestamp": 1790753252.4274824,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": true,
+          "process_cpu_percent": 100.2,
+          "operation_count": 2086563000,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": 71.22,
+          "source_fault_active": false,
+          "source_profile_samples": 37292,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 37117,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.86,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1026490368,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 645.59,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_afb8048a486ee0418aeba9a183fc83a8",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_471a5de7b33b9cf7661d5da862c8e963",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_25c72a3ee232f475cc78c47530292d93",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "operation_count",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 1233976.7683394065,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:27:33.470639+00:00",
+      "report_sha256": "966bce1f1fb3b424fdd6ff3e69dc8ef4a7bf3fcc164b6a6ff0150404cdb51de1",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpu-hotspot.json"
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "title": "Python 源码热点",
+      "started_at": "2026-09-30T07:27:33.483035+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "error": "diagnosis insight_ae97021aff9048e18c9a481d49b0a6e2 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_ae97021aff9048e18c9a481d49b0a6e2",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:31:07.367918+00:00",
+        "snapshot": {
+          "timestamp": 1790753479.3298547,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 91.4,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": true,
+          "source_profile_samples": 34917,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34788,
+          "source_auto_stop_remaining_seconds": 89.88,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.86,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1026490368,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 645.59,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_e0f3ded473b423762bfa44a949e62b9c",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f3dabb325b7e2b1bafcf69a0b503395c",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "source_profile_samples",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 137.66117892729542,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:31:18.745533+00:00",
+      "report_sha256": "79d9f995a611c0ad1de2a0cb4793ebc39911b6a4bc98d40bec313093c90c43e6",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\source-hotspot.json"
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "title": "进程内存增长",
+      "started_at": "2026-09-30T07:31:18.753976+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "diagnosis_id": "insight_8e46839549a24fb68d08995241938c03",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:34:51.296441+00:00",
+        "snapshot": {
+          "timestamp": 1790753703.0548646,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 0.93,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": true,
+          "process_rss_mb": 115.86,
+          "retained_memory_mb": 96.0,
+          "memory_auto_stop_remaining_seconds": 91.34,
+          "io_fault_active": false,
+          "io_workload_bytes": 1026490368,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 645.59,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_dccc0d937fff45a84ed9b64ccb5c941d",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_a22b6e26d15c85d9e32556edc22cee4a",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_8ec83d2f2321e4d340334e4dff13f1c8",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "retained_memory_mb",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 96.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:35:02.051173+00:00",
+      "report_sha256": "47a77d5d47b7aefce9ed5c1ac54b946d77c67b1dce638ea0cf85819fe2ae5847",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\memory-pressure.json"
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "title": "同步写入压力",
+      "started_at": "2026-09-30T07:35:02.068602+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "error": "diagnosis insight_6529eb57fecf428aa41755d407cfef54 ebpf_io profile did not produce conclusion-supporting Evidence",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_6529eb57fecf428aa41755d407cfef54",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:38:53.345028+00:00",
+        "snapshot": {
+          "timestamp": 1790753945.468749,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.73,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 24.13,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": true,
+          "io_workload_bytes": 1108672512,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": 72.35,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 645.59,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_5d6c3fa313b87f948a1150abb241c8a0",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4a6edcf09c17e3963ddbd2c7e0539388",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_0bc1ca2b18f03d004b54e7d3e4c1912f",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_workload_bytes",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 3831531.2972701634,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:39:06.447126+00:00",
+      "report_sha256": "69dcab2ada7e33cf7eaac54f828516a6556ec33f111db126169b0f2024787521",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\io-write-latency.json"
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "title": "同机噪声邻居",
+      "started_at": "2026-09-30T07:39:06.453969+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "error": "diagnosis insight_ebde6b1b327840bb92f50fb4171d7022 sys_metrics profile did not produce conclusion-supporting Evidence",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_ebde6b1b327840bb92f50fb4171d7022",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:43:01.933875+00:00",
+        "snapshot": {
+          "timestamp": 1790754193.7459538,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 10.09,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 24.14,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": true,
+          "peer_pid": 2535830,
+          "peer_cpu_ticks": 20900,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": true,
+          "noisy_auto_stop_remaining_seconds": 68.8,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 645.59,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_d55aabbe74f2181486c09ccc20eeccd7",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_3e1be36b1e82e9cc71b086ef87a3144e",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_5db10350e89a5f9f5a3428c1ef38f8cd",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "peer_cpu_ticks",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 772.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:43:12.799441+00:00",
+      "report_sha256": "877b15afdded6d03c4085be9327be4b7173f3ef4ebd60ab07b4f2142336adde5",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\noisy-neighbor.json"
+    },
+    {
+      "scenario_id": "load-saturation",
+      "title": "入口负载饱和",
+      "started_at": "2026-09-30T07:43:12.809887+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "error": "diagnosis insight_c403de5d8b9547b29f98ab71bc6ca942 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_c403de5d8b9547b29f98ab71bc6ca942",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:46:46.280606+00:00",
+        "snapshot": {
+          "timestamp": 1790754417.9738686,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 10.66,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 24.14,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": true,
+          "load_offered_rps": 916.65,
+          "load_completed_rps": 77.45,
+          "load_rejected_requests": 175799,
+          "load_queue_depth": 48,
+          "load_latency_ms": 630.58,
+          "load_auto_stop_remaining_seconds": 90.46,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3334.75,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_a73b86a43cba4e469291634854e924d7",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_d4acd0b9ade1849234a2c69559bcc263",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "load_queue_depth",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 48.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:46:57.395855+00:00",
+      "report_sha256": "4ef537a64fd5ce23db2a4c94877b5c1e04882cbd6a24867291326f81d97a00d3",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\load-saturation.json"
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "title": "生产消费队列堆积",
+      "started_at": "2026-09-30T07:46:57.404834+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "comm": "python-hotspot"
+      },
+      "diagnosis_id": "insight_66b6b9600c364b23bb0141647a001360",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:50:31.862040+00:00",
+        "snapshot": {
+          "timestamp": 1790754643.6314564,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 6.58,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 24.14,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": true,
+          "queue_offered_rps": 244.22,
+          "queue_completed_rps": 38.59,
+          "queue_rejected_requests": 43161,
+          "queue_queue_depth": 128,
+          "queue_latency_ms": 3309.09,
+          "queue_auto_stop_remaining_seconds": 89.48,
+          "producer_rate": 244.22,
+          "consumer_rate": 38.59,
+          "queue_lag": 128,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_6067f3b158d3617f9ae825d9a93803d6",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ec1c2ea1606fec1c0c8178560d6cbd7b",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ff59b3fdffe25e714c7b6a6aa0b41af9",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "queue_lag",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 128.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:50:43.167097+00:00",
+      "report_sha256": "47ec4efb820e5f746ed6e61492b0c133c9ff62a0a699d927a13537b233b091ee",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\queue-backlog.json"
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "title": "Go 服务 CPU 热点",
+      "started_at": "2026-09-30T07:50:43.178478+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906277,
+        "comm": "go-hotspot"
+      },
+      "diagnosis_id": "insight_58716b2cbaf24f95bda58c051257a600",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:54:17.547842+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 90.792836843,
+          "cpu_fault_active": true,
+          "cpu_operations": 16384208500,
+          "fault_active": true,
+          "heap_alloc_bytes": 3264544,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 7208960,
+          "io_failures": 0,
+          "io_fault_active": false,
+          "io_operations": 55,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 0,
+          "network_average_latency_ms": 240.70123777285494,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": false,
+          "network_requests": 3205,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_ce2129f960402886f5f194987f4a3f4a",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ef2a46deddcb2d4f7947aab22fe2f314",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_bc2bfda45b7c86c4affb268e8f3bb3c8",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "cpu_operations",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 6141094.728003252,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:54:29.777752+00:00",
+      "report_sha256": "c2ea22c132a959aa84272151cd021c21e6129769e9e83d753788bb75d7927261",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\go-cpu-hotspot.json"
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "title": "Go 网络等待与下游慢响应",
+      "started_at": "2026-09-30T07:54:29.790787+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906277,
+        "comm": "go-hotspot"
+      },
+      "error": "diagnosis insight_d5916dd3d5254358914d84f87df49815 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_d5916dd3d5254358914d84f87df49815",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T07:58:02.645358+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 0,
+          "cpu_fault_active": false,
+          "cpu_operations": 16384917500,
+          "fault_active": false,
+          "heap_alloc_bytes": 980904,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 7208960,
+          "io_failures": 0,
+          "io_fault_active": false,
+          "io_operations": 55,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 91.119631734,
+          "network_average_latency_ms": 240.78699693116397,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": true,
+          "network_requests": 3196,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_5516b995bc08589f5a797a8ab8a139ed",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_6eb4bef4e32ef787aba134e4ebdb6c32",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_7e8d7ad764f15fb3aa6a25b0e87a9731",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "network_requests",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 14.501537737013221,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T07:58:13.688441+00:00",
+      "report_sha256": "5691e0665c5fc54132b474b8659e1646aa50064ef3f2bcf956a4f23cf9e4539d",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\go-network-latency.json"
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "title": "Go 堆内存持续增长",
+      "started_at": "2026-09-30T07:58:13.696003+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906277,
+        "comm": "go-hotspot"
+      },
+      "diagnosis_id": "insight_8c7ad6462cc84f768d3a188bf062d196",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:01:48.071996+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 0,
+          "cpu_fault_active": false,
+          "cpu_operations": 16384917500,
+          "fault_active": false,
+          "heap_alloc_bytes": 109941744,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 7208960,
+          "io_failures": 0,
+          "io_fault_active": false,
+          "io_operations": 55,
+          "memory_auto_stop_remaining_seconds": 89.112762591,
+          "memory_fault_active": true,
+          "network_auto_stop_remaining_seconds": 0,
+          "network_average_latency_ms": 240.787071541875,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": false,
+          "network_requests": 3200,
+          "pid": 1,
+          "retained_memory_bytes": 100663296,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_e219751f45e51a3d366aa4dcda6deae9",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_47e3593a28efda579522aeecdc07adae",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_302617dc95acfa53af7ee04b3fd3aa0b",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "retained_memory_bytes",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 92274688.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:02:00.705646+00:00",
+      "report_sha256": "f69a0959060c3491272ba0efc19ed7b1d239a4e56d9b526b1d284eeefc200955",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\go-memory-growth.json"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "title": "Go 同步文件写入",
+      "started_at": "2026-09-30T08:02:00.713506+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906277,
+        "comm": "go-hotspot"
+      },
+      "error": "diagnosis insight_891775971aa24b7089756ea67a55e562 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_891775971aa24b7089756ea67a55e562",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:05:56.944158+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 0,
+          "cpu_fault_active": false,
+          "cpu_operations": 16384917500,
+          "fault_active": false,
+          "heap_alloc_bytes": 1479784,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 66977792,
+          "io_failures": 1,
+          "io_fault_active": false,
+          "io_operations": 511,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 0,
+          "network_average_latency_ms": 240.787071541875,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": false,
+          "network_requests": 3200,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_71c5b2be03ab414b391785ec4f068646",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_732963c239287d2e691a5be4ce4e68b1",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c2a3a4177a85a8aeb271e2ce65c6a567",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_255cd930bdb60c1b823abf7d21a4deb3",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_bytes_written",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 5680730.723834048,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906277,
+            "namespace_pid": 1,
+            "start_ticks": 14403833,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "673dbaa89131f3d9bc98182b065d5245bc7618379833a7822d1b63126f5aaa5c",
+            "container_started_at": "2026-09-08T05:27:43.2181275Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:06:07.511213+00:00",
+      "report_sha256": "ae698ce1dcb79aabf08adadc6699327c9ef5cee2e7daeb6b0818ba586d2444cf",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\go-file-io.json"
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "title": "Java 分配风暴与 GC 压力",
+      "started_at": "2026-09-30T08:06:07.519338+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_d618e3c310e640d785a9f11dfaaa13c5",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:06:48.412441+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": true,
+          "allocated_bytes": 4465360896,
+          "heap_used_bytes": 74179080,
+          "gc_count": 24366,
+          "gc_time_ms": 21673,
+          "gc_auto_stop_remaining_seconds": 263.618,
+          "lock_fault_active": false,
+          "lock_acquisitions": 3758479,
+          "lock_contentions": 34626,
+          "lock_wait_ms": 3900.069523,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 16,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.724365625,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 7208960,
+          "io_operations": 55,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_905b3857c935b1140c85d38c4bcc6014",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_34fb63c32c8a2d887e01915d02357b12",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_095334b94ceda584abdfb74a69f22021",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "allocated_bytes",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 113091786.226022,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:10:18.965844+00:00",
+      "report_sha256": "98f7aa130bba851ac89c6cd5545d64291f5b66abd5e5a9fd1efccd7643c87a53",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\java-gc-pressure.json"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "title": "Java 锁竞争",
+      "started_at": "2026-09-30T08:10:18.974654+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "auto-scope selected 'tencent-cvm-worker-1', expected demo Agent 'control-interview-demo-agent'",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_af17e79c7a7e40a2828f33b50e449cba",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:11:15.941560+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 4478992384,
+          "heap_used_bytes": 74877800,
+          "gc_count": 24371,
+          "gc_time_ms": 21679,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": true,
+          "lock_acquisitions": 159575888,
+          "lock_contentions": 1681389,
+          "lock_wait_ms": 182411.702447,
+          "lock_auto_stop_remaining_seconds": 248.233,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 16,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.724365625,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 7208960,
+          "io_operations": 55,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_8781fbc210197cec5a604508417ffbe8",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "lock_wait_ms",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 3277.80722564888,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:13:51.181091+00:00",
+      "report_sha256": "6dd9bc48c3793bd88ede69356e4a49de495443015f99120951f368dc63e11db5",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\java-lock-contention.json"
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "title": "Java 下游依赖慢响应",
+      "started_at": "2026-09-30T08:13:51.188705+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "diagnosis insight_5a28e9cf52d847e8b2d7928bc72de5db ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_5a28e9cf52d847e8b2d7928bc72de5db",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:17:31.665397+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 4478992384,
+          "heap_used_bytes": 79961504,
+          "gc_count": 24383,
+          "gc_time_ms": 21685,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": false,
+          "lock_acquisitions": 159915897,
+          "lock_contentions": 1683957,
+          "lock_wait_ms": 182813.614584,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": true,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3072,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.46905001953127,
+          "downstream_auto_stop_remaining_seconds": 84.264,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 7208960,
+          "io_operations": 55,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_d0642473a52ebdcbb423f303255a1878",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_dc218ea04821971299492577b5ec36e3",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "downstream_requests",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 12.95548682984982,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:17:42.220071+00:00",
+      "report_sha256": "e4135877a429f8bcc3a32a474ed06bc7f7e005db494b09f2f2a532fd56ce081f",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\java-downstream-latency.json"
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "title": "Java 堆外内存持续增长",
+      "started_at": "2026-09-30T08:17:42.228115+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "diagnosis insight_3aeb47d926c6467396cc626bf7d3b216 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_3aeb47d926c6467396cc626bf7d3b216",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:21:17.023386+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 4478992384,
+          "heap_used_bytes": 9060392,
+          "gc_count": 24386,
+          "gc_time_ms": 21694,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": false,
+          "lock_acquisitions": 159915897,
+          "lock_contentions": 1683957,
+          "lock_wait_ms": 182813.614584,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": true,
+          "offheap_retained_bytes": 100663296,
+          "offheap_auto_stop_remaining_seconds": 89.004,
+          "io_fault_active": false,
+          "io_bytes_written": 7208960,
+          "io_operations": 55,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_9a8f1cc4ba7b76e27fdfa6e0d17523c2",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_62e878fef3b79ce7219ffa64f309e645",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "offheap_retained_bytes",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 100663296.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:21:27.492515+00:00",
+      "report_sha256": "0c81e03d3a8d29a55582050220d768c97969a646c817770562f9aa5625482c16",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\java-offheap-growth.json"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "title": "Java 同步文件写入",
+      "started_at": "2026-09-30T08:21:27.499434+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_e9c31116effc4d4b9f078940033a0923",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:22:06.328967+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 4478992384,
+          "heap_used_bytes": 14494168,
+          "gc_count": 24388,
+          "gc_time_ms": 21706,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": false,
+          "lock_acquisitions": 159915897,
+          "lock_contentions": 1683957,
+          "lock_wait_ms": 182813.614584,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": true,
+          "io_bytes_written": 222298112,
+          "io_operations": 1696,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 265.75,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_c502ceeb874060d735b8554377d283b5",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c4185ffb770d183e379c6e81d2548b47",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_bytes_written",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 5838629.798964444,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:24:57.374409+00:00",
+      "report_sha256": "555a6c45c8f965c23eba96914c8acc2f3098466b45287cb6c776296cccd1df2a",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\java-file-io.json"
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "title": "C++ 计算热点",
+      "started_at": "2026-09-30T08:24:57.384423+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "comm": "cpp-hotspot"
+      },
+      "diagnosis_id": "insight_95af589e163149f3af867b66c72c7b9c",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:28:35.360356+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": true,
+          "cpu_fault_active": true,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 82626215936,
+          "lock_acquisitions": 1298,
+          "lock_wait_ms": 3889.39,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 9699328,
+          "io_operations": 74,
+          "io_failures": 0,
+          "downstream_requests": 8,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.25,
+          "rss_mb": 0.84,
+          "cpu_auto_stop_remaining_seconds": 86,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_5cd939e4045670e8ffa2b3148480f18d",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_e42a761e749cd4ce89ba31ccca7244f9",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c8c58ac4d6e09385d1a82b62a7040a82",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "cpu_operations",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 349120335.26361835,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:28:45.941310+00:00",
+      "report_sha256": "ef0a4a08bec0299e212e699715e872ada11e43b56f71c192883d82d89e5d74cc",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpp-cpu-hotspot.json"
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "title": "C++ 互斥锁竞争",
+      "started_at": "2026-09-30T08:28:45.952902+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "comm": "cpp-hotspot"
+      },
+      "diagnosis_id": "insight_43a74dc214f14cb198c24758e3834afb",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:32:27.684963+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": true,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 82665734144,
+          "lock_acquisitions": 259681,
+          "lock_wait_ms": 775460.37,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 9699328,
+          "io_operations": 74,
+          "io_failures": 0,
+          "downstream_requests": 8,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.25,
+          "rss_mb": 0.89,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 82,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_49dac3664f71798f2a00533b248e2122",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4681b1382906cd859526a2a12a88c990",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_600c99794b1e88e79a51d015a3fd3e94",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_453b25fca07fc3c56f7199f677c1ea7f",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "lock_wait_ms",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 3135.1862077268993,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:32:38.222617+00:00",
+      "report_sha256": "d27d69fe710bd8cd8e619e4f31736735bb9d8868754fbccdb19529e3609845e0",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpp-lock-contention.json"
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "title": "C++ 有界内存保留",
+      "started_at": "2026-09-30T08:32:38.231893+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "comm": "cpp-hotspot"
+      },
+      "error": "diagnosis insight_0aa75674e0d742c3a1af09e251bef9be ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_0aa75674e0d742c3a1af09e251bef9be",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:36:12.541015+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": true,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 82665734144,
+          "lock_acquisitions": 259798,
+          "lock_wait_ms": 775806.94,
+          "retained_memory_mb": 96,
+          "io_bytes_written": 9699328,
+          "io_operations": 74,
+          "io_failures": 0,
+          "downstream_requests": 8,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.25,
+          "rss_mb": 97.07,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 90,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_862efe4eeeead76b5374bbf14cee7cec",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_70583279cd6fe41c1c364db6614caf09",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "retained_memory_mb",
+        "mode": "gauge",
+        "values": {
+          "baseline": 0.0,
+          "fault": 88.0,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:36:22.872065+00:00",
+      "report_sha256": "e423c21bab342419111662d9d1685543508c2c7c90651b473e7a8a3abaea457e",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpp-memory-growth.json"
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "title": "C++ 同步文件写入",
+      "started_at": "2026-09-30T08:36:22.879946+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "comm": "cpp-hotspot"
+      },
+      "error": "diagnosis insight_53875d4c11884123835fbf8dda9b3bce ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_53875d4c11884123835fbf8dda9b3bce",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:39:58.610927+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": true,
+          "downstream_fault_active": false,
+          "cpu_operations": 82665734144,
+          "lock_acquisitions": 259798,
+          "lock_wait_ms": 775806.94,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1826881536,
+          "io_operations": 13938,
+          "io_failures": 0,
+          "downstream_requests": 8,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.25,
+          "rss_mb": 0.89,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 88,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_08ce7e75b3a28f1033fbf2f72c28bc91",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ba1b120d89f71167b0371d16821c3d73",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c8273d076f54b0a2a4281b4ac9cddab4",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_bytes_written",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 7740513.844185825,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:40:08.624609+00:00",
+      "report_sha256": "0f8a65760593f2cf58f1e59de5fa715f37c028ac1772678a6ea39c1c0f9616be",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpp-file-io.json"
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "title": "C++ 下游响应变慢",
+      "started_at": "2026-09-30T08:40:08.632773+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "comm": "cpp-hotspot"
+      },
+      "error": "diagnosis insight_9554f73ea8cb4cae88763325f64e6632 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_9554f73ea8cb4cae88763325f64e6632",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T08:43:42.504196+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": true,
+          "cpu_operations": 82665734144,
+          "lock_acquisitions": 259798,
+          "lock_wait_ms": 775806.94,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1827405824,
+          "io_operations": 13942,
+          "io_failures": 0,
+          "downstream_requests": 1490,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.34,
+          "rss_mb": 0.92,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 90,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_a3d326cc6243b9de47f801fcdb1fd343",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_b0ba302195d8167b41fe070855a4d427",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "downstream_requests",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 6.176284500419626,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T08:43:53.082868+00:00",
+      "report_sha256": "bdb5df2344f89558f2a46cf723461e664b13d5fe84cc8eb545b67104c11c6719",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-strict-21-deployed-20260930-cases\\cpp-downstream-latency.json"
+    }
+  ],
+  "truth_boundary": "PASS requires legacy lineage, verified concrete scenario-matching root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports.",
+  "completed_count": 21,
+  "passed_count": 0,
+  "failed_count": 21,
+  "passed": false,
+  "updated_at": "2026-09-30T08:43:53.092906+00:00",
+  "report_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b"
+}

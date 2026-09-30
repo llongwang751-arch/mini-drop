@@ -1,5 +1,17 @@
 # 双机负载与一小时资源观测
 
+## 2026-09-30 新版本双机一小时复测（完成，整体未通过）
+
+Windows发压、独立Worker1的一次性回环检索fixture，经SSH隧道实跑3600秒持续阶段；2026-09-30T07:21:53Z开始，08:23:12Z结束。19,950次计划请求全部发出、成功且固定质量检查通过。身份、4份测量源码、原始记录和远端清理复核VERIFIED；性能结论FAILED。
+
+5/20/40RPS档P95分别120.08/116.52/104.83ms通过；60RPS档294.32ms超限，恢复108.50ms通过。一小时5RPS共18,000次，整体P95 160.54ms，但120个30秒窗中9个超过200ms，持续验收未通过。总体summary达标不能覆盖失败分窗。
+
+资源检查通过：3675样本、持续3599、失败0；RSS首末三分之一中位数增加1,458,176 bytes，线程/FD增长0。远端正常退出、remote_cleanup_confirmed=true。这是fixture窗口增长筛查，不是生产容量或无泄漏证明。
+
+耗时分解显示60RPS档的已记录服务阶段之和P95为207.15ms；持续总体为15.25ms，失败分窗剩余耗时包含网络、SSH、客户端及未插桩服务部分。不同请求的分位数不能直接相减归因；尚未证明具体性能根因。实验期间发压机还执行了有界本地代码审查、前端测试和构建，不是独占发压机；所有调度迟到记录保留，最大50.78ms低于预登记250ms门槛。
+
+[原始报告](../reports/business-acceptance/deployment-20260930/distributed-hour/report.json)、[可分享图表](../reports/business-acceptance/deployment-20260930/distributed-hour/report.html)、[完整请求/资源/测量源码](../reports/business-acceptance/deployment-20260930/distributed-hour/evidence.zip)、[逐窗耗时分解](../reports/business-acceptance/deployment-20260930/distributed-hour/timing-analysis.json)。原20260928失败报告继续保留，不改写或拼接本次分数。
+
 ## 2026-09-28 双机一小时实测（完成，整体未通过）
 
 Windows 发压、独立 Worker1 的一次性 Linux 回环检索样例经 SSH 隧道接受请求。2026-09-28T13:59:24Z 启动，15:00:43Z 结束；持续阶段完整 3600 秒。计划 19,950 次均发出、成功且固定问题质量检查通过，未发出数为 0。原始请求、远端资源、身份、连续阶段窗口及退出清理均经双机专用复核，结果完整性 VERIFIED，测量结论 **FAILED**。

@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1791 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1854 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 502 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 505 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2121,6 +2121,7 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790162782469/` | browser-1790162782469 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790753041327/` | browser-1790753041327 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790753916581/` | browser-1790753916581 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790757941555/` | browser-1790757941555 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2420,6 +2421,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/.qa-report-20260906-final/` | .qa-report-20260906-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/.qa-report-20260906-final2/` | .qa-report-20260906-final2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/` | fault-plaza-strict-21-deployed-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/` | fault-plaza-strict-21-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/` | fault-plaza-strict-pilot-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered/` | rendered 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/rendered-v2/` | rendered-v2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2432,6 +2434,7 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/deployment-20260928/distributed-hour/` | distributed-hour 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/deployment-20260928/distributed-quick/` | distributed-quick 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/deployment-20260930/` | deployment-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/` | distributed-hour 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/deployment-20260930/distributed-quick/` | distributed-quick 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/endurance-20260927/` | endurance-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/business-acceptance/resource-controls-20260927/` | resource-controls-20260927 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3448,6 +3451,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260905.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/backup-restore-run-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-acceptance-index.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3458,6 +3462,28 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/queue-backlog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpp-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpp-downstream-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpp-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpp-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpp-memory-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/go-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/go-memory-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/io-write-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/java-downstream-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/java-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/java-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/java-offheap-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/load-saturation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/memory-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/noisy-neighbor.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/queue-backlog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3503,6 +3529,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/cloud-recovery-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-release-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/conclusion-integrity-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/deployment-validation-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3568,11 +3595,48 @@ python scripts/render_learning_guide.py
 | `reports/business-acceptance/deployment-20260928/runtime-v2-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260928/runtime-v2-runtime-source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260928/runtime-v2-source-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-case-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-case-after.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-case-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260930/browser-case-before.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `reports/business-acceptance/deployment-20260930/browser-real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/business-acceptance/deployment-20260930/browser-result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/called-vulnerabilities.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/campaign-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/dependency-findings.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/deployment-web.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-hour/timing-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260930/distributed-quick/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-quick/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260930/distributed-quick/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/distributed-quick/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/fault-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/fault-artifacts.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/final-safety.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/govulncheck-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/health-before-campaign.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/plaza-after-publication.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/security-audit-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260930/security-audit.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/source-verification-backend-after-web.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/source-verification-web.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/supply-chain-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-business.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-log.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/business-acceptance/deployment-20260930/web-regression-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/deployment-20260930/web-regression.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci-short-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/business-acceptance/endurance-20260927/ci.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3958,6 +4022,8 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790753041327/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1790753916581/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1790753916581/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790757941555/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790757941555/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
