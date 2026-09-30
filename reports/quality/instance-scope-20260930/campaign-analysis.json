@@ -1,0 +1,1756 @@
+{
+  "run_status": "COMPLETED",
+  "completed": 3,
+  "selected": 3,
+  "counts": {
+    "passed": 0,
+    "lineage_verified": 1,
+    "root_cause_accepted": 0,
+    "injection_observed": 3,
+    "recovery_observed": 3,
+    "cleanup_verified": 3,
+    "session_drained": 3,
+    "verified_observation_reports": 0,
+    "wrong_agent": 0,
+    "any_independent_report": 3
+  },
+  "campaign_sha256": "c6d374b8dc2ad55762a8487ac3abca05976c3cf49e9779de8322ea1fe28d7e5a",
+  "scenarios": [
+    {
+      "scenario_id": "java-gc-pressure",
+      "diagnosis_id": "insight_d7a99d23e2694d39b7babf324d6c039b",
+      "passed": false,
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "injection_observed": true,
+      "recovery_observed": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "bounded_reports": 0,
+      "verified_observation_reports": 0,
+      "session_status": "INSUFFICIENT_EVIDENCE",
+      "selected_agent": "control-interview-demo-agent",
+      "expected_agent": "control-interview-demo-agent",
+      "wrong_agent": false,
+      "any_independent_report": true,
+      "lineage_error": "POST /api/v2/diagnoses/insight_d7a99d23e2694d39b7babf324d6c039b/planner/run: HTTP 500: {\"detail\": \"AI diagnosis worker failed\"}",
+      "failure_labels": [
+        "LINEAGE_NOT_VERIFIED",
+        "NON_VERIFIED_REPORT_PRESENT"
+      ],
+      "reports": [
+        {
+          "report_id": "report_4b719c55a2b15e35a5149e5d62cbfdd3",
+          "hypothesis_id": "hyp_e5a491573dfa40e4b0709d1c235c10ec",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 0,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.0,
+              "covered_expected": [],
+              "covered_falsification": [],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 3 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力”仍待验证。"
+        },
+        {
+          "report_id": "report_f904e748bd2cdded9948d6c8558f5d28",
+          "hypothesis_id": "hyp_6830d8f984c4461c99c60e3d29bfdac7",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [],
+            "rejected_claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_091852_9e9af6_4366",
+                "artifact_id": "4366",
+                "artifact_sha256": "fcbd06d774eb76aa7d32ff982a7b2ad257f0be027d40b3207441acca48a7ec4a",
+                "direction": "SUPPORT",
+                "claim_type": "EVIDENCE_REJECTED",
+                "statement": "Evidence did not pass the trusted provenance boundary",
+                "json_pointer": "/metadata",
+                "claimed_value": null,
+                "criterion": null,
+                "valid": false,
+                "reasons": [
+                  "样本数不足 50",
+                  "样本数不足 50"
+                ]
+              }
+            ],
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 0,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.0,
+              "covered_expected": [],
+              "covered_falsification": [],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 1,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 1,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 1,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [
+                {
+                  "symbol": "Hotspot.hostPid",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.hostPid",
+                  "line_start": 94,
+                  "line_end": 106,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.snapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.snapshot",
+                  "line_start": 136,
+                  "line_end": 189,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.publishMetricsSnapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.publishMetricsSnapshot",
+                  "line_start": 203,
+                  "line_end": 228,
+                  "review_signals": [],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                }
+              ],
+              "unresolved_symbols": [
+                "Hotspot$$Lambda.0x0000744cc4002690.run",
+                "Hotspot.lambda$main$0",
+                "byte[]",
+                "char[]",
+                "com/sun/management/internal/PlatformMBeanProviderImpl$1.nameToMBeanMap",
+                "java.util.stream.ReferencePipeline$Head",
+                "java/io/BufferedReader.<init>",
+                "java/io/BufferedReader.readLine",
+                "java/lang/String.<init>",
+                "java/lang/StringUTF16.compress",
+                "java/lang/Thread.run",
+                "java/lang/Thread.runWith",
+                "java/lang/management/ManagementFactory$$Lambda.0x0000744cc40589a0.apply",
+                "java/lang/management/ManagementFactory.getGarbageCollectorMXBeans",
+                "java/lang/management/ManagementFactory.getPlatformMXBeans",
+                "java/lang/management/ManagementFactory.lambda$getPlatformMXBeans$0",
+                "java/nio/file/Files.readAllLines"
+              ]
+            }
+          },
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：JVM 可能存在业务热点、GC 压力或锁竞争”仍待验证。"
+        },
+        {
+          "report_id": "report_58e0bad41f6cc5288354d8cbcc61bfbf",
+          "hypothesis_id": "hyp_e3061d32744e48e881c4856589aef448",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "Independent Linux process CPU counters measured 0.428% of one core over 14.005s; the specified low-CPU falsification was observed",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "COUNTER",
+                "criterion": {
+                  "kind": "falsification",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+                "statement": "用户态 CPU 占比: 15.198",
+                "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+                "claimed_value": 15.198,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+                "statement": "系统态 CPU 占比: 5.151",
+                "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+                "claimed_value": 5.151,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+                "statement": "I/O wait 占比: 1.959",
+                "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+                "claimed_value": 1.959,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+                "statement": "进程 CPU 核占用: 0.428",
+                "json_pointer": "/metadata/summary/process_cpu_core_usage",
+                "claimed_value": 0.428,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+                "statement": "系统一分钟负载: 1.298",
+                "json_pointer": "/metadata/summary/load1m",
+                "claimed_value": 1.298,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS",
+                "statement": "进程 RSS: 198.941",
+                "json_pointer": "/metadata/summary/vmrss_mb",
+                "claimed_value": 198.941,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+                "statement": "进程 RSS 峰值: 198.941",
+                "json_pointer": "/metadata/summary/vmrss_mb_max",
+                "claimed_value": 198.941,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_COUNT",
+                "statement": "文件描述符数量: 11.0",
+                "json_pointer": "/metadata/summary/fd_count",
+                "claimed_value": 11.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_TREND",
+                "statement": "文件描述符趋势: 0.0",
+                "json_pointer": "/metadata/summary/fd_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_COUNT",
+                "statement": "线程数量: 31.0",
+                "json_pointer": "/metadata/summary/thread_count",
+                "claimed_value": 31.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_TREND",
+                "statement": "线程数量趋势: 0.0",
+                "json_pointer": "/metadata/summary/thread_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+                "statement": "非自愿上下文切换速率: 0.0",
+                "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+                "statement": "磁盘读取吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_read_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_091736_783476_4364",
+                "artifact_id": "4364",
+                "artifact_sha256": "0f0068f36ddb5bf53cee980ff01116d87155b1397f1a88cfd62190f9e6df99b8",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+                "statement": "磁盘写入吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_write_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 15,
+            "coverage_ratio": 0.25,
+            "has_independent_counter_or_control": true,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": true,
+              "support_claim_count": 0,
+              "counter_claim_count": 15,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.25,
+              "covered_expected": [],
+              "covered_falsification": [
+                0
+              ],
+              "missing_expected": [
+                0,
+                1
+              ],
+              "missing_falsification": [
+                1
+              ],
+              "needs_independent_counter_or_control": false,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“Java 服务停顿与系统资源压力相关，表现为 CPU 升高或内存使用异常”。"
+        }
+      ],
+      "tool_statuses": {
+        "COMPLETED": 3
+      },
+      "case_sha256": "d516a0f81c94721a8b8ab3156ef3d0fe3117f83ff0bbb32ee9527368cb0f64cb"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "diagnosis_id": "insight_397c6dad3d5247be8153cf16972d711e",
+      "passed": false,
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "injection_observed": true,
+      "recovery_observed": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "bounded_reports": 0,
+      "verified_observation_reports": 0,
+      "session_status": "COMPLETED",
+      "selected_agent": "control-interview-demo-agent",
+      "expected_agent": "control-interview-demo-agent",
+      "wrong_agent": false,
+      "any_independent_report": true,
+      "lineage_error": null,
+      "failure_labels": [
+        "NON_VERIFIED_REPORT_PRESENT"
+      ],
+      "reports": [
+        {
+          "report_id": "report_3103bd0fe118b6a4f3e68cb5fa033d78",
+          "hypothesis_id": "hyp_c141df6eb9574aa89950069aa0ec0201",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 0,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.0,
+              "covered_expected": [],
+              "covered_falsification": [],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销”仍待验证。"
+        },
+        {
+          "report_id": "report_7afea36556bf7e496655a48cdad6a40e",
+          "hypothesis_id": "hyp_e98ad5b16c544cfc9a57765b1c6a894c",
+          "verification": {
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "async-profiler lock profile captured Java path Hotspot$$Lambda.0x0000744cc4001460.run at 97.4%",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "async-profiler lock profile captured Java path Hotspot$$Lambda.0x0000744cc4001460.run at 97.4%",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 1
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/lang/Thread.run 占 100.0% 样本",
+                "json_pointer": "/metadata/top_functions/0/percent",
+                "claimed_value": 100.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/lang/Thread.runWith 占 100.0% 样本",
+                "json_pointer": "/metadata/top_functions/1/percent",
+                "claimed_value": 100.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot$$Lambda.0x0000744cc4001460.run 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/2/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.lambda$startWorkers$3 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/3/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java.util.concurrent.locks.ReentrantLock$NonfairSync 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/4/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/util/concurrent/locks/AbstractQueuedSynchronizer.acquire 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/5/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/util/concurrent/locks/LockSupport.park 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/6/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/util/concurrent/locks/ReentrantLock$Sync.lock 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/7/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/util/concurrent/locks/ReentrantLock.lock 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/8/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "jdk/internal/misc/Unsafe.park 占 97.42% 样本",
+                "json_pointer": "/metadata/top_functions/9/percent",
+                "claimed_value": 97.42,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot$$Lambda.0x0000744cc4001230.run 占 2.58% 样本",
+                "json_pointer": "/metadata/top_functions/10/percent",
+                "claimed_value": 2.58,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4373",
+                "artifact_id": "4373",
+                "artifact_sha256": "56a56804c1e6bdcebd2914a8b4468203768b70a8fdfc670acb6b15e3d9a71177",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.lambda$startWorkers$2 占 2.58% 样本",
+                "json_pointer": "/metadata/top_functions/11/percent",
+                "claimed_value": 2.58,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4374",
+                "artifact_id": "4374",
+                "artifact_sha256": "158b69796842e7a61d8aba4d74dc730772d0d274850b0a94b166f5d94f6a6520",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "instrumented lock wait or contention counters increased in-window",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092230_a44137_4374",
+                "artifact_id": "4374",
+                "artifact_sha256": "158b69796842e7a61d8aba4d74dc730772d0d274850b0a94b166f5d94f6a6520",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "instrumented lock wait or contention counters increased in-window",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 1
+                }
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 16,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.5,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "PARTIAL_WITHOUT_COUNTER",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 16,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.5,
+              "covered_expected": [
+                0,
+                1
+              ],
+              "covered_falsification": [],
+              "missing_expected": [],
+              "missing_falsification": [
+                0,
+                1
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 1,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 1,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": [
+                "Hotspot$$Lambda.0x0000744cc4001230.run",
+                "Hotspot$$Lambda.0x0000744cc4001460.run",
+                "Hotspot.lambda$startWorkers$2",
+                "Hotspot.lambda$startWorkers$3",
+                "java.util.concurrent.locks.ReentrantLock$NonfairSync",
+                "java/lang/Thread.run",
+                "java/lang/Thread.runWith",
+                "java/util/concurrent/locks/AbstractQueuedSynchronizer.acquire",
+                "java/util/concurrent/locks/LockSupport.park",
+                "java/util/concurrent/locks/ReentrantLock$Sync.lock",
+                "java/util/concurrent/locks/ReentrantLock.lock",
+                "jdk/internal/misc/Unsafe.park"
+              ]
+            }
+          },
+          "conclusion": "阶段性根因：在 37749 个有效样本中，Java 锁等待热点定位在业务调用路径 `Hotspot.lambda$startWorkers$3`，占有效样本的 97.4%。该证据确认了锁等待路径，但仍需修复前后对照证明它对整体延迟的因果贡献。"
+        },
+        {
+          "report_id": "report_9783f510e804950e2731f2152f4f2df7",
+          "hypothesis_id": "hyp_dee182bbdab74cbc9e719deb501e6984",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "Independent Linux process CPU counters measured 31.344% of one core over 14.006s; the specified low-CPU falsification was observed",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "COUNTER",
+                "criterion": {
+                  "kind": "falsification",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+                "statement": "用户态 CPU 占比: 30.591",
+                "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+                "claimed_value": 30.591,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+                "statement": "系统态 CPU 占比: 6.27",
+                "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+                "claimed_value": 6.27,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+                "statement": "I/O wait 占比: 2.102",
+                "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+                "claimed_value": 2.102,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+                "statement": "进程 CPU 核占用: 31.344",
+                "json_pointer": "/metadata/summary/process_cpu_core_usage",
+                "claimed_value": 31.344,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+                "statement": "系统一分钟负载: 1.683",
+                "json_pointer": "/metadata/summary/load1m",
+                "claimed_value": 1.683,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS",
+                "statement": "进程 RSS: 201.891",
+                "json_pointer": "/metadata/summary/vmrss_mb",
+                "claimed_value": 201.891,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+                "statement": "进程 RSS 峰值: 201.891",
+                "json_pointer": "/metadata/summary/vmrss_mb_max",
+                "claimed_value": 201.891,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_COUNT",
+                "statement": "文件描述符数量: 11.0",
+                "json_pointer": "/metadata/summary/fd_count",
+                "claimed_value": 11.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_TREND",
+                "statement": "文件描述符趋势: 0.0",
+                "json_pointer": "/metadata/summary/fd_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_COUNT",
+                "statement": "线程数量: 31.0",
+                "json_pointer": "/metadata/summary/thread_count",
+                "claimed_value": 31.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_TREND",
+                "statement": "线程数量趋势: 0.0",
+                "json_pointer": "/metadata/summary/thread_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+                "statement": "非自愿上下文切换速率: 0.0",
+                "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+                "statement": "磁盘读取吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_read_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092136_560602_4371",
+                "artifact_id": "4371",
+                "artifact_sha256": "7910e0f709ad3f473378f32db17b737e6a769f7de02aa775e9431de5a3f4f55c",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+                "statement": "磁盘写入吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_write_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 15,
+            "coverage_ratio": 0.25,
+            "has_independent_counter_or_control": true,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": true,
+              "support_claim_count": 0,
+              "counter_claim_count": 15,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.25,
+              "covered_expected": [],
+              "covered_falsification": [
+                0
+              ],
+              "missing_expected": [
+                0,
+                1
+              ],
+              "missing_falsification": [
+                1
+              ],
+              "needs_independent_counter_or_control": false,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“吞吐下降期间目标进程CPU使用率显著升高，表明计算饱和而非单纯等待”。"
+        }
+      ],
+      "tool_statuses": {
+        "COMPLETED": 3
+      },
+      "case_sha256": "7b51b6a71ab002ea76b22e7ccbb27838de238aa63e1997223f97cb112bb8016e"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "diagnosis_id": "insight_ff5d1477f7054dfabb36f5624d419494",
+      "passed": false,
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "injection_observed": true,
+      "recovery_observed": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "bounded_reports": 0,
+      "verified_observation_reports": 0,
+      "session_status": "INSUFFICIENT_EVIDENCE",
+      "selected_agent": "control-interview-demo-agent",
+      "expected_agent": "control-interview-demo-agent",
+      "wrong_agent": false,
+      "any_independent_report": true,
+      "lineage_error": "diagnosis insight_ff5d1477f7054dfabb36f5624d419494 ended as INSUFFICIENT_EVIDENCE",
+      "failure_labels": [
+        "LINEAGE_NOT_VERIFIED",
+        "NON_VERIFIED_REPORT_PRESENT"
+      ],
+      "reports": [
+        {
+          "report_id": "report_fcb0bacc3bbf71dee3d7dbd56d192be2",
+          "hypothesis_id": "hyp_1038ecee1ab64521889ad7434e974a61",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_092748_82a7e3_4389",
+                "artifact_id": "4389",
+                "artifact_sha256": "b0483bc78efd3222615d5035649a95ca3896d2008b8bb98a5215c65c9b2ba53f",
+                "direction": "COUNTER",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "same-window JVM counters did not observe GC activity under allocation profiling",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "COUNTER",
+                "criterion": {
+                  "kind": "falsification",
+                  "index": 0
+                }
+              }
+            ],
+            "rejected_claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_092748_82a7e3_4388",
+                "artifact_id": "4388",
+                "artifact_sha256": "ac5e7381af31e1aae0897b42ac3371acc0ba0854d3ab2269558765bf1c0c81e3",
+                "direction": "SUPPORT",
+                "claim_type": "EVIDENCE_REJECTED",
+                "statement": "Evidence did not pass the trusted provenance boundary",
+                "json_pointer": "/metadata",
+                "claimed_value": null,
+                "criterion": null,
+                "valid": false,
+                "reasons": [
+                  "样本数不足 50",
+                  "样本数不足 50"
+                ]
+              }
+            ],
+            "support_claim_count": 0,
+            "counter_claim_count": 1,
+            "coverage_ratio": 0.5,
+            "has_independent_counter_or_control": true,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": true,
+              "support_claim_count": 0,
+              "counter_claim_count": 1,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.5,
+              "covered_expected": [],
+              "covered_falsification": [
+                0
+              ],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [],
+              "needs_independent_counter_or_control": false,
+              "rejected_count": 1,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 1,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 1,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [
+                {
+                  "symbol": "Hotspot.hostPid",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.hostPid",
+                  "line_start": 94,
+                  "line_end": 106,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.snapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.snapshot",
+                  "line_start": 136,
+                  "line_end": 189,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.publishMetricsSnapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.publishMetricsSnapshot",
+                  "line_start": 203,
+                  "line_end": 228,
+                  "review_signals": [],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                }
+              ],
+              "unresolved_symbols": [
+                "Hotspot$$Lambda.0x0000744cc4002460.run",
+                "Hotspot$$Lambda.0x0000744cc4002690.run",
+                "Hotspot.lambda$main$0",
+                "Hotspot.lambda$startWorkers$6",
+                "byte[]",
+                "char[]",
+                "com/sun/management/internal/PlatformMBeanProviderImpl$1.nameToMBeanMap",
+                "java.io.FileDescriptor",
+                "java.lang.String",
+                "java/io/BufferedReader.<init>",
+                "java/io/BufferedReader.readLine",
+                "java/lang/String.<init>",
+                "java/lang/StringUTF16.compress",
+                "java/lang/Thread.run",
+                "java/lang/Thread.runWith",
+                "java/nio/file/Files.newBufferedReader",
+                "java/nio/file/Files.readAllLines"
+              ]
+            }
+          },
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“第 2 轮：JVM 可能存在业务热点、GC 压力或锁竞争”。"
+        },
+        {
+          "report_id": "report_136cdd2779fead9c106da22802552427",
+          "hypothesis_id": "hyp_a25f4232025e4093a5f70dba3b40b602",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 0,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.0,
+              "covered_expected": [],
+              "covered_falsification": [],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。"
+        },
+        {
+          "report_id": "report_46dd310586980a34c29278c8e9665411",
+          "hypothesis_id": "hyp_604c0891f15644ef8ce3be5504965033",
+          "verification": {
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "target process produced measurable write activity in the observation window",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "target process produced measurable write activity in the observation window",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 2
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+                "statement": "用户态 CPU 占比: 13.162",
+                "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+                "claimed_value": 13.162,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+                "statement": "系统态 CPU 占比: 4.532",
+                "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+                "claimed_value": 4.532,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+                "statement": "I/O wait 占比: 0.435",
+                "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+                "claimed_value": 0.435,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+                "statement": "进程 CPU 核占用: 0.928",
+                "json_pointer": "/metadata/summary/process_cpu_core_usage",
+                "claimed_value": 0.928,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+                "statement": "系统一分钟负载: 1.23",
+                "json_pointer": "/metadata/summary/load1m",
+                "claimed_value": 1.23,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS",
+                "statement": "进程 RSS: 198.227",
+                "json_pointer": "/metadata/summary/vmrss_mb",
+                "claimed_value": 198.227,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+                "statement": "进程 RSS 峰值: 198.227",
+                "json_pointer": "/metadata/summary/vmrss_mb_max",
+                "claimed_value": 198.227,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_COUNT",
+                "statement": "文件描述符数量: 11.0",
+                "json_pointer": "/metadata/summary/fd_count",
+                "claimed_value": 11.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_TREND",
+                "statement": "文件描述符趋势: 0.0",
+                "json_pointer": "/metadata/summary/fd_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_COUNT",
+                "statement": "线程数量: 31.0",
+                "json_pointer": "/metadata/summary/thread_count",
+                "claimed_value": 31.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_TREND",
+                "statement": "线程数量趋势: 0.0",
+                "json_pointer": "/metadata/summary/thread_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+                "statement": "非自愿上下文切换速率: 0.0",
+                "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+                "statement": "磁盘读取吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_read_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_092503_d6f779_4383",
+                "artifact_id": "4383",
+                "artifact_sha256": "7d55dac138744812f9c68d8722824e96c9aa6621349c555eff29af12fb66fca8",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+                "statement": "磁盘写入吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_write_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 16,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.4,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "PARTIAL_WITHOUT_COUNTER",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 16,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.4,
+              "covered_expected": [
+                0,
+                2
+              ],
+              "covered_falsification": [],
+              "missing_expected": [
+                1
+              ],
+              "missing_falsification": [
+                0,
+                1
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "阶段性判断：证据与候选假设一致，但尚未定位到具体函数、资源或依赖；不能把假设“目标进程的写入活动与块设备高延迟在同一窗口出现异常”直接写成最终根因，需要继续取证。"
+        }
+      ],
+      "tool_statuses": {
+        "COMPLETED": 3
+      },
+      "case_sha256": "feb7878d8dc3ea214afd96eee7d91acde69d0d8bc66413ad4d38048d1e9159d6"
+    }
+  ],
+  "boundary": "Case counts, not production accuracy. Observation and root counts remain separate."
+}

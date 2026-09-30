@@ -1452,7 +1452,16 @@ def apply_active_skill(
             .filter(DiagnosticSkillModel.status == "ACTIVE")
             .all()
         )
-        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        # Serialize activation creation and reuse-trace updates on the stable
+        # parent row. Locking an activation cannot protect the first insert:
+        # that row does not exist yet. Concurrent HTTP/background planners
+        # must read the winner's activation after acquiring this lock.
+        diagnosis = (
+            session.query(DropInsightSessionModel)
+            .filter(DropInsightSessionModel.id == diagnosis_id)
+            .with_for_update()
+            .first()
+        )
         query = diagnosis.query if diagnosis is not None else str(target.get("query") or "")
         ranking_target = {**target, "_baseline_tool": baseline_tool}
         if "collector_capabilities" not in ranking_target:

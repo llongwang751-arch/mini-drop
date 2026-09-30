@@ -1,5 +1,11 @@
 # Drop Insight V2 接口契约
 
+## 2026-09-30 请求实例范围
+
+`CreateDiagnosisRequest.target.agent_id`是发现范围的约束，不是采样授权。自动和手动发现都只检查该Agent的新鲜可信快照；发现请求传入不同Agent时拒绝冲突，不跨主机回退。最终采样仍必须通过opaque discovery/binding及原有进程身份校验。显式进程名存在多个候选时保持澄清，不以模型排序选择其中一个。
+
+受控故障启动返回`diagnosis_request.target.agent_id`，来源为运维配置`MINI_DROP_FAULT_LAB_AGENT_ID`；缺少该配置在注入前拒绝。浏览器与验收器须保留该条件，实验室返回的PID及验收器预期PID不作为诊断请求权威。旧请求没有Agent约束时继续允许跨Agent发现，但显式重复进程名不能猜选。
+
 ## 2026-09-19 调查策略扩展
 
 `CreateDiagnosisRequest.budget.investigation_strategy` 接受 `LATS`（默认）或 `REACT`；其他值按严格 schema 拒绝。ReAct 共享模型、工具和授权门禁，选择动作时按新规划次序，不用 UCT 分数。事件命名沿用 `lats.*`，`search.algorithm=REACT`、`execution_mode=BOUNDED_REACT` 标明真实策略。历史原始事件不迁移。

@@ -85,6 +85,56 @@ def _constraint_name(error: IntegrityError) -> str | None:
     return getattr(diagnostic, "constraint_name", None)
 
 
+def test_postgres_skill_activation_serializes_competing_planners(postgres_sessions, monkeypatch):
+    from server.app.drop_insight import skill_evolution
+    from server.app.models import DiagnosticSkillModel, DiagnosticSkillActivationModel
+
+    diagnosis_id, _ = _seed_report(postgres_sessions, "report-skill-activation-race")
+    with postgres_sessions.begin() as session:
+        session.add(DiagnosticSkillModel(
+            id="skill-activation-race", family_key="activation-race", category="CPU_HOTSPOT",
+            version=1, status="ACTIVE", trigger_json={},
+            strategy_json={"probe_order": ["collect_sys_metrics"]},
+            created_by="test:postgres", created_at=NOW, updated_at=NOW,
+        ))
+    monkeypatch.setattr(skill_evolution, "new_session", postgres_sessions)
+    monkeypatch.setattr(skill_evolution, "_rank_hybrid_skills",
+                        lambda skills, *_args: [(900, {"category": "exact"}, skills[0])])
+    holder = postgres_sessions()
+    holder.execute(select(DropInsightSessionModel).where(
+        DropInsightSessionModel.id == diagnosis_id).with_for_update()).scalar_one()
+    started = Barrier(3)
+
+    def apply(round_index):
+        started.wait(timeout=5)
+        return skill_evolution.apply_active_skill(
+            diagnosis_id, "CPU_HOTSPOT", {"tool_name": "collect_sys_metrics"}, {},
+            round_index=round_index, phase="INITIAL_PLAN",
+        )
+
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(apply, i) for i in [1, 2]]
+            started.wait(timeout=5)
+            try:
+                # A competing planner must not publish an activation while
+                # another transaction owns this diagnosis's mutable state.
+                for future in futures:
+                    with pytest.raises(FutureTimeoutError):
+                        future.result(timeout=0.25)
+            finally:
+                holder.commit()
+            results = [future.result(timeout=5) for future in futures]
+    finally:
+        holder.close()
+    assert all(r["applied"] for r in results)
+    assert sorted(r["state"] for r in results) == ["ACTIVATED", "REUSED"]
+    with postgres_sessions() as session:
+        rows = session.query(DiagnosticSkillActivationModel).filter_by(diagnosis_id=diagnosis_id).all()
+        assert len(rows) == 1
+        assert {step["round_index"] for step in rows[0].match_reason_json["reuse_trace"]} == {1, 2}
+
+
 def test_postgres_claim_lease_takeover_and_fencing(postgres_sessions):
     report_id = "report-postgres-authority"
     _seed_report(postgres_sessions, report_id)

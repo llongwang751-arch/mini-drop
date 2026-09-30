@@ -1,0 +1,442 @@
+{
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "993effdd6b93e954d29f3595396c6397bfcb6da2eaa49dd298d7b53f27f4308d",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "0ee5127e6b49466a315d8ec1bd8cad27b669cddf5924c9e0a9faf7390f3389a1"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20260930T091326Z",
+      "previous_release": "/opt/mini-drop-releases/20260930T084451Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "f59de528257d98b034d47344f8626ad4dda625fe82ae6380ab39b1c4d2be6802",
+      "source_head": "e8e32d9b85867729ae6351add1af749865ec5856",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:995fea24ead3a4995e75c2352eb45c4dedf6caaed31bcd902ef111425b30a46f",
+          "new": "sha256:478b48e458021d49a4a30d551f47d38ad14d59bb93983fef7fef19304faa2a6a",
+          "tag": "mini-drop-diagnosis-worker:20260930T091326Z"
+        },
+        "analyzer": {
+          "old": "sha256:161ad845bf4075430a81ec11f84d9aa8fdce74c6b18895593454dc5baa36c4ba",
+          "new": "sha256:baf89ade243a1ec4d45a8eaacbabe8e980a83827bf14f18c3f8284746a6a4da3",
+          "tag": "mini-drop-analyzer:20260930T091326Z"
+        }
+      },
+      "untouched_container_count": 11,
+      "rollback_config": "/opt/mini-drop-releases/20260930T091326Z/private/rollback.compose.json"
+    },
+    "git_head": "e8e32d9b85867729ae6351add1af749865ec5856"
+  },
+  "schema": "mini-drop.fault-plaza-strict-acceptance.v2",
+  "started_at": "2026-09-30T09:16:50.677740+00:00",
+  "run_status": "COMPLETED",
+  "selected_count": 3,
+  "results": [
+    {
+      "scenario_id": "java-gc-pressure",
+      "title": "Java 分配风暴与 GC 压力",
+      "started_at": "2026-09-30T09:16:50.679580+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "POST /api/v2/diagnoses/insight_d7a99d23e2694d39b7babf324d6c039b/planner/run: HTTP 500: {\"detail\": \"AI diagnosis worker failed\"}",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_d7a99d23e2694d39b7babf324d6c039b",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T09:17:04.671808+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": true,
+          "allocated_bytes": 1115160576,
+          "heap_used_bytes": 67099600,
+          "gc_count": 24488,
+          "gc_time_ms": 21971,
+          "gc_auto_stop_remaining_seconds": 290.891,
+          "lock_fault_active": false,
+          "lock_acquisitions": 159915897,
+          "lock_contentions": 1683957,
+          "lock_wait_ms": 182813.614584,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 223084544,
+          "io_operations": 1702,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_4b719c55a2b15e35a5149e5d62cbfdd3",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f904e748bd2cdded9948d6c8558f5d28",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_58e0bad41f6cc5288354d8cbcc61bfbf",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "allocated_bytes",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 111146285.65619025,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T09:20:20.838165+00:00",
+      "report_sha256": "d516a0f81c94721a8b8ab3156ef3d0fe3117f83ff0bbb32ee9527368cb0f64cb",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-instance-scope-3-deployed-20260930-cases\\java-gc-pressure.json"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "title": "Java 锁竞争",
+      "started_at": "2026-09-30T09:20:20.845894+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "diagnosis_id": "insight_397c6dad3d5247be8153cf16972d711e",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T09:24:03.719391+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 1177812992,
+          "heap_used_bytes": 90516968,
+          "gc_count": 24500,
+          "gc_time_ms": 21993,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": true,
+          "lock_acquisitions": 624820212,
+          "lock_contentions": 7302238,
+          "lock_wait_ms": 775860.919288,
+          "lock_auto_stop_remaining_seconds": 82.296,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 223084544,
+          "io_operations": 1702,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_3103bd0fe118b6a4f3e68cb5fa033d78",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_7afea36556bf7e496655a48cdad6a40e",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          },
+          {
+            "report_id": "report_9783f510e804950e2731f2152f4f2df7",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "lock_wait_ms",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 2678.999459518202,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T09:24:15.920733+00:00",
+      "report_sha256": "7b51b6a71ab002ea76b22e7ccbb27838de238aa63e1997223f97cb112bb8016e",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-instance-scope-3-deployed-20260930-cases\\java-lock-contention.json"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "title": "Java 同步文件写入",
+      "started_at": "2026-09-30T09:24:15.944024+00:00",
+      "passed": false,
+      "lineage_verified": false,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "error": "diagnosis insight_ff5d1477f7054dfabb36f5624d419494 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_ff5d1477f7054dfabb36f5624d419494",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T09:27:58.245940+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": false,
+          "allocated_bytes": 1177812992,
+          "heap_used_bytes": 91777176,
+          "gc_count": 24503,
+          "gc_time_ms": 21994,
+          "gc_auto_stop_remaining_seconds": 0.0,
+          "lock_fault_active": false,
+          "lock_acquisitions": 625517384,
+          "lock_contentions": 7302386,
+          "lock_wait_ms": 776374.998627,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": true,
+          "io_bytes_written": 1416364032,
+          "io_operations": 10806,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 81.917,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_fcb0bacc3bbf71dee3d7dbd56d192be2",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_136cdd2779fead9c106da22802552427",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_46dd310586980a34c29278c8e9665411",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_bytes_written",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 5527992.158861002,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T09:28:08.810622+00:00",
+      "report_sha256": "feb7878d8dc3ea214afd96eee7d91acde69d0d8bc66413ad4d38048d1e9159d6",
+      "case_report": "D:\\tx\\mini-drop\\reports\\ai-diagnosis\\fault-plaza-instance-scope-3-deployed-20260930-cases\\java-file-io.json"
+    }
+  ],
+  "truth_boundary": "PASS requires legacy lineage, verified concrete scenario-matching root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports.",
+  "completed_count": 3,
+  "passed_count": 0,
+  "failed_count": 3,
+  "passed": false,
+  "updated_at": "2026-09-30T09:28:08.822581+00:00",
+  "report_sha256": "c6d374b8dc2ad55762a8487ac3abca05976c3cf49e9779de8322ea1fe28d7e5a"
+}

@@ -16,4 +16,10 @@
 
 测试使用实际数据库/Repository登记两台不同Agent与可信快照，覆盖正确绑定、缺失实例、过期快照、同机同名歧义、冲突筛选和绑定瞬间快照替换。全部失败日志、修复后日志和JUnit保存在`reports/quality/instance-scope-20260930/`。
 
-部署和云端复验结果待实际执行后追加；本节不预先填写成功。云端复验应分别记录目标选择、采集、严格根因、撤销恢复和清理，不能把目标选择正确当成根因通过。
+代码e8e32d9发布为20260930T091326Z，Worker/Analyzer各183文件SHA通过，其余11容器未重建。CI36694384788全部13作业成功，Python1190通过/7预期依赖跳过。原误选Java GC、锁竞争和文件I/O三项新批次COMPLETED：目标选择正确3/3，注入/撤销恢复/清理/会话收束各3/3，lineage1/3，严格根因0/3。完整21成绩没有被替换或拼接。原始报告为`reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930.json`。
+
+## 复验发现的Skill激活竞争
+
+Java GC规划HTTP500源于`uq_diagnostic_skill_activation_diagnosis_skill`冲突：后台和HTTP两条规划路径均先读空再插入。会话仍有三条完成的采集任务并正常收束，不把接口错误改成通过。候选锁定诊断父行后读取现有激活，保护不存在的首次记录和复用trace的读改写；锁已有activation不能保护首插入，所以不采用该办法。没有数据库迁移、唯一约束放宽或泛化异常吞掉。
+
+使用当前PostgreSQL镜像的独立tmpfs测试容器，专用mini_drop_test库及随机测试schema；生产库和卷未接入。旧代码真实触发相同UniqueViolation，初版修复测试仍失败并保留，正确事务范围修复后1项竞争测试通过：两个请求都成功，只留一条记录、两轮trace均保留。临时容器与SSH隧道已清理。21项Skill/Worker回归通过；带覆盖率完整质量门禁1190通过/8项已登记依赖跳过、无覆盖率违约，PG专项已另行实跑。候选待CI、部署与独立新会话验收。证据见同目录`postgres-race-*`、`skill-race-quality.zip`及`worker-rpc-errors.jsonl`。
