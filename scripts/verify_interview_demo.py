@@ -787,12 +787,18 @@ def _run_diagnosis(
     )
     minimum_rounds = min(4, max(1, requested_minimum, minimum_rounds))
     maximum_rounds = min(4, max(minimum_rounds, requested_maximum))
+    requested_target = diagnosis_request.get("target")
+    requested_target = requested_target if isinstance(requested_target, dict) else {}
+    # Preserve the operator-owned instance constraint returned by the start
+    # endpoint. Expected demo Agent/PID values below remain test oracles and
+    # must never be injected into the diagnosis request as scope authority.
+    target = {"agent_id": requested_target["agent_id"]} if requested_target.get("agent_id") else {}
     payload = {
         "query": query,
         "auto_scope": True,
         "mode": "AUTONOMOUS",
         "skill_policy": policy,
-        "target": {},
+        "target": target,
         "budget": {
             "max_duration_seconds": min(timeout_seconds, 1800),
             "max_tool_calls": 12,
