@@ -1,0 +1,203 @@
+{
+  "schema": "mini-drop.engineering-case-index.v1",
+  "revision": "20261001",
+  "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+  "model_auto_root_cause": "NOT_EVALUATED",
+  "legacy_fault_catalog": {
+    "count": 21,
+    "preserved": true,
+    "affects_this_score": false
+  },
+  "cases": [
+    {
+      "id": "parallel-timing",
+      "title": "并行检索计时被误算为零",
+      "area": "性能测试 / 观测",
+      "symptom": "10 秒检索中，两段并行 embedding 累计 12 秒，旧代码却报告检索剩余耗时为零。",
+      "root_cause": "将并行子阶段耗时相加后从父窗口相减，重复扣除了重叠区间。",
+      "fix": "计算子阶段时间区间并集，再与父窗口求交；独立预期为 2000ms。",
+      "scope_note": "确定性计时回放，不涉及真实模型请求，也不评估 AI 自动定位。",
+      "reproduce_command": "python scripts/reproduce_parallel_timing_defect.py --before reports/quality/engineering-cases-20261001/timing-before.py --output output/quality/timing-replay-new.json",
+      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/f37f44e0f43ea58720da3638658a82c65430c595/integrations/agi_saber/request_observations.py",
+      "status": "VERIFIED_DEFECT_FIX",
+      "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+      "model_auto_root_cause": "NOT_EVALUATED",
+      "before": {
+        "selected": 1,
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0,
+        "retrieval_ms": 0
+      },
+      "after": {
+        "selected": 1,
+        "failed": 0,
+        "passed": 1,
+        "skipped": 0,
+        "retrieval_ms": 2000
+      },
+      "evidence": [
+        {
+          "role": "reproduction",
+          "filename": "parallel-timing/parallel-timing.json",
+          "sha256": "036ba1878a339946550f510ba1036ebedab6d0a9fd021b10fd37818797df58e9"
+        },
+        {
+          "role": "before_source",
+          "filename": "parallel-timing/timing-before.py",
+          "sha256": "f89afa3c24e80e89009e993155c920ce4f538248144b569e06dde9158e5c1669"
+        },
+        {
+          "role": "after_source",
+          "filename": "parallel-timing/timing-after.py",
+          "sha256": "5c26f368fafd6bc2a802df8ed30c95f0866950dd15c6710ec3577cb9ebaad64d"
+        }
+      ]
+    },
+    {
+      "id": "empty-query-cache",
+      "title": "合法空提取结果导致重复模型调用",
+      "area": "后端 / 缓存边界",
+      "symptom": "模型明确返回合法空实体 JSON 时，重复查询仍反复执行提取。",
+      "root_cause": "旧缓存仅按结果是否非空判定成功，混淆了合法空结果与模型失败。",
+      "fix": "显式校验合法空 JSON 并允许缓存；异常、非法 JSON 和未知空结果仍不缓存。",
+      "scope_note": "9 个隔离缓存测试使用模型替身；不代表冷请求 SLO 或真实模型质量。",
+      "reproduce_command": "python -m pytest tests/test_office_query_cache.py -q",
+      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/f37f44e0f43ea58720da3638658a82c65430c595/integrations/agi_saber/query_extraction_cache.py",
+      "status": "VERIFIED_DEFECT_FIX",
+      "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+      "model_auto_root_cause": "NOT_EVALUATED",
+      "before": {
+        "selected": 9,
+        "failed": 2,
+        "skipped": 0,
+        "passed": 7,
+        "test_names": [
+          "test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model",
+          "test_empty_or_failed_extraction_is_never_cached",
+          "test_restored_instances_reuse_query_extraction_but_always_read_current_graph",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":[],\"relations\":[]}-1]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\\n{\"entities\":[],\"relations\":[]}\\n```-1]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[invalid json-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{}-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":\"wrong\",\"relations\":[]}-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[response5-2]"
+        ]
+      },
+      "after": {
+        "selected": 9,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 9,
+        "test_names": [
+          "test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model",
+          "test_empty_or_failed_extraction_is_never_cached",
+          "test_restored_instances_reuse_query_extraction_but_always_read_current_graph",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":[],\"relations\":[]}-1]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\\n{\"entities\":[],\"relations\":[]}\\n```-1]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[invalid json-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{}-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":\"wrong\",\"relations\":[]}-2]",
+          "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[response5-2]"
+        ]
+      },
+      "evidence": [
+        {
+          "role": "before",
+          "filename": "empty-query-cache/cache-empty-before.xml",
+          "sha256": "bb827b7c1b37bbe0b15efc0ee1fa18add70c380d254eb40be5d591f0e27f02f1"
+        },
+        {
+          "role": "after",
+          "filename": "empty-query-cache/cache-empty-targeted.xml",
+          "sha256": "7e73352f10e45ab5d8cabffeb900e7a3b120fd1ded304adc5dbead960c71d7d4"
+        }
+      ]
+    },
+    {
+      "id": "skill-first-insert-race",
+      "title": "并发首次激活 Skill 触发唯一约束冲突",
+      "area": "后端 / PostgreSQL 并发",
+      "symptom": "两个规划器首次激活同一 Skill 时，其中一个事务抛出 UniqueViolation。",
+      "root_cause": "查询不存在与插入之间没有串行化，两个事务同时判断可以首次写入。",
+      "fix": "先锁定诊断父记录，再查询及插入，保留数据库唯一约束和幂等行为。",
+      "scope_note": "真实隔离 PostgreSQL、两个独立事务。需要专用测试库；本地跳过不算通过。",
+      "reproduce_command": "RUN_POSTGRES_TESTS=1 python -m pytest tests/test_drop_insight_report_effects_postgres.py -k skill_activation -q（配置专用测试库）",
+      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/9c98ab33140aae708dff1092d10c829cdec98830/server/app/drop_insight/skill_evolution.py",
+      "status": "VERIFIED_DEFECT_FIX",
+      "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+      "model_auto_root_cause": "NOT_EVALUATED",
+      "before": {
+        "selected": 1,
+        "failed": 1,
+        "skipped": 0,
+        "passed": 0,
+        "test_names": [
+          "test_postgres_skill_activation_serializes_competing_planners"
+        ]
+      },
+      "after": {
+        "selected": 1,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 1,
+        "test_names": [
+          "test_postgres_skill_activation_serializes_competing_planners"
+        ]
+      },
+      "evidence": [
+        {
+          "role": "before",
+          "filename": "skill-first-insert-race/postgres-race-before.xml",
+          "sha256": "9c06a5a2775d0be571042f7ec967f9ef24ca0811764f010c6674f31ec1797684"
+        },
+        {
+          "role": "after",
+          "filename": "skill-first-insert-race/postgres-race-after.xml",
+          "sha256": "1c2027cf078a5d942a871576e1faf7efc784ac5e49571b36a9d2a8d177b87272"
+        }
+      ]
+    },
+    {
+      "id": "notification-lifecycle",
+      "title": "停止诊断后通知在离开页面时残留",
+      "area": "前端 / 生命周期回归",
+      "symptom": "取消诊断后离开页面，旧全局通知仍留在文档中。",
+      "root_cause": "全局 message 的生命周期独立于诊断组件，卸载页面不会销毁通知。",
+      "fix": "使用页面内 message.useMessage 上下文，使通知随组件卸载。",
+      "scope_note": "同一条取消与卸载测试，旧版失败、新版通过；其余未选用例不计入本案例。",
+      "reproduce_command": "cd web; npm test -- src/pages/AIDiagnosis.test.jsx -t \"confirms cancellation\" --maxWorkers=1",
+      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/7ad2060/web/src/pages/AIDiagnosis.jsx",
+      "status": "VERIFIED_DEFECT_FIX",
+      "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+      "model_auto_root_cause": "NOT_EVALUATED",
+      "before": {
+        "selected": 1,
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0
+      },
+      "after": {
+        "selected": 1,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 1,
+        "test_names": [
+          "AIDiagnosis V2 workspace > confirms cancellation with session version and refreshes the terminal record"
+        ]
+      },
+      "evidence": [
+        {
+          "role": "before",
+          "filename": "notification-lifecycle/toast-before.log",
+          "sha256": "e98527aa0c0d686462b9c9347fa72a400bff6abd346345f9c4d9cc53f0ed367b"
+        },
+        {
+          "role": "after",
+          "filename": "notification-lifecycle/notification-after.xml",
+          "sha256": "51468530cc7f570d3779344ea51354b1ee4ea10f914149c73420aafb90f77aee"
+        }
+      ]
+    }
+  ]
+}

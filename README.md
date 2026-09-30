@@ -8,7 +8,7 @@ Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验�
 
 **测试开发入口：** 本项目也用于多语言服务的性能与可靠性测试：从风险和测试计划出发，执行自动化回归、受控故障与同负载对照，再用采集证据辅助定位失败。运行 `python scripts/run_quality_gate.py` 可生成本机质量报告；分层测试、真实缺陷复盘、开源对照及测开演示见 [测试开发与质量工程](docs/TEST_ENGINEERING.md)。
 
-**测开 / 后端 / Agent 开发交付：** [三个缺陷闭环与复现入口](docs/ENGINEERING_DELIVERY.md)集中说明测量边界误判、不可执行计划重复处理和证据强度误判，包含源码、行为回归、原始失败和能力边界。本轮代码CI 13/13作业通过，Python1174项通过、7项依赖跳过，依赖专项另行实跑；快速门禁175项零跳过。新后端及Web已部署；完整21场景根因0/21、观测4/21，一小时请求全成功但延迟门槛未通过。Web范围显示修复、224项测试与云端复验通过。见[本次部署验收](reports/architecture/deployment-validation-20260930.md)。
+**测开 / 后端 / Agent 开发交付：** 当前默认演示是[4个真实工程缺陷闭环](docs/ENGINEERING_CASES.md)：并行计时、合法空结果缓存、真实PostgreSQL竞争和通知生命周期，均有旧代码失败与修复后回归证据。本地Python1260项通过、10项登记跳过，Web240项通过，CI13/13作业通过，真实PG8项零跳过。旧21类及原因果0/21保留在历史实验；一小时19,950次请求成功且质量通过、仅1/120窗超限，用户接受用于面试，原严格报告保留。更多交付与当前版本见[工程交付](docs/ENGINEERING_DELIVERY.md)和[项目上下文](docs/PROJECT_CONTEXT.md)。
 
 > 测试工程说明更新于 **2026-09-27**，下文截图保留原拍摄日期。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
 
@@ -76,7 +76,11 @@ python scripts/render_load_report.py output/quality/demo-endurance-001/load-endu
 
 ![业务请求选择与后台诊断入口](docs/assets/learning-guide/20260914-lightweight-business/business-request-selection.png)
 
-### 五分钟演示路线
+### 测开与后端岗位优先路线
+
+打开 **AI诊断 → 案例验证 → 已验证缺陷**，挑一个案例，依次讲清现象、失败断言、原因、修复与回归，展开原始证据下载和源码。重点说明测试如何发现旧缺陷，以及修复后怎样防回归。每个案例的验证范围与复现命令见[工程缺陷主线](docs/ENGINEERING_CASES.md)。
+
+### 业务与诊断演示路线
 
 1. 打开 **访问凭据**，使用部署端签发的 API Key 建立浏览器会话。
 2. 进入 **AI 诊断 → 接入服务**，打开一个业务页面，完成笔记读写、文件上传或其他真实操作。
@@ -84,7 +88,7 @@ python scripts/render_load_report.py output/quality/demo-endurance-001/load-endu
 4. 在 **对话 / 探索树** 中查看每轮假设、工具、证据和报告，必要时补充上下文或要求寻找反证。
 5. 先读报告的根因结论与限制，再看独立的修复复测记录。报告生成不代表已经修改业务代码。
 
-如果需要可重复的受控故障，进入 **验证与 A/B → 故障广场**；如果只想学习采样工具，从 **采集任务** 创建任务。具体按钮、截图和讲解词见 [演示指南](docs/INTERVIEW_DEMO_GUIDE.md)。
+旧受控故障位于 **案例验证 → 历史故障实验**，保留启停与恢复核对。学习采样工具可从 **采集任务** 创建任务。具体讲解词见[演示指南](docs/INTERVIEW_DEMO_GUIDE.md)。
 
 <details>
 <summary>展开查看探索树示例</summary>

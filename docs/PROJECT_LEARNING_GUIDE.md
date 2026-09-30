@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2296 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2314 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 548 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 550 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2454,6 +2454,8 @@ python scripts/render_learning_guide.py
 | `reports/quality/` | quality 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/engineering-cases-20261001/` | engineering-cases-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/engineering-cases-20261001/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-cases-20261001/source-link-update/` | source-link-update 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-fix-20260930/` | performance-fix-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3777,6 +3779,7 @@ python scripts/render_learning_guide.py
 | `reports/quality/engineering-cases-20261001/ci-python-quality-2ace4b448d1be1016370c7139a5776f4649dbc79-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/ci-web-browser-2ace4b448d1be1016370c7139a5776f4649dbc79-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/completed-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/credential-scan.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/delivery-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3793,9 +3796,26 @@ python scripts/render_learning_guide.py
 | `reports/quality/engineering-cases-20261001/python-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/python-quality-report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/python-quality-report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/cases-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/cases-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/cases-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/cases-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/historical.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/browser_cases.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/engineering-cases-20261001/source-link-update/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/source-link-update/published-index.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/timing-after.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
 | `reports/quality/engineering-cases-20261001/timing-before.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
 | `reports/quality/engineering-cases-20261001/verify_archive.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-cases-20261001/verify_completed.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/verify_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-cases-20261001/web-audit.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
