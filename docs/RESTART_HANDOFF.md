@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-30 性能修复进行中
+
+HTTP负载连接复用、TCP_NODELAY、1024项完整文本排序缓存及办公助手并行计时修复已实现，113项定向回归通过。旧源码短测持续首窗201.418ms失败；候选短测持续100.757ms、两窗通过。一小时复测源冻结在`output/acceptance/performance-fix-20260930/after-source`与Worker1新目录`/home/ubuntu/mini-drop-perf-source-20260930a`，3600秒运行输出`after-hour/`；不要修改冻结源、覆盖报告或把短测算小时通过。目标仅本次一次性进程，停止由控制EOF或4500秒TTL负责，不影响其他服务。办公助手候选新增内容白名单细分计时，尚未发布；平台仍为`20260930T115734Z`/f9b143a。21场景因果0/21与历史小时失败保留，当前细节见[性能修复](../reports/architecture/performance-fix-20260930.md)。
+
 ## 2026-09-30 安全门禁与诊断取消已部署
 
 当前线上 API 使用 Go 1.26.8，pgx 5.9.2、gRPC 1.83.2、x/crypto 0.56.0、x/net 0.58.0 等。CI 使用 go.mod 工具链，固定 govulncheck 1.8.0，源码调用图和 Linux 二进制扫描均阻断；golangci-lint 2.14.0 的 13 条存量告警清理后改为阻断。Trivy 全仓扫描仍是报告模式，不代表整个镜像与其他语言依赖无漏洞。部署二进制保留符号表，仅移除 DWARF，避免 stripped 二进制扫描退化为模块级精度。

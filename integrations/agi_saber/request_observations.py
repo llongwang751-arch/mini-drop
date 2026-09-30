@@ -27,12 +27,14 @@ _OBSERVATION_KEYS = frozenset({
     "content_chars", "chunk_count", "embed_calls", "embed_failures",
     "vector_indexed_count", "process_cpu_ms", "rss_peak_mib", "service_cpu_ms",
     "service_memory_peak_mib", "service_memory_limit_mib",
+    "retrieval_detail_ms",
 })
 _OBSERVATION_STAGES = frozenset({
     "rewrite_ms", "embedding_ms", "retrieval_ms", "rerank_ms", "generation_ms",
     "split_ms", "index_ms", "vector_write_ms", "ingest_ms",
     "document_write_ms", "parse_and_http_ms",
 })
+_RETRIEVAL_DETAILS = frozenset({'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms'})
 
 
 class ExerciseScope:
@@ -96,10 +98,47 @@ class _Window:
         self.lock = threading.Lock()
         self.exercise_phase = ""
         self.injected_delay_ms = 0
+        self.spans: dict[str, list[tuple[float, float]]] = {}
 
     def add(self, name: str, elapsed_ms: float) -> None:
         with self.lock:
             self.stages[name] = self.stages.get(name, 0.0) + elapsed_ms
+
+    def span(self, name: str, start: float, end: float) -> None:
+        with self.lock:
+            self.stages[name] = self.stages.get(name, 0.0) + (end-start)*1000
+            self.spans.setdefault(name, []).append((start, end))
+
+    def question_timings(self) -> tuple[dict[str, float], dict[str, float]]:
+        """Parallel calls contribute wall-time union, not summed CPU/work time."""
+        stages = {name: round(value, 3) for name, value in self.stages.items()}
+        search = _merge_spans(self.spans.get('search_total_ms', []))
+        excluded = _merge_spans(self.spans.get('embedding_ms', []) + self.spans.get('rerank_ms', []))
+        overlap = sum(max(0, min(end, other_end)-max(start, other_start))
+                      for start, end in search for other_start, other_end in excluded)
+        total = sum(end-start for start, end in search)
+        if search:
+            stages['retrieval_ms'] = round((total-overlap)*1000, 3)
+            stages.pop('search_total_ms', None)
+        for name in ('embedding_ms', 'rerank_ms'):
+            if self.spans.get(name):
+                stages[name] = round(sum(end-start for start, end in _merge_spans(self.spans[name]))*1000, 3)
+        detail = {name: round(sum(end-start for start, end in _merge_spans(self.spans.get(name, [])))*1000, 3)
+                  for name in ('vector_search_ms', 'chunk_load_ms', 'fault_delay_ms')
+                  if self.spans.get(name)}
+        if search:
+            detail['search_wall_ms'] = round(total*1000, 3)
+        return stages, detail
+
+
+def _merge_spans(spans):
+    merged = []
+    for start, end in sorted(spans):
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(end, merged[-1][1]))
+        else:
+            merged.append((start, end))
+    return merged
 
 
 def _rss_mib() -> float:
@@ -287,6 +326,7 @@ class OfficeObservationStore:
                 continue
             started, ended = row.get("started_at_unix"), row.get("ended_at_unix")
             stages = row.get("stage_ms")
+            detail = row.get('retrieval_detail_ms', {})
             if (not isinstance(row.get("request_id"), str)
                     or re.fullmatch(r"[a-f0-9]{32}", row["request_id"]) is None
                     or row.get("service_id") != "agi-office-backend"
@@ -296,6 +336,9 @@ class OfficeObservationStore:
                     or ended < started or ended > self.producer_started_at_unix + 5
                     or self.producer_started_at_unix - ended > 24 * 3600
                     or not isinstance(stages, dict)
+                    or not isinstance(detail, dict) or not set(detail).issubset(_RETRIEVAL_DETAILS)
+                    or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                           or not math.isfinite(value) or not 0 <= value <= 900000 for value in detail.values())
                     or any(key not in _OBSERVATION_STAGES or not isinstance(value, (int, float))
                            or not math.isfinite(value) or value < 0 for key, value in stages.items())):
                 continue
@@ -346,10 +389,12 @@ def _measure(cls: type, method_name: str, stage: str, *, enabled=None) -> None:
                     if inject:
                         window.injected_delay_ms = EXERCISE_DELAY_MS
                 if inject:
+                    delay_start = time.perf_counter()
                     time.sleep(EXERCISE_DELAY_MS / 1000)
+                    window.span('fault_delay_ms', delay_start, time.perf_counter())
             return original(self, *args, **kwargs)
         finally:
-            window.add(stage, (time.perf_counter() - start) * 1000)
+            window.span(stage, start, time.perf_counter())
 
     setattr(cls, method_name, measured)
 
@@ -377,8 +422,24 @@ def install(store: OfficeObservationStore) -> None:
 
     _measure(LLMRewriter, "rewrite", "rewrite_ms")
     _measure(HybridStore, "search_multi", "search_total_ms")
+    _measure(_MilvusAdapter, 'search', 'vector_search_ms')
     _measure(HybridStore, "_finalize", "rerank_ms", enabled=lambda self: self._reranker is not None)
     _measure(UnifiedAgent, "_llm_generate", "generation_ms")
+
+    original_repo_call = HybridStore._repo_call
+
+    @wraps(original_repo_call)
+    def measured_repo_call(self, method_name, *args, **kwargs):
+        window = _ACTIVE.get()
+        if window is None or method_name != 'load_by_ids_with_parent':
+            return original_repo_call(self, method_name, *args, **kwargs)
+        started = time.perf_counter()
+        try:
+            return original_repo_call(self, method_name, *args, **kwargs)
+        finally:
+            window.span('chunk_load_ms', started, time.perf_counter())
+
+    HybridStore._repo_call = measured_repo_call
 
     original_hybrid_init = HybridStore.__init__
 
@@ -398,7 +459,7 @@ def install(store: OfficeObservationStore) -> None:
             try:
                 return original_embed(*embed_args, **embed_kwargs)
             finally:
-                window.add("embedding_ms", (time.perf_counter() - start) * 1000)
+                window.span("embedding_ms", start, time.perf_counter())
 
         self._embed_fn = measured_embed
 
@@ -434,9 +495,9 @@ def install(store: OfficeObservationStore) -> None:
                         request_id = UUID(identifier).hex
                     except ValueError:
                         request_id = uuid4().hex
-                    stages = {name: round(value, 3) for name, value in window.stages.items()}
-                    if "search_total_ms" in stages:
-                        stages["retrieval_ms"] = round(max(0.0, stages.pop("search_total_ms") - stages.get("embedding_ms", 0.0) - stages.get("rerank_ms", 0.0)), 3)
+                    stages, retrieval_detail = window.question_timings()
+                    for name in retrieval_detail:
+                        stages.pop(name, None)
                     retrieval = trace.get("retrieval") or {}
                     paths = retrieval.get("query_paths") or [] if isinstance(retrieval, dict) else []
                     mode = ""
@@ -458,6 +519,7 @@ def install(store: OfficeObservationStore) -> None:
                         "result": "FAILED" if failed or getattr(response, "error", None) else "INTERRUPTED" if getattr(response, "interrupted", False) else "COMPLETED",
                         "exercise_phase": window.exercise_phase,
                         "injected_delay_ms": window.injected_delay_ms,
+                        "retrieval_detail_ms": retrieval_detail,
                     }
                     try:
                         store.append(record)

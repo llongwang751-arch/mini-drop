@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import asyncio
 import time
+import pytest
 
 
 def test_office_store_is_bounded_and_content_free(tmp_path):
@@ -18,6 +19,49 @@ def test_office_store_is_bounded_and_content_free(tmp_path):
     assert payload['schema_version'] == 'mini-drop.office-observations.v2'
     assert [row['request_id'] for row in payload['records']] == [f'{i:032x}' for i in (1, 2)]
     assert 'query' not in path.read_text(encoding='utf-8')
+
+
+def test_parallel_embedding_intervals_do_not_erase_retrieval_or_injected_wait():
+    source = Path(__file__).resolve().parents[1] / 'integrations/agi_saber/request_observations.py'
+    spec = importlib.util.spec_from_file_location('office_parallel_timings', source)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    window = module._Window()
+    # Two 6-second embeddings overlap for four seconds within a ten-second
+    # search. Subtracting their 12-second sum incorrectly reports zero retrieval.
+    window.span('search_total_ms', 0, 10)
+    window.span('embedding_ms', 0, 6)
+    window.span('embedding_ms', 2, 8)
+    window.span('vector_search_ms', 6, 8)
+    window.span('vector_search_ms', 8, 10)
+    stages, details = window.question_timings()
+    assert stages['embedding_ms'] == 8000
+    assert stages['retrieval_ms'] == 2000
+    assert details['vector_search_ms'] == 4000
+    assert details['search_wall_ms'] == 10000
+
+
+def test_excluded_spans_are_clipped_to_search_window_and_not_double_subtracted():
+    source = Path(__file__).resolve().parents[1] / 'integrations/agi_saber/request_observations.py'
+    spec = importlib.util.spec_from_file_location('office_clipped_timings', source)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    window = module._Window()
+    window.span('search_total_ms', 10, 15)
+    window.span('embedding_ms', 5, 12)
+    window.span('rerank_ms', 11, 13)
+    window.span('fault_delay_ms', 13, 15)
+    stages, detail = window.question_timings()
+    assert stages['retrieval_ms'] == 2000
+    assert detail['fault_delay_ms'] == 2000
+
+
+@pytest.mark.parametrize('details', [{'prompt': 'private'}, {'vector_search_ms': True},
+                                     {'vector_search_ms': float('nan')}, {'chunk_load_ms': -1}])
+def test_retrieval_details_reject_content_and_invalid_numbers(details):
+    from server.app.drop_insight.business_observations import OfficeObservation
+    with pytest.raises(ValueError):
+        OfficeObservation.validate_retrieval_details(details)
 
 
 def test_office_store_preserves_bounded_content_free_history_across_restart(tmp_path, monkeypatch):

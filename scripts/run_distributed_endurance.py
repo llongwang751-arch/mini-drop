@@ -93,7 +93,7 @@ def emit(value):
     print(json.dumps(value, allow_nan=False), flush=True)
 
 
-def serve_remote(output, run_id, dependency_latency_ms):
+def serve_remote(output, run_id, dependency_latency_ms, cache_rerank=False):
     if not re.fullmatch(r"[0-9a-f]{32}", run_id):
         raise ValueError("invalid campaign ID")
     if not 0 <= dependency_latency_ms <= 100:
@@ -104,7 +104,7 @@ def serve_remote(output, run_id, dependency_latency_ms):
     watchdog.daemon = True
     watchdog.start()
     frozen = sources()
-    service = KnowledgeService(Settings(dependency_latency_ms=dependency_latency_ms))
+    service = KnowledgeService(Settings(dependency_latency_ms=dependency_latency_ms, cache_rerank=cache_rerank))
     http = serve(service, port=0)
     server = threading.Thread(target=http.serve_forever, daemon=True)
     server.start()
@@ -205,7 +205,8 @@ def run(output, plan, host, remote_root, remote_output, python="python3", identi
     write_json(path, report)
     command = "cd " + shlex.quote(remote_root) + " && exec " + shlex.join([
         python, "-u", "scripts/run_distributed_endurance.py", "--serve", "--output", remote_output,
-        "--run-id", run_id, "--dependency-latency-ms", str(plan.dependency_latency_ms)])
+        "--run-id", run_id, "--dependency-latency-ms", str(plan.dependency_latency_ms),
+        *(['--cache-rerank'] if plan.cache_rerank else [])])
     child = tunnel = None
     try:
         with (output / "ssh.stderr.log").open("x", encoding="utf-8") as errors:
@@ -312,13 +313,17 @@ if __name__ == "__main__":
     parser.add_argument("--serve", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--run-id", help=argparse.SUPPRESS)
     parser.add_argument("--dependency-latency-ms", type=int, default=10, help=argparse.SUPPRESS)
+    parser.add_argument('--cache-rerank', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--no-connection-reuse', action='store_true')
+    parser.add_argument('--no-rerank-cache', action='store_true')
     args = parser.parse_args()
     if args.serve:
-        serve_remote(args.output, args.run_id, args.dependency_latency_ms)
+        serve_remote(args.output, args.run_id, args.dependency_latency_ms, args.cache_rerank)
     else:
         if not all((args.host, args.remote_root, args.remote_output)):
             parser.error("--host, --remote-root and --remote-output are required")
         result = run(args.output, Plan(rates=tuple(args.rates), step_seconds=args.step_seconds,
-                     soak_seconds=args.soak_seconds, concurrency=args.concurrency), args.host,
+                 soak_seconds=args.soak_seconds, concurrency=args.concurrency,
+                 reuse_connections=not args.no_connection_reuse, cache_rerank=not args.no_rerank_cache), args.host,
                      args.remote_root, args.remote_output, args.remote_python, args.identity)
         raise SystemExit(0 if result["status"] == "PASSED" else 1)

@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 import hashlib
+import http.client
 import json
 import math
 import os
@@ -23,6 +24,7 @@ import threading
 import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -46,8 +48,12 @@ class Plan:
     max_dispatch_lag_ms: float = 250
     minimum_samples: int = 30
     dependency_latency_ms: int = 10
+    reuse_connections: bool = True
+    cache_rerank: bool = True
 
     def validate(self):
+        if type(self.reuse_connections) is not bool or type(self.cache_rerank) is not bool:
+            raise ValueError("connection reuse and rerank cache must be booleans")
         integers = (self.step_seconds, self.soak_rate, self.soak_seconds,
                     self.recovery_seconds, self.bucket_seconds, self.concurrency,
                     self.minimum_samples, *self.rates)
@@ -153,7 +159,63 @@ def campaign_status(stages):
     return "PASSED"
 
 
-def request(endpoint, index, due, origin, timeout):
+class FixtureTransport:
+    """One connection per executor thread; errors are recorded, never retried."""
+
+    def __init__(self):
+        self.local = threading.local()
+        self.connections = set()
+        self.lock = threading.Lock()
+
+    def post(self, endpoint, payload, timeout):
+        url = urlsplit(endpoint)
+        if url.scheme != 'http' or url.hostname != '127.0.0.1' or url.username or url.password:
+            raise ValueError('fixture transport only accepts local HTTP')
+        key = (url.hostname, url.port or 80, timeout)
+        connection = getattr(self.local, 'connection', None)
+        if connection is None or self.local.key != key:
+            if connection is not None:
+                connection.close()
+                with self.lock:
+                    self.connections.discard(connection)
+            connection = http.client.HTTPConnection(key[0], key[1], timeout=timeout)
+            self.local.connection, self.local.key = connection, key
+            with self.lock:
+                self.connections.add(connection)
+        started = time.perf_counter()
+        try:
+            new_connection = connection.sock is None
+            if new_connection:
+                connection.connect()
+            connected = time.perf_counter()
+            connection.request('POST', url.path or '/', payload,
+                               {'Content-Type': 'application/json'})
+            written = time.perf_counter()
+            response = connection.getresponse()
+            headers = time.perf_counter()
+            raw = response.read()
+            ended = time.perf_counter()
+            timing = {'new_connection': new_connection,
+                      'connect_ms': (connected-started)*1000,
+                      'write_ms': (written-connected)*1000,
+                      'headers_ms': (headers-written)*1000,
+                      'read_ms': (ended-headers)*1000}
+            return response.status, raw, timing
+        except Exception:
+            connection.close()
+            with self.lock:
+                self.connections.discard(connection)
+            self.local.connection = None
+            raise
+
+    def close(self):
+        # The executor is joined before closing sockets; no active calls race.
+        for connection in self.connections:
+            connection.close()
+        self.connections.clear()
+
+
+def request(endpoint, index, due, origin, timeout, transport=None):
     started = time.perf_counter()
     row = {"index": index, "scheduled_offset_seconds": due - origin,
            "sent": True, "dispatch_lag_ms": max(0, (started - due) * 1000),
@@ -162,14 +224,18 @@ def request(endpoint, index, due, origin, timeout):
     try:
         req = Request(endpoint, data=json.dumps({"question": question}).encode(),
                       headers={"Content-Type": "application/json"}, method="POST")
-        with urlopen(req, timeout=timeout) as response:
-            row["http_status"] = response.status
-            body = json.load(response)
-        row["success"] = body.get("success") is True
+        if transport is None:
+            with urlopen(req, timeout=timeout) as response:
+                row["http_status"] = response.status
+                body = json.load(response)
+        else:
+            row['http_status'], raw, row['client_timing'] = transport.post(endpoint, req.data, timeout)
+            body = json.loads(raw)
+        row["success"] = row['http_status'] == 200 and body.get("success") is True
         row["quality_passed"] = row["success"] and expected in body.get("citations", [])
         row["trace_id"] = body.get("trace_id")
         row["stage_ms"] = body.get("stage_ms", {})
-        row["error"] = body.get("error")
+        row["error"] = body.get("error") or ('HTTP_ERROR' if row['http_status'] != 200 else None)
     except HTTPError as exc:
         row["http_status"] = exc.code
         row["error"] = "HTTP_ERROR"
@@ -192,27 +258,32 @@ def measure(endpoint, name, rate, seconds, plan, output):
             raw.write(json.dumps(row, allow_nan=False) + "\n")
             raw.flush()
 
-        with ThreadPoolExecutor(max_workers=plan.concurrency) as pool:
-            for index in range(rate * seconds):
-                due = origin + index / rate
-                time.sleep(max(0, due - time.perf_counter()))
-                done = {f for f in pending if f.done()}
-                for future in done:
+        transport = FixtureTransport() if plan.reuse_connections else None
+        try:
+            with ThreadPoolExecutor(max_workers=plan.concurrency) as pool:
+                for index in range(rate * seconds):
+                    due = origin + index / rate
+                    time.sleep(max(0, due - time.perf_counter()))
+                    done = {f for f in pending if f.done()}
+                    for future in done:
+                        record(future.result())
+                    pending -= done
+                    if len(pending) >= plan.concurrency:
+                        record({"index": index, "scheduled_offset_seconds": index / rate,
+                                "sent": False, "dispatch_lag_ms": max(0, (time.perf_counter() - due) * 1000),
+                                "latency_ms": None, "success": False, "quality_passed": False,
+                                "http_status": None, "error": "CLIENT_INFLIGHT_LIMIT"})
+                    else:
+                        pending.add(pool.submit(request, endpoint, index, due, origin, plan.timeout_seconds, transport))
+                    if time.perf_counter() >= next_progress:
+                        print(json.dumps({"phase": name, "offered": index + 1,
+                                          "recorded": len(rows), "inflight": len(pending)}), flush=True)
+                        next_progress = time.perf_counter() + 30
+                for future in pending:
                     record(future.result())
-                pending -= done
-                if len(pending) >= plan.concurrency:
-                    record({"index": index, "scheduled_offset_seconds": index / rate,
-                            "sent": False, "dispatch_lag_ms": max(0, (time.perf_counter() - due) * 1000),
-                            "latency_ms": None, "success": False, "quality_passed": False,
-                            "http_status": None, "error": "CLIENT_INFLIGHT_LIMIT"})
-                else:
-                    pending.add(pool.submit(request, endpoint, index, due, origin, plan.timeout_seconds))
-                if time.perf_counter() >= next_progress:
-                    print(json.dumps({"phase": name, "offered": index + 1,
-                                      "recorded": len(rows), "inflight": len(pending)}), flush=True)
-                    next_progress = time.perf_counter() + 30
-            for future in pending:
-                record(future.result())
+        finally:
+            if transport is not None:
+                transport.close()
         time.sleep(max(0, origin + seconds - time.perf_counter()))
     elapsed = time.perf_counter() - origin
     buckets = []
@@ -232,7 +303,8 @@ def measure(endpoint, name, rate, seconds, plan, output):
 def fixture(output, plan):
     with (output / "fixture.stderr.log").open("x", encoding="utf-8") as errors:
         child = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "--serve-fixture",
-                                  "--dependency-latency-ms", str(plan.dependency_latency_ms)],
+                                  "--dependency-latency-ms", str(plan.dependency_latency_ms),
+                                  *(['--cache-rerank'] if plan.cache_rerank else [])],
                                  cwd=ROOT, stdout=subprocess.PIPE, stderr=errors, text=True)
         ready = queue.Queue()
         reader = threading.Thread(target=lambda: ready.put(child.stdout.readline()), daemon=True)
@@ -332,9 +404,10 @@ if __name__ == "__main__":
     parser.add_argument("--step-seconds", type=int, help="Duration of each staircase step; default 15")
     parser.add_argument("--serve-fixture", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--dependency-latency-ms", type=int, default=10, help=argparse.SUPPRESS)
+    parser.add_argument('--cache-rerank', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.serve_fixture:
-        service = KnowledgeService(Settings(dependency_latency_ms=args.dependency_latency_ms))
+        service = KnowledgeService(Settings(dependency_latency_ms=args.dependency_latency_ms, cache_rerank=args.cache_rerank))
         http = serve(service, port=0)
         print(json.dumps({"port": http.server_port}), flush=True)
         http.serve_forever()

@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2049 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2051 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2918,7 +2918,7 @@ python scripts/render_learning_guide.py
 | `demo/python-hotspot/app.py` | python-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `CpuFault`、`source_hot_function`、`SourceHotspotFault`、`MemoryFault`、`IoFault` 等 21 个声明 |
 | `demo/python-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `demo/rag_service/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
-| `demo/rag_service/app.py` | rag_service 受控故障实验室的源码、依赖或镜像构建文件。 | `Settings`、`KnowledgeService`、`serve` |
+| `demo/rag_service/app.py` | rag_service 受控故障实验室的源码、依赖或镜像构建文件。 | `Settings`、`lexical_score`、`KnowledgeService`、`serve` |
 
 ### 34.10 integrations：真实业务源码接入与独立验收适配器
 
@@ -2933,7 +2933,7 @@ python scripts/render_learning_guide.py
 | `integrations/agi_saber/patches/long-ingest-batch.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/milvus-lite.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
-| `integrations/agi_saber/request_observations.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
+| `integrations/agi_saber/request_observations.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
 | `integrations/agi_saber/requirements-vector.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/service.py` | 独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。 | `trace_identity`、`corpus`、`source_fingerprint`、`ActualRagService`、`serve` |
 | `integrations/agi_saber/traffic.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `main` |
@@ -3016,7 +3016,7 @@ python scripts/render_learning_guide.py
 | `tests/test_agent_model_options.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `test_provider_options_stay_scoped` |
 | `tests/test_agentic_rag.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `isolated_database`、`test_hybrid_retrieval_returns_auditable_source_and_best_markdown_chunk`、`test_retrieval_returns_empty_for_unrelated_query`、`test_retrieval_trace_explicitly_refuses_to_be_incident_evidence`、`test_langgraph_planner_receives_and_returns_the_same_retrieval_trace` 等 9 个声明 |
 | `tests/test_agi_saber_application_metrics.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_asgi_metrics_publish_bounded_request_aggregates` |
-| `tests/test_agi_saber_request_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_office_store_is_bounded_and_content_free`、`test_office_store_preserves_bounded_content_free_history_across_restart`、`test_office_store_does_not_carry_forward_private_or_oversized_snapshot`、`test_exercise_scope_is_request_local_and_only_marks_chat`、`test_retrieval_fault_is_bounded_to_one_call_per_window` 等 6 个声明 |
+| `tests/test_agi_saber_request_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_office_store_is_bounded_and_content_free`、`test_parallel_embedding_intervals_do_not_erase_retrieval_or_injected_wait`、`test_excluded_spans_are_clipped_to_search_window_and_not_double_subtracted`、`test_retrieval_details_reject_content_and_invalid_numbers`、`test_office_store_preserves_bounded_content_free_history_across_restart` 等 9 个声明 |
 | `tests/test_ai_provider.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_ai_defaults_use_official_deepseek_chat`、`test_ai_mode_none_disables_all`、`test_ai_mode_nlp_only`、`test_ai_custom_provider_env`、`test_ai_http_client_reuses_thread_local_connection_pool` 等 10 个声明 |
 | `tests/test_analysis_jobs.py` | Python 自动化测试，验证分析任务与质量状态的成功、失败与边界条件。 | `repo`、`test_enqueue_is_idempotent_for_same_input`、`test_analyzer_registry_is_version_aware`、`test_each_collector_contract_has_a_versioned_analyzer`、`test_analysis_job_can_enrich_existing_output_metadata` 等 24 个声明 |
 | `tests/test_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `TestParseTop`、`test_perf_script_omits_event_period_so_sample_count_is_observation_count`、`TestFlameTree`、`TestRules`、`TestAnalyzerConfig` 等 7 个声明 |
@@ -3066,6 +3066,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fault_plaza_closure_campaign.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_decisive_collector_is_scenario_evidence_contract_not_list_position`、`test_scenario_pass_requires_diagnosis_chain_and_cleanup`、`test_scenario_keeps_diagnosis_failure_and_still_cleans_up`、`test_scenario_caps_diagnosis_before_the_fault_lab_dead_man_switch`、`test_campaign_persists_an_atomic_running_checkpoint` 等 6 个声明 |
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed`、`test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary` 等 18 个声明 |
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
+| `tests/test_fixture_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `endpoint`、`ask`、`test_real_connection_reuse_preserves_quality_and_http_errors_without_retry`、`test_invalid_json_remains_a_failed_attempt_with_its_http_status`、`test_pool_cannot_be_used_as_an_arbitrary_remote_http_client` 等 8 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
@@ -3157,7 +3158,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_fault_plaza_closure_campaign.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
 | `scripts/run_fault_plaza_strict_acceptance.py` | 21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。 | `now`、`RecordingClient`、`measure`、`evaluate_window_identity`、`evaluate_intervention` 等 10 个声明 |
 | `scripts/run_live_skill_ab_campaign.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `Client`、`run_one`、`main` |
-| `scripts/run_load_endurance.py` | 独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。 | `Plan`、`write_json`、`percentile`、`summarize`、`capacity_summary` 等 11 个声明 |
+| `scripts/run_load_endurance.py` | 独立 HTTP 子进程阶梯负载、恢复和持续请求，保留发压限制、窗口结论与全部原始槽位。 | `Plan`、`write_json`、`percentile`、`summarize`、`capacity_summary` 等 12 个声明 |
 | `scripts/run_multi_cloud_acceptance.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
 | `scripts/run_quality_gate.py` | 一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
 | `scripts/run_root_cause_benchmark.py` | 运行根因 Top-1 与 500 组 Skill A/B 并输出报告。 | `main` |
@@ -3564,6 +3565,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/performance-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/resource-controls-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

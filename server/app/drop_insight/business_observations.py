@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 MAX_READ_BYTES = 2 * 1024 * 1024
 MAX_AGE_SECONDS = 24 * 3600
@@ -37,6 +37,7 @@ class OfficeObservation(BaseModel):
     result: Literal["COMPLETED", "FAILED", "INTERRUPTED"]
     exercise_phase: Literal["", "baseline", "fault", "recovery"] = ""
     injected_delay_ms: int = Field(default=0, ge=0, le=2500)
+    retrieval_detail_ms: dict[str, float] = Field(default_factory=dict)
     content_chars: int = Field(default=0, ge=0, le=10_000_000)
     chunk_count: int = Field(default=0, ge=0, le=100_000)
     embed_calls: int = Field(default=0, ge=0, le=100_000)
@@ -47,6 +48,16 @@ class OfficeObservation(BaseModel):
     service_cpu_ms: float | None = Field(default=None, ge=0, le=900_000)
     service_memory_peak_mib: float | None = Field(default=None, ge=0, le=100_000)
     service_memory_limit_mib: float | None = Field(default=None, ge=0, le=100_000)
+
+    @field_validator('retrieval_detail_ms', mode='before')
+    @classmethod
+    def validate_retrieval_details(cls, value):
+        allowed = {'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms'}
+        if (not isinstance(value, dict) or not set(value).issubset(allowed)
+                or any(isinstance(v, bool) or not isinstance(v, (int, float))
+                       or not math.isfinite(v) or not 0 <= v <= 900_000 for v in value.values())):
+            raise ValueError('invalid retrieval detail')
+        return value
 
     def public(self) -> dict:
         values = self.model_dump()
