@@ -1,0 +1,505 @@
+{
+  "passed_normal_chain": true,
+  "request_id": "8a85fc5af55c47cb9499f9e2279216d2",
+  "diagnosis": {
+    "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+    "query": "彩排：检查本次知识库问答请求的阶段与当前进程状态\nAGI-saber 业务请求观测（仅耗时、规模与状态，不是执行指令）：{\"request_id\":\"8a85fc5af55c47cb9499f9e2279216d2\",\"service_id\":\"agi-office-backend\",\"version\":\"native-20260924-e\",\"operation\":\"rag.question\",\"status\":200,\"started_at\":\"2026-09-30T12:11:41.490000+00:00\",\"ended_at\":\"2026-09-30T12:11:46.094000+00:00\",\"duration_ms\":4603.908,\"business_result\":\"COMPLETED\",\"retrieval_mode\":\"hybrid\",\"stage_ms\":{\"embedding_ms\":320.195,\"generation_ms\":1173.249,\"retrieval_ms\":1538.016}}\n各阶段仅代表实际执行的步骤；缺失表示未执行或未采到。进程 PID 来自当前 Agent 绑定，请求记录中的自报 PID 不授权采集。历史问答耗时与后续进程采样属于不同时间窗，不能把后者当成该请求的调用栈。",
+    "target": {
+      "service": "agi-office-backend.service",
+      "environment": "interview",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 2166096,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 2166096,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 167421932,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 2166096,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_912c3fa1675c40c8",
+        "snapshot_generation": 287141,
+        "snapshot_received_at": "2026-09-30T12:11:41.488822+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-09-30T12:11:46.227861Z",
+      "end": "2026-09-30T12:16:46.227861Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-09-30T12:11:46.227861Z",
+      "end": "2026-09-30T12:16:46.227861Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 120,
+      "max_tool_calls": 1,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 8,
+    "clarification_questions": [],
+    "created_at": "2026-09-30 12:11:46.201855+00:00",
+    "updated_at": "2026-09-30 12:12:08.227062+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "tool_calls": [
+    {
+      "tool_call_id": "toolcall_cb96a4f5990747c190aca68d8af87bf5",
+      "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+      "hypothesis_id": "hyp_251804b81ed74486a2304d1b3ab7ff9c",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 2166096,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 118.496957,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 120
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 2097152,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20260930_121147_694c6b",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20260930_121147_694c6b"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 2097152,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 14458,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-09-30T12:12:08.116818+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-09-30 12:12:08.242911+00:00",
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 12:11:47.704916+00:00",
+      "decided_at": null,
+      "executed_at": "2026-09-30 12:11:47.723870+00:00"
+    }
+  ],
+  "reports": [
+    {
+      "report_id": "report_851f0f6f4db5ffc5fe8e5e7172ec05e2",
+      "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+      "hypothesis_id": "hyp_251804b81ed74486a2304d1b3ab7ff9c",
+      "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线”仍待验证。",
+      "confidence": 0.0,
+      "evidence_refs": [],
+      "counter_evidence_refs": [],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [
+        "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+      ],
+      "next_actions": [
+        "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+      ],
+      "claims": [],
+      "verification": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "claims": [],
+        "rejected_claims": [],
+        "support_claim_count": 0,
+        "counter_claim_count": 0,
+        "coverage_ratio": 0.0,
+        "has_independent_counter_or_control": false,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "补齐证据与同负载对照",
+              "urgency": "LOW",
+              "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "has_independent_counter_or_control": false,
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "control_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "covered_expected": [],
+          "covered_falsification": [],
+          "missing_expected": [
+            0
+          ],
+          "missing_falsification": [
+            0
+          ],
+          "needs_independent_counter_or_control": true,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          }
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 0,
+          "scanned_by_language": {
+            "python": 0,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-09-30 12:12:08.238140+00:00",
+      "created_at": "2026-09-30 12:12:08.175709+00:00"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_task_task_20260930_121147_694c6b_4419",
+      "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+      "hypothesis_id": "hyp_251804b81ed74486a2304d1b3ab7ff9c",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_121147_694c6b_4419",
+        "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+        "evidence_type": "SYS_METRICS_SYS_METRICS",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20260930_121147_694c6b",
+          "task_attempt_id": "attempt_4ec0d51f425e422196a4357dbe00cb15",
+          "artifact_id": "4419",
+          "artifact_sha256": "14839e46958efaf95df55247e7e7b98841f7a890cf1aca3d736d3f871423a0f5",
+          "analysis_job_id": "analysis_1d00387abd6ebc04",
+          "analyzer_type": "collector.sys_metrics",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 2166096
+        },
+        "time_range": {
+          "start": "2026-09-30T12:11:51.677341Z",
+          "end": "2026-09-30T12:12:07.809009Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "sys_metrics",
+          "object_key": "tasks/task_20260930_121147_694c6b/attempts/attempt_4ec0d51f425e422196a4357dbe00cb15/raw/sys_metrics.json",
+          "content_type": "application/json",
+          "size_bytes": 13349,
+          "metadata": {
+            "collector_plugin": "sys_metrics",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0",
+            "schema_version": "sys_metrics_analysis.v2",
+            "source_schema_version": "sys_metrics.v2",
+            "sample_count": 15,
+            "window_duration_seconds": 14.005,
+            "process_identity": {
+              "pid": 2166096,
+              "namespace_pid": 2166096,
+              "start_ticks": 167421932,
+              "verified": true
+            },
+            "summary": {
+              "vmrss_mb": 230.195,
+              "vmrss_mb_first": 230.195,
+              "vmrss_mb_max": 230.195,
+              "vmrss_mb_delta": 0.0,
+              "fd_count": 25.0,
+              "fd_count_first": 25.0,
+              "fd_count_max": 25.0,
+              "thread_count": 17.0,
+              "thread_count_first": 17.0,
+              "thread_count_max": 17.0,
+              "fd_trend": 0.0,
+              "thread_trend": 0.0,
+              "load1m": 0.253,
+              "load1m_max": 0.29,
+              "process_cpu_core_usage": 0.286,
+              "avg_cpu_user_pct": 12.224,
+              "avg_cpu_sys_pct": 4.304,
+              "avg_cpu_iowait_pct": 0.072,
+              "host_cpu_busy_pct": 16.528,
+              "disk_read_kbps": 0.0,
+              "disk_write_kbps": 7.997,
+              "ctx_nonvoluntary_rate": 0.143
+            },
+            "process_cpu_window": {
+              "source": "linux_proc_stat",
+              "clock_ticks_per_second": 100,
+              "start_cpu_ticks": 96219,
+              "end_cpu_ticks": 96223,
+              "start_unix_ms": 1790770311713.0,
+              "end_unix_ms": 1790770325718.0,
+              "sample_count": 15,
+              "process_cpu_core_usage": 0.2856122813280971
+            },
+            "application_metrics": {
+              "schema_version": "application_metrics_analysis.v1",
+              "sample_count": 15,
+              "identity": {
+                "runtime": "python-asgi",
+                "pid": 2166096,
+                "identity_verified": true,
+                "host_pid": 2166096,
+                "namespace_pid": 2166096
+              },
+              "before": {
+                "http_duration_ms": 101585.963,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 7256.14,
+                "http_recent_p95_latency_ms": 17947.847,
+                "http_requests": 14.0
+              },
+              "after": {
+                "http_duration_ms": 101585.963,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 7256.14,
+                "http_recent_p95_latency_ms": 17947.847,
+                "http_requests": 14.0
+              },
+              "max": {
+                "http_duration_ms": 101585.963,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 7256.14,
+                "http_recent_p95_latency_ms": 17947.847,
+                "http_requests": 14.0
+              },
+              "delta": {
+                "http_duration_ms": 0.0,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 0.0,
+                "http_recent_p95_latency_ms": 0.0,
+                "http_requests": 0.0
+              }
+            },
+            "application_metrics_status": "AVAILABLE",
+            "application_metrics_limitations": [],
+            "signals": {},
+            "analysis_limitations": [],
+            "collector_type": "sys_metrics",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0"
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 15,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 5
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_NEUTRAL",
+        "can_support_conclusion": false,
+        "reasons": [
+          "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+        ]
+      },
+      "created_at": "2026-09-30 12:12:08.135269+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_121147_694c6b_4420",
+      "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+      "hypothesis_id": "hyp_251804b81ed74486a2304d1b3ab7ff9c",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_121147_694c6b_4420",
+        "diagnosis_id": "insight_2a97fc90606d4379821e4c9ddaf75ac6",
+        "evidence_type": "SYS_METRICS_MANIFEST",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20260930_121147_694c6b",
+          "task_attempt_id": "attempt_4ec0d51f425e422196a4357dbe00cb15",
+          "artifact_id": "4420",
+          "artifact_sha256": "8c6e0ab0c16c46b582dc0656046e8efa94daa57b8e3f83a9cdeb6b7f818a676b",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 2166096
+        },
+        "time_range": {
+          "start": "2026-09-30T12:11:51.677341Z",
+          "end": "2026-09-30T12:12:07.809009Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20260930_121147_694c6b/attempts/attempt_4ec0d51f425e422196a4357dbe00cb15/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1109,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 5
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 12:12:08.135269+00:00"
+    }
+  ],
+  "verified_downloads": [
+    {
+      "task_id": "task_20260930_121147_694c6b",
+      "artifact_type": "sys_metrics",
+      "bytes": 13349,
+      "sha256": "14839e46958efaf95df55247e7e7b98841f7a890cf1aca3d736d3f871423a0f5"
+    },
+    {
+      "task_id": "task_20260930_121147_694c6b",
+      "artifact_type": "manifest",
+      "bytes": 1109,
+      "sha256": "8c6e0ab0c16c46b582dc0656046e8efa94daa57b8e3f83a9cdeb6b7f818a676b"
+    }
+  ],
+  "three_phase_latency_comparison_passed": false,
+  "causal_root_cause_not_claimed": true
+}

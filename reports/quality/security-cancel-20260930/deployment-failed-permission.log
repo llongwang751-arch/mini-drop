@@ -1,0 +1,103 @@
+Sending build context to Docker daemon  33.81MB
+
+Step 1/4 : FROM sha256:41d19a56b343ba7d8f86961e58b45a618c3200862faebfb14fe040c73d884cec
+ ---> 41d19a56b343
+Step 2/4 : COPY server/ /app/server/
+ ---> 00ae9fd1276e
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> fcb813af7e4f
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> d9253235aff5
+Successfully built d9253235aff5
+Successfully tagged mini-drop-diagnosis-worker:20260930T114936Z
+candidate imports passed
+Sending build context to Docker daemon  33.81MB
+
+Step 1/4 : FROM sha256:1bf47a6f5fc24bbbf9e4dcb743f805b75523533d141c8be31aa27e5ec54369f6
+ ---> 1bf47a6f5fc2
+Step 2/4 : COPY server/ /app/server/
+ ---> a6046db1e665
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> 22d782e97d99
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> 8a57b9d0989a
+Successfully built 8a57b9d0989a
+Successfully tagged mini-drop-analyzer:20260930T114936Z
+candidate imports passed
+Sending build context to Docker daemon  33.81MB
+
+Step 1/2 : FROM sha256:3e7bb4adca203a42c19333f20711d66f6f7f20ceb314901e3bed333f12589a2e
+ ---> 3e7bb4adca20
+Step 2/2 : COPY deploy/bin/apiserver /usr/local/bin/mini-drop-apiserver
+ ---> 55e77d54f2ba
+Successfully built 55e77d54f2ba
+Successfully tagged mini-drop-apiserver:20260930T114936Z
+Sending build context to Docker daemon  33.81MB
+
+Step 1/2 : FROM sha256:3c5fc36eca38c29da4a328fc490c1f2c3f67371bd2bc64c4a2be3df5d8a28549
+ ---> 3c5fc36eca38
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 536f9045c9a9
+Successfully built 536f9045c9a9
+Successfully tagged mini-drop-web:20260930T114936Z
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+time="2026-09-30T19:54:05+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started
+time="2026-09-30T19:54:18+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-apiserver-1  Recreate
+ Container mini-drop-control-apiserver-1  Recreated
+ Container mini-drop-control-apiserver-1  Starting
+Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: "/usr/local/bin/mini-drop-apiserver": permission denied
+time="2026-09-30T19:54:19+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-diagnosis-worker-1  Recreate
+ Container mini-drop-control-diagnosis-worker-1  Recreated
+ Container mini-drop-control-diagnosis-worker-1  Starting
+ Container mini-drop-control-diagnosis-worker-1  Started
+time="2026-09-30T19:54:43+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-analyzer-1  Recreate
+ Container mini-drop-control-analyzer-1  Recreated
+ Container mini-drop-control-analyzer-1  Starting
+ Container mini-drop-control-analyzer-1  Started
+time="2026-09-30T19:55:06+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-apiserver-1  Recreate
+ Container mini-drop-control-apiserver-1  Recreated
+ Container mini-drop-control-apiserver-1  Starting
+ Container mini-drop-control-apiserver-1  Started
+time="2026-09-30T19:55:16+08:00" level=warning msg="Found orphan containers ([mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started
+Traceback (most recent call last):
+  File "/root/incoming-20260930T114936Z/deploy_runtime.py", line 164, in <module>
+    main()
+  File "/root/incoming-20260930T114936Z/deploy_runtime.py", line 134, in main
+    compose('runtime.compose.json', service)
+  File "/root/incoming-20260930T114936Z/deploy_runtime.py", line 130, in compose
+    subprocess.run(['docker', 'compose', '-p', 'mini-drop-control', '-f', str(private / file),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'compose', '-p', 'mini-drop-control', '-f', '/opt/mini-drop-releases/20260930T114936Z/private/runtime.compose.json', 'up', '-d', '--no-deps', '--no-build', '--pull', 'never', 'apiserver']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['python3', '/root/incoming-20260930T114936Z/deploy_runtime.py']' returned non-zero exit status 1.

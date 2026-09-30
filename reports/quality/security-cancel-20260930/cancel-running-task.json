@@ -1,0 +1,257 @@
+{
+  "diagnosis_id": "insight_18eb33865a824029a44586583252b788",
+  "task_id": "task_20260930_120557_7b721e",
+  "requested_duration_seconds": 60,
+  "observed_exit_seconds": 10.292523500000243,
+  "agent_events": {
+    "method": "next_task_claim_requires_prior_collector_join",
+    "follow_up_task": {
+      "agent_id": "control-interview-demo-agent",
+      "analysis_status": "SUCCESS",
+      "collection_status": "COLLECTED",
+      "collector_type": "sys_metrics",
+      "created_at": "2026-09-30T12:06:01.948187Z",
+      "duration_sec": 5,
+      "error_code": null,
+      "error_message": null,
+      "finished_at": "2026-09-30T12:06:17.767609Z",
+      "id": "task_20260930_120601_395ff8",
+      "name": "Drop Insight: collect_sys_metrics",
+      "request_params": {
+        "agent_id": "control-interview-demo-agent",
+        "collector_type": "sys_metrics",
+        "duration_sec": 5,
+        "name": "Drop Insight: collect_sys_metrics",
+        "options": {
+          "diagnosis_step_id": "toolcall_93ca1a46ac8c4651af2a7345d4885c9a",
+          "drop_insight_diagnosis_id": "insight_00512a37e2064f3ebf6b27173f08003e",
+          "drop_insight_tool_call_id": "toolcall_93ca1a46ac8c4651af2a7345d4885c9a"
+        },
+        "process_binding": {
+          "agent_id": "control-interview-demo-agent",
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "executable_identity": "python3.12",
+          "namespace_pid": 2166096,
+          "pid": 2166096,
+          "pid_namespace_inode": 4026531836,
+          "process_snapshot_id": "psnap_57bed190e9e097e0",
+          "process_start_ticks": 167421932,
+          "snapshot_generation": 287074,
+          "snapshot_received_at": "2026-09-30T12:06:01.455417Z"
+        },
+        "sample_rate": 99,
+        "target_pid": 2166096
+      },
+      "sample_rate": 99,
+      "started_at": "2026-09-30T12:06:11.791087Z",
+      "status": "DONE",
+      "status_reason": "系统指标产物已完成兼容契约校验",
+      "target_pid": 2166096
+    },
+    "cancel_to_next_claim_seconds": 10.292523500000243,
+    "original_duration_seconds": 60
+  },
+  "diagnosis": {
+    "diagnosis_id": "insight_18eb33865a824029a44586583252b788",
+    "query": "验收：采样运行中主动停止，保留已有记录",
+    "target": {
+      "service": "agi-office-backend.service",
+      "environment": "interview",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 2166096,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 2166096,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 167421932,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 2166096,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_1fdffaabd9d8b32b",
+        "snapshot_generation": 287073,
+        "snapshot_received_at": "2026-09-30T12:05:56.398225+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-09-30T12:05:57.494727Z",
+      "end": "2026-09-30T12:10:57.494727Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-09-30T12:05:57.494727Z",
+      "end": "2026-09-30T12:10:57.494727Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "ASSISTED",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 120,
+      "max_tool_calls": 1,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "CANCELLED",
+    "version": 4,
+    "clarification_questions": [],
+    "created_at": "2026-09-30 12:05:57.468605+00:00",
+    "updated_at": "2026-09-30 12:06:01.755685+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "task": {
+    "agent_id": "control-interview-demo-agent",
+    "analysis_status": "CANCELED",
+    "collection_status": "CANCELED",
+    "collector_type": "sys_metrics",
+    "created_at": "2026-09-30T12:05:57.572356Z",
+    "duration_sec": 60,
+    "error_code": "TASK_CANCELED",
+    "error_message": "运行中取消验收",
+    "finished_at": "2026-09-30T12:06:01.761591Z",
+    "id": "task_20260930_120557_7b721e",
+    "name": "Drop Insight: collect_sys_metrics",
+    "request_params": {
+      "agent_id": "control-interview-demo-agent",
+      "collector_type": "sys_metrics",
+      "duration_sec": 60,
+      "name": "Drop Insight: collect_sys_metrics",
+      "options": {
+        "diagnosis_step_id": "toolcall_6a432147a69147a2a5d842aa24b6e996",
+        "drop_insight_diagnosis_id": "insight_18eb33865a824029a44586583252b788",
+        "drop_insight_tool_call_id": "toolcall_6a432147a69147a2a5d842aa24b6e996"
+      },
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "executable_identity": "python3.12",
+        "namespace_pid": 2166096,
+        "pid": 2166096,
+        "pid_namespace_inode": 4026531836,
+        "process_snapshot_id": "psnap_1fdffaabd9d8b32b",
+        "process_start_ticks": 167421932,
+        "snapshot_generation": 287073,
+        "snapshot_received_at": "2026-09-30T12:05:56.398225Z"
+      },
+      "sample_rate": 99,
+      "target_pid": 2166096
+    },
+    "sample_rate": 99,
+    "started_at": "2026-09-30T12:06:01.455417Z",
+    "status": "CANCELLED",
+    "status_reason": "运行中取消验收",
+    "target_pid": 2166096
+  },
+  "tool_calls": {
+    "items": [
+      {
+        "tool_call_id": "toolcall_6a432147a69147a2a5d842aa24b6e996",
+        "diagnosis_id": "insight_18eb33865a824029a44586583252b788",
+        "hypothesis_id": null,
+        "tool_name": "collect_sys_metrics",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 2166096,
+          "duration_seconds": 60
+        },
+        "policy_decision": "ALLOW",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "NOT_REQUIRED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "PASS",
+            "remaining_seconds": null,
+            "required_seconds": 90
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 60,
+            "limit": 120
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 5
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 2097152,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "策略检查通过",
+        "status": "CANCELLED",
+        "task_id": "task_20260930_120557_7b721e",
+        "result": {
+          "error": "diagnosis_cancelled",
+          "reason": "运行中取消验收"
+        },
+        "budget_reservation": {
+          "duration_seconds": 60,
+          "artifact_bytes": 2097152,
+          "agent_id": "control-interview-demo-agent",
+          "concurrent_tasks": 1
+        },
+        "budget_settlement": {
+          "duration_seconds": 0,
+          "artifact_bytes": 0,
+          "released_at": "2026-09-30T12:06:01.755685+00:00",
+          "reason": "diagnosis_cancelled"
+        },
+        "budget_reservation_status": "RELEASED",
+        "terminal_processing_status": "REPORT_EFFECTS_DONE",
+        "terminal_processed_at": "2026-09-30 12:06:01.755685+00:00",
+        "requested_by": "legacy_admin",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-09-30 12:05:57.559970+00:00",
+        "decided_at": null,
+        "executed_at": "2026-09-30 12:05:57.578623+00:00"
+      }
+    ]
+  },
+  "passed": true
+}
