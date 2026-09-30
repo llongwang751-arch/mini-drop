@@ -193,7 +193,7 @@ def ssh_base(host, identity=None):
     return args, host
 
 
-def run(output, plan, host, remote_root, remote_output, python="python3", identity=None, tunnel_count=4):
+def run(output, plan, host, remote_root, remote_output, python="python3", identity=None, tunnel_count=1):
     plan.validate()
     if type(tunnel_count) is not int or not 1 <= tunnel_count <= 8:
         raise ValueError("SSH tunnel count must be an integer from 1 to 8")
@@ -333,7 +333,7 @@ if __name__ == "__main__":
     parser.add_argument("--remote-output")
     parser.add_argument("--remote-python", default="python3")
     parser.add_argument("--identity", type=Path)
-    parser.add_argument("--ssh-tunnels", type=int, default=4, help="Independent transports (1 to 8); no retries or omitted slow samples")
+    parser.add_argument("--ssh-tunnels", type=int, default=1, help="Independent transports (1 to 8, default 1); opt-in experiment, no retries or omitted slow samples")
     parser.add_argument("--soak-seconds", type=int, default=3600)
     parser.add_argument("--rates", type=int, nargs="+", default=[5, 20, 40, 60])
     parser.add_argument("--step-seconds", type=int, default=15)
