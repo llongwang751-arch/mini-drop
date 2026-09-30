@@ -97,7 +97,7 @@ it("submits only the selected request ID and rejects an expired selection", asyn
   expect(startManagedServiceDiagnosis).toHaveBeenCalledTimes(1);
 });
 
-it.each([[3507, true], [3407, false]])("checks both original 2000ms comparisons after preparation (%s)", async (faultMs, restored) => {
+it.each([[3507, true], [3407, false], [3448, false]])("checks both original 2000ms comparisons after preparation (%s)", async (faultMs, restored) => {
   const office = { ...entry, id: "agi-office-backend", observation_source: "agi_office_rag_snapshot" };
   const phases = ["", "baseline", "fault", "recovery"];
   let current = -1;
