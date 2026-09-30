@@ -80,7 +80,7 @@ describe("AIDiagnosis V2 workspace", () => {
       api.listDropInsightDiagnoses.mockResolvedValue([cancelled]);
       return cancelled;
     });
-    render(<AIDiagnosis />);
+    const view = render(<AIDiagnosis />);
     const stopButton = await screen.findByRole("button", { name: "停止诊断" });
     await waitFor(() => expect(stopButton).not.toBeDisabled());
     fireEvent.click(stopButton);
@@ -90,6 +90,9 @@ describe("AIDiagnosis V2 workspace", () => {
     await waitFor(() => expect(api.cancelDropInsightDiagnosis).toHaveBeenCalledWith("diag-1", { expected_version: 4 }));
     await waitFor(() => expect(screen.queryByRole("button", { name: "停止诊断" })).not.toBeInTheDocument());
     expect(await screen.findByText("只读记录")).toBeInTheDocument();
+    await screen.findByText("诊断已停止，已有记录已保留");
+    view.unmount();
+    expect(screen.queryByText("诊断已停止，已有记录已保留")).not.toBeInTheDocument();
   });
 
   it("hides cancellation on completed records", async () => {

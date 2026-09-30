@@ -175,6 +175,7 @@ function syncCaseQuery(value) {
 }
 
 export default function AIDiagnosis() {
+  const [messageApi, messageHolder] = message.useMessage();
   const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
   const [workspaceView, setWorkspaceView] = useState("workspace");
@@ -265,9 +266,9 @@ export default function AIDiagnosis() {
           ? `本次诊断已自动把 Skill 优化为 v${candidate.version}`
           : `本次诊断已自动生成候选 Skill v${candidate.version || 1}`;
         if (gate.eligible) {
-          message.success(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 0} 通过，等待人工批准发布`);
+          messageApi.success(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 0} 通过，等待人工批准发布`);
         } else {
-          message.warning(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 3} 通过，暂不投入复用`);
+          messageApi.warning(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 3} 通过，暂不投入复用`);
         }
       }
       return evaluated;
@@ -383,7 +384,7 @@ export default function AIDiagnosis() {
     } catch (error) {
       if (version === requestVersion.current) {
         setResourceErrors(["详情"]);
-        if (!background) message.error(error?.message || "诊断详情加载失败");
+        if (!background) messageApi.error(error?.message || "诊断详情加载失败");
       }
     } finally {
       if (version === requestVersion.current) setLoading(false);
@@ -427,7 +428,7 @@ export default function AIDiagnosis() {
     automaticSkillAttempts.current.add(selectedId);
     materializeDiagnosticSkill(selectedId, { notify: true }).catch((error) => {
       if (selectedId === selectedIdRef.current) {
-        message.info(error?.message || "本次可信诊断暂未形成可复用 Skill");
+        messageApi.info(error?.message || "本次可信诊断暂未形成可复用 Skill");
       }
     });
   }, [detail?.status, frozenReplay, latestVerifiedReport, materializeDiagnosticSkill, selectedId, sourceSkill, resources.reports]);
@@ -505,9 +506,9 @@ export default function AIDiagnosis() {
           await deleteDropInsightDiagnosis(item.diagnosis_id);
           if (selectedCase?.selection_key === item.selection_key) startBlankDiagnosis();
           await loadCases();
-          message.success("诊断已归档");
+          messageApi.success("诊断已归档");
         } catch (error) {
-          message.error(error?.message || "归档失败");
+          messageApi.error(error?.message || "归档失败");
         }
       },
     });
@@ -516,7 +517,7 @@ export default function AIDiagnosis() {
   async function createAndOpenDiagnosis(payload) {
     const text = String(payload?.query || "").trim();
     if (!text) {
-      message.info("请描述遇到的问题，例如：订单服务 CPU 飙高");
+      messageApi.info("请描述遇到的问题，例如：订单服务 CPU 飙高");
       return null;
     }
     setSending(true);
@@ -534,7 +535,7 @@ export default function AIDiagnosis() {
       await loadCases();
       return created;
     } catch (error) {
-      message.error(error?.message || "创建诊断失败");
+      messageApi.error(error?.message || "创建诊断失败");
       return null;
     } finally {
       setSending(false);
@@ -557,7 +558,7 @@ export default function AIDiagnosis() {
       mode: diagnosisRequest?.mode || (isExpert ? "ASSISTED" : "AUTONOMOUS"),
       auto_scope: diagnosisRequest?.auto_scope ?? !isExpert,
     });
-    if (created) message.success("已切换到真实诊断工作台");
+    if (created) messageApi.success("已切换到真实诊断工作台");
   }
 
   async function openDiagnosis(diagnosisId) {
@@ -573,7 +574,7 @@ export default function AIDiagnosis() {
       selectCase(normalizeCase(session));
       setWorkspaceView("workspace");
     } catch (error) {
-      message.error(error?.message || "诊断记录加载失败");
+      messageApi.error(error?.message || "诊断记录加载失败");
     }
   }
 
@@ -600,11 +601,11 @@ export default function AIDiagnosis() {
       }));
       setQuery("");
       setComposerAction("ADD_CONTEXT");
-      message.success(action === "ADD_CONTEXT" ? "补充信息已进入下一轮诊断" : "已记录人工干预并更新探索方向");
+      messageApi.success(action === "ADD_CONTEXT" ? "补充信息已进入下一轮诊断" : "已记录人工干预并更新探索方向");
       await Promise.all([loadSelectedDetail(selectedCase, { background: true }), loadCases()]);
       return saved;
     } catch (error) {
-      message.error(error?.message || "人工干预提交失败");
+      messageApi.error(error?.message || "人工干预提交失败");
       return null;
     } finally {
       setInterventionSubmitting(false);
@@ -614,7 +615,7 @@ export default function AIDiagnosis() {
   async function submitComposer() {
     if (!selectedId) return startNew();
     if (readOnly) {
-      message.info("该诊断已经结束，请点击“新建诊断”开启新的调查");
+      messageApi.info("该诊断已经结束，请点击“新建诊断”开启新的调查");
       return null;
     }
     return handleIntervention({ action: composerAction, message: query });
@@ -643,7 +644,7 @@ export default function AIDiagnosis() {
       });
       await loadSelectedDetail(selectedCase);
       await loadCases();
-    } catch (error) { message.error(error?.message || String(error)); }
+    } catch (error) { messageApi.error(error?.message || String(error)); }
   }
 
   async function handleUpdateToolArgs(toolCallId, argumentsObj) {
@@ -659,7 +660,7 @@ export default function AIDiagnosis() {
       await clarifyDropInsightDiagnosis(selectedId, payload);
       await runDropInsightPlanner(selectedId).catch(() => undefined);
       await loadSelectedDetail(selectedCase);
-    } catch (error) { message.error(error?.message || "提交澄清失败"); }
+    } catch (error) { messageApi.error(error?.message || "提交澄清失败"); }
     finally { setClarifying(false); }
   }
 
@@ -682,10 +683,10 @@ export default function AIDiagnosis() {
           }
           await loadCases();
           setPendingCancellation(null);
-          message.success("诊断已停止，已有记录已保留");
+          messageApi.success("诊断已停止，已有记录已保留");
         } catch (error) {
           if (selectedIdRef.current === id) await loadSelectedDetail(caseItem);
-          message.error(error?.message || "停止诊断失败，请刷新后重试");
+          messageApi.error(error?.message || "停止诊断失败，请刷新后重试");
         } finally { setCancelling(false); }
   }
 
@@ -695,7 +696,7 @@ export default function AIDiagnosis() {
     try {
       await advanceDropInsightOrchestrator(selectedId);
       await loadSelectedDetail(selectedCase);
-    } catch (error) { message.error(error?.message || "推进失败"); }
+    } catch (error) { messageApi.error(error?.message || "推进失败"); }
     finally { advancing.current = false; }
   }
 
@@ -704,18 +705,18 @@ export default function AIDiagnosis() {
     setFeedbackSubmitting(true);
     try {
       const saved = await submitDropInsightFeedback(selectedId, payload);
-      message.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
+      messageApi.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
       if (payload.feedback_label === "correct" && !sourceSkill) {
         try {
           await materializeDiagnosticSkill(selectedId, { notify: true });
         } catch (skillError) {
-          message.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
+          messageApi.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
         }
       }
       await loadSelectedDetail(selectedCase);
       await loadCases();
     } catch (error) {
-      message.error(error?.message || "反馈提交失败");
+      messageApi.error(error?.message || "反馈提交失败");
     } finally { setFeedbackSubmitting(false); }
   }
 
@@ -726,10 +727,10 @@ export default function AIDiagnosis() {
       const evaluated = await evaluateDiagnosticSkill(skill.skill_id);
       setSourceSkill(evaluated);
       const gate = evaluated?.gate_metrics || {};
-      if (gate.eligible) message.success(`门禁评测通过：${gate.passed || 3}/${gate.total || 3}`);
-      else message.warning(`门禁尚未通过：${gate.passed || 0}/${gate.total || 3}，请到 Skill 广场查看失败项`);
+      if (gate.eligible) messageApi.success(`门禁评测通过：${gate.passed || 3}/${gate.total || 3}`);
+      else messageApi.warning(`门禁尚未通过：${gate.passed || 0}/${gate.total || 3}，请到 Skill 广场查看失败项`);
     } catch (error) {
-      message.error(error?.message || "Skill 门禁评测失败");
+      messageApi.error(error?.message || "Skill 门禁评测失败");
     } finally {
       setSkillEvaluating(false);
     }
@@ -740,7 +741,7 @@ export default function AIDiagnosis() {
     try {
       await materializeDiagnosticSkill(selectedId, { notify: true });
     } catch (error) {
-      message.info(error?.message || "当前案例暂未满足候选 Skill 沉淀条件");
+      messageApi.info(error?.message || "当前案例暂未满足候选 Skill 沉淀条件");
     }
   }
 
@@ -762,6 +763,7 @@ export default function AIDiagnosis() {
 
   return (
     <div className={`ai-diagnosis-page ${hasActiveDiagnosis ? "has-session" : "is-start"} content-${contentView}`}>
+      {messageHolder}
       <Modal title="停止本次诊断？" open={Boolean(pendingCancellation)}
         okText="停止诊断" cancelText="继续检查" okButtonProps={{ danger: true }}
         confirmLoading={cancelling} onOk={handleCancellation}
