@@ -34,7 +34,8 @@ _OBSERVATION_STAGES = frozenset({
     "split_ms", "index_ms", "vector_write_ms", "ingest_ms",
     "document_write_ms", "parse_and_http_ms",
 })
-_RETRIEVAL_DETAILS = frozenset({'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms'})
+_RETRIEVAL_DETAILS = frozenset({'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms',
+                              'keyword_search_ms', 'graph_search_ms'})
 
 
 class ExerciseScope:
@@ -124,7 +125,7 @@ class _Window:
             if self.spans.get(name):
                 stages[name] = round(sum(end-start for start, end in _merge_spans(self.spans[name]))*1000, 3)
         detail = {name: round(sum(end-start for start, end in _merge_spans(self.spans.get(name, [])))*1000, 3)
-                  for name in ('vector_search_ms', 'chunk_load_ms', 'fault_delay_ms')
+                  for name in ('vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'keyword_search_ms', 'graph_search_ms')
                   if self.spans.get(name)}
         if search:
             detail['search_wall_ms'] = round(total*1000, 3)
@@ -423,6 +424,8 @@ def install(store: OfficeObservationStore) -> None:
     _measure(LLMRewriter, "rewrite", "rewrite_ms")
     _measure(HybridStore, "search_multi", "search_total_ms")
     _measure(_MilvusAdapter, 'search', 'vector_search_ms')
+    _measure(HybridStore, '_fetch_es', 'keyword_search_ms')
+    _measure(HybridStore, '_fetch_kg', 'graph_search_ms')
     _measure(HybridStore, "_finalize", "rerank_ms", enabled=lambda self: self._reranker is not None)
     _measure(UnifiedAgent, "_llm_generate", "generation_ms")
 

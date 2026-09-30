@@ -2,7 +2,7 @@
 
 ## 2026-09-30 计时修复候选
 
-并行embedding不能用各线程耗时之和扣除父search墙钟。候选以时间区间并集测量embedding/rerank墙钟，检索扣除两者与search交集的并集，避免重复扣除和零值掩盖。新增`retrieval_detail_ms`只允许`vector_search_ms`、`chunk_load_ms`、`fault_delay_ms`、`search_wall_ms`数值；这些包含关系不能相加，原历史记录不重算、不覆写。待发布后用新的request_id复验原三段+2000ms判据，实际注入等待单独测量，不以配置2500ms冒充真实耗时。旧失败仍保留；当前发布与最终成绩见[性能修复](../reports/architecture/performance-fix-20260930.md)。
+并行embedding不能用各线程耗时之和扣除父search墙钟。以时间区间并集测量embedding/rerank墙钟，检索扣除两者与search交集的并集，避免重复扣除和零值掩盖。新增`retrieval_detail_ms`只允许`vector_search_ms`、`chunk_load_ms`、`fault_delay_ms`、`search_wall_ms`、`keyword_search_ms`、`graph_search_ms`数值；这些包含关系不能相加，原历史记录不重算、不覆写。新request_id复验保留原三段+2000ms判据，实际注入等待单独测量，不以配置2500ms冒充真实耗时。有效向量路径允许semantic或实际执行向量查询的hybrid，不能把混合检索当作词法回退。旧失败仍保留；当前发布与最终成绩见[性能修复](../reports/architecture/performance-fix-20260930.md)。
 
 初次使用可先按 [图文演示步骤](DEMO_WALKTHROUGH.md)走一遍页面，再用本页逐项判定是否通过。
 

@@ -52,7 +52,8 @@ class OfficeObservation(BaseModel):
     @field_validator('retrieval_detail_ms', mode='before')
     @classmethod
     def validate_retrieval_details(cls, value):
-        allowed = {'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms'}
+        allowed = {'vector_search_ms', 'chunk_load_ms', 'fault_delay_ms', 'search_wall_ms',
+                   'keyword_search_ms', 'graph_search_ms'}
         if (not isinstance(value, dict) or not set(value).issubset(allowed)
                 or any(isinstance(v, bool) or not isinstance(v, (int, float))
                        or not math.isfinite(v) or not 0 <= v <= 900_000 for v in value.values())):
