@@ -121,7 +121,7 @@ it.each([[3507, true], [3407, false]])("checks both original 2000ms comparisons 
     await screen.findByLabelText("AGI-saber 真实问答验收");
     fireEvent.click(screen.getByRole("button", { name: "运行三段验收" }));
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
-    await waitFor(() => expect(screen.getByRole("button", { name: "运行三段验收" })).not.toBeDisabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: /运行三段验收/ })).not.toBeDisabled());
     expect(screen.getByText(restored ? "受控慢检索已定位并撤销：同一进程与版本下，检索耗时回落" : "尚不能确认恢复；请核对三段原始请求")).toBeInTheDocument();
     expect(global.fetch).toHaveBeenCalledTimes(4);
     expect(screen.getByText(/准备请求完成/)).toBeInTheDocument();
