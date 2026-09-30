@@ -123,7 +123,7 @@
       "fix": "先锁定诊断父记录，再查询及插入，保留数据库唯一约束和幂等行为。",
       "scope_note": "真实隔离 PostgreSQL、两个独立事务。需要专用测试库；本地跳过不算通过。",
       "reproduce_command": "RUN_POSTGRES_TESTS=1 python -m pytest tests/test_drop_insight_report_effects_postgres.py -k skill_activation -q（配置专用测试库）",
-      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/9c98ab33140aae708dff1092d10c829cdec98830/server/app/drop_insight/event_store.py",
+      "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/9c98ab33140aae708dff1092d10c829cdec98830/server/app/drop_insight/skill_evolution.py",
       "status": "VERIFIED_DEFECT_FIX",
       "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
       "model_auto_root_cause": "NOT_EVALUATED",
