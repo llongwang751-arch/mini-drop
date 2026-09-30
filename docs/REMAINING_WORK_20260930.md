@@ -6,7 +6,7 @@
 | 项目 | 证据 | 范围 |
 |---|---|---|
 | 新代码云端部署 | `reports/business-acceptance/deployment-20260930/deployment.json`、`source-verification.json` | Worker/Analyzer各183文件一致；其余11个容器未重建；保留回滚配置 |
-| 当前源码CI | CI `36699546451`，`reports/quality/instance-scope-20260930/java-scope-ci-jobs.json` | 13/13成功；Python1192通过/8登记跳过，PG6通过零跳过；部分安全/lint仍只报告 |
+| 当前源码CI | CI `36704929921`（客户端与回归），线上源码CI `36699546451` | 13/13成功；Python1201通过/8登记跳过，PG6通过零跳过；部分安全/lint仍只报告 |
 | 公网页面可访问 | 同目录`browser-result.json`、`browser-real-local.png` | 真实Chromium页面冒烟，无JS/HTTP错误；不是所有交互的端到端验收 |
 | 双机短链路 | 同目录`distributed-quick/` | 315请求、质量、源码、身份与清理通过；不能替代小时实验 |
 | 新21场景与一小时持续实验 | 独立新报告，历史记录保留 | 21场景完成：根因0/21、观测4/21、恢复清理21/21；小时请求19,950全成功，60RPS与9/120窗延迟超限，资源通过 |

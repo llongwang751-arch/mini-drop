@@ -26,4 +26,4 @@ TimeoutError、SSLEOFError与HTTP连接关闭现在转换为含方法、路径�
 
 新campaign SHA为`3e1d60e91cf914b0214c57e6aaa387a501dc286df7dfa7486683d4033727a235`，case SHA为`3acfed65ece45218a652d549b8de648cc03b95f37f69a0f405b514c14db40982`。7个原始产物逐个下载并核对大小和SHA，浏览器实拍显示已验证观测、根因仍待确认，无异常。原始日志、JUnit、覆盖率、传输测量和新云端证据见`reports/quality/rpc-read-stability-20260930/`。归档时误以artifact数据库ID访问download返回404，空ZIP与错误记录保留；正确使用artifact_type后7个文件摘要全部一致，可信归档为cloud-verified-artifacts.zip。
 
-本地客户端代码待远程CI；CI和后续文档提交不改变冻结部署源码。
+[CI36704929921](https://github.com/llongwang751-arch/mini-drop/actions/runs/36704929921)成功13/13；测试源码67b428828f4b6b2d93d3917e81b5c18ddd463de4，测试merge8a4f9c3fabf59840c373c86447890af9a6a311c0。Python1201通过/8登记跳过，真实PG专项6通过零跳过，4份CI原始ZIP归档并核对SHA。CI和后续文档提交不改变冻结部署源码；本轮不需要重新部署Worker/Web，因为修改的是本地验收客户端。保留原失败记录、故障清理及旧运行时回滚配置。

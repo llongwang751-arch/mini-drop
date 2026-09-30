@@ -1,5 +1,7 @@
 # 文档入口
 
+- [验收传输与采样时间线复盘](../reports/architecture/acceptance-transport-20260930.md)：代理路径超时、显式直连、保留TLS验证，以及新GC取证/恢复/清理通过和根因0/1的分项判定
+
 - [本轮三个缺陷闭环与部署复验](../reports/architecture/instance-scope-fix-20260930.md)：实例身份、真实PG竞争、新Java观测范围及两次传输失败的独立安全核验
 
 - [`REMAINING_WORK_20260930.md`](REMAINING_WORK_20260930.md)：面试版本的剩余工程、依赖安全审查和能力边界
