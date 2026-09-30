@@ -1,5 +1,7 @@
 # 文档入口
 
+- [性能修复与最终验收](../reports/architecture/performance-fix-20260930.md)：双机完整小时、HTTP复用/排序缓存、并行窗口计时、查询实体缓存、真实两组三段与浏览器、原始失败保留及根因能力边界
+
 - [安全门禁、诊断取消与当前版本彩排](../reports/architecture/security-cancel-delivery-20260930.md)：Go调用路径/二进制与lint阻断、真实PG竞争、四服务部署与回滚、取消真机上界、正常业务链及额外延迟彩排失败
 
 - [验收传输与采样时间线复盘](../reports/architecture/acceptance-transport-20260930.md)：代理路径超时、显式直连、保留TLS验证，以及新GC取证/恢复/清理通过和根因0/1的分项判定

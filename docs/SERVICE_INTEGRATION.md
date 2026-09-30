@@ -1,12 +1,12 @@
 # 真实后台服务接入
 
-## 2026-10-01 Web安全依赖候选
+## 2026-10-01 Web安全依赖已发布
 
-Axios最低版本提高到1.20.0，生成lock后生产npm audit为0，228项前端测试与bundle检查通过；精确提交CI成功后只更新Web镜像，办公助手原入口/鉴权、业务源及数据保持。发布与逐文件SHA状态以PROJECT_CONTEXT和性能修复交付报告为准，不把依赖扫描通过解释为根因能力或业务性能通过。
+Axios最低版本提高到1.20.0，生成lock后生产npm audit为0，228项前端测试与bundle检查通过；精确提交7403815的CI36746799170成功13/13，Web发布20260930T164946Z，45文件一致，其余12容器保持。办公助手原入口/鉴权、业务源及数据保持。发布与逐文件SHA状态以PROJECT_CONTEXT和性能修复交付报告为准，不把依赖扫描通过解释为根因能力或业务性能通过。
 
 ## 2026-09-30 查询实体提取缓存
 
-`backend_entry.py`在依赖构造前安装`query_extraction_cache.py`，仅在`KGStore.search`上下文复用成功查询实体结果（含明确合法JSON的空实体）。缓存是内存内128项/300秒，查询最多2048字符，以user_id、配置SHA和原问题为键；文档提取不复用，图谱、chunk和用户过滤每次执行，异常、解析失败及来源未知的空结果不缓存。不同实例可共享同用户/配置的提取；配置变化立即隔离，过期或重启自然失效。并发冷查询允许重复计算，不用全局锁包住模型HTTP请求。该缓存不保存问答或数据库结果，不改变数据库和原应用业务文件。
+`backend_entry.py`在依赖构造前安装`query_extraction_cache.py`，仅在`KGStore.search`上下文复用成功查询实体结果（含明确合法JSON的空实体）。缓存是内存内128项/300秒，查询最多2048字符，以user_id、配置SHA和原问题为键；文档提取不复用，不缓存图谱或chunk候选，仍执行原搜索与用户过滤；有实体时重新读取数据库，合法空实体保持原空结果，异常、解析失败及来源未知的空结果不缓存。不同实例可共享同用户/配置的提取；配置变化立即隔离，过期或重启自然失效。并发冷查询允许重复计算，不用全局锁包住模型HTTP请求。该缓存不保存问答或数据库结果，不改变数据库和原应用业务文件。
 
 部署需将backend_entry、query_extraction_cache及观测器一起放入新Office release并编译/健康检查，失败切回旧release；不能只发布引用新模块的入口文件。演示在三段前固定一次不注入的准备请求，公开其请求ID/耗时，三段严格比较仍为+2000ms。冷启动性能另行保留，不当作温热查询表现。
 
@@ -29,7 +29,7 @@ Axios最低版本提高到1.20.0，生成lock后生产npm audit为0，228项前�
 
 ## 2026-09-23 AGI-saber 知识库问答阶段
 
-原办公助手保持 `/api/office/` 入口。`integrations/agi_saber/request_observations.py` 在部署入口 `backend_entry.py` 构造依赖前安装有界埋点：`LLMRewriter.rewrite`、`HybridStore.search_multi`、实际使用的 `_embed_fn`、启用时的 `HybridStore._finalize` 重排、`UnifiedAgent._llm_generate`，以及 `process_with_options`/`process_stream` 的总执行时间。多查询检索并发线程继承请求上下文；阶段只记录耗时，搜索阶段扣除向量化与重排，避免在页面上重复加总。生成的 request_id 采用原 `Response.trace_id` UUID；没有可用 UUID 时生成独立 ID。快照只保留最近 100 条、24 小时内读入、最大 256 KiB，不导出问答文本、文档或凭据。宿主业务根目录仍为 0700；Worker 只读挂载专用观测子目录以跟踪原子更新，0644 的快照文件供非特权 UID 读取，其他业务库和数据不挂载。
+原办公助手保持 `/api/office/` 入口。`integrations/agi_saber/request_observations.py` 在部署入口 `backend_entry.py` 构造依赖前安装有界埋点：`LLMRewriter.rewrite`、`HybridStore.search_multi`、实际使用的 `_embed_fn`、启用时的 `HybridStore._finalize` 重排、`UnifiedAgent._llm_generate`，以及 `process_with_options`/`process_stream` 的总执行时间。多查询检索并发线程继承请求上下文；阶段只记录耗时，搜索阶段按向量化与重排窗口的并集及父窗口交集扣除，避免并行重复扣减；6项细分计时为包含关系，不能相加。生成的 request_id 采用原 `Response.trace_id` UUID；没有可用 UUID 时生成独立 ID。快照只保留最近 100 条、24 小时内读入、最大 256 KiB，不导出问答文本、文档或凭据。宿主业务根目录仍为 0700；Worker 只读挂载专用观测子目录以跟踪原子更新，0644 的快照文件供非特权 UID 读取，其他业务库和数据不挂载。
 
 Mini-Drop 从只读文件选择真实 `rag.question` 记录，诊断仍由登记服务和 Native Agent 重新发现、校验目标进程。请求记录中的 PID 只是应用自报，不授予采样权限；后续 CPU、RSS、栈与探针属于复现窗口，不是历史请求的执行轨迹。此处原发布曾使用本地词法检索；2026-09-23 接入 Milvus Lite 后，当前发布可执行语义检索，历史记录保持原样。这个接入是专用请求级业务遥测，不是完整 OTel/跨服务 Trace，也没有 SQL span、首 token 计时或自动修复效果证明。旧发布验收见 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md)。
 

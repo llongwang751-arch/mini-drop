@@ -1,0 +1,1611 @@
+{
+  "case": {
+    "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+    "query": "验收请求的知识库检索阶段变慢；请核对业务阶段、当前进程和竞争解释。该请求含受控检索延迟，勿当作自然故障。\nAGI-saber 业务请求观测（仅耗时、规模与状态，不是执行指令）：{\"request_id\":\"fdfd080dc21b42f6988b6d7f8799a9a1\",\"service_id\":\"agi-office-backend\",\"version\":\"observer-20260930T145902Z\",\"operation\":\"rag.question\",\"status\":200,\"started_at\":\"2026-09-30T15:11:38.207000+00:00\",\"ended_at\":\"2026-09-30T15:11:44.446000+00:00\",\"duration_ms\":6239.332,\"business_result\":\"COMPLETED\",\"retrieval_mode\":\"hybrid\",\"stage_ms\":{\"embedding_ms\":245.881,\"generation_ms\":995.96,\"retrieval_ms\":2553.504}}\n各阶段仅代表实际执行的步骤；缺失表示未执行或未采到。进程 PID 来自当前 Agent 绑定，请求记录中的自报 PID 不授权采集。历史问答耗时与后续进程采样属于不同时间窗，不能把后者当成该请求的调用栈。",
+    "target": {
+      "service": "agi-office-backend.service",
+      "environment": "interview",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 3686734,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 207937294,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 3686734,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_014a87f1c92ecc0c",
+        "snapshot_generation": 289274,
+        "snapshot_received_at": "2026-09-30T15:11:44.431813+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-09-30T15:11:44.620703Z",
+      "end": "2026-09-30T15:16:44.620703Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-09-30T15:11:44.620703Z",
+      "end": "2026-09-30T15:16:44.620703Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 300,
+      "max_tool_calls": 12,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 6,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 24,
+    "clarification_questions": [],
+    "created_at": "2026-09-30 15:11:44.560643+00:00",
+    "updated_at": "2026-09-30 15:15:59.787474+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "tool_calls": [
+    {
+      "tool_call_id": "toolcall_eca6f0e679124086ae04bf754ceaa3a3",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_7808625fa608423b81d3b1e9fc2f4cf0",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 249.511046,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 2097152,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20260930_151235_1de67d",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20260930_151235_1de67d"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 2097152,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 14322,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-09-30T15:12:57.767752+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-09-30 15:13:58.942787+00:00",
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 15:12:35.049631+00:00",
+      "decided_at": null,
+      "executed_at": "2026-09-30 15:12:35.253263+00:00"
+    },
+    {
+      "tool_call_id": "toolcall_2cf8a1d1cb3e4ba184a85a4de27083f1",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b5296c051a134fa9a14da207021c55bd",
+      "tool_name": "start_ebpf_io_profile",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "SESSION_PREAUTHORIZED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 165.671354,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 30,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 16791538,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "自主会话已在创建时预授权；目标、能力、风险和预算检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20260930_151358_9336b1",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20260930_151358_9336b1"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 16777216,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 6266,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-09-30T15:14:23.426363+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-09-30 15:15:09.709046+00:00",
+      "requested_by": "system:insufficient-evidence-replanner",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 15:13:58.889313+00:00",
+      "decided_at": null,
+      "executed_at": "2026-09-30 15:13:58.909819+00:00"
+    },
+    {
+      "tool_call_id": "toolcall_a82ba14d31be439ca16ab124b2e36534",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "tool_name": "start_pyspy_profile",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "duration_seconds": 15,
+        "sample_rate": 99
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "SESSION_PREAUTHORIZED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 94.92093,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 45,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 16797804,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "自主会话已在创建时预授权；目标、能力、风险和预算检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20260930_151509_77faca",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20260930_151509_77faca"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 16777216,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 3922,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-09-30T15:15:34.386385+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-09-30 15:15:59.813775+00:00",
+      "requested_by": "system:insufficient-evidence-replanner",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 15:15:09.639734+00:00",
+      "decided_at": null,
+      "executed_at": "2026-09-30 15:15:09.659410+00:00"
+    },
+    {
+      "tool_call_id": "toolcall_40c9b7626cae4ccd8a4a0d03d29ab45a",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b79a95f651ef407fbaf288f94a06e6a7",
+      "tool_name": "start_perf_profile",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "duration_seconds": 15,
+        "sample_rate": 99
+      },
+      "policy_decision": "DENY",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "SESSION_PREAUTHORIZED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "FAIL",
+          "remaining_seconds": 44.81478000000001,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 60,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 67133374,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "资源预算预留失败: BUDGET_WALL_CLOCK insufficient finalization reserve",
+      "status": "DENIED",
+      "task_id": null,
+      "result": {},
+      "budget_reservation": {},
+      "budget_settlement": {},
+      "budget_reservation_status": "NONE",
+      "terminal_processing_status": "NONE",
+      "terminal_processed_at": null,
+      "requested_by": "system:insufficient-evidence-replanner",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 15:15:59.745893+00:00",
+      "decided_at": "2026-09-30 15:15:59.745893+00:00",
+      "executed_at": null
+    }
+  ],
+  "reports": [
+    {
+      "report_id": "report_e983ed6e13c1b97e64543bcca5cb70b6",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：Python 运行时可能存在 GIL 竞争、用户态热点或同步阻塞路径”仍待验证。",
+      "confidence": 0.0,
+      "evidence_refs": [],
+      "counter_evidence_refs": [],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [
+        "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+      ],
+      "next_actions": [
+        "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+      ],
+      "claims": [],
+      "verification": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "claims": [],
+        "rejected_claims": [],
+        "support_claim_count": 0,
+        "counter_claim_count": 0,
+        "coverage_ratio": 0.0,
+        "has_independent_counter_or_control": false,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "补齐证据与同负载对照",
+              "urgency": "LOW",
+              "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "has_independent_counter_or_control": false,
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "control_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "covered_expected": [],
+          "covered_falsification": [],
+          "missing_expected": [
+            0
+          ],
+          "missing_falsification": [
+            0
+          ],
+          "needs_independent_counter_or_control": true,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          }
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 0,
+          "scanned_by_language": {
+            "python": 0,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-09-30 15:15:59.808657+00:00",
+      "created_at": "2026-09-30 15:15:34.418216+00:00"
+    },
+    {
+      "report_id": "report_499c9ecddfa7196bf1eaad5cda5ef0d0",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b5296c051a134fa9a14da207021c55bd",
+      "conclusion": "尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。",
+      "confidence": 0.0,
+      "evidence_refs": [],
+      "counter_evidence_refs": [],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [
+        "没有通过证据门禁的支持证据，当前不能建立根因结论。",
+        "主机 I/O 仅作背景观察，不是目标进程的支持证据或反证。故障修复状态需独立复测。"
+      ],
+      "next_actions": [
+        "将同窗口的目标进程读写计数、阻塞调用栈与主机 I/O 分布关联；队列积压还需比较生产速率、消费速率和队列长度。主机延迟不能直接归因为该进程。"
+      ],
+      "claims": [],
+      "verification": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "claims": [],
+        "rejected_claims": [],
+        "support_claim_count": 0,
+        "counter_claim_count": 0,
+        "coverage_ratio": 0.0,
+        "has_independent_counter_or_control": false,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "补齐证据与同负载对照",
+              "urgency": "LOW",
+              "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "has_independent_counter_or_control": false,
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "control_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "covered_expected": [],
+          "covered_falsification": [],
+          "missing_expected": [
+            0
+          ],
+          "missing_falsification": [
+            0
+          ],
+          "needs_independent_counter_or_control": true,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          }
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 0,
+          "scanned_by_language": {
+            "python": 0,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-09-30 15:15:09.703988+00:00",
+      "created_at": "2026-09-30 15:14:23.469716+00:00"
+    },
+    {
+      "report_id": "report_fc27720b98b39eb2992bff8d4366c66c",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_7808625fa608423b81d3b1e9fc2f4cf0",
+      "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标进程的性能下降可能由磁盘 I/O 延迟或同步写入路径阻塞引起”仍待验证。",
+      "confidence": 0.0,
+      "evidence_refs": [],
+      "counter_evidence_refs": [],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [
+        "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+      ],
+      "next_actions": [
+        "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+      ],
+      "claims": [],
+      "verification": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "claims": [],
+        "rejected_claims": [],
+        "support_claim_count": 0,
+        "counter_claim_count": 0,
+        "coverage_ratio": 0.0,
+        "has_independent_counter_or_control": false,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "补齐证据与同负载对照",
+              "urgency": "LOW",
+              "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "has_independent_counter_or_control": false,
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "control_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "covered_expected": [],
+          "covered_falsification": [],
+          "missing_expected": [
+            0
+          ],
+          "missing_falsification": [
+            0
+          ],
+          "needs_independent_counter_or_control": true,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          }
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 0,
+          "scanned_by_language": {
+            "python": 0,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-09-30 15:13:58.938336+00:00",
+      "created_at": "2026-09-30 15:12:57.822318+00:00"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_task_task_20260930_151235_1de67d_4421",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_7808625fa608423b81d3b1e9fc2f4cf0",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151235_1de67d_4421",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "SYS_METRICS_SYS_METRICS",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20260930_151235_1de67d",
+          "task_attempt_id": "attempt_7d761ec0b17b4830945d485a7c763e90",
+          "artifact_id": "4421",
+          "artifact_sha256": "b20aa0a50fe9aadab88d23c59a0918e513a060b91ea2c5677c871d83800cbc74",
+          "analysis_job_id": "analysis_32a1bd5fab7207b1",
+          "analyzer_type": "collector.sys_metrics",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:12:40.053812Z",
+          "end": "2026-09-30T15:12:56.484802Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "sys_metrics",
+          "object_key": "tasks/task_20260930_151235_1de67d/attempts/attempt_7d761ec0b17b4830945d485a7c763e90/raw/sys_metrics.json",
+          "content_type": "application/json",
+          "size_bytes": 13213,
+          "metadata": {
+            "collector_plugin": "sys_metrics",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0",
+            "schema_version": "sys_metrics_analysis.v2",
+            "source_schema_version": "sys_metrics.v2",
+            "sample_count": 15,
+            "window_duration_seconds": 14.006,
+            "process_identity": {
+              "pid": 3686734,
+              "namespace_pid": 3686734,
+              "start_ticks": 207937294,
+              "verified": true
+            },
+            "summary": {
+              "vmrss_mb": 277.309,
+              "vmrss_mb_first": 277.312,
+              "vmrss_mb_max": 277.312,
+              "vmrss_mb_delta": -0.004,
+              "fd_count": 26.0,
+              "fd_count_first": 26.0,
+              "fd_count_max": 26.0,
+              "thread_count": 18.0,
+              "thread_count_first": 19.0,
+              "thread_count_max": 19.0,
+              "fd_trend": 0.0,
+              "thread_trend": -1.0,
+              "load1m": 0.431,
+              "load1m_max": 0.5,
+              "process_cpu_core_usage": 0.428,
+              "avg_cpu_user_pct": 13.42,
+              "avg_cpu_sys_pct": 4.221,
+              "avg_cpu_iowait_pct": 0.216,
+              "host_cpu_busy_pct": 17.641,
+              "disk_read_kbps": 5.141,
+              "disk_write_kbps": 9.71,
+              "ctx_nonvoluntary_rate": 1.071
+            },
+            "process_cpu_window": {
+              "source": "linux_proc_stat",
+              "clock_ticks_per_second": 100,
+              "start_cpu_ticks": 662,
+              "end_cpu_ticks": 668,
+              "start_unix_ms": 1790781160136.0,
+              "end_unix_ms": 1790781174142.0,
+              "sample_count": 15,
+              "process_cpu_core_usage": 0.4283878337855204
+            },
+            "application_metrics": {
+              "schema_version": "application_metrics_analysis.v1",
+              "sample_count": 15,
+              "identity": {
+                "namespace_pid": 3686734,
+                "identity_verified": true,
+                "host_pid": 3686734,
+                "runtime": "python-asgi",
+                "pid": 3686734
+              },
+              "before": {
+                "http_duration_ms": 72163.769,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 2061.822,
+                "http_recent_p95_latency_ms": 6975.757,
+                "http_requests": 35.0
+              },
+              "after": {
+                "http_duration_ms": 72183.197,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 1950.897,
+                "http_recent_p95_latency_ms": 6975.757,
+                "http_requests": 37.0
+              },
+              "max": {
+                "http_duration_ms": 72183.197,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 2061.822,
+                "http_recent_p95_latency_ms": 6975.757,
+                "http_requests": 37.0
+              },
+              "delta": {
+                "http_duration_ms": 19.428,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": -110.925,
+                "http_recent_p95_latency_ms": 0.0,
+                "http_requests": 2.0
+              }
+            },
+            "application_metrics_status": "AVAILABLE",
+            "application_metrics_limitations": [],
+            "signals": {
+              "http_service_degradation": {
+                "detected": true,
+                "reason": "instrumented HTTP requests observed elevated latency or server errors",
+                "metrics": {
+                  "request_count_delta": 2.0,
+                  "failure_count_delta": 0.0,
+                  "failure_rate": 0.0,
+                  "average_latency_ms": 9.714,
+                  "recent_p95_latency_ms": 6975.757
+                }
+              }
+            },
+            "analysis_limitations": [],
+            "collector_type": "sys_metrics",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0"
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 15,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 5
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_NEUTRAL",
+        "can_support_conclusion": false,
+        "reasons": [
+          "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+        ]
+      },
+      "created_at": "2026-09-30 15:12:57.785634+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151235_1de67d_4422",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_7808625fa608423b81d3b1e9fc2f4cf0",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151235_1de67d_4422",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "SYS_METRICS_MANIFEST",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20260930_151235_1de67d",
+          "task_attempt_id": "attempt_7d761ec0b17b4830945d485a7c763e90",
+          "artifact_id": "4422",
+          "artifact_sha256": "50cadaaaba7fed53ec6d539303f79789857bccaae84bc6175e1bd05ef4c57b2b",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:12:40.053812Z",
+          "end": "2026-09-30T15:12:56.484802Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20260930_151235_1de67d/attempts/attempt_7d761ec0b17b4830945d485a7c763e90/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1109,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 5
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 15:12:57.785634+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151358_9336b1_4423",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b5296c051a134fa9a14da207021c55bd",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151358_9336b1_4423",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "EBPF_IO_EBPF_METRICS",
+        "source": {
+          "tool_name": "ebpf_io",
+          "task_id": "task_20260930_151358_9336b1",
+          "task_attempt_id": "attempt_9718a3c0626c46a5825bb36306ec78b2",
+          "artifact_id": "4423",
+          "artifact_sha256": "6b6235b0a133d870f9ad8a06a122e76184be1452d52280cb21904ff8b03381b6",
+          "analysis_job_id": "analysis_f0288a42c513c15d",
+          "analyzer_type": "collector.ebpf_io",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:14:01.194175Z",
+          "end": "2026-09-30T15:14:21.783025Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "ebpf_metrics",
+          "object_key": "tasks/task_20260930_151358_9336b1/attempts/attempt_9718a3c0626c46a5825bb36306ec78b2/raw/ebpf_metrics.json",
+          "content_type": "application/json",
+          "size_bytes": 157,
+          "metadata": {
+            "collector_plugin": "ebpf_io",
+            "collector_runtime": "native-cpp",
+            "probe": "block tracepoint",
+            "schema_version": "ebpf_io_analysis.v1",
+            "total_samples": 581,
+            "source_schema_version": "ebpf_io.v1",
+            "sample_count": 581,
+            "summary": {
+              "io_latency_us": 4000,
+              "block_latency_us": 4000,
+              "latency_p50_us": 1000,
+              "latency_p95_us": 4000,
+              "latency_p99_us": 4000,
+              "high_latency_samples": 170,
+              "high_latency_ratio": 0.293
+            },
+            "signals": {
+              "io_latency": {
+                "detected": true,
+                "reason": "host block-device tracepoints observed a measurable high-latency tail",
+                "metrics": {
+                  "latency_p95_us": 4000.0,
+                  "high_latency_samples": 170.0,
+                  "total_samples": 581.0
+                }
+              }
+            },
+            "scope_semantics": "HOST_BLOCK_DEVICE",
+            "target_attributed": false,
+            "analysis_notes": [
+              "block tracepoints are host-level; correlate with target process write counters before root-cause attribution"
+            ],
+            "collector_type": "ebpf_io",
+            "analyzer_type": "collector.ebpf_io",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v3",
+              "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 581,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 10
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_LIMITED",
+        "can_support_conclusion": false,
+        "reasons": [
+          "仅观察到宿主机块设备 I/O，未归属目标进程；不能支持或反驳该进程的根因"
+        ]
+      },
+      "created_at": "2026-09-30 15:14:23.443567+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151358_9336b1_4424",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b5296c051a134fa9a14da207021c55bd",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151358_9336b1_4424",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "EBPF_IO_EBPF_RAW",
+        "source": {
+          "tool_name": "ebpf_io",
+          "task_id": "task_20260930_151358_9336b1",
+          "task_attempt_id": "attempt_9718a3c0626c46a5825bb36306ec78b2",
+          "artifact_id": "4424",
+          "artifact_sha256": "2112d077e73df84e918ac1d63d10caa892e1c72567c6590298d06131be69beb8",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:14:01.194175Z",
+          "end": "2026-09-30T15:14:21.783025Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "ebpf_raw",
+          "object_key": "tasks/task_20260930_151358_9336b1/attempts/attempt_9718a3c0626c46a5825bb36306ec78b2/raw/io_latency.txt",
+          "content_type": "text/plain",
+          "size_bytes": 4167,
+          "metadata": {
+            "collector_runtime": "native-cpp"
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 10
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 15:14:23.443567+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151358_9336b1_4425",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_b5296c051a134fa9a14da207021c55bd",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151358_9336b1_4425",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "EBPF_IO_MANIFEST",
+        "source": {
+          "tool_name": "ebpf_io",
+          "task_id": "task_20260930_151358_9336b1",
+          "task_attempt_id": "attempt_9718a3c0626c46a5825bb36306ec78b2",
+          "artifact_id": "4425",
+          "artifact_sha256": "d2f8c6e10cc1922d8fd438f4c21be7bda938bf8bce1cc8eb53ea584b03e6da1d",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:14:01.194175Z",
+          "end": "2026-09-30T15:14:21.783025Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20260930_151358_9336b1/attempts/attempt_9718a3c0626c46a5825bb36306ec78b2/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1942,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 10
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 15:14:23.443567+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151509_77faca_4426",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151509_77faca_4426",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "PYSPY_RAW",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20260930_151509_77faca",
+          "task_attempt_id": "attempt_1a0cc67c506b4619aac18ea75dbc7c16",
+          "artifact_id": "4426",
+          "artifact_sha256": "287e23c4effa033b3a2bca2d5019df2063984000949e298c378581e307db5612",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:15:12.155813Z",
+          "end": "2026-09-30T15:15:33.075565Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "raw",
+          "object_key": "tasks/task_20260930_151509_77faca/attempts/attempt_1a0cc67c506b4619aac18ea75dbc7c16/raw/pyspy-speedscope.json",
+          "content_type": "application/json",
+          "size_bytes": 1447,
+          "metadata": {
+            "collector_plugin": "pyspy",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0"
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 15:15:34.399455+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151509_77faca_4427",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151509_77faca_4427",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "PYSPY_MANIFEST",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20260930_151509_77faca",
+          "task_attempt_id": "attempt_1a0cc67c506b4619aac18ea75dbc7c16",
+          "artifact_id": "4427",
+          "artifact_sha256": "1bde0f6136f73f0e2d823cae3f25ccbe077430efcc74f7b9f9f1e5a3a5056a6a",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:15:12.155813Z",
+          "end": "2026-09-30T15:15:33.075565Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20260930_151509_77faca/attempts/attempt_1a0cc67c506b4619aac18ea75dbc7c16/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1100,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-09-30 15:15:34.399455+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151509_77faca_4428",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151509_77faca_4428",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "PYSPY_FLAMEGRAPH_JSON",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20260930_151509_77faca",
+          "task_attempt_id": "attempt_1a0cc67c506b4619aac18ea75dbc7c16",
+          "artifact_id": "4428",
+          "artifact_sha256": "fcd78ec842c947276c3fcffa36eadfd85d9aea620fe2f6c70d65b76c9c6eb407",
+          "analysis_job_id": "analysis_9a01ccf7d5ea9e4d",
+          "analyzer_type": "collector.pyspy",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:15:12.155813Z",
+          "end": "2026-09-30T15:15:33.075565Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "flamegraph_json",
+          "object_key": "tasks/task_20260930_151509_77faca/analysis/flamegraph.json",
+          "content_type": "application/json",
+          "size_bytes": 999,
+          "metadata": {
+            "schema_version": "pyspy_analysis.v1",
+            "sample_count": 2,
+            "top_functions": [
+              {
+                "name": "_serve",
+                "samples": 1,
+                "percent": 50.0,
+                "file": "/opt/agi-office/venvs/native-20260924/lib/python3.12/site-packages/grpc/_server.py",
+                "line": 1314
+              },
+              {
+                "name": "transaction",
+                "samples": 1,
+                "percent": 50.0,
+                "file": "/opt/agi-office/releases/observer-20260930T145902Z/internal/agent/run_repository.py",
+                "line": 77
+              }
+            ],
+            "profile_quality": {
+              "status": "USABLE",
+              "reason_code": "OK",
+              "sample_count": 2,
+              "renderable_function_count": 2
+            },
+            "collector_type": "pyspy",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v2",
+              "reason": "TopN function distribution alone does not establish GIL contention",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "MEDIUM",
+          "sample_count": 2,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "样本数不足 50"
+        ]
+      },
+      "classification": {
+        "decision": "ACCEPT_LIMITED",
+        "can_support_conclusion": false,
+        "reasons": [
+          "样本数不足 50",
+          "样本数不足 50"
+        ]
+      },
+      "created_at": "2026-09-30 15:15:34.399455+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20260930_151509_77faca_4429",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_17e7f62cdadb4aa8b3035573f5505b71",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20260930_151509_77faca_4429",
+        "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+        "evidence_type": "PYSPY_TOP_JSON",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20260930_151509_77faca",
+          "task_attempt_id": "attempt_1a0cc67c506b4619aac18ea75dbc7c16",
+          "artifact_id": "4429",
+          "artifact_sha256": "a83d825c8c6dab9ae922968fbc1f6062502b32539996831a8c443886b467560a",
+          "analysis_job_id": "analysis_9a01ccf7d5ea9e4d",
+          "analyzer_type": "collector.pyspy",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 3686734
+        },
+        "time_range": {
+          "start": "2026-09-30T15:15:12.155813Z",
+          "end": "2026-09-30T15:15:33.075565Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "top_json",
+          "object_key": "tasks/task_20260930_151509_77faca/analysis/top.json",
+          "content_type": "application/json",
+          "size_bytes": 376,
+          "metadata": {
+            "schema_version": "pyspy_analysis.v1",
+            "sample_count": 2,
+            "top_functions": [
+              {
+                "name": "_serve",
+                "samples": 1,
+                "percent": 50.0,
+                "file": "/opt/agi-office/venvs/native-20260924/lib/python3.12/site-packages/grpc/_server.py",
+                "line": 1314
+              },
+              {
+                "name": "transaction",
+                "samples": 1,
+                "percent": 50.0,
+                "file": "/opt/agi-office/releases/observer-20260930T145902Z/internal/agent/run_repository.py",
+                "line": 77
+              }
+            ],
+            "profile_quality": {
+              "status": "USABLE",
+              "reason_code": "OK",
+              "sample_count": 2,
+              "renderable_function_count": 2
+            },
+            "collector_type": "pyspy",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v2",
+              "reason": "TopN function distribution alone does not establish GIL contention",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "MEDIUM",
+          "sample_count": 2,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "样本数不足 50"
+        ]
+      },
+      "classification": {
+        "decision": "ACCEPT_LIMITED",
+        "can_support_conclusion": false,
+        "reasons": [
+          "样本数不足 50",
+          "样本数不足 50"
+        ]
+      },
+      "created_at": "2026-09-30 15:15:34.399455+00:00"
+    }
+  ],
+  "verified_downloads": [
+    {
+      "task_id": "task_20260930_151235_1de67d",
+      "artifact_type": "sys_metrics",
+      "bytes": 13213,
+      "sha256": "b20aa0a50fe9aadab88d23c59a0918e513a060b91ea2c5677c871d83800cbc74"
+    },
+    {
+      "task_id": "task_20260930_151235_1de67d",
+      "artifact_type": "manifest",
+      "bytes": 1109,
+      "sha256": "50cadaaaba7fed53ec6d539303f79789857bccaae84bc6175e1bd05ef4c57b2b"
+    },
+    {
+      "task_id": "task_20260930_151358_9336b1",
+      "artifact_type": "ebpf_metrics",
+      "bytes": 157,
+      "sha256": "6b6235b0a133d870f9ad8a06a122e76184be1452d52280cb21904ff8b03381b6"
+    },
+    {
+      "task_id": "task_20260930_151358_9336b1",
+      "artifact_type": "ebpf_raw",
+      "bytes": 4167,
+      "sha256": "2112d077e73df84e918ac1d63d10caa892e1c72567c6590298d06131be69beb8"
+    },
+    {
+      "task_id": "task_20260930_151358_9336b1",
+      "artifact_type": "manifest",
+      "bytes": 1942,
+      "sha256": "d2f8c6e10cc1922d8fd438f4c21be7bda938bf8bce1cc8eb53ea584b03e6da1d"
+    },
+    {
+      "task_id": "task_20260930_151509_77faca",
+      "artifact_type": "raw",
+      "bytes": 1447,
+      "sha256": "287e23c4effa033b3a2bca2d5019df2063984000949e298c378581e307db5612"
+    },
+    {
+      "task_id": "task_20260930_151509_77faca",
+      "artifact_type": "manifest",
+      "bytes": 1100,
+      "sha256": "1bde0f6136f73f0e2d823cae3f25ccbe077430efcc74f7b9f9f1e5a3a5056a6a"
+    },
+    {
+      "task_id": "task_20260930_151509_77faca",
+      "artifact_type": "flamegraph_json",
+      "bytes": 999,
+      "sha256": "fcd78ec842c947276c3fcffa36eadfd85d9aea620fe2f6c70d65b76c9c6eb407"
+    },
+    {
+      "task_id": "task_20260930_151509_77faca",
+      "artifact_type": "top_json",
+      "bytes": 376,
+      "sha256": "a83d825c8c6dab9ae922968fbc1f6062502b32539996831a8c443886b467560a"
+    }
+  ]
+}

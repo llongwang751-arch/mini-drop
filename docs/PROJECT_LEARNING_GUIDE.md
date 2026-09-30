@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2051 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2237 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 517 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 541 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2454,6 +2454,30 @@ python scripts/render_learning_guide.py
 | `reports/quality/` | quality 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/` | performance-fix-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/branches/` | branches 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/cache/` | cache 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/cache-empty/` | cache-empty 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise/` | browser-exercise 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise-session/` | browser-exercise-session 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-report/` | browser-report 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/compat-ci-failed/` | compat-ci-failed 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/final-ci/` | final-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/helpers/` | helpers 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/helpers/branches/` | branches 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/helpers/cache/` | cache 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/` | cache-empty 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/helpers/final/` | final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-after-short/` | load-after-short 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-before-short/` | load-before-short 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-interrupted-hour/` | load-interrupted-hour 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-multi-interrupted/` | load-multi-interrupted 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-multi-short/` | load-multi-short 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/load-single-tunnel-hour/` | load-single-tunnel-hour 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/security-ci/` | security-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/transport-ci/` | transport-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/web-security/` | web-security 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-fix-20260930/web-security/browser-report/` | browser-report 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/rpc-read-stability-20260930/` | rpc-read-stability-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/` | security-cancel-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/browser-cancel/` | browser-cancel 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2933,6 +2957,7 @@ python scripts/render_learning_guide.py
 | `integrations/agi_saber/patches/long-ingest-batch.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/milvus-lite.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `integrations/agi_saber/query_extraction_cache.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `QueryExtractionCache`、`install_on`、`install` |
 | `integrations/agi_saber/request_observations.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
 | `integrations/agi_saber/requirements-vector.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/service.py` | 独立测试库调用实际 AGI-saber 检索引擎，提供本机 HTTP 与有界脱敏请求观测。 | `trace_identity`、`corpus`、`source_fingerprint`、`ActualRagService`、`serve` |
@@ -3052,7 +3077,7 @@ python scripts/render_learning_guide.py
 | `tests/test_diagnosis_worker.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_process_binding_authority_rejects_legacy_target`、`test_process_binding_authority_accepts_attested_target`、`test_worker_starts_and_advances_autonomous_sessions` |
 | `tests/test_diagnostic_ai_rpc.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `AbortedRPC`、`test_cancellation_rpc_forwards_authenticated_principal`、`test_cancellation_rpc_rejects_invalid_input`、`FakeContext`、`test_private_diagnostic_rpc_rejects_invalid_token` 等 11 个声明 |
 | `tests/test_diagnostic_skill_evolution.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_latest_verified_report_can_generate_candidate_before_human_publish_approval`、`test_verified_trajectory_becomes_versioned_active_skill_once`、`test_failed_cross_environment_campaign_blocks_publish`、`test_verified_campaign_trust_chain_can_become_candidate_without_tool_call` 等 21 个声明 |
-| `tests/test_distributed_endurance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `ready`、`test_remote_identity_requires_distinct_machines_and_frozen_source`、`test_mismatched_or_invalid_identity_rejected`、`test_ssh_option_and_shell_injection_rejected`、`test_ssh_requires_known_host_and_noninteractive_login` 等 10 个声明 |
+| `tests/test_distributed_endurance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `ready`、`test_remote_identity_requires_distinct_machines_and_frozen_source`、`test_mismatched_or_invalid_identity_rejected`、`test_ssh_option_and_shell_injection_rejected`、`test_ssh_requires_known_host_and_noninteractive_login` 等 11 个声明 |
 | `tests/test_drop_insight_budget.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_budget_denies_when_artifact_bytes_exceed_limit`、`test_settle_uses_actual_artifact_bytes`、`test_release_frees_reservation_on_failure` 等 6 个声明 |
 | `tests/test_drop_insight_policy_evidence.py` | Python 自动化测试，验证Evidence 分类与门禁的成功、失败与边界条件。 | `policy_context`、`test_policy_requires_human_approval_for_perf`、`test_autonomous_session_pre_authorizes_registered_perf_only`、`test_policy_denies_unknown_argument_and_out_of_scope_agent`、`test_host_io_cannot_support_target_process_even_with_legacy_support_predicate` 等 15 个声明 |
 | `tests/test_drop_insight_report_effects_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_postgres_competing_cancellations_fence_late_planner`、`test_postgres_cancellation_fences_late_analyzer_commit`、`test_postgres_skill_activation_serializes_competing_planners`、`test_postgres_claim_lease_takeover_and_fencing`、`test_postgres_session_lock_serializes_event_effect_identity` 等 8 个声明 |
@@ -3066,7 +3091,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fault_plaza_closure_campaign.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_decisive_collector_is_scenario_evidence_contract_not_list_position`、`test_scenario_pass_requires_diagnosis_chain_and_cleanup`、`test_scenario_keeps_diagnosis_failure_and_still_cleans_up`、`test_scenario_caps_diagnosis_before_the_fault_lab_dead_man_switch`、`test_campaign_persists_an_atomic_running_checkpoint` 等 6 个声明 |
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed`、`test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary` 等 18 个声明 |
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
-| `tests/test_fixture_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `endpoint`、`ask`、`test_real_connection_reuse_preserves_quality_and_http_errors_without_retry`、`test_invalid_json_remains_a_failed_attempt_with_its_http_status`、`test_pool_cannot_be_used_as_an_arbitrary_remote_http_client` 等 8 个声明 |
+| `tests/test_fixture_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `endpoint`、`ask`、`test_real_connection_reuse_preserves_quality_and_http_errors_without_retry`、`test_invalid_json_remains_a_failed_attempt_with_its_http_status`、`test_pool_cannot_be_used_as_an_arbitrary_remote_http_client` 等 11 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
@@ -3088,6 +3113,7 @@ python scripts/render_learning_guide.py
 | `tests/test_migrations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_current_baseline_creates_only_runtime_models`、`test_current_baseline_downgrade_is_clean`、`test_current_baseline_adopts_legacy_revision` |
 | `tests/test_multi_cloud_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `FakeClient`、`test_select_process_avoids_pid_one_when_possible`、`test_run_agent_requires_real_task_lineage` |
 | `tests/test_multilanguage_fault_demos.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_go_fault_lab_is_idle_bounded_and_allow_listed`、`test_go_pprof_is_reachable_from_the_host_network_interview_agent`、`test_java_fault_lab_is_idle_bounded_and_has_runtime_faults`、`test_cpp_fault_lab_is_idle_bounded_and_caps_memory`、`test_python_fault_lab_defaults_to_idle` 等 6 个声明 |
+| `tests/test_office_query_cache.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `result`、`test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model`、`test_empty_or_failed_extraction_is_never_cached`、`test_restored_instances_reuse_query_extraction_but_always_read_current_graph`、`test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses` |
 | `tests/test_outbox_dispatcher.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_dispatcher_publishes_and_acknowledges` |
 | `tests/test_outbox_postgres.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_outbox_finalize_locks_out_expired_lease_takeover` |
 | `tests/test_perf_callgraph.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_build_call_graph_has_direction_self_and_inclusive_samples`、`test_build_call_graph_is_bounded`、`test_native_perf_collector_recovers_header_only_vm_capture_with_cpu_clock` |
@@ -3803,6 +3829,190 @@ python scripts/render_learning_guide.py
 | `reports/quality/instance-scope-20260930/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/worker-rpc-errors.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/branches/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/branches/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/branches/office-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/branches/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty-before-result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty-before-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `QueryExtractionCache`、`install_on`、`install` |
+| `reports/quality/performance-fix-20260930/cache-empty-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-diagnosis-evidence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-diagnosis-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-diagnosis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise-session.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise-session/exercise.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise-session/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise/exercise.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-exercise/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-report.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-report/report.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-report/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/browser-report/tree.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/office-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/office-three-phase-cache-1.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/office-three-phase-cache-2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache-empty/runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/office-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/office-three-phase-cache-1.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/office-three-phase-cache-2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/cache/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-branches-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-go-job.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/ci-web-job.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/compat-ci-failed/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/compat-ci-failed/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/compat-ci-failed/web-job.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/evidence-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-ci/ci-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/archive_ci_final.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |
+| `reports/quality/performance-fix-20260930/helpers/archive_ci_latest.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |
+| `reports/quality/performance-fix-20260930/helpers/archive_selected.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `copy` |
+| `reports/quality/performance-fix-20260930/helpers/branches/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/branches/deploy_office_observer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/branches/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-fix-20260930/helpers/branches/prepare_deployment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty-before-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `QueryExtractionCache`、`install_on`、`install` |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/browser_exercise.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/browser_exercise_session.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/browser_report.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/check_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/deploy_office_cache.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/prepare_deployment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/refresh_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/run_browser_exercise.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/run_browser_exercise_session.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/run_browser_report.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache-empty/verify_office_cache.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/browser_exercise.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/deploy_office_cache.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-fix-20260930/helpers/cache/prepare_deployment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/refresh_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/run_browser_exercise.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/cache/verify_office_cache.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/deploy_office_observer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-fix-20260930/helpers/final/archive_ci_security.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/archive_ci_transport.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |
+| `reports/quality/performance-fix-20260930/helpers/final/archive_final_supplements.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `copy` |
+| `reports/quality/performance-fix-20260930/helpers/final/archive_load_final.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `copy`、`archive` |
+| `reports/quality/performance-fix-20260930/helpers/final/archive_multi_interrupted.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/check_public_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `module`、`scan` |
+| `reports/quality/performance-fix-20260930/helpers/final/finalize_docs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/poll_hour.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/poll_web_security_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/prepare_web_security.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/preserve_multi_interruption.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/run_security_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/final/verify_final_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/prepare_deployment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/verify_office_three_phase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/helpers/verify_office_three_phase_branches.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/initial-observer-ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-after-short/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-after-short/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-after-short/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-before-short/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-before-short/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-before-short/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-interrupted-hour/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-interrupted-hour/interruption.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-interrupted-hour/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-interrupted/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-interrupted/interrupted-remote-completed.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-interrupted/interruption.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-interrupted/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-short/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-short/independent-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-short/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-multi-short/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-single-tunnel-hour/evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-single-tunnel-hour/independent-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-single-tunnel-hour/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/load-single-tunnel-hour/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/multi-remote-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/multi-source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/npm-audit-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/npm-audit-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/office-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/office-three-phase-branches.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/office-three-phase.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/python-full-branches.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/python-full-cache-empty.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/python-full-cache.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/python-full-tunnels.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/python-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/security-ci/ci-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/single-tunnel-tail-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/targeted-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/targeted-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/toast-after-fixed.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/toast-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-postgres-concurrency.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/transport-ci/ci-web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/tunnel-default-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/tunnels-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/verify_archive.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-axios-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-axios-serial.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-boundary.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-build-deployed.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-final.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-serial.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-targeted-fixed.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-cache-verified.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/activate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/browser-report.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/browser-report/report.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/web-security/browser-report/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/browser-report/tree.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-fix-20260930/web-security/browser_report.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-fix-20260930/web-security/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-fix-20260930/web-security/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/rpc-read-stability-20260930/acceptance_client.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `reports/quality/rpc-read-stability-20260930/archive-download-id-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/rpc-read-stability-20260930/archive_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |

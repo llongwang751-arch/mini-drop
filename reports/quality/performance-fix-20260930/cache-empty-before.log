@@ -1,0 +1,95 @@
+...FF....                                                                [100%]
+================================== FAILURES ===================================
+_ test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{"entities":[],"relations":[]}-1] _
+
+response = '{"entities":[],"relations":[]}', expected_calls = 1
+
+    @pytest.mark.parametrize('response,expected_calls', [
+        ('{"entities":[],"relations":[]}',1),
+        ('```json\n{"entities":[],"relations":[]}\n```',1),
+        ('invalid json',2),
+        ('{}',2),
+        ('{"entities":"wrong","relations":[]}',2),
+        (RuntimeError('model offline'),2),
+    ])
+    def test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses(response,expected_calls):
+        import json
+        calls=[]
+        def llm(*args):
+            calls.append(1)
+            if isinstance(response,Exception):raise response
+            return response
+        class Extractor:
+            def __init__(self,llm_fn):self.llm_fn=llm_fn
+            def extract(self,text):
+                try:
+                    raw=self.llm_fn('system',text).strip()
+                    if raw.startswith('```json'):raw=raw[7:]
+                    if raw.endswith('```'):raw=raw[:-3]
+                    json.loads(raw.strip())
+                except Exception:pass
+                return SimpleNamespace(entities=[],relations=[])
+        class Store:
+            def __init__(self,cfg,user_id):
+                self.user_id=user_id;self.extractor=Extractor(llm)
+            def search(self,text):return self.extractor.extract(text)
+        cache=QueryExtractionCache();install_on(Store,Extractor,cache)
+        store=Store('config','alice')
+        store.search('leave');store.search('leave')
+>       assert len(calls)==expected_calls
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_office_query_cache.py:104: AssertionError
+_ test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\n{"entities":[],"relations":[]}\n```-1] _
+
+response = '```json\n{"entities":[],"relations":[]}\n```', expected_calls = 1
+
+    @pytest.mark.parametrize('response,expected_calls', [
+        ('{"entities":[],"relations":[]}',1),
+        ('```json\n{"entities":[],"relations":[]}\n```',1),
+        ('invalid json',2),
+        ('{}',2),
+        ('{"entities":"wrong","relations":[]}',2),
+        (RuntimeError('model offline'),2),
+    ])
+    def test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses(response,expected_calls):
+        import json
+        calls=[]
+        def llm(*args):
+            calls.append(1)
+            if isinstance(response,Exception):raise response
+            return response
+        class Extractor:
+            def __init__(self,llm_fn):self.llm_fn=llm_fn
+            def extract(self,text):
+                try:
+                    raw=self.llm_fn('system',text).strip()
+                    if raw.startswith('```json'):raw=raw[7:]
+                    if raw.endswith('```'):raw=raw[:-3]
+                    json.loads(raw.strip())
+                except Exception:pass
+                return SimpleNamespace(entities=[],relations=[])
+        class Store:
+            def __init__(self,cfg,user_id):
+                self.user_id=user_id;self.extractor=Extractor(llm)
+            def search(self,text):return self.extractor.extract(text)
+        cache=QueryExtractionCache();install_on(Store,Extractor,cache)
+        store=Store('config','alice')
+        store.search('leave');store.search('leave')
+>       assert len(calls)==expected_calls
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_office_query_cache.py:104: AssertionError
+============================== warnings summary ===============================
+tests/test_office_query_cache.py::test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model
+  D:\��������������\Desktop\1\Lib\site-packages\pytest_asyncio\plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: D:\tx\mini-drop\output\acceptance\performance-fix-20260930\cache-empty-before.xml -
+=========================== short test summary info ===========================
+FAILED tests/test_office_query_cache.py::test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{"entities":[],"relations":[]}-1]
+FAILED tests/test_office_query_cache.py::test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\n{"entities":[],"relations":[]}\n```-1]
+2 failed, 7 passed, 1 warning in 0.66s

@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "checks": {
+    "answers": true,
+    "completed": true,
+    "injection": true,
+    "same_process_version": true,
+    "semantic": true,
+    "fault_vs_baseline": true,
+    "fault_vs_recovery": true,
+    "measured_sleep": true
+  },
+  "requests": [
+    {
+      "request_id": "dd1df20f7263419e98910fb7d9ca32ac",
+      "exercise_phase": "baseline",
+      "injected_delay_ms": 0,
+      "duration_ms": 5063.478,
+      "stage_ms": {
+        "embedding_ms": 238.525,
+        "generation_ms": 1216.263,
+        "retrieval_ms": 1697.237
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 21.003,
+        "chunk_load_ms": 25.958,
+        "keyword_search_ms": 23.259,
+        "graph_search_ms": 1626.697,
+        "search_wall_ms": 1935.762
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3530303,
+      "version": "observer-20260930T134526Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "5172d1fec8a54af98c136e762af82d1c",
+      "exercise_phase": "fault",
+      "injected_delay_ms": 2500,
+      "duration_ms": 12884.671,
+      "stage_ms": {
+        "embedding_ms": 279.484,
+        "generation_ms": 875.949,
+        "retrieval_ms": 9548.649
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 11.677,
+        "chunk_load_ms": 3.812,
+        "fault_delay_ms": 2500.065,
+        "keyword_search_ms": 16.579,
+        "graph_search_ms": 7016.186,
+        "search_wall_ms": 9828.133
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3530303,
+      "version": "observer-20260930T134526Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "2601cee3f4d148cfa875378858ceb3e3",
+      "exercise_phase": "recovery",
+      "injected_delay_ms": 0,
+      "duration_ms": 5126.364,
+      "stage_ms": {
+        "embedding_ms": 242.188,
+        "generation_ms": 1307.546,
+        "retrieval_ms": 1766.566
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 14.804,
+        "chunk_load_ms": 4.056,
+        "keyword_search_ms": 17.165,
+        "graph_search_ms": 1730.187,
+        "search_wall_ms": 2008.755
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3530303,
+      "version": "observer-20260930T134526Z",
+      "http_status": 200,
+      "answer_matches": true
+    }
+  ]
+}
