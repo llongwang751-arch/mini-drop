@@ -22,4 +22,10 @@
 
 Java GC规划HTTP500源于`uq_diagnostic_skill_activation_diagnosis_skill`冲突：后台和HTTP两条规划路径均先读空再插入。会话仍有三条完成的采集任务并正常收束，不把接口错误改成通过。候选锁定诊断父行后读取现有激活，保护不存在的首次记录和复用trace的读改写；锁已有activation不能保护首插入，所以不采用该办法。没有数据库迁移、唯一约束放宽或泛化异常吞掉。
 
-使用当前PostgreSQL镜像的独立tmpfs测试容器，专用mini_drop_test库及随机测试schema；生产库和卷未接入。旧代码真实触发相同UniqueViolation，初版修复测试仍失败并保留，正确事务范围修复后1项竞争测试通过：两个请求都成功，只留一条记录、两轮trace均保留。临时容器与SSH隧道已清理。21项Skill/Worker回归通过；带覆盖率完整质量门禁1190通过/8项已登记依赖跳过、无覆盖率违约，PG专项已另行实跑。候选待CI、部署与独立新会话验收。证据见同目录`postgres-race-*`、`skill-race-quality.zip`及`worker-rpc-errors.jsonl`。
+使用当前PostgreSQL镜像的独立tmpfs测试容器，专用mini_drop_test库及随机测试schema；生产库和卷未接入。旧代码真实触发相同UniqueViolation，初版修复测试仍失败并保留，正确事务范围修复后1项竞争测试通过：两个请求都成功，只留一条记录、两轮trace均保留。临时容器与SSH隧道已清理。21项Skill/Worker回归通过；带覆盖率完整质量门禁1190通过/8项已登记依赖跳过、无覆盖率违约，PG专项已另行实跑。已发布20260930T093706Z/9c98ab3，183文件一致、其他11容器不变。CI36697120880成功13/13，PG专项6通过零跳过，测试merge e0280c053bbc2d67f478c15434938c7f62a9d662。新GC会话没有RPC异常，三个工具完成、lineage/撤销恢复/清理通过；原协议整项1/1，但该报告缺范围且只证明分配/GC相关，不称因果证明。原记录保留于`fault-plaza-instance-scope-1-after-race-deployed-20260930.json`。证据见同目录`postgres-race-*`、`skill-race-quality.zip`及`worker-rpc-errors.jsonl`。
+
+## Java Profile的新报告范围候选
+
+复验暴露范围仅覆盖已注册Python/Go合同，Java具体热点文本虽声明相关性/因果限制，仍以“根因结论”输出且缺结构化范围，现有兼容评分接受了1/1。不能把该数字提升为因果准确率。候选把Java各Profile事件的具体路径统一视为观测，新报告由已接受的具体观测设置BOUNDED_OBSERVATION与causal_root_cause_verified=false，并使用观测标题与无根因修复建议。测量门禁、采样数/占比、计数器、原始报告及唯一性均不变；既有报告优先原样返回。
+
+用上述原始case的不可变SHA、真实假设和Envelope重建报告入库，旧代码新报告缺scope而失败，历史报告不变测试通过。修复后同一输入仍VERIFIED/coverage1/独立计数器，GC101次、418ms数值不变，但仅是已验证观测；77项回归通过。最终全量、CI与云端新会话结果待实际执行追加。

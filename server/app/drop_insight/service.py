@@ -123,6 +123,7 @@ from .hypothesis_predicate import (
     _structured_signal_predicate,
 )
 from .report_conclusion import (
+    _ObservationFinding,
     _concrete_report_finding,
     _derive_next_actions,
     _derive_report_conclusion,
@@ -1934,13 +1935,17 @@ def generate_report(
             language_hint=_diagnosis_runtime_family(diagnosis),
         )
 
+        accepted_supporting = [item for item in supporting if item.evidence_id in support_refs]
+        if isinstance(_concrete_report_finding(accepted_supporting), _ObservationFinding):
+            # JVM profile/counters describe observed paths and activity, as
+            # do registered CPU contracts. Neither is a causal intervention.
+            verification["claim_scope"] = "BOUNDED_OBSERVATION"
+            verification["causal_root_cause_verified"] = False
         conclusion = _derive_report_conclusion(
             hypothesis.statement,
             support_refs=support_refs,
             counter_refs=counter_refs,
-            supporting=[
-                item for item in supporting if item.evidence_id in support_refs
-            ],
+            supporting=accepted_supporting,
             verification_status=verification["status"],
         )
         assumptions = ["结论仅适用于当前诊断目标与时间窗口"]

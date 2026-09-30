@@ -73,7 +73,7 @@ def test_java_alloc_report_names_observed_function_and_boundary():
         verification_status="PARTIAL_WITHOUT_COUNTER",
     )
 
-    assert conclusion.startswith("阶段性根因：")
+    assert conclusion.startswith("阶段性观测：")
     assert "Hotspot.lambda$startWorkers$1" in conclusion
     assert "2842 个有效样本" in conclusion
     assert "byte[]" in conclusion
@@ -116,7 +116,7 @@ def test_java_alloc_report_renders_independent_gc_counter_window():
         verification_status="VERIFIED",
     )
 
-    assert conclusion.startswith("根因结论：")
+    assert conclusion.startswith("已验证观测：")
     assert "GC 11 次" in conclusion
     assert "GC 耗时增加 83 ms" in conclusion
     assert "不能冒充 Full GC 次数" in conclusion

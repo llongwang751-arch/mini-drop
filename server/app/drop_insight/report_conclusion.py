@@ -167,7 +167,7 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
             "wall": "该证据确认了阻塞路径，但仍需依赖侧或系统侧证据区分具体等待来源。",
             "cpu": "该证据确认了 CPU 热路径，但仍需修复前后对照确认其因果贡献。",
         }.get(profile_event, "该证据定位了具体热路径，仍需修复前后对照完成因果验证。")
-        return (
+        return _ObservationFinding(
             f"{sample_text}{event_label}定位在业务调用路径 `{business_function}`"
             f"{percent_text}{type_text}。{boundary}"
         )

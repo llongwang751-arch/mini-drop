@@ -1,0 +1,805 @@
+{
+  "run_status": "COMPLETED",
+  "completed": 1,
+  "selected": 1,
+  "counts": {
+    "passed": 1,
+    "lineage_verified": 1,
+    "root_cause_accepted": 1,
+    "injection_observed": 1,
+    "recovery_observed": 1,
+    "cleanup_verified": 1,
+    "session_drained": 1,
+    "verified_observation_reports": 0,
+    "wrong_agent": 0,
+    "any_independent_report": 1
+  },
+  "campaign_sha256": "a5b40389fed2c2fb5248569cdbe7e01a9c9e73f8d7e1e81994fee1a6b0802f2d",
+  "scenarios": [
+    {
+      "scenario_id": "java-gc-pressure",
+      "diagnosis_id": "insight_ee1927da08034a9aae64316a8f9eb36e",
+      "passed": true,
+      "lineage_verified": true,
+      "root_cause_accepted": true,
+      "injection_observed": true,
+      "recovery_observed": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "bounded_reports": 0,
+      "verified_observation_reports": 0,
+      "session_status": "COMPLETED",
+      "selected_agent": "control-interview-demo-agent",
+      "expected_agent": "control-interview-demo-agent",
+      "wrong_agent": false,
+      "any_independent_report": true,
+      "lineage_error": null,
+      "failure_labels": [],
+      "reports": [
+        {
+          "report_id": "report_c5e2a98e329a77bb16e295db58e45146",
+          "hypothesis_id": "hyp_cd3457826024485fa0186b2bb20270ad",
+          "verification": {
+            "status": "VERIFIED",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "async-profiler alloc profile captured Java path Hotspot$$Lambda.0x0000744cc4001000.run at 99.7%",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/lang/Thread.run 占 100.0% 样本",
+                "json_pointer": "/metadata/top_functions/0/percent",
+                "claimed_value": 100.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/lang/Thread.runWith 占 100.0% 样本",
+                "json_pointer": "/metadata/top_functions/1/percent",
+                "claimed_value": 100.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot$$Lambda.0x0000744cc4001000.run 占 99.74% 样本",
+                "json_pointer": "/metadata/top_functions/2/percent",
+                "claimed_value": 99.74,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.lambda$startWorkers$1 占 99.74% 样本",
+                "json_pointer": "/metadata/top_functions/3/percent",
+                "claimed_value": 99.74,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "byte[] 占 99.74% 样本",
+                "json_pointer": "/metadata/top_functions/4/percent",
+                "claimed_value": 99.74,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot$$Lambda.0x0000744cc4002690.run 占 0.26% 样本",
+                "json_pointer": "/metadata/top_functions/5/percent",
+                "claimed_value": 0.26,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.lambda$main$0 占 0.26% 样本",
+                "json_pointer": "/metadata/top_functions/6/percent",
+                "claimed_value": 0.26,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.publishMetricsSnapshot 占 0.26% 样本",
+                "json_pointer": "/metadata/top_functions/7/percent",
+                "claimed_value": 0.26,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.hostPid 占 0.22% 样本",
+                "json_pointer": "/metadata/top_functions/8/percent",
+                "claimed_value": 0.22,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "Hotspot.snapshot 占 0.22% 样本",
+                "json_pointer": "/metadata/top_functions/9/percent",
+                "claimed_value": 0.22,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/nio/file/Files.readAllLines 占 0.22% 样本",
+                "json_pointer": "/metadata/top_functions/10/percent",
+                "claimed_value": 0.22,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/nio/file/Files.newBufferedReader 占 0.15% 样本",
+                "json_pointer": "/metadata/top_functions/11/percent",
+                "claimed_value": 0.15,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "char[] 占 0.11% 样本",
+                "json_pointer": "/metadata/top_functions/12/percent",
+                "claimed_value": 0.11,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/io/BufferedReader.<init> 占 0.11% 样本",
+                "json_pointer": "/metadata/top_functions/13/percent",
+                "claimed_value": 0.11,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java.lang.Object[] 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/14/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java.lang.String 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/15/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java.util.HashMap$Node 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/16/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/io/BufferedReader.readLine 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/17/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/io/InputStreamReader.<init> 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/18/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4395",
+                "artifact_id": "4395",
+                "artifact_sha256": "3f8917f7eba36ac9b083e423e7e22d3aff0da70f1ae282033d482c8c572c2ec2",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "TOP_FUNCTION_PERCENT",
+                "statement": "java/nio/ByteBuffer.allocate 占 0.04% 样本",
+                "json_pointer": "/metadata/top_functions/19/percent",
+                "claimed_value": 0.04,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094649_a7dea6_4396",
+                "artifact_id": "4396",
+                "artifact_sha256": "0044ca60812d861d3995f06d2085727fad78a7e6f01652192930197586eb2a22",
+                "direction": "CONTROL",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "same-window JVM counters independently observed 101 GC cycle(s), 418 ms GC time, and 1846542336 allocated bytes",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "CONTROL",
+                "criterion": {
+                  "kind": "falsification",
+                  "index": 0
+                }
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 21,
+            "counter_claim_count": 0,
+            "coverage_ratio": 1.0,
+            "has_independent_counter_or_control": true,
+            "control_claim_count": 1,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "制定受控变更计划",
+                  "urgency": "LOW",
+                  "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "VERIFIED",
+              "has_independent_counter_or_control": true,
+              "support_claim_count": 21,
+              "counter_claim_count": 0,
+              "control_claim_count": 1,
+              "coverage_ratio": 1.0,
+              "covered_expected": [
+                0
+              ],
+              "covered_falsification": [
+                0
+              ],
+              "missing_expected": [],
+              "missing_falsification": [],
+              "needs_independent_counter_or_control": false,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "制定受控变更计划",
+                    "urgency": "LOW",
+                    "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 1,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 1,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [
+                {
+                  "symbol": "Hotspot.hostPid",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.hostPid",
+                  "line_start": 94,
+                  "line_end": 106,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.snapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.snapshot",
+                  "line_start": 136,
+                  "line_end": 189,
+                  "review_signals": [
+                    "loop"
+                  ],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                },
+                {
+                  "symbol": "Hotspot.publishMetricsSnapshot",
+                  "language": "java",
+                  "source_root": "/workspace-source/demo/java-hotspot",
+                  "file": "Hotspot.java",
+                  "qualname": "Hotspot.publishMetricsSnapshot",
+                  "line_start": 203,
+                  "line_end": 228,
+                  "review_signals": [],
+                  "confidence": "exact_symbol",
+                  "disclaimer": "静态源码映射只用于缩小人工复核范围，不等同于已验证根因。"
+                }
+              ],
+              "unresolved_symbols": [
+                "Hotspot$$Lambda.0x0000744cc4001000.run",
+                "Hotspot$$Lambda.0x0000744cc4002690.run",
+                "Hotspot.lambda$main$0",
+                "Hotspot.lambda$startWorkers$1",
+                "byte[]",
+                "char[]",
+                "java.lang.Object[]",
+                "java.lang.String",
+                "java.util.HashMap$Node",
+                "java/io/BufferedReader.<init>",
+                "java/io/BufferedReader.readLine",
+                "java/io/InputStreamReader.<init>",
+                "java/lang/Thread.run",
+                "java/lang/Thread.runWith",
+                "java/nio/ByteBuffer.allocate",
+                "java/nio/file/Files.newBufferedReader",
+                "java/nio/file/Files.readAllLines"
+              ]
+            }
+          },
+          "conclusion": "根因结论：在 2715 个有效样本中，Java 对象分配热点定位在业务调用路径 `Hotspot.lambda$startWorkers$1`，占有效样本的 99.7%，主要分配对象为 byte[]、char[]、java.lang.Object[]。同一采集窗口的独立 JVM 计数器同时记录到 GC 101 次、GC 耗时增加 418 ms、累计分配增加 1846542336 字节；这确认了分配与 GC 活动相关，但仍不能冒充 Full GC 次数或停顿分位数。"
+        },
+        {
+          "report_id": "report_9707518ed6730751a5f4203d3ddbaa67",
+          "hypothesis_id": "hyp_5d2def19729e4d5d94ccb3be4755b974",
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claims": [],
+            "rejected_claims": [],
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "INSUFFICIENT_EVIDENCE",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 0,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.0,
+              "covered_expected": [],
+              "covered_falsification": [],
+              "missing_expected": [
+                0
+              ],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力”仍待验证。"
+        },
+        {
+          "report_id": "report_bc4fe18c954e63ad7b6096d77908a788",
+          "hypothesis_id": "hyp_601518b6dc2745d78c9b1f4b587c194b",
+          "verification": {
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claims": [
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "HYPOTHESIS_PREDICATE",
+                "statement": "JVM allocation and garbage-collection counters advanced in the same window",
+                "json_pointer": "/metadata/hypothesis_predicate/outcome",
+                "claimed_value": "SUPPORT",
+                "criterion": {
+                  "kind": "expected",
+                  "index": 0
+                }
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+                "statement": "用户态 CPU 占比: 14.482",
+                "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+                "claimed_value": 14.482,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+                "statement": "系统态 CPU 占比: 5.938",
+                "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+                "claimed_value": 5.938,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+                "statement": "I/O wait 占比: 0.833",
+                "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+                "claimed_value": 0.833,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+                "statement": "进程 CPU 核占用: 3.57",
+                "json_pointer": "/metadata/summary/process_cpu_core_usage",
+                "claimed_value": 3.57,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+                "statement": "系统一分钟负载: 0.623",
+                "json_pointer": "/metadata/summary/load1m",
+                "claimed_value": 0.623,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS",
+                "statement": "进程 RSS: 162.293",
+                "json_pointer": "/metadata/summary/vmrss_mb",
+                "claimed_value": 162.293,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+                "statement": "进程 RSS 峰值: 280.676",
+                "json_pointer": "/metadata/summary/vmrss_mb_max",
+                "claimed_value": 280.676,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_COUNT",
+                "statement": "文件描述符数量: 11.0",
+                "json_pointer": "/metadata/summary/fd_count",
+                "claimed_value": 11.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_FD_TREND",
+                "statement": "文件描述符趋势: 0.0",
+                "json_pointer": "/metadata/summary/fd_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_COUNT",
+                "statement": "线程数量: 31.0",
+                "json_pointer": "/metadata/summary/thread_count",
+                "claimed_value": 31.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_THREAD_TREND",
+                "statement": "线程数量趋势: 0.0",
+                "json_pointer": "/metadata/summary/thread_trend",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+                "statement": "非自愿上下文切换速率: 0.0",
+                "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+                "statement": "磁盘读取吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_read_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              },
+              {
+                "evidence_id": "ev_task_task_20260930_094424_5ecdc4_4391",
+                "artifact_id": "4391",
+                "artifact_sha256": "94b52494d0f2d5560f0254fcf46608e3d8c4affad703172ec6d77157e9d0373e",
+                "direction": "SUPPORT",
+                "valid": true,
+                "reasons": [],
+                "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+                "statement": "磁盘写入吞吐: 0.0",
+                "json_pointer": "/metadata/summary/disk_write_kbps",
+                "claimed_value": 0.0,
+                "criterion": null
+              }
+            ],
+            "rejected_claims": [],
+            "support_claim_count": 15,
+            "counter_claim_count": 0,
+            "coverage_ratio": 0.5,
+            "has_independent_counter_or_control": false,
+            "control_claim_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "verification": {
+              "status": "PARTIAL_WITHOUT_COUNTER",
+              "has_independent_counter_or_control": false,
+              "support_claim_count": 15,
+              "counter_claim_count": 0,
+              "control_claim_count": 0,
+              "coverage_ratio": 0.5,
+              "covered_expected": [
+                0
+              ],
+              "covered_falsification": [],
+              "missing_expected": [],
+              "missing_falsification": [
+                0
+              ],
+              "needs_independent_counter_or_control": true,
+              "rejected_count": 0,
+              "remediation": {
+                "schema_version": 2,
+                "mitigations": [
+                  {
+                    "title": "补齐证据与同负载对照",
+                    "urgency": "LOW",
+                    "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                  }
+                ],
+                "root_cause_fixes": []
+              }
+            },
+            "source_context": {
+              "configured_roots": 7,
+              "language_filter": "java",
+              "scanned_files": 0,
+              "scanned_by_language": {
+                "python": 0,
+                "go": 0,
+                "java": 0,
+                "ruby": 0,
+                "cpp": 0
+              },
+              "mappings": [],
+              "unresolved_symbols": []
+            }
+          },
+          "conclusion": "阶段性判断：证据与候选假设一致，但尚未定位到具体函数、资源或依赖；不能把假设“Java 服务停顿可能与 GC 压力或堆内存波动有关”直接写成最终根因，需要继续取证。"
+        }
+      ],
+      "tool_statuses": {
+        "COMPLETED": 3
+      },
+      "case_sha256": "cb4167af8bf3db28992ed1646be6c25a7d2034683a7f0cd78c0c765380996985"
+    }
+  ],
+  "boundary": "Case counts, not production accuracy. Observation and root counts remain separate."
+}
