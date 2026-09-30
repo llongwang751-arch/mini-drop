@@ -139,3 +139,65 @@ def test_bounded_cache_keeps_rankings_equal_and_new_content_cannot_hit_old_score
 def test_optimization_flags_are_explicit_booleans(change):
     with pytest.raises(ValueError):
         replace(load.Plan(), **change).validate()
+
+
+def test_blocked_route_does_not_block_another_thread_or_hide_its_latency():
+    from concurrent.futures import ThreadPoolExecutor
+    blocked, release = threading.Event(), threading.Event()
+    observed=[]
+
+    def server(slow):
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version='HTTP/1.1'
+            def log_message(self,*args):pass
+            def do_POST(self):
+                self.rfile.read(int(self.headers['Content-Length']))
+                observed.append((slow,self.client_address))
+                if slow:
+                    blocked.set()
+                    assert release.wait(3)
+                body=b'{"success":true,"citations":["leave"]}'
+                self.send_response(200);self.send_header('Content-Length',str(len(body)))
+                self.end_headers();self.wfile.write(body)
+        http=ThreadingHTTPServer(('127.0.0.1',0),Handler)
+        thread=threading.Thread(target=http.serve_forever,daemon=True);thread.start()
+        return http,thread
+
+    transport=load.FixtureTransport()
+    first,first_thread=server(True);second,second_thread=server(False)
+    urls=tuple(f'http://127.0.0.1:{http.server_port}/query' for http in (first,second))
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            slow=executor.submit(ask,urls,transport)
+            assert blocked.wait(1)
+            try:
+                # Completion while the first response is withheld is the oracle;
+                # no timing estimate or external network is needed to prove isolation.
+                fast=[executor.submit(ask,urls,transport).result(timeout=1) for _ in range(5)]
+                assert not slow.done()
+                assert all(r['success'] and r['quality_passed'] and r['transport_index']==1 for r in fast)
+                assert sum(not item[0] for item in observed)==5
+                assert len({item[1] for item in observed if not item[0]})==1
+            finally:
+                release.set()
+            row=slow.result(timeout=1)
+            assert row['success'] and row['transport_index']==0 and row['latency_ms']>0
+            assert len(observed)==6  # Both slow and healthy attempts retained, no retry.
+    finally:
+        release.set();transport.close()
+        for http,thread in ((first,first_thread),(second,second_thread)):
+            http.shutdown();http.server_close();thread.join(timeout=3)
+    assert not transport.connections
+
+
+@pytest.mark.parametrize('routes',[(),tuple('http://127.0.0.1/query' for _ in range(9)),('http://example.com/query',)])
+def test_route_pool_is_bounded_and_local(routes):
+    transport=load.FixtureTransport()
+    with pytest.raises(ValueError):transport.route(routes)
+
+
+def test_route_pool_cannot_change_mid_measurement():
+    transport=load.FixtureTransport()
+    first=('http://127.0.0.1:10001/query','http://127.0.0.1:10002/query')
+    assert transport.route(first)==(first[0],0)
+    with pytest.raises(ValueError):transport.route((first[1],))

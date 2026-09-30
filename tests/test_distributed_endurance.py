@@ -121,3 +121,12 @@ def test_distributed_threshold_cannot_be_relaxed(tmp_path):
         distributed.run(tmp_path / "unused", distributed.Plan(p95_limit_ms=500),
                         "worker", "/source", "/evidence")
     assert not (tmp_path / "unused").exists()
+
+
+@pytest.mark.parametrize('count',[True,0,9])
+def test_ssh_transport_pool_rejects_unsafe_counts_before_creating_fixture(tmp_path,count):
+    from scripts.run_distributed_endurance import run
+    from scripts.run_load_endurance import Plan
+    with pytest.raises(ValueError,match='SSH tunnel count'):
+        run(tmp_path/'evidence',Plan(),'ubuntu@host','/source','/output',tunnel_count=count)
+    assert not (tmp_path/'evidence').exists()

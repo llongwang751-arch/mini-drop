@@ -166,6 +166,27 @@ class FixtureTransport:
         self.local = threading.local()
         self.connections = set()
         self.lock = threading.Lock()
+        self.endpoint_pool = None
+        self.next_route = 0
+
+    def route(self, endpoints):
+        if not isinstance(endpoints, tuple) or not 1 <= len(endpoints) <= 8:
+            raise ValueError("fixture endpoint pool must contain 1 to 8 routes")
+        for endpoint in endpoints:
+            url = urlsplit(endpoint)
+            if url.scheme != "http" or url.hostname != "127.0.0.1" or url.username or url.password:
+                raise ValueError("fixture endpoint pool only accepts local HTTP")
+        with self.lock:
+            if self.endpoint_pool is None:
+                self.endpoint_pool = endpoints
+            elif self.endpoint_pool != endpoints:
+                raise ValueError("fixture endpoint pool cannot change during measurement")
+            index = getattr(self.local, "route_index", None)
+            if index is None:
+                index = self.next_route % len(endpoints)
+                self.next_route += 1
+                self.local.route_index = index
+        return endpoints[index], index
 
     def post(self, endpoint, payload, timeout):
         url = urlsplit(endpoint)
@@ -222,6 +243,14 @@ def request(endpoint, index, due, origin, timeout, transport=None):
            "success": False, "quality_passed": False, "http_status": None, "error": None}
     question, expected = QUESTIONS[index % len(QUESTIONS)]
     try:
+        if isinstance(endpoint, tuple):
+            if transport is not None:
+                endpoint, row["transport_index"] = transport.route(endpoint)
+            else:
+                if not 1 <= len(endpoint) <= 8:
+                    raise ValueError("fixture endpoint pool must contain 1 to 8 routes")
+                row["transport_index"] = index % len(endpoint)
+                endpoint = endpoint[row["transport_index"]]
         req = Request(endpoint, data=json.dumps({"question": question}).encode(),
                       headers={"Content-Type": "application/json"}, method="POST")
         if transport is None:
