@@ -1,5 +1,9 @@
 # 21 场景严格验收
 
+## 2026-09-30 验收传输路径修复（本地客户端）
+
+定位上轮失败：系统代理路径复现读取超时，同接口直连成功；原时段74条API非SSE GET均200、最大34ms。重试的JVM/perf采样发生在客户端超时撤销之后，因此零GC/无样本不能用来评估故障期采样能力。新增显式直连选项和方法/路径/异常类型记录，默认路由不变、不重试不确定POST、不放宽判据，TLS链与主机名仍验证。9项旧代码负向复现，相关96项修复通过，全量1201通过/8登记跳过。运行时保持d26bc2c，本地客户端修复待远程CI，冻结部署的独立新GC批次已COMPLETED，无传输错误，取证链/注入/撤销恢复/清理/收束均通过，三工具完成；VERIFIED有界观测仍不计因果根因，严格0/1，真实浏览器通过；原两个STOPPED_UNSAFE_TO_CONTINUE记录保留。详情见[传输复盘](../reports/architecture/acceptance-transport-20260930.md)。
+
 ## 本轮子集与完整成绩的边界
 
 实例范围三项新批次目标正确3/3、清理与恢复3/3，严格根因0/3。Skill修复后的历史GC协议成绩1/1保留，但该报告只有分配/GC相关且缺范围，不能称因果证明。当前Java新报告为BOUNDED_OBSERVATION、causal=false；即使VERIFIED也应拒绝因果根因成绩。范围修复首批遇TLS/读取错误，原STOPPED_UNSAFE_TO_CONTINUE记录保留，独立安全清理另存。[本轮证据](../reports/architecture/instance-scope-fix-20260930.md)与原完整21场景分开；公开latest_acceptance仍读取原完整批次，不拼接或重写历史分数。

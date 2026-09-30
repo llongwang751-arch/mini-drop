@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1943 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **1974 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 511 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 514 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2123,6 +2123,7 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790753916581/` | browser-1790753916581 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790757941555/` | browser-1790757941555 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/browser-1790763568593/` | browser-1790763568593 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/local-sre-20260919/browser-1790765169761/` | browser-1790765169761 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/` | tests-r3 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/` | test_failed_index_is_not_publi0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/local-sre-20260919/tests-r3/test_index_is_immutable_reusab0/` | test_index_is_immutable_reusab0 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2425,6 +2426,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-deployed-20260930-cases/` | fault-plaza-instance-scope-1-bounded-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-retry-deployed-20260930-cases/` | fault-plaza-instance-scope-1-bounded-retry-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/` | fault-plaza-instance-scope-3-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/ai-diagnosis/fault-plaza-java-direct-deployed-20260930-cases/` | fault-plaza-java-direct-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/` | fault-plaza-strict-21-deployed-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/` | fault-plaza-strict-21-deployed-20260930-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/` | fault-plaza-strict-pilot-20260928-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2452,6 +2454,7 @@ python scripts/render_learning_guide.py
 | `reports/quality/` | quality 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/rpc-read-stability-20260930/` | rpc-read-stability-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `scripts/` | 可重复运行的生成、检验、截图、评测与运维辅助入口。 |
 | `server/` | Python 服务包。 |
 | `server/app/` | Python 服务基础能力、数据模型、Worker 和分析调度。 |
@@ -3003,6 +3006,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `tests/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `tests/conftest.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `postgres_sessions` |
+| `tests/test_acceptance_client_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `local_api`、`test_explicit_direct_route_reads_api_and_artifact_without_global_proxy`、`test_direct_route_uses_current_verified_tls_context`、`test_transport_failure_identifies_request_without_retry_or_credential`、`test_unknown_proxy_mode_rejected` |
 | `tests/test_actual_rag_adapter.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_service`、`test_trace_context_rejects_zero_or_malformed_ids_and_isolates_requests`、`test_failure_observations_and_bounded_retention_are_truthful`、`test_http_only_exposes_bounded_query_and_redacted_observations` |
 | `tests/test_agent_deadlines.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `diagnosis`、`test_wall_clock_includes_planning_and_reserves_finalization`、`test_verifier_exposes_gaps_without_upgrading_partial_report`、`test_model_calls_share_deadline_and_override_provider_timeout`、`test_summarization_uses_bounded_copy` 等 7 个声明 |
 | `tests/test_agent_metrics_migration.py` | 验证指标迁移保留旧数据、默认缺失以及重复升级兼容性。 | `test_metrics_migration_preserves_existing_agent_and_null_is_not_zero` |
@@ -3470,6 +3474,8 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930-cases/java-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-instance-scope-3-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-java-direct-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/fault-plaza-java-direct-deployed-20260930.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3541,6 +3547,7 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/截图问题修复与验收-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/故障广场其余17场景全链路复验-20260909.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/项目全面检查与修复-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/acceptance-transport-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/agent-deadline-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/agi-saber-rag-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/cloud-deployment-and-strict-retest-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3788,6 +3795,31 @@ python scripts/render_learning_guide.py
 | `reports/quality/instance-scope-20260930/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/worker-rpc-errors.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/acceptance_client.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
+| `reports/quality/rpc-read-stability-20260930/archive-download-id-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/browser-real.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/rpc-read-stability-20260930/browser-result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/client-after.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/client-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/client-before.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/client-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/cloud-raw-artifacts.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/cloud-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/cloud-verified-artifacts-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/cloud-verified-artifacts.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/direct-read-probes.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/final-safety.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/historical-logs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/public-route-probes.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/python-quality.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/quality-python.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/quality.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/retry-session.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/run_direct_strict.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/rpc-read-stability-20260930/ssh_snapshot_provider.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `remote`、`authenticated_client`、`snapshot`、`main` |
+| `reports/quality/rpc-read-stability-20260930/strict-direct.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/rpc-read-stability-20260930/transport-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/面试反馈与项目优化方案-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 
 ### 34.19 output：交付型派生材料
@@ -4119,6 +4151,8 @@ python scripts/render_learning_guide.py
 | `output/local-sre-20260919/browser-1790757941555/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser-1790763568593/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser-1790763568593/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/local-sre-20260919/browser-1790765169761/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/local-sre-20260919/browser-1790765169761/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/browser/real-local.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/local-sre-20260919/browser/result.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/local-sre-20260919/tests-r3/test_failed_index_is_not_publi0/catalog.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

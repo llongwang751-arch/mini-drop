@@ -1,0 +1,185 @@
+{
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "993effdd6b93e954d29f3595396c6397bfcb6da2eaa49dd298d7b53f27f4308d",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "34bce28d788390ceaa98f3226015376ab008ce56271d1be97e9cd91257786850"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20260930T100034Z",
+      "previous_release": "/opt/mini-drop-releases/20260930T093706Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "fce1ca42a9322cc075ae7fc5054d5f4d61cf4dc9b9677e669808b8791c63809f",
+      "source_head": "d26bc2c7a90ca7b5df29dfd9c2a26e060bf0aeb1",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:d3e6d31b78d04378a48005828c00f1a64f05e5cf3afa9cd593da37f76ca758ab",
+          "new": "sha256:41d19a56b343ba7d8f86961e58b45a618c3200862faebfb14fe040c73d884cec",
+          "tag": "mini-drop-diagnosis-worker:20260930T100034Z"
+        },
+        "analyzer": {
+          "old": "sha256:d203508ba8ff0ea9d2d51dfb92c1600800c657aa22bfff5139b6d6ba72115f33",
+          "new": "sha256:1bf47a6f5fc24bbbf9e4dcb743f805b75523533d141c8be31aa27e5ec54369f6",
+          "tag": "mini-drop-analyzer:20260930T100034Z"
+        }
+      },
+      "untouched_container_count": 11,
+      "rollback_config": "/opt/mini-drop-releases/20260930T100034Z/private/rollback.compose.json",
+      "acceptance_transport": {
+        "proxy_mode": "direct",
+        "tls_certificate_verified": true,
+        "tls_hostname_verified": true,
+        "client_source_sha256": "34bce28d788390ceaa98f3226015376ab008ce56271d1be97e9cd91257786850",
+        "provider_source_sha256": "1c4ee5aea243487b1fe807aaaec81544c8adf874a94ccc4050cc2821393d6933"
+      }
+    },
+    "git_head": "db6f9aebf055f441a3af7b946929044c9c434c83"
+  },
+  "schema": "mini-drop.fault-plaza-strict-acceptance.v2",
+  "started_at": "2026-09-30T10:40:59.571650+00:00",
+  "run_status": "COMPLETED",
+  "selected_count": 1,
+  "results": [
+    {
+      "scenario_id": "java-gc-pressure",
+      "title": "Java 分配风暴与 GC 压力",
+      "started_at": "2026-09-30T10:40:59.573594+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1322033,
+        "comm": "java"
+      },
+      "diagnosis_id": "insight_5e01f70bc7184bcdb10ad0cf1ea2fa7f",
+      "fault_before_stop": {
+        "observed_at": "2026-09-30T10:43:50.639483+00:00",
+        "snapshot": {
+          "schema_version": "mini-drop.application-metrics.v1",
+          "status": "ok",
+          "runtime": "java",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "cpu_operations": 0,
+          "cpu_auto_stop_remaining_seconds": 0.0,
+          "gc_fault_active": true,
+          "allocated_bytes": 20466630656,
+          "heap_used_bytes": 39835704,
+          "gc_count": 29741,
+          "gc_time_ms": 43367,
+          "gc_auto_stop_remaining_seconds": 133.406,
+          "lock_fault_active": false,
+          "lock_acquisitions": 625517384,
+          "lock_contentions": 7302386,
+          "lock_wait_ms": 776374.998627,
+          "lock_auto_stop_remaining_seconds": 0.0,
+          "downstream_fault_active": false,
+          "downstream_delay_ms": 260,
+          "downstream_requests": 3080,
+          "downstream_failures": 0,
+          "downstream_average_latency_ms": 260.469260037987,
+          "downstream_auto_stop_remaining_seconds": 0.0,
+          "offheap_fault_active": false,
+          "offheap_retained_bytes": 0,
+          "offheap_auto_stop_remaining_seconds": 0.0,
+          "io_fault_active": false,
+          "io_bytes_written": 1416888320,
+          "io_operations": 10810,
+          "io_failures": 0,
+          "io_auto_stop_remaining_seconds": 0.0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          }
+        }
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_404f023d2dd524d846c156b8ac1042ea",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          },
+          {
+            "report_id": "report_534abc1549356ffbdd18a146e7a3a164",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_fdd45bfc95b5a0ec936a94fddab10a03",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "allocated_bytes",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 109108909.30503345,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1322033,
+            "namespace_pid": 1,
+            "start_ticks": 15546764,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+            "container_started_at": "2026-09-08T08:38:12.585649507Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-09-30T10:44:00.556467+00:00",
+      "report_sha256": "3acfed65ece45218a652d549b8de648cc03b95f37f69a0f405b514c14db40982",
+      "case_report": "reports\\ai-diagnosis\\fault-plaza-java-direct-deployed-20260930-cases\\java-gc-pressure.json"
+    }
+  ],
+  "truth_boundary": "PASS requires legacy lineage, verified concrete scenario-matching root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports.",
+  "completed_count": 1,
+  "passed_count": 0,
+  "failed_count": 1,
+  "passed": false,
+  "updated_at": "2026-09-30T10:44:00.579104+00:00",
+  "report_sha256": "3e1d60e91cf914b0214c57e6aaa387a501dc286df7dfa7486683d4033727a235"
+}

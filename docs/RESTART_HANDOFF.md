@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-09-30 验收传输路径修复（本地客户端）
+
+定位上轮失败：系统代理路径复现读取超时，同接口直连成功；原时段74条API非SSE GET均200、最大34ms。重试的JVM/perf采样发生在客户端超时撤销之后，因此零GC/无样本不能用来评估故障期采样能力。新增显式直连选项和方法/路径/异常类型记录，默认路由不变、不重试不确定POST、不放宽判据，TLS链与主机名仍验证。9项旧代码负向复现，相关96项修复通过，全量1201通过/8登记跳过。运行时保持d26bc2c，本地客户端修复待远程CI，冻结部署的独立新GC批次已COMPLETED，无传输错误，取证链/注入/撤销恢复/清理/收束均通过，三工具完成；VERIFIED有界观测仍不计因果根因，严格0/1，真实浏览器通过；原两个STOPPED_UNSAFE_TO_CONTINUE记录保留。详情见[传输复盘](../reports/architecture/acceptance-transport-20260930.md)。
+
 ## 2026-09-30 三个缺陷闭环已部署
 
 当前后端发布`20260930T100034Z`，源码`d26bc2c7a90ca7b5df29dfd9c2a26e060bf0aeb1`；Worker/Analyzer各183文件SHA一致，其余11个容器不变，私有回滚配置与旧发布保留。Web仍为`20260930T084451Z`/`c9b9964`。[CI36699546451](https://github.com/llongwang751-arch/mini-drop/actions/runs/36699546451)成功13/13，Python1192通过/8项已登记跳过，真实PostgreSQL专项6通过零跳过；测试merge为`7f3cf29db4de628a0f903c3bbb080e594f047223`。

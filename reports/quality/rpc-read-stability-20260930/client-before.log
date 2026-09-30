@@ -1,0 +1,451 @@
+FFFFFFFFF                                                                [100%]
+================================== FAILURES ===================================
+___ test_explicit_direct_route_reads_api_and_artifact_without_global_proxy ____
+
+local_api = ('http://127.0.0.1:62123', [])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB163A80>
+
+    def test_explicit_direct_route_reads_api_and_artifact_without_global_proxy(local_api, monkeypatch):
+        base, requests = local_api
+        monkeypatch.setattr(urllib.request, "urlopen", lambda *_a, **_k: pytest.fail("global route used"))
+        monkeypatch.setattr(urllib.request, "getproxies", lambda: {"http": "http://127.0.0.1:1"})
+>       client = Client(base, "test-credential", proxy_mode="direct")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: Client.__init__() got an unexpected keyword argument 'proxy_mode'
+
+tests\test_acceptance_client_transport.py:48: TypeError
+_____________ test_direct_route_uses_current_verified_tls_context _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB163820>
+
+    def test_direct_route_uses_current_verified_tls_context(monkeypatch):
+>       client = Client("https://example.invalid", "never-log-this", proxy_mode="direct")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: Client.__init__() got an unexpected keyword argument 'proxy_mode'
+
+tests\test_acceptance_client_transport.py:56: TypeError
+_ test_transport_failure_identifies_request_without_retry_or_credential[False-error0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB66C290>
+error = TimeoutError('read timed out'), raw = False
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+                client.request_raw("GET", "/artifact")
+            else:
+>               client.request("POST", "/diagnoses", {})
+
+tests\test_acceptance_client_transport.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB2B06E0>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB0D5B50>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       TimeoutError: read timed out
+
+tests\test_acceptance_client_transport.py:94: TimeoutError
+_ test_transport_failure_identifies_request_without_retry_or_credential[False-error1] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB690050>
+error = SSLEOFError('EOF'), raw = False
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+                client.request_raw("GET", "/artifact")
+            else:
+>               client.request("POST", "/diagnoses", {})
+
+tests\test_acceptance_client_transport.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB2260D0>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB15D8B0>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       ssl.SSLEOFError: ('EOF',)
+
+tests\test_acceptance_client_transport.py:94: SSLEOFError
+_ test_transport_failure_identifies_request_without_retry_or_credential[False-error2] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB6905A0>
+error = RemoteDisconnected('connection closed'), raw = False
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+                client.request_raw("GET", "/artifact")
+            else:
+>               client.request("POST", "/diagnoses", {})
+
+tests\test_acceptance_client_transport.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB227390>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB15DA50>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       http.client.RemoteDisconnected: connection closed
+
+tests\test_acceptance_client_transport.py:94: RemoteDisconnected
+_ test_transport_failure_identifies_request_without_retry_or_credential[True-error0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB671650>
+error = TimeoutError('read timed out'), raw = True
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+>               client.request_raw("GET", "/artifact")
+
+tests\test_acceptance_client_transport.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:160: in request_raw
+    with urllib.request.urlopen(
+tests\test_acceptance_client_transport.py:94: in fail
+    raise error
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:344: in from_call
+    result: TResult | None = func()
+                             ^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:246: in <lambda>
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:113: in pytest_runtest_call
+    raise hard_failure
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:108: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\logging.py:850: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\capture.py:900: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\skipping.py:263: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:178: in pytest_runtest_call
+    item.runtest()
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:1671: in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:157: in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_acceptance_client_transport.py:101: in test_transport_failure_identifies_request_without_retry_or_credential
+    client.request("POST", "/diagnoses", {})
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB2B06E0>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB0D5B50>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       TimeoutError: read timed out
+
+tests\test_acceptance_client_transport.py:94: TimeoutError
+_ test_transport_failure_identifies_request_without_retry_or_credential[True-error1] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB671B50>
+error = SSLEOFError('EOF'), raw = True
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+>               client.request_raw("GET", "/artifact")
+
+tests\test_acceptance_client_transport.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:160: in request_raw
+    with urllib.request.urlopen(
+tests\test_acceptance_client_transport.py:94: in fail
+    raise error
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:344: in from_call
+    result: TResult | None = func()
+                             ^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:246: in <lambda>
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:113: in pytest_runtest_call
+    raise hard_failure
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:108: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\logging.py:850: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\capture.py:900: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\skipping.py:263: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:178: in pytest_runtest_call
+    item.runtest()
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:1671: in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:157: in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_acceptance_client_transport.py:101: in test_transport_failure_identifies_request_without_retry_or_credential
+    client.request("POST", "/diagnoses", {})
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB2260D0>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB15D8B0>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       ssl.SSLEOFError: ('EOF',)
+
+tests\test_acceptance_client_transport.py:94: SSLEOFError
+_ test_transport_failure_identifies_request_without_retry_or_credential[True-error2] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D6DB6E14F0>
+error = RemoteDisconnected('connection closed'), raw = True
+
+    @pytest.mark.parametrize("error", [TimeoutError("read timed out"),
+                                      ssl.SSLEOFError("EOF"),
+                                      http.client.RemoteDisconnected("connection closed")])
+    @pytest.mark.parametrize("raw", [False, True])
+    def test_transport_failure_identifies_request_without_retry_or_credential(monkeypatch, error, raw):
+        calls = []
+        def fail(request, **kwargs):
+            calls.append(request.method)
+            raise error
+        monkeypatch.setattr(urllib.request, "urlopen", fail)
+        client = Client("https://example.invalid", "never-log-this")
+        with pytest.raises(AcceptanceError) as failure:
+            if raw:
+>               client.request_raw("GET", "/artifact")
+
+tests\test_acceptance_client_transport.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\verify_interview_demo.py:160: in request_raw
+    with urllib.request.urlopen(
+tests\test_acceptance_client_transport.py:94: in fail
+    raise error
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:344: in from_call
+    result: TResult | None = func()
+                             ^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:246: in <lambda>
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:113: in pytest_runtest_call
+    raise hard_failure
+D:\��������������\Desktop\1\Lib\site-packages\pytest_playwright\pytest_playwright.py:108: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\logging.py:850: in pytest_runtest_call
+    yield
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\capture.py:900: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\skipping.py:263: in pytest_runtest_call
+    return (yield)
+            ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\runner.py:178: in pytest_runtest_call
+    item.runtest()
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:1671: in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+D:\��������������\Desktop\1\Lib\site-packages\_pytest\python.py:157: in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_acceptance_client_transport.py:101: in test_transport_failure_identifies_request_without_retry_or_credential
+    client.request("POST", "/diagnoses", {})
+scripts\verify_interview_demo.py:119: in request
+    with urllib.request.urlopen(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <urllib.request.Request object at 0x000001D6DB227390>
+kwargs = {'context': <ssl.SSLContext object at 0x000001D6DB15DA50>, 'timeout': 90}
+
+    def fail(request, **kwargs):
+        calls.append(request.method)
+>       raise error
+E       http.client.RemoteDisconnected: connection closed
+
+tests\test_acceptance_client_transport.py:94: RemoteDisconnected
+______________________ test_unknown_proxy_mode_rejected _______________________
+
+    def test_unknown_proxy_mode_rejected():
+        with pytest.raises(ValueError, match="proxy_mode"):
+>           Client("https://example.invalid", "secret", proxy_mode="automatic-fallback")
+E           TypeError: Client.__init__() got an unexpected keyword argument 'proxy_mode'
+
+tests\test_acceptance_client_transport.py:110: TypeError
+============================== warnings summary ===============================
+tests/test_acceptance_client_transport.py::test_explicit_direct_route_reads_api_and_artifact_without_global_proxy
+  D:\��������������\Desktop\1\Lib\site-packages\pytest_asyncio\plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: D:\tx\mini-drop\output\acceptance\rpc-read-stability-20260930\client-before.xml -
+=========================== short test summary info ===========================
+FAILED tests/test_acceptance_client_transport.py::test_explicit_direct_route_reads_api_and_artifact_without_global_proxy
+FAILED tests/test_acceptance_client_transport.py::test_direct_route_uses_current_verified_tls_context
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[False-error0]
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[False-error1]
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[False-error2]
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[True-error0]
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[True-error1]
+FAILED tests/test_acceptance_client_transport.py::test_transport_failure_identifies_request_without_retry_or_credential[True-error2]
+FAILED tests/test_acceptance_client_transport.py::test_unknown_proxy_mode_rejected
+9 failed, 1 warning in 1.49s
