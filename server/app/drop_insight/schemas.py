@@ -11,6 +11,18 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class CancelDiagnosisRequest(StrictModel):
+    reason: str = Field(default="用户停止本次诊断", min_length=1, max_length=512)
+    expected_version: int | None = Field(default=None, ge=1)
+
+    @model_validator(mode="after")
+    def validate_reason(self):
+        self.reason = self.reason.strip()
+        if not self.reason:
+            raise ValueError("reason must not be blank")
+        return self
+
+
 class DiagnosticTarget(StrictModel):
     service: str | None = Field(default=None, min_length=1, max_length=128)
     environment: str | None = Field(default=None, min_length=1, max_length=64)

@@ -1286,11 +1286,15 @@ def expire_stale_autonomous_diagnoses(
             tool_calls = (
                 session.query(DropInsightToolCallModel)
                 .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
+                .order_by(DropInsightToolCallModel.id)
+                .with_for_update()
                 .all()
             )
             for tool_call in tool_calls:
+                if tool_call.task_id:
+                    _cancel_owned_analysis_jobs(session, tool_call.task_id, reason, checked_at)
                 task = (
-                    session.get(TaskModel, tool_call.task_id)
+                    session.query(TaskModel).filter(TaskModel.id == tool_call.task_id).with_for_update().first()
                     if tool_call.task_id
                     else None
                 )
@@ -1361,6 +1365,89 @@ def expire_stale_autonomous_diagnoses(
         finally:
             session.close()
     return expired
+
+
+def _cancel_owned_analysis_jobs(session, task_id, reason, timestamp):
+    # Analyzer terminal transactions use the same job -> task lock order.
+    jobs = (session.query(AnalysisJobModel).filter(
+        AnalysisJobModel.task_id == task_id,
+        AnalysisJobModel.status.in_({"PENDING", "RETRYING", "RUNNING"}))
+        .order_by(AnalysisJobModel.id).with_for_update().all())
+    for job in jobs:
+        job.status = "CANCELLED"
+        job.status_reason = reason
+        job.lease_owner = None
+        job.lease_expires_at = None
+        job.updated_at = timestamp
+        job.finished_at = timestamp
+
+
+def cancel_diagnosis(
+    diagnosis_id: str,
+    *,
+    reason: str = "用户停止本次诊断",
+    cancelled_by: str = "web",
+    expected_version: int | None = None,
+) -> DropInsightSessionModel | None:
+    """Atomically stop a session and its owned tasks; Agent stops on heartbeat.
+
+    Lock the parent before child rows, as planners do. Repeated cancellation
+    returns the original terminal state, including when the caller retries
+    with the version it read before a lost response.
+    """
+    from .schemas import CancelDiagnosisRequest
+
+    request = CancelDiagnosisRequest(reason=reason, expected_version=expected_version)
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None or diagnosis.deleted_at is not None:
+            return None
+        if diagnosis.status == "CANCELLED":
+            return diagnosis
+        if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED"}:
+            raise ValueError("cannot cancel a terminal diagnosis")
+        if expected_version is not None and diagnosis.version != expected_version:
+            raise ValueError(f"diagnosis version conflict: expected={expected_version}, actual={diagnosis.version}")
+        timestamp = now_utc()
+        previous_status = diagnosis.status
+        cancelled_tasks = []
+        calls = (session.query(DropInsightToolCallModel)
+                 .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
+                 .order_by(DropInsightToolCallModel.id).with_for_update().all())
+        repository = SqlRepository()
+        for call in calls:
+            if call.task_id:
+                _cancel_owned_analysis_jobs(session, call.task_id, request.reason, timestamp)
+            task = (session.query(TaskModel).filter(TaskModel.id == call.task_id)
+                    .with_for_update().first()) if call.task_id else None
+            if task is not None and task.status in {"PENDING", "RUNNING", "UPLOADING", "ANALYZING"}:
+                repository._transition_task_in_session(
+                    session, task.id, TaskStatus.CANCELLED, request.reason, Actor.WEB,
+                    {"diagnosis_id": diagnosis_id, "cancelled_by": cancelled_by})
+                cancelled_tasks.append(task.id)
+            if call.status in {"PROPOSED", "PENDING_APPROVAL", "APPROVED", "TASK_CREATED", "RUNNING"}:
+                call.status = "CANCELLED"
+                call.result_json = {**dict(call.result_json or {}), "error": "diagnosis_cancelled", "reason": request.reason}
+                call.executed_at = call.executed_at or timestamp
+                _release_budget_reservation(call, timestamp=timestamp, reason="diagnosis_cancelled")
+            # A completed collector may race with a pending report import. Its
+            # existing bytes stay readable, but no late effect resumes work.
+            call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+            call.terminal_processed_at = call.terminal_processed_at or timestamp
+        _cas_session_update(session, diagnosis, status="CANCELLED", timestamp=timestamp)
+        _append_event(session, diagnosis_id, "diagnosis.cancelled", "USER",
+                      {"reason": request.reason, "cancelled_by": cancelled_by,
+                       "previous_status": previous_status, "cancelled_task_ids": cancelled_tasks},
+                      timestamp, effect_key=f"diagnosis:{diagnosis_id}:user-cancelled")
+        session.commit()
+        session.refresh(diagnosis)
+        return diagnosis
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
 def delete_diagnosis(
@@ -1527,6 +1614,8 @@ def create_hypothesis(
             )
             if existing is not None:
                 return existing
+        if diagnosis.status == "CANCELLED":
+            raise ValueError("diagnosis is cancelled")
         contract = compile_cpu_observation_contract(
             payload.statement, payload.expected_observations, payload.falsification_criteria,
             runtime=_diagnosis_runtime_family(diagnosis),
@@ -1845,10 +1934,14 @@ def generate_report(
             .first()
         )
         if existing_report is not None:
+            if diagnosis.status == "CANCELLED":
+                return existing_report
             report_id = existing_report.id
             session.expunge(existing_report)
             session.close()
             return _apply_report_effects(report_id)
+        if diagnosis.status == "CANCELLED":
+            raise ValueError("diagnosis is cancelled")
         if (
             payload.expected_version is not None
             and diagnosis.version != payload.expected_version
@@ -5469,7 +5562,7 @@ def _finalize_diagnosis_in_session(
     retry terminating a search that is still collecting evidence.
     """
     diagnosis_id = diagnosis.id
-    if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE"}:
+    if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
         return {
             "finalized": False,
             "status": diagnosis.status,
@@ -5805,6 +5898,8 @@ def request_tool_call(
                 return None
 
         if model is None:
+            if diagnosis.status == "CANCELLED":
+                raise ValueError("diagnosis is cancelled")
             if payload.hypothesis_id:
                 hypothesis = session.get(
                     DropInsightHypothesisModel,
@@ -5902,7 +5997,13 @@ def decide_tool_call(
 ) -> DropInsightToolCallModel | None:
     session = new_session()
     try:
-        model = session.get(DropInsightToolCallModel, tool_call_id)
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            return None
+        if diagnosis.status == "CANCELLED":
+            raise ValueError("diagnosis is cancelled")
+        model = (session.query(DropInsightToolCallModel)
+                 .filter(DropInsightToolCallModel.id == tool_call_id).with_for_update().first())
         if model is None or model.diagnosis_id != diagnosis_id:
             return None
         if model.status != "PENDING_APPROVAL":
@@ -6322,6 +6423,8 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
             )
             task = session.get(TaskModel, snapshot["task_id"])
             if diagnosis is None or task is None or tool_call is None:
+                continue
+            if diagnosis.status == "CANCELLED":
                 continue
             if tool_call.terminal_processing_status == "REPORT_EFFECTS_DONE":
                 continue
@@ -6895,6 +6998,15 @@ def _issue_task_upload_authorizations(
 def _execute_approved_tool_call(tool_call_id: str) -> DropInsightToolCallModel:
     session = new_session()
     try:
+        diagnosis_id = session.query(DropInsightToolCallModel.diagnosis_id).filter(
+            DropInsightToolCallModel.id == tool_call_id).scalar()
+        if diagnosis_id is None:
+            raise ValueError("tool call not found")
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            raise ValueError("diagnosis not found")
+        if diagnosis.status == "CANCELLED":
+            raise ValueError("diagnosis is cancelled")
         model = (
             session.query(DropInsightToolCallModel)
             .filter(DropInsightToolCallModel.id == tool_call_id)
@@ -8311,6 +8423,8 @@ def import_task_evidence(
         )
         if diagnosis is None:
             return None
+        if diagnosis.status == "CANCELLED":
+            raise ValueError("diagnosis is cancelled")
         terminal_tool_call = None
         terminal_evidence_already_imported = False
         if terminal_tool_call_id is not None:

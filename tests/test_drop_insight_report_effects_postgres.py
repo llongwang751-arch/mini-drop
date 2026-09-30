@@ -85,6 +85,93 @@ def _constraint_name(error: IntegrityError) -> str | None:
     return getattr(diagnostic, "constraint_name", None)
 
 
+def test_postgres_competing_cancellations_fence_late_planner(postgres_sessions):
+    from server.app.drop_insight.schemas import CreateHypothesisRequest
+    diagnosis_id, hypothesis_id = _seed_report(postgres_sessions, "cancel-race")
+    holder = postgres_sessions()
+    holder.execute(select(DropInsightSessionModel).where(
+        DropInsightSessionModel.id == diagnosis_id).with_for_update()).scalar_one()
+    started = Barrier(3)
+
+    def cancel(actor):
+        started.wait(timeout=5)
+        return drop_insight_service.cancel_diagnosis(diagnosis_id, cancelled_by=actor, expected_version=1)
+
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(cancel, actor) for actor in ["operator:a", "operator:b"]]
+            started.wait(timeout=5)
+            for future in futures:
+                with pytest.raises(FutureTimeoutError):
+                    future.result(timeout=0.15)
+            holder.commit()
+            values = [f.result(timeout=5) for f in futures]
+    finally:
+        holder.rollback()
+        holder.close()
+    assert [v.status for v in values] == ["CANCELLED", "CANCELLED"]
+    assert [v.version for v in values] == [2, 2]
+    with pytest.raises(ValueError, match="cancelled"):
+        drop_insight_service.create_hypothesis(diagnosis_id, CreateHypothesisRequest(
+            statement="late planner proposal", expected_observations=["late sample"], falsification_criteria=["no sample"]))
+    with postgres_sessions() as session:
+        events = session.query(DropInsightEventModel).filter(
+            DropInsightEventModel.diagnosis_id == diagnosis_id,
+            DropInsightEventModel.event_type == "diagnosis.cancelled").all()
+        assert len(events) == 1
+        assert session.query(DropInsightHypothesisModel).filter(
+            DropInsightHypothesisModel.diagnosis_id == diagnosis_id).count() == 1
+        report = session.get(DropInsightReportModel, "cancel-race")
+        assert report.conclusion == "Evidence is insufficient."
+
+
+def test_postgres_cancellation_fences_late_analyzer_commit(postgres_sessions, monkeypatch):
+    from server.app import sql_repository
+    from server.app.models import AgentModel, TaskModel, TaskAttemptModel, AnalysisJobModel, DropInsightToolCallModel, ArtifactModel
+    diagnosis_id, _ = _seed_report(postgres_sessions, "cancel-analyzer-race")
+    with postgres_sessions.begin() as session:
+        session.add(AgentModel(id="cancel-agent", hostname="test", ip_addr="127.0.0.1", status="ONLINE",
+                              last_heartbeat_at=NOW, created_at=NOW, updated_at=NOW))
+        session.flush()
+        session.add(TaskModel(id="cancel-task", name="race", agent_id="cancel-agent", target_pid=123,
+                              collector_type="sys_metrics", status="ANALYZING", created_at=NOW, updated_at=NOW))
+        session.flush()
+        session.add(TaskAttemptModel(id="cancel-attempt", task_id="cancel-task", attempt_no=1,
+                                    agent_id="cancel-agent", status="SUCCEEDED", reason="collected", created_at=NOW))
+        session.flush()
+        session.add(AnalysisJobModel(id="cancel-job", task_id="cancel-task", task_attempt_id="cancel-attempt",
+            analyzer_type="sys_metrics", analyzer_version="1", input_checksum="a" * 64,
+            idempotency_key="cancel-job", status="RUNNING", lease_owner="late-worker",
+            next_run_at=NOW, created_at=NOW, updated_at=NOW))
+        session.add(DropInsightToolCallModel(id="cancel-call", diagnosis_id=diagnosis_id,
+            tool_name="collect_sys_metrics", arguments_json={}, policy_decision="ALLOW", policy_reason="test",
+            status="RUNNING", task_id="cancel-task", requested_by="test", created_at=NOW))
+    monkeypatch.setattr(sql_repository, "new_session", postgres_sessions)
+    locked, release = Event(), Event()
+    original = drop_insight_service._cancel_owned_analysis_jobs
+    def pause_after_job_lock(*args):
+        original(*args)
+        locked.set()
+        assert release.wait(timeout=4)
+    monkeypatch.setattr(drop_insight_service, "_cancel_owned_analysis_jobs", pause_after_job_lock)
+    repository = sql_repository.SqlRepository()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        cancellation = executor.submit(drop_insight_service.cancel_diagnosis, diagnosis_id)
+        try:
+            assert locked.wait(timeout=4)
+            completion = executor.submit(repository.complete_analysis_job, "cancel-job", "late-worker",
+                                         output_artifacts=[{"filename": "late.json"}])
+            with pytest.raises(FutureTimeoutError):
+                completion.result(timeout=0.15)
+        finally:
+            release.set()
+        assert cancellation.result(timeout=5).status == "CANCELLED"
+        assert completion.result(timeout=5).status == "CANCELLED"
+    with postgres_sessions() as session:
+        assert session.get(TaskModel, "cancel-task").status == "CANCELLED"
+        assert session.query(ArtifactModel).filter(ArtifactModel.task_id == "cancel-task").count() == 0
+
+
 def test_postgres_skill_activation_serializes_competing_planners(postgres_sessions, monkeypatch):
     from server.app.drop_insight import skill_evolution
     from server.app.models import DiagnosticSkillModel, DiagnosticSkillActivationModel

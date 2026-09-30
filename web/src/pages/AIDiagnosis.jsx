@@ -42,6 +42,7 @@ import { getFrozenReplayMeta } from "../utils/latsReplay";
 import { isCausalRootReport, projectReportScopes } from "../utils/reportPresentation";
 import {
   advanceDropInsightOrchestrator,
+  cancelDropInsightDiagnosis,
   clarifyDropInsightDiagnosis,
   createDropInsightDiagnosis,
   createDiagnosticSkillCandidate,
@@ -190,6 +191,8 @@ export default function AIDiagnosis() {
   const [listError, setListError] = useState("");
   const [loading, setLoading] = useState(false);
   const [clarifying, setClarifying] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [pendingCancellation, setPendingCancellation] = useState(null);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [interventionSubmitting, setInterventionSubmitting] = useState(false);
   const [sourceSkill, setSourceSkill] = useState(null);
@@ -660,6 +663,32 @@ export default function AIDiagnosis() {
     finally { setClarifying(false); }
   }
 
+  function confirmCancellation() {
+    if (!selectedId || !detail || settled || readOnly || cancelling) return;
+    setPendingCancellation({ caseItem: selectedCase, id: selectedId, version: detail.version });
+  }
+
+  async function handleCancellation() {
+    if (!pendingCancellation || cancelling) return;
+    const { caseItem, id, version } = pendingCancellation;
+        setCancelling(true);
+        try {
+          const saved = await cancelDropInsightDiagnosis(id, { expected_version: version });
+          if (selectedIdRef.current === id) {
+            // Fence an earlier in-flight refresh before projecting the response.
+            requestVersion.current += 1;
+            setDetail(saved);
+            await loadSelectedDetail(caseItem);
+          }
+          await loadCases();
+          setPendingCancellation(null);
+          message.success("诊断已停止，已有记录已保留");
+        } catch (error) {
+          if (selectedIdRef.current === id) await loadSelectedDetail(caseItem);
+          message.error(error?.message || "停止诊断失败，请刷新后重试");
+        } finally { setCancelling(false); }
+  }
+
   async function advanceNow() {
     if (!selectedId || readOnly || advancing.current) return;
     advancing.current = true;
@@ -733,6 +762,12 @@ export default function AIDiagnosis() {
 
   return (
     <div className={`ai-diagnosis-page ${hasActiveDiagnosis ? "has-session" : "is-start"} content-${contentView}`}>
+      <Modal title="停止本次诊断？" open={Boolean(pendingCancellation)}
+        okText="停止诊断" cancelText="继续检查" okButtonProps={{ danger: true }}
+        confirmLoading={cancelling} onOk={handleCancellation}
+        onCancel={() => { if (!cancelling) setPendingCancellation(null); }}>
+        将停止后续检查与关联采集，已有证据和报告会保留。正在运行的采集需要短暂等待才能退出。
+      </Modal>
       <header className="diagnosis-command-header is-compact">
         <div>
           <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 服务体检</div>
@@ -854,6 +889,7 @@ export default function AIDiagnosis() {
                   </Button>
                   {isExpert && <Button icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>审计细节</Button>}
                   {!settled && !frozenReplay && <Button type="primary" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
+                  {!settled && !frozenReplay && <Button danger disabled={!detail || loading} loading={cancelling} onClick={confirmCancellation}>停止诊断</Button>}
                 </>}
               </Space>
             )}

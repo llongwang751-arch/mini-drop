@@ -36,6 +36,7 @@ from server.app.drop_insight.frozen_replay_showcase import (
 )
 from server.app.drop_insight.schemas import (
     AddEvidenceRequest,
+    CancelDiagnosisRequest,
     ApproveDiagnosticExperimentRequest,
     AssignDiagnosticExperimentRequest,
     ClarifyDiagnosisRequest,
@@ -62,6 +63,7 @@ from server.app.drop_insight.schemas import (
 )
 from server.app.drop_insight.service import (
     add_evidence,
+    cancel_diagnosis,
     advance_diagnosis,
     clarify_diagnosis,
     create_diagnosis,
@@ -375,6 +377,13 @@ def dispatch(method: str, path: str, query: str, raw_body: str, principal: str) 
                 reason="用户在 AI 诊断会话历史中归档",
             )
             return _ok({"diagnosis_id": value.id, "deleted": True}) if value else _error(404, "Drop Insight diagnosis not found")
+
+    ids = _match(path, r"/diagnoses/([^/]+)/cancel")
+    if ids and method == "POST":
+        request = CancelDiagnosisRequest.model_validate(_body(raw_body))
+        value = cancel_diagnosis(ids[0], reason=request.reason, expected_version=request.expected_version,
+                                 cancelled_by=principal)
+        return _ok(value.to_dict()) if value is not None else _error(404, "Drop Insight diagnosis not found")
 
     ids = _match(path, r"/diagnoses/([^/]+)/events")
     if ids and method == "GET":

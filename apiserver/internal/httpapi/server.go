@@ -322,7 +322,9 @@ func (s *Server) streamDropInsightEvents(w http.ResponseWriter, r *http.Request)
 			for _, event := range events {
 				after = event.Sequence
 				data, _ := json.Marshal(event.Payload)
-				fmt.Fprintf(w, "id: %d\nevent: diagnosis_progress\ndata: %s\n\n", event.Sequence, data)
+				if _, err := fmt.Fprintf(w, "id: %d\nevent: diagnosis_progress\ndata: %s\n\n", event.Sequence, data); err != nil {
+					return
+				}
 			}
 			if len(events) > 0 {
 				flusher.Flush()
@@ -853,21 +855,6 @@ func (s *Server) listTasks(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func parseBoundedPage(r *http.Request, maxLimit int) (int, int) {
-	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
-	if err != nil || limit < 1 {
-		limit = 100
-	}
-	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
-	if err != nil || offset < 0 {
-		offset = 0
-	}
-	if limit > maxLimit {
-		limit = maxLimit
-	}
-	return limit, offset
-}
-
 func (s *Server) getTask(w http.ResponseWriter, r *http.Request) {
 	item, err := s.repo.GetTask(r.Context(), r.PathValue("task_id"))
 	if errors.Is(err, repository.ErrNotFound) {
@@ -1009,7 +996,7 @@ func (s *Server) getTaskArtifactContent(w http.ResponseWriter, r *http.Request) 
 		s.artifactStorageError(w, r, err)
 		return
 	}
-	defer object.Body.Close()
+	defer func() { _ = object.Body.Close() }() // Read-only response cleanup cannot change the streamed response.
 	if object.Size > maxArtifactContentBytes {
 		writeAPI(w, http.StatusRequestEntityTooLarge, 1413, "产物过大，请使用下载接口", nil)
 		return
@@ -1061,7 +1048,7 @@ func (s *Server) downloadTaskArtifact(w http.ResponseWriter, r *http.Request) {
 		s.artifactStorageError(w, r, err)
 		return
 	}
-	defer object.Body.Close()
+	defer func() { _ = object.Body.Close() }() // Read-only response cleanup cannot change the streamed response.
 	filename := safeDownloadFilename(artifact.Filename)
 	if filename == "artifact.bin" {
 		filename = safeDownloadFilename(path.Base(key))
@@ -1200,7 +1187,9 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprint(w, "retry: 3000\n: connected to go-apiserver\n\n")
+	if _, err := fmt.Fprint(w, "retry: 3000\n: connected to go-apiserver\n\n"); err != nil {
+		return
+	}
 	flusher.Flush()
 	pollTicker := time.NewTicker(time.Second)
 	keepaliveTicker := time.NewTicker(15 * time.Second)
@@ -1212,14 +1201,18 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 		case <-r.Context().Done():
 			return
 		case <-keepaliveTicker.C:
-			fmt.Fprint(w, ": keepalive\n\n")
+			if _, err := fmt.Fprint(w, ": keepalive\n\n"); err != nil {
+				return
+			}
 			flusher.Flush()
 		case <-pollTicker.C:
 			wrote := false
 			events, err := s.repo.ListStatusEventsAfter(r.Context(), taskCursor, 200)
 			if err != nil {
 				s.logger.Error("sse task poll failed", "error", err, "cursor", taskCursor)
-				fmt.Fprint(w, "event: server_error\ndata: {\"message\":\"database poll failed\"}\n\n")
+				if _, err := fmt.Fprint(w, "event: server_error\ndata: {\"message\":\"database poll failed\"}\n\n"); err != nil {
+					return
+				}
 				flusher.Flush()
 				continue
 			}
@@ -1230,8 +1223,10 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 					"actor": event.Actor, "metadata": event.Metadata,
 				})
 				taskCursor = event.ID
-				fmt.Fprintf(w, "id: %s\nevent: task_changed\ndata: %s\n\n",
-					formatEventCursor(taskCursor, auditCursor), data)
+				if _, err := fmt.Fprintf(w, "id: %s\nevent: task_changed\ndata: %s\n\n",
+					formatEventCursor(taskCursor, auditCursor), data); err != nil {
+					return
+				}
 				wrote = true
 			}
 
@@ -1253,8 +1248,10 @@ func (s *Server) eventStream(w http.ResponseWriter, r *http.Request) {
 					"agent_id": event.AgentID, "status": status,
 					"message": event.Message, "metadata": event.Metadata,
 				})
-				fmt.Fprintf(w, "id: %s\nevent: agent_status\ndata: %s\n\n",
-					formatEventCursor(taskCursor, auditCursor), data)
+				if _, err := fmt.Fprintf(w, "id: %s\nevent: agent_status\ndata: %s\n\n",
+					formatEventCursor(taskCursor, auditCursor), data); err != nil {
+					return
+				}
 				wrote = true
 			}
 			if wrote {

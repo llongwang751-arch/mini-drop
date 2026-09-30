@@ -444,7 +444,7 @@ class AnalysisWorker:
                     worker_id=self.worker_id,
                 )
                 return ProcessResult(job.id, "LEASE_LOST")
-            self.repo.complete_analysis_job(
+            completed = self.repo.complete_analysis_job(
                 job.id,
                 self.worker_id,
                 output_artifacts=output.artifacts,
@@ -452,7 +452,7 @@ class AnalysisWorker:
                 artifact_metadata_updates=output.artifact_metadata_updates,
                 reason=output.reason,
             )
-            return ProcessResult(job.id, "SUCCEEDED")
+            return ProcessResult(job.id, completed.status)
         except Exception as exc:
             heartbeat.stop()
             if heartbeat.lease_lost:

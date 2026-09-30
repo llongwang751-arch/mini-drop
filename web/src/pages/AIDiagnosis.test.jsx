@@ -4,6 +4,7 @@ import AIDiagnosis from "./AIDiagnosis";
 
 vi.mock("../api/client", () => ({
   advanceDropInsightOrchestrator: vi.fn(),
+  cancelDropInsightDiagnosis: vi.fn(),
   clarifyDropInsightDiagnosis: vi.fn(),
   createDropInsightDiagnosis: vi.fn(),
   createDiagnosticSkillCandidate: vi.fn(),
@@ -67,6 +68,39 @@ describe("AIDiagnosis V2 workspace", () => {
   });
 
   afterEach(cleanup);
+
+  it("confirms cancellation with session version and refreshes the terminal record", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    const active = { ...diagnosis, status: "COLLECTING_EVIDENCE", version: 4 };
+    const cancelled = { ...active, status: "CANCELLED", version: 5 };
+    api.listDropInsightDiagnoses.mockResolvedValue([active]);
+    api.getDropInsightDiagnosis.mockResolvedValue(active);
+    api.cancelDropInsightDiagnosis.mockImplementation(async () => {
+      api.getDropInsightDiagnosis.mockResolvedValue(cancelled);
+      api.listDropInsightDiagnoses.mockResolvedValue([cancelled]);
+      return cancelled;
+    });
+    render(<AIDiagnosis />);
+    const stopButton = await screen.findByRole("button", { name: "停止诊断" });
+    await waitFor(() => expect(stopButton).not.toBeDisabled());
+    fireEvent.click(stopButton);
+    const modal = await screen.findByRole("dialog");
+    expect(api.cancelDropInsightDiagnosis).not.toHaveBeenCalled();
+    fireEvent.click(within(modal).getByRole("button", { name: "停止诊断" }));
+    await waitFor(() => expect(api.cancelDropInsightDiagnosis).toHaveBeenCalledWith("diag-1", { expected_version: 4 }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "停止诊断" })).not.toBeInTheDocument());
+    expect(await screen.findByText("只读记录")).toBeInTheDocument();
+  });
+
+  it("hides cancellation on completed records", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "completed-report", conclusion: "采集已完成", verification: { status: "INSUFFICIENT_EVIDENCE" } }]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    expect(screen.queryByRole("button", { name: "停止诊断" })).not.toBeInTheDocument();
+  });
 
   it("does not automatically generate a skill from a bounded observation", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");

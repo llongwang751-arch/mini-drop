@@ -146,7 +146,7 @@ func (s *schedule) NextAfter(moment time.Time) (time.Time, error) {
 			candidate = jumpMonth(candidate)
 			continue
 		}
-		if !(s.days[candidate.Day()] && s.dows[int(candidate.Weekday())]) {
+		if !s.days[candidate.Day()] || !s.dows[int(candidate.Weekday())] {
 			candidate = jumpDay(candidate)
 			continue
 		}

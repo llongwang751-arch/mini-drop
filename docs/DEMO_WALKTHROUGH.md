@@ -60,7 +60,7 @@ python docs/demo/generate_demo_text.py --chars 1000000 --output mini-drop-demo-1
 
 ![历史百万字请求的分块、向量与性能指标](assets/demo-walkthrough-20260924/09-million-historical.png)
 
-想展示 Go、Java、C++、Python 的其他受控场景，可进 **案例验证 → 故障广场**，选一张卡片“启动并诊断”，演示结束点“停止并恢复”，再看报告。故障启停成功不等于根因已验证；目前严格根因门禁仍是 1/21。
+想展示 Go、Java、C++、Python 的其他受控场景，可进 **案例验证 → 故障广场**，选一张卡片“启动并诊断”，演示结束点“停止并恢复”，再看报告。故障启停成功不等于根因已验证；2026-09-30 新完整批次严格因果根因为 0/21；历史旧协议成绩不能替代当前分项判据。
 
 ![故障广场按运行时筛选场景（2026-09-23 截图）](assets/demo-walkthrough-20260924/10-fault-plaza.png)
 

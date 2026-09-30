@@ -1,5 +1,12 @@
 # AI 诊断方案
 
+## 2026-09-30 安全门禁与诊断取消候选
+
+当前工作树升级 API 到 Go 1.26.8，pgx 5.9.2、gRPC 1.83.2、x/crypto 0.56.0、x/net 0.58.0 等。CI 使用 go.mod 工具链，固定 govulncheck 1.8.0，源码调用图和 Linux 二进制扫描均阻断；golangci-lint 2.14.0 的 13 条存量告警清理后改为阻断。Trivy 全仓扫描仍是报告模式，不代表整个镜像与其他语言依赖无漏洞。部署二进制保留符号表，仅移除 DWARF，避免 stripped 二进制扫描退化为模块级精度。
+
+新增 `POST /api/v2/diagnoses/{id}/cancel` 与“停止诊断”确认入口。父会话、关联工具、AnalysisJob 和 Task 在一个事务中取消；记录操作者、原因、原状态与任务ID，重复请求（包括原版本）返回同一终态。完成/失败历史不会改为取消；归档/缺失404，非取消终态或首次版本冲突409。Agent 经原有心跳终止采集进程，HTTP成功表示状态已提交，不表示进程已立即退出。取消不自动撤销故障注入，仍须在故障广场停止并恢复。迟到规划、审批、报告导入和 Analyzer 提交不得复活会话。原始失败与复验材料将放在 `reports/quality/security-cancel-20260930/`，云端更新与精确源码CI以随后归档结果为准，不能把候选写成已发布。
+
+
 ## 2026-09-30 三个缺陷闭环已部署
 
 当前后端发布`20260930T100034Z`，源码`d26bc2c7a90ca7b5df29dfd9c2a26e060bf0aeb1`；Worker/Analyzer各183文件SHA一致，其余11个容器不变，私有回滚配置与旧发布保留。Web仍为`20260930T084451Z`/`c9b9964`。[CI36699546451](https://github.com/llongwang751-arch/mini-drop/actions/runs/36699546451)成功13/13，Python1192通过/8项已登记跳过，真实PostgreSQL专项6通过零跳过；测试merge为`7f3cf29db4de628a0f903c3bbb080e594f047223`。

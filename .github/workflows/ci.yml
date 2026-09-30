@@ -313,19 +313,38 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version-file: apiserver/go.mod
+          cache-dependency-path: apiserver/go.sum
           cache: true
       - name: Vet
         run: go vet ./...
       - name: Test
         run: go test -race -count=1 ./...
-      # 先以 report-only 模式引入 golangci-lint：在日志中暴露问题但不阻断；
-      # 清理存量告警后再改为 --issues-exit-code=1 的硬门禁。
-      - name: Lint (golangci-lint, report-only)
-        uses: golangci/golangci-lint-action@v6
+      - name: Install pinned vulnerability scanner
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+      - name: Vulnerability gate (source and Linux binary)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../output/go-security
+          govulncheck -json ./... > ../output/go-security/source.json
+          govulncheck ./... | tee ../output/go-security/source.txt
+          CGO_ENABLED=0 go build -trimpath -o ../output/go-security/apiserver ./cmd/apiserver
+          go version -m ../output/go-security/apiserver > ../output/go-security/binary-build.txt
+          govulncheck -mode=binary ../output/go-security/apiserver | tee ../output/go-security/binary.txt
+          sha256sum ../output/go-security/apiserver > ../output/go-security/binary.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
+          name: go-security-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/go-security/
+          if-no-files-found: error
+      - name: Lint (golangci-lint, blocking)
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
           working-directory: apiserver
-          args: --issues-exit-code=0
+          args: --issues-exit-code=1
 
   supply-chain:
     name: Supply chain (trivy report)

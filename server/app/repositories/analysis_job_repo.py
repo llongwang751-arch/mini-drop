@@ -298,7 +298,7 @@ class AnalysisJobMixin:
         self, job_id: str, worker_id: str, *, lease_sec: int = 60
     ) -> bool:
         with self._write_session() as session:
-            job = session.get(AnalysisJobModel, job_id)
+            job = session.query(AnalysisJobModel).filter(AnalysisJobModel.id == job_id).with_for_update().first()
             if job is None or job.status != "RUNNING" or job.lease_owner != worker_id:
                 return False
             ts = now_utc()
@@ -319,15 +319,24 @@ class AnalysisJobMixin:
         """Persist analyzer outputs and finish the parent task atomically."""
 
         with self._write_session() as session:
-            job = session.get(AnalysisJobModel, job_id)
+            job = session.query(AnalysisJobModel).filter(AnalysisJobModel.id == job_id).with_for_update().first()
             if job is None:
                 raise ValueError(f"分析任务 {job_id} 不存在")
-            if job.status == "SUCCEEDED":
+            if job.status in {"SUCCEEDED", "CANCELLED"}:
                 return job
             if job.status != "RUNNING" or job.lease_owner != worker_id:
                 raise ValueError("分析任务租约不属于当前 Worker")
             if not job.task_attempt_id:
                 raise ValueError("AnalysisJob has no exact TaskAttempt lineage")
+            task = session.query(TaskModel).filter(TaskModel.id == job.task_id).with_for_update().first()
+            if task is not None and task.status == TaskStatus.CANCELLED.value:
+                job.status = "CANCELLED"
+                job.status_reason = task.status_reason
+                job.lease_owner = None
+                job.lease_expires_at = None
+                job.finished_at = now_utc()
+                job.updated_at = job.finished_at
+                return job
             ts = now_utc()
             ids = list(output_artifact_ids or [])
             if len(set(ids)) != len(ids):
@@ -437,11 +446,22 @@ class AnalysisJobMixin:
         retry_delay_sec: int = 5,
     ) -> AnalysisJobModel:
         with self._write_session() as session:
-            job = session.get(AnalysisJobModel, job_id)
+            job = session.query(AnalysisJobModel).filter(AnalysisJobModel.id == job_id).with_for_update().first()
             if job is None:
                 raise ValueError(f"分析任务 {job_id} 不存在")
+            if job.status == "CANCELLED":
+                return job
             if job.status != "RUNNING" or job.lease_owner != worker_id:
                 raise ValueError("分析任务租约不属于当前 Worker")
+            task = session.query(TaskModel).filter(TaskModel.id == job.task_id).with_for_update().first()
+            if task is not None and task.status == TaskStatus.CANCELLED.value:
+                job.status = "CANCELLED"
+                job.status_reason = task.status_reason
+                job.lease_owner = None
+                job.lease_expires_at = None
+                job.finished_at = now_utc()
+                job.updated_at = job.finished_at
+                return job
             ts = now_utc()
             job.retry_count += 1
             job.error_code = error_code[:128]

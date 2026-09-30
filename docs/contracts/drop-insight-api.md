@@ -160,3 +160,9 @@ python -m pytest tests/test_contracts.py tests/test_diagnostic_ai_rpc.py -q
 接口单测不替代完整平台验收。完整链路要证明 Go 响应头为
 `X-Mini-Drop-AI-Transport: grpc`，并能追踪 Task、Attempt、Artifact、AnalysisJob、Evidence 与
 Report 引用。
+
+## 诊断取消
+
+`POST /api/v2/diagnoses/{diagnosis_id}/cancel`，请求体 `{"reason":"用户停止本次诊断","expected_version":4}`，reason可省略、去空白后1–512字，版本可省略、提供时须>=1，拒绝额外字段。返回现有Diagnosis结构。全范围operator/admin可调用；viewer/approver及资源范围受限V2账号403。缺失或归档404，首次版本冲突/其他终态409，非法输入422。重复CANCELLED请求不改原因、操作者或版本，即使携带取消前的expected_version也返回200。
+
+会话、关联活跃任务与AnalysisJob取消和事件/outbox同事务提交；已完成任务、报告与证据保留。Agent在心跳收到cancel_task_id后终止采集进程组，响应不是物理退出回执。当前同步Analyzer不能即时杀掉计算，但租约撤销与终态检查拒绝晚到产物入库。故障注入须另行停止恢复。`scripts/generate_cancellation_contract.py`从CancelDiagnosisRequest刷新OpenAPI该路由，不能独立编辑生成的请求schema。

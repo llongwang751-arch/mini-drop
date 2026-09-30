@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS build
+FROM golang:1.26.8-alpine AS build
 
 # CN-friendly module proxy; override with --build-arg GOPROXY=... if needed.
 ARG GOPROXY=https://goproxy.cn,direct
@@ -8,7 +8,7 @@ WORKDIR /src
 COPY apiserver/go.mod ./
 COPY apiserver/ ./
 RUN CGO_ENABLED=0 GOOS=linux go test ./... \
-    && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/mini-drop-apiserver ./cmd/apiserver
+    && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-w" -o /out/mini-drop-apiserver ./cmd/apiserver
 
 FROM alpine:3.21
 ARG ALPINE_MIRROR=""

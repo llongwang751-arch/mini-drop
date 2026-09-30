@@ -336,6 +336,10 @@ export function deleteDropInsightDiagnosis(diagnosisId) {
   return api.delete(`/v2/diagnoses/${diagnosisId}`);
 }
 
+export function cancelDropInsightDiagnosis(diagnosisId, payload = {}) {
+  return api.post(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/cancel`, payload);
+}
+
 export function listDropInsightDiagnoses() {
   return api.get("/v2/diagnoses").then(itemsOf);
 }
