@@ -5,6 +5,27 @@ import pytest
 from server.app.drop_insight import fault_plaza
 
 
+@pytest.fixture(autouse=True)
+def configured_lab_agent(monkeypatch):
+    monkeypatch.setenv("MINI_DROP_FAULT_LAB_AGENT_ID", "test-lab-agent")
+
+
+def test_missing_lab_agent_rejects_before_injection(monkeypatch):
+    monkeypatch.delenv("MINI_DROP_FAULT_LAB_AGENT_ID")
+    calls = []
+    monkeypatch.setattr(fault_plaza, "_request_json", lambda *args, **kwargs: calls.append(args) or {})
+    with pytest.raises(fault_plaza.FaultPlazaError, match="AGENT_ID"):
+        fault_plaza.start_fault_scenario("java-gc-pressure", 30)
+    assert calls == []
+
+
+@pytest.mark.parametrize("scenario_id", ["java-gc-pressure", "go-cpu-hotspot", "cpu-hotspot", "cpp-file-io"])
+def test_fault_request_carries_operator_agent_without_snapshot_pid(monkeypatch, scenario_id):
+    monkeypatch.setattr(fault_plaza, "_request_json", lambda *args, **kwargs: {"pid": 123})
+    request = fault_plaza.start_fault_scenario(scenario_id, 30)["diagnosis_request"]
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+
+
 def _disable_all_labs(monkeypatch) -> None:
     for environment in fault_plaza._LAB_ENVIRONMENTS.values():
         monkeypatch.delenv(environment, raising=False)

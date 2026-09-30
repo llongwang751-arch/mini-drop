@@ -110,6 +110,7 @@ services:
       MINI_DROP_FAULT_LAB_GO_URL: ${MINI_DROP_FAULT_LAB_GO_URL:-http://go-hotspot:6060}
       MINI_DROP_FAULT_LAB_JAVA_URL: ${MINI_DROP_FAULT_LAB_JAVA_URL:-http://java-hotspot:8082}
       MINI_DROP_FAULT_LAB_CPP_URL: ${MINI_DROP_FAULT_LAB_CPP_URL:-http://cpp-hotspot:8084}
+      MINI_DROP_FAULT_LAB_AGENT_ID: ${MINI_DROP_FAULT_LAB_AGENT_ID:-${NATIVE_AGENT_ID:-agent_native_cpp}}
       MINI_DROP_SCHEMA_MANAGED: "1"
       # Prefer the controlled demo workload before platform sources so common
       # symbols such as `_run` map to the profiled target during local E2E.

@@ -344,8 +344,8 @@ def _select_auto_scope_candidate(
     # An explicit process name is part of the user's scope authority.  When it
     # identifies one fresh eligible candidate, bind it before asking the model
     # to rank unrelated processes.  This keeps autonomous scope selection
-    # deterministic for requests such as “进程名为 java”, while ambiguous
-    # duplicate process names still fall through to the normal scorer/model.
+    # deterministic for requests such as “进程名为 java”. Duplicate names
+    # need instance context; model ranking cannot establish user intent.
     requested_process = _explicit_process_name(query)
     if requested_process:
         exact_matches = [
@@ -355,11 +355,7 @@ def _select_auto_scope_candidate(
         ]
         if len(exact_matches) == 1:
             return exact_matches[0]
-        # An explicit but absent process is not permission to select a worker
-        # of the same language. Multiple exact matches may be ranked below.
-        if not exact_matches:
-            return None
-        candidates = exact_matches
+        return None
 
     # A concrete machine-style name can be followed by a symptom rather than
     # the word 'service', e.g. 'python-hotspot 入口请求被拒绝'. The old service
@@ -680,6 +676,10 @@ def discover_target_candidates(
         if diagnosis is None or diagnosis.deleted_at is not None:
             return None
         target = diagnosis.target_json or {}
+        requested_agent = target.get("agent_id")
+        if requested_agent and agent_id and requested_agent != agent_id:
+            raise ValueError("agent filter conflicts with requested target agent")
+        agent_id = requested_agent or agent_id
         service = service or target.get("service")
         environment = environment or target.get("environment")
         timestamp = now_utc()

@@ -539,6 +539,11 @@ def start_fault_scenario(scenario_id: str, duration_seconds: int) -> dict[str, A
     scenario = _BY_ID.get(scenario_id)
     if scenario is None:
         raise ValueError("fault scenario not found")
+    # Operator context narrows discovery only; it never supplies a PID or
+    # bypasses the fresh Agent snapshot / opaque binding validation.
+    agent_id = os.getenv("MINI_DROP_FAULT_LAB_AGENT_ID", "").strip()
+    if not agent_id:
+        raise FaultPlazaError("受控故障未配置目标实例：MINI_DROP_FAULT_LAB_AGENT_ID")
     bounded_duration = min(max(int(duration_seconds), 15), 300)
     payload = {**scenario.start_defaults, "duration_seconds": bounded_duration}
     snapshot = _request_json(
@@ -553,6 +558,7 @@ def start_fault_scenario(scenario_id: str, duration_seconds: int) -> dict[str, A
             "query": scenario.diagnosis_query,
             "mode": "AUTONOMOUS",
             "auto_scope": True,
+            "target": {"agent_id": agent_id},
             "skill_policy": "AUTO",
             "budget": {
                 "min_diagnosis_rounds": scenario.minimum_diagnosis_rounds,
