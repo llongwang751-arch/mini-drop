@@ -49,3 +49,9 @@ python scripts/run_quality_gate.py --profile python --output output/quality/engi
 ```
 
 验收规则不能替代采集器。新问题若没有可测量的指标，先补观测能力；若要证明真正原因，再增加同输入、同负载的原因干预专项。这样可以扩展工程诊断，而不必每个问题一开始就完成完整因果实验。
+
+## 已验证的线上版本
+
+评分/展示源码0fa79f15的[CI36861902293](https://github.com/llongwang751-arch/mini-drop/actions/runs/36861902293)成功13/13：Python1382通过/10登记跳过、Web299通过、真实PG8通过零跳过；不可变Git源码本地Web299/构建/体积门禁通过。线上Web20261001T122233Z已由并行前端任务发布，包含相同工程组件与语义一致的生成索引；整体为冻结工作树构建、300项测试，并非本提交精确CI产物。本轮直接复验现有发布，保留其界面改动。58份Web、Worker/Analyzer各193份SHA复核，13容器健康，21故障inactive，Office PID1650962/NRestarts=0。真实Chrome新成绩、三张卡与诊断入口、正常检查、9份下载SHA和4种宽度通过，无JS/HTTP错误。未创建新诊断、注入故障或重跑已接受的一小时。原始记录见[本轮交付](../reports/architecture/engineering-diagnosis-20261001.md)与[90文件SHA清单](../reports/quality/engineering-diagnosis-20261001/manifest.json)。
+
+当前剩余18类是“未按工程标准验收”，不能展示为已通过，也不是本轮失败。扩展时按下述源合同和独立证据流程逐域补齐。
