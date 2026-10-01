@@ -38,6 +38,9 @@ _RULE_PLANS = {
 
 
 def performance_observation_plan(category):
+    # The planner and published Skills use NETWORK_DEGRADATION. Keep its
+    # observation contract identical to the registered HTTP latency domain.
+    category = {"NETWORK_DEGRADATION": "NETWORK_LATENCY"}.get(category, category)
     spec = _RULE_PLANS.get(category)
     if spec is None:
         return None

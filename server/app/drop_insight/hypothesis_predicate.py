@@ -523,6 +523,10 @@ def _compute_hypothesis_predicate(
                 return _predicate("SUPPORT", "Registered Go source-mapped application path was observed in its own inclusive profile window",
                     observation_contract["expected_indexes"], dominant_function=dominant["name"], dominant_percent=_percent(dominant),
                     source_locations=dominant.get("locations", []), profile_semantics="inclusive",
+                    application_paths=[{"name": row["name"], "percent": _percent(row),
+                                        "locations": row.get("locations", [])}
+                                       for row in applications
+                                       if _percent(row) >= observation_contract["profile_threshold"]][:3],
                     observation_contract=observation_contract["contract_id"])
         return _invalid_numeric_observation("Profile did not establish the registered source-path observation")
 

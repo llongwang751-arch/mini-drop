@@ -1983,6 +1983,9 @@ def generate_report(
         # retains the original claim-matching result for auditability.
         checked_observation = verification["verification"]["observation_verification"]
         verification["observation_verification"] = checked_observation
+        if checked_observation.get("status") in {"VERIFIED", "REFUTED", "CONFLICTING_OBSERVATIONS"}:
+            verification["claim_scope"] = "BOUNDED_OBSERVATION"
+            verification["causal_root_cause_verified"] = False
         if checked_observation.get("status") == "VERIFIED":
             verification["matched_verification_status"] = verification["status"]
             verification["status"] = "VERIFIED"

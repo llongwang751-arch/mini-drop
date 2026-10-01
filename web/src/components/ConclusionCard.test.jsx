@@ -3,6 +3,15 @@ import { describe, expect, it } from "vitest";
 import ConclusionCard from "./ConclusionCard";
 
 describe("ConclusionCard", () => {
+  it("explains that inclusive Go function shares overlap", () => {
+    render(<ConclusionCard report={{ verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+      bottleneck_localization: { status: "LOCALIZED", location: "main.outer；main.calculate", evidence_refs: ["ev-1"],
+        causal_root_cause_verified: false, same_load_fix_verified: false, profile_semantics: "INCLUSIVE_OVERLAPPING_PATHS" },
+    } }} />);
+    expect(screen.getByText(/各函数占比不能相加/)).toBeInTheDocument();
+    expect(screen.getByText(/main.outer；main.calculate/)).toBeInTheDocument();
+  });
   it("separates checked criteria from matching conditions and independent controls", () => {
     render(<ConclusionCard report={{ conclusion: "已验证观测：调用耗时 240 ms。", verification: {
       status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,

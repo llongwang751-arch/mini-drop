@@ -77,6 +77,8 @@ export default function ConclusionCard({ report }) {
         />}
         <SafeMarkdown>{reportConclusionText(report)}</SafeMarkdown>
         {isLocalizedReport(report) && <Text strong>已定位路径：{verification.bottleneck_localization.location}</Text>}
+        {verification.bottleneck_localization?.profile_semantics === "INCLUSIVE_OVERLAPPING_PATHS"
+          && <Text type="secondary">Go 累计采样会覆盖同一调用栈的多个函数，各函数占比不能相加。</Text>}
         {verification.observation_verification?.schema_version === "performance-observation-verification.v1"
           && verification.observation_verification.status !== "UNSUPPORTED_PLAN"
           && Array.isArray(verification.observation_verification.criteria) && (

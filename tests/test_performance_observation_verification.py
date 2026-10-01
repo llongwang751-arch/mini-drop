@@ -131,6 +131,8 @@ def test_persisted_normal_measurement_does_not_become_a_verified_bottleneck(pers
     persisted_observation(plan,measured(plan,20))
     report=service.generate_report('diagnosis',GenerateReportRequest(hypothesis_id='hypothesis'))
     assert report.verification_json['observation_verification']['status']=='REFUTED'
+    assert report.verification_json['claim_scope']=='BOUNDED_OBSERVATION'
+    assert report.verification_json['causal_root_cause_verified'] is False
     assert report.verification_json['bottleneck_localization']['status']=='NOT_LOCALIZED'
 
 
@@ -148,6 +150,26 @@ def test_target_io_requires_operation_count_and_explicit_application_scope():
     assert localize_verified_observation(verification,[e])['status']=='LOCALIZED'
     del signal['measurement_scope']
     assert localize_verified_observation(verification,[e])['status']=='NOT_LOCALIZED'
+
+
+def test_localized_go_profile_retains_overlapping_wrapper_and_calculation_paths():
+    from server.app.drop_insight.bottleneck_localization import localize_verified_observation
+    e=measured(performance_observation_plan('NETWORK_LATENCY'),240)
+    metadata=e.observation['metadata']
+    metadata['schema_version']='go_pprof_analysis.v1'
+    metadata['hypothesis_predicate']['metrics']={
+        'dominant_function':'main.outerLoop','observation_contract':'go-profile-and-os-cpu.v1',
+        'application_paths':[
+            {'name':'main.outerLoop','percent':94,'locations':[{'file':'main.go','line':10}]},
+            {'name':'main.calculate','percent':93,'locations':[{'file':'main.go','line':20}]},
+        ]}
+    v={'status':'VERIFIED','claim_scope':'BOUNDED_OBSERVATION','causal_root_cause_verified':False,
+       'coverage_ratio':1,'has_independent_counter_or_control':True,
+       'observation_contract':{'contract_id':'go-profile-and-os-cpu.v1'}}
+    result=localize_verified_observation(v,[e])
+    assert result['location']=='main.outerLoop；main.calculate'
+    assert result['profile_semantics']=='INCLUSIVE_OVERLAPPING_PATHS'
+    assert result['causal_root_cause_verified'] is False
 
 
 def test_cpu_hot_path_needs_registered_profile_and_independent_cpu_observation():

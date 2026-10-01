@@ -42,7 +42,13 @@ def localize_verified_observation(verification, supporting):
             metrics = metadata.get('hypothesis_predicate', {}).get('metrics', {})
             function = metrics.get('dominant_function')
             if function and metrics.get('observation_contract') == contract['contract_id']:
-                result.update(status='LOCALIZED', domain='cpu_hot_path', location=str(function),
+                paths = metrics.get('application_paths') or []
+                functions = [str(row['name']) for row in paths if isinstance(row, dict) and row.get('name')
+                             and row.get('locations')]
+                result.update(status='LOCALIZED', domain='cpu_hot_path', location='；'.join(functions) if functions else str(function),
                               evidence_refs=[envelope.evidence_id], temporal_relationship='SEPARATE_COLLECTION_WINDOWS')
+                if functions:
+                    result['application_paths'] = paths
+                    result['profile_semantics'] = 'INCLUSIVE_OVERLAPPING_PATHS'
                 return result
     return result

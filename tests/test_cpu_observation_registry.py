@@ -14,6 +14,20 @@ def compile_plan(plan, **kwargs):
     return compile_cpu_observation_contract(plan["statement"], plan["expected_observations"], plan["falsification_criteria"], **kwargs)
 
 
+def test_go_inclusive_wrapper_does_not_hide_other_qualified_application_functions():
+    metadata = {"schema_version": "go_pprof_analysis.v1", "top_functions": [
+        {"name": "main.outerLoop", "file": "main.go", "line": 10, "percent": 94},
+        {"name": "main.calculate", "file": "main.go", "line": 20, "percent": 93},
+        {"name": "crypto/sha256.Sum256", "file": "crypto/sha256/sha256.go", "line": 53, "percent": 77},
+        {"name": "main.minor", "file": "main.go", "line": 30, "percent": 2},
+    ]}
+    result = _compute_hypothesis_predicate(hypothesis(cpu_observation_plan("GO")), metadata)
+    assert result["outcome"] == "SUPPORT"
+    assert [row["name"] for row in result["metrics"]["application_paths"]] == ["main.outerLoop", "main.calculate"]
+    assert result["metrics"]["profile_semantics"] == "inclusive"
+    assert sum(row["percent"] for row in result["metrics"]["application_paths"]) > 100
+
+
 @pytest.mark.parametrize("runtime", ["PYTHON", "GO"])
 @pytest.mark.parametrize("language", ["zh-CN", "en-US"])
 @pytest.mark.parametrize("threshold", [0.000001, 20, 50, 100])

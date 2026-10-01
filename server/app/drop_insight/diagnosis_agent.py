@@ -939,18 +939,26 @@ def normalize_diagnosis_plan_for_display(
     if response_language == "en-US":
         return {**proposal, "display_language": "en-US"}
 
+    from .performance_criteria import parse_performance_criterion
+
+    def valid_criterion(text):
+        # Machine-readable criteria are contracts, not English display prose.
+        return parse_performance_criterion(text) is not None or _is_chinese_first_text(text)
+
     hypotheses = list(proposal.get("hypotheses") or [])
     visible_texts: list[Any] = [proposal.get("reasoning_summary")]
+    criteria = []
     for hypothesis in hypotheses:
         visible_texts.extend(
             [
                 hypothesis.get("statement"),
                 hypothesis.get("rationale"),
-                *(hypothesis.get("expected_observations") or []),
-                *(hypothesis.get("falsification_criteria") or []),
             ]
         )
-    if visible_texts and all(_is_chinese_first_text(item) for item in visible_texts):
+        criteria.extend(hypothesis.get("expected_observations") or [])
+        criteria.extend(hypothesis.get("falsification_criteria") or [])
+    if (visible_texts and all(_is_chinese_first_text(item) for item in visible_texts)
+            and all(valid_criterion(item) for item in criteria)):
         return {**proposal, "display_language": "zh-CN"}
 
     tool_name = str(proposal.get("tool_name") or rule_plan.get("tool_name") or "").strip()
@@ -960,7 +968,7 @@ def normalize_diagnosis_plan_for_display(
     expected = list(
         rule_plan.get("expected_observations") or rule_plan.get("expected") or []
     )
-    if not expected or not all(_is_chinese_first_text(item) for item in expected):
+    if not expected or not all(valid_criterion(item) for item in expected):
         expected = ["新的真实采集结果能区分当前候选原因"]
     falsification = list(
         rule_plan.get("falsification_criteria")
@@ -968,7 +976,7 @@ def normalize_diagnosis_plan_for_display(
         or []
     )
     if not falsification or not all(
-        _is_chinese_first_text(item) for item in falsification
+        valid_criterion(item) for item in falsification
     ):
         falsification = ["该证据域指标平稳，无法支持当前候选原因"]
     return {

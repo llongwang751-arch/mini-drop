@@ -59,6 +59,16 @@ def test_retained_memory_is_not_growth_and_compute_activity_is_not_high_cpu():
     assert signals["memory_growth"]["metrics"]["rss_delta_mb"] == 10
 
 
+def test_actual_planner_network_category_uses_the_numeric_http_contract():
+    from server.app.drop_insight.service import _candidate_hypotheses
+    from server.app.drop_insight.performance_criteria import performance_observation_plan
+    plan = performance_observation_plan("NETWORK_DEGRADATION")
+    assert plan == performance_observation_plan("NETWORK_LATENCY")
+    candidate = _candidate_hypotheses("NETWORK_DEGRADATION", plan)[0]
+    assert candidate["expected"] == ["network_latency.average_latency_ms >= 100"]
+    assert candidate["falsification"] == ["network_latency.average_latency_ms < 100"]
+
+
 def test_old_slow_calls_do_not_make_recovered_window_abnormally_slow():
     app = {"before": {"network_requests": 100, "network_average_latency_ms": 240},
            "after": {"network_requests": 110, "network_average_latency_ms": 219.09},
