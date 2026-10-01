@@ -28,6 +28,7 @@ class StartServiceDiagnosis(BaseModel):
     mode: Literal["AUTONOMOUS", "ASSISTED"] = "AUTONOMOUS"
     request_id: str | None = Field(default=None, pattern=r"^[a-f0-9]{32}$")
     health_check: bool = False
+    follow_up_diagnosis_id: str | None = Field(default=None, min_length=1, max_length=128)
 
 
 def catalog() -> list[dict]:
@@ -93,6 +94,17 @@ def start_service_diagnosis(service_id: str, payload: StartServiceDiagnosis, *, 
         raise KeyError(service_id)
     if not payload.query.strip():
         raise ValueError("请描述服务的性能现象")
+    if payload.health_check and payload.request_id:
+        raise ValueError("当前状态检查不关联历史请求，请使用业务请求诊断")
+    if payload.follow_up_diagnosis_id:
+        parent = service.get_diagnosis(payload.follow_up_diagnosis_id)
+        if parent is None or parent.created_by != principal or (parent.target_json or {}).get("service") != entry["service_hint"]:
+            raise ValueError("后续检查必须属于当前用户和同一服务")
+        result_event = next((e for e in service.list_events(parent.id) if e.event_type == "health_check.completed"), None)
+        if result_event is None or (result_event.payload_json or {}).get("service_id") != service_id:
+            raise ValueError("前次体检尚未结束或不属于当前服务")
+        if not payload.health_check and result_event.payload_json.get("code") != "ANOMALY_OBSERVED":
+            raise ValueError("只有已观测异常的体检可以直接进入后续根因调查")
     observation = resolve_observation(entry, payload.request_id) if payload.request_id else None
     query = payload.query.strip() + (diagnosis_context(observation) if observation else "")
     if len(query)>2000:
@@ -105,7 +117,8 @@ def start_service_diagnosis(service_id: str, payload: StartServiceDiagnosis, *, 
         budget=DiagnosisBudget(max_duration_seconds=120, max_tool_calls=1,
                                max_diagnosis_rounds=1) if payload.health_check else DiagnosisBudget(),
         target={"service": entry["service_hint"]},
-    ), created_by=principal, business_observation=observation)
+    ), created_by=principal, business_observation=observation,
+       managed_service_id=service_id, follow_up_diagnosis_id=payload.follow_up_diagnosis_id)
     # Never let an autonomous fallback pick a different service. If a restart
     # races with selection, keep the existing case and retry fresh discovery.
     for _ in range(3):

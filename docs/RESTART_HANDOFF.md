@@ -1,5 +1,7 @@
 # Mini-Drop 重启交接点
 
+2026-10-01 当前正在交付体检独立结束与后续新会话流程：检查 `health_check.completed` 持久化事件，不要求正常体检生成根因报告。候选和发布状态以 [项目上下文](PROJECT_CONTEXT.md) 顶部及 [AI 诊断](AI_DIAGNOSIS.md) 为准。保留旧21类、工程评分与一小时结果；本轮验收资料在 `output/acceptance/health-check-flow-20261001/`。
+
 ## 2026-10-01 默认工程诊断验收已验证上线
 
 用户明确要求降低默认诊断门槛。新增engineering-diagnosis.v1：独立因果对照、固定轮次、必须COMPLETED和同负载修复不再作为工程诊断前提；目标身份、来源/SHA、数值真实性、对应信号域、撤销恢复与清理保持必需。严格评分器与冻结旧批次保留为专项，旧0/21不再代表当前项目完成度。数值和Profile仍为BOUNDED_OBSERVATION，不修改因果标志。

@@ -46,6 +46,22 @@ it("shows real RAG stages and leaves unavailable stages empty", async () => {
   expect(screen.getByLabelText("知识库请求阶段耗时")).toHaveTextContent("生成：200 ms");
   expect(screen.getByLabelText("知识库请求阶段耗时")).toHaveTextContent("向量化：未执行或未采集");
 });
+
+it("keeps a current check separate from a selected historical request", async () => {
+  const row = { request_id: "a".repeat(32), operation: "memo.records", method: "POST", status: 200,
+    duration_ms: 140, ended_at: "2026-09-13T16:00:00Z" };
+  listManagedServices.mockResolvedValue({ items: [{ ...entry, business_observations: true,
+    business_requests: { status: "AVAILABLE", items: [row] } }] });
+  startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "fresh-check" });
+  render(<ManagedServicesPanel />);
+  await screen.findByRole("heading", { name: "办公助手" });
+  fireEvent.mouseDown(screen.getByRole("combobox"));
+  fireEvent.click(await screen.findByText(/140 ms/));
+  fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
+  await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
+    query: "检查当前状态", mode: "AUTONOMOUS", health_check: true,
+  }));
+});
 it("shows a real upload's chunking, indexing and process usage", async () => {
   const row = { request_id: "d".repeat(32), operation: "rag.ingest", method: "POST", status: 200,
     duration_ms: 2600, ended_at: "2026-09-23T12:00:00Z", business_result: "COMPLETED",

@@ -154,7 +154,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
     if (query.length < 3) { message.info("请先描述后台服务的性能现象"); return; }
     setStarting(item.id);
     try {
-      const requestId = selectedRequests[item.id];
+      const requestId = healthCheck ? null : selectedRequests[item.id];
       if (requestId && !item.business_requests?.items?.some(row => row.request_id === requestId)) {
         message.info("所选请求已不在当前列表，请重新选择"); return;
       }

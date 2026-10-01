@@ -29,6 +29,7 @@ import {
 import ChatThread from "../components/ChatThread";
 import AgentCockpit from "../components/AgentCockpit";
 import DiagnosisFinding from "../components/DiagnosisFinding";
+import HealthCheckActions, { healthCheckResult } from "../components/HealthCheckActions";
 import ObservabilityOverview, { buildObservationModel } from "../components/ObservabilityOverview";
 import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
@@ -751,13 +752,14 @@ export default function AIDiagnosis() {
     }
   }
 
+  const checkResult = healthCheckResult(detail, resources);
   const examProgress = useMemo(() => {
     const hasScope = Boolean(detail?.target?.agent_id || detail?.agent_id || detail?.target?.pid || detail?.pid);
     return {
       hasScope,
       hasEvidence: resources.evidence.length > 0,
       evidenceCount: resources.evidence.length,
-      hasReport: resources.reports.length > 0,
+      hasReport: resources.reports.length > 0 || Boolean(healthCheckResult(detail, resources)),
       terminal: TERMINAL.has(detail?.status),
     };
   }, [detail, resources]);
@@ -922,7 +924,7 @@ export default function AIDiagnosis() {
                     <span className="diagnosis-exam-number">2</span><div><strong>采集证据</strong><small>{examProgress.hasEvidence ? `已记录 ${examProgress.evidenceCount} 条证据` : examProgress.terminal ? "本次没有可用证据" : "等待采样结果"}</small></div>
                   </li>
                   <li className={examProgress.hasReport ? "is-done" : examProgress.terminal ? "is-limited" : "is-current"}>
-                    <span className="diagnosis-exam-number">3</span><div><strong>给出判断</strong><small>{examProgress.hasReport ? "报告与下一步已生成" : examProgress.terminal ? "未形成报告" : "等待证据裁决"}</small></div>
+                    <span className="diagnosis-exam-number">3</span><div><strong>给出判断</strong><small>{checkResult ? "检查结果与下一步已生成" : examProgress.hasReport ? "报告与下一步已生成" : examProgress.terminal ? "未形成报告" : "等待证据裁决"}</small></div>
                   </li>
                 </ol>
               )}
@@ -952,7 +954,8 @@ export default function AIDiagnosis() {
               {detail && !frozenReplay && (
                 <>
                   <ObservabilityOverview detail={detail} resources={resources} />
-                  {!normalObservation && <DiagnosisFinding reports={resources.reports} status={detail.status} />}
+                  <HealthCheckActions key={detail.diagnosis_id} detail={detail} result={checkResult} onOpenDiagnosis={openDiagnosis} onSelectService={() => setWorkspaceView("services")} />
+                  {!normalObservation && !checkResult && <DiagnosisFinding reports={resources.reports} status={detail.status} />}
                 </>
               )}
 

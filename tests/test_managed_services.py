@@ -103,3 +103,60 @@ def test_worker_role_does_not_select_router_or_background_processor():
     assert not managed._process_matches(entry,{"process":"uwsgi","namespace_pid":1})
     assert not managed._process_matches(entry,{"process":"python","namespace_pid":32})
     assert not managed._process_matches(entry,{"process":"uwsgi"})
+
+
+def completed_check(code="NORMAL_OBSERVED"):
+    from server.app.models import DropInsightSessionModel
+    snapshot()
+    result = managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+        query="检查当前状态", health_check=True), principal="test:operator")
+    with managed.new_session() as session:
+        session.get(DropInsightSessionModel, result["diagnosis_id"]).status = "COMPLETED"
+        managed.service._append_event(session, result["diagnosis_id"], "health_check.completed", "SYSTEM",
+            {"service_id": "agi-office-backend", "code": code}, now_utc())
+        session.commit()
+    return result
+
+
+def test_resampling_rebinds_after_restart_and_preserves_the_completed_parent():
+    parent = completed_check()
+    snapshot(pid=200, generation=2)
+    child = managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+        query="检查当前状态", health_check=True, follow_up_diagnosis_id=parent["diagnosis_id"]), principal="test:operator")
+    assert child["diagnosis_id"] != parent["diagnosis_id"]
+    assert child["target"]["pid"] == 200
+    assert child["target"]["process_binding"]["process_start_ticks"] == 2000
+    previous = managed.service.get_diagnosis(parent["diagnosis_id"])
+    assert previous.status == "COMPLETED" and previous.target_json["pid"] == 100
+    created = next(e for e in managed.service.list_events(child["diagnosis_id"]) if e.event_type == "diagnosis.created")
+    assert created.payload_json["follow_up_diagnosis_id"] == parent["diagnosis_id"]
+
+
+@pytest.mark.parametrize("code", ["NORMAL_OBSERVED", "INSUFFICIENT_OBSERVABILITY"])
+def test_deep_follow_up_requires_an_observed_anomaly(code):
+    parent = completed_check(code)
+    with pytest.raises(ValueError, match="只有已观测异常"):
+        managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+            query="调查根因", follow_up_diagnosis_id=parent["diagnosis_id"]), principal="test:operator")
+
+
+def test_anomalous_check_opens_a_separate_full_diagnosis():
+    parent = completed_check("ANOMALY_OBSERVED")
+    child = managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+        query="调查 CPU 性能异常", follow_up_diagnosis_id=parent["diagnosis_id"]), principal="test:operator")
+    assert child["diagnosis_id"] != parent["diagnosis_id"] and child["budget"]["max_tool_calls"] > 1
+    created = next(e for e in managed.service.list_events(child["diagnosis_id"]) if e.event_type == "diagnosis.created")
+    assert created.payload_json["health_check"] is False
+
+
+def test_follow_up_cannot_use_another_users_check():
+    parent = completed_check()
+    with pytest.raises(ValueError, match="当前用户和同一服务"):
+        managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+            query="检查当前状态", health_check=True, follow_up_diagnosis_id=parent["diagnosis_id"]), principal="test:other")
+
+
+def test_current_check_cannot_reuse_a_historical_business_request():
+    with pytest.raises(ValueError, match="不关联历史请求"):
+        managed.start_service_diagnosis("agi-office-backend", managed.StartServiceDiagnosis(
+            query="检查当前状态", health_check=True, request_id="a"*32), principal="test:operator")

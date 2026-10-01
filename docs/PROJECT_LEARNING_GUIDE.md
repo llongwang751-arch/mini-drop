@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2351 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2355 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2411,6 +2411,8 @@ python scripts/render_learning_guide.py
 | `web/src/components/FlamegraphViewer.jsx` | 交互式火焰图。 | `nameColor`、`tooltipContent`、`nodeName`、`hasRenderableFlamegraph`、`normalizeFlamegraphPayload` |
 | `web/src/components/FlamegraphViewer.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/FlamegraphViewer.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `buildLargeTree` |
+| `web/src/components/HealthCheckActions.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `healthCheckResult`、`HealthCheckActions` |
+| `web/src/components/HealthCheckActions.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/LatsReplayPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/LatsReplayPanel.jsx` | 创建并查看 FULL_LATS 冻结回放。 | `scenariosOf`、`newClientRunId`、`boundaryText`、`LatsReplayPanel` |
 | `web/src/components/LatsReplayPanel.test.jsx` | 前端自动化测试，验证同名模块的LATS 搜索与回放。 | — |
@@ -2598,6 +2600,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/fault_plaza.py` | 四运行时 21 个故障场景的服务端白名单。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
 | `server/app/drop_insight/fix_verification.py` | Python 服务模块，负责对应模块行为。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
 | `server/app/drop_insight/frozen_replay_showcase.py` | 冻结 fixture 到持久化 FULL_LATS 会话的桥。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
+| `server/app/drop_insight/health_assessment.py` | Python 服务模块，负责对应模块行为。 | `assess_health_window` |
 | `server/app/drop_insight/hypothesis_predicate.py` | Python 服务模块，负责对应模块行为。 | `_invalid_numeric_observation`、`_structured_signal_predicate`、`_criterion_text_indexes`、`_process_cpu_control`、`_compute_hypothesis_predicate` 等 7 个声明 |
 | `server/app/drop_insight/lats.py` | UCT/PUCT、Selection、Expansion、Simulation、Reflection 和价值回传原语。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
 | `server/app/drop_insight/managed_services.json` | Python 服务模块，负责对应模块行为。 | — |
@@ -2613,7 +2616,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/rounds.py` | Python 服务模块，负责对应模块行为。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
 | `server/app/drop_insight/scaled_skill_ab.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
 | `server/app/drop_insight/schemas.py` | Python 服务模块，负责对应模块行为。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
-| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 134 个声明 |
+| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 135 个声明 |
 | `server/app/drop_insight/showcase.py` | Python 服务模块，负责对应模块行为。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
 | `server/app/drop_insight/skill_benchmark.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
 | `server/app/drop_insight/skill_evolution.py` | Skill 混合检索、激活、跨轮沿用、候选演进和发布门禁。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
@@ -2919,6 +2922,7 @@ python scripts/render_learning_guide.py
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_go_demo_deployment_contract.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_demo_docker_toolchain_satisfies_its_go_module_requirement` |
 | `tests/test_go_io_window_harness.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_io_window_uses_new_operations_instead_of_the_lifetime_mean`、`test_missing_operations_resets_and_nonfinite_time_cannot_pass_fixture_verification` |
+| `tests/test_health_check_flow.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `evidence`、`test_measured_outcome_never_requires_positive_root_support`、`test_missing_or_untrusted_data_never_reports_normal`、`test_http_failure_is_detected_but_no_requests_does_not_claim_http_health`、`db` 等 11 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -2934,7 +2938,7 @@ python scripts/render_learning_guide.py
 | `tests/test_load_report_integrity.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `save`、`fixture`、`test_complete_raw_evidence_is_verified_without_inventing_resources`、`test_raw_corruption_is_rejected`、`test_rehashed_manifest_cannot_override_raw_measurement` 等 11 个声明 |
 | `tests/test_load_report_render.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_invalid_results_missing_latency_and_unsent_requests_stay_visible`、`test_embedded_report_escapes_untrusted_strings_and_has_no_external_assets`、`test_resource_units_growth_and_missing_observations_are_explicit`、`test_distributed_report_exposes_network_scope_and_failed_windows` 等 6 个声明 |
 | `tests/test_logging_utils.py` | Python 自动化测试，验证日志和 Trace的成功、失败与边界条件。 | `test_log_event_redacts_nested_secrets`、`test_log_event_redacts_secrets_embedded_in_text`、`test_log_event_includes_bound_trace_id_and_resets_context` |
-| `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 11 个声明 |
+| `tests/test_managed_services.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 17 个声明 |
 | `tests/test_metric_analyzers.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_sys_metrics_v2_derives_measured_signals_without_oracle_fields`、`test_http_business_metrics_are_identity_checked_and_derive_degradation`、`test_sys_metrics_v2_rejects_pid_reuse`、`test_sys_metrics_correlates_container_namespace_pid`、`test_memory_v2_derives_memory_growth_from_same_target` 等 9 个声明 |
 | `tests/test_migrations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_current_baseline_creates_only_runtime_models`、`test_current_baseline_downgrade_is_clean`、`test_current_baseline_adopts_legacy_revision` |
 | `tests/test_multi_cloud_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `FakeClient`、`test_select_process_avoids_pid_one_when_possible`、`test_run_agent_requires_real_task_lineage` |

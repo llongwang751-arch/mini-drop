@@ -68,6 +68,15 @@ const resources = {
 };
 
 describe("ObservabilityOverview", () => {
+  it("uses the durable missing-data result rather than inferring health from older metrics", () => {
+    const completed = { schema: "mini-drop.health-check.v1", diagnosis_id: "check",
+      code: "INSUFFICIENT_OBSERVABILITY", title: "无法判断，请补充采集数据", detail: "采集失败",
+      checked: [], anomalies: [], unmeasured: ["业务正确性"], evidence_refs: [], causal_root_cause_verified: false };
+    const model = buildObservationModel({ ...detail, diagnosis_id: "check", status: "INSUFFICIENT_EVIDENCE" }, {
+      ...resources, events: [{ event_type: "health_check.completed", payload: completed }],
+    });
+    expect(model.assessment.code).toBe("INSUFFICIENT_OBSERVABILITY");
+  });
   it("shows a real complete I/O refutation separately from global health", () => {
     const model = buildObservationModel(ioRefutation.detail, ioRefutation);
     expect(model.assessment.code).toBe("OBSERVATION_REFUTED");

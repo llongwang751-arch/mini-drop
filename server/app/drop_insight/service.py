@@ -951,6 +951,8 @@ def create_diagnosis(
     *,
     created_by: str = "system:internal",
     business_observation: dict | None = None,
+    managed_service_id: str | None = None,
+    follow_up_diagnosis_id: str | None = None,
 ) -> DropInsightSessionModel:
     target_json = payload.target.model_dump(mode="json")
     time_range_json = payload.time_range.model_dump(mode="json") if payload.time_range else {}
@@ -988,6 +990,8 @@ def create_diagnosis(
             "created_by": created_by.strip() or "system:internal",
             "auto_scope": payload.auto_scope,
             "health_check": payload.health_check,
+            **({"managed_service_id": managed_service_id} if managed_service_id else {}),
+            **({"follow_up_diagnosis_id": follow_up_diagnosis_id} if follow_up_diagnosis_id else {}),
             **({"business_observation": business_observation} if business_observation else {}),
         },
         occurred_at=timestamp,
@@ -6396,12 +6400,70 @@ def get_budget_usage(diagnosis_id: str) -> dict | None:
         session.close()
 
 
+def _finish_health_check(diagnosis_id: str, tool_call_id: str) -> dict | None:
+    """Commit a measured check and terminal call atomically, without a root report.
+
+    Only explicitly requested checks use this path. A follow-up creates a new
+    session with a fresh binding; no finished or cancelled case is revived.
+    """
+    from .health_assessment import assess_health_window
+    with new_session() as session:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        created = session.query(DropInsightEventModel).filter_by(
+            diagnosis_id=diagnosis_id, event_type="diagnosis.created").first()
+        if diagnosis is None or created is None or (created.payload_json or {}).get("health_check") is not True:
+            return None
+        previous = session.query(DropInsightEventModel).filter_by(
+            diagnosis_id=diagnosis_id, event_type="health_check.completed").first()
+        if previous is not None:
+            return previous.payload_json
+        if diagnosis.deleted_at is not None or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
+            return None
+        call = session.query(DropInsightToolCallModel).filter_by(
+            id=tool_call_id, diagnosis_id=diagnosis_id, tool_name="collect_sys_metrics").first()
+        if call is None:
+            return None
+        task = session.get(TaskModel, call.task_id)
+        if task is None or task.status not in {"DONE", "FAILED", "CANCELLED"}:
+            return None
+        if task.status == "DONE" and call.terminal_processing_status not in {"EVIDENCE_IMPORTED", "REPORT_EFFECTS_DONE"}:
+            return None
+        evidence = session.query(DropInsightEvidenceModel).filter_by(
+            diagnosis_id=diagnosis_id, hypothesis_id=call.hypothesis_id).order_by(
+                DropInsightEvidenceModel.created_at, DropInsightEvidenceModel.id).all()
+        windows = [assess_health_window(row.to_dict(), diagnosis.target_json or {}) for row in evidence
+                   if (row.envelope_json or {}).get("source", {}).get("task_id") == task.id
+                   and (row.envelope_json or {}).get("observation", {}).get("metadata", {}).get("summary")]
+        usable = [window for window in windows if window["code"] != "INSUFFICIENT_OBSERVABILITY"]
+        result = next((window for window in usable if window["code"] == "ANOMALY_OBSERVED"),
+                      usable[-1] if usable else windows[-1] if windows else assess_health_window({}, diagnosis.target_json or {}))
+        if task.status != "DONE":
+            result = assess_health_window({}, diagnosis.target_json or {})
+            result["detail"] = "系统采集未完成，请检查采集失败原因后重新采集。"
+        result = dict(result, diagnosis_id=diagnosis_id,
+                      service_id=(created.payload_json or {}).get("managed_service_id"),
+                      task_id=task.id, tool_call_id=call.id, task_status=task.status)
+        timestamp = now_utc()
+        if diagnosis.status != "COLLECTING_EVIDENCE":
+            _cas_session_update(session, diagnosis, status="COLLECTING_EVIDENCE", timestamp=timestamp)
+        _cas_session_update(session, diagnosis, status="INSUFFICIENT_EVIDENCE" if result["code"] == "INSUFFICIENT_OBSERVABILITY" else "COMPLETED", timestamp=timestamp)
+        _append_event(session, diagnosis_id, "health_check.completed", "SYSTEM", result, timestamp,
+                      effect_key=f"health-check:{diagnosis_id}:completed")
+        call.terminal_processing_status = "REPORT_EFFECTS_DONE"
+        call.terminal_processed_at = timestamp
+        session.commit()
+        return result
+
+
 def advance_diagnosis(diagnosis_id: str) -> dict | None:
     session = new_session()
     try:
         diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
         if diagnosis is None:
             return None
+        created = session.query(DropInsightEventModel).filter_by(
+            diagnosis_id=diagnosis_id, event_type="diagnosis.created").first()
+        is_health_check = created is not None and (created.payload_json or {}).get("health_check") is True
         calls = (
             session.query(DropInsightToolCallModel)
             .filter(DropInsightToolCallModel.diagnosis_id == diagnosis_id)
@@ -6416,6 +6478,8 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
             }
             for item in calls
         ]
+        if is_health_check and diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
+            snapshots = []
     finally:
         session.close()
 
@@ -6523,6 +6587,12 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
                 # can make those sessions wait on our own row lock until the
                 # public gRPC deadline expires.
                 session.close()
+                health_result = _finish_health_check(diagnosis_id, failed_tool_call_id)
+                if health_result is not None:
+                    actions.append({"tool_call_id": failed_tool_call_id, "action": "HEALTH_CHECK_COMPLETED", "check_result": health_result})
+                    continue
+                if is_health_check:
+                    continue
                 if failed_hypothesis_id:
                     _record_lats_tool_failure(
                         diagnosis_id,
@@ -6604,6 +6674,12 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
             ),
             terminal_tool_call_id=snapshot["tool_call_id"],
         )
+        health_result = _finish_health_check(diagnosis_id, snapshot["tool_call_id"])
+        if health_result is not None:
+            actions.append({"tool_call_id": snapshot["tool_call_id"], "action": "HEALTH_CHECK_COMPLETED", "check_result": health_result})
+            continue
+        if is_health_check:
+            continue
         session = new_session()
         try:
             hypothesis_exists = session.get(
@@ -6692,7 +6768,7 @@ def advance_diagnosis(diagnosis_id: str) -> dict | None:
         finally:
             session.close()
 
-    if snapshots:
+    if snapshots and not is_health_check:
         _score_candidate_hypotheses(diagnosis_id)
 
     return {

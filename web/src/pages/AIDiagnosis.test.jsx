@@ -30,6 +30,7 @@ vi.mock("../api/client", () => ({
   runDropInsightPlanner: vi.fn(),
   submitDropInsightFeedback: vi.fn(),
   submitDropInsightIntervention: vi.fn(),
+  startManagedServiceDiagnosis: vi.fn(),
   updateDropInsightToolCall: vi.fn(),
 }));
 
@@ -69,6 +70,28 @@ describe("AIDiagnosis V2 workspace", () => {
   });
 
   afterEach(cleanup);
+
+  it("finishes a measured healthy check without a root report and offers fresh sampling", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightEvents.mockResolvedValue([{ event_type: "health_check.completed", payload: {
+      schema: "mini-drop.health-check.v1", diagnosis_id: "diag-1", service_id: "office",
+      code: "NORMAL_OBSERVED", title: "本次检查正常（已检查范围）", detail: "CPU 和 RSS 未超阈值",
+      checked: ["CPU", "RSS"], anomalies: [], unmeasured: ["业务正确性"], evidence_refs: ["ev"],
+      causal_root_cause_verified: false,
+    } }]);
+    api.startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "diag-2" });
+    render(<AIDiagnosis />);
+    const button = await screen.findByRole("button", { name: "再次检查" });
+    expect(screen.getByText("检查结果与下一步已生成")).toBeInTheDocument();
+    expect(screen.queryByText("未形成报告")).not.toBeInTheDocument();
+    expect(screen.queryByText("证据不足，暂不能确认根因")).not.toBeInTheDocument();
+    fireEvent.click(button);
+    await waitFor(() => expect(api.startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
+      query: "检查当前状态", mode: "AUTONOMOUS", health_check: true, follow_up_diagnosis_id: "diag-1",
+    }));
+  });
 
   it("keeps a deep link available for retry after a transient list failure", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");

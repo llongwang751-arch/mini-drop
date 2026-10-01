@@ -11,6 +11,7 @@ import {
 import { Tag, Tooltip } from "antd";
 import { diagnosticStatusLabel, diagnosticToolLabel } from "../utils/diagnosisDisplay";
 import { isCausalRootReport, isObservationReport, isLocalizedReport, isRefutedObservationReport, observationMeasurementText } from "../utils/reportPresentation";
+import { healthCheckResult } from "./HealthCheckActions";
 import { assessObservationWindow } from "../utils/observationAssessment";
 
 const FINISHED = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
@@ -184,6 +185,11 @@ export function buildObservationModel(detail = {}, resources = {}) {
     };
   }
 
+  const completedCheck = healthCheckResult(detail, resources);
+  if (completedCheck) {
+    assessment = { ...completedCheck,
+      detail: `${completedCheck.detail} 已检查：${completedCheck.checked.join("；") || "尚无完整检查项"}。未检查：${completedCheck.unmeasured.join("、")}。` };
+  }
   const processCpu = number(summary.process_cpu_percent ?? summary.process_cpu_core_usage);
   const hostCpu = [summary.avg_cpu_user_pct, summary.avg_cpu_sys_pct]
     .map(number)
@@ -259,7 +265,7 @@ export default function ObservabilityOverview({ detail, resources }) {
           <p>{assessment.detail}</p>
         </div>
         <Tag color={verifiedFault ? "red" : observedFault ? "orange" : healthyWindow ? "green" : "blue"}>
-          {healthyWindow ? "检查结果：正常" : assessment.code === "OBSERVATION_REFUTED" ? "异常假设已反驳" : assessment.code === "BOTTLENECK_LOCALIZED" ? "路径已定位" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
+          {healthyWindow ? "检查结果：正常" : assessment.code === "OBSERVATION_REFUTED" ? "异常假设已反驳" : assessment.code === "BOTTLENECK_LOCALIZED" ? "路径已定位" : assessment.code === "INSUFFICIENT_OBSERVABILITY" ? "检查结果：无法判断" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
         </Tag>
       </header>
 
