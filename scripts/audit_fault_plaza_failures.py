@@ -48,7 +48,7 @@ def evaluate_recorded_lineage(records, target):
                  and digest == artifact.get("sha256")
                  and source.get("analysis_job_id")
                  and (envelope.get("quality") or {}).get("analyzer_validated") is True
-                 and decision in {"ACCEPT_SUPPORT", "ACCEPT_LIMITED"}
+                 and decision in {"ACCEPT_SUPPORT", "ACCEPT_LIMITED", "ACCEPT_NEUTRAL"}
                  and all(scope.get(key) == target.get(key) for key in ("agent_id", "pid")))
         (admitted if valid else failures).append(evidence.get("evidence_id"))
     return {"recorded_chain_consistent": bool(admitted) and not problems,

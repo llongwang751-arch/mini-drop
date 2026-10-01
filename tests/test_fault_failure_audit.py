@@ -28,6 +28,14 @@ def test_insufficient_outcome_does_not_destroy_valid_recorded_lineage():
     assert case == before
 
 
+def test_valid_neutral_analyzer_evidence_retains_lineage_without_supporting_a_root():
+    data = records()
+    data["evidence"][0]["classification"]["decision"] = "ACCEPT_NEUTRAL"
+    assert evaluate_recorded_lineage(data, {"agent_id": "a", "pid": 1})["recorded_chain_consistent"]
+    data["evidence"][0]["envelope"]["quality"]["analyzer_validated"] = False
+    assert not evaluate_recorded_lineage(data, {"agent_id": "a", "pid": 1})["recorded_chain_consistent"]
+
+
 @pytest.mark.parametrize("mutation", ["hash", "attempt", "artifact", "analysis", "scope", "binding", "target"])
 def test_chain_break_or_wrong_target_is_rejected(mutation):
     data = records()

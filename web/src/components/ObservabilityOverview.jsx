@@ -242,7 +242,7 @@ export default function ObservabilityOverview({ detail, resources }) {
           <p>{assessment.detail}</p>
         </div>
         <Tag color={verifiedFault ? "red" : observedFault ? "orange" : healthyWindow ? "green" : "blue"}>
-          {diagnosticStatusLabel(detail?.status, "状态同步中")}
+          {healthyWindow ? "检查结果：正常" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
         </Tag>
       </header>
 

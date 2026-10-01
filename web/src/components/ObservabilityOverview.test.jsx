@@ -24,7 +24,7 @@ const systemEvidence = {
     evidence_type: "SYS_METRICS_SYS_METRICS",
     source: { tool_name: "sys_metrics" },
     scope: { agent_id: "worker-1", pid: 4201 },
-    quality: { sample_count: 15 },
+    quality: { sample_count: 15, schema_valid: true, analyzer_validated: true, target_match: true, time_overlap: true, degraded: false },
     observation: {
       metadata: {
         sample_count: 15,
@@ -87,6 +87,7 @@ describe("ObservabilityOverview", () => {
     render(<ObservabilityOverview detail={detail} resources={resources} />);
     const panel = screen.getByLabelText("目标进程与性能观测");
     expect(within(panel).getByText("本次检查正常（已检查范围）")).toBeInTheDocument();
+    expect(within(panel).getByText("检查结果：正常")).toBeInTheDocument();
     expect(within(panel).getByText("23.4%")).toBeInTheDocument();
     expect(within(panel).getByText("128.2 MiB")).toBeInTheDocument();
     expect(within(panel).getByText("进程身份已校验")).toBeInTheDocument();

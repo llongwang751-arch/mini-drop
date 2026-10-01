@@ -242,6 +242,7 @@ describe("AIDiagnosis V2 workspace", () => {
       evidence_id: "ev-sys-1", role: "NEUTRAL",
       envelope: { evidence_type: "SYS_METRICS_SYS_METRICS", source: { tool_name: "sys_metrics" },
         scope: { agent_id: "worker-1", pid: 4201 },
+        quality: { schema_valid: true, analyzer_validated: true, target_match: true, time_overlap: true, degraded: false },
         observation: { metadata: { sample_count: 15, window_duration_seconds: 14, process_identity: { pid: 4201, start_ticks: 123, verified: true }, summary: { process_cpu_core_usage: 2.4, vmrss_mb: 128, vmrss_mb_delta: 0, thread_count: 5, fd_count: 12 } } } },
       classification: { decision: "ACCEPT_LIMITED", can_support_conclusion: false },
     }]);

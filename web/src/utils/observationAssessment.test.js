@@ -3,7 +3,8 @@ import { assessObservationWindow } from "./observationAssessment";
 
 const target = { agent_id: "a", pid: 10, process_binding: { boot_id: "boot", process_start_ticks: 20 } };
 function baseline() {
-  return { classification: { decision: "ACCEPT_LIMITED" }, envelope: { scope: { agent_id: "a", pid: 10 }, observation: { metadata: {
+  return { classification: { decision: "ACCEPT_LIMITED" }, envelope: { scope: { agent_id: "a", pid: 10 },
+    quality: { schema_valid: true, analyzer_validated: true, target_match: true, time_overlap: true, degraded: false }, observation: { metadata: {
     sample_count: 15, window_duration_seconds: 14,
     process_identity: { pid: 10, start_ticks: 20, verified: true },
     summary: { process_cpu_core_usage: 10, vmrss_mb: 100, vmrss_mb_delta: 0 }, signals: {},
@@ -15,6 +16,14 @@ describe("scope-limited health assessment", () => {
     expect(result.code).toBe("NORMAL_OBSERVED");
     expect(result.checked).toHaveLength(2);
     expect(result.detail).toContain("未检查磁盘操作延迟、丢包/重传");
+  });
+  it("accepts real neutral baseline evidence without requiring hypothesis support", () => {
+    const evidence = baseline();
+    evidence.classification = { decision: "ACCEPT_NEUTRAL", can_support_conclusion: false,
+      reasons: ["Analyzer 未产出能够支持或证伪当前假设的结构化谓词"] };
+    expect(assessObservationWindow(evidence, target).code).toBe("NORMAL_OBSERVED");
+    evidence.envelope.quality.analyzer_validated = false;
+    expect(assessObservationWindow(evidence, target).code).toBe("INSUFFICIENT_OBSERVABILITY");
   });
   it.each([50, 99, 240])("does not call CPU %s%% normal without a supported root", cpu => {
     const evidence = baseline();
