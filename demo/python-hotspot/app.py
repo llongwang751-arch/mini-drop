@@ -341,34 +341,51 @@ class IoFault:
         self._lock = threading.Lock()
         self._deadline: float | None = None
         self._bytes_written = 0
+        self._operations = 0
+        self._duration_ns = 0
+        self._failures = 0
+        self._work_lock = threading.Lock()
         self._path = "/tmp/mini-drop-io-fault.bin"
         self._thread = threading.Thread(target=self._run, name="io-hotspot", daemon=True)
         self._thread.start()
 
     def start(self, duration_seconds: float | None = None) -> None:
-        with self._lock:
-            self._deadline = time.monotonic() + _bounded_duration_seconds(
-                duration_seconds
-            )
-            self._bytes_written = 0
-        self._enabled.set()
+        self._enabled.clear()
+        with self._work_lock:
+            with self._lock:
+                self._deadline = time.monotonic() + _bounded_duration_seconds(
+                    duration_seconds
+                )
+                self._bytes_written = 0
+                self._operations = 0
+                self._duration_ns = 0
+                self._failures = 0
+            self._enabled.set()
 
     def stop(self) -> None:
         self._enabled.clear()
         with self._lock:
             self._deadline = None
-        try:
-            os.remove(self._path)
-        except FileNotFoundError:
-            pass
+        with self._work_lock:
+            try:
+                os.remove(self._path)
+            except FileNotFoundError:
+                pass
 
     def snapshot(self) -> dict[str, object]:
         with self._lock:
             written = self._bytes_written
+            operations = self._operations
+            duration_ns = self._duration_ns
+            failures = self._failures
             deadline = self._deadline
         return {
             "io_fault_active": self._enabled.is_set(),
             "io_workload_bytes": written,
+            "io_bytes_written": written,
+            "io_operations": operations,
+            "io_operation_duration_ms_total": duration_ns / 1_000_000,
+            "io_failures": failures,
             "process_write_bytes": _process_write_bytes(),
             "io_auto_stop_remaining_seconds": (
                 round(max(deadline - time.monotonic(), 0.0), 2) if deadline else None
@@ -385,15 +402,36 @@ class IoFault:
             if deadline is not None and time.monotonic() >= deadline:
                 self.stop()
                 continue
-            try:
-                with open(self._path, "ab", buffering=0) as handle:
-                    handle.write(chunk)
-                    os.fdatasync(handle.fileno())
-                with self._lock:
-                    self._bytes_written += len(chunk)
-                if os.path.getsize(self._path) >= 128 * 1024 * 1024:
-                    os.remove(self._path)
-            except OSError:
+            failed = False
+            with self._work_lock:
+                if not self._enabled.is_set():
+                    continue
+                started = time.perf_counter_ns()
+                try:
+                    # Only successful open/write/sync/close enters this total.
+                    # The pacing sleep and work-lock wait remain outside it.
+                    with open(self._path, "ab", buffering=0) as handle:
+                        view = memoryview(chunk)
+                        while view:
+                            count = handle.write(view)
+                            if count is None or count <= 0:
+                                raise OSError("synchronous write made no progress")
+                            view = view[count:]
+                        os.fdatasync(handle.fileno())
+                    duration_ns = time.perf_counter_ns() - started
+                    with self._lock:
+                        self._bytes_written += len(chunk)
+                        self._operations += 1
+                        self._duration_ns += duration_ns
+                    # Leave room for telemetry and short-write retries in a
+                    # 64MiB tmpfs; rotation itself is not a sync operation.
+                    if os.path.getsize(self._path) >= 8 * 1024 * 1024:
+                        os.remove(self._path)
+                except OSError:
+                    with self._lock:
+                        self._failures += 1
+                    failed = True
+            if failed:
                 self.stop()
             time.sleep(0.02)
 
@@ -429,12 +467,35 @@ def _process_ticks(pid: int | None) -> int:
 
 
 class NoisyNeighborFault:
-    """A separate same-host process that consumes CPU until explicitly stopped."""
+    """Finite target and child CPU workloads sharing the inherited cgroup.
+
+    Resource competition is measured independently by the native collector;
+    starting this workload does not itself constitute evidence of throttling.
+    """
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._process: subprocess.Popen[bytes] | None = None
         self._deadline: float | None = None
+        self._target_enabled = threading.Event()
+        self._target_thread = threading.Thread(
+            target=self._run_target, name="shared-quota-target", daemon=True
+        )
+        self._target_thread.start()
+
+    def _run_target(self) -> None:
+        value = b"target-shared-cgroup-work"
+        while True:
+            if not self._target_enabled.wait(timeout=0.1):
+                continue
+            with self._lock:
+                deadline = self._deadline
+            if deadline is None or time.monotonic() >= deadline:
+                self._target_enabled.clear()
+                continue
+            # A real target compute demand alongside the separate child, so
+            # the window can observe two consumers of a finite CPU quota.
+            value = hashlib.sha256(value).digest()
 
     def start(self, duration_seconds: float | None = None) -> None:
         self.stop()
@@ -448,8 +509,10 @@ class NoisyNeighborFault:
         with self._lock:
             self._process = process
             self._deadline = time.monotonic() + seconds
+        self._target_enabled.set()
 
     def stop(self) -> None:
+        self._target_enabled.clear()
         with self._lock:
             process = self._process
             self._process = None
@@ -657,6 +720,10 @@ _APPLICATION_METRIC_FIELDS = {
     "process_rss_mb",
     "retained_memory_mb",
     "io_workload_bytes",
+    "io_bytes_written",
+    "io_operations",
+    "io_operation_duration_ms_total",
+    "io_failures",
     "process_write_bytes",
     "peer_pid",
     "peer_cpu_ticks",

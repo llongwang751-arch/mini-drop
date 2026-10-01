@@ -600,13 +600,17 @@ def _derive_signals(
 
     lock_wait_delta = _metric(application, "delta", "lock_wait_ms")
     lock_contentions = _metric(application, "delta", "lock_contentions")
-    if (lock_wait_delta or 0.0) >= 10.0 or (lock_contentions or 0.0) > 0:
-        signals["lock_contention"] = _signal(
+    lock_acquisitions = _metric(application, "delta", "lock_acquisitions")
+    lock_average = _application_counter_average(application, "lock_acquisitions", "lock_wait_ms")
+    if lock_average is not None or (lock_wait_delta is not None and lock_wait_delta >= 10.0) or (lock_contentions is not None and lock_contentions > 0):
+        signals["lock_contention"] = {**_signal(
             "instrumented lock wait or contention counters increased in-window",
             lock_wait_ms_delta=lock_wait_delta,
             lock_contentions_delta=lock_contentions,
-            lock_acquisitions_delta=_metric(application, "delta", "lock_acquisitions"),
-        )
+            lock_acquisitions_delta=lock_acquisitions,
+            average_wait_ms=lock_average,
+        ), "detected": (lock_contentions is not None and lock_contentions > 0) or (lock_wait_delta is not None and lock_wait_delta >= 10.0),
+            "measurement_scope": "TARGET_APPLICATION_MUTEX_WAIT"}
 
     allocated_delta = _metric(application, "delta", "allocated_bytes")
     gc_count_delta = _metric(application, "delta", "gc_count")
@@ -654,20 +658,86 @@ def _derive_signals(
             queue_lag=queue_lag,
         )
 
-    peer_ticks = _metric(application, "delta", "peer_cpu_ticks")
-    same_host = bool(
-        (application or {}).get("identity", {}).get("same_host_verified")
-        if isinstance((application or {}).get("identity"), dict)
-        else False
-    )
-    if same_host and (peer_ticks or 0.0) > 0:
-        signals["noisy_neighbor"] = _signal(
-            "a separately identified peer on the same host consumed CPU in-window",
-            peer_cpu_ticks_delta=peer_ticks,
-            same_host_verified=True,
-        )
-
     return signals
+
+
+def _resource_competition_window(samples, target_pid, target_start_ticks):
+    """Validate one native /proc+cgroup window; a busy peer alone is unknown.
+
+    This observes two CPU consumers in a throttled shared quota domain. It
+    does not attribute a causal fraction of the target's delay to any peer.
+    All rows, identities, limits and cumulative counters must agree.
+    """
+    documents = []
+    for sample in samples:
+        raw = sample.get("resource_competition_json")
+        if not isinstance(raw, str):
+            return None
+        try:
+            row = json.loads(raw)
+        except (ValueError, TypeError):
+            return None
+        if not isinstance(row, dict) or row.get("schema_version") != "mini-drop.cgroup-cpu-observation.v1" or row.get("source") != "linux_proc_and_cgroup_v2":
+            return None
+        documents.append(row)
+    if len(documents) < 2:
+        return None
+
+    def integer(value, positive=False):
+        return isinstance(value, int) and not isinstance(value, bool) and value >= (1 if positive else 0)
+
+    def peer_identity(row):
+        peers = row.get("peers")
+        if not isinstance(peers, list) or not 1 <= len(peers) <= 16:
+            return None
+        identities = []
+        for peer in peers:
+            if not isinstance(peer, dict) or not integer(peer.get("pid"), True) or not integer(peer.get("start_ticks"), True) or not integer(peer.get("cpu_ticks")):
+                return None
+            if peer["pid"] == target_pid or peer.get("cgroup_path") != row.get("cgroup_path"):
+                return None
+            identities.append((peer["pid"], peer["start_ticks"]))
+        return tuple(sorted(identities)) if len(set(identities)) == len(identities) else None
+
+    first = documents[0]
+    identities = peer_identity(first)
+    if identities is None or not isinstance(first.get("boot_id"), str) or not first["boot_id"].strip() or not isinstance(first.get("cgroup_path"), str) or not first["cgroup_path"]:
+        return None
+    stable = ("boot_id", "cgroup_path", "cpu_quota_us", "cpu_period_us")
+    counters = ("target_cpu_ticks", "nr_periods", "nr_throttled", "throttled_usec")
+    for index, row in enumerate(documents):
+        if row.get("target_pid") != target_pid or row.get("target_start_ticks") != target_start_ticks or peer_identity(row) != identities or any(row.get(key) != first.get(key) for key in stable):
+            return None
+        if not integer(row.get("cpu_quota_us"), True) or not integer(row.get("cpu_period_us"), True) or any(not integer(row.get(key)) for key in counters):
+            return None
+        if row["target_cpu_ticks"] != samples[index].get("process_cpu_ticks") or row["nr_throttled"] > row["nr_periods"]:
+            return None
+        if index and any(row[key] < documents[index - 1][key] for key in counters):
+            return None
+        if index:
+            previous_peers = {peer["pid"]: peer["cpu_ticks"] for peer in documents[index - 1]["peers"]}
+            if any(peer["cpu_ticks"] < previous_peers[peer["pid"]] for peer in row["peers"]):
+                return None
+    last = documents[-1]
+    delta = {key: last[key] - first[key] for key in counters}
+    peer_delta = sum(peer["cpu_ticks"] for peer in last["peers"]) - sum(peer["cpu_ticks"] for peer in first["peers"])
+    if peer_delta <= 0 or delta["target_cpu_ticks"] <= 0 or delta["nr_periods"] <= 0:
+        return None
+    times = [sample.get("captured_at_unix_ms") for sample in samples]
+    if not all(integer(value, True) for value in times) or any(right <= left for left, right in zip(times, times[1:])) or times[-1] - times[0] < 1000:
+        return None
+    return {
+        "schema_version": "shared-cgroup-cpu-window.v1", "source": "linux_proc_and_cgroup_v2",
+        "measurement_scope": "TARGET_SHARED_CGROUP_CPU", "same_cgroup_verified": True,
+        "target_pid": target_pid, "target_start_ticks": target_start_ticks,
+        "boot_id": first["boot_id"].strip(), "cgroup_path": first["cgroup_path"],
+        "peer_identities": [{"pid": pid, "start_ticks": start} for pid, start in identities],
+        "cpu_quota_us": first["cpu_quota_us"], "cpu_period_us": first["cpu_period_us"],
+        "sample_count": len(documents), "start_unix_ms": times[0], "end_unix_ms": times[-1],
+        "before": first, "after": last,
+        "peer_cpu_ticks_delta": peer_delta, "target_cpu_ticks_delta": delta["target_cpu_ticks"],
+        "throttled_periods_delta": delta["nr_throttled"], "throttled_usec_delta": delta["throttled_usec"],
+    }
 
 
 def _application_counter_average(application, count_field, duration_field):
@@ -810,6 +880,17 @@ def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
         target_namespace_pid=target_namespace_pid,
     )
     signals = _derive_signals(summary, application)
+    resource_competition = _resource_competition_window(samples, target_pid, next(iter(start_ticks), None))
+    if resource_competition is not None:
+        signals["noisy_neighbor"] = {
+            **_signal("target and separately identified children consumed a shared CPU quota in-window",
+                **{key: resource_competition[key] for key in (
+                    "peer_cpu_ticks_delta", "target_cpu_ticks_delta", "throttled_periods_delta",
+                    "throttled_usec_delta", "cpu_quota_us", "cpu_period_us")}),
+            "same_cgroup_verified": True,
+            "measurement_scope": "TARGET_SHARED_CGROUP_CPU",
+            "detected": resource_competition["throttled_periods_delta"] > 0 and resource_competition["throttled_usec_delta"] > 0,
+        }
     # Keep the operating-system counter window distinct from optional
     # application snapshots. Missing samples cannot become a CPU control.
     cpu_window = None
@@ -863,6 +944,7 @@ def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
         },
         "summary": summary,
         "process_cpu_window": cpu_window,
+        "resource_competition_window": resource_competition,
         "application_metrics": application,
         "application_metrics_status": "AVAILABLE" if application is not None else "UNAVAILABLE",
         "application_metrics_limitations": application_limitations,

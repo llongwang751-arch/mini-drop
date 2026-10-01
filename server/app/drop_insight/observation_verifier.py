@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .evidence import classify_evidence, observed_count
 from .performance_criteria import evaluate_performance_criterion, parse_performance_criterion
+from .signal_window_validation import validate_signal_window
 
 
 def verify_performance_observation(evidence, expected, falsification):
@@ -31,13 +32,15 @@ def verify_performance_observation(evidence, expected, falsification):
             continue
         criteria = []
         for kind, index, text in slots:
-            value = evaluate_performance_criterion(text, signals)
+            parsed = parse_performance_criterion(text)
+            value = (evaluate_performance_criterion(text, signals)
+                     if parsed and validate_signal_window(metadata, parsed['signal']) else None)
             criteria.append({'kind': kind, 'index': index, 'criterion': text,
                              'checked': value is not None, 'matches': value['matches'] if value else None,
                              'measurement': value, 'evidence_id': envelope.evidence_id})
         complete = all(row['checked'] for row in criteria)
         supports = complete and all(row['matches'] for row in criteria if row['kind'] == 'expected')
-        refutes = any(row['matches'] is True for row in criteria if row['kind'] == 'falsification')
+        refutes = complete and any(row['matches'] is True for row in criteria if row['kind'] == 'falsification')
         windows.append({'criteria': criteria, 'supports': supports and not refutes,
                         'refutes': refutes, 'evidence_id': envelope.evidence_id})
     supporting = [row for row in windows if row['supports']]
@@ -47,6 +50,8 @@ def verify_performance_observation(evidence, expected, falsification):
     strongest = max(windows, key=lambda row: sum(c['checked'] for c in row['criteria']), default=None)
     if supporting:
         strongest = supporting[0]
+    elif refuting:
+        strongest = refuting[0]
     if strongest:
         result['criteria'] = strongest['criteria']
         result['checked_ratio'] = sum(row['checked'] for row in strongest['criteria']) / len(slots)

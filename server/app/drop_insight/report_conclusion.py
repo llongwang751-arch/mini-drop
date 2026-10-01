@@ -174,8 +174,8 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
 
     if function_name:
         observation_contract = metrics.get("observation_contract")
-        if observation_contract in {"python-profile-and-os-cpu.v1", "go-profile-and-os-cpu.v1"}:
-            measure = "累计采样占比" if observation_contract == "go-profile-and-os-cpu.v1" else "按函数归并的采样占比"
+        if observation_contract in {"python-profile-and-os-cpu.v1", "go-profile-and-os-cpu.v1", "cpp-perf-and-os-cpu.v1"}:
+            measure = "按函数归并的采样占比" if observation_contract == "python-profile-and-os-cpu.v1" else "累计采样占比"
             measured = f"，{measure} {dominant_percent:.1f}%" if dominant_percent is not None else ""
             return _ObservationFinding(
                 f"{sample_text}在 Profile 采集窗口观察到可归属路径 `{function_name}`{measured}。"

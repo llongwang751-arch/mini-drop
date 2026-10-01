@@ -3300,7 +3300,7 @@ _CATEGORY_TOOL_PREFERENCE = {
     "QUEUE_CONGESTION": ["collect_sys_metrics"],
     "CONTAINER_RESOURCE_LIMIT": ["collect_sys_metrics"],
     "NOISY_NEIGHBOR": ["collect_sys_metrics"],
-    "IO_LATENCY": ["start_ebpf_io_profile", "collect_sys_metrics"],
+    "IO_LATENCY": ["collect_sys_metrics", "start_ebpf_io_profile"],
     "PYTHON_RUNTIME": ["start_pyspy_profile", "start_perf_profile", "collect_sys_metrics"],
     "MEMORY_PRESSURE": ["collect_memory_profile", "collect_sys_metrics"],
     "FD_LEAK": ["collect_sys_metrics"],
@@ -4187,7 +4187,7 @@ def _request_cpu_control_before_report(diagnosis_id: str, hypothesis_id: str):
         if not any(row.role == "SUPPORT" and
                    (row.classification_json or {}).get("decision") == "ACCEPT_SUPPORT" and
                    ((row.envelope_json or {}).get("source") or {}).get("tool_name") in
-                   {"PYTHON": {"pyspy"}, "GO": {"go_pprof"}}[contract["runtime"]]
+                   {"PYTHON": {"pyspy"}, "GO": {"go_pprof"}, "CPP": {"perf_cpu", "continuous_perf"}}[contract["runtime"]]
                    for row in accepted):
             return None
         prior = session.query(DropInsightToolCallModel).filter_by(
@@ -7761,7 +7761,7 @@ def _cpu_rule_plan_for_query(plan: dict, query: str, *, runtime: str | None = No
             or not cpu_utilization_hypothesis(query)):
         return plan
     family = runtime or {"PYTHON_RUNTIME": "PYTHON", "GO_RUNTIME": "GO"}.get(plan.get("category"))
-    if family not in {"PYTHON", "GO"}:
+    if family not in {"PYTHON", "GO", "CPP"}:
         return plan
     observation = cpu_observation_plan(family, threshold=50)
     return {**plan, "statement": observation["statement"],
@@ -8132,10 +8132,19 @@ def run_diagnosis_planner(
     plan = _cpu_rule_plan_for_query(plan, diagnosis.query, runtime=_diagnosis_runtime_family(diagnosis))
     from .performance_criteria import performance_observation_plan
     performance_plan = None if health_check else performance_observation_plan(plan["category"])
+    if plan["category"] == "LOCK_CONTENTION" and _diagnosis_runtime_family(diagnosis) != "CPP":
+        performance_plan = None
     if performance_plan is not None:
         # Select an executable observation before persistence. Existing
         # hypotheses and causal assertions are never rewritten for a score.
         plan = {**plan, **performance_plan}
+    observation_baseline = dict(plan)
+    measured_category = plan["category"] in {"IO_LATENCY", "NOISY_NEIGHBOR"} or (
+        plan["category"] == "LOCK_CONTENTION" and _diagnosis_runtime_family(diagnosis) == "CPP")
+    if measured_category:
+        plan["tool_name"] = "collect_sys_metrics"
+        plan["arguments"] = _planner_tool_arguments("collect_sys_metrics", target)
+        observation_baseline = dict(plan)
     available_tools = _available_planner_tools(diagnosis, binding)
     allowed_tools = _category_allowed_tools(plan["category"], available_tools)
     if not allowed_tools:
@@ -8319,6 +8328,22 @@ def run_diagnosis_planner(
             else f"规则分类器已选择 {plan['category']} 诊断路径；该类别当前使用确定性规划。"
         )
 
+    # Register a distinct executable baseline before persistence when model
+    # proposals cannot express the measurements supported by this collector.
+    # Rejected model prose is retained separately; persisted hypotheses are never edited.
+    baseline_contract = compile_cpu_observation_contract(
+        observation_baseline["statement"], observation_baseline["expected"], observation_baseline["falsification"])
+    if baseline_contract.get("executable") or measured_category:
+        baseline = {"statement": observation_baseline["statement"],
+                    "expected": observation_baseline["expected"],
+                    "falsification": observation_baseline["falsification"],
+                    "reason": "Registered bounded collector observation; independent from model causal candidates",
+                    "prior_probability": 0.5, "estimated_value": 0.8}
+        if not any(c.get("statement") == baseline["statement"] for c in candidates):
+            candidates = [baseline, *candidates]
+        plan["tool_name"] = observation_baseline["tool_name"]
+        plan["arguments"] = _planner_tool_arguments(plan["tool_name"], target)
+
     # LATS expansion keeps top-k mutually falsifiable candidates plus the
     # open-world sentinel.  LM scores are priors only; missing/invalid values
     # use deterministic fallbacks in prepare_candidates().
@@ -8333,6 +8358,27 @@ def run_diagnosis_planner(
         diagnosis, prepared_candidates, source=source,
         effect_prefix=f"diagnosis:{diagnosis_id}:initial",
     )
+    if measured_category:
+        from .performance_criteria import parse_performance_criterion
+        executable_candidates = []
+        rejection_session = new_session()
+        try:
+            for candidate in prepared_candidates:
+                criteria = [*candidate.get("expected_observations", []), *candidate.get("falsification_criteria", [])]
+                expected_signal = {"IO_LATENCY": "io_latency", "NOISY_NEIGHBOR": "noisy_neighbor", "LOCK_CONTENTION": "lock_contention"}[observation_baseline["category"]]
+                parsed = [parse_performance_criterion(x) for x in criteria]
+                if candidate.get("is_open_world_sentinel") or (parsed and all(x and x["signal"] == expected_signal for x in parsed)):
+                    executable_candidates.append(candidate)
+                    continue
+                _append_event(rejection_session, diagnosis_id, "planner.observation_contract_rejected", "SYSTEM",
+                    {"candidate": candidate, "reason": "No registered numeric evaluator for the complete observation",
+                     "criteria_rewritten": False, "dispatched": False}, now_utc(),
+                    effect_key=f"diagnosis:{diagnosis_id}:initial:observation-contract:{candidate['candidate_key']}")
+            rejection_session.commit()
+        finally:
+            rejection_session.close()
+        prepared_candidates = executable_candidates
+
     if not any(not candidate.get("is_open_world_sentinel") for candidate in prepared_candidates):
         _record_lats_termination(
             diagnosis_id, reason="NO_ELIGIBLE_CHILD",
@@ -8360,6 +8406,7 @@ def run_diagnosis_planner(
                 source=(
                     "SYSTEM_FALLBACK"
                     if candidate.get("is_open_world_sentinel")
+                    else "REGISTERED_OBSERVATION_RULE" if candidate["statement"] == observation_baseline["statement"]
                     else source
                 ),
             round_index=1,
@@ -8413,6 +8460,10 @@ def run_diagnosis_planner(
         plan["tool_name"] = recommended_tool
         plan["arguments"] = _planner_tool_arguments(recommended_tool, target)
 
+    if measured_category:
+        # Runtime profiles cannot replace measured IO/lock/quota counter windows.
+        plan["tool_name"] = "collect_sys_metrics"
+
     # Rebuild the final request after Skill/model/LATS selection so JVM event
     # choice follows the diagnosis intent (allocation, lock, wall or CPU).
     plan["arguments"] = _planner_tool_arguments(
@@ -8465,7 +8516,8 @@ def run_diagnosis_planner(
         ),
         "classification_confidence": plan.get("classification_confidence", 0.9),
         "category": plan["category"],
-        "decision_source": source,
+        "decision_source": hypothesis.source,
+        "candidate_generation_source": source,
         "reasoning_summary": generation_reason,
         "retrieval_trace": retrieval_trace,
         "skill_activation": skill_activation,

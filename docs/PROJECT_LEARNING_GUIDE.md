@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2819 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2825 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2776,6 +2776,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/schemas.py` | Python 服务模块，负责对应模块行为。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
 | `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 135 个声明 |
 | `server/app/drop_insight/showcase.py` | Python 服务模块，负责对应模块行为。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
+| `server/app/drop_insight/signal_window_validation.py` | Python 服务模块，负责对应模块行为。 | `validate_signal_window` 等 6 个声明 |
 | `server/app/drop_insight/skill_benchmark.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
 | `server/app/drop_insight/skill_evolution.py` | Skill 混合检索、激活、跨轮沿用、候选演进和发布门禁。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
 | `server/app/drop_insight/skill_experiments.py` | 服务端粘性随机分流、人工/Oracle 标签、统计快照、护栏和发布建议。 | `create_experiment`、`list_experiments`、`get_experiment`、`assign_experiment_diagnosis`、`record_experiment_outcome` 等 13 个声明 |
@@ -2790,7 +2791,7 @@ python scripts/render_learning_guide.py
 | `server/app/generated/taskkind_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `server/app/kernel_compatibility.py` | Python 服务模块，负责Linux 内核兼容性。 | `CollectorSupport`、`kernel_tuple`、`evaluate_kernel_support` |
 | `server/app/logging_utils.py` | Python 服务模块，负责日志和 Trace。 | `bind_traceparent`、`reset_traceparent`、`current_traceparent`、`current_trace_id`、`log_event` 等 6 个声明 |
-| `server/app/metric_analyzers.py` | Python 服务模块，负责对应模块行为。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 26 个声明 |
+| `server/app/metric_analyzers.py` | Python 服务模块，负责对应模块行为。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 27 个声明 |
 | `server/app/models.py` | SQLAlchemy 领域表模型。 | `Base`、`AgentModel`、`ProcessCandidateSnapshotModel`、`ProcessCandidateModel`、`TaskModel` 等 35 个声明 |
 | `server/app/outbox_dispatcher.py` | 事务 Outbox 的带租约派发器。 | `OutboxDispatcher` |
 | `server/app/process_attestation.py` | 进程快照规范化与不可变 Agent/PID/启动时间 binding。 | `ProcessSnapshotState`、`ProcessCandidateInput`、`ProcessCandidateSnapshotInput`、`ProcessIdentityBinding`、`ResolvedProcessCandidate` 等 16 个声明 |
@@ -2824,7 +2825,7 @@ python scripts/render_learning_guide.py
 | `analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `analyzer/config.example.toml` | Analyzer 文件，负责对应模块行为或第三方格式兼容。 | — |
 | `analyzer/mini_drop_analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
-| `analyzer/mini_drop_analyzer/hotmethod_analyzer.py` | Analyzer 命令入口和统一热点产物生成。 | `main` 等 14 个声明 |
+| `analyzer/mini_drop_analyzer/hotmethod_analyzer.py` | Analyzer 命令入口和统一热点产物生成。 | `main` 等 15 个声明 |
 | `analyzer/mini_drop_analyzer/pprof_analyzer.py` | 解析 Go pprof protobuf。 | `load_profile`、`stack_frames`、`analyze_profile`、`main` |
 | `analyzer/mini_drop_analyzer/profile.proto` | Analyzer 文件，负责性能 Profile或第三方格式兼容。 | `Profile`、`ValueType`、`Sample`、`Label`、`Mapping` 等 8 个声明 |
 | `analyzer/mini_drop_analyzer/profile_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
@@ -3124,6 +3125,10 @@ python scripts/render_learning_guide.py
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_without_intervention_stays_an_observation`、`test_support_without_specific_finding_is_not_promoted_to_root_cause`、`test_numeric_performance_findings_render_actual_measurements_with_scope` 等 27 个声明 |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_same_load_business_fix.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_business_fix_preserves_workload_quality_and_probe_integrity`、`test_business_comparison_rejects_changed_inputs_or_unverified_outputs` |
+| `tests/test_seven_gap_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_old_failures_remain_immutable_and_are_not_upgraded_by_new_rules`、`test_fifty_percent_cpu_contract_preserves_percentage_units`、`test_cpu_source_samples_cannot_be_relabelled_as_lock_holder_or_shared_quota_evidence`、`test_registered_cpp_path_requires_recomputed_independent_cpu_and_exact_plan`、`test_cpp_runtime_observation_rejects_correlated_or_forged_proof` 等 12 个声明 |
+| `tests/test_seven_gap_diagnosis_windows.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `hypothesis`、`test_actual_source_query_can_select_registered_cpu_observations`、`test_shared_cpu_quota_claim_does_not_turn_into_a_profile_high_cpu_contract`、`test_perf_keeps_actual_source_lines_and_cxx_symbol_colons`、`test_perf_commands_request_dwarf_source_lines_without_event_period` 等 13 个声明 |
+| `tests/test_seven_gap_planning.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `planning`、`test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted`、`test_cpp_registered_profile_requests_one_independent_os_probe_for_same_persisted_hypothesis`、`test_measured_domains_collect_target_system_metrics_before_optional_deep_tools`、`test_java_lock_keeps_async_lock_event_and_does_not_impose_cpp_application_counter_contract` 等 9 个声明 |
+| `tests/test_seven_gap_telemetry.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_shared_quota_window_observes_two_consumers_and_actual_throttling`、`test_complete_zero_throttling_is_a_measurement_and_not_missing`、`test_missing_changed_reset_or_different_cgroup_is_unknown`、`test_application_peer_active_cpu_ticks_cannot_claim_resource_competition`、`test_acquisition_wait_mean_uses_new_counter_window_and_keeps_zero_known` 等 7 个声明 |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
 | `tests/test_skill_policy.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_skill_policy_defaults_to_auto_and_is_persisted`、`test_disabled_skill_policy_is_persisted`、`test_disabled_policy_bypasses_skill_retrieval`、`test_skill_round_metadata_and_full_instructions_are_forwarded` 等 9 个声明 |
 | `tests/test_source_mapper.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `test_maps_python_hot_symbol_to_ast_location`、`test_unknown_and_unconfigured_sources_are_explicit`、`test_maps_go_method_and_reports_concurrency_signals`、`test_maps_go_function_returning_a_slice`、`test_maps_cpp_qualified_function` 等 9 个声明 |
@@ -3156,7 +3161,7 @@ python scripts/render_learning_guide.py
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
 | `scripts/check_web_bundle.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
-| `scripts/engineering_profile_observation.py` | 工程脚本，负责性能 Profile的生成、检查或验收。 | `finite`、`measured_runtime_profile` |
+| `scripts/engineering_profile_observation.py` | 工程脚本，负责性能 Profile的生成、检查或验收。 | `finite`、`measured_runtime_profile` 等 6 个声明 |
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
 | `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
@@ -3221,6 +3226,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_native_ebpf.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_priority_collectors.py` | 验收持续 perf 与独立 eBPF Campaign。 | `run_acceptance`、`main` 等 7 个声明 |
 | `scripts/verify_report_presentation_ui.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_runtime_observation_controls.py` | 工程脚本，负责Agent Runtime的生成、检查或验收。 | `counter_window`、`main` |
 | `scripts/verify_semantic_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 
 ### 34.16 deploy：镜像、环境、证书与编排

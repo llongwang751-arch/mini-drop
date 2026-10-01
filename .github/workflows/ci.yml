@@ -36,6 +36,33 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  observation-controls:
+    name: Real Python Java C++ observation windows
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build actual bounded demo images
+        run: |
+          docker build -t mini-drop-python-hotspot:ci demo/python-hotspot
+          docker build -t mini-drop-java-hotspot:ci -f demo/java-hotspot/Dockerfile .
+          docker build -t mini-drop-cpp-hotspot:ci demo/cpp-hotspot
+      - name: Continuous sync I/O, measured lock wait and quota contention
+        run: |
+          python scripts/verify_runtime_observation_controls.py --runtime python --image mini-drop-python-hotspot:ci --output output/quality-observation-controls/python
+          python scripts/verify_runtime_observation_controls.py --runtime java --image mini-drop-java-hotspot:ci --output output/quality-observation-controls/java
+          python scripts/verify_runtime_observation_controls.py --runtime cpp --image mini-drop-cpp-hotspot:ci --output output/quality-observation-controls/cpp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: observation-controls-${{ github.sha }}-${{ github.run_attempt }}
+          path: output/quality-observation-controls/
+          if-no-files-found: error
+          retention-days: 14
+
   endurance:
     name: HTTP load and recovery (short regression)
     runs-on: ubuntu-22.04
@@ -447,4 +474,13 @@ jobs:
         run: cmake --build /tmp/build-${{ matrix.component }} --parallel
       - name: Agent CTest (registered tests required)
         if: matrix.component == 'agent'
-        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure --no-tests=error
+        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure --no-tests=error --output-junit /tmp/build-agent/ctest.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.component == 'agent'
+        with:
+          name: native-agent-binary-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            /tmp/build-agent/mini-drop-native-agent
+            /tmp/build-agent/ctest.xml
+          if-no-files-found: error
+          retention-days: 14

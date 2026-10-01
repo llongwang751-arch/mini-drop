@@ -54,7 +54,7 @@ constexpr int kMaxMemoryMegabytes = 128;
 constexpr int kMinDownstreamDelayMilliseconds = 50;
 constexpr int kMaxDownstreamDelayMilliseconds = 1000;
 constexpr std::size_t kIoChunkBytes = 128U * 1024U;
-constexpr off_t kMaxIoFileBytes = 64LL * 1024LL * 1024LL;
+constexpr off_t kMaxIoFileBytes = 8LL * 1024LL * 1024LL;
 constexpr char kIoFaultPath[] = "/tmp/mini-drop-cpp-io-fault.bin";
 constexpr char kApplicationMetricsPath[] =
     "/tmp/mini-drop-app-metrics.json";
@@ -114,9 +114,11 @@ FaultSwitch io_fault;
 FaultSwitch downstream_fault;
 std::atomic<std::uint64_t> cpu_operations{0};
 std::atomic<std::uint64_t> lock_acquisitions{0};
+std::atomic<std::uint64_t> lock_contentions{0};
 std::atomic<std::uint64_t> lock_wait_ns{0};
 std::atomic<std::uint64_t> io_bytes_written{0};
 std::atomic<std::uint64_t> io_operations{0};
+std::atomic<std::uint64_t> io_operation_duration_ns{0};
 std::atomic<std::uint64_t> io_failures{0};
 std::atomic<std::uint64_t> downstream_requests{0};
 std::atomic<std::uint64_t> downstream_failures{0};
@@ -126,6 +128,18 @@ std::atomic<int> downstream_delay_ms{260};
 std::mutex contended_mutex;
 std::mutex retained_mutex;
 std::mutex io_work_mutex;
+std::mutex lock_metrics_mutex;
+
+std::array<std::uint64_t, 4> io_measurement_snapshot() {
+  std::lock_guard<std::mutex> guard(io_work_mutex);
+  return {io_bytes_written.load(), io_operations.load(),
+          io_operation_duration_ns.load(), io_failures.load()};
+}
+
+std::array<std::uint64_t, 3> lock_measurement_snapshot() {
+  std::lock_guard<std::mutex> guard(lock_metrics_mutex);
+  return {lock_acquisitions.load(), lock_contentions.load(), lock_wait_ns.load()};
+}
 std::vector<std::unique_ptr<unsigned char[]>> retained_chunks;
 
 void cpu_worker() {
@@ -162,15 +176,21 @@ void lock_waiter() {
     }
     const auto started = Clock::now();
     {
-      std::lock_guard<std::mutex> guard(contended_mutex);
-      lock_acquisitions.fetch_add(1, std::memory_order_relaxed);
+      std::unique_lock<std::mutex> guard(contended_mutex, std::defer_lock);
+      const bool contended = !guard.try_lock();
+      if (contended) {
+        guard.lock();
+      }
+      const auto waited = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                              Clock::now() - started).count();
+      {
+        std::lock_guard<std::mutex> metrics_guard(lock_metrics_mutex);
+        if (contended) lock_contentions.fetch_add(1, std::memory_order_relaxed);
+        lock_wait_ns.fetch_add(static_cast<std::uint64_t>(std::max<std::int64_t>(
+                                   waited, 0)), std::memory_order_relaxed);
+        lock_acquisitions.fetch_add(1, std::memory_order_relaxed);
+      }
     }
-    const auto waited = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            Clock::now() - started)
-                            .count();
-    lock_wait_ns.fetch_add(static_cast<std::uint64_t>(std::max<std::int64_t>(
-                               waited, 0)),
-                           std::memory_order_relaxed);
     std::this_thread::sleep_for(300us);
   }
 }
@@ -243,6 +263,7 @@ void io_worker() {
       if (!io_fault.active()) {
         continue;
       }
+      const auto operation_started = Clock::now();
       const int file = ::open(kIoFaultPath, O_CREAT | O_WRONLY | O_APPEND,
                               S_IRUSR | S_IWUSR);
       if (file < 0) {
@@ -261,13 +282,18 @@ void io_worker() {
         if (!failed && ::fdatasync(file) != 0) {
           failed = true;
         }
-        const off_t size = ::lseek(file, 0, SEEK_END);
-        ::close(file);
+        if (::close(file) != 0) failed = true;
         if (!failed) {
+          // Successful open/write/sync/close only; pacing and lock wait excluded.
+          io_operation_duration_ns.fetch_add(
+              static_cast<std::uint64_t>(std::chrono::duration_cast<
+                  std::chrono::nanoseconds>(Clock::now() - operation_started).count()),
+              std::memory_order_relaxed);
           io_bytes_written.fetch_add(offset, std::memory_order_relaxed);
           io_operations.fetch_add(1, std::memory_order_relaxed);
         }
-        if (size >= kMaxIoFileBytes) {
+        struct stat file_status{};
+        if (::stat(kIoFaultPath, &file_status) == 0 && file_status.st_size >= kMaxIoFileBytes) {
           ::unlink(kIoFaultPath);
         }
       }
@@ -381,6 +407,8 @@ int json_integer(const std::string& body, const std::string& key,
 }
 
 std::string snapshot_json() {
+  const auto io = io_measurement_snapshot();
+  const auto locks = lock_measurement_snapshot();
   const bool cpu_active = cpu_fault.active();
   const bool lock_active = lock_fault.active();
   const bool memory_active = memory_fault.active();
@@ -399,13 +427,16 @@ std::string snapshot_json() {
          << ",\"downstream_fault_active\":"
          << (downstream_active ? "true" : "false")
          << ",\"cpu_operations\":" << cpu_operations.load()
-         << ",\"lock_acquisitions\":" << lock_acquisitions.load()
+         << ",\"lock_acquisitions\":" << locks[0]
+         << ",\"lock_contentions\":" << locks[1]
          << ",\"lock_wait_ms\":"
-         << static_cast<double>(lock_wait_ns.load()) / 1'000'000.0
+         << static_cast<double>(locks[2]) / 1'000'000.0
          << ",\"retained_memory_mb\":" << retained_memory_mb()
-         << ",\"io_bytes_written\":" << io_bytes_written.load()
-         << ",\"io_operations\":" << io_operations.load()
-         << ",\"io_failures\":" << io_failures.load()
+         << ",\"io_bytes_written\":" << io[0]
+         << ",\"io_operations\":" << io[1]
+         << ",\"io_operation_duration_ms_total\":"
+         << static_cast<double>(io[2]) / 1'000'000.0
+         << ",\"io_failures\":" << io[3]
          << ",\"downstream_requests\":" << downstream_requests.load()
          << ",\"downstream_failures\":" << downstream_failures.load()
          << ",\"downstream_mean_latency_ms\":"
@@ -429,6 +460,8 @@ std::string snapshot_json() {
 }
 
 std::string application_metrics_json() {
+  const auto io = io_measurement_snapshot();
+  const auto locks = lock_measurement_snapshot();
   const auto captured_at_ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(
           std::chrono::system_clock::now().time_since_epoch())
@@ -446,17 +479,22 @@ std::string application_metrics_json() {
          << ",\"cpu_operations\":"
          << cpu_operations.load(std::memory_order_relaxed)
          << ",\"lock_acquisitions\":"
-         << lock_acquisitions.load(std::memory_order_relaxed)
+         << locks[0]
+         << ",\"lock_contentions\":"
+         << locks[1]
          << ",\"lock_wait_ms\":"
-         << static_cast<double>(lock_wait_ns.load(std::memory_order_relaxed)) /
+         << static_cast<double>(locks[2]) /
                 1'000'000.0
          << ",\"retained_memory_mb\":" << retained_memory_mb()
          << ",\"io_bytes_written\":"
-         << io_bytes_written.load(std::memory_order_relaxed)
+         << io[0]
          << ",\"io_operations\":"
-         << io_operations.load(std::memory_order_relaxed)
+         << io[1]
+         << ",\"io_operation_duration_ms_total\":"
+         << static_cast<double>(io[2]) /
+                1'000'000.0
          << ",\"io_failures\":"
-         << io_failures.load(std::memory_order_relaxed)
+         << io[3]
          << ",\"downstream_requests\":" << requests
          << ",\"downstream_failures\":"
          << downstream_failures.load(std::memory_order_relaxed)
@@ -563,6 +601,7 @@ void handle_client(int client) {
     send_json(client, 200, snapshot_json());
   } else if (method == "POST" && path == "/faults/lock/start") {
     lock_acquisitions.store(0);
+    lock_contentions.store(0);
     lock_wait_ns.store(0);
     lock_fault.start(json_integer(body, "duration_seconds", 60));
     send_json(client, 200, snapshot_json());
@@ -583,6 +622,7 @@ void handle_client(int client) {
   } else if (method == "POST" && path == "/faults/io/start") {
     io_bytes_written.store(0);
     io_operations.store(0);
+    io_operation_duration_ns.store(0);
     io_failures.store(0);
     cleanup_io_fault_file();
     io_fault.start(json_integer(body, "duration_seconds", 60));

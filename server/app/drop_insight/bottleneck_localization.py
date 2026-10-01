@@ -30,25 +30,28 @@ def localize_verified_observation(verification, supporting):
                               evidence_refs=observation['evidence_refs'], temporal_relationship='SINGLE_ARTIFACT_WINDOW')
                 return result
     contract = verification.get('observation_contract') or {}
-    if (contract.get('contract_id') in {'python-profile-and-os-cpu.v1', 'go-profile-and-os-cpu.v1'}
+    if (contract.get('contract_id') in {'python-profile-and-os-cpu.v1', 'go-profile-and-os-cpu.v1', 'cpp-perf-and-os-cpu.v1'}
         and verification.get('coverage_ratio') == 1 and verification.get('has_independent_counter_or_control') is True):
         for envelope in supporting:
             if not classify_evidence(envelope)['can_support_conclusion']:
                 continue
             metadata = envelope.observation.get('metadata', {})
-            profile_schema = ('go_pprof_analysis.' if contract['contract_id'].startswith('go-') else 'pyspy_analysis.')
+            profile_schema = {'go-profile-and-os-cpu.v1': ('go_pprof_analysis.',),
+                              'python-profile-and-os-cpu.v1': ('pyspy_analysis.',),
+                              'cpp-perf-and-os-cpu.v1': ('perf_analysis.', 'continuous_perf_analysis.')}[contract['contract_id']]
             if not str(metadata.get('schema_version', '')).startswith(profile_schema):
                 continue
             metrics = metadata.get('hypothesis_predicate', {}).get('metrics', {})
             function = metrics.get('dominant_function')
             if function and metrics.get('observation_contract') == contract['contract_id']:
-                paths = metrics.get('application_paths') or []
+                paths = metrics.get('application_paths') or metrics.get('concentrated_functions') or []
                 functions = [str(row['name']) for row in paths if isinstance(row, dict) and row.get('name')
                              and row.get('locations')]
                 result.update(status='LOCALIZED', domain='cpu_hot_path', location='；'.join(functions) if functions else str(function),
                               evidence_refs=[envelope.evidence_id], temporal_relationship='SEPARATE_COLLECTION_WINDOWS')
                 if functions:
                     result['application_paths'] = paths
-                    result['profile_semantics'] = 'INCLUSIVE_OVERLAPPING_PATHS'
+                    result['profile_semantics'] = ('SOURCE_FUNCTION_SHARE' if contract['contract_id'].startswith('python-')
+                                                   else 'INCLUSIVE_OVERLAPPING_PATHS')
                 return result
     return result

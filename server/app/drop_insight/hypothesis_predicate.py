@@ -11,7 +11,8 @@ import re
 from server.app.models import ArtifactModel, DropInsightHypothesisModel
 from .evidence import observed_count, observed_nonnegative
 from .cpu_criteria import process_cpu_thresholds, compile_cpu_observation_contract
-from .performance_criteria import evaluate_performance_criterion
+from .performance_criteria import evaluate_performance_criterion, parse_performance_criterion
+from .signal_window_validation import validate_signal_window
 
 
 def _invalid_numeric_observation(reason: str = "Required numeric observation is missing, invalid or outside its domain") -> dict:
@@ -31,7 +32,12 @@ def _structured_signal_predicate(
         return None
     expected = hypothesis.expected_observations_json or []
     for direction, entries in (("COUNTER", hypothesis.falsification_criteria_json or []), ("SUPPORT", expected)):
-        evaluations = [(index, evaluate_performance_criterion(item, signals)) for index, item in enumerate(entries)]
+        evaluations = []
+        for index, item in enumerate(entries):
+            parsed = parse_performance_criterion(item)
+            value = (evaluate_performance_criterion(item, signals)
+                     if parsed and validate_signal_window(metadata, parsed['signal']) else None)
+            evaluations.append((index, value))
         matched = [(index, value) for index, value in evaluations if value and value["matches"]]
         if matched:
             signal_name = matched[0][1]["signal"]
@@ -134,7 +140,10 @@ def _compute_hypothesis_predicate(
         return {"outcome": "NEUTRAL", "version": "hypothesis-predicate-v3", "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联", "criterion_indexes": [], "metrics": {}}
 
     schema = str(metadata.get("schema_version") or "")
-    profile_runtime = "PYTHON" if schema.startswith("pyspy_analysis.") else "GO" if schema.startswith("go_pprof_analysis.") else None
+    profile_runtime = ("PYTHON" if schema.startswith("pyspy_analysis.") else
+                       "GO" if schema.startswith("go_pprof_analysis.") else
+                       "CPP" if schema.startswith(("perf_analysis.", "continuous_perf_analysis."))
+                       and ("c++" in statement or re.search(r"\bcpp\b", statement, flags=re.ASCII)) else None)
     observation_contract = compile_cpu_observation_contract(statement, expected, falsification, runtime=profile_runtime)
     if observation_contract["status"] == "UNSUPPORTED":
         return _invalid_numeric_observation("CPU observation contract has unsupported slots: " + str(observation_contract["unsupported_slots"]))
@@ -483,7 +492,8 @@ def _compute_hypothesis_predicate(
     # containers and makes the emitted function names evidence-derived.
     source_functions = sorted(
         (
-            row for row in actionable_user_rows
+            row for row in (user_rows if observation_contract.get('runtime') == 'CPP'
+                            and observation_contract['status'] == 'SUPPORTED' else actionable_user_rows)
             if _has_source_location(row) and _percent(row) > 0
         ),
         # Percentages are rounded in analyzer metadata.  For an apparent tie,
@@ -517,10 +527,26 @@ def _compute_hypothesis_predicate(
                     concentrated_functions=[{"name": row["name"], "percent": _percent(row), "locations": row.get("locations", [])} for row in concentrated_source_functions],
                     profile_semantics="source_function_share", observation_contract=observation_contract["contract_id"])
         else:
-            applications = [row for row in source_functions if not _is_go_standard_frame(str(row["name"]))]
+            if observation_contract["runtime"] == "CPP":
+                # The collector must resolve a source line from the sampled
+                # executable. A symbol name or repository lookup is not such
+                # a measurement; standard-library/container frames do not
+                # become application paths merely because they have DWARF.
+                count = metadata.get("sample_count")
+                if type(count) is not int or count < 50:
+                    return _invalid_numeric_observation("C++ source profile requires at least 50 real sampled events")
+                applications = [row for row in source_functions
+                    if not str(row["name"]).startswith(("std::", "__gnu_cxx::", "__", "execute_native_thread_routine"))
+                    and 0 < _percent(row) <= 100
+                    and 0 < row["samples"] <= count
+                    and abs(row["samples"] / count * 100 - _percent(row)) <= .11]
+                reason = "Registered C++ perf source-mapped application path was observed in its own inclusive profile window"
+            else:
+                applications = [row for row in source_functions if not _is_go_standard_frame(str(row["name"]))]
+                reason = "Registered Go source-mapped application path was observed in its own inclusive profile window"
             dominant = max(applications, key=_percent, default=None)
             if dominant is not None and _percent(dominant) >= observation_contract["profile_threshold"]:
-                return _predicate("SUPPORT", "Registered Go source-mapped application path was observed in its own inclusive profile window",
+                return _predicate("SUPPORT", reason,
                     observation_contract["expected_indexes"], dominant_function=dominant["name"], dominant_percent=_percent(dominant),
                     source_locations=dominant.get("locations", []), profile_semantics="inclusive",
                     application_paths=[{"name": row["name"], "percent": _percent(row),

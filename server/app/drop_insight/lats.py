@@ -349,6 +349,10 @@ def prepare_candidates(
             item.get("lm_value", item.get("estimated_value")), signed=True
         )
         explicit_prior = _optional_unit_float(item.get("prior_probability"), signed=False)
+        if is_sentinel:
+            # OTHER is a server-owned escape hatch, not a model-scored cause.
+            explicit_value = None
+            explicit_prior = None
         # Self-consistency is valid only when the server computed candidate
         # frequency from independent samples.  A model may not self-report it.
         explicit_consistency = _optional_unit_float(

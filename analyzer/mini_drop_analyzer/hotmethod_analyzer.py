@@ -221,7 +221,7 @@ def _perf_script(perf_data: Path, output: Path) -> tuple[bool, str]:
                 # a few hundred observations into billions of fake "samples"
                 # and incorrectly inflated AI evidence quality scores.
                 "-F",
-                "comm,pid,tid,time,event,ip,sym,dso",
+                "comm,pid,tid,time,event,ip,sym,dso,srcline",
                 "-i",
                 str(perf_data),
             ],
@@ -248,7 +248,7 @@ def _stackcollapse(input_path: Path, output_path: Path) -> tuple[bool, str]:
         return False, f"stackcollapse-perf.pl 未找到: {script}"
     try:
         subprocess.run(
-            ["perl", str(script), str(input_path)],
+            ["perl", str(script), "--srcline", str(input_path)],
             stdout=output_path.open("w"),
             stderr=subprocess.PIPE,
             check=True,
@@ -336,6 +336,16 @@ def _folded_stack_quality(collapsed: Path) -> dict[str, int]:
     }
 
 
+def _perf_source_frame(frame: str) -> dict:
+    """Retain only source lines emitted by perf/DWARF, never guessed symbols."""
+    # C++ symbol names contain colons. Match an actual source suffix at the
+    # end; module offsets, ??:0 and unresolved symbols remain unmapped.
+    match = re.fullmatch(r"(.+?):((?:/|[A-Za-z]:[\\/]|[^:]+[\\/])?[^:]*\.(?:cc|cpp|cxx|c|h|hpp|hh)):(\d+)(?:\s+\(discriminator \d+\))?", frame)
+    if not match or int(match[3]) <= 0:
+        return {"name": frame}
+    return {"name": match[1], "file": match[2], "line": int(match[3]), "folded_frame": frame}
+
+
 def _parse_top(collapsed: Path, limit: int = 20) -> list[dict]:
     """从折叠栈文本解析 TopN 热点函数。
 
@@ -362,7 +372,7 @@ def _parse_top(collapsed: Path, limit: int = 20) -> list[dict]:
 
     entries = sorted(counter.items(), key=lambda kv: kv[1], reverse=True)[:limit]
     return [
-        {"name": name, "samples": cnt, "percent": round(cnt / total * 100, 1) if total else 0}
+        {**_perf_source_frame(name), "samples": cnt, "percent": round(cnt / total * 100, 1) if total else 0}
         for name, cnt in entries
     ]
 

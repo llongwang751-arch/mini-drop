@@ -883,8 +883,9 @@ def _read_top_functions(output_dir: Path) -> list[dict]:
                     normalized["line"] = int(row["line"])
             except (TypeError, ValueError):
                 pass
-            if callgraph_total > 0 and row["name"] in self_samples_by_name:
-                self_samples = self_samples_by_name[row["name"]]
+            self_key = row.get("folded_frame", row["name"])
+            if callgraph_total > 0 and self_key in self_samples_by_name:
+                self_samples = self_samples_by_name[self_key]
                 normalized["self_samples"] = self_samples
                 normalized["self_percent"] = round(
                     self_samples / callgraph_total * 100,

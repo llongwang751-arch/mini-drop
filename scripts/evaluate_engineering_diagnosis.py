@@ -7,6 +7,7 @@ import math
 from scripts.audit_fault_plaza_failures import evaluate_recorded_lineage
 from server.app.drop_insight.performance_criteria import evaluate_performance_criterion
 from scripts.engineering_profile_observation import measured_runtime_profile
+from server.app.drop_insight.signal_window_validation import validate_signal_window
 
 
 def _resolve(document, pointer):
@@ -94,6 +95,7 @@ def evaluate_engineering_case(case, contract):
             identity = metadata.get('process_identity') or {}
             actual = evaluate_performance_criterion(c.get('criterion', ''), metadata.get('signals') or {})
             return (identity.get('verified') is True and identity.get('pid') == case.get('target', {}).get('pid')
+                and validate_signal_window(metadata, domain)
                 and actual is not None and actual == c.get('measurement')
                 and actual['matches'] == c.get('matches'))
         complete = (observation.get('schema_version') == 'performance-observation-verification.v1'
@@ -118,6 +120,18 @@ def evaluate_engineering_case(case, contract):
         localized = (supported and local.get('status') == 'LOCALIZED' and local.get('domain') == domain
             and bool(local.get('location')) and bool(local.get('evidence_refs'))
             and set(local['evidence_refs']).issubset(refs & admitted))
+        if localized and contract.get('runtime_profile', {}).get('collector') in {'pyspy', 'perf_cpu', 'continuous_perf'}:
+            local_paths = local.get('application_paths') or []
+            measured_paths = []
+            for eid in local['evidence_refs']:
+                evidence = evidence_by_id.get(eid) or {}
+                if measured_runtime_profile(evidence, contract['runtime_profile'], records, admitted, domain):
+                    metrics = evidence.get('envelope', {}).get('observation', {}).get('metadata', {}).get('hypothesis_predicate', {}).get('metrics') or {}
+                    measured_paths.extend(metrics.get('application_paths') or metrics.get('concentrated_functions') or [])
+            localized = (local.get('causal_root_cause_verified') is False
+                and local.get('same_load_fix_verified') is False and bool(local_paths)
+                and all(path in measured_paths for path in local_paths)
+                and local['location'] == '；'.join(str(path['name']) for path in local_paths))
         outcome = ('LOCALIZED_ANOMALY' if localized else 'SUPPORTED_OBSERVATION' if supported
             else 'REFUTED' if refuted else 'INSUFFICIENT_EVIDENCE')
         if observation.get('status') == 'CONFLICTING_OBSERVATIONS' or (supported and refuted):

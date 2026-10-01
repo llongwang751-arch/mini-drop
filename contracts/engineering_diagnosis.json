@@ -26,7 +26,12 @@
       "scenario_id": "source-hotspot",
       "domain": "cpu_hot_path",
       "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot.json",
-      "case_sha256": "205e8f48cd99e45566ca50db3c51033c7d698a8b427c15438038d00c025265ae"
+      "case_sha256": "205e8f48cd99e45566ca50db3c51033c7d698a8b427c15438038d00c025265ae",
+      "runtime_profile": {
+        "collector": "pyspy",
+        "observation_contract": "python-profile-and-os-cpu.v1",
+        "scope": "MEASURED_SOURCE_PATH_AND_SEPARATE_OS_CPU; NO_CAUSAL_PROOF"
+      }
     },
     {
       "scenario_id": "memory-pressure",
@@ -135,7 +140,12 @@
       "scenario_id": "cpp-cpu-hotspot",
       "domain": "cpu_hot_path",
       "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot.json",
-      "case_sha256": "d3dfc840dcb276a0a989dbeedd3e273a6e2c8df3dacf5e5b48f519ab283212a5"
+      "case_sha256": "d3dfc840dcb276a0a989dbeedd3e273a6e2c8df3dacf5e5b48f519ab283212a5",
+      "runtime_profile": {
+        "collector": "perf_cpu",
+        "observation_contract": "cpp-perf-and-os-cpu.v1",
+        "scope": "MEASURED_SOURCE_PATH_AND_SEPARATE_OS_CPU; NO_CAUSAL_PROOF"
+      }
     },
     {
       "scenario_id": "cpp-lock-contention",

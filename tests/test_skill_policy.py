@@ -285,7 +285,7 @@ def test_unknown_keyword_route_can_be_corrected_by_skill_before_clarification(
             "先用系统指标确认 I/O 方向，再采集块设备延迟，"
             "随后寻找 CPU 热点反证。",
             "IO_LATENCY",
-            "start_ebpf_io_profile",
+            "collect_sys_metrics",
         ),
         (
             "诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。"
@@ -315,7 +315,7 @@ def test_unknown_keyword_route_can_be_corrected_by_skill_before_clarification(
             "定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点"
             "和下游等待反证。",
             "IO_LATENCY",
-            "start_ebpf_io_profile",
+            "collect_sys_metrics",
         ),
         (
             "诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。"

@@ -12,8 +12,9 @@ from .evidence import observed_nonnegative
 SIGNAL_FIELDS = {
     "queue_backlog": ("producer_rate", "consumer_rate", "queue_lag"),
     "load_saturation": ("offered_rps", "completed_rps", "rejected_requests", "queue_depth"),
-    "noisy_neighbor": ("peer_cpu_ticks_delta",),
-    "lock_contention": ("lock_wait_ms_delta", "lock_contentions_delta", "lock_acquisitions_delta"),
+    "noisy_neighbor": ("peer_cpu_ticks_delta", "target_cpu_ticks_delta", "throttled_periods_delta",
+                       "throttled_usec_delta", "cpu_quota_us", "cpu_period_us"),
+    "lock_contention": ("lock_wait_ms_delta", "lock_contentions_delta", "lock_acquisitions_delta", "average_wait_ms"),
     "jvm_gc": ("allocated_bytes_delta", "gc_count_delta", "gc_time_ms_delta"),
     "downstream_latency": ("average_latency_ms", "request_count_delta", "failure_count_delta"),
     "network_latency": ("average_latency_ms", "request_count_delta", "failure_count_delta"),
@@ -34,6 +35,10 @@ _RULE_PLANS = {
     "LOAD_SATURATION": ("入口拒绝计数的有界观测", "load_saturation", "rejected_requests", 1),
     "MEMORY_PRESSURE": ("目标进程窗口内 RSS 增长的有界观测，尚未证明泄漏", "memory_growth", "rss_delta_mb", 8),
     "IO_LATENCY": ("目标进程同步写操作耗时的有界观测，尚未归因块设备", "io_latency", "average_latency_ms", 10),
+    "LOCK_CONTENTION": ("目标进程本窗口互斥锁获取等待的有界观测，尚未识别持锁者或证明因果",
+                        "lock_contention", "average_wait_ms", 1),
+    "NOISY_NEIGHBOR": ("目标与独立进程共享受限 CPU 配额时发生节流的有界观测，尚未证明邻居的因果贡献",
+                       "noisy_neighbor", "throttled_usec_delta", 1),
 }
 
 
@@ -48,6 +53,13 @@ def performance_observation_plan(category):
     expected = [f"{signal}.{metric} >= {threshold}"]
     if category == "IO_LATENCY":
         expected.append("io_latency.operation_count_delta >= 5")
+    if category == "LOCK_CONTENTION":
+        expected.extend(["lock_contention.lock_contentions_delta >= 1", "lock_contention.lock_acquisitions_delta >= 5"])
+    if category == "NOISY_NEIGHBOR":
+        return {"statement": statement,
+                "expected": ["noisy_neighbor.peer_cpu_ticks_delta > 0", "noisy_neighbor.target_cpu_ticks_delta > 0",
+                             "noisy_neighbor.throttled_usec_delta > 0", "noisy_neighbor.throttled_periods_delta > 0"],
+                "falsification": ["noisy_neighbor.throttled_usec_delta == 0"]}
     return {"statement": statement, "expected": expected,
             "falsification": [f"{signal}.{metric} < {threshold}"]}
 

@@ -14,7 +14,8 @@ EVIDENCE_PLANNING_REQUIREMENT = (
     "运行时 Profile 用于定位函数，collect_sys_metrics 用于同一目标的独立 /proc CPU 计数；"
     "重复 Profile 不是独立 OS 对照。GIL、锁、等待或普通源码定位不要求凭空添加 CPU 高占用断言。"
     "仅补采原假设尚未覆盖的真实判据，不为了得到通过而删除或改写反证。"
-    "Python/Go CPU 观察只能使用注册的分别采样合同，不能声称同窗、跨窗稳定或函数导致全部延迟；"
+    "Python/Go/C++ CPU 观察只能使用注册的分别采样合同，不能声称同窗、跨窗稳定或函数导致全部延迟；"
+    "process_cpu_core_usage 的单位是单核百分数，50%必须写50，不能写0.5；"
     "如计划校验返回unsupported槽位，应提出含义准确的新假设或明确不可验证，不保留强主张仅删除判据。"
 )
 
@@ -40,6 +41,7 @@ def cpu_utilization_hypothesis(statement: str) -> bool:
     text = str(statement).casefold()
     patterns = (
         r"cpu\s*(?:占用率?|利用率)?\s*(?:持续|明显|显著)?(?:升高|飙升|饱和|过高)",
+        r"cpu\s*(?:异常|热点|占用率至少\s*\d)",
         r"cpu[^。；;]{0,60}(?:计算主导|函数主导|热点主导)",
         r"(?:high|elevated|saturated)\s+(?:process\s+)?cpu",
         r"cpu\s+(?:usage\s+|utilization\s+)?(?:is\s+|remains\s+)?(?:high|elevated|saturated)",
@@ -55,6 +57,9 @@ CPU_OBSERVATION_CONTRACTS = {
     "GO": {"id": "go-profile-and-os-cpu.v1", "profile_threshold": 20.0,
            "expected": "Go pprof 中一个具备源码位置的业务函数累计占比至少 20%",
            "expected_en": "One source-mapped Go application function has at least 20% inclusive pprof sample share"},
+    "CPP": {"id": "cpp-perf-and-os-cpu.v1", "profile_threshold": 20.0,
+            "expected": "C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%",
+            "expected_en": "One source-mapped C++ application function has at least 20% inclusive perf sample share"},
 }
 
 
@@ -64,7 +69,7 @@ def cpu_observation_plan(runtime: str, threshold: float = 50, *, language: str =
     if isinstance(threshold, bool) or not isinstance(threshold, (int, float)) or not 0 < threshold <= 10000:
         raise ValueError("CPU threshold must be finite, positive and at most 10000")
     number = format(Decimal(str(threshold)).normalize(), "f")
-    name = "Python" if runtime == "PYTHON" else "Go"
+    name = {"PYTHON": "Python", "GO": "Go", "CPP": "C++"}[runtime]
     if language == "en-US":
         statement = (f"In this diagnosis, the {name} process CPU is at least {number}% of one core in the system-metrics window; "
                      "a separately collected profile contains an attributable execution path")
@@ -89,10 +94,17 @@ def compile_cpu_observation_contract(statement: str, expected: list, falsificati
     if inferred is None:
         if "python" in text or "py-spy" in text:
             inferred = "PYTHON"
+        elif "c++" in text or re.search(r"\bcpp\b", text, flags=re.ASCII):
+            inferred = "CPP"
         elif re.search(r"\bgo\b", text, flags=re.ASCII) or "pprof" in text:
             inferred = "GO"
     claim = str(statement).casefold()
-    cpu_observation = (bool(re.search(r"\bcpu\b", claim, flags=re.ASCII)) and not bool(re.search(r"cpu\s*(?:未升高|不高|没有升高|is not high|is low)", claim)) or cpu_utilization_hypothesis(statement)
+    cpu_observation = (cpu_utilization_hypothesis(statement)
+        or bool(re.search(r"cpu\s+(?:usage|utilization)\s+(?:exceeds|above|at least|>=|>)\s*\d", claim))
+        or bool(re.search(r"cpu\s*占用(?:率)?\s*(?:超过|高于|大于|至少|>=|>)\s*\d", claim))
+        or (bool(re.search(r"\bcpu\b", claim, flags=re.ASCII))
+            and bool(re.search(r"热点|hotspot|函数主导|计算主导|时间集中|集中占用|concentrated|dominant", claim))
+            and not bool(re.search(r"cpu\s*(?:未升高|不高|没有升高|is not high|is low)", claim)))
         or any(token in claim.replace(" ", "") for token in ("cpu计算热点", "cpu热点", "cpu异常", "cpu占用率至少"))
         or "process cpu is at least" in claim or "cpu hotspot" in claim
         or any(str(item).strip().casefold() in {definition["expected"].casefold(), definition["expected_en"].casefold()}
@@ -157,6 +169,6 @@ def cpu_plan_validation_error(hypotheses: list) -> str | None:
 import json as _json
 EVIDENCE_PLANNING_REQUIREMENT += " 注册合同范例：" + _json.dumps(
     [cpu_observation_plan(runtime, language=language)
-     for runtime in ("PYTHON", "GO") for language in ("zh-CN", "en-US")],
+     for runtime in CPU_OBSERVATION_CONTRACTS for language in ("zh-CN", "en-US")],
     ensure_ascii=False,
 )

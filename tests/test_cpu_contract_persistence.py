@@ -9,6 +9,8 @@ from server.app.drop_insight import service
 from server.app.drop_insight.schemas import CreateHypothesisRequest
 from server.app.models import DropInsightHypothesisModel, DropInsightToolCallModel, DropInsightEventModel
 
+REAL_PLANNER_TOOL_ARGUMENTS = service._planner_tool_arguments
+
 
 def payload(plan):
     return CreateHypothesisRequest(**plan)
@@ -112,27 +114,49 @@ def mock_planning_boundary(monkeypatch):
     return calls
 
 
-def test_initial_unsupported_plan_records_original_and_stops_without_retry(seeded, monkeypatch):
+def test_initial_unsupported_model_preserves_original_and_uses_distinct_registered_rule_once(seeded, monkeypatch):
     from server.app.models import DropInsightEvidenceModel, DropInsightSessionModel
     from server.app.drop_insight.schemas import RunPlannerRequest
+    from server.app.process_attestation import ProcessIdentityBinding
     attempts = mock_planning_boundary(monkeypatch)
+    binding = ProcessIdentityBinding("agent", 123, "fixture-boot", 42, 99, 123,
+        "/usr/local/bin/python3", "fixture-snapshot", 1, seeded)
+    monkeypatch.setattr(service, "_validated_target_binding", lambda *args, **kwargs: binding)
+    monkeypatch.setattr(service, "_current_target_binding", lambda *args: binding)
+    monkeypatch.setattr(service, "_planner_tool_arguments", REAL_PLANNER_TOOL_ARGUMENTS)
     with new_session() as db:
         db.query(DropInsightEvidenceModel).delete()
         db.query(DropInsightHypothesisModel).delete()
+        db.get(DropInsightSessionModel, "diag").target_json = {
+            "agent_id": "agent", "pid": 123, "process_binding": binding.to_dict()}
         db.commit()
     first = service.run_diagnosis_planner("diag", RunPlannerRequest())
-    assert first["planner_kind"] == "CONTRACT_REJECTED" and first["tool_call"] is None
+    expected = service.cpu_observation_plan("PYTHON")
+    assert first["hypothesis"]["statement"] == expected["statement"]
+    assert first["hypothesis"]["expected_observations"] == expected["expected_observations"]
+    assert first["hypothesis"]["falsification_criteria"] == expected["falsification_criteria"]
+    assert first["hypothesis"]["source"] == "REGISTERED_OBSERVATION_RULE"
+    assert first["decision_source"] == "REGISTERED_OBSERVATION_RULE"
+    assert first["candidate_generation_source"] == "MODEL"
+    assert first["tool_call"]["tool_name"] == "start_pyspy_profile"
     second = service.run_diagnosis_planner("diag", RunPlannerRequest())
-    assert second["planner_kind"] == "TERMINAL_SESSION"
+    assert first["tool_call"]["status"] != "DENIED"
+    assert second["planner_kind"] == "IDEMPOTENT_REPLAY"
+    assert second["hypothesis"]["hypothesis_id"] == first["hypothesis"]["hypothesis_id"]
+    assert second["tool_call"]["tool_call_id"] == first["tool_call"]["tool_call_id"]
     assert len(attempts) == 1
     with new_session() as db:
         events = db.query(DropInsightEventModel).filter_by(event_type="planner.cpu_contract_rejected").all()
         assert len(events) == 1
         assert events[0].payload_json["candidate"]["falsification_criteria"] == invalid_proposal()["hypotheses"][0]["falsification_criteria"]
+        assert events[0].payload_json["candidate"]["statement"] == invalid_proposal()["hypotheses"][0]["statement"]
+        assert events[0].payload_json["candidate"]["expected_observations"] == invalid_proposal()["hypotheses"][0]["expected_observations"]
         assert events[0].payload_json["criteria_rewritten"] is False
-        assert db.get(DropInsightSessionModel, "diag").status == "INSUFFICIENT_EVIDENCE"
-        assert db.query(DropInsightToolCallModel).count() == 0
-        assert db.query(DropInsightHypothesisModel).count() == 0
+        assert events[0].payload_json["dispatched"] is False
+        assert db.get(DropInsightSessionModel, "diag").status != "INSUFFICIENT_EVIDENCE"
+        assert db.query(DropInsightToolCallModel).count() == 1
+        assert db.query(DropInsightHypothesisModel).filter_by(statement=invalid_proposal()["hypotheses"][0]["statement"]).count() == 0
+        assert db.query(DropInsightHypothesisModel).filter_by(source="REGISTERED_OBSERVATION_RULE").count() == 1
 
 
 def test_report_effect_unsupported_replan_completes_once_instead_of_resetting_pending(seeded, monkeypatch):

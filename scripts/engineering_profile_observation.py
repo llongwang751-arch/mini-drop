@@ -7,8 +7,42 @@ def finite(value):
     return type(value) in (int,float) and math.isfinite(value)
 
 
+def _independent_cpu_window(evidence, compiled, records, admitted):
+    source = evidence.get('envelope', {}).get('source', {})
+    readings = []
+    for sibling in records.get('evidence', []):
+        other = sibling.get('envelope') or {}
+        other_source = other.get('source') or {}
+        if (sibling.get('evidence_id') not in admitted
+            or sibling.get('hypothesis_id') != evidence.get('hypothesis_id')
+            or other_source.get('tool_name') != 'sys_metrics'
+            or other_source.get('artifact_id') == source.get('artifact_id')
+            or other_source.get('task_id') == source.get('task_id')):
+            continue
+        metadata = (other.get('observation') or {}).get('metadata') or {}
+        measured = (metadata.get('hypothesis_predicate') or {}).get('metrics') or {}
+        identity = metadata.get('process_identity') or {}
+        if (identity.get('verified') is not True
+            or identity.get('pid') != evidence.get('envelope', {}).get('scope', {}).get('pid')
+            or type(identity.get('start_ticks')) is not int or identity['start_ticks'] <= 0
+            or measured.get('pid') != identity['pid'] or measured.get('start_ticks') != identity['start_ticks']):
+            continue
+        keys = ('clock_ticks_per_second', 'start_cpu_ticks', 'end_cpu_ticks', 'start_unix_ms', 'end_unix_ms', 'process_cpu_core_usage')
+        if measured.get('source') != 'linux_proc_stat' or not all(finite(measured.get(k)) for k in keys):
+            continue
+        duration = measured['end_unix_ms'] - measured['start_unix_ms']
+        ticks = measured['end_cpu_ticks'] - measured['start_cpu_ticks']
+        if (duration < 1000 or ticks < 0 or measured['clock_ticks_per_second'] <= 0
+            or type(measured.get('sample_count')) is not int or measured['sample_count'] < 2):
+            continue
+        actual = ticks / measured['clock_ticks_per_second'] / (duration / 1000) * 100
+        if abs(actual - measured['process_cpu_core_usage']) < .000001:
+            readings.append(actual)
+    return bool(readings) and all(value >= compiled['cpu_threshold'] for value in readings)
+
+
 def _python_profile(evidence, rule, records, admitted, domain):
-    if domain != 'cpu_hotspot' or rule.get('observation_contract') != 'python-profile-and-os-cpu.v1':
+    if domain not in {'cpu_hotspot', 'cpu_hot_path'} or rule.get('observation_contract') != 'python-profile-and-os-cpu.v1':
         return False
     envelope = evidence.get('envelope') or {}
     source = envelope.get('source') or {}
@@ -54,24 +88,52 @@ def _python_profile(evidence, rule, records, admitted, domain):
         hypothesis.get('expected_observations') or [], hypothesis.get('falsification_criteria') or [])
     if not compiled.get('executable'):
         return False
-    for sibling in records.get('evidence', []):
-        other = sibling.get('envelope') or {}
-        if sibling.get('evidence_id') not in admitted or sibling.get('hypothesis_id') != evidence.get('hypothesis_id'):
-            continue
-        if (other.get('source') or {}).get('tool_name') != 'sys_metrics':
-            continue
-        measured = ((other.get('observation') or {}).get('metadata') or {}).get('hypothesis_predicate', {}).get('metrics') or {}
-        keys = ('clock_ticks_per_second', 'start_cpu_ticks', 'end_cpu_ticks', 'start_unix_ms', 'end_unix_ms', 'process_cpu_core_usage')
-        if measured.get('source') != 'linux_proc_stat' or not all(finite(measured.get(k)) for k in keys):
-            continue
-        duration = measured['end_unix_ms'] - measured['start_unix_ms']
-        ticks = measured['end_cpu_ticks'] - measured['start_cpu_ticks']
-        if duration <= 0 or ticks < 0 or measured['clock_ticks_per_second'] <= 0:
-            continue
-        actual = ticks / measured['clock_ticks_per_second'] / (duration / 1000) * 100
-        if abs(actual - measured['process_cpu_core_usage']) < .000001 and actual >= compiled['cpu_threshold']:
-            return True
-    return False
+    return _independent_cpu_window(evidence, compiled, records, admitted)
+
+
+def _cpp_profile(evidence, rule, records, admitted, domain):
+    if domain != 'cpu_hot_path' or rule.get('observation_contract') != 'cpp-perf-and-os-cpu.v1':
+        return False
+    envelope = evidence.get('envelope') or {}
+    source = envelope.get('source') or {}
+    metadata = (envelope.get('observation') or {}).get('metadata') or {}
+    metrics = (metadata.get('hypothesis_predicate') or {}).get('metrics') or {}
+    if (source.get('tool_name') not in {'perf_cpu', 'continuous_perf'}
+        or source.get('tool_name') != rule.get('collector')
+        or not str(metadata.get('schema_version', '')).startswith(('perf_analysis.', 'continuous_perf_analysis.'))
+        or metrics.get('observation_contract') != rule['observation_contract']):
+        return False
+    count = metadata.get('sample_count')
+    locations = metrics.get('source_locations') or []
+    name = metrics.get('dominant_function')
+    if (type(count) is not int or count < 50 or not locations
+        or not isinstance(name, str) or name.startswith(('std::', '__gnu_cxx::', '__', 'execute_native_thread_routine', '['))
+        or len({(r.get('file'), r.get('line')) for r in locations}) != len(locations)):
+        return False
+    samples = 0
+    percent = 0
+    for location in locations:
+        if (not isinstance(location.get('file'), str) or not location['file'].strip()
+            or type(location.get('line')) is not int or location['line'] <= 0):
+            return False
+        rows = [r for r in metadata.get('top_functions', []) if r.get('name') == name
+                and r.get('file') == location['file'] and r.get('line') == location['line']]
+        if len(rows) != 1:
+            return False
+        row = rows[0]
+        if (type(row.get('samples')) is not int or not 0 < row['samples'] <= count
+            or not finite(row.get('percent')) or row['percent'] != location.get('percent')
+            or abs(row['samples'] / count * 100 - row['percent']) > .11):
+            return False
+        samples += row['samples']
+        percent += row['percent']
+    if (not 20 <= samples / count * 100 <= 100 or not 20 <= percent <= 100
+        or not finite(metrics.get('dominant_percent')) or abs(metrics['dominant_percent'] - percent) > .001):
+        return False
+    hypothesis = next((h for h in records.get('hypotheses', []) if h.get('hypothesis_id') == evidence.get('hypothesis_id')), {})
+    compiled = compile_cpu_observation_contract(hypothesis.get('statement', ''),
+        hypothesis.get('expected_observations') or [], hypothesis.get('falsification_criteria') or [], runtime='CPP')
+    return compiled.get('executable') is True and _independent_cpu_window(evidence, compiled, records, admitted)
 
 
 def _gc_window(metadata):
@@ -96,6 +158,8 @@ def measured_runtime_profile(evidence,rule,records,admitted,domain):
     """
     if rule.get('collector') == 'pyspy':
         return _python_profile(evidence, rule, records, admitted, domain)
+    if rule.get('collector') in {'perf_cpu', 'continuous_perf'}:
+        return _cpp_profile(evidence, rule, records, admitted, domain)
     envelope=evidence.get('envelope') or {};source=envelope.get('source') or {}
     metadata=(envelope.get('observation') or {}).get('metadata') or {}
     metrics=(metadata.get('hypothesis_predicate') or {}).get('metrics') or {}

@@ -142,6 +142,13 @@ def test_target_io_requires_operation_count_and_explicit_application_scope():
     signal=e.observation['metadata']['signals']['io_latency']
     signal['metrics']['operation_count_delta']=10
     signal['measurement_scope']='TARGET_APPLICATION_SYNC_IO'
+    e.observation['metadata']['window_duration_seconds']=10
+    e.observation['metadata']['application_metrics']={
+        'schema_version':'application_metrics_analysis.v1','sample_count':10,
+        'identity':{'identity_verified':True,'host_pid':123},
+        'before':{'io_operations':20,'io_operation_duration_ms_total':100},
+        'after':{'io_operations':30,'io_operation_duration_ms_total':400},
+        'delta':{'io_operations':10,'io_operation_duration_ms_total':300}}
     # Re-evaluate the full declared plan after adding the actual operation count.
     h=SimpleNamespace(expected_observations_json=plan['expected'],falsification_criteria_json=plan['falsification'])
     e.observation['metadata']['hypothesis_predicate']=_structured_signal_predicate(h,e.observation['metadata'])
