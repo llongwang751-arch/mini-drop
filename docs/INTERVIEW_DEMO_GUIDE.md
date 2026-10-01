@@ -1,5 +1,13 @@
 # Mini-Drop 面试演示手册
 
+## 2026-10-02 七类补齐后的演示版本
+
+当前工程判断21/21、具体路径6/21、有效反证8条，明确本批次7新+14历史。先展示体检三态，再看Python/C++实际源码路径、mutex获取等待、共享cgroup配额与节流，最后看三种同步I/O低延迟反证。反证不能称磁盘根因，旧严格0/21单独展示；不要把工程判断讲成二十一种因果根因定位。九次真实试验、原始两次失败及完整预期采集链6/7均保留。
+
+最终合同与Web统一发布`20261001T183631Z`，应用源码`35f21b82997349b2f8e8010ae834e27a25fafc8f`，[精确CI36907241773](https://github.com/llongwang751-arch/mini-drop/actions/runs/36907241773)成功14/14，CI merge与发布Git tree一致。Python1675通过/16登记跳过、Web313通过、真实PG14通过零跳过、Chromium7与Native CTest5通过。Worker/Analyzer各211份源码、Web容器和公网全部资源SHA一致，环境及挂载检查通过，另10容器及紧邻部署前Office/API基线保持，21故障inactive。真实浏览器验证21/21工程判断、6类路径、8条反证，7新+14历史范围，七案例32份新产物及四工程案例9份下载SHA、既有体检/业务路径和四视口。独立原始审计331/331项通过；全部九试验43产物SHA一致。回滚配置与数据保留，证据见[最终发布](../reports/quality/seven-gaps-20261002/publication/)及[归档清单](../reports/quality/seven-gaps-20261002/manifest.json)。
+
+下方含旧14/21成绩的段落属于历史演示与发布记录；当前版以本段及PROJECT_CONTEXT顶部为准。
+
 ## 2026-10-02 当前演示补齐（已部署）
 
 统一版本已发布`20261001T160532Z`，后端与Web都来自同一Git源码`f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff`。[CI36888942005](https://github.com/llongwang751-arch/mini-drop/actions/runs/36888942005)成功13/13；PR测试merge7cfa9e7与发布提交Git tree一致，证据已核对。Python1451通过/16登记跳过、Web309通过、真实PG14通过零跳过、真实Chromium7项回归通过；Chroma独立零跳过及Go race/安全/真实镜像与连续I/O专项通过。之前的CI浏览器失败、业务两次失败和原8/18评分保留。

@@ -1,0 +1,52 @@
+{
+  "schema": "mini-drop.load-endurance.v1",
+  "status": "FAILED",
+  "started_at": "2026-10-01T18:31:20.978045+00:00",
+  "plan": {
+    "rates": [
+      5,
+      20,
+      40,
+      80
+    ],
+    "step_seconds": 15,
+    "soak_rate": 5,
+    "soak_seconds": 600,
+    "recovery_seconds": 15,
+    "bucket_seconds": 30,
+    "concurrency": 64,
+    "timeout_seconds": 5,
+    "p95_limit_ms": 200,
+    "minimum_success_rate": 0.99,
+    "minimum_quality_rate": 0.99,
+    "max_dispatch_lag_ms": 250,
+    "minimum_samples": 30,
+    "dependency_latency_ms": 10,
+    "reuse_connections": true,
+    "cache_rerank": true
+  },
+  "source_hashes": {
+    "scripts/run_load_endurance.py": "5a7482663093f4b5443e66d837faf7448ee27f7f6405ce1c0a2e6498ba038f18",
+    "scripts/process_resource_monitor.py": "995bb0fe94d27c61c033a255f99cae94facc5dc425d5969f262e59f854c0d4b1",
+    "demo/rag_service/app.py": "2a45cf021e1b1209cdabbdf343c076f698c31089684d835e133f24cd41097e3b"
+  },
+  "dataset_sha256": "21d055283e22f5ab714a908655a67dab2623502518f9ae46441b8304f11587ab",
+  "question_set_sha256": "e52f25b4e94664ecd7b55a666909dc7d2ee1295fba9ee49cfad71730f8f0a611",
+  "environment": {
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "python": "3.11.16",
+    "cpu_count": 4
+  },
+  "scope": "ISOLATED_LOCAL_HTTP_FIXTURE; CONTROLLED_DEPENDENCY_DELAY; NO_LIVE_LLM",
+  "limitations": [
+    "No production capacity claim",
+    "Resource growth screen does not prove absence of leaks",
+    "Shared host with generator; invalid generator stages cannot prove server capacity"
+  ],
+  "stages": [],
+  "git_head": "06226c703a14dba5999bcc3115633a8be95b2c25",
+  "error": "RuntimeError: fixture failed",
+  "finished_at": "2026-10-01T18:31:20.980870+00:00",
+  "artifact_sha256": {},
+  "sha256": "a3d9fa26be8326bc5ce70d8ea229ebf52eb9a8eea23db88e140629d0305a0a5f"
+}

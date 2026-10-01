@@ -1,0 +1,35 @@
+{
+  "schema": "mini-drop.business-campaign.v1",
+  "run_id": "fea6cabb7b3c460581597cfdc2bc8dc2",
+  "status": "COMPLETED",
+  "started_at": "2026-10-01T18:30:51.849122+00:00",
+  "source_hashes": {
+    "demo/rag_service/app.py": "04a97850d41abbb9baf87d17d2d9d7f50f862dcb2cb8b2db23fe73de5a96fd48",
+    "server/app/drop_insight/business_acceptance.py": "638d97c6d59eaaaedf7f411a19c1cb52b73d4d9f6d07bdc03d6625665f69aed1",
+    "scripts/run_business_acceptance.py": "4e93a23fab28d8a1d1b7432bc1c193159d8b79c201461491c97a30869135db23",
+    "contracts/business_test_plan.json": "dff93acb3fc5693dd8d8c505e33f483ca9404338c74471be71c06bdd77fc2bcb"
+  },
+  "revision": "06226c703a14+1f02e923b6e7",
+  "policy": {
+    "minimum_requests": 30,
+    "recovery_p95_ratio": 1.3,
+    "minimum_success_rate": 0.98,
+    "minimum_quality_rate": 0.98,
+    "minimum_fault_ratio": 1.5,
+    "max_dispatch_lag_ms": 150,
+    "latency_floor_ms": 20
+  },
+  "scope": "LOCAL_HTTP_EXTRACTIVE_FIXTURE; NO_LIVE_AI_DIAGNOSIS; NO_PRODUCTION_CLAIM",
+  "repeat_runs": 1,
+  "results": [
+    {
+      "scenario_id": "RAG-01",
+      "title": "知识库重排工作量异常",
+      "outcome": "IMPROVEMENT_VERIFIED",
+      "case_file": "campaign-cases/RAG-01.json",
+      "report_sha256": "856cd4ae47922edd64e9dd20a302be31ef9454e9661e718cf9f885c24133c17f"
+    }
+  ],
+  "finished_at": "2026-10-01T18:30:51.856831+00:00",
+  "report_sha256": "e60644da853656c66cc9bddf219497b1f49a32161803eeb0de7bc964d768e9fb"
+}

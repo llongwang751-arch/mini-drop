@@ -30,7 +30,11 @@ C++ CPU 的 perf 采集成功，但运行镜像缺少 binutils/addr2line，源�
 
 实现提交 `63a8284dcc6eacd925cb04064305c36df3455fad` 的 [CI 36904602187](https://github.com/llongwang751-arch/mini-drop/actions/runs/36904602187) 实际成功 14/14：Python 1675 项通过、16 项登记跳过，真实 PostgreSQL 14 项通过且零跳过，Web 313 项通过，Chromium 7 项回归，Native CTest 5 项通过。CI merge 与实现提交 Git tree 相同。Chromium CI 使用隔离 API 数据；真机试验和上线浏览器另存，不混为同一种证据。
 
-后端修复已发布 `20261001T180807Z`；Worker/Analyzer 各 211 份源码、环境哈希和挂载已核对，其他十一容器保持。三个运行环境的 C++ ELF SHA 相同，Agent 与 demo 代码和已通过 CI 的初始实现子树相同。Office 与 API 维持紧邻发布前的基线，数据、旧镜像、旧发布和回滚配置保留。新的合同、公开索引与 Web 正在按最终证据提交统一发布；最终上线回执见本批次 `publication/`。
+后端修复已发布 `20261001T180807Z`；Worker/Analyzer 各 211 份源码、环境哈希和挂载已核对，其他十一容器保持。三个运行环境的 C++ ELF SHA 相同，Agent 与 demo 代码和已通过 CI 的初始实现子树相同。Office 与 API 维持紧邻发布前的基线，数据、旧镜像、旧发布和回滚配置保留。新的合同、公开索引与 Web 已统一发布。
+
+最终合同与Web统一发布`20261001T183631Z`，应用源码`35f21b82997349b2f8e8010ae834e27a25fafc8f`，[精确CI36907241773](https://github.com/llongwang751-arch/mini-drop/actions/runs/36907241773)成功14/14，CI merge与发布Git tree一致。Python1675通过/16登记跳过、Web313通过、真实PG14通过零跳过、Chromium7与Native CTest5通过。Worker/Analyzer各211份源码、Web容器和公网全部资源SHA一致，环境及挂载检查通过，另10容器及紧邻部署前Office/API基线保持，21故障inactive。真实浏览器验证21/21工程判断、6类路径、8条反证，7新+14历史范围，七案例32份新产物及四工程案例9份下载SHA、既有体检/业务路径和四视口。独立原始审计331/331项通过；全部九试验43产物SHA一致。回滚配置与数据保留，证据见[最终发布](../quality/seven-gaps-20261002/publication/)及[归档清单](../quality/seven-gaps-20261002/manifest.json)。
+
+首次部署复核因Docker挂载数组顺序误报；十个未替换容器的完整挂载字典排序后均与基线一致，比较保留Source/RW/Propagation等全部字段。首次浏览器脚本在任务预览异步加载结束前检查链接，相关请求实际为200；增加有界DOM就绪等待后七案例的十一个完整结果入口、32份新产物及9份工程回归下载、48次布局检查全部通过。两个首轮验收脚本误报的证明及浏览器原记录保留于publication，不覆盖失败文件；没有为此修改产品源码。
 
 真实试验全部撤销注入、恢复并收束。七个选中 case 与全部九次试验原始字节见 [独立性能清单](../quality/seven-gaps-20261002/performance-manifest.json)；源码前后失败、CI、工具链、部署与只读浏览器复核分别归档于 [本批次证据目录](../quality/seven-gaps-20261002/)。
 

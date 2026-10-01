@@ -1,0 +1,3529 @@
+{
+  "schema": "mini-drop.final-seven-independent-audit.v1",
+  "generated_at": "2026-10-01T18:29:26.791455+00:00",
+  "status": "VERIFIED",
+  "scope": "LOCAL_READ_ONLY_CASE_AND_RAW_REPLAY; ONLY_NEW_PROOF_FILES_WRITTEN",
+  "summary": {
+    "selected_cases": 7,
+    "selected_accepted": 7,
+    "outcomes": {
+      "LOCALIZED_ANOMALY": 2,
+      "SUPPORTED_OBSERVATION": 2,
+      "REFUTED": 3
+    },
+    "total_live_trials": 9,
+    "retained_failed_trials": 2,
+    "causal_root_cause_verified": 0,
+    "same_load_fix_verified": 0,
+    "selected_full_intended_collector_chains": 6,
+    "selected_downloads_verified": 32,
+    "all_nine_downloads_verified": 43,
+    "selected_reports_checked": 9,
+    "selected_causal_fix_flag_paths_checked": 43,
+    "checks_passed": 331,
+    "checks_total": 331
+  },
+  "selected": [
+    {
+      "scenario_id": "source-hotspot",
+      "selected": true,
+      "case_path": "seven-cases\\source-hotspot.json",
+      "case_sha256": "2ecb759ad9d3947e022e34fbce9e83feebc3c098938e03f6cab573f006bebaa1",
+      "diagnosis_id": "insight_c48cddbfca2a420ba11c42415af9d5c2",
+      "started_at": "2026-10-01T17:30:56.215319+00:00",
+      "finished_at": "2026-10-01T17:33:06.995177+00:00",
+      "engineering_outcome": "LOCALIZED_ANOMALY",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2850799,
+        "namespace_pid": 1,
+        "start_ticks": 217461927,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e",
+        "container_started_at": "2026-10-01T17:30:44.242050691Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 147.33515879273438,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_53a31e1cfc7a415291cb10e2cea129ad",
+          "tool_name": "start_pyspy_profile",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_173226_6ece8d",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "EVIDENCE_IMPORTED"
+        },
+        {
+          "tool_call_id": "toolcall_4a1984f2301b4360a0a3427a71c9bf75",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_173245_976dae",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4619,
+          "artifact_type": "raw",
+          "file": "task_20261001_173226_6ece8d-raw.raw",
+          "sha256": "8812dbbbfaf78b6c52402e239f16d7111be79e9d7d2331dee15c2905d228bdfa",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-raw.raw",
+          "actual_sha256": "8812dbbbfaf78b6c52402e239f16d7111be79e9d7d2331dee15c2905d228bdfa",
+          "size_bytes": 144409,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4620,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173226_6ece8d-manifest.raw",
+          "sha256": "4c9c63f501b8aff9fd15c90e90aaae0f7a3b1e354d499410c1313fc10e3ec3db",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-manifest.raw",
+          "actual_sha256": "4c9c63f501b8aff9fd15c90e90aaae0f7a3b1e354d499410c1313fc10e3ec3db",
+          "size_bytes": 1104,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4621,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_173226_6ece8d-flamegraph_json.raw",
+          "sha256": "5e3bc4e9b19f4476aa10e626e1a66fd21da4059bcedb19478b8e8fe15677f41c",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-flamegraph_json.raw",
+          "actual_sha256": "5e3bc4e9b19f4476aa10e626e1a66fd21da4059bcedb19478b8e8fe15677f41c",
+          "size_bytes": 2853,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4622,
+          "artifact_type": "top_json",
+          "file": "task_20261001_173226_6ece8d-top_json.raw",
+          "sha256": "8d5f50cafad91c7791678af34914f056bb65186dacb6a985f2027d4a7a6ad294",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-top_json.raw",
+          "actual_sha256": "8d5f50cafad91c7791678af34914f056bb65186dacb6a985f2027d4a7a6ad294",
+          "size_bytes": 1769,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173245_976dae",
+          "artifact_id": 4623,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173245_976dae-sys_metrics.raw",
+          "sha256": "c539c2c5ae8b981756d752cbe41961c66ffbf03bd4572f55e622d8987d320d4b",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173245_976dae-sys_metrics.raw",
+          "actual_sha256": "c539c2c5ae8b981756d752cbe41961c66ffbf03bd4572f55e622d8987d320d4b",
+          "size_bytes": 32086,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173245_976dae",
+          "artifact_id": 4624,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173245_976dae-manifest.raw",
+          "sha256": "18dd29918bbc5648710e9eb3d268b685bc687c042770955578846c7220af807f",
+          "relative_path": "seven-cases\\source-hotspot-artifacts\\task_20261001_173245_976dae-manifest.raw",
+          "actual_sha256": "18dd29918bbc5648710e9eb3d268b685bc687c042770955578846c7220af807f",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4623,
+          "task_id": "task_20261001_173245_976dae",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790875968386,
+          "after_unix_ms": 1790875982399,
+          "elapsed_seconds": 14.013,
+          "cpu_ticks_before": 8066,
+          "cpu_ticks_after": 9316,
+          "cpu_ticks_delta": 1250,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 89.20288303717976,
+          "process_cpu_core_percent_reported": 89.203,
+          "max_application_age_ms": 199,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot"
+        }
+      ],
+      "profile": {
+        "sample_count": 4452,
+        "hot_function": "source_hot_function",
+        "source_rows": [
+          {
+            "name": "source_hot_function",
+            "file": "/app/app.py",
+            "line": 171,
+            "samples": 964,
+            "percent": 21.7
+          },
+          {
+            "name": "source_hot_function",
+            "file": "/app/app.py",
+            "line": 172,
+            "samples": 221,
+            "percent": 5.0
+          },
+          {
+            "name": "source_hot_function",
+            "file": "/app/app.py",
+            "line": 173,
+            "samples": 173,
+            "percent": 3.9
+          },
+          {
+            "name": "source_hot_function",
+            "file": "/app/app.py",
+            "line": 170,
+            "samples": 126,
+            "percent": 2.8
+          }
+        ],
+        "hot_function_sample_count": 1484,
+        "hot_function_percent": 33.4,
+        "profile_task_id": "task_20261001_173226_6ece8d",
+        "os_control_task_id": "task_20261001_173245_976dae",
+        "relationship": "SEPARATE_COLLECTION_WINDOWS",
+        "other_application_paths_in_localization": [
+          {
+            "name": "source_hot_function",
+            "percent": 33.4,
+            "locations": [
+              {
+                "file": "/app/app.py",
+                "line": 171,
+                "percent": 21.7
+              },
+              {
+                "file": "/app/app.py",
+                "line": 172,
+                "percent": 5.0
+              },
+              {
+                "file": "/app/app.py",
+                "line": 173,
+                "percent": 3.9
+              },
+              {
+                "file": "/app/app.py",
+                "line": 170,
+                "percent": 2.8
+              }
+            ]
+          },
+          {
+            "name": "_sample",
+            "percent": 33.3,
+            "locations": [
+              {
+                "file": "/app/app.py",
+                "line": 254,
+                "percent": 33.3
+              }
+            ]
+          },
+          {
+            "name": "_publish_application_metrics",
+            "percent": 32.800000000000004,
+            "locations": [
+              {
+                "file": "/app/app.py",
+                "line": 781,
+                "percent": 32.7
+              },
+              {
+                "file": "/app/app.py",
+                "line": 776,
+                "percent": 0.1
+              }
+            ]
+          }
+        ]
+      },
+      "report_summaries": [
+        {
+          "report_id": "report_9113365336ad65999e835df3d8315d8b",
+          "verification_status": "VERIFIED",
+          "observation_status": "UNSUPPORTED_PLAN",
+          "localization_status": "LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "已验证观测：在 4452 个有效样本中，在 Profile 采集窗口观察到可归属路径 `source_hot_function`，按函数归并的采样占比 33.4%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "selected": true,
+      "case_path": "cpp-retry-cases\\cpp-cpu-hotspot.json",
+      "case_sha256": "90facdc6e18ecd170e706128efb4f1c061b144f145855b4d062968a4d1808801",
+      "diagnosis_id": "insight_400e527ed1524139bedfd0403b5553a6",
+      "started_at": "2026-10-01T17:53:48.236542+00:00",
+      "finished_at": "2026-10-01T17:55:51.527812+00:00",
+      "engineering_outcome": "LOCALIZED_ANOMALY",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2849549,
+        "namespace_pid": 1,
+        "start_ticks": 217459563,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "258f3d9c8494f67dc599c6597bac2b4a2a513ae644ae46a4bbc7c2fbcba411f0",
+        "container_started_at": "2026-10-01T17:30:20.594323508Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 342758814.41975,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_9aafd4503d644d2b8c260ec1f39d3fb1",
+          "tool_name": "start_perf_profile",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_175444_ba95c3",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "EVIDENCE_IMPORTED"
+        },
+        {
+          "tool_call_id": "toolcall_c93ebae7034542f5a4e0f26f494b82c3",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_175532_a59ce1",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4651,
+          "artifact_type": "raw",
+          "file": "task_20261001_175444_ba95c3-raw.raw",
+          "sha256": "68d7b354b750046d0e6bf3a652a9f2710ffc76d8a5a8f753ab0c32d2f1e3bf31",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-raw.raw",
+          "actual_sha256": "68d7b354b750046d0e6bf3a652a9f2710ffc76d8a5a8f753ab0c32d2f1e3bf31",
+          "size_bytes": 90124,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4652,
+          "artifact_type": "manifest",
+          "file": "task_20261001_175444_ba95c3-manifest.raw",
+          "sha256": "cf9640aed021ea6f84d7a4c3e92a4c197b03771efa3e2724b92c2b1764753a62",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-manifest.raw",
+          "actual_sha256": "cf9640aed021ea6f84d7a4c3e92a4c197b03771efa3e2724b92c2b1764753a62",
+          "size_bytes": 1270,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4653,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_175444_ba95c3-flamegraph_json.raw",
+          "sha256": "23bdb790de5a1cf693b2c7ebfae2b34556606806225ac4c27a5e99dc3cc62149",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-flamegraph_json.raw",
+          "actual_sha256": "23bdb790de5a1cf693b2c7ebfae2b34556606806225ac4c27a5e99dc3cc62149",
+          "size_bytes": 563,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4654,
+          "artifact_type": "flamegraph_svg",
+          "file": "task_20261001_175444_ba95c3-flamegraph_svg.raw",
+          "sha256": "9e32e76578edcfe20b18107469763afd8b9cdc67e699c878b93975fbc39e1e81",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-flamegraph_svg.raw",
+          "actual_sha256": "9e32e76578edcfe20b18107469763afd8b9cdc67e699c878b93975fbc39e1e81",
+          "size_bytes": 15024,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4655,
+          "artifact_type": "top_json",
+          "file": "task_20261001_175444_ba95c3-top_json.raw",
+          "sha256": "d793f7b4428f4deed8b9b9d309be7c3472f65182dd87a2732715e118fd004f38",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-top_json.raw",
+          "actual_sha256": "d793f7b4428f4deed8b9b9d309be7c3472f65182dd87a2732715e118fd004f38",
+          "size_bytes": 1188,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4656,
+          "artifact_type": "callgraph_json",
+          "file": "task_20261001_175444_ba95c3-callgraph_json.raw",
+          "sha256": "747d907a9989eb2b2a71547ba48f89c35a4384d051339d179d3dba07eadce56e",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-callgraph_json.raw",
+          "actual_sha256": "747d907a9989eb2b2a71547ba48f89c35a4384d051339d179d3dba07eadce56e",
+          "size_bytes": 2137,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4657,
+          "artifact_type": "suggestions_md",
+          "file": "task_20261001_175444_ba95c3-suggestions_md.raw",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-suggestions_md.raw",
+          "actual_sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "size_bytes": 60,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175532_a59ce1",
+          "artifact_id": 4658,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_175532_a59ce1-sys_metrics.raw",
+          "sha256": "05401aa3700fe0baa31b41c33fe11e2fd3f28bf5f3c731a438fec08d3539138f",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175532_a59ce1-sys_metrics.raw",
+          "actual_sha256": "05401aa3700fe0baa31b41c33fe11e2fd3f28bf5f3c731a438fec08d3539138f",
+          "size_bytes": 23783,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_175532_a59ce1",
+          "artifact_id": 4659,
+          "artifact_type": "manifest",
+          "file": "task_20261001_175532_a59ce1-manifest.raw",
+          "sha256": "9f3bf45dd990bacdd7e9c79356fbf94f1674e348f1df6bc448f1f542e564780c",
+          "relative_path": "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175532_a59ce1-manifest.raw",
+          "actual_sha256": "9f3bf45dd990bacdd7e9c79356fbf94f1674e348f1df6bc448f1f542e564780c",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4658,
+          "task_id": "task_20261001_175532_a59ce1",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790877334713,
+          "after_unix_ms": 1790877348724,
+          "elapsed_seconds": 14.011,
+          "cpu_ticks_before": 15543,
+          "cpu_ticks_after": 16448,
+          "cpu_ticks_delta": 905,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 64.59210620226965,
+          "process_cpu_core_percent_reported": 64.592,
+          "max_application_age_ms": 172,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot"
+        }
+      ],
+      "profile": {
+        "sample_count": 951,
+        "hot_function": "cpp_cpu_hot_function",
+        "source_rows": [
+          {
+            "name": "cpp_cpu_hot_function",
+            "file": "main.cpp",
+            "line": 38,
+            "folded_frame": "cpp_cpu_hot_function:main.cpp:38",
+            "samples": 321,
+            "percent": 33.8
+          },
+          {
+            "name": "cpp_cpu_hot_function",
+            "file": "main.cpp",
+            "line": 39,
+            "folded_frame": "cpp_cpu_hot_function:main.cpp:39",
+            "samples": 312,
+            "percent": 32.8
+          },
+          {
+            "name": "cpp_cpu_hot_function",
+            "file": "main.cpp",
+            "line": 37,
+            "folded_frame": "cpp_cpu_hot_function:main.cpp:37",
+            "samples": 161,
+            "percent": 16.9
+          },
+          {
+            "name": "cpp_cpu_hot_function",
+            "file": "main.cpp",
+            "line": 36,
+            "folded_frame": "cpp_cpu_hot_function:main.cpp:36",
+            "samples": 157,
+            "percent": 16.5
+          }
+        ],
+        "hot_function_sample_count": 951,
+        "hot_function_percent": 100.0,
+        "profile_task_id": "task_20261001_175444_ba95c3",
+        "os_control_task_id": "task_20261001_175532_a59ce1",
+        "relationship": "SEPARATE_COLLECTION_WINDOWS",
+        "other_application_paths_in_localization": [
+          {
+            "name": "cpp_cpu_hot_function",
+            "percent": 100.0,
+            "locations": [
+              {
+                "file": "main.cpp",
+                "line": 38,
+                "percent": 33.8
+              },
+              {
+                "file": "main.cpp",
+                "line": 39,
+                "percent": 32.8
+              },
+              {
+                "file": "main.cpp",
+                "line": 37,
+                "percent": 16.9
+              },
+              {
+                "file": "main.cpp",
+                "line": 36,
+                "percent": 16.5
+              }
+            ]
+          }
+        ]
+      },
+      "report_summaries": [
+        {
+          "report_id": "report_9eacfe6b27eeee01861cfeaedf7d784b",
+          "verification_status": "VERIFIED",
+          "observation_status": "UNSUPPORTED_PLAN",
+          "localization_status": "LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "已验证观测：在 951 个有效样本中，在 Profile 采集窗口观察到可归属路径 `cpp_cpu_hot_function`，累计采样占比 100.0%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "selected": true,
+      "case_path": "seven-cases\\cpp-lock-contention.json",
+      "case_sha256": "609cb77ad08920afc04be151802159f8db4dabce564f315b29217a46d197e6c6",
+      "diagnosis_id": "insight_b944cda00f874563842a7ec6fe697501",
+      "started_at": "2026-10-01T17:35:48.954419+00:00",
+      "finished_at": "2026-10-01T17:37:06.811612+00:00",
+      "engineering_outcome": "SUPPORTED_OBSERVATION",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2849549,
+        "namespace_pid": 1,
+        "start_ticks": 217459563,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "258f3d9c8494f67dc599c6597bac2b4a2a513ae644ae46a4bbc7c2fbcba411f0",
+        "container_started_at": "2026-10-01T17:30:20.594323508Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 3164.292936632605,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_fc3d25aaafcf4f7e91ab074f7ff14bcf",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_173647_ac6f09",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_173647_ac6f09",
+          "artifact_id": 4627,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173647_ac6f09-sys_metrics.raw",
+          "sha256": "20d0ec8ed8529af173c8280f74da38578dddefc2c11a13c935abf829ba8b193c",
+          "relative_path": "seven-cases\\cpp-lock-contention-artifacts\\task_20261001_173647_ac6f09-sys_metrics.raw",
+          "actual_sha256": "20d0ec8ed8529af173c8280f74da38578dddefc2c11a13c935abf829ba8b193c",
+          "size_bytes": 23543,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173647_ac6f09",
+          "artifact_id": 4628,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173647_ac6f09-manifest.raw",
+          "sha256": "99d4d9c1e3373f0397010ef2c2adcce2e55bd9d3a31a68d0ee3f822b60463566",
+          "relative_path": "seven-cases\\cpp-lock-contention-artifacts\\task_20261001_173647_ac6f09-manifest.raw",
+          "actual_sha256": "99d4d9c1e3373f0397010ef2c2adcce2e55bd9d3a31a68d0ee3f822b60463566",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4627,
+          "task_id": "task_20261001_173647_ac6f09",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790876212274,
+          "after_unix_ms": 1790876226282,
+          "elapsed_seconds": 14.008,
+          "cpu_ticks_before": 9607,
+          "cpu_ticks_after": 9630,
+          "cpu_ticks_delta": 23,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 1.6419189034837238,
+          "process_cpu_core_percent_reported": 1.642,
+          "max_application_age_ms": 28,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "mutex": {
+            "scope": "TARGET_APPLICATION_MUTEX_WAIT",
+            "before": {
+              "lock_wait_ms": 156218.99,
+              "lock_acquisitions": 52267,
+              "lock_contentions": 52108
+            },
+            "after": {
+              "lock_wait_ms": 206176.69,
+              "lock_acquisitions": 69052,
+              "lock_contentions": 68819
+            },
+            "deltas": {
+              "lock_wait_ms": 49957.70000000001,
+              "lock_acquisitions": 16785,
+              "lock_contentions": 16711
+            },
+            "average_wait_ms_recomputed": 2.9763300565981536,
+            "average_wait_ms_reported": 2.976
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_ccce185f5aeef8a021951514585278c8",
+          "verification_status": "VERIFIED",
+          "observation_status": "VERIFIED",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "已验证观测：锁等待计数已满足声明的数值判据：average_wait_ms=2.976、lock_contentions_delta=16711、lock_acquisitions_delta=16785。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "selected": true,
+      "case_path": "seven-cases\\io-write-latency.json",
+      "case_sha256": "2c044f9184036c4f298f4c7f36f3db9107b9a08ad9bf13dc7950c5702051e334",
+      "diagnosis_id": "insight_0c461586b0924971a9521b4392ec6c72",
+      "started_at": "2026-10-01T17:37:06.814883+00:00",
+      "finished_at": "2026-10-01T17:39:55.606103+00:00",
+      "engineering_outcome": "REFUTED",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2850799,
+        "namespace_pid": 1,
+        "start_ticks": 217461927,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e",
+        "container_started_at": "2026-10-01T17:30:44.242050691Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 4414184.760497653,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_13b7dd712bb64ff2a340355dd93a61f2",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_173822_85355f",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        },
+        {
+          "tool_call_id": "toolcall_876639cf7a424beba22289176d5db845",
+          "tool_name": "start_pyspy_profile",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_173941_38c496",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_173822_85355f",
+          "artifact_id": 4629,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173822_85355f-sys_metrics.raw",
+          "sha256": "712ac324c72d3e50bf5d4c5b42d58c0716f345361bbd1fe887ce685aacd9453b",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173822_85355f-sys_metrics.raw",
+          "actual_sha256": "712ac324c72d3e50bf5d4c5b42d58c0716f345361bbd1fe887ce685aacd9453b",
+          "size_bytes": 32515,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173822_85355f",
+          "artifact_id": 4630,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173822_85355f-manifest.raw",
+          "sha256": "63d62109edee511ca1767b2eeaf6e4c6e01d12e79d6d790d9c2a5f4a160e0a99",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173822_85355f-manifest.raw",
+          "actual_sha256": "63d62109edee511ca1767b2eeaf6e4c6e01d12e79d6d790d9c2a5f4a160e0a99",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4631,
+          "artifact_type": "raw",
+          "file": "task_20261001_173941_38c496-raw.raw",
+          "sha256": "27ca861866b063dcbf490fa14a8e5bf9089c71809da19b746027c1a762a3f382",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-raw.raw",
+          "actual_sha256": "27ca861866b063dcbf490fa14a8e5bf9089c71809da19b746027c1a762a3f382",
+          "size_bytes": 93879,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4632,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173941_38c496-manifest.raw",
+          "sha256": "e614ad0319fb6e231420e84af086d2d502df3f3f07f0d037792a5de666f8dbbe",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-manifest.raw",
+          "actual_sha256": "e614ad0319fb6e231420e84af086d2d502df3f3f07f0d037792a5de666f8dbbe",
+          "size_bytes": 1102,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4633,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_173941_38c496-flamegraph_json.raw",
+          "sha256": "f958ada04e34d0e757b1ad884da0de49d3078a0d59777df691412fdd93ba13e9",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-flamegraph_json.raw",
+          "actual_sha256": "f958ada04e34d0e757b1ad884da0de49d3078a0d59777df691412fdd93ba13e9",
+          "size_bytes": 1409,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4634,
+          "artifact_type": "top_json",
+          "file": "task_20261001_173941_38c496-top_json.raw",
+          "sha256": "13fae62376ceecb9723ab5dfc4328f8a1c5507db135f3af00e0e1aae86e8e6c6",
+          "relative_path": "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-top_json.raw",
+          "actual_sha256": "13fae62376ceecb9723ab5dfc4328f8a1c5507db135f3af00e0e1aae86e8e6c6",
+          "size_bytes": 618,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4629,
+          "task_id": "task_20261001_173822_85355f",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790876303490,
+          "after_unix_ms": 1790876317499,
+          "elapsed_seconds": 14.009,
+          "cpu_ticks_before": 10231,
+          "cpu_ticks_after": 10244,
+          "cpu_ticks_delta": 13,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 0.9279748732957385,
+          "process_cpu_core_percent_reported": 0.928,
+          "max_application_age_ms": 168,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "io": {
+            "scope": "TARGET_APPLICATION_SYNC_IO",
+            "before": {
+              "io_operations": 2832,
+              "io_operation_duration_ms_total": 217.635972,
+              "io_bytes_written": 278396928,
+              "io_failures": 0
+            },
+            "after": {
+              "io_operations": 3528,
+              "io_operation_duration_ms_total": 268.304514,
+              "io_bytes_written": 346816512,
+              "io_failures": 0
+            },
+            "deltas": {
+              "io_operations": 696,
+              "io_operation_duration_ms_total": 50.668541999999974,
+              "io_bytes_written": 68419584,
+              "io_failures": 0
+            },
+            "average_latency_ms_recomputed": 0.0727996293103448,
+            "average_latency_ms_reported": 0.073,
+            "threshold_ms": 10,
+            "device_latency_claim": false
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_df674d800f3b9b663974813ccb488213",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "UNSUPPORTED_PLAN",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：Python 运行时可能存在 GIL 竞争、用户态热点或同步阻塞路径”仍待验证。"
+        },
+        {
+          "report_id": "report_ead6b92cb912e322ce27b30a4c44ba85",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "REFUTED",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程同步写操作耗时的有界观测，尚未归因块设备”。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "java-file-io",
+      "selected": true,
+      "case_path": "seven-cases\\java-file-io.json",
+      "case_sha256": "66c8ef626b30319b31e7959c5439dcac16d43298bb13167a2c73be758d8a372c",
+      "diagnosis_id": "insight_be58ee31560b422a97e11a89d855ea95",
+      "started_at": "2026-10-01T17:39:55.610022+00:00",
+      "finished_at": "2026-10-01T17:42:40.985907+00:00",
+      "engineering_outcome": "REFUTED",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2850011,
+        "namespace_pid": 1,
+        "start_ticks": 217460263,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "8bf6c28198b99d49acc830caf089888bc1e4328e85d31dede3765ff944c009f4",
+        "container_started_at": "2026-10-01T17:30:27.601618859Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 5875017.744932236,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_a868bea23ec34fb09b2085945eaa6818",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_174057_4044ac",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        },
+        {
+          "tool_call_id": "toolcall_d9da92325f324dc3be97d45dc9f0ff31",
+          "tool_name": "start_jvm_profile",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_174219_59dd08",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_174057_4044ac",
+          "artifact_id": 4635,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_174057_4044ac-sys_metrics.raw",
+          "sha256": "ef9088ab5381bd19428ba639e9fedc20bed7492106a00b31b0c3d1986f01c744",
+          "relative_path": "seven-cases\\java-file-io-artifacts\\task_20261001_174057_4044ac-sys_metrics.raw",
+          "actual_sha256": "ef9088ab5381bd19428ba639e9fedc20bed7492106a00b31b0c3d1986f01c744",
+          "size_bytes": 31303,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174057_4044ac",
+          "artifact_id": 4636,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174057_4044ac-manifest.raw",
+          "sha256": "013055a3de6b4e5adf3caad1c3a70c76ee244a88d7f3d22ff5c9cf8e2962980c",
+          "relative_path": "seven-cases\\java-file-io-artifacts\\task_20261001_174057_4044ac-manifest.raw",
+          "actual_sha256": "013055a3de6b4e5adf3caad1c3a70c76ee244a88d7f3d22ff5c9cf8e2962980c",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4637,
+          "artifact_type": "java_flamegraph_html",
+          "file": "task_20261001_174219_59dd08-java_flamegraph_html.raw",
+          "sha256": "bc1f303377323d39159107766cadf1819cc0e0ba4cc7287263a1dfbc5b4f6993",
+          "relative_path": "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-java_flamegraph_html.raw",
+          "actual_sha256": "bc1f303377323d39159107766cadf1819cc0e0ba4cc7287263a1dfbc5b4f6993",
+          "size_bytes": 16039,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4638,
+          "artifact_type": "jvm_gc_metrics",
+          "file": "task_20261001_174219_59dd08-jvm_gc_metrics.raw",
+          "sha256": "e6362c71ba3d06ac289d797ae8bb529bc273eb092aae387ed9c7b035c6afe47c",
+          "relative_path": "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-jvm_gc_metrics.raw",
+          "actual_sha256": "e6362c71ba3d06ac289d797ae8bb529bc273eb092aae387ed9c7b035c6afe47c",
+          "size_bytes": 2019,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4639,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174219_59dd08-manifest.raw",
+          "sha256": "28a55bf57843cea987f5541af1ed23c48407b528667f25745dd4c593f9d38319",
+          "relative_path": "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-manifest.raw",
+          "actual_sha256": "28a55bf57843cea987f5541af1ed23c48407b528667f25745dd4c593f9d38319",
+          "size_bytes": 2038,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4635,
+          "task_id": "task_20261001_174057_4044ac",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790876460427,
+          "after_unix_ms": 1790876474438,
+          "elapsed_seconds": 14.011,
+          "cpu_ticks_before": 501,
+          "cpu_ticks_after": 520,
+          "cpu_ticks_delta": 19,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 1.3560773677824567,
+          "process_cpu_core_percent_reported": 1.356,
+          "max_application_age_ms": null,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "io": {
+            "scope": "TARGET_APPLICATION_SYNC_IO",
+            "before": {
+              "io_operations": 2241,
+              "io_operation_duration_ms_total": 208.637386,
+              "io_bytes_written": 293732352,
+              "io_failures": 0
+            },
+            "after": {
+              "io_operations": 2934,
+              "io_operation_duration_ms_total": 272.710775,
+              "io_bytes_written": 384565248,
+              "io_failures": 0
+            },
+            "deltas": {
+              "io_operations": 693,
+              "io_operation_duration_ms_total": 64.07338900000002,
+              "io_bytes_written": 90832896,
+              "io_failures": 0
+            },
+            "average_latency_ms_recomputed": 0.09245799278499281,
+            "average_latency_ms_reported": 0.092,
+            "threshold_ms": 10,
+            "device_latency_claim": false
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_bd34e978939666816ad3c6289194452b",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "UNSUPPORTED_PLAN",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：JVM 可能存在业务热点、GC 压力或锁竞争”仍待验证。"
+        },
+        {
+          "report_id": "report_6cb9c224eaea61a6cf3ffebbc7589fd5",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "REFUTED",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程同步写操作耗时的有界观测，尚未归因块设备”。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "selected": true,
+      "case_path": "seven-cases\\cpp-file-io.json",
+      "case_sha256": "dd101941c73a084b14378f89f9b9e2cd922343a6110213af3368e7906087fec9",
+      "diagnosis_id": "insight_ba819c2b01014444a184c0dec3401e04",
+      "started_at": "2026-10-01T17:42:40.990369+00:00",
+      "finished_at": "2026-10-01T17:45:22.073855+00:00",
+      "engineering_outcome": "REFUTED",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2849549,
+        "namespace_pid": 1,
+        "start_ticks": 217459563,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "258f3d9c8494f67dc599c6597bac2b4a2a513ae644ae46a4bbc7c2fbcba411f0",
+        "container_started_at": "2026-10-01T17:30:20.594323508Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 6854520.25164494,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": false,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_4df468305a444807bd7aeef4f7e8ff75",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_174413_db953f",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        },
+        {
+          "tool_call_id": "toolcall_e2862c868c104da1a83c9736af3eaada",
+          "tool_name": "start_perf_profile",
+          "status": "DENIED",
+          "task_id": null,
+          "budget_reservation_status": "NONE",
+          "terminal_processing_status": "NONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_174413_db953f",
+          "artifact_id": 4640,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_174413_db953f-sys_metrics.raw",
+          "sha256": "b53963d122e3ce077cf7c6c40803a4fd55557c5346d15ef6639c71e4e42c6b84",
+          "relative_path": "seven-cases\\cpp-file-io-artifacts\\task_20261001_174413_db953f-sys_metrics.raw",
+          "actual_sha256": "b53963d122e3ce077cf7c6c40803a4fd55557c5346d15ef6639c71e4e42c6b84",
+          "size_bytes": 23738,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174413_db953f",
+          "artifact_id": 4641,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174413_db953f-manifest.raw",
+          "sha256": "64c2a4aeca2bb75741b817d1bd15219871f9dbca333cdecfeaa015b3f86c9601",
+          "relative_path": "seven-cases\\cpp-file-io-artifacts\\task_20261001_174413_db953f-manifest.raw",
+          "actual_sha256": "64c2a4aeca2bb75741b817d1bd15219871f9dbca333cdecfeaa015b3f86c9601",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4640,
+          "task_id": "task_20261001_174413_db953f",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790876657861,
+          "after_unix_ms": 1790876671869,
+          "elapsed_seconds": 14.008,
+          "cpu_ticks_before": 9819,
+          "cpu_ticks_after": 9833,
+          "cpu_ticks_delta": 14,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 0.9994288977727015,
+          "process_cpu_core_percent_reported": 0.999,
+          "max_application_age_ms": 143,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "io": {
+            "scope": "TARGET_APPLICATION_SYNC_IO",
+            "before": {
+              "io_operations": 5066,
+              "io_operation_duration_ms_total": 371.87,
+              "io_bytes_written": 664010752,
+              "io_failures": 0
+            },
+            "after": {
+              "io_operations": 5990,
+              "io_operation_duration_ms_total": 439.1,
+              "io_bytes_written": 785121280,
+              "io_failures": 0
+            },
+            "deltas": {
+              "io_operations": 924,
+              "io_operation_duration_ms_total": 67.23000000000002,
+              "io_bytes_written": 121110528,
+              "io_failures": 0
+            },
+            "average_latency_ms_recomputed": 0.07275974025974027,
+            "average_latency_ms_reported": 0.073,
+            "threshold_ms": 10,
+            "device_latency_claim": false
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_ad3baf8b10f1bcedebdd498dc49593bd",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "REFUTED",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程同步写操作耗时的有界观测，尚未归因块设备”。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "selected": true,
+      "case_path": "noisy-retry-cases\\noisy-neighbor.json",
+      "case_sha256": "0a55234c74584973898c49b0fb52ef33f6ff7900ee44b1122b967e8a6a3b0d83",
+      "diagnosis_id": "insight_e588c05f9d8241119df432ca76cae3e1",
+      "started_at": "2026-10-01T18:16:25.435401+00:00",
+      "finished_at": "2026-10-01T18:17:51.976794+00:00",
+      "engineering_outcome": "SUPPORTED_OBSERVATION",
+      "engineering_accepted": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2850799,
+        "namespace_pid": 1,
+        "start_ticks": 217461927,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e",
+        "container_started_at": "2026-10-01T17:30:44.242050691Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 382.0,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_7531e0c18c25414284ba66ee52780267",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_181733_aefc9b",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_181733_aefc9b",
+          "artifact_id": 4660,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_181733_aefc9b-sys_metrics.raw",
+          "sha256": "8697a6701a347532ea45cc0a9c936524ad1982ea1e577c598c6a0f1bbf6008d4",
+          "relative_path": "noisy-retry-cases\\noisy-neighbor-artifacts\\task_20261001_181733_aefc9b-sys_metrics.raw",
+          "actual_sha256": "8697a6701a347532ea45cc0a9c936524ad1982ea1e577c598c6a0f1bbf6008d4",
+          "size_bytes": 35087,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_181733_aefc9b",
+          "artifact_id": 4661,
+          "artifact_type": "manifest",
+          "file": "task_20261001_181733_aefc9b-manifest.raw",
+          "sha256": "76598c3e3dc9a4ffc11f2ac870fdb533975b613c84e29fca345f01403c9def6c",
+          "relative_path": "noisy-retry-cases\\noisy-neighbor-artifacts\\task_20261001_181733_aefc9b-manifest.raw",
+          "actual_sha256": "76598c3e3dc9a4ffc11f2ac870fdb533975b613c84e29fca345f01403c9def6c",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4660,
+          "task_id": "task_20261001_181733_aefc9b",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790878656752,
+          "after_unix_ms": 1790878670763,
+          "elapsed_seconds": 14.011,
+          "cpu_ticks_before": 20435,
+          "cpu_ticks_after": 21092,
+          "cpu_ticks_delta": 657,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 46.89172792805653,
+          "process_cpu_core_percent_reported": 46.892,
+          "max_application_age_ms": 237,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "competition": {
+            "scope": "TARGET_SHARED_CGROUP_CPU",
+            "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+            "target_pid": 2850799,
+            "target_start_ticks": 217461927,
+            "peers": [
+              {
+                "pid": 2957106,
+                "start_ticks": 217738089
+              }
+            ],
+            "cpu_quota_us": 100000,
+            "cpu_period_us": 100000,
+            "nr_periods_delta": 140,
+            "before": {
+              "schema_version": "mini-drop.cgroup-cpu-observation.v1",
+              "source": "linux_proc_and_cgroup_v2",
+              "target_pid": 2850799,
+              "target_start_ticks": 217461927,
+              "target_cpu_ticks": 20435,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a\n",
+              "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+              "cpu_quota_us": 100000,
+              "cpu_period_us": 100000,
+              "nr_periods": 19587,
+              "nr_throttled": 1764,
+              "throttled_usec": 129542928,
+              "peers": [
+                {
+                  "pid": 2957106,
+                  "start_ticks": 217738089,
+                  "cpu_ticks": 2346,
+                  "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope"
+                }
+              ]
+            },
+            "after": {
+              "schema_version": "mini-drop.cgroup-cpu-observation.v1",
+              "source": "linux_proc_and_cgroup_v2",
+              "target_pid": 2850799,
+              "target_start_ticks": 217461927,
+              "target_cpu_ticks": 21092,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a\n",
+              "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+              "cpu_quota_us": 100000,
+              "cpu_period_us": 100000,
+              "nr_periods": 19727,
+              "nr_throttled": 1887,
+              "throttled_usec": 139631054,
+              "peers": [
+                {
+                  "pid": 2957106,
+                  "start_ticks": 217738089,
+                  "cpu_ticks": 2981,
+                  "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope"
+                }
+              ]
+            },
+            "deltas": {
+              "target_cpu_ticks_delta": 657,
+              "peer_cpu_ticks_delta": 635,
+              "throttled_periods_delta": 123,
+              "throttled_usec_delta": 10088126
+            },
+            "same_load_causal_intervention_verified": false
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_0192c35b4844c46ff34c9ddb18815cca",
+          "verification_status": "VERIFIED",
+          "observation_status": "VERIFIED",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "已验证观测：同宿主机 peer CPU 活动（未证明资源争抢）已满足声明的数值判据：peer_cpu_ticks_delta=635、target_cpu_ticks_delta=657、throttled_usec_delta=1.00881e+07、throttled_periods_delta=123。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    }
+  ],
+  "retained_failures": [
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "selected": false,
+      "case_path": "seven-cases\\cpp-cpu-hotspot.json",
+      "case_sha256": "28a63ececd5d4ea08896b9924e19c8462088ef2bda9fcf7d51859149ead9e35a",
+      "diagnosis_id": "insight_bf7f769a66484989a4eade9e2bab874b",
+      "started_at": "2026-10-01T17:33:06.999377+00:00",
+      "finished_at": "2026-10-01T17:35:48.948713+00:00",
+      "engineering_outcome": "INSUFFICIENT_EVIDENCE",
+      "engineering_accepted": false,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2849549,
+        "namespace_pid": 1,
+        "start_ticks": 217459563,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "258f3d9c8494f67dc599c6597bac2b4a2a513ae644ae46a4bbc7c2fbcba411f0",
+        "container_started_at": "2026-10-01T17:30:20.594323508Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 338943622.9265821,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": false,
+      "engineering_recorded_chain_verified": false,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_20543460a10f476099a0bcba4390762e",
+          "tool_name": "start_perf_profile",
+          "status": "FAILED",
+          "task_id": "task_20261001_173422_31082f",
+          "budget_reservation_status": "RELEASED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        },
+        {
+          "tool_call_id": "toolcall_45bef99e82c5408ab85ee1f22197bf2d",
+          "tool_name": "collect_sys_metrics",
+          "status": "DENIED",
+          "task_id": null,
+          "budget_reservation_status": "NONE",
+          "terminal_processing_status": "NONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_173422_31082f",
+          "artifact_id": 4625,
+          "artifact_type": "raw",
+          "file": "task_20261001_173422_31082f-raw.raw",
+          "sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+          "relative_path": "seven-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_173422_31082f-raw.raw",
+          "actual_sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+          "size_bytes": 90212,
+          "evidence_reference_count": 0,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "FAILED"
+        },
+        {
+          "task_id": "task_20261001_173422_31082f",
+          "artifact_id": 4626,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173422_31082f-manifest.raw",
+          "sha256": "bd9b8b79fc3cec35eb0fa3b3aeaf749dda7b4a84d8b5ceeed316b74592626e0d",
+          "relative_path": "seven-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_173422_31082f-manifest.raw",
+          "actual_sha256": "bd9b8b79fc3cec35eb0fa3b3aeaf749dda7b4a84d8b5ceeed316b74592626e0d",
+          "size_bytes": 1270,
+          "evidence_reference_count": 0,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "FAILED"
+        }
+      ],
+      "raw_windows": [],
+      "profile": null,
+      "report_summaries": [],
+      "all_report_causal_fix_flags": []
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "selected": false,
+      "case_path": "seven-cases\\noisy-neighbor.json",
+      "case_sha256": "33ef83697b5486bc12f8972bc431fa0b1cc05123029d559a3116fb216608fcb7",
+      "diagnosis_id": "insight_392551113a474e10a8216170f41a75c4",
+      "started_at": "2026-10-01T17:45:22.078911+00:00",
+      "finished_at": "2026-10-01T17:48:12.915647+00:00",
+      "engineering_outcome": "INSUFFICIENT_EVIDENCE",
+      "engineering_accepted": false,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "target_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 2850799,
+        "namespace_pid": 1,
+        "start_ticks": 217461927,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e",
+        "container_started_at": "2026-10-01T17:30:44.242050691Z"
+      },
+      "intervention_scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION",
+      "recovery_observed": true,
+      "intervention_values": {
+        "baseline": 0.0,
+        "fault": 403.0,
+        "recovery": 0.0
+      },
+      "recorded_chain_consistent": true,
+      "engineering_recorded_chain_verified": true,
+      "lineage_problems": [],
+      "tool_calls": [
+        {
+          "tool_call_id": "toolcall_e802a91dcba8436eacfe3a4985b7dcf6",
+          "tool_name": "collect_sys_metrics",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_174653_89d3f3",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        },
+        {
+          "tool_call_id": "toolcall_23371b0b3d0d46fb982a2e75f21d4888",
+          "tool_name": "start_perf_profile",
+          "status": "COMPLETED",
+          "task_id": "task_20261001_174750_499285",
+          "budget_reservation_status": "SETTLED",
+          "terminal_processing_status": "REPORT_EFFECTS_DONE"
+        }
+      ],
+      "downloads": [
+        {
+          "task_id": "task_20261001_174653_89d3f3",
+          "artifact_id": 4642,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_174653_89d3f3-sys_metrics.raw",
+          "sha256": "48b51522c90c225dd7589e8427d90ec816531e2ded8ad92bc7937d053df6eb82",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174653_89d3f3-sys_metrics.raw",
+          "actual_sha256": "48b51522c90c225dd7589e8427d90ec816531e2ded8ad92bc7937d053df6eb82",
+          "size_bytes": 35023,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174653_89d3f3",
+          "artifact_id": 4643,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174653_89d3f3-manifest.raw",
+          "sha256": "2e24e40d8f6986d8b010012a21f171242a1212816c240e79fd7a7fe96c9b1592",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174653_89d3f3-manifest.raw",
+          "actual_sha256": "2e24e40d8f6986d8b010012a21f171242a1212816c240e79fd7a7fe96c9b1592",
+          "size_bytes": 1109,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4644,
+          "artifact_type": "raw",
+          "file": "task_20261001_174750_499285-raw.raw",
+          "sha256": "01a246c19a04a320062aecf0a15774e3543f2cd39da98caa3713fb2d16158936",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-raw.raw",
+          "actual_sha256": "01a246c19a04a320062aecf0a15774e3543f2cd39da98caa3713fb2d16158936",
+          "size_bytes": 96656,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4645,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174750_499285-manifest.raw",
+          "sha256": "d084ea82db9bf0b60323d2f896cd4434d598ceabc931f4f528b9f3bf4b3b8fa5",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-manifest.raw",
+          "actual_sha256": "d084ea82db9bf0b60323d2f896cd4434d598ceabc931f4f528b9f3bf4b3b8fa5",
+          "size_bytes": 1270,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4646,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_174750_499285-flamegraph_json.raw",
+          "sha256": "370b10d1ce7d82fa37f8bf999c92436df34d2b06792212c6f281b13144057de6",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-flamegraph_json.raw",
+          "actual_sha256": "370b10d1ce7d82fa37f8bf999c92436df34d2b06792212c6f281b13144057de6",
+          "size_bytes": 5898,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4647,
+          "artifact_type": "flamegraph_svg",
+          "file": "task_20261001_174750_499285-flamegraph_svg.raw",
+          "sha256": "b2672f9137f932cb9c47ec42a8f03c2626bbd7fe2ca6477f54db9d94adab7f34",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-flamegraph_svg.raw",
+          "actual_sha256": "b2672f9137f932cb9c47ec42a8f03c2626bbd7fe2ca6477f54db9d94adab7f34",
+          "size_bytes": 30590,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4648,
+          "artifact_type": "top_json",
+          "file": "task_20261001_174750_499285-top_json.raw",
+          "sha256": "301250a06558fef55c7b60534dd16c5307ecfb6d596fa330c508e5a9ffdb4f1f",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-top_json.raw",
+          "actual_sha256": "301250a06558fef55c7b60534dd16c5307ecfb6d596fa330c508e5a9ffdb4f1f",
+          "size_bytes": 839,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4649,
+          "artifact_type": "callgraph_json",
+          "file": "task_20261001_174750_499285-callgraph_json.raw",
+          "sha256": "894b7392c99743aaafa8c562abfe3143321eb6a5664f7d1121424f478d162638",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-callgraph_json.raw",
+          "actual_sha256": "894b7392c99743aaafa8c562abfe3143321eb6a5664f7d1121424f478d162638",
+          "size_bytes": 3227,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        },
+        {
+          "task_id": "task_20261001_174750_499285",
+          "artifact_id": 4650,
+          "artifact_type": "suggestions_md",
+          "file": "task_20261001_174750_499285-suggestions_md.raw",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "relative_path": "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-suggestions_md.raw",
+          "actual_sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "size_bytes": 60,
+          "evidence_reference_count": 1,
+          "task_collection_status": "COLLECTED",
+          "task_analysis_status": "SUCCESS"
+        }
+      ],
+      "raw_windows": [
+        {
+          "artifact_id": 4642,
+          "task_id": "task_20261001_174653_89d3f3",
+          "schema": "sys_metrics.v2",
+          "sample_count": 15,
+          "before_unix_ms": 1790876815837,
+          "after_unix_ms": 1790876829852,
+          "elapsed_seconds": 14.015,
+          "cpu_ticks_before": 13817,
+          "cpu_ticks_after": 14435,
+          "cpu_ticks_delta": 618,
+          "clock_ticks_per_second": 100,
+          "process_cpu_core_percent_recomputed": 44.09561184445237,
+          "process_cpu_core_percent_reported": 44.096,
+          "max_application_age_ms": 385,
+          "application_timing_source": "native_sample_with_embedded_application_snapshot",
+          "competition": {
+            "scope": "TARGET_SHARED_CGROUP_CPU",
+            "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+            "target_pid": 2850799,
+            "target_start_ticks": 217461927,
+            "peers": [
+              {
+                "pid": 2888121,
+                "start_ticks": 217551722
+              }
+            ],
+            "cpu_quota_us": 100000,
+            "cpu_period_us": 100000,
+            "nr_periods_delta": 140,
+            "before": {
+              "schema_version": "mini-drop.cgroup-cpu-observation.v1",
+              "source": "linux_proc_and_cgroup_v2",
+              "target_pid": 2850799,
+              "target_start_ticks": 217461927,
+              "target_cpu_ticks": 13817,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a\n",
+              "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+              "cpu_quota_us": 100000,
+              "cpu_period_us": 100000,
+              "nr_periods": 7416,
+              "nr_throttled": 702,
+              "throttled_usec": 49588255,
+              "peers": [
+                {
+                  "pid": 2888121,
+                  "start_ticks": 217551722,
+                  "cpu_ticks": 3481,
+                  "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope"
+                }
+              ]
+            },
+            "after": {
+              "schema_version": "mini-drop.cgroup-cpu-observation.v1",
+              "source": "linux_proc_and_cgroup_v2",
+              "target_pid": 2850799,
+              "target_start_ticks": 217461927,
+              "target_cpu_ticks": 14435,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a\n",
+              "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope",
+              "cpu_quota_us": 100000,
+              "cpu_period_us": 100000,
+              "nr_periods": 7556,
+              "nr_throttled": 809,
+              "throttled_usec": 57648289,
+              "peers": [
+                {
+                  "pid": 2888121,
+                  "start_ticks": 217551722,
+                  "cpu_ticks": 4099,
+                  "cgroup_path": "/../docker-2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e.scope"
+                }
+              ]
+            },
+            "deltas": {
+              "target_cpu_ticks_delta": 618,
+              "peer_cpu_ticks_delta": 618,
+              "throttled_periods_delta": 107,
+              "throttled_usec_delta": 8060034
+            },
+            "same_load_causal_intervention_verified": false
+          }
+        }
+      ],
+      "profile": null,
+      "report_summaries": [
+        {
+          "report_id": "report_b924f8832b77e022fafceefbca8e7496",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "UNSUPPORTED_PLAN",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销”仍待验证。"
+        },
+        {
+          "report_id": "report_8f9c8676ad76c6197ef37a3ae007a27a",
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "observation_status": "INSUFFICIENT_OBSERVABILITY",
+          "localization_status": "NOT_LOCALIZED",
+          "causal_fix_flags": [
+            {
+              "path": "/verification/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/observation_verification/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/causal_root_cause_verified",
+              "value": false
+            },
+            {
+              "path": "/verification/bottleneck_localization/same_load_fix_verified",
+              "value": false
+            }
+          ],
+          "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标与独立进程共享受限 CPU 配额时发生节流的有界观测，尚未证明邻居的因果贡献”仍待验证。"
+        }
+      ],
+      "all_report_causal_fix_flags": [
+        {
+          "path": "/0/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/0/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/observation_verification/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/causal_root_cause_verified",
+          "value": false
+        },
+        {
+          "path": "/1/verification/bottleneck_localization/same_load_fix_verified",
+          "value": false
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "name": "seven-cases/source-hotspot/artifact/4619/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4619/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4619/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4620/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4620/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4620/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4621/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4621/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4621/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4622/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4622/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4622/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4623/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4623/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4623/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4624/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4624/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/artifact/4624/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/manifest/4620/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/manifest/4620/raw",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/manifest/4624/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/manifest/4624/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/report/report_9113365336ad65999e835df3d8315d8b/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/sys/4623/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/sys/4623/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/sys/4623/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/sys/4623/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/profile/actual-source-rows",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/profile/separate-os-cpu-control",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/profile/raw-leaf-count",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/source-hotspot/final-report/localized",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4651/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4651/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4651/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4652/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4652/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4652/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4653/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4653/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4653/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4654/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4654/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4654/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4655/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4655/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4655/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4656/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4656/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4656/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4657/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4657/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4657/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4658/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4658/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4658/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4659/sha256",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4659/task-registration",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/artifact/4659/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/manifest/4652/task",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/manifest/4652/raw",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/manifest/4659/task",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/manifest/4659/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/report/report_9eacfe6b27eeee01861cfeaedf7d784b/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/sys/4658/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/sys/4658/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/sys/4658/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/sys/4658/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/profile/actual-source-rows",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/profile/separate-os-cpu-control",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/profile/inclusive-not-added-across-callers",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "cpp-retry-cases/cpp-cpu-hotspot/final-report/localized",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4627/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4627/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4627/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4628/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4628/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/artifact/4628/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/manifest/4628/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/manifest/4628/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/report/report_ccce185f5aeef8a021951514585278c8/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/sys/4627/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/sys/4627/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/sys/4627/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/sys/4627/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/mutex/monotonic-counts-duration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/mutex/deltas-and-mean",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-lock-contention/final-report/observation-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4629/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4629/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4629/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4630/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4630/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4630/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4631/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4631/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4631/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4632/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4632/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4632/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4633/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4633/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4633/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4634/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4634/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/artifact/4634/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/manifest/4630/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/manifest/4630/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/manifest/4632/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/manifest/4632/raw",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/report/report_df674d800f3b9b663974813ccb488213/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/report/report_ead6b92cb912e322ce27b30a4c44ba85/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/sys/4629/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/sys/4629/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/sys/4629/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/sys/4629/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/io/monotonic-counts-duration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/io/deltas-and-mean",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/io/scope",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/io-write-latency/final-report/observation-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4635/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4635/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4635/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4636/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4636/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4636/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4637/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4637/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4637/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4638/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4638/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4638/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4639/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4639/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/artifact/4639/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/manifest/4636/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/manifest/4636/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/manifest/4639/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/manifest/4639/java_flamegraph_html",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/manifest/4639/jvm_gc_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/report/report_bd34e978939666816ad3c6289194452b/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/report/report_6cb9c224eaea61a6cf3ffebbc7589fd5/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/sys/4635/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/sys/4635/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/sys/4635/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/sys/4635/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/io/monotonic-counts-duration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/io/deltas-and-mean",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/io/scope",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/java-file-io/final-report/observation-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4640/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4640/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4640/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4641/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4641/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/artifact/4641/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/manifest/4641/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/manifest/4641/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/report/report_ad3baf8b10f1bcedebdd498dc49593bd/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/sys/4640/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/sys/4640/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/sys/4640/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/sys/4640/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/io/monotonic-counts-duration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/io/deltas-and-mean",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/io/scope",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-file-io/final-report/observation-outcome",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4660/sha256",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4660/task-registration",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4660/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4661/sha256",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4661/task-registration",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/artifact/4661/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/manifest/4661/task",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/manifest/4661/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/report/report_0192c35b4844c46ff34c9ddb18815cca/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/sys/4660/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/sys/4660/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/sys/4660/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/sys/4660/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/competition/stable-peer-cgroup-quota",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/competition/monotonic-counters",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/competition/positive-deltas-match",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/competition/window-matches-raw",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/engineering/accepted-expected-outcome",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/final-report/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "noisy-retry-cases/noisy-neighbor/final-report/observation-outcome",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4625/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4625/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4625/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4626/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4626/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/artifact/4626/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/manifest/4626/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/manifest/4626/raw",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/cpp-cpu-hotspot/retained-failure",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4642/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4642/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4642/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4643/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4643/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4643/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4644/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4644/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4644/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4645/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4645/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4645/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4646/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4646/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4646/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4647/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4647/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4647/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4648/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4648/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4648/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4649/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4649/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4649/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4650/sha256",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4650/task-registration",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/artifact/4650/evidence-sha",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/manifest/4643/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/manifest/4643/sys_metrics",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/manifest/4645/task",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/manifest/4645/raw",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/downloads/complete-task-artifact-set",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/report/report_b924f8832b77e022fafceefbca8e7496/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/report/report_8f9c8676ad76c6197ef37a3ae007a27a/claims-linked-to-verified-downloads",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/all-reports/no-causal-or-fix-true",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/engineering/explicit-causal-fix-false",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/all-windows/stable-target-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/baseline/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/recovery/all-fault-flags-inactive",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/cleanup-session-recorded",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/tool-calls-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/budget-reservations-terminal",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/sys/4642/stable-kernel-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/sys/4642/monotonic-cpu-time",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/sys/4642/cpu-recomputed",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/sys/4642/application-namespace-identity",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/competition/stable-peer-cgroup-quota",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/competition/monotonic-counters",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/competition/positive-deltas-match",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/competition/window-matches-raw",
+      "passed": true
+    },
+    {
+      "name": "seven-cases/noisy-neighbor/retained-failure",
+      "passed": true
+    },
+    {
+      "name": "inputs/unchanged-after-read",
+      "passed": true
+    }
+  ],
+  "input_sha256": {
+    "seven-cases\\source-hotspot.json": "2ecb759ad9d3947e022e34fbce9e83feebc3c098938e03f6cab573f006bebaa1",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-raw.raw": "8812dbbbfaf78b6c52402e239f16d7111be79e9d7d2331dee15c2905d228bdfa",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-manifest.raw": "4c9c63f501b8aff9fd15c90e90aaae0f7a3b1e354d499410c1313fc10e3ec3db",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-flamegraph_json.raw": "5e3bc4e9b19f4476aa10e626e1a66fd21da4059bcedb19478b8e8fe15677f41c",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173226_6ece8d-top_json.raw": "8d5f50cafad91c7791678af34914f056bb65186dacb6a985f2027d4a7a6ad294",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173245_976dae-sys_metrics.raw": "c539c2c5ae8b981756d752cbe41961c66ffbf03bd4572f55e622d8987d320d4b",
+    "seven-cases\\source-hotspot-artifacts\\task_20261001_173245_976dae-manifest.raw": "18dd29918bbc5648710e9eb3d268b685bc687c042770955578846c7220af807f",
+    "cpp-retry-cases\\cpp-cpu-hotspot.json": "90facdc6e18ecd170e706128efb4f1c061b144f145855b4d062968a4d1808801",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-raw.raw": "68d7b354b750046d0e6bf3a652a9f2710ffc76d8a5a8f753ab0c32d2f1e3bf31",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-manifest.raw": "cf9640aed021ea6f84d7a4c3e92a4c197b03771efa3e2724b92c2b1764753a62",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-flamegraph_json.raw": "23bdb790de5a1cf693b2c7ebfae2b34556606806225ac4c27a5e99dc3cc62149",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-flamegraph_svg.raw": "9e32e76578edcfe20b18107469763afd8b9cdc67e699c878b93975fbc39e1e81",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-top_json.raw": "d793f7b4428f4deed8b9b9d309be7c3472f65182dd87a2732715e118fd004f38",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-callgraph_json.raw": "747d907a9989eb2b2a71547ba48f89c35a4384d051339d179d3dba07eadce56e",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175444_ba95c3-suggestions_md.raw": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175532_a59ce1-sys_metrics.raw": "05401aa3700fe0baa31b41c33fe11e2fd3f28bf5f3c731a438fec08d3539138f",
+    "cpp-retry-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_175532_a59ce1-manifest.raw": "9f3bf45dd990bacdd7e9c79356fbf94f1674e348f1df6bc448f1f542e564780c",
+    "seven-cases\\cpp-lock-contention.json": "609cb77ad08920afc04be151802159f8db4dabce564f315b29217a46d197e6c6",
+    "seven-cases\\cpp-lock-contention-artifacts\\task_20261001_173647_ac6f09-sys_metrics.raw": "20d0ec8ed8529af173c8280f74da38578dddefc2c11a13c935abf829ba8b193c",
+    "seven-cases\\cpp-lock-contention-artifacts\\task_20261001_173647_ac6f09-manifest.raw": "99d4d9c1e3373f0397010ef2c2adcce2e55bd9d3a31a68d0ee3f822b60463566",
+    "seven-cases\\io-write-latency.json": "2c044f9184036c4f298f4c7f36f3db9107b9a08ad9bf13dc7950c5702051e334",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173822_85355f-sys_metrics.raw": "712ac324c72d3e50bf5d4c5b42d58c0716f345361bbd1fe887ce685aacd9453b",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173822_85355f-manifest.raw": "63d62109edee511ca1767b2eeaf6e4c6e01d12e79d6d790d9c2a5f4a160e0a99",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-raw.raw": "27ca861866b063dcbf490fa14a8e5bf9089c71809da19b746027c1a762a3f382",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-manifest.raw": "e614ad0319fb6e231420e84af086d2d502df3f3f07f0d037792a5de666f8dbbe",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-flamegraph_json.raw": "f958ada04e34d0e757b1ad884da0de49d3078a0d59777df691412fdd93ba13e9",
+    "seven-cases\\io-write-latency-artifacts\\task_20261001_173941_38c496-top_json.raw": "13fae62376ceecb9723ab5dfc4328f8a1c5507db135f3af00e0e1aae86e8e6c6",
+    "seven-cases\\java-file-io.json": "66c8ef626b30319b31e7959c5439dcac16d43298bb13167a2c73be758d8a372c",
+    "seven-cases\\java-file-io-artifacts\\task_20261001_174057_4044ac-sys_metrics.raw": "ef9088ab5381bd19428ba639e9fedc20bed7492106a00b31b0c3d1986f01c744",
+    "seven-cases\\java-file-io-artifacts\\task_20261001_174057_4044ac-manifest.raw": "013055a3de6b4e5adf3caad1c3a70c76ee244a88d7f3d22ff5c9cf8e2962980c",
+    "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-java_flamegraph_html.raw": "bc1f303377323d39159107766cadf1819cc0e0ba4cc7287263a1dfbc5b4f6993",
+    "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-jvm_gc_metrics.raw": "e6362c71ba3d06ac289d797ae8bb529bc273eb092aae387ed9c7b035c6afe47c",
+    "seven-cases\\java-file-io-artifacts\\task_20261001_174219_59dd08-manifest.raw": "28a55bf57843cea987f5541af1ed23c48407b528667f25745dd4c593f9d38319",
+    "seven-cases\\cpp-file-io.json": "dd101941c73a084b14378f89f9b9e2cd922343a6110213af3368e7906087fec9",
+    "seven-cases\\cpp-file-io-artifacts\\task_20261001_174413_db953f-sys_metrics.raw": "b53963d122e3ce077cf7c6c40803a4fd55557c5346d15ef6639c71e4e42c6b84",
+    "seven-cases\\cpp-file-io-artifacts\\task_20261001_174413_db953f-manifest.raw": "64c2a4aeca2bb75741b817d1bd15219871f9dbca333cdecfeaa015b3f86c9601",
+    "noisy-retry-cases\\noisy-neighbor.json": "0a55234c74584973898c49b0fb52ef33f6ff7900ee44b1122b967e8a6a3b0d83",
+    "noisy-retry-cases\\noisy-neighbor-artifacts\\task_20261001_181733_aefc9b-sys_metrics.raw": "8697a6701a347532ea45cc0a9c936524ad1982ea1e577c598c6a0f1bbf6008d4",
+    "noisy-retry-cases\\noisy-neighbor-artifacts\\task_20261001_181733_aefc9b-manifest.raw": "76598c3e3dc9a4ffc11f2ac870fdb533975b613c84e29fca345f01403c9def6c",
+    "seven-cases\\cpp-cpu-hotspot.json": "28a63ececd5d4ea08896b9924e19c8462088ef2bda9fcf7d51859149ead9e35a",
+    "seven-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_173422_31082f-raw.raw": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+    "seven-cases\\cpp-cpu-hotspot-artifacts\\task_20261001_173422_31082f-manifest.raw": "bd9b8b79fc3cec35eb0fa3b3aeaf749dda7b4a84d8b5ceeed316b74592626e0d",
+    "seven-cases\\noisy-neighbor.json": "33ef83697b5486bc12f8972bc431fa0b1cc05123029d559a3116fb216608fcb7",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174653_89d3f3-sys_metrics.raw": "48b51522c90c225dd7589e8427d90ec816531e2ded8ad92bc7937d053df6eb82",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174653_89d3f3-manifest.raw": "2e24e40d8f6986d8b010012a21f171242a1212816c240e79fd7a7fe96c9b1592",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-raw.raw": "01a246c19a04a320062aecf0a15774e3543f2cd39da98caa3713fb2d16158936",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-manifest.raw": "d084ea82db9bf0b60323d2f896cd4434d598ceabc931f4f528b9f3bf4b3b8fa5",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-flamegraph_json.raw": "370b10d1ce7d82fa37f8bf999c92436df34d2b06792212c6f281b13144057de6",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-flamegraph_svg.raw": "b2672f9137f932cb9c47ec42a8f03c2626bbd7fe2ca6477f54db9d94adab7f34",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-top_json.raw": "301250a06558fef55c7b60534dd16c5307ecfb6d596fa330c508e5a9ffdb4f1f",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-callgraph_json.raw": "894b7392c99743aaafa8c562abfe3143321eb6a5664f7d1121424f478d162638",
+    "seven-cases\\noisy-neighbor-artifacts\\task_20261001_174750_499285-suggestions_md.raw": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+    "seven.json": "484d65ba26da8dd1ae6a94ad53bd54d225ae60d061f42e0284ce26a0d66613a3",
+    "cpp-retry.json": "374bb247f6ff49a57e63433a1fe992b1cef85ea0ce8825dbffe3ef234fa55cfb",
+    "noisy-retry.json": "d8674af2fcd1fbba23f46984a9a14ed38afca5ef1d4d413b6b9bf31cb241e8de",
+    "dependency-image-proof.json": "290ad26e75f1481a91c92f9bdf4a898e037c03a35446105d394977ca212daa85"
+  },
+  "limitations": [
+    "Seven accepted engineering observations are not seven causal root-cause localizations: two LOCALIZED_ANOMALY, two SUPPORTED_OBSERVATION, three REFUTED.",
+    "The three I/O means measure successful target-application open/write/sync/close elapsed time on the deployed filesystem. They do not establish physical block-device latency or a slow-I/O fault.",
+    "Recovery withdraws the injected workload. It is not a same-load repair, SLO validation, or causal intervention result.",
+    "Python and C++ CPU profiles and OS CPU controls were collected in separate windows; they are not simultaneous sample-by-sample correlations.",
+    "Python source localization includes the _sample and _publish_application_metrics instrumentation paths as well as source_hot_function; it does not prove one business function caused an incident.",
+    "CPP I/O retains an additional perf request denied by budget. Its sys_metrics raw observation is valid, while recorded_chain_consistent and engineering_recorded_chain_verified remain false.",
+    "The noisy-neighbor report retains a conservative legacy label about same-host peer activity. Raw Linux cgroup counters verify shared-quota activity and throttling, but do not establish a business SLO impact or a same-load causal repair.",
+    "CPP ELF/srcline provenance was verified in the separately hashed dependency-image-proof.json; this local audit verifies retained perf.data and analyzer artifacts without re-executing perf against the binary.",
+    "Both original insufficient-evidence trials are retained unchanged; only fresh retry trials contribute the final CPP CPU and noisy-neighbor selections."
+  ]
+}

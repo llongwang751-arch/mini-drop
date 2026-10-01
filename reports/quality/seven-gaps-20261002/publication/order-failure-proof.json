@@ -1,0 +1,325 @@
+{
+  "scope": "READ_ONLY_AFTER_PUBLICATION; FIRST_VERIFICATION_FAILURE_PRESERVED; NO_REDEPLOY",
+  "failure": "Raw Mounts array comparison rejects identical full mount dictionaries returned in a different Docker map order",
+  "baseline_path": "D:\\tx\\mini-drop\\output\\acceptance\\seven-gaps-20261002\\final-runtime-predeployment.json",
+  "untouched_count": 10,
+  "containers": [
+    {
+      "container": "/mini-drop-control-demo-agent-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": false,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/certs",
+        "/sys/kernel/tracing",
+        "/sys/kernel/debug",
+        "/var/lib/mini-drop-interview-agent/outbox"
+      ],
+      "after_destinations": [
+        "/var/lib/mini-drop-interview-agent/outbox",
+        "/certs",
+        "/sys/kernel/tracing",
+        "/sys/kernel/debug"
+      ],
+      "before_mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260913T163243Z/deploy/certs/control/agents/control-interview-demo-agent",
+          "Destination": "/certs",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/tracing",
+          "Destination": "/sys/kernel/tracing",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/debug",
+          "Destination": "/sys/kernel/debug",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_interviewdemoagentoutbox",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_interviewdemoagentoutbox/_data",
+          "Destination": "/var/lib/mini-drop-interview-agent/outbox",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_interviewdemoagentoutbox",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_interviewdemoagentoutbox/_data",
+          "Destination": "/var/lib/mini-drop-interview-agent/outbox",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260913T163243Z/deploy/certs/control/agents/control-interview-demo-agent",
+          "Destination": "/certs",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/tracing",
+          "Destination": "/sys/kernel/tracing",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/debug",
+          "Destination": "/sys/kernel/debug",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "container": "/mini-drop-control-python-hotspot-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [],
+      "after_destinations": [],
+      "before_mounts": [],
+      "after_mounts": []
+    },
+    {
+      "container": "/mini-drop-control-java-hotspot-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [],
+      "after_destinations": [],
+      "before_mounts": [],
+      "after_mounts": []
+    },
+    {
+      "container": "/mini-drop-control-cpp-hotspot-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [],
+      "after_destinations": [],
+      "before_mounts": [],
+      "after_mounts": []
+    },
+    {
+      "container": "/mini-drop-control-go-hotspot-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [],
+      "after_destinations": [],
+      "before_mounts": [],
+      "after_mounts": []
+    },
+    {
+      "container": "/mini-drop-control-apiserver-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/certs"
+      ],
+      "after_destinations": [
+        "/certs"
+      ],
+      "before_mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260910T073914Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260910T073914Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "container": "/mini-drop-control-chroma-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/var/lib/mini-drop-runtime"
+      ],
+      "after_destinations": [
+        "/var/lib/mini-drop-runtime"
+      ],
+      "before_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_knowledge_chroma",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_knowledge_chroma/_data",
+          "Destination": "/var/lib/mini-drop-runtime",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_knowledge_chroma",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_knowledge_chroma/_data",
+          "Destination": "/var/lib/mini-drop-runtime",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "container": "/mini-drop-control-control-plane-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/certs"
+      ],
+      "after_destinations": [
+        "/certs"
+      ],
+      "before_mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260909T165645Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260909T165645Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "container": "/mini-drop-control-minio-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/data"
+      ],
+      "after_destinations": [
+        "/data"
+      ],
+      "before_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_miniodata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_miniodata/_data",
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_miniodata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_miniodata/_data",
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "container": "/mini-drop-control-postgres-1",
+      "container_id_unchanged": true,
+      "image_unchanged": true,
+      "raw_array_equal": true,
+      "full_dicts_sorted_by_destination_equal": true,
+      "before_destinations": [
+        "/var/lib/postgresql/data"
+      ],
+      "after_destinations": [
+        "/var/lib/postgresql/data"
+      ],
+      "before_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_pgdata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_pgdata/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "after_mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_pgdata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_pgdata/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    }
+  ],
+  "all_untouched_ids_and_images_unchanged": true,
+  "all_untouched_mount_dicts_identical_after_sorting": true,
+  "order_only_differences": [
+    "/mini-drop-control-demo-agent-1"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "mini-drop.same-load-business-fix.v1",
+  "passed": true,
+  "checks": {
+    "all_slots_recorded": true,
+    "same_workload": true,
+    "same_actual_candidates": true,
+    "same_lifetime": true,
+    "trusted_target_lifetime": true,
+    "source_bytes": true,
+    "changed_source_matches": true,
+    "success_and_quality_preserved": true,
+    "latency_improved": true,
+    "rerank_improved": true,
+    "request_context_linked": true,
+    "diagnosis_closed": true,
+    "recorded_probe_lineage": true,
+    "probe_completed_for_target": true,
+    "actual_similarity_samples": true,
+    "raw_downloads": true,
+    "remote_cleanup": true
+  },
+  "metrics": {
+    "baseline": {
+      "requests": 360,
+      "p95_ms": 4.842287860810757,
+      "rerank_p95_ms": 2.63822078704834,
+      "successes": 360,
+      "quality_passed": 360,
+      "candidate_counts": [
+        4
+      ]
+    },
+    "before": {
+      "requests": 360,
+      "p95_ms": 68.37673299014568,
+      "rerank_p95_ms": 65.88468793779612,
+      "successes": 360,
+      "quality_passed": 360,
+      "candidate_counts": [
+        96
+      ]
+    },
+    "after": {
+      "requests": 360,
+      "p95_ms": 2.695529256016016,
+      "rerank_p95_ms": 0.14165928587317467,
+      "successes": 360,
+      "quality_passed": 360,
+      "candidate_counts": [
+        96
+      ]
+    }
+  },
+  "download_sha_verified": 6,
+  "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "source_manifest": {
+    "before.py": "9293bd0204c7700778d3110ceff2fb6f9af853696d7e63dc8a4517cee6c93df2",
+    "after.py": "016074fdfe4aa48f7f4f67b9ed492bb27696f5b46d1cd451a8dc6b5b92cf9be1",
+    "fixture.py": "4b2cdd24f1616ab1b611788488ef93cf7e56b17820a55534bf560db6631e72b9"
+  },
+  "scope": "ISOLATED_REAL_SQLITE_FTS5_HTTP_BUSINESS; EXTRACTIVE_LOCAL; NOT_OFFICE_OR_LIVE_LLM",
+  "workflow": "HUMAN_HYPOTHESIS_PLATFORM_PROBE_ENGINEERING_FIX_IDENTICAL_LOAD_RETEST",
+  "causal_root_cause_verified_by_agent": false
+}

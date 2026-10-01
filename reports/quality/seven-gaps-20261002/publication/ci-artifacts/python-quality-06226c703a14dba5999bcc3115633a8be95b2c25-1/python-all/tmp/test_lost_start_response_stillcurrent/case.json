@@ -1,0 +1,101 @@
+{
+  "scenario_id": "cpp-lock-contention",
+  "title": null,
+  "started_at": "2026-10-01T18:31:11.816080+00:00",
+  "passed": false,
+  "lineage_verified": false,
+  "cleanup_verified": true,
+  "diagnosis_contract_verified": false,
+  "root_cause_accepted": false,
+  "fix_verified": false,
+  "windows": {
+    "baseline": {
+      "first": {
+        "snapshot": {
+          "lock_wait_ms": 0,
+          "pid": 1,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 101,
+            "namespace_pid": 1,
+            "start_ticks": 1234,
+            "boot_id": "boot",
+            "container_id": "container",
+            "container_started_at": "2026-09-28T00:00:00Z"
+          }
+        }
+      },
+      "last": {
+        "snapshot": {
+          "lock_wait_ms": 0,
+          "pid": 1,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 101,
+            "namespace_pid": 1,
+            "start_ticks": 1234,
+            "boot_id": "boot",
+            "container_id": "container",
+            "container_started_at": "2026-09-28T00:00:00Z"
+          }
+        }
+      },
+      "elapsed_seconds": 4
+    },
+    "recovery": {
+      "first": {
+        "snapshot": {
+          "lock_wait_ms": 0,
+          "pid": 1,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 101,
+            "namespace_pid": 1,
+            "start_ticks": 1234,
+            "boot_id": "boot",
+            "container_id": "container",
+            "container_started_at": "2026-09-28T00:00:00Z"
+          }
+        }
+      },
+      "last": {
+        "snapshot": {
+          "lock_wait_ms": 0,
+          "pid": 1,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 101,
+            "namespace_pid": 1,
+            "start_ticks": 1234,
+            "boot_id": "boot",
+            "container_id": "container",
+            "container_started_at": "2026-09-28T00:00:00Z"
+          }
+        }
+      },
+      "elapsed_seconds": 4
+    }
+  },
+  "session_drained": true,
+  "error": "response lost after start",
+  "error_type": "TimeoutError",
+  "diagnosis_id": null,
+  "fault_before_stop": {
+    "observed_at": "2026-10-01T18:31:11.816106+00:00",
+    "snapshot": {}
+  },
+  "intervention": {
+    "field": "lock_wait_ms",
+    "values": {},
+    "process_identity": {
+      "verified": false,
+      "error": "'fault'",
+      "snapshot_count": 2
+    },
+    "injection_observed": false,
+    "recovery_observed": false,
+    "error": "'fault'"
+  },
+  "finished_at": "2026-10-01T18:31:11.816151+00:00",
+  "report_sha256": "b0d051e9702f62e110b005b9a70c2d73feef110578763c99dc4c98400b80c6f3"
+}
