@@ -1,5 +1,15 @@
 # Mini-Drop 重启交接点
 
+## 2026-10-01 性能诊断判定与入口已部署
+
+Worker/Analyzer/Web发布`20261001T075239Z`，源码`10002e94cf8aa46a7e4778385138c35ddfc20d7d`；Worker/Analyzer各189份文件、Web56份文件SHA一致，其余10容器保持。13容器运行及健康检查通过，API3依赖健康；Office保持observer-20260930T145902Z/f37f44e、PID484342且NRestarts=0，API保持f9b143a及原二进制SHA。21故障inactive、历史因果根因0/21。
+
+精确源码[CI36832916434](https://github.com/llongwang751-arch/mini-drop/actions/runs/36832916434)成功13/13：Python1299通过/10登记跳过，真实PostgreSQL8通过零跳过，Web264通过；Chroma独立专项通过。本地bundle门禁通过。真实Chrome默认21项性能实验、工程4项及9份下载SHA、1440/1024/768/375宽度均通过，无JS/HTTP异常。
+
+真实Office健康会话`insight_731431c05e5a44588cba6c4204022d54`完成1个系统采集，两份原始下载SHA一致。15样本/14.005秒、身份验证通过，CPU0.428%、RSS217.949MiB且增量0；页面显示“本次检查正常（已检查范围）”及“检查结果：正常”。会话INSUFFICIENT_EVIDENCE仍表示没有证明根因，与范围内资源正常分别展示，不代表全部业务正常。首次真实页面因ACCEPT_NEUTRAL漏判失败，原失败与同输入旧/新源码复现均保留。
+
+归档21复盘由首次17/21纠正为18/21内部链一致，仅3项历史目标错误；不改变旧链路7/21或因果0/21，不把归档复盘算新验收。性能剩余重点是目标I/O延迟归属、TCP传输证据以及固定输入/负载下的原因干预，不继续用相同观测批次尝试刷过因果门槛。一小时不重跑。[结果范围与剩余条件](PERFORMANCE_DIAGNOSIS.md)，[本轮交付](../reports/architecture/performance-diagnosis-20261001.md)。
+
 ## 2026-10-01 性能诊断继续开发
 
 用户重新授权处理21类性能诊断失败。恢复性能实验主入口，工程4项仍独立；先修正常结果、数值判据、窗口均值、链路/诊断结果混用，再用独立新证据验证。不能删除或重写旧0/21，不能把归档链18/21一致当新成绩，不重跑一小时。b25fb24与51228f31已完成精确CI并部署Worker/Analyzer/Web，真实正常窗口揭示ACCEPT_NEUTRAL漏判；修正本地Python1299通过/10登记跳过、Web264通过，待精确CI和再次发布。最新状态见PROJECT_CONTEXT顶部及[性能诊断](PERFORMANCE_DIAGNOSIS.md)。

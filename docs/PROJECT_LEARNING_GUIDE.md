@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2365 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2410 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 563 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 571 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2462,6 +2462,14 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-diagnosis-20261001/before-source/` | before-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/` | coverage-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/` | deployed 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/` | browser-before-neutral 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/` | ci-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/` | ci-artifacts-neutral 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/health-live/` | health-live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/` | release-full-catalog 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/` | release-neutral 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/final-python/` | final-python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/final-python/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/first-failure/` | first-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3952,6 +3960,51 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser-before-neutral/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/browser_performance.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/postgres-concurrency-d7591cdd65988c0e51d363c32678c3c374b9f93c-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/python-quality-d7591cdd65988c0e51d363c32678c3c374b9f93c-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts-neutral/web-browser-d7591cdd65988c0e51d363c32678c3c374b9f93c-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/postgres-concurrency-9308ced2515aa1985cfc73e6cab36a522b8b61d2-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/python-quality-9308ced2515aa1985cfc73e6cab36a522b8b61d2-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/ci-artifacts/web-browser-9308ced2515aa1985cfc73e6cab36a522b8b61d2-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/evidence-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/health-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/live_health.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-full-catalog/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/release-neutral/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/run_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/runtime-before-neutral.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-diagnosis-20261001/deployed/web-ci.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/failure-audit-v1.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/final-python/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/final-python/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
