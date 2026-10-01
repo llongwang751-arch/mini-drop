@@ -27,6 +27,32 @@ def command(words, *, timeout=30):
     return subprocess.run(words, capture_output=True, text=True, timeout=timeout, check=True)
 
 
+def parse_hotspot_symbol(nm_output):
+    """Accept the real extern-C name or a complete demangled C++ signature."""
+    matches = []
+    for row in nm_output.splitlines():
+        match = re.fullmatch(
+            r"([0-9a-fA-F]+)\s+[Tt]\s+(cpp_cpu_hot_function(?:\([^()\r\n]*\))?)", row
+        )
+        if match:
+            matches.append((match.group(1), match.group(2), row))
+    if len(matches) != 1 or int(matches[0][0], 16) <= 0:
+        raise RuntimeError("Expected one real cpp_cpu_hot_function text symbol")
+    return matches[0]
+
+
+def parse_source_mapping(mapped, expected_symbol):
+    """Require addr2line's exact nm symbol and a measured positive main.cpp line."""
+    lines = mapped.strip().splitlines()
+    if len(lines) != 2 or lines[0] != expected_symbol:
+        raise RuntimeError("addr2line did not resolve the actual hotspot function")
+    source_location = re.sub(r" \(discriminator \d+\)$", "", lines[1])
+    source = re.fullmatch(r"(.*/)?main\.cpp:([1-9][0-9]*)", source_location)
+    if not source:
+        raise RuntimeError("addr2line did not resolve main.cpp to a positive source line")
+    return source_location, int(source.group(2))
+
+
 def check_in_container(binary, stackcollapse):
     """Exercise installed Linux tools; keep measured mapping and synthetic text distinct."""
     if not sys.platform.startswith("linux"):
@@ -46,22 +72,9 @@ def check_in_container(binary, stackcollapse):
                for section in (".debug_info", ".debug_line")):
         raise RuntimeError("Actual C++ demo ELF lacks required debug sections")
     nm_output = command([tools["nm"], "--defined-only", "-n", "-C", str(binary)]).stdout
-    matches = []
-    for row in nm_output.splitlines():
-        match = re.fullmatch(r"([0-9a-fA-F]+)\s+[Tt]\s+(cpp_cpu_hot_function\([^)]*\))", row)
-        if match:
-            matches.append((match.group(1), match.group(2), row))
-    if len(matches) != 1 or int(matches[0][0], 16) <= 0:
-        raise RuntimeError("Expected one real cpp_cpu_hot_function text symbol")
-    address, symbol, nm_row = matches[0]
+    address, symbol, nm_row = parse_hotspot_symbol(nm_output)
     mapped = command([tools["addr2line"], "-f", "-C", "-e", str(binary), "0x" + address]).stdout
-    lines = mapped.strip().splitlines()
-    if len(lines) != 2 or not lines[0].startswith("cpp_cpu_hot_function("):
-        raise RuntimeError("addr2line did not resolve the actual hotspot function")
-    source_location = re.sub(r" \(discriminator \d+\)$", "", lines[1])
-    source = re.fullmatch(r"(.*/)?main\.cpp:([1-9][0-9]*)", source_location)
-    if not source:
-        raise RuntimeError("addr2line did not resolve main.cpp to a positive source line")
+    source_location, source_line = parse_source_mapping(mapped, symbol)
     # Constructed format fixture: the PC, symbol and location above come from
     # the real ELF. Timestamp/PID/count below are deliberately synthetic.
     profile_text = (
@@ -84,7 +97,7 @@ def check_in_container(binary, stackcollapse):
         "tools": tools, "perf_version": perf_version, "perl_version": perl_version,
         "debug_sections": [".debug_info", ".debug_line"], "nm_symbol_row": nm_row,
         "address": "0x" + address, "addr2line_stdout": mapped,
-        "source_file": source_location.rsplit(":", 1)[0], "source_line": int(source.group(2)),
+        "source_file": source_location.rsplit(":", 1)[0], "source_line": source_line,
         "constructed_perf_script": profile_text, "constructed_fixture_samples": 1,
         "collapsed_stdout": collapsed.stdout, "collapsed_stderr": collapsed.stderr,
         "boundary": "Actual ELF/toolchain mapping; timestamp, PID and one sample are constructed. No live diagnosis or RCA grade.",

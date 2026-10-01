@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2832 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2833 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3117,6 +3117,7 @@ python scripts/render_learning_guide.py
 | `tests/test_outbox_dispatcher.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_dispatcher_publishes_and_acknowledges` |
 | `tests/test_outbox_postgres.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_outbox_finalize_locks_out_expired_lease_takeover` |
 | `tests/test_perf_callgraph.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_build_call_graph_has_direction_self_and_inclusive_samples`、`test_build_call_graph_is_bounded`、`test_native_perf_collector_recovers_header_only_vm_capture_with_cpu_clock` |
+| `tests/test_perf_source_toolchain.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `test_real_extern_c_and_complete_demangled_symbols_keep_exact_name_and_address`、`test_missing_or_lookalike_hotspot_cannot_supply_a_source_address`、`test_ambiguous_overloaded_hotspot_addresses_are_not_guessed`、`test_addr2line_keeps_actual_positive_source_mapping_without_inventing_a_line`、`test_actual_discriminator_suffix_is_removed_without_changing_the_measured_line` 等 6 个声明 |
 | `tests/test_performance_audit_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_generated_history_does_not_turn_engineering_regressions_into_root_passes`、`test_changed_archived_evidence_is_rejected_instead_of_changing_the_score` |
 | `tests/test_performance_criteria.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hypothesis`、`test_http_wait_cannot_prove_packet_loss_queue_or_compound_claim`、`test_writing_bytes_cannot_prove_fsync_or_disk_latency`、`test_missing_or_invalid_measurement_never_becomes_zero_or_support`、`test_only_satisfied_exact_slots_earn_coverage_and_counter_is_retained` 等 9 个声明 |
 | `tests/test_performance_localization_evaluation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_localization_is_graded_separately_from_causal_and_fix_acceptance`、`test_localization_rejects_wrong_domain_or_unproven_contract`、`test_cpu_localization_requires_independent_cpu_observation_and_go_hot_path` |
@@ -3231,7 +3232,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_local_sre_browser.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_multi_replica.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_native_ebpf.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
-| `scripts/verify_perf_source_toolchain.py` | 工程脚本，负责源码定位的生成、检查或验收。 | `sha256`、`command`、`check_in_container`、`run_owned_containers`、`main` |
+| `scripts/verify_perf_source_toolchain.py` | 工程脚本，负责源码定位的生成、检查或验收。 | `sha256`、`command`、`parse_hotspot_symbol`、`parse_source_mapping`、`check_in_container` 等 7 个声明 |
 | `scripts/verify_priority_collectors.py` | 验收持续 perf 与独立 eBPF Campaign。 | `run_acceptance`、`main` 等 7 个声明 |
 | `scripts/verify_report_presentation_ui.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_runtime_observation_controls.py` | 工程脚本，负责Agent Runtime的生成、检查或验收。 | `counter_window`、`main` |
