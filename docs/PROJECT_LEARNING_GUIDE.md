@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2419 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2421 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3150,6 +3150,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fixture_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `endpoint`、`ask`、`test_real_connection_reuse_preserves_quality_and_http_errors_without_retry`、`test_invalid_json_remains_a_failed_attempt_with_its_http_status`、`test_pool_cannot_be_used_as_an_arbitrary_remote_http_client` 等 11 个声明 |
 | `tests/test_frozen_replay_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_catalog_is_allowlisted_static_and_truthfully_non_live`、`test_budget_schema_exposes_lats_controls_and_null_inherits_round_budget`、`test_create_is_idempotent_and_snapshot_manifest_is_self_contained`、`test_worker_persists_one_frame_per_tick_and_resumes_after_engine_restart` 等 7 个声明 |
 | `tests/test_go_demo_deployment_contract.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_demo_docker_toolchain_satisfies_its_go_module_requirement` |
+| `tests/test_go_io_window_harness.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_io_window_uses_new_operations_instead_of_the_lifetime_mean`、`test_missing_operations_resets_and_nonfinite_time_cannot_pass_fixture_verification` |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -3268,6 +3269,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_fault_plaza_runtime_smoke.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_smoke`、`main` |
 | `scripts/verify_final_ui_acceptance.mjs` | 通过公网只读验证首屏、移动布局、已有报告、探索树、验证中心和记忆，阻止业务写请求。 | — |
 | `scripts/verify_frontend_workbench.mjs` | 使用本地合成 API 与 Chromium 验证首屏、响应式、树和失败刷新；不连接云端。 | — |
+| `scripts/verify_go_io_window.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `window_average`、`main` |
 | `scripts/verify_hotspot_controls.py` | 隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。 | `write`、`api`、`pprof_result`、`evaluate`、`cpu_window` 等 7 个声明 |
 | `scripts/verify_interview_demo.py` | 用页面同款 API 验收真实故障、A/B、Artifact、Evidence、报告和清理。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `scripts/verify_lats_replay_showcase.py` | 验收冻结 FULL_LATS 双会话、重置证明和命名空间隔离。 | `AcceptanceError`、`Client`、`main` 等 9 个声明 |

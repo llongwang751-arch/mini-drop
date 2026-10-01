@@ -78,10 +78,11 @@ var ioDurationNanos atomic.Uint64
 var ioMetricsMu sync.Mutex
 var ioWorkMu sync.Mutex
 
+// The I/O file budget leaves room in the 64 MiB tmpfs for metrics and short writes.
 const (
 	goIOPath          = "/tmp/mini-drop-go-io-fault.bin"
 	appMetricsPath    = "/tmp/mini-drop-app-metrics.json"
-	goIOMaxFileBytes  = 64 * 1024 * 1024
+	goIOMaxFileBytes  = 8 * 1024 * 1024
 	goMemoryChunkSize = 2 * 1024 * 1024
 )
 

@@ -478,7 +478,7 @@ def _derive_signals(
     cpu_operations = _metric(application, "delta", "cpu_operations", "operation_count")
     if process_cpu is not None or app_cpu is not None:
         signals["cpu_hotspot"] = {**_signal(
-            "target process CPU usage exceeded the observation threshold",
+            "target process CPU usage checked against the observation threshold",
             process_cpu_core_usage=process_cpu,
             application_cpu_percent=app_cpu,
             cpu_operations_delta=cpu_operations,
@@ -502,7 +502,7 @@ def _derive_signals(
         retained_delta_mb = retained_delta_bytes / (1024.0 * 1024.0)
     if any(value is not None for value in (rss_delta, pss_delta, retained_delta_mb)):
         signals["memory_growth"] = {**_signal(
-            "process memory footprint or instrumented retained memory increased materially",
+            "process memory footprint and retained memory change checked against the growth threshold",
             retained_memory_mb=max(retained_mb or 0.0, retained_from_bytes_mb or 0.0),
             rss_delta_mb=rss_delta,
             pss_delta_mb=pss_delta,

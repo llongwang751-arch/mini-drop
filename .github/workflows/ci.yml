@@ -26,6 +26,8 @@ jobs:
         run: go test -race -count=1 ./...
       - name: Build the actual Go demo deployment image
         run: docker build -t mini-drop-go-hotspot:ci demo/go-hotspot
+      - name: Real synchronous I/O stays active across bounded tmpfs rotations
+        run: python scripts/verify_go_io_window.py --image mini-drop-go-hotspot:ci --output output/quality-hotspot-controls/go-io-window
       - uses: actions/upload-artifact@v4
         if: always()
         with:
