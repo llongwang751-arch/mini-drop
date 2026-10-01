@@ -1,10 +1,14 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-10-01 数值观测验证与性能路径定位（候选，待部署验收）
+## 2026-10-01 数值观测验证与性能路径定位（后端已部署，反证展示修正待发布）
+
+Worker/Analyzer/Web/Go demo发布`20261001T094553Z`，源码`c59aac566cedef6a239eb1d640ee8fb796524ae3`；[精确CI36844752903](https://github.com/llongwang751-arch/mini-drop/actions/runs/36844752903)成功13/13，Python1358通过/10登记跳过、Web274通过、真实PG8通过零跳过、Chroma专项与Go race/真实镜像/连续I/O验证通过。Worker/Analyzer各193份文件、Web56份文件SHA一致，其余9容器保持，13容器健康。Office本轮部署前后PID1650962、NRestarts=0，源f37f44e与API f9b143a/二进制不改；历史PID484342属于此前窗口。
+
+独立新三案例已完成：CPU已定位goCPUHotFunction及runCPUFault，网络已验证240.713ms HTTP耗时；I/O新增684次操作平均0.081ms，完整三判据得到REFUTED，不计慢操作瓶颈通过。路径定位2/3、取证/撤销恢复/清理/收束3/3，37份原始下载SHA一致；严格因果仍0/3，旧0/21保留。浏览器发现有效I/O反证被后续主机报告盖住、ACCEPT_COUNTER未准入初筛及无效窗口覆盖有效测量，Web修正候选保留反证与明确范围，真实会话回归旧版5失败/修复后通过。完整证据见[本轮交付](../reports/architecture/performance-localization-20261001.md)。
 
 新数值计划分别记录判据是否已检查和条件是否成立；同一不可变系统采集产物需覆盖完整计划，不能拼接缺失窗口或把互斥条件都成立作为验证前提。通过测量合同的报告标为 VERIFIED / BOUNDED_OBSERVATION，保留原 coverage_ratio、独立对照标志及 matched_verification_status；因果与修复标志仍为 false。旧报告和旧21类根因0/21不改。
 
-新增 bottleneck-localization.v1，单独展示 CPU 热函数、HTTP/下游调用耗时路径与目标应用同步写路径。Go 同步 I/O 增加成功操作累计耗时，原生采集器现有应用指标通道传输，Analyzer按窗口差值计算平均值；不包含锁等待和循环休眠，不宣称块设备归因。预声明阈值为平均10ms且至少5次新操作。API和Office无需变更；候选发布涉及 Worker/Analyzer/Web/Go demo。详见[性能诊断](PERFORMANCE_DIAGNOSIS.md)。
+新增 bottleneck-localization.v1，单独展示 CPU 热函数、HTTP/下游调用耗时路径与目标应用同步写路径。Go 同步 I/O 增加成功操作累计耗时，原生采集器现有应用指标通道传输，Analyzer按窗口差值计算平均值；不包含锁等待和循环休眠，不宣称块设备归因。预声明阈值为平均10ms且至少5次新操作。API和Office无需变更；本轮发布涉及 Worker/Analyzer/Web/Go demo。详见[性能诊断](PERFORMANCE_DIAGNOSIS.md)。
 
 部署前发现Go旧Compose环境文件标签已失效，实际运行配置可只读恢复；Go Dockerfile也滞后于go.mod要求的1.26.8，已对齐并将真实镜像构建加入CI。当前Go的/tmp为64MiB tmpfs，写操作不能宣称真实磁盘瓶颈；若实测耗时未达阈值应保留反证，不修改门槛。
 
@@ -490,6 +494,12 @@ Mini-Drop 是一套面向 Linux 多节点的证据驱动性能诊断系统：
 | `contracts/` | API、Task 参数、Evidence 与 Attempt 的可执行契约 |
 
 ## 当前学习入口
+
+### 2026-10-01 源码中文注释准备
+
+本轮在服务端、Go API、原生采集、前端、业务接入、测试和部署配置中补充文件职责及关键流程的中文注释；重点解释目标绑定、异步采集/分析、证据与观测范围、取消/恢复、并行业务计时和持久化恢复。共享枚举的说明修改生成器后重新生成，RPC 绑定仍回到协议源文件阅读，历史哈希证据与冻结源码保留原字节。两处读取源码的测试显式指定 UTF-8，修复 Windows 默认 GBK 无法读取中文注释的问题，不改变原断言。
+
+阅读顺序已加入唯一主教材 PROJECT_LEARNING_GUIDE 的“中文源码注释阅读入口”。本轮注释准备没有作出新的架构或部署决定；本地回归与当前云端发布分开理解，学员进度仍以实际实操与作答为准。工作区同期出现的 I/O 反证展示及其测试更新独立保留，不归为本轮注释功能改动。
 
 ### 2026-09-09 前端工作台收尾（已发布云端）
 

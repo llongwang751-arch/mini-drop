@@ -21,6 +21,8 @@ import {
   isCausalRootReport,
   isObservationReport,
   isLocalizedReport,
+  isRefutedObservationReport,
+  observationMeasurementText,
 } from "../utils/reportPresentation";
 
 const { Text } = Typography;
@@ -76,6 +78,7 @@ export default function ConclusionCard({ report }) {
           strokeColor={verificationStatus === "VERIFIED" ? "#52c41a" : "#faad14"}
         />}
         <SafeMarkdown>{reportConclusionText(report)}</SafeMarkdown>
+        {isRefutedObservationReport(report) && <Text strong>本次测量：{observationMeasurementText(report)}。该异常假设被反证，不代表全部业务正常。</Text>}
         {isLocalizedReport(report) && <Text strong>已定位路径：{verification.bottleneck_localization.location}</Text>}
         {verification.bottleneck_localization?.profile_semantics === "INCLUSIVE_OVERLAPPING_PATHS"
           && <Text type="secondary">Go 累计采样会覆盖同一调用栈的多个函数，各函数占比不能相加。</Text>}

@@ -63,7 +63,11 @@ v3验收独立记录`lineage_evaluation`，原包装器要求保留为`diagnosis
 
 ## 部署验证
 
-### 数值判据与路径定位候选
+### 数值判据与路径定位已部署
+
+Worker/Analyzer/Web/Go demo发布`20261001T094553Z` / `c59aac566cedef6a239eb1d640ee8fb796524ae3`，精确CI36844752903成功13/13。新三案例路径定位2/3：CPU函数与HTTP耗时已定位，I/O684次操作平均0.081ms，完整数值合同REFUTED。取证/撤销恢复/清理/收束3/3，37份下载SHA一致；严格因果0/3，旧21类0/21保留。此前首批失败与41份下载SHA保留，不用离线修复回放改写现场成绩。完整结果见[本轮交付](../reports/architecture/performance-localization-20261001.md)。
+
+实浏览器暴露反证展示缺陷：后续主机报告盖住完整I/O反证，初筛遗漏可信ACCEPT_COUNTER，并选用了最后的无效窗口。Web修正候选优先保留完整反证、使用最新合格窗口；“本次观测未发现该性能异常”只针对该目标与窗口，其他资源异常仍优先展示，不能外推全部业务正常。真实会话回归旧版5项失败，修复后相关回归通过，尚待精确CI与Web单独发布。
 
 `observation_verifier.py` 输出 `performance-observation-verification.v1`：`checked_ratio` 表示已测量判据占比，`matches` 表示各条件是否成立。异常窗口中 `x >= 100` 成立、`x < 100` 不成立，两者均可已检查；不把“不成立”改成独立CONTROL。完整期望成立且无反证成立才验证观测；有效反证为REFUTED，冲突窗口为CONFLICTING_OBSERVATIONS，缺测为INSUFFICIENT_OBSERVABILITY，不支持语法为UNSUPPORTED_PLAN。不可跨产物拼接完整覆盖。内存收缩的负增量保留为真实测量，缺失不当作0。
 

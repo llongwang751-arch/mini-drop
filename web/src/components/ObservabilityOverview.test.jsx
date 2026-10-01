@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import ObservabilityOverview, { buildObservationModel } from "./ObservabilityOverview";
+import ioRefutation from "../test/fixtures/performance-io-refutation.json";
 
 const detail = {
   status: "COMPLETED",
@@ -67,6 +68,31 @@ const resources = {
 };
 
 describe("ObservabilityOverview", () => {
+  it("shows a real complete I/O refutation separately from global health", () => {
+    const model = buildObservationModel(ioRefutation.detail, ioRefutation);
+    expect(model.assessment.code).toBe("OBSERVATION_REFUTED");
+    expect(model.assessment.title).toBe("本次观测未发现该性能异常");
+    expect(model.assessment.detail).toContain("0.081");
+    expect(model.assessment.detail).toContain("684");
+    expect(model.assessment.detail).toContain("不代表全部业务正常");
+  });
+  it("does not let a later invalid window replace a qualified observation", () => {
+    const invalid = { ...systemEvidence, evidence_id: "invalid-later", classification: { decision: "REJECT" } };
+    const model = buildObservationModel(detail, { ...resources, evidence: [systemEvidence, invalid] });
+    expect(model.assessment.code).toBe("NORMAL_OBSERVED");
+    expect(model.metricEvidence.evidence_id).toBe(systemEvidence.evidence_id);
+  });
+  it("keeps unrelated CPU anomalies visible when an I/O hypothesis was refuted", () => {
+    const high = structuredClone(ioRefutation.evidence.find(e => e.envelope.observation.metadata?.signals?.io_latency));
+    high.envelope.observation.metadata.summary.process_cpu_core_usage = 80;
+    high.envelope.observation.metadata.signals.cpu_activity = { detected: true };
+    const model = buildObservationModel(ioRefutation.detail, { ...ioRefutation, evidence: [high] });
+    expect(model.assessment.code).toBe("ANOMALY_OBSERVED");
+  });
+  it("does not turn a cancelled workflow into a completed refutation", () => {
+    const model = buildObservationModel({ ...ioRefutation.detail, status: "CANCELLED" }, ioRefutation);
+    expect(model.assessment.code).toBe("INCOMPLETE");
+  });
   it("shows the localized path and its remaining causal boundary", () => {
     const model = buildObservationModel(detail, { ...resources, reports: [{ verification: {
       status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,

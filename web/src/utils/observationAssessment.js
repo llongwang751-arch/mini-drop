@@ -13,7 +13,7 @@ export function assessObservationWindow(evidence, target = {}) {
   const quality = evidence?.envelope?.quality || {};
   const samples = metadata.sample_count ?? evidence?.envelope?.quality?.sample_count;
   const expectedPid = target.pid ?? binding.pid;
-  const trusted = ["ACCEPT_SUPPORT", "ACCEPT_LIMITED", "ACCEPT_NEUTRAL"].includes(decision)
+  const trusted = ["ACCEPT_SUPPORT", "ACCEPT_LIMITED", "ACCEPT_NEUTRAL", "ACCEPT_COUNTER"].includes(decision)
     && quality.schema_valid === true && quality.analyzer_validated === true
     && quality.target_match === true && quality.time_overlap === true && quality.degraded === false
     && identity.verified === true

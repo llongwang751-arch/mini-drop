@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2421 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2451 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 571 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 580 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2098,6 +2098,13 @@ python scripts/render_learning_guide.py
 | `output/cloud-sre-20260923T114300Z/` | cloud-sre-20260923T114300Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-exercise-20260923T141511Z/` | cloud-sre-exercise-20260923T141511Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/cloud-sre-exercise-20260923T141511Z/browser/` | browser 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/` | code-comments-20261001 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/native-baseline/` | native-baseline 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/python-quality/` | python-quality 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/python-quality-final/` | python-quality-final 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/python-quality-final/python-all/` | python-all 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/python-quality/python-all/` | python-all 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/code-comments-20261001/web-deps/` | web-deps 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/demo-guide-20260924/` | demo-guide-20260924 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/frontend-review-20260909/` | frontend-review-20260909 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/interview-guide/` | interview-guide 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2549,6 +2556,8 @@ python scripts/render_learning_guide.py
 | `web/src/hooks/` | 轮询与 SSE 等跨页面状态逻辑。 |
 | `web/src/lib/` | 第三方库的项目内统一入口。 |
 | `web/src/pages/` | 路由页面：组织数据加载、表单和页面级状态。 |
+| `web/src/test/` | test 子目录；React 前端工程，含依赖、构建配置、页面与测试。 |
+| `web/src/test/fixtures/` | fixtures 子目录；React 前端工程，含依赖、构建配置、页面与测试。 |
 | `web/src/utils/` | 状态/证据展示、格式兼容和数据转换纯函数。 |
 
 ### 34.1 根目录：工程入口与组合配置
@@ -2706,6 +2715,7 @@ python scripts/render_learning_guide.py
 | `web/src/pages/TaskResult.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `renderTask` |
 | `web/src/router.jsx` | URL 到任务、Agent、诊断、计划任务和审计页面的映射。 | `Router` |
 | `web/src/setupTests.js` | React 前端模块，负责对应模块行为的展示或交互。 | — |
+| `web/src/test/fixtures/performance-io-refutation.json` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/theme.js` | 前端颜色、间距、字号等设计 Token。 | `COLORS`、`SPACING`、`FONT_SIZES`、`LAYOUT`、`ANIMATION` 等 6 个声明 |
 | `web/src/utils/agentMetrics.js` | 格式化 Agent 自身指标与单位，区分未上报、非法值和实测零。 | `agentMetric`、`appendMetricSample` |
 | `web/src/utils/agentMetrics.test.js` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
@@ -2729,7 +2739,7 @@ python scripts/render_learning_guide.py
 | `web/src/utils/parseJsonOffMainThread.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/parseJsonPayload.js` | React 前端模块，负责对应模块行为的展示或交互。 | `limitTree`、`parseJsonPayload` |
 | `web/src/utils/parseJsonPayload.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
-| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`isLocalizedReport`、`projectReportScopes` 等 16 个声明 |
+| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`isRefutedObservationReport`、`observationMeasurementText` 等 18 个声明 |
 | `web/src/utils/reportPresentation.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/skillBenchmark.js` | React 前端模块，负责Skill 检索、策略与演进的展示或交互。 | `validateSkillBenchmark` |
 | `web/src/utils/skillBenchmark.test.js` | 前端自动化测试，验证同名模块的Skill 检索、策略与演进。 | — |
@@ -3665,6 +3675,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-diagnosis-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/performance-localization-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/resource-controls-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4574,6 +4585,34 @@ python scripts/render_learning_guide.py
 | `output/cloud-sre-exercise-20260923T141511Z/verify_business.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `post` |
 | `output/cloud-sre-exercise-20260923T141511Z/verify_fault_controls.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/cloud-sre-exercise-20260923T141511Z/verify_fault_ui.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/annotate.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `purpose`、`authored`、`prefix`、`main` |
+| `output/code-comments-20261001/baseline.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/check_js.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/check_semantics.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ComposeLoader`、`tagged`、`GeneratedCommentNormalizer`、`TestEncodingNormalizer`、`python_tree` 等 8 个声明 |
+| `output/code-comments-20261001/config-coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/config_comments.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `main` |
+| `output/code-comments-20261001/coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/dependency-restore.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/details-coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/details.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `qualified_nodes`、`main` |
+| `output/code-comments-20261001/extra_details.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/flow-coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/flow_comments.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `main` |
+| `output/code-comments-20261001/javascript-semantics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/native-baseline/runtime_guard.h` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/native-baseline/runtime_guard_test.cpp` | C++ 单元测试，验证Agent Runtime。 | — |
+| `output/code-comments-20261001/python-quality-final/python-all/coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality-final/python-all/junit.xml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality-final/report.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality-final/report.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality/python-all/coverage.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality/python-all/junit.xml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality/report.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/python-quality/report.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/semantics.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/summary.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/code-comments-20261001/web-deps/package-lock.json` | npm 精确依赖版本与完整性锁文件，供 npm ci 重现。 | — |
+| `output/code-comments-20261001/web-deps/package.json` | Node 工程依赖和 build/test 等脚本入口。 | — |
 | `output/demo-guide-20260924/01-service.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/demo-guide-20260924/02-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/demo-guide-20260924/03-chat.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |

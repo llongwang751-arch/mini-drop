@@ -19,6 +19,38 @@ export function isObservationReport(report) {
     || report?.verification?.causal_root_cause_verified === false;
 }
 
+// A measured counterexample is useful even when the causal report is inconclusive.
+export function isRefutedObservationReport(report) {
+  const v = report?.verification || {};
+  const observation = v?.observation_verification;
+  const criteria = observation?.criteria;
+  const refs = observation?.evidence_refs;
+  return ["INSUFFICIENT_EVIDENCE", "FALSIFIED", "REJECTED"].includes(verificationStatus(report))
+    && v.claim_scope === "BOUNDED_OBSERVATION" && v.causal_root_cause_verified === false
+    && observation?.schema_version === "performance-observation-verification.v1"
+    && observation.status === "REFUTED" && observation.checked_ratio === 1
+    && observation.claim_scope === "BOUNDED_OBSERVATION" && observation.causal_root_cause_verified === false
+    && Array.isArray(criteria) && criteria.length > 0
+    && criteria.every(c => c?.checked === true && typeof c.matches === "boolean"
+      && Number.isFinite(c.measurement?.value))
+    && criteria.some(c => c?.kind === "falsification" && c.matches === true)
+    && Array.isArray(refs) && refs.length > 0
+    && Array.isArray(report?.counter_evidence_refs)
+    && refs.every(ref => typeof ref === "string" && report.counter_evidence_refs.includes(ref));
+}
+
+export function observationMeasurementText(report) {
+  if (!isRefutedObservationReport(report)) return "";
+  const values = new Map();
+  for (const c of report.verification.observation_verification.criteria) {
+    const m = c.measurement;
+    const label = { average_latency_ms: "平均耗时(ms)", operation_count_delta: "新增成功操作(次)" }[m.field]
+      || `${m.signal}.${m.field}`;
+    values.set(`${m.signal}.${m.field}`, `${label}=${m.value}`);
+  }
+  return [...values.values()].join("；");
+}
+
 export function isLocalizedReport(report) {
   const result = report?.verification?.bottleneck_localization;
   return verificationStatus(report) === "VERIFIED" && isObservationReport(report)
@@ -41,6 +73,7 @@ export function projectReportScopes(tree, reports = []) {
 export function reportConclusionTitle(report) {
   if (hasUnattributedHostIO(report)) return "尚未定位根因";
   if (isLocalizedReport(report)) return "性能路径已定位，根因仍待确认";
+  if (isRefutedObservationReport(report)) return "已测量，异常假设被反驳";
   const status = verificationStatus(report);
   if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return "尚未定位根因";
   if (isObservationReport(report)) return status === "VERIFIED" ? "已验证观测" : "阶段性观测";
@@ -155,7 +188,7 @@ export function selectBestReport(reports = []) {
   const rank = { VERIFIED: 3, PARTIAL_WITHOUT_COUNTER: 2, INSUFFICIENT_EVIDENCE: 1 };
   return [...reports].sort((left, right) => {
     const status = (item) => String(item?.verification?.status || item?.verification_status || "").toUpperCase();
-    const score = item => isCausalRootReport(item) ? 4 : (rank[status(item)] || 0);
+    const score = item => isCausalRootReport(item) ? 4 : isRefutedObservationReport(item) ? 1.5 : (rank[status(item)] || 0);
     return score(right) - score(left)
       || (right?.evidence_refs?.length || 0) - (left?.evidence_refs?.length || 0)
       || Number(right?.confidence || 0) - Number(left?.confidence || 0)

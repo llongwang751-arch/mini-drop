@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Tag, Tooltip } from "antd";
 import { diagnosticStatusLabel, diagnosticToolLabel } from "../utils/diagnosisDisplay";
-import { isCausalRootReport, isObservationReport, isLocalizedReport } from "../utils/reportPresentation";
+import { isCausalRootReport, isObservationReport, isLocalizedReport, isRefutedObservationReport, observationMeasurementText } from "../utils/reportPresentation";
 import { assessObservationWindow } from "../utils/observationAssessment";
 
 const FINISHED = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
@@ -81,15 +81,19 @@ export function buildObservationModel(detail = {}, resources = {}) {
       .map(([key, label]) => ({ label, ms: number(businessObservation?.stage_ms?.[key]) }))
       .filter((stage) => stage.ms !== null).sort((a, b) => b.ms - a.ms)
     : [];
-  const metricEvidence = evidence.filter(isSystemMetrics).at(-1) || null;
+  const target = detail.target || {};
+  const metricCandidates = evidence.filter(isSystemMetrics);
+  const metricEvidence = metricCandidates.filter(item =>
+    assessObservationWindow(item, target).code !== "INSUFFICIENT_OBSERVABILITY").at(-1)
+    || metricCandidates.at(-1) || null;
   const metricMetadata = metricEvidence ? evidenceMetadata(metricEvidence) : {};
   const summary = metricMetadata.summary || {};
   const processIdentity = metricMetadata.process_identity || {};
-  const target = detail.target || {};
   const binding = target.process_binding || {};
   const status = String(detail.status || "").toUpperCase();
   const verified = reports.some(isCausalRootReport);
   const localized = reports.find(isLocalizedReport);
+  const refuted = reports.find(isRefutedObservationReport);
   const observed = reports.some(report => isObservationReport(report)
     && String(report?.verification?.status || "").toUpperCase() === "VERIFIED");
   const windowAssessment = assessObservationWindow(metricEvidence, target);
@@ -145,6 +149,12 @@ export function buildObservationModel(detail = {}, resources = {}) {
       detail: slowStageObserved
         ? `这次导入的${dominant.label}阶段耗时 ${compact(dominant.ms)} ms，占总耗时 ${compact(dominant.ms / Number(businessObservation.duration_ms) * 100, 0)}%。这是业务阶段定位；具体代码原因需结合修复前后复测。`
         : "上传请求的分块、向量化、索引和进程资源来自 AGI-saber 进程内观测；AI 根因仍按独立证据门禁判断。",
+    };
+  } else if (COMPLETED_WINDOWS.has(status) && refuted && windowAssessment.code !== "ANOMALY_OBSERVED") {
+    assessment = {
+      code: "OBSERVATION_REFUTED",
+      title: "本次观测未发现该性能异常",
+      detail: `${observationMeasurementText(refuted)}。完整数值计划已检查，测量反驳了该异常假设；仅限本报告目标与窗口，不代表全部业务正常。`,
     };
   } else if (COMPLETED_WINDOWS.has(status) && metricEvidence) {
     assessment = { ...windowAssessment, title: {
@@ -249,7 +259,7 @@ export default function ObservabilityOverview({ detail, resources }) {
           <p>{assessment.detail}</p>
         </div>
         <Tag color={verifiedFault ? "red" : observedFault ? "orange" : healthyWindow ? "green" : "blue"}>
-          {healthyWindow ? "检查结果：正常" : assessment.code === "BOTTLENECK_LOCALIZED" ? "路径已定位" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
+          {healthyWindow ? "检查结果：正常" : assessment.code === "OBSERVATION_REFUTED" ? "异常假设已反驳" : assessment.code === "BOTTLENECK_LOCALIZED" ? "路径已定位" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
         </Tag>
       </header>
 

@@ -1,6 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { reportConclusionTitle, reportRemediation, projectReportScopes, selectBestReport, isLocalizedReport, isCausalRootReport } from "./reportPresentation";
 
+import ioRefutation from "../test/fixtures/performance-io-refutation.json";
+
+describe("live I/O refutation presentation", () => {
+  const refuted = ioRefutation.reports.find(r => r.verification.observation_verification.status === "REFUTED");
+  it("keeps a fully measured refutation above a later inconclusive host I/O report", () => {
+    expect(selectBestReport(ioRefutation.reports)).toEqual(refuted);
+  });
+  it("distinguishes a measured false hypothesis from missing evidence", () => {
+    expect(reportConclusionTitle(refuted)).toBe("已测量，异常假设被反驳");
+    expect(isCausalRootReport(refuted)).toBe(false);
+  });
+  it("preserves an older incomplete report without a verification object", () => {
+    expect(() => selectBestReport([{ verification_status: "INSUFFICIENT_EVIDENCE" }])).not.toThrow();
+  });
+  it.each([
+    { counter_evidence_refs: {} }, { counter_evidence_refs: null },
+    { verification: { ...refuted.verification, observation_verification: {
+      ...refuted.verification.observation_verification, criteria: [null],
+    } } },
+  ])("rejects malformed refutation payloads without crashing the report projection %j", change => {
+    expect(() => selectBestReport([{ ...refuted, ...change }])).not.toThrow();
+    expect(reportConclusionTitle({ ...refuted, ...change })).not.toBe("已测量，异常假设被反驳");
+  });
+  it.each([
+    { claim_scope: "CAUSAL_ROOT_CAUSE" }, { causal_root_cause_verified: true },
+    { observation_verification: { ...refuted.verification.observation_verification, checked_ratio: 0.5 } },
+    { observation_verification: { ...refuted.verification.observation_verification, criteria: [] } },
+    { observation_verification: { ...refuted.verification.observation_verification, evidence_refs: ["unreferenced"] } },
+  ])("does not label an incomplete or contradictory observation as refuted %j", change => {
+    expect(reportConclusionTitle({ ...refuted, verification: { ...refuted.verification, ...change } })).not.toBe("已测量，异常假设被反驳");
+  });
+});
+
 describe("structured report scope", () => {
   const localized = { verification: {
     status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
