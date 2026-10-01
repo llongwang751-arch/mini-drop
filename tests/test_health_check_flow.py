@@ -142,3 +142,12 @@ def test_failed_sampling_finishes_unknown_without_replanning(db,monkeypatch):
     result=service.advance_diagnosis(did)
     assert result['actions'][0]['check_result']['code']=='INSUFFICIENT_OBSERVABILITY'
     assert service.get_diagnosis(did).status=='INSUFFICIENT_EVIDENCE'
+
+
+def test_public_service_request_contract_includes_the_complete_health_flow():
+    import json
+    from pathlib import Path
+    from server.app.drop_insight.managed_services import StartServiceDiagnosis
+    document = json.loads((Path(__file__).resolve().parents[1] / 'docs/contracts/openapi.v1.json').read_text(encoding='utf-8'))
+    schema = document['paths']['/api/v2/services/{service_id}/diagnoses']['post']['requestBody']['content']['application/json']['schema']
+    assert schema == StartServiceDiagnosis.model_json_schema()
