@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2451 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3013 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 580 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 677 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2106,6 +2106,7 @@ python scripts/render_learning_guide.py
 | `output/code-comments-20261001/python-quality/python-all/` | python-all 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/code-comments-20261001/web-deps/` | web-deps 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/demo-guide-20260924/` | demo-guide-20260924 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/frontend-redesign-20261001/` | frontend-redesign-20261001 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/frontend-review-20260909/` | frontend-review-20260909 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/interview-guide/` | interview-guide 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/learning-route/` | learning-route 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
@@ -2509,6 +2510,102 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-fix-20260930/transport-ci/` | transport-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-fix-20260930/web-security/` | web-security 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-fix-20260930/web-security/browser-report/` | browser-report 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/` | performance-localization-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/` | deployed 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/` | browser-r10 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/` | browser-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/` | browser-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/` | browser-r4 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/` | browser-r5 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/` | browser-r6 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/` | browser-r7 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/` | browser-r8-no-bfcache 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/` | browser-r9 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/` | ci-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/` | ci-artifacts-buildfix 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/postgres-concurrency-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/` | postgres-concurrency-fc4484c33cc1862651fefdf8ab846d2d79f99022-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/` | python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/` | ci-artifacts-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/` | hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/postgres-concurrency-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/` | postgres-concurrency-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/` | python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/` | ci-artifacts-lifecycle 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/` | hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/postgres-concurrency-26418639c785c171132ee39b8cc942a30a3fcc2e-1/` | postgres-concurrency-26418639c785c171132ee39b8cc942a30a3fcc2e-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1/` | python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/` | ci-artifacts-refutation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/` | hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/postgres-concurrency-9d897dc22b76a22231846d875d23546d11c99fad-1/` | postgres-concurrency-9d897dc22b76a22231846d875d23546d11c99fad-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1/` | python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/` | ci-artifacts-route 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/` | hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/postgres-concurrency-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/` | postgres-concurrency-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/` | python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/postgres-concurrency-e19aaf755f6dfc6994eae500534bdc0673600f22-1/` | postgres-concurrency-e19aaf755f6dfc6994eae500534bdc0673600f22-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1/` | python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs/` | ci-logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-final/` | ci-logs-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-lifecycle/` | ci-logs-lifecycle 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-refutation/` | ci-logs-refutation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-route/` | ci-logs-route 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/` | final-grade 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/` | first-grade 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/health-live/` | health-live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/health-live/raw/` | raw 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/` | release-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/` | release-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/` | release-r4 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/` | release-r5 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/` | release-r6 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/` | release-r7 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/` | release-r8 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-cases/` | strict-three-paths-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/` | strict-three-paths-r2-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/` | local 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/` | performance-localization-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/` | performance-localization-buildfix-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/` | performance-localization-iofix-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/` | performance-localization-iofix-r2-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/` | performance-localization-livefix-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/performance-localization-20261001/regression/` | regression 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/rpc-read-stability-20260930/` | rpc-read-stability-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/` | security-cancel-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/browser-cancel/` | browser-cancel 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -4238,6 +4335,566 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-fix-20260930/web-security/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-fix-20260930/web-security/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-fix-20260930/web-security/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/add_refutation_tests.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/archive_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `copy` |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/history-back-network.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/history-forward-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r10/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r2/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r3/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r4/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/failure.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r5/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/failure.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r6/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/failure.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r7/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r8-no-bfcache/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/history-back-network.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/history-forward-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/instrumentation-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-r9/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser-refutation-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser_no_bfcache.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/browser_performance.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/build_lifecycle_web.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run` |
+| `reports/quality/performance-localization-20261001/deployed/build_refutation_web.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run` |
+| `reports/quality/performance-localization-20261001/deployed/build_route_web.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run` |
+| `reports/quality/performance-localization-20261001/deployed/capture_before.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/postgres-concurrency-fc4484c33cc1862651fefdf8ab846d2d79f99022-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/postgres-concurrency-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/postgres-concurrency-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/python-quality-fc4484c33cc1862651fefdf8ab846d2d79f99022-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-buildfix/web-browser-fc4484c33cc1862651fefdf8ab846d2d79f99022-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/hotspot-controls-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/postgres-concurrency-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/postgres-concurrency-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/postgres-concurrency-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/python-quality-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-final/web-browser-4f7a7d55095fac33008ef54b4ed90e8938352dd9-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/hotspot-controls-26418639c785c171132ee39b8cc942a30a3fcc2e-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/postgres-concurrency-26418639c785c171132ee39b8cc942a30a3fcc2e-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/postgres-concurrency-26418639c785c171132ee39b8cc942a30a3fcc2e-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/postgres-concurrency-26418639c785c171132ee39b8cc942a30a3fcc2e-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/python-quality-26418639c785c171132ee39b8cc942a30a3fcc2e-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-lifecycle/web-browser-26418639c785c171132ee39b8cc942a30a3fcc2e-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/hotspot-controls-9d897dc22b76a22231846d875d23546d11c99fad-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/postgres-concurrency-9d897dc22b76a22231846d875d23546d11c99fad-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/postgres-concurrency-9d897dc22b76a22231846d875d23546d11c99fad-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/postgres-concurrency-9d897dc22b76a22231846d875d23546d11c99fad-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/python-quality-9d897dc22b76a22231846d875d23546d11c99fad-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-refutation/web-browser-9d897dc22b76a22231846d875d23546d11c99fad-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/hotspot-controls-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/postgres-concurrency-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/postgres-concurrency-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/postgres-concurrency-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/python-quality-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts-route/web-browser-d200b246ca48ed1ee7273b9e54e7bc3f842d158f-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/postgres-concurrency-e19aaf755f6dfc6994eae500534bdc0673600f22-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/postgres-concurrency-e19aaf755f6dfc6994eae500534bdc0673600f22-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/postgres-concurrency-e19aaf755f6dfc6994eae500534bdc0673600f22-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/python-quality-e19aaf755f6dfc6994eae500534bdc0673600f22-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-artifacts/web-browser-e19aaf755f6dfc6994eae500534bdc0673600f22-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-final/110312100754.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-final/110312100770.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-lifecycle/110344051433.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-lifecycle/110344051503.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-refutation/110329791143.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-refutation/110329791369.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-route/110339497080.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs-route/110339497555.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs/110293769044.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/ci-logs/110293769083.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_lifecycle.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_logs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_logs_lifecycle.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_logs_refutation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_logs_route.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_refutation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/collect_ci_route.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/deployment_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/download_health_raw.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/localization-acceptance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100006_6fff8c-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100006_6fff8c-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100006_6fff8c-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100006_6fff8c-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100023_91e27e-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100023_91e27e-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100106_58e946-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100153_d06eb9-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100153_d06eb9-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100153_d06eb9-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100329_fc5b72-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100329_fc5b72-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100438_f87a54-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100438_f87a54-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100438_f87a54-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100438_f87a54-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100541_7413e7-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100606_43f9c5-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100606_43f9c5-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100606_43f9c5-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100754_6e0d9c-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100754_6e0d9c-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100859_8dba95-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100859_8dba95-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-grade/task_20261001_100859_8dba95-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/finalize_docs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `save` |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/localization-acceptance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090245_04cfb2-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090245_04cfb2-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090245_04cfb2-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090245_04cfb2-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090304_d06cee-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090304_d06cee-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090346_68c396-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090428_051ee1-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090428_051ee1-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090428_051ee1-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090609_1c787c-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090609_1c787c-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090728_98d87b-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090728_98d87b-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090728_98d87b-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090728_98d87b-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090839_710cf9-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090959_c4f3bb-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_090959_c4f3bb-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091108_83e0ae-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091108_83e0ae-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091108_83e0ae-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/first-grade/task_20261001_091206_3dbee2-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/fix_refutation_presentation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `edit` |
+| `reports/quality/performance-localization-20261001/deployed/go-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/go-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/grade_campaign.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-diagnosis-id.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-live/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-live/raw-download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-live/raw/task_20261001_101049_bb29a0-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-live/raw/task_20261001_101049_bb29a0-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/health-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/inspect_case_listing.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/inspect_go_config.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/inspect_live_progress.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/io-capacity-before-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/io-capacity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/lifecycle-before-useSSE.js` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `useSSE` |
+| `reports/quality/performance-localization-20261001/deployed/lifecycle-before-useSSE.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `makeFakeES` |
+| `reports/quality/performance-localization-20261001/deployed/live-fixes-targeted-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/live-fixes-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/live-status-090428.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/live_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/live_acceptance_r2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/live_health.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/observation-input-replay.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/observe_live.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/old-ConclusionCard.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ConclusionCard` |
+| `reports/quality/performance-localization-20261001/deployed/old-ObservabilityOverview.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `rows`、`number`、`compact`、`evidenceMetadata`、`evidenceSource` 等 9 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/old-ObservabilityOverview.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `reports/quality/performance-localization-20261001/deployed/old-observationAssessment.js` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `assessObservationWindow` |
+| `reports/quality/performance-localization-20261001/deployed/old-reportPresentation.js` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`isLocalizedReport`、`projectReportScopes` 等 16 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/old-reportPresentation.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `reports/quality/performance-localization-20261001/deployed/prepare_buildfix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/prepare_final.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/prepare_livefix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/prepare_retry.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r2/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r3/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r4/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r5/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/check_web_bundle.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r6/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/archive-provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/check_web_bundle.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r7/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/check_web_bundle.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release-r8/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/release/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/replay_observation_inputs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/reproduce_io_capacity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/reproduce_io_capacity_r2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/reproduce_plan_loss.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/reproduce_plan_loss.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/route-before-AIDiagnosis.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `canonicalStatus`、`nativeId`、`selectionKey`、`normalizeCase`、`isVerifiedReport` 等 7 个声明 |
+| `reports/quality/performance-localization-20261001/deployed/route-before-AIDiagnosis.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
+| `reports/quality/performance-localization-20261001/deployed/run_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/run_browser_no_bfcache.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/runtime-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/setup_lifecycle_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/setup_refutation_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/setup_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/setup_web_refutation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/sse-cache-comparison.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/stage_learning_index_atomic.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/stage_lifecycle_source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/stage_refutation_source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/stage_route_source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-cases/go-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-network-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/strict-three-paths.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/verify_go.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-case-route-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-case-route-before-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-case-route-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-case-route-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-clean-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-clean-bundle.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-clean-junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-clean-provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-clean-test.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-clean-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-clean-bundle.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-clean-junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-clean-provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-clean-test.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-lifecycle-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-livefix.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-before-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-full-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-full-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-refutation-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-route-clean-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-route-clean-bundle.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-route-clean-junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-route-clean-provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/deployed/web-route-clean-test.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/python-all/.coverage` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-20261001/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/python-all/.coverage` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-buildfix-20261001/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/python-all/.coverage` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-20261001/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/python-all/.coverage` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-iofix-r2-20261001/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/.coverage` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/regression/observation-persistence-after-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/regression/observation-persistence-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/performance-localization-20261001/regression/web-localization.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/rpc-read-stability-20260930/acceptance_client.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `reports/quality/rpc-read-stability-20260930/archive-download-id-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/rpc-read-stability-20260930/archive_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |
@@ -4631,6 +5288,8 @@ python scripts/render_learning_guide.py
 | `output/demo-guide-20260924/inspect.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/demo-guide-20260924/tree.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/before.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/capture.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/frontend-review-20260909/01-start-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/02-start-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/03-finding-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |

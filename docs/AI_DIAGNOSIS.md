@@ -1,5 +1,15 @@
 # AI 诊断方案
 
+## 2026-10-01 数值观测与性能路径合同已部署
+
+发布`20261001T094553Z` / `c59aac566cedef6a239eb1d640ee8fb796524ae3`新增数值观测验证与性能路径定位。`performance-observation-verification.v1`分别记录判据是否检查和是否成立；完整计划必须在同一可信产物中覆盖。报告保留原匹配覆盖率、独立对照标志和`matched_verification_status`，数值观测可在`verification_kind=PERFORMANCE_OBSERVATION`下成为VERIFIED，但必须为`BOUNDED_OBSERVATION`且`causal_root_cause_verified=false`。`checked_ratio=1`不表示存在独立因果对照。
+
+CPU具体路径仍要求已注册Profile加独立OS CPU合同；最多3个合格Go累计路径的占比存在重叠，不能相加。网络数值计划验证的是HTTP耗时；I/O验证的是目标应用open/write/sync/close窗口平均耗时，当前Go默认tmpfs不构成块设备压测。REFUTED表示实际测量反驳该异常条件，缺测与不支持计划分别保留，不能都解释为正常。
+
+最新Web为20261001T112302Z / ebb1a0e6a3a7396db789bb8a0a47c734d1219aff，精确CI36854620615成功13/13、Web294通过。完整REFUTED保留为“已测量，异常假设被反驳”，展示实际测量与3/3判据；ACCEPT_COUNTER须通过身份、Analyzer与窗口准入，其他资源异常仍优先，取消/失败不能产生正常结果。案例链接支持React状态重放和首次列表失败后的重试，实浏览器复核通过。
+
+页面新增“性能路径已定位，根因仍待确认”，正常资源检查、异常观测、路径定位、因果根因分层显示。严格因果评分与旧21类0/21保持。完整现场结果、发布校验与剩余条件见[性能诊断](PERFORMANCE_DIAGNOSIS.md)和[本轮路径定位交付](../reports/architecture/performance-localization-20261001.md)。以下带版本段落保留历史过程，当前合同以本段为准。
+
 ## 2026-10-01 性能诊断判定与入口已部署
 
 Worker/Analyzer/Web发布`20261001T075239Z`，源码`10002e94cf8aa46a7e4778385138c35ddfc20d7d`；Worker/Analyzer各189份文件、Web56份文件SHA一致，其余10容器保持。13容器运行及健康检查通过，API3依赖健康；Office保持observer-20260930T145902Z/f37f44e、PID484342且NRestarts=0，API保持f9b143a及原二进制SHA。21故障inactive、历史因果根因0/21。
@@ -113,6 +123,8 @@ Java 从 Lambda 包装帧选择业务帧展示时，百分比随展示帧一并�
 办公助手已接入进程内 ASGI 业务指标。中间件将累计请求、5xx、处理中请求、累计耗时和最近 256 次请求的平均/P95 写入进程私有 `/tmp/mini-drop-app-metrics.json`；不记录路由、查询、正文、响应或凭据。Native Agent 从目标进程根目录读取有界 JSON，Analyzer 只接受白名单数值字段并验证目标 PID。页面展开区按当前证据窗口展示请求增量、失败增量、平均耗时与近期 P95；没有发生请求时显示 0，未接入或未采集时显示“未采集”，两者不能混同。仅当窗口内存在请求且平均耗时、P95 或失败率越过固定门槛时才产生 `http_service_degradation` 信号，业务指标本身不自动构成 VERIFIED 根因。
 
 ## 2026-09-19 本地证据与策略合同
+
+以下记录9月19日的匹配验证合同。10月1日新增的数值观测合同另见本文顶部；它保留原匹配状态，但不以互斥条件同时成立作为已测量覆盖的要求。因果结论仍需独立对照，观测VERIFIED不得外推为因果VERIFIED。
 
 `VERIFIED` 继续要求完整条件覆盖及既有独立反证/对照门禁，不能把覆盖 80% 解释成统计置信度。覆盖槽位由判据文本与证据域的真实匹配产生（`_criterion_text_indexes`），谓词不再硬编码槽位或默认补槽位 0；谓词未映射槽位时，方向性 claim 仍参与反证/对照判定，但不覆盖覆盖率分母。`generate_sre_remediation_advice` 只根据已验证 SUPPORT claim 的类型生成需评审的验证计划；证据不足不生成根因治理动作，不返回 shell 命令。前端不提供历史命令复制。
 

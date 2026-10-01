@@ -1,0 +1,840 @@
+﻿2026-10-01T11:19:17.1914567Z Current runner version: '2.337.0'
+2026-10-01T11:19:17.1940852Z ##[group]Runner Image Provisioner
+2026-10-01T11:19:17.1941882Z Hosted Compute Agent
+2026-10-01T11:19:17.1942536Z Version: 20260901.588
+2026-10-01T11:19:17.1943253Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-01T11:19:17.1944112Z Build Date: 2026-09-01T19:56:44Z
+2026-10-01T11:19:17.1944872Z Worker ID: {ef6bd16b-9df8-40ff-bedb-1fdb314d4738}
+2026-10-01T11:19:17.1945707Z Azure Region: eastus
+2026-10-01T11:19:17.1946366Z ##[endgroup]
+2026-10-01T11:19:17.1948045Z ##[group]Operating System
+2026-10-01T11:19:17.1949119Z Ubuntu
+2026-10-01T11:19:17.1949792Z 22.04.5
+2026-10-01T11:19:17.1950453Z LTS
+2026-10-01T11:19:17.1951027Z ##[endgroup]
+2026-10-01T11:19:17.1951668Z ##[group]Runner Image
+2026-10-01T11:19:17.1952364Z Image: ubuntu-22.04
+2026-10-01T11:19:17.1952980Z Version: 20260927.309.1
+2026-10-01T11:19:17.1954391Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-01T11:19:17.1956058Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-01T11:19:17.1957110Z ##[endgroup]
+2026-10-01T11:19:17.1958469Z ##[group]GITHUB_TOKEN Permissions
+2026-10-01T11:19:17.1961272Z Contents: read
+2026-10-01T11:19:17.1961926Z Metadata: read
+2026-10-01T11:19:17.1962659Z Packages: read
+2026-10-01T11:19:17.1963264Z ##[endgroup]
+2026-10-01T11:19:17.1965560Z Secret source: Actions
+2026-10-01T11:19:17.1966554Z Cache mode: write
+2026-10-01T11:19:17.1967332Z Prepare workflow directory
+2026-10-01T11:19:17.2379123Z Prepare all required actions
+2026-10-01T11:19:17.2429392Z Getting action download info
+2026-10-01T11:19:17.4718086Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-01T11:19:17.5617780Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-01T11:19:17.8196801Z Complete job name: Web (React)
+2026-10-01T11:19:17.8997861Z ##[group]Run actions/checkout@v4
+2026-10-01T11:19:17.8999009Z with:
+2026-10-01T11:19:17.8999525Z   repository: llongwang751-arch/mini-drop
+2026-10-01T11:19:17.9003592Z   token: ***
+2026-10-01T11:19:17.9004038Z   ssh-strict: true
+2026-10-01T11:19:17.9004491Z   ssh-user: git
+2026-10-01T11:19:17.9004953Z   persist-credentials: true
+2026-10-01T11:19:17.9005459Z   clean: true
+2026-10-01T11:19:17.9005911Z   sparse-checkout-cone-mode: true
+2026-10-01T11:19:17.9006465Z   fetch-depth: 1
+2026-10-01T11:19:17.9006917Z   fetch-tags: false
+2026-10-01T11:19:17.9007379Z   show-progress: true
+2026-10-01T11:19:17.9007843Z   lfs: false
+2026-10-01T11:19:17.9008262Z   submodules: false
+2026-10-01T11:19:17.9008873Z   set-safe-directory: true
+2026-10-01T11:19:17.9009393Z   allow-unsafe-pr-checkout: false
+2026-10-01T11:19:17.9010188Z ##[endgroup]
+2026-10-01T11:19:18.0109160Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-01T11:19:18.0111774Z ##[group]Getting Git version info
+2026-10-01T11:19:18.0112663Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T11:19:18.0113805Z [command]/usr/bin/git version
+2026-10-01T11:19:18.0197465Z git version 2.55.0
+2026-10-01T11:19:18.0233643Z ##[endgroup]
+2026-10-01T11:19:18.0250527Z Temporarily overriding HOME='/home/runner/work/_temp/0612098e-fc65-484b-87e3-c457117e3bb7' before making global git config changes
+2026-10-01T11:19:18.0252935Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T11:19:18.0255051Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T11:19:18.0299592Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T11:19:18.0309229Z ##[group]Initializing the repository
+2026-10-01T11:19:18.0310317Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-01T11:19:18.0437204Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-01T11:19:18.0439510Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-01T11:19:18.0441878Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-01T11:19:18.0443404Z hint: call:
+2026-10-01T11:19:18.0444253Z hint:
+2026-10-01T11:19:18.0445292Z hint: 	git config --global init.defaultBranch <name>
+2026-10-01T11:19:18.0446633Z hint:
+2026-10-01T11:19:18.0447903Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-01T11:19:18.0449917Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-01T11:19:18.0451414Z hint:
+2026-10-01T11:19:18.0452227Z hint: 	git branch -m <name>
+2026-10-01T11:19:18.0452948Z hint:
+2026-10-01T11:19:18.0453807Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-01T11:19:18.0455050Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-01T11:19:18.0458544Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-01T11:19:18.0495392Z ##[endgroup]
+2026-10-01T11:19:18.0496831Z ##[group]Disabling automatic garbage collection
+2026-10-01T11:19:18.0501114Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-01T11:19:18.0553174Z ##[endgroup]
+2026-10-01T11:19:18.0560419Z ##[group]Setting up auth
+2026-10-01T11:19:18.0562305Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T11:19:18.0601845Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T11:19:18.1040166Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T11:19:18.1088099Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T11:19:18.1384240Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T11:19:18.1426214Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T11:19:18.1714924Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-01T11:19:18.1764439Z ##[endgroup]
+2026-10-01T11:19:18.1765962Z ##[group]Fetching the repository
+2026-10-01T11:19:18.1775719Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +26418639c785c171132ee39b8cc942a30a3fcc2e:refs/remotes/pull/1/merge
+2026-10-01T11:19:19.8673627Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-01T11:19:19.8674897Z  * [new ref]         26418639c785c171132ee39b8cc942a30a3fcc2e -> pull/1/merge
+2026-10-01T11:19:19.8678564Z ##[endgroup]
+2026-10-01T11:19:19.8680194Z ##[group]Determining the checkout info
+2026-10-01T11:19:19.8681673Z ##[endgroup]
+2026-10-01T11:19:19.8682500Z [command]/usr/bin/git sparse-checkout disable
+2026-10-01T11:19:19.8735738Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-01T11:19:19.8784852Z ##[group]Checking out the ref
+2026-10-01T11:19:19.8789758Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-01T11:19:20.4911164Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-01T11:19:20.4911716Z 
+2026-10-01T11:19:20.4912056Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-01T11:19:20.4913206Z changes and commit them, and you can discard any commits you make in this
+2026-10-01T11:19:20.4913993Z state without impacting any branches by switching back to a branch.
+2026-10-01T11:19:20.4914448Z 
+2026-10-01T11:19:20.4914804Z If you want to create a new branch to retain commits you create, you may
+2026-10-01T11:19:20.4915538Z do so (now or later) by using -c with the switch command. Example:
+2026-10-01T11:19:20.4915926Z 
+2026-10-01T11:19:20.4916178Z   git switch -c <new-branch-name>
+2026-10-01T11:19:20.4916834Z 
+2026-10-01T11:19:20.4917027Z Or undo this operation with:
+2026-10-01T11:19:20.4917289Z 
+2026-10-01T11:19:20.4917483Z   git switch -
+2026-10-01T11:19:20.4917782Z 
+2026-10-01T11:19:20.4918184Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-01T11:19:20.4919027Z 
+2026-10-01T11:19:20.4920101Z HEAD is now at 2641863 Merge ebb1a0e6a3a7396db789bb8a0a47c734d1219aff into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-01T11:19:20.4971351Z ##[endgroup]
+2026-10-01T11:19:20.5022629Z [command]/usr/bin/git log -1 --format=%H
+2026-10-01T11:19:20.5054920Z 26418639c785c171132ee39b8cc942a30a3fcc2e
+2026-10-01T11:19:20.5350570Z ##[group]Run actions/setup-node@v4
+2026-10-01T11:19:20.5350986Z with:
+2026-10-01T11:19:20.5351273Z   node-version: 22
+2026-10-01T11:19:20.5351566Z   cache: npm
+2026-10-01T11:19:20.5351901Z   cache-dependency-path: web/package-lock.json
+2026-10-01T11:19:20.5352311Z   always-auth: false
+2026-10-01T11:19:20.5352616Z   check-latest: false
+2026-10-01T11:19:20.5355815Z   token: ***
+2026-10-01T11:19:20.5356101Z ##[endgroup]
+2026-10-01T11:19:20.7080828Z Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+2026-10-01T11:19:20.7086386Z (node:2059) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T11:19:20.7087932Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T11:19:20.7090298Z ##[group]Environment details
+2026-10-01T11:19:23.3788917Z node: v22.23.3
+2026-10-01T11:19:23.3789461Z npm: 10.9.9
+2026-10-01T11:19:23.3789868Z yarn: 1.22.22
+2026-10-01T11:19:23.3791625Z ##[endgroup]
+2026-10-01T11:19:23.3816612Z [command]/opt/hostedtoolcache/node/22.23.3/x64/bin/npm config get cache
+2026-10-01T11:19:23.6621089Z /home/runner/.npm
+2026-10-01T11:19:23.7549690Z Cache hit for: node-cache-Linux-x64-npm-a79428a48f53c819bdf3224c6f533bf526ae1b21f28f4ee918b0bcba5121d960
+2026-10-01T11:19:23.7657671Z (node:2059) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-01T11:19:24.2045128Z Received 52012766 of 52012766 (100.0%), 124.6 MBs/sec
+2026-10-01T11:19:24.2046181Z Cache Size: ~50 MB (52012766 B)
+2026-10-01T11:19:24.2077748Z [command]/usr/bin/tar -xf /home/runner/work/_temp/50fd2651-0885-46f4-89d4-4084dacce398/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-01T11:19:24.3782484Z Cache restored successfully
+2026-10-01T11:19:24.3903399Z Cache restored from key: node-cache-Linux-x64-npm-a79428a48f53c819bdf3224c6f533bf526ae1b21f28f4ee918b0bcba5121d960
+2026-10-01T11:19:24.4159323Z ##[group]Run npm ci
+2026-10-01T11:19:24.4159677Z [36;1mnpm ci[0m
+2026-10-01T11:19:24.4531299Z shell: /usr/bin/bash -e {0}
+2026-10-01T11:19:24.4531660Z ##[endgroup]
+2026-10-01T11:19:32.2787195Z 
+2026-10-01T11:19:32.2795726Z added 346 packages, and audited 347 packages in 8s
+2026-10-01T11:19:32.2796303Z 
+2026-10-01T11:19:32.2796726Z 118 packages are looking for funding
+2026-10-01T11:19:32.2797258Z   run `npm fund` for details
+2026-10-01T11:19:32.2937165Z 
+2026-10-01T11:19:32.2937919Z 2 vulnerabilities (1 low, 1 high)
+2026-10-01T11:19:32.2938386Z 
+2026-10-01T11:19:32.2938997Z To address all issues, run:
+2026-10-01T11:19:32.2939534Z   npm audit fix
+2026-10-01T11:19:32.2939781Z 
+2026-10-01T11:19:32.2940029Z Run `npm audit` for details.
+2026-10-01T11:19:32.3660840Z ##[group]Run npx vitest run
+2026-10-01T11:19:32.3661180Z [36;1mnpx vitest run[0m
+2026-10-01T11:19:32.3742851Z shell: /usr/bin/bash -e {0}
+2026-10-01T11:19:32.3743128Z ##[endgroup]
+2026-10-01T11:19:33.1928499Z 
+2026-10-01T11:19:33.1933411Z [1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/home/runner/work/mini-drop/mini-drop/web[39m
+2026-10-01T11:19:33.1934873Z 
+2026-10-01T11:19:39.6732278Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:40.1140805Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:40.4043784Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:40.4160083Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:40.6914256Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.0412106Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.0530713Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.1051432Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看规划假设 in an inspectable modal
+2026-10-01T11:19:41.1100954Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.1160319Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.1189124Z 
+2026-10-01T11:19:41.3310522Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.3370409Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.3745967Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看工具调用 in an inspectable modal
+2026-10-01T11:19:41.3781198Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.3785657Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.3809428Z 
+2026-10-01T11:19:41.6180581Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.6661217Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.6900380Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:41.7209264Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看证据 in an inspectable modal
+2026-10-01T11:19:41.7212529Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.7291070Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:41.7359346Z 
+2026-10-01T11:19:41.9924553Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:42.0140983Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:42.0785457Z [90mstderr[2m | src/components/ActualExplorationTree.test.jsx[2m > [22m[2mActualExplorationTree[2m > [22m[2mshows Skill retrieval, full-body loading and cross-round reuse inside the dynamic tree
+2026-10-01T11:19:42.0810481Z [22m[39mWarning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:19:42.0820157Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:19:42.0839656Z 
+2026-10-01T11:19:42.4340483Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:42.4400675Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:42.4829874Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mrenders evidence roles and gate states as Chinese labels
+2026-10-01T11:19:42.4832145Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:42.4833914Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:19:42.4835196Z 
+2026-10-01T11:19:42.5411248Z  [32m✓[39m src/components/ActualExplorationTree.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 4797[2mms[22m[39m
+2026-10-01T11:19:42.5470940Z      [33m[2m✓[22m[39m uses stable tool IDs and distinguishes failed probes from counter-evidence [33m 1126[2mms[22m[39m
+2026-10-01T11:19:42.5501231Z      [33m[2m✓[22m[39m shows the route actually explored, including pruning and direction changes [33m 384[2mms[22m[39m
+2026-10-01T11:19:42.5526591Z      [33m[2m✓[22m[39m defaults to the parent-child tree, while keeping the round path as an auxiliary view [33m 306[2mms[22m[39m
+2026-10-01T11:19:42.5560562Z      [33m[2m✓[22m[39m renders server-provided LATS phase, best path and node scores without flattening the tree [33m 633[2mms[22m[39m
+2026-10-01T11:19:42.5640483Z      [33m[2m✓[22m[39m merges legacy paraphrase nodes but preserves descendants and score history [33m 415[2mms[22m[39m
+2026-10-01T11:19:42.5700766Z      [33m[2m✓[22m[39m shows Skill retrieval, full-body loading and cross-round reuse inside the dynamic tree [33m 426[2mms[22m[39m
+2026-10-01T11:19:43.0370579Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:43.2857440Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:43.5551181Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:43.5910117Z  [32m✓[39m src/components/AgentCockpit.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 5291[2mms[22m[39m
+2026-10-01T11:19:43.5917800Z      [33m[2m✓[22m[39m shows eight real metric buttons, including LATS, and the persisted runtime identity [33m 920[2mms[22m[39m
+2026-10-01T11:19:43.5920379Z      [33m[2m✓[22m[39m shows live LATS phase, selection, best path, budget and termination without claiming rollback [33m 690[2mms[22m[39m
+2026-10-01T11:19:43.5922910Z      [33m[2m✓[22m[39m shows auditable RAG sources while keeping knowledge outside the Evidence layer [33m 333[2mms[22m[39m
+2026-10-01T11:19:43.5924813Z      [33m[2m✓[22m[39m opens 查看规划假设 in an inspectable modal [33m 393[2mms[22m[39m
+2026-10-01T11:19:43.5926431Z      [33m[2m✓[22m[39m opens 查看证据 in an inspectable modal [33m 340[2mms[22m[39m
+2026-10-01T11:19:43.5928320Z      [33m[2m✓[22m[39m separates session context and Skill route memory from factual Evidence [33m 502[2mms[22m[39m
+2026-10-01T11:19:43.5948318Z      [33m[2m✓[22m[39m shows derived evaluation rates and keeps Skill publication human-controlled [33m 656[2mms[22m[39m
+2026-10-01T11:19:43.8615070Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:47.7100446Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:48.5867628Z [90mstderr[2m | src/pages/AIDiagnosis.test.jsx[2m > [22m[2mAIDiagnosis V2 workspace[2m > [22m[2mdoes not submit while confirming a Chinese IME composition
+2026-10-01T11:19:48.5920028Z [22m[39mWarning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T11:19:48.5920787Z 
+2026-10-01T11:19:48.5950112Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:48.5950833Z 
+2026-10-01T11:19:48.5951071Z act(() => {
+2026-10-01T11:19:48.5951600Z   /* fire events that update state */
+2026-10-01T11:19:48.5952144Z });
+2026-10-01T11:19:48.5952584Z /* assert on the output */
+2026-10-01T11:19:48.5953433Z 
+2026-10-01T11:19:48.5954591Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:48.5956228Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:190:68)
+2026-10-01T11:19:48.5957700Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T11:19:48.5958268Z 
+2026-10-01T11:19:48.5959159Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:48.5960148Z 
+2026-10-01T11:19:48.5960307Z act(() => {
+2026-10-01T11:19:48.5960725Z   /* fire events that update state */
+2026-10-01T11:19:48.5961174Z });
+2026-10-01T11:19:48.5961547Z /* assert on the output */
+2026-10-01T11:19:48.5961832Z 
+2026-10-01T11:19:48.5962927Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:48.5964543Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:190:68)
+2026-10-01T11:19:48.5966316Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T11:19:48.5966918Z 
+2026-10-01T11:19:48.5967560Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:48.5968212Z 
+2026-10-01T11:19:48.5968383Z act(() => {
+2026-10-01T11:19:48.5969248Z   /* fire events that update state */
+2026-10-01T11:19:48.5969853Z });
+2026-10-01T11:19:48.5970452Z /* assert on the output */
+2026-10-01T11:19:48.5970782Z 
+2026-10-01T11:19:48.5971877Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:48.5973443Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:190:68)
+2026-10-01T11:19:48.5974761Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T11:19:48.5975361Z 
+2026-10-01T11:19:48.5975985Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:48.5976585Z 
+2026-10-01T11:19:48.5976741Z act(() => {
+2026-10-01T11:19:48.5977160Z   /* fire events that update state */
+2026-10-01T11:19:48.5977925Z });
+2026-10-01T11:19:48.5989572Z /* assert on the output */
+2026-10-01T11:19:48.5990426Z 
+2026-10-01T11:19:48.5991831Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:48.5993604Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:190:68)
+2026-10-01T11:19:48.5995077Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T11:19:48.5995809Z 
+2026-10-01T11:19:48.5996599Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:48.5997428Z 
+2026-10-01T11:19:48.5997779Z act(() => {
+2026-10-01T11:19:48.5998423Z   /* fire events that update state */
+2026-10-01T11:19:48.5999428Z });
+2026-10-01T11:19:48.5999926Z /* assert on the output */
+2026-10-01T11:19:48.6000349Z 
+2026-10-01T11:19:48.6001532Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:48.6003192Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T11:19:48.6004165Z     at div
+2026-10-01T11:19:48.6009938Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:190:68)
+2026-10-01T11:19:48.6055367Z 
+2026-10-01T11:19:48.7441541Z  [32m✓[39m src/components/ObservabilityOverview.test.jsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1171[2mms[22m[39m
+2026-10-01T11:19:48.7453979Z      [33m[2m✓[22m[39m keeps the default view concise and exposes provenance on demand [33m 634[2mms[22m[39m
+2026-10-01T11:19:48.9764292Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:51.4840602Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:52.5480641Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:53.1703543Z  [32m✓[39m src/components/FaultPlazaPanel.test.jsx [2m([22m[2m9 tests[22m[2m)[22m[33m 4032[2mms[22m[39m
+2026-10-01T11:19:53.1710510Z      [33m[2m✓[22m[39m shows the full performance catalog when requested by the performance entry [33m 1195[2mms[22m[39m
+2026-10-01T11:19:53.1712761Z      [33m[2m✓[22m[39m shows fresh acceptance gates and opens evidence without injecting a fault [33m 622[2mms[22m[39m
+2026-10-01T11:19:53.1729055Z      [33m[2m✓[22m[39m starts an allowlisted real fault and forwards its diagnosis request [33m 458[2mms[22m[39m
+2026-10-01T11:19:53.1730612Z      [33m[2m✓[22m[39m stops an injected fault when diagnosis creation fails [33m 465[2mms[22m[39m
+2026-10-01T11:19:53.1732337Z      [33m[2m✓[22m[39m shows one recommended scenario per runtime with counts and non-Python runtimes first [33m 344[2mms[22m[39m
+2026-10-01T11:19:54.3741306Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:19:56.1940994Z  [32m✓[39m src/pages/AIDiagnosis.test.jsx [2m([22m[2m19 tests[22m[2m)[22m[33m 15345[2mms[22m[39m
+2026-10-01T11:19:56.1950765Z      [33m[2m✓[22m[39m keeps a deep link available for retry after a transient list failure [33m 1736[2mms[22m[39m
+2026-10-01T11:19:56.1952748Z      [33m[2m✓[22m[39m retains the requested case while React replays asynchronous state updates [33m 508[2mms[22m[39m
+2026-10-01T11:19:56.1954877Z      [33m[2m✓[22m[39m confirms cancellation with session version and refreshes the terminal record [33m 1636[2mms[22m[39m
+2026-10-01T11:19:56.1956597Z      [33m[2m✓[22m[39m hides cancellation on completed records [33m 519[2mms[22m[39m
+2026-10-01T11:19:56.1958313Z      [33m[2m✓[22m[39m does not automatically generate a skill from a bounded observation [33m 395[2mms[22m[39m
+2026-10-01T11:19:56.1960786Z      [33m[2m✓[22m[39m does not use an earlier verified branch to generate a skill from a later insufficient report [33m 315[2mms[22m[39m
+2026-10-01T11:19:56.1962981Z      [33m[2m✓[22m[39m still generates a candidate from a completed diagnosis with an eligible latest report [33m 325[2mms[22m[39m
+2026-10-01T11:19:56.1965374Z      [33m[2m✓[22m[39m preserves a same-session report on partial and core refresh failures, but clears it when switching sessions [33m 2048[2mms[22m[39m
+2026-10-01T11:19:56.1967309Z      [33m[2m✓[22m[39m renders only Drop Insight V2 diagnoses [33m 1442[2mms[22m[39m
+2026-10-01T11:19:56.1969354Z      [33m[2m✓[22m[39m uses a full-width primary view and only splits when the user asks [33m 1528[2mms[22m[39m
+2026-10-01T11:19:56.1971468Z      [33m[2m✓[22m[39m shows a measured normal window before the tree and keeps report limits available [33m 468[2mms[22m[39m
+2026-10-01T11:19:56.1973583Z      [33m[2m✓[22m[39m lets the user review and edit a tree intervention before starting a new round [33m 1200[2mms[22m[39m
+2026-10-01T11:19:56.1975761Z      [33m[2m✓[22m[39m merges the active diagnosis replay, exploration tree and Skill decision in a modal [33m 714[2mms[22m[39m
+2026-10-01T11:19:56.1977751Z      [33m[2m✓[22m[39m continues a completed diagnosis as a real intervention round [33m 674[2mms[22m[39m
+2026-10-01T11:19:56.1980012Z      [33m[2m✓[22m[39m lets the user challenge the current plan from the persistent composer [33m 636[2mms[22m[39m
+2026-10-01T11:19:56.1982196Z      [33m[2m✓[22m[39m locks real collection, the ordinary planner and interventions for a frozen replay session [33m 419[2mms[22m[39m
+2026-10-01T11:19:56.8684470Z [90mstderr[2m | src/components/ScopeCard.test.jsx[2m > [22m[2mScopeCard secure target discovery[2m > [22m[2mrequires an explicit closed selection when multiple candidates are eligible
+2026-10-01T11:19:56.8711097Z [22m[39mWarning: An update to InternalFormItem inside a test was not wrapped in act(...).
+2026-10-01T11:19:56.8759290Z 
+2026-10-01T11:19:56.8775924Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:56.8809051Z 
+2026-10-01T11:19:56.8816908Z act(() => {
+2026-10-01T11:19:56.8817661Z   /* fire events that update state */
+2026-10-01T11:19:56.8818308Z });
+2026-10-01T11:19:56.8819092Z /* assert on the output */
+2026-10-01T11:19:56.8819564Z 
+2026-10-01T11:19:56.8820846Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:56.8823355Z     at InternalFormItem (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/FormItem/index.js:58:5)
+2026-10-01T11:19:56.8824556Z     at div
+2026-10-01T11:19:56.8825497Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/col.js:40:13
+2026-10-01T11:19:56.8826529Z     at div
+2026-10-01T11:19:56.8827446Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/row.js:57:18
+2026-10-01T11:19:56.8828426Z     at form
+2026-10-01T11:19:56.8829796Z     at Form (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Form.js:21:19)
+2026-10-01T11:19:56.8831443Z     at NoFormStyle (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/context.js:32:3)
+2026-10-01T11:19:56.8833188Z     at FormProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/FormContext.js:19:31)
+2026-10-01T11:19:56.8834416Z     at FormProvider
+2026-10-01T11:19:56.8835862Z     at DisabledContextProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/DisabledContext.js:12:3)
+2026-10-01T11:19:56.8837756Z     at InternalForm (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/Form.js:50:33)
+2026-10-01T11:19:56.8839199Z     at div
+2026-10-01T11:19:56.8840272Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T11:19:56.8841551Z     at div
+2026-10-01T11:19:56.8842615Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T11:19:56.8843605Z     at div
+2026-10-01T11:19:56.8844085Z     at div
+2026-10-01T11:19:56.8845055Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/card/Card.js:53:18
+2026-10-01T11:19:56.8846536Z     at ScopeCard (/home/runner/work/mini-drop/mini-drop/web/src/components/ScopeCard.jsx:56:22)
+2026-10-01T11:19:56.8848027Z Warning: An update to Field inside a test was not wrapped in act(...).
+2026-10-01T11:19:56.8849036Z 
+2026-10-01T11:19:56.8849830Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:19:56.8850584Z 
+2026-10-01T11:19:56.8850831Z act(() => {
+2026-10-01T11:19:56.8851346Z   /* fire events that update state */
+2026-10-01T11:19:56.8851904Z });
+2026-10-01T11:19:56.8852392Z /* assert on the output */
+2026-10-01T11:19:56.8852828Z 
+2026-10-01T11:19:56.8854046Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:19:56.8855811Z     at Field (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Field.js:49:34)
+2026-10-01T11:19:56.8857422Z     at WrapperField (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Field.js:598:20)
+2026-10-01T11:19:56.8859341Z     at InternalFormItem (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/FormItem/index.js:58:5)
+2026-10-01T11:19:56.8860480Z     at div
+2026-10-01T11:19:56.8861334Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/col.js:40:13
+2026-10-01T11:19:56.8862225Z     at div
+2026-10-01T11:19:56.8863064Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/row.js:57:18
+2026-10-01T11:19:56.8863934Z     at form
+2026-10-01T11:19:56.8865119Z     at Form (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Form.js:21:19)
+2026-10-01T11:19:56.8866720Z     at NoFormStyle (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/context.js:32:3)
+2026-10-01T11:19:56.8868393Z     at FormProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/FormContext.js:19:31)
+2026-10-01T11:19:56.8869780Z     at FormProvider
+2026-10-01T11:19:56.8871094Z     at DisabledContextProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/DisabledContext.js:12:3)
+2026-10-01T11:19:56.8873192Z     at InternalForm (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/Form.js:50:33)
+2026-10-01T11:19:56.8874192Z     at div
+2026-10-01T11:19:56.8875102Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T11:19:56.8876026Z     at div
+2026-10-01T11:19:56.8876881Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T11:19:56.8877783Z     at div
+2026-10-01T11:19:56.8878213Z     at div
+2026-10-01T11:19:56.8879265Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/card/Card.js:53:18
+2026-10-01T11:19:56.8880649Z     at ScopeCard (/home/runner/work/mini-drop/mini-drop/web/src/components/ScopeCard.jsx:56:22)
+2026-10-01T11:19:56.8881950Z 
+2026-10-01T11:19:59.5016093Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.5048260Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.5049961Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.5062351Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.5063249Z 
+2026-10-01T11:19:59.5141413Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.5200388Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.5209735Z 
+2026-10-01T11:19:59.6954823Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.6957145Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.6958384Z 
+2026-10-01T11:19:59.7367096Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.7371468Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.7372437Z 
+2026-10-01T11:19:59.7988940Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.8038121Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.8079256Z 
+2026-10-01T11:19:59.9006422Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.9020155Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.9049512Z 
+2026-10-01T11:19:59.9661331Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:19:59.9720621Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:19:59.9809214Z 
+2026-10-01T11:20:00.0256336Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T11:20:00.0310697Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.0369393Z 
+2026-10-01T11:20:00.6181045Z  [32m✓[39m src/components/ScopeCard.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 6367[2mms[22m[39m
+2026-10-01T11:20:00.6194584Z      [33m[2m✓[22m[39m hides raw authority clarification prompts resolved by secure discovery [33m 1414[2mms[22m[39m
+2026-10-01T11:20:00.6197186Z      [33m[2m✓[22m[39m auto-selects exactly one eligible server candidate [33m 311[2mms[22m[39m
+2026-10-01T11:20:00.6199409Z      [33m[2m✓[22m[39m requires an explicit closed selection when multiple candidates are eligible [33m 898[2mms[22m[39m
+2026-10-01T11:20:00.6201183Z      [33m[2m✓[22m[39m shows a distinct EMPTY state and disables submission [33m 351[2mms[22m[39m
+2026-10-01T11:20:00.6202657Z      [33m[2m✓[22m[39m shows a distinct STALE state and disables submission [33m 373[2mms[22m[39m
+2026-10-01T11:20:00.6204244Z      [33m[2m✓[22m[39m shows a distinct UNAVAILABLE state and disables submission [33m 313[2mms[22m[39m
+2026-10-01T11:20:00.6205841Z      [33m[2m✓[22m[39m fails closed when the selected binding disappears on refresh [33m 429[2mms[22m[39m
+2026-10-01T11:20:00.6207529Z      [33m[2m✓[22m[39m submits expected version and binding authority without raw agent or PID [33m 564[2mms[22m[39m
+2026-10-01T11:20:00.6209357Z      [33m[2m✓[22m[39m does not resubmit an immutable server time range [33m 658[2mms[22m[39m
+2026-10-01T11:20:00.6211015Z      [33m[2m✓[22m[39m ignores a late discovery response after switching diagnoses [33m 308[2mms[22m[39m
+2026-10-01T11:20:00.7702117Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:00.7704551Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.7706170Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.7707534Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.7709195Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.7710170Z 
+2026-10-01T11:20:00.7736880Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:00.7740654Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.7741642Z 
+2026-10-01T11:20:00.9291891Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:00.9320268Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.9329373Z 
+2026-10-01T11:20:00.9884532Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:00.9958647Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:00.9960185Z 
+2026-10-01T11:20:01.0490046Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:01.0510132Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.0579455Z 
+2026-10-01T11:20:01.1502333Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:01.1504996Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.1529268Z 
+2026-10-01T11:20:01.1845464Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:01.1880235Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.1908480Z 
+2026-10-01T11:20:01.2321773Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T11:20:01.2350143Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.2379141Z 
+2026-10-01T11:20:01.5331715Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.5377248Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.5410053Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.5411647Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.5443149Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.5469287Z 
+2026-10-01T11:20:01.5479557Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.5484332Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.5485690Z 
+2026-10-01T11:20:01.6542624Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.6545157Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.6546232Z 
+2026-10-01T11:20:01.6723826Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.6725991Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.6726851Z 
+2026-10-01T11:20:01.7320031Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.7329198Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.7330288Z 
+2026-10-01T11:20:01.8279783Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.8283893Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.8284918Z 
+2026-10-01T11:20:01.8663480Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.8718152Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.8779331Z 
+2026-10-01T11:20:01.9031482Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:01.9033588Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:01.9049390Z 
+2026-10-01T11:20:02.3371147Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:02.3374075Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:02.3378961Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:02.3379861Z 
+2026-10-01T11:20:02.3437000Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:02.3480108Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:02.3492970Z 
+2026-10-01T11:20:02.3682845Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:02.3690740Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:02.3691875Z 
+2026-10-01T11:20:02.4000204Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T11:20:02.4002423Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:02.4003356Z 
+2026-10-01T11:20:02.4409922Z  [32m✓[39m src/components/SkillABPanel.test.jsx [2m([22m[2m5 tests[22m[2m)[22m[33m 4370[2mms[22m[39m
+2026-10-01T11:20:02.4419043Z      [33m[2m✓[22m[39m creates real AUTO and DISABLED diagnoses and reports only observed metrics [33m 2242[2mms[22m[39m
+2026-10-01T11:20:02.4420906Z      [33m[2m✓[22m[39m keeps an earlier supported hypothesis visible when a later branch is insufficient [33m 948[2mms[22m[39m
+2026-10-01T11:20:02.4422902Z      [33m[2m✓[22m[39m restores a real A/B pair after leaving and returning to the validation center [33m 1173[2mms[22m[39m
+2026-10-01T11:20:03.4079257Z [90mstderr[2m | src/components/ManagedServicesPanel.test.jsx[2m > [22m[2msubmits only the selected request ID and rejects an expired selection
+2026-10-01T11:20:03.4081653Z [22m[39mWarning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T11:20:03.4082636Z 
+2026-10-01T11:20:03.4083682Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:20:03.4084696Z 
+2026-10-01T11:20:03.4085075Z act(() => {
+2026-10-01T11:20:03.4085822Z   /* fire events that update state */
+2026-10-01T11:20:03.4086511Z });
+2026-10-01T11:20:03.4087136Z /* assert on the output */
+2026-10-01T11:20:03.4087690Z 
+2026-10-01T11:20:03.4089252Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:20:03.4091200Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T11:20:03.4092712Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T11:20:03.4093584Z 
+2026-10-01T11:20:03.4094434Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:20:03.4095318Z 
+2026-10-01T11:20:03.4095709Z act(() => {
+2026-10-01T11:20:03.4096408Z   /* fire events that update state */
+2026-10-01T11:20:03.4097138Z });
+2026-10-01T11:20:03.4097738Z /* assert on the output */
+2026-10-01T11:20:03.4098244Z 
+2026-10-01T11:20:03.4099809Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:20:03.4101749Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T11:20:03.4103382Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T11:20:03.4105710Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T11:20:03.4107819Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T11:20:03.4110102Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T11:20:03.4111886Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T11:20:03.4113431Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T11:20:03.4114673Z 
+2026-10-01T11:20:03.4115531Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:20:03.4116432Z 
+2026-10-01T11:20:03.4116824Z act(() => {
+2026-10-01T11:20:03.4117508Z   /* fire events that update state */
+2026-10-01T11:20:03.4118220Z });
+2026-10-01T11:20:03.4119080Z /* assert on the output */
+2026-10-01T11:20:03.4119604Z 
+2026-10-01T11:20:03.4120942Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:20:03.4122907Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T11:20:03.4124621Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T11:20:03.4126671Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T11:20:03.4129024Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T11:20:03.4130945Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T11:20:03.4132605Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T11:20:03.4134038Z Warning: An update to Notifications inside a test was not wrapped in act(...).
+2026-10-01T11:20:03.4134821Z 
+2026-10-01T11:20:03.4135624Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:20:03.4136425Z 
+2026-10-01T11:20:03.4136763Z act(() => {
+2026-10-01T11:20:03.4137372Z   /* fire events that update state */
+2026-10-01T11:20:03.4138016Z });
+2026-10-01T11:20:03.4138582Z /* assert on the output */
+2026-10-01T11:20:03.4139324Z 
+2026-10-01T11:20:03.4172134Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:20:03.4175870Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-notification/lib/Notifications.js:19:32
+2026-10-01T11:20:03.4177613Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T11:20:03.4179594Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T11:20:03.4181425Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T11:20:03.4183484Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T11:20:03.4185492Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T11:20:03.4187261Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T11:20:03.4189034Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T11:20:03.4189939Z 
+2026-10-01T11:20:03.4190794Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T11:20:03.4191690Z 
+2026-10-01T11:20:03.4192071Z act(() => {
+2026-10-01T11:20:03.4192761Z   /* fire events that update state */
+2026-10-01T11:20:03.4193480Z });
+2026-10-01T11:20:03.4194118Z /* assert on the output */
+2026-10-01T11:20:03.4195012Z 
+2026-10-01T11:20:03.4196493Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T11:20:03.4198349Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T11:20:03.4200219Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T11:20:03.4202052Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T11:20:03.4204440Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T11:20:03.4206437Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T11:20:03.4208201Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T11:20:03.4209428Z 
+2026-10-01T11:20:03.9791638Z  [32m✓[39m src/hooks/useSSE.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[32m 76[2mms[22m[39m
+2026-10-01T11:20:04.9530303Z  [32m✓[39m src/components/ManagedServicesPanel.test.jsx [2m([22m[2m10 tests[22m[2m)[22m[33m 5285[2mms[22m[39m
+2026-10-01T11:20:04.9554608Z    [33m[2m✓[22m[39m starts diagnosis by service identity and symptoms without sending a PID [33m 1438[2mms[22m[39m
+2026-10-01T11:20:04.9556610Z    [33m[2m✓[22m[39m shows real RAG stages and leaves unavailable stages empty [33m 557[2mms[22m[39m
+2026-10-01T11:20:04.9558497Z    [33m[2m✓[22m[39m shows a real upload's chunking, indexing and process usage [33m 458[2mms[22m[39m
+2026-10-01T11:20:04.9560539Z    [33m[2m✓[22m[39m does not retain actionable status after a failed refresh [33m 301[2mms[22m[39m
+2026-10-01T11:20:04.9562457Z    [33m[2m✓[22m[39m submits only the selected request ID and rejects an expired selection [33m 602[2mms[22m[39m
+2026-10-01T11:20:04.9564363Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3507) [33m 625[2mms[22m[39m
+2026-10-01T11:20:04.9566289Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3407) [33m 449[2mms[22m[39m
+2026-10-01T11:20:04.9568176Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3448) [33m 465[2mms[22m[39m
+2026-10-01T11:20:05.4840851Z  [32m✓[39m src/utils/reportPresentation.test.js [2m([22m[2m31 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-10-01T11:20:06.9785990Z  [32m✓[39m src/utils/observationAssessment.test.js [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-10-01T11:20:07.1070745Z  [32m✓[39m src/components/ConclusionCard.test.jsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1365[2mms[22m[39m
+2026-10-01T11:20:07.1071744Z      [33m[2m✓[22m[39m explains that inclusive Go function shares overlap [33m 671[2mms[22m[39m
+2026-10-01T11:20:08.6472394Z  [32m✓[39m src/utils/diagnosisDisplay.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-10-01T11:20:12.8442641Z  [32m✓[39m src/components/LatsReplayPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1380[2mms[22m[39m
+2026-10-01T11:20:12.8449461Z      [33m[2m✓[22m[39m creates a fresh UUID session and opens the returned diagnosis immediately [33m 1200[2mms[22m[39m
+2026-10-01T11:20:13.1113802Z  [32m✓[39m src/components/ChatThread.test.jsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1867[2mms[22m[39m
+2026-10-01T11:20:13.1150190Z      [33m[2m✓[22m[39m keeps fix verification disabled for an observation in simple mode [33m 664[2mms[22m[39m
+2026-10-01T11:20:14.5390814Z  [32m✓[39m src/hooks/SSEContext.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 187[2mms[22m[39m
+2026-10-01T11:20:16.8300650Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:16.8592800Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrejects an explicit zero-sample artifact instead of rendering an empty flamegraph
+2026-10-01T11:20:16.8620904Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:20:16.8622267Z 
+2026-10-01T11:20:16.8719834Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrejects an explicit zero-sample artifact instead of rendering an empty flamegraph
+2026-10-01T11:20:16.8723045Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:20:16.8724004Z 
+2026-10-01T11:20:17.5462188Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:17.5735045Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:17.5921714Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrenders continuous window outcomes in Chinese
+2026-10-01T11:20:17.5924550Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:20:17.5925917Z 
+2026-10-01T11:20:17.6232281Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrenders continuous window outcomes in Chinese
+2026-10-01T11:20:17.6237552Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T11:20:17.6239198Z 
+2026-10-01T11:20:17.6723306Z  [32m✓[39m src/pages/TaskResult.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2525[2mms[22m[39m
+2026-10-01T11:20:17.6725725Z      [33m[2m✓[22m[39m renders collection results and points diagnosis to the V2 workspace [33m 1165[2mms[22m[39m
+2026-10-01T11:20:17.6728378Z      [33m[2m✓[22m[39m rejects an explicit zero-sample artifact instead of rendering an empty flamegraph [33m 1003[2mms[22m[39m
+2026-10-01T11:20:17.6730984Z      [33m[2m✓[22m[39m renders continuous window outcomes in Chinese [33m 350[2mms[22m[39m
+2026-10-01T11:20:20.0804250Z  [32m✓[39m src/components/EngineeringCasesPanel.test.jsx [2m([22m[2m11 tests[22m[2m)[22m[33m 2148[2mms[22m[39m
+2026-10-01T11:20:20.0827772Z    [33m[2m✓[22m[39m shows actual before/after evidence and does not claim automated AI root acceptance [33m 1518[2mms[22m[39m
+2026-10-01T11:20:20.9860310Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:21.4024536Z  [32m✓[39m src/components/ToolCallCard.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2116[2mms[22m[39m
+2026-10-01T11:20:21.4030238Z      [33m[2m✓[22m[39m shows approve/reject for a pending approval tool [33m 960[2mms[22m[39m
+2026-10-01T11:20:21.4031919Z      [33m[2m✓[22m[39m keeps the server-bound agent and PID immutable while editing sampling parameters [33m 1038[2mms[22m[39m
+2026-10-01T11:20:25.7355574Z  [32m✓[39m src/components/FlamegraphViewer.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2769[2mms[22m[39m
+2026-10-01T11:20:25.7356752Z      [33m[2m✓[22m[39m renders a 10k-node flamegraph without crashing [33m 932[2mms[22m[39m
+2026-10-01T11:20:25.7357582Z      [33m[2m✓[22m[39m renders Java HTML as SVG data without inserting an executable iframe [33m 869[2mms[22m[39m
+2026-10-01T11:20:25.7358448Z      [33m[2m✓[22m[39m does not show a late response from the previously selected task [33m 930[2mms[22m[39m
+2026-10-01T11:20:26.1304605Z  [32m✓[39m src/components/AppLayout.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1294[2mms[22m[39m
+2026-10-01T11:20:26.1306378Z      [33m[2m✓[22m[39m shows the fallback indicator until the shared stream opens [33m 811[2mms[22m[39m
+2026-10-01T11:20:26.9890353Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:27.6871058Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:28.2268983Z  [32m✓[39m src/components/MentorComplexShowcase.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2483[2mms[22m[39m
+2026-10-01T11:20:28.2271040Z      [33m[2m✓[22m[39m replays only the diagnosis passed by the active workspace [33m 1500[2mms[22m[39m
+2026-10-01T11:20:28.2273383Z      [33m[2m✓[22m[39m shows the candidate Skill produced by the same diagnosis [33m 980[2mms[22m[39m
+2026-10-01T11:20:30.6881858Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:30.9372482Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:31.0591200Z  [32m✓[39m src/components/BusinessAcceptancePanel.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1810[2mms[22m[39m
+2026-10-01T11:20:31.0611938Z    [33m[2m✓[22m[39m does not turn missing evidence into a passing result [33m 923[2mms[22m[39m
+2026-10-01T11:20:31.0614751Z    [33m[2m✓[22m[39m shows fallback separately from full recovery and AI diagnosis [33m 539[2mms[22m[39m
+2026-10-01T11:20:32.7619080Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:32.7804452Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:32.7807186Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:32.7809396Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:32.7840209Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:32.7859074Z 
+2026-10-01T11:20:32.7934230Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:32.7936815Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:32.7939102Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:32.7940925Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:32.7941983Z 
+2026-10-01T11:20:32.8198311Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:32.8250318Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:32.8264867Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:32.8266811Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:32.8272852Z 
+2026-10-01T11:20:32.8751298Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:32.8781872Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:32.8810083Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:32.8859987Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:32.8894299Z 
+2026-10-01T11:20:33.2791318Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:33.2820558Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:33.2850842Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:33.2852720Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:33.2879232Z 
+2026-10-01T11:20:33.4784756Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:33.4961145Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:33.4970513Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:33.4973338Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:33.4975148Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:33.4976026Z 
+2026-10-01T11:20:33.5002628Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T11:20:33.5041054Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:33.5043104Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:33.5070040Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:33.5071864Z 
+2026-10-01T11:20:33.9600398Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:33.9714656Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mshows a request error and retry instead of only claiming the agent does not exist
+2026-10-01T11:20:33.9720513Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:33.9722529Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:33.9724529Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:33.9725664Z 
+2026-10-01T11:20:33.9795839Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mshows a request error and retry instead of only claiming the agent does not exist
+2026-10-01T11:20:33.9810453Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T11:20:33.9835030Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T11:20:33.9880274Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T11:20:33.9906206Z 
+2026-10-01T11:20:33.9930730Z  [32m✓[39m src/pages/AgentDetail.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2822[2mms[22m[39m
+2026-10-01T11:20:33.9956027Z    [33m[2m✓[22m[39m ignores late responses from another agent and resets the trend on navigation [33m 2366[2mms[22m[39m
+2026-10-01T11:20:33.9964126Z    [33m[2m✓[22m[39m shows a request error and retry instead of only claiming the agent does not exist [33m 452[2mms[22m[39m
+2026-10-01T11:20:34.0689370Z  [32m✓[39m src/components/DiagnosisSkillOutcomeCard.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1717[2mms[22m[39m
+2026-10-01T11:20:34.0702567Z      [33m[2m✓[22m[39m shows the Skill produced by a verified diagnosis and exposes its gates [33m 1499[2mms[22m[39m
+2026-10-01T11:20:35.6241499Z  [32m✓[39m src/hooks/usePolling.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+2026-10-01T11:20:35.8120040Z  [32m✓[39m src/components/DiagnosisPathPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1025[2mms[22m[39m
+2026-10-01T11:20:35.8122629Z      [33m[2m✓[22m[39m shows Chinese event and actor labels, with raw protocol codes in secondary details [33m 1013[2mms[22m[39m
+2026-10-01T11:20:39.3689071Z  [32m✓[39m src/components/EvalPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 556[2mms[22m[39m
+2026-10-01T11:20:39.3691468Z      [33m[2m✓[22m[39m defaults to performance experiments and keeps engineering regressions separate [33m 438[2mms[22m[39m
+2026-10-01T11:20:39.9196640Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:40.6886500Z  [32m✓[39m src/components/PerformanceDiagnosisSummary.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1620[2mms[22m[39m
+2026-10-01T11:20:40.6971265Z    [33m[2m✓[22m[39m shows every old scenario while keeping recorded lineage separate from causal root success [33m 1008[2mms[22m[39m
+2026-10-01T11:20:40.6997975Z    [33m[2m✓[22m[39m fails closed for http and can retry without injecting faults [33m 511[2mms[22m[39m
+2026-10-01T11:20:41.5408193Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T11:20:41.5410944Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:41.5412423Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:41.5413252Z 
+2026-10-01T11:20:42.1580501Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:42.1651484Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T11:20:42.1670193Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:42.1719336Z 
+2026-10-01T11:20:42.5538148Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T11:20:42.5540929Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:42.5542236Z 
+2026-10-01T11:20:42.5909773Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T11:20:42.5912244Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:42.5913240Z 
+2026-10-01T11:20:42.6191318Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T11:20:42.6195131Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T11:20:42.6196143Z 
+2026-10-01T11:20:42.6384495Z  [32m✓[39m src/components/SkillExperimentPanel.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 2112[2mms[22m[39m
+2026-10-01T11:20:42.6386702Z      [33m[2m✓[22m[39m uses the server-assigned arm and never asks the browser to choose one [33m 2107[2mms[22m[39m
+2026-10-01T11:20:44.7751060Z  [32m✓[39m src/components/PlannerBlock.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 557[2mms[22m[39m
+2026-10-01T11:20:44.7780760Z      [33m[2m✓[22m[39m merges cross-round paraphrases while keeping the latest state and unique causes [33m 553[2mms[22m[39m
+2026-10-01T11:20:45.0370479Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:45.2003508Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:45.8491156Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:45.9809983Z  [32m✓[39m src/components/FixVerificationPanel.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1634[2mms[22m[39m
+2026-10-01T11:20:45.9813632Z      [33m[2m✓[22m[39m shows an explicit unverified outcome when no repair records exist [33m 751[2mms[22m[39m
+2026-10-01T11:20:45.9815917Z      [33m[2m✓[22m[39m does not mistake a load failure for an absent repair [33m 369[2mms[22m[39m
+2026-10-01T11:20:45.9839474Z      [33m[2m✓[22m[39m renders past verification records [33m 511[2mms[22m[39m
+2026-10-01T11:20:47.4250958Z  [32m✓[39m src/utils/asyncProfiler.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-10-01T11:20:47.9665914Z  [32m✓[39m src/components/EvidenceCard.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 564[2mms[22m[39m
+2026-10-01T11:20:47.9670242Z      [33m[2m✓[22m[39m uses Chinese evidence role, gate decision, tool and observation labels [33m 501[2mms[22m[39m
+2026-10-01T11:20:49.8094711Z  [32m✓[39m src/components/SafeMarkdown.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+2026-10-01T11:20:50.9028124Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:51.2040577Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:51.2359262Z  [32m✓[39m src/utils/sysMetrics.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+2026-10-01T11:20:51.3740319Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:51.4373136Z  [32m✓[39m src/components/DiagnosisFinding.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 471[2mms[22m[39m
+2026-10-01T11:20:51.4420576Z      [33m[2m✓[22m[39m retains a supported report when a later branch is inconclusive, without hiding limitations [33m 464[2mms[22m[39m
+2026-10-01T11:20:52.0737161Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T11:20:52.1420798Z  [32m✓[39m src/pages/Schedules.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2261[2mms[22m[39m
+2026-10-01T11:20:52.1445325Z      [33m[2m✓[22m[39m renders the schedule list [33m 1164[2mms[22m[39m
+2026-10-01T11:20:52.1470588Z      [33m[2m✓[22m[39m opens the creation drawer from the primary action [33m 893[2mms[22m[39m
+2026-10-01T11:20:53.0571031Z  [32m✓[39m src/utils/latsReplay.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-10-01T11:20:53.5978520Z  [32m✓[39m src/utils/parseJsonPayload.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-01T11:20:54.6307625Z  [32m✓[39m src/utils/agentMetrics.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+2026-10-01T11:20:55.1577801Z  [32m✓[39m src/utils/parseJsonOffMainThread.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-01T11:20:56.1923851Z  [32m✓[39m src/utils/diagnosisQuery.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+2026-10-01T11:20:56.9464908Z  [32m✓[39m src/components/DiagnosisCaseList.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 1024[2mms[22m[39m
+2026-10-01T11:20:56.9476858Z      [33m[2m✓[22m[39m separates FULL_LATS frozen replay sessions from ordinary live diagnoses [33m 1021[2mms[22m[39m
+2026-10-01T11:20:57.8934240Z  [32m✓[39m src/utils/skillBenchmark.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-01T11:20:58.2996653Z  [32m✓[39m src/utils/latsSearch.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-10-01T11:20:58.6969589Z  [32m✓[39m src/components/StatusTag.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[32m 247[2mms[22m[39m
+2026-10-01T11:20:58.7119376Z 
+2026-10-01T11:20:58.7150336Z [2m Test Files [22m [1m[32m47 passed[39m[22m[90m (47)[39m
+2026-10-01T11:20:58.7190145Z [2m      Tests [22m [1m[32m294 passed[39m[22m[90m (294)[39m
+2026-10-01T11:20:58.7190920Z [2m   Start at [22m 11:19:33
+2026-10-01T11:20:58.7192157Z [2m   Duration [22m 85.50s[2m (transform 3.13s, setup 8.03s, import 101.38s, tests 83.62s, environment 51.59s)[22m
+2026-10-01T11:20:58.7192827Z 
+2026-10-01T11:20:58.7789684Z ##[group]Run npm run audit:prod
+2026-10-01T11:20:58.7790026Z [36;1mnpm run audit:prod[0m
+2026-10-01T11:20:58.7862661Z shell: /usr/bin/bash -e {0}
+2026-10-01T11:20:58.7862929Z ##[endgroup]
+2026-10-01T11:20:58.8932715Z 
+2026-10-01T11:20:58.8933757Z > mini-drop-web@0.1.0 audit:prod
+2026-10-01T11:20:58.8934538Z > npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org
+2026-10-01T11:20:58.8934988Z 
+2026-10-01T11:20:59.4027141Z # npm audit report
+2026-10-01T11:20:59.4027750Z 
+2026-10-01T11:20:59.4028298Z dompurify  3.4.13 - 3.4.15
+2026-10-01T11:20:59.4030768Z DOMPurify: IN_PLACE: node-removing afterSanitize hook leaves detached subtree event handlers armed, causing DOM XSS - https://github.com/advisories/GHSA-p98j-92pf-mc4p
+2026-10-01T11:20:59.4032768Z fix available via `npm audit fix`
+2026-10-01T11:20:59.4034131Z node_modules/dompurify
+2026-10-01T11:20:59.4034646Z 
+2026-10-01T11:20:59.4035110Z 1 low severity vulnerability
+2026-10-01T11:20:59.4035651Z 
+2026-10-01T11:20:59.4036151Z To address all issues, run:
+2026-10-01T11:20:59.4036877Z   npm audit fix
+2026-10-01T11:20:59.4244374Z ##[group]Run npm run build:check
+2026-10-01T11:20:59.4244697Z [36;1mnpm run build:check[0m
+2026-10-01T11:20:59.4318843Z shell: /usr/bin/bash -e {0}
+2026-10-01T11:20:59.4319116Z ##[endgroup]
+2026-10-01T11:20:59.5403784Z 
+2026-10-01T11:20:59.5404364Z > mini-drop-web@0.1.0 build:check
+2026-10-01T11:20:59.5405215Z > vite build && node ../scripts/check_web_bundle.mjs
+2026-10-01T11:20:59.5405652Z 
+2026-10-01T11:20:59.7890487Z [36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+2026-10-01T11:20:59.8063829Z transforming...
+2026-10-01T11:21:00.4916497Z ✓ 4590 modules transformed.
+2026-10-01T11:21:00.6914152Z rendering chunks...
+2026-10-01T11:21:00.9195202Z computing gzip size...
+2026-10-01T11:21:00.9385190Z dist/index.html                                0.79 kB │ gzip:   0.42 kB
+2026-10-01T11:21:00.9386388Z dist/assets/parseJson.worker-mxB42-VK.js       0.83 kB
+2026-10-01T11:21:00.9387685Z dist/assets/TaskResult-BAn5yWN7.css            0.32 kB │ gzip:   0.24 kB
+2026-10-01T11:21:00.9389495Z dist/assets/flamegraph-VXIZzpiT.css            0.60 kB │ gzip:   0.32 kB
+2026-10-01T11:21:00.9390746Z dist/assets/index-LYBKOQvt.css                 4.42 kB │ gzip:   1.55 kB
+2026-10-01T11:21:00.9391967Z dist/assets/AIDiagnosis-CcybTxIP.css          83.81 kB │ gzip:  16.01 kB
+2026-10-01T11:21:00.9393205Z dist/assets/ErrorAlert-BbdSBmqu.js             0.24 kB │ gzip:   0.19 kB
+2026-10-01T11:21:00.9394382Z dist/assets/ArrowLeftOutlined-Dl5IxS0u.js      0.60 kB │ gzip:   0.44 kB
+2026-10-01T11:21:00.9395616Z dist/assets/rolldown-runtime-B0Z9INg1.js       0.90 kB │ gzip:   0.51 kB
+2026-10-01T11:21:00.9396786Z dist/assets/StatusTag-y51giYqr.js              2.03 kB │ gzip:   0.82 kB
+2026-10-01T11:21:00.9397964Z dist/assets/agentMetrics-DZfYmLeS.js           2.25 kB │ gzip:   1.15 kB
+2026-10-01T11:21:00.9399565Z dist/assets/AuditLogs-Chxe_BFG.js              3.90 kB │ gzip:   1.92 kB
+2026-10-01T11:21:00.9400726Z dist/assets/row-D666Q8WS.js                    5.51 kB │ gzip:   2.24 kB
+2026-10-01T11:21:00.9401951Z dist/assets/collectors-9W4-i_vQ.js             6.12 kB │ gzip:   1.78 kB
+2026-10-01T11:21:00.9403159Z dist/assets/theme-CaWs9g39.js                  6.96 kB │ gzip:   2.98 kB
+2026-10-01T11:21:00.9404442Z dist/assets/AgentDetail-BYmxPN8e.js            7.71 kB │ gzip:   3.17 kB
+2026-10-01T11:21:00.9405728Z dist/assets/ThunderboltOutlined-BTdu8CMM.js   10.29 kB │ gzip:   4.08 kB
+2026-10-01T11:21:00.9407012Z dist/assets/usePolling-DkXdbht2.js            16.17 kB │ gzip:   6.84 kB
+2026-10-01T11:21:00.9408235Z dist/assets/Schedules-CzrEeeKy.js             16.96 kB │ gzip:   5.69 kB
+2026-10-01T11:21:00.9409546Z dist/assets/input-number-CLJSQNH5.js          23.73 kB │ gzip:   8.20 kB
+2026-10-01T11:21:00.9410590Z dist/assets/modal-BeHfaQx2.js                 27.89 kB │ gzip:   9.26 kB
+2026-10-01T11:21:00.9411638Z dist/assets/TaskResult-ilnmmqqd.js            29.62 kB │ gzip:  10.79 kB
+2026-10-01T11:21:00.9412637Z dist/assets/d3-OVqjLuRP.js                    36.91 kB │ gzip:  12.52 kB
+2026-10-01T11:21:00.9413674Z dist/assets/PlayCircleOutlined-B8PrLZuE.js    37.49 kB │ gzip:  12.82 kB
+2026-10-01T11:21:00.9414723Z dist/assets/axios-B0fvnqBc.js                 49.95 kB │ gzip:  18.75 kB
+2026-10-01T11:21:00.9415781Z dist/assets/Dashboard-CO_KEQtZ.js             50.48 kB │ gzip:  16.61 kB
+2026-10-01T11:21:00.9416902Z dist/assets/flamegraph-CSYLKD5W.js            96.97 kB │ gzip:  32.80 kB
+2026-10-01T11:21:00.9417949Z dist/assets/index-mpKywS8-.js                111.37 kB │ gzip:  38.38 kB
+2026-10-01T11:21:00.9419113Z dist/assets/react-C8_Uech3.js                178.38 kB │ gzip:  58.94 kB
+2026-10-01T11:21:00.9420067Z dist/assets/table-BFBIRDhe.js                343.46 kB │ gzip: 105.31 kB
+2026-10-01T11:21:00.9421029Z dist/assets/client-CQMs5d6D.js               375.37 kB │ gzip: 120.19 kB
+2026-10-01T11:21:00.9422449Z dist/assets/SafeMarkdown-DZiQkBoH.js         389.11 kB │ gzip: 122.02 kB
+2026-10-01T11:21:00.9423432Z dist/assets/AIDiagnosis-DnzzBMWw.js          418.59 kB │ gzip: 132.75 kB
+2026-10-01T11:21:00.9424700Z dist/assets/echarts-JZYO_Qfq.js              612.21 kB │ gzip: 206.37 kB
+2026-10-01T11:21:00.9425165Z 
+2026-10-01T11:21:00.9425574Z [33m[plugin builtin:vite-reporter] 
+2026-10-01T11:21:00.9426312Z (!) Some chunks are larger than 600 kB after minification. Consider:
+2026-10-01T11:21:00.9427098Z - Using dynamic import() to code-split the application
+2026-10-01T11:21:00.9428390Z - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+2026-10-01T11:21:00.9430065Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2026-10-01T11:21:00.9430807Z [32m✓ built in 1.15s[39m
+2026-10-01T11:21:01.0087087Z web bundle check passed: entry 699.2 KiB across 5 files; largest chunk echarts-JZYO_Qfq.js 597.9 KiB
+2026-10-01T11:21:01.0304117Z Post job cleanup.
+2026-10-01T11:21:01.1656900Z (node:2658) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T11:21:01.1658448Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T11:21:01.1661336Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-a79428a48f53c819bdf3224c6f533bf526ae1b21f28f4ee918b0bcba5121d960, not saving cache.
+2026-10-01T11:21:01.1825180Z Post job cleanup.
+2026-10-01T11:21:01.2763593Z [command]/usr/bin/git version
+2026-10-01T11:21:01.2817042Z git version 2.55.0
+2026-10-01T11:21:01.2865133Z Temporarily overriding HOME='/home/runner/work/_temp/1b2a1148-1624-48a3-acca-7b4c61b4f87f' before making global git config changes
+2026-10-01T11:21:01.2867071Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T11:21:01.2872086Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T11:21:01.2922809Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T11:21:01.2965863Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T11:21:01.3282015Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T11:21:01.3331201Z http.https://github.com/.extraheader
+2026-10-01T11:21:01.3334586Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-01T11:21:01.3381084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T11:21:01.3697403Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T11:21:01.3738531Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T11:21:01.4207233Z Cleaning up orphan processes
+2026-10-01T11:21:01.4652148Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

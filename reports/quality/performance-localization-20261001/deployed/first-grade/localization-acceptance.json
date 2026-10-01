@@ -1,0 +1,436 @@
+{
+  "schema": "mini-drop.performance-localization-acceptance.v1",
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "197382d654ac84d16f821acd979146a0d74cce2a357a3b5cc9725a0013866708",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "34bce28d788390ceaa98f3226015376ab008ce56271d1be97e9cd91257786850",
+      "scripts/audit_fault_plaza_failures.py": "036be7442c370777b5ee01ed7a395c3548c753f2ab5f3147758824924f3e0aed"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20261001T085318Z",
+      "previous_release": "/opt/mini-drop-releases/20261001T075239Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "05f7a2cebf15fce3321abf2a0a63b1600b1718e8afc7e44297a36d0fb04c699e",
+      "source_head": "3c3c87881124526605272818d8ff384bc0151fc3",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer",
+        "web",
+        "go-hotspot"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:16acd8fc7abf090f2959a0fc40627f627a60255325a3ad8161de2cc74fb37784",
+          "new": "sha256:ffadeda47a6b8828f157d3ad389096f3ccf2952db78f87bc538605fe1bca2f1c",
+          "tag": "mini-drop-diagnosis-worker:20261001T085318Z"
+        },
+        "analyzer": {
+          "old": "sha256:d45d02c5df6d34f021712dab751573a4dbbefe0855c74360b83c7491d6c9d411",
+          "new": "sha256:ffb3f5a353ab1b1199ffd867b30b6a99ee0b8ec289e59852e13f26a0af270bbd",
+          "tag": "mini-drop-analyzer:20261001T085318Z"
+        },
+        "web": {
+          "old": "sha256:7cd59c760e83efcedcb760cc286d590ad7e1a1775a3edf8b898ceeb797e1a221",
+          "new": "sha256:4b4490204425c2b56ad0d9c40e5cbe0762e1a57e29b77a40a58ca995a1bd7cf2",
+          "tag": "mini-drop-web:20261001T085318Z"
+        },
+        "go-hotspot": {
+          "old": "sha256:9a479ad5c77094added77fb6af48131daf858340e0aebd369844748c54197e2b",
+          "new": "sha256:5b872b0f0bde544b25ca58bf8b3cf5e3f15ee818bdb5ddd5a3350d43f5239696",
+          "tag": "mini-drop-go-hotspot:20261001T085318Z"
+        }
+      },
+      "untouched_container_count": 9,
+      "rollback_config": "/opt/mini-drop-releases/20261001T085318Z/private/rollback.compose.json"
+    },
+    "git_head": "3c3c87881124526605272818d8ff384bc0151fc3"
+  },
+  "selected_count": 3,
+  "localized_count": 0,
+  "passed_count": 0,
+  "results": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "localization_accepted": false,
+      "reports": [
+        {
+          "report_id": "report_7976f5d25c51308d782ed329f8c5f57a",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_4ded5ccc8af6581d38116675270ada9f",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_c7414b27e1ec21c5526ed05e06925f5a",
+          "domain": "cpu_hot_path",
+          "location": "main.runCPUFault",
+          "localization_accepted": false
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_a7371aef754a465ba48ae510a9d8d688",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "UNSUPPORTED_PLAN",
+        "checked_ratio": 0.0,
+        "criteria": [],
+        "evidence_refs": [],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_090245_04cfb2",
+          "artifact_type": "raw",
+          "sha256": "f0d561b8f2c534930b9ae7bd4a8f221badec0afd48402f096de669ed1c616f31",
+          "bytes": 12674
+        },
+        {
+          "task_id": "task_20261001_090245_04cfb2",
+          "artifact_type": "manifest",
+          "sha256": "7d56829f6a09aa66dd39d3610d2868d5b9ee82547e7b223efb4ac70b8f8609b7",
+          "bytes": 1094
+        },
+        {
+          "task_id": "task_20261001_090245_04cfb2",
+          "artifact_type": "flamegraph_json",
+          "sha256": "9559a80aebfe223111309c1e007a3d5b72808ef363496d795825d3e6b02f68be",
+          "bytes": 25666
+        },
+        {
+          "task_id": "task_20261001_090245_04cfb2",
+          "artifact_type": "top_json",
+          "sha256": "fc7b4b8883de802ef98b7814c35f5b91b2962b9789405bc378198a346bb93542",
+          "bytes": 3013
+        },
+        {
+          "task_id": "task_20261001_090304_d06cee",
+          "artifact_type": "sys_metrics",
+          "sha256": "a7aaa89bf267e24f2b6764ef456e4090d5d76d7b6b37fb3cc6b7973051c27f70",
+          "bytes": 15188
+        },
+        {
+          "task_id": "task_20261001_090304_d06cee",
+          "artifact_type": "manifest",
+          "sha256": "470001a21c1745263303080b6fe939ac6baa0c872366f60cca844de00d9dc590",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "raw",
+          "sha256": "76acdd4e6cffdf7ee6a30bab760ce756d6d21b90d99e6367a34cac9b9f37dbff",
+          "bytes": 103140
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "manifest",
+          "sha256": "c86a3f6563ce17764e090c8d2ff606523b7fe086e399cfe30211b2bcc9047c17",
+          "bytes": 1272
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "flamegraph_json",
+          "sha256": "f88873fc26583f8e91c18de07074619c3057f43be025f0597c86b95c34eb12eb",
+          "bytes": 948
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "flamegraph_svg",
+          "sha256": "494e7e2cb667d0bdf860d0595b2c9a962da2440804ba7f8c0471a1180b29b6cf",
+          "bytes": 16926
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "top_json",
+          "sha256": "9480f6e1dc646e52cae0b3767e9b01a746276743686a5f207a335aefcc552351",
+          "bytes": 227
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "callgraph_json",
+          "sha256": "4d6a750e64829a11f069cd88373bcab76f2ae875461ef20c9aee3390e7428653",
+          "bytes": 554
+        },
+        {
+          "task_id": "task_20261001_090346_68c396",
+          "artifact_type": "suggestions_md",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        },
+        {
+          "task_id": "task_20261001_090428_051ee1",
+          "artifact_type": "ebpf_metrics",
+          "sha256": "7da4cc97f1d92298b6f4c63443bdff739262c86f441ec99fded193cbab6b9752",
+          "bytes": 176
+        },
+        {
+          "task_id": "task_20261001_090428_051ee1",
+          "artifact_type": "ebpf_raw",
+          "sha256": "ff1b1df8ae61d8af08d09ae779e6df9b2d2b9e3bdee245f43671cd6380a6769b",
+          "bytes": 4453
+        },
+        {
+          "task_id": "task_20261001_090428_051ee1",
+          "artifact_type": "manifest",
+          "sha256": "4c12df094e3ab26dacd4a9959120e1617d54a911960e2460c36c7824aa5dedc4",
+          "bytes": 1943
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": false,
+      "measurement_checked": false
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "localization_accepted": false,
+      "reports": [
+        {
+          "report_id": "report_2d28244b80c872d1435e5da5f43cbcb8",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_1878ff6745ff14042383ce1c81ce006b",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_8f016c77e5eccf9d3553b031a7fe3f4f",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_28133bb24f4a458a85c604c8561f0f89",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "UNSUPPORTED_PLAN",
+        "checked_ratio": 0.0,
+        "criteria": [],
+        "evidence_refs": [],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_090609_1c787c",
+          "artifact_type": "sys_metrics",
+          "sha256": "09c0ac28d3a516390dbe2fc2257d2268a8e3fa225eeada58647e9475885d128e",
+          "bytes": 15503
+        },
+        {
+          "task_id": "task_20261001_090609_1c787c",
+          "artifact_type": "manifest",
+          "sha256": "2833bfabbe7aadc0240c6c04e7a9c9c44701995504100af4b233de81f3455455",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_090728_98d87b",
+          "artifact_type": "raw",
+          "sha256": "8e0914ea20a8965785ec89386aa5f5d45b772b3630162c5867c4fb66bc528618",
+          "bytes": 2283
+        },
+        {
+          "task_id": "task_20261001_090728_98d87b",
+          "artifact_type": "manifest",
+          "sha256": "277ba04a5cbf3bbb0a071992900bceda734027a21e31102a5f03397264c80886",
+          "bytes": 1092
+        },
+        {
+          "task_id": "task_20261001_090728_98d87b",
+          "artifact_type": "flamegraph_json",
+          "sha256": "62becc4f2f23fffa1ec8a5921d486026c48a734a388e2185112cbf6a72804380",
+          "bytes": 6210
+        },
+        {
+          "task_id": "task_20261001_090728_98d87b",
+          "artifact_type": "top_json",
+          "sha256": "6b722273f740b293ce79c64267795d58b9b25e9bd7642366dec0a03eb7a362fb",
+          "bytes": 2752
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "raw",
+          "sha256": "7553f1f0c55bd33243f434b408972c43779eddc96af675496672a02261cff241",
+          "bytes": 5796
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "manifest",
+          "sha256": "6ba75b47039203a2f1743fbd37a2bb914fff11016946455f1e7b9184033b4055",
+          "bytes": 1268
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "flamegraph_json",
+          "sha256": "db2bb3018e44fa2054bee17d729357cde361179b60d708b383e53d519283839c",
+          "bytes": 460
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "flamegraph_svg",
+          "sha256": "36d61e304aeaeb1bcef7d6486b7fd6b29c02ff1cc1ee9149bcb8f2061028ec50",
+          "bytes": 15053
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "top_json",
+          "sha256": "def4c7044fea01f538f01cb878e7cfbb5532be71d2e20352b1bf02fb3ba670d6",
+          "bytes": 153
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "callgraph_json",
+          "sha256": "e083fcddc66963ba3940771edd6ae3ed112f432c32fd43727226bcb0c318662c",
+          "bytes": 381
+        },
+        {
+          "task_id": "task_20261001_090839_710cf9",
+          "artifact_type": "suggestions_md",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": false,
+      "measurement_checked": false
+    },
+    {
+      "scenario_id": "go-file-io",
+      "localization_accepted": false,
+      "reports": [
+        {
+          "report_id": "report_cb5526b3a6270c7e14956230756e2aec",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_c17cd425ba9a23190ff78631b1e27d89",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_bd7f1bba05f2f1dd185ea6e5cf688183",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_3575a923f0c845859cc0bf60ef95c6e2",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "UNSUPPORTED_PLAN",
+        "checked_ratio": 0.0,
+        "criteria": [],
+        "evidence_refs": [],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_090959_c4f3bb",
+          "artifact_type": "sys_metrics",
+          "sha256": "3b064eccb6d1cb020b026e9c6c8812bf04b4fe17998dc65c347122d1ab15057d",
+          "bytes": 15765
+        },
+        {
+          "task_id": "task_20261001_090959_c4f3bb",
+          "artifact_type": "manifest",
+          "sha256": "1915ae3e9d5bbc86ded19b651c5d61d4e3a76eecef07cb7a142dd83b9c7cc1b2",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_091108_83e0ae",
+          "artifact_type": "ebpf_metrics",
+          "sha256": "4bb6faa13c269612ddfed21e4c19eb236cfcbe8ee7565f9d86a71600909ae34f",
+          "bytes": 136
+        },
+        {
+          "task_id": "task_20261001_091108_83e0ae",
+          "artifact_type": "ebpf_raw",
+          "sha256": "91b5c3422fff87d66f2921e0c576d26c0eb406007be060ceb7da0dd1d25dd886",
+          "bytes": 2423
+        },
+        {
+          "task_id": "task_20261001_091108_83e0ae",
+          "artifact_type": "manifest",
+          "sha256": "f44debceb148fee369088d2116bdbb3385628f738ac0470399501d1fd0d6eab1",
+          "bytes": 1942
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "raw",
+          "sha256": "e938cc8a77852cb9ef4805c43bda20b1210a58ae17dd04461bed86a253af7267",
+          "bytes": 5748
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "manifest",
+          "sha256": "dcd1f6c298ee54407fb6f0eb0ce4e3586b68fc7109d6e79795db96a46b082f08",
+          "bytes": 1268
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "flamegraph_json",
+          "sha256": "f54a496b88317016bc40f742db1ec7909e99743735dc4dc2e1e6931646165e26",
+          "bytes": 554
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "flamegraph_svg",
+          "sha256": "bd6423e47a46b3abdf70df77ec20677152fa214ffb9b844260ef69e913f33aa0",
+          "bytes": 15449
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "top_json",
+          "sha256": "35b8ae8d4f292c02a9ae565f02d7811a6c9299cedab57433103655f12ea41b18",
+          "bytes": 153
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "callgraph_json",
+          "sha256": "d9a78ea94e9f543d6c9917010480521bd734fb375bd48f5313a6e46226e8462f",
+          "bytes": 381
+        },
+        {
+          "task_id": "task_20261001_091206_3dbee2",
+          "artifact_type": "suggestions_md",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": false,
+      "measurement_checked": false
+    }
+  ],
+  "boundary": "Observed paths only; old 21 RCA grades unchanged; no causal or same-load fix claim."
+}

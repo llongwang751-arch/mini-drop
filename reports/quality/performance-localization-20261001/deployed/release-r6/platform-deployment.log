@@ -1,0 +1,18 @@
+Sending build context to Docker daemon  6.731MB
+
+Step 1/2 : FROM sha256:7159a13281fcdab18190c062c55f11aa8fab5021287508894b8c6d06d9f5ff25
+ ---> 7159a13281fc
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 9180500fad7c
+Successfully built 9180500fad7c
+Successfully tagged mini-drop-web:20261001T104413Z
+{"release": "/opt/mini-drop-releases/20261001T104413Z", "previous_release": "/opt/mini-drop-releases/20261001T094553Z", "status": "HEALTHY", "manifest_sha256": "b48382823bb78d72e59104ff2870d87679442a5b1a02410f298cde9c67a49c34", "source_head": "ea24bb514aee396b72710d5d0cf3364c694d27b9", "changed_services": ["web"], "images": {"web": {"old": "sha256:7159a13281fcdab18190c062c55f11aa8fab5021287508894b8c6d06d9f5ff25", "new": "sha256:9180500fad7c0a4b07156a8ecbcab886cb3366fc8d5d4ed117aee24499eeb3ab", "tag": "mini-drop-web:20261001T104413Z"}}, "untouched_container_count": 12, "rollback_config": "/opt/mini-drop-releases/20261001T104413Z/private/rollback.compose.json"}
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+time="2026-10-01T18:44:34+08:00" level=warning msg="Found orphan containers ([mini-drop-control-diagnosis-worker-1 mini-drop-control-analyzer-1 mini-drop-control-go-hotspot-1 mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started

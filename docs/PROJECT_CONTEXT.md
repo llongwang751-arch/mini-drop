@@ -1,5 +1,15 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-10-01 性能路径、反证与案例链接最终交付
+
+最新Web发布`20261001T112302Z` / `ebb1a0e6a3a7396db789bb8a0a47c734d1219aff`；[精确CI36854620615](https://github.com/llongwang751-arch/mini-drop/actions/runs/36854620615)成功13/13，Python1358通过/10登记跳过、Web294通过、真实PostgreSQL8通过零跳过，Chroma与Go race/真实镜像/连续I/O专项通过。仅Web更换，其余12容器保持；Worker/Analyzer/Go demo仍为20261001T094553Z / c59aac566cedef6a239eb1d640ee8fb796524ae3。Worker/Analyzer各193文件、Web56文件SHA复核，13容器健康，API3依赖健康，21故障inactive；Office PID1650962、NRestarts=0，API与Office源码及数据保持。
+
+新独立三案例：CPU具体热函数与HTTP耗时路径已定位，路径定位2/3；I/O同一窗口684次操作平均0.081ms，3/3数值判据已检查，REFUTED反驳慢操作假设。37份原始下载SHA一致，取证/撤销恢复/清理/收束3/3，严格因果0/3；旧21类因果0/21与原证据保留。停止前I/O成功10232次、失败0，8MiB轮转修复采样提前停止，默认64MiB tmpfs不能称真实磁盘瓶颈。
+
+真实Chrome验证三个案例链接、CPU/HTTP路径、I/O反证与数值、健康检查正常（仅已检查范围）、默认21项/工程4项/9份下载SHA、1440/1024/768/375宽度，无JS/HTTP异常。反证展示旧代码5项失败，案例链接状态重放/列表失败重试旧代码2项失败；修复后完整Web294项通过。保留有效反证、ACCEPT_COUNTER准入和最新合格窗口；React函数状态更新保持纯函数，不再提前清空请求链接。
+
+剩余重点是可归属的真实磁盘等待、HTTP与TCP传输拆分，以及固定输入/负载的原因干预。没有完成全部21类因果验收，不用本轮路径与反证改写旧分数。一小时按用户已接受的1/120窗超限不重跑，原严格FAILED保持。以下同日期段落为此前过程快照，以本段为当前状态。全部失败、成功、原始下载、CI与发布回执见[本轮交付](../reports/architecture/performance-localization-20261001.md)及[归档SHA清单](../reports/quality/performance-localization-20261001/manifest.json)。
+
 ## 2026-10-01 数值观测验证与性能路径定位（后端与反证展示已部署，案例链接修正待发布）
 
 Worker/Analyzer/Web/Go demo发布`20261001T094553Z`，源码`c59aac566cedef6a239eb1d640ee8fb796524ae3`；[精确CI36844752903](https://github.com/llongwang751-arch/mini-drop/actions/runs/36844752903)成功13/13，Python1358通过/10登记跳过、Web274通过、真实PG8通过零跳过、Chroma专项与Go race/真实镜像/连续I/O验证通过。Worker/Analyzer各193份文件、Web56份文件SHA一致，其余9容器保持，13容器健康。Office本轮部署前后PID1650962、NRestarts=0，源f37f44e与API f9b143a/二进制不改；历史PID484342属于此前窗口。

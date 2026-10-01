@@ -1,0 +1,115 @@
+{
+  "status": "PASSED",
+  "cases": [
+    {
+      "runtime": "python",
+      "status": "CONTROL_VERIFIED",
+      "windows": {
+        "baseline": {
+          "pid": 2109,
+          "create_time": 1790852767.44,
+          "duration_seconds": 4.000261778999999,
+          "cpu_start_seconds": 0.09000000000000001,
+          "cpu_end_seconds": 0.1,
+          "cpu_percent": 0.24998363988318373,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        },
+        "fault": {
+          "pid": 2109,
+          "create_time": 1790852767.44,
+          "duration_seconds": 8.000179283000001,
+          "cpu_start_seconds": 0.12000000000000001,
+          "cpu_end_seconds": 7.62,
+          "cpu_percent": 93.74789907442626,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        },
+        "recovery": {
+          "pid": 2109,
+          "create_time": 1790852767.44,
+          "duration_seconds": 4.000232390000001,
+          "cpu_start_seconds": 7.66,
+          "cpu_end_seconds": 7.67,
+          "cpu_percent": 0.24998547646877547,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        }
+      },
+      "profile": {
+        "function": "source_hot_function",
+        "source_file": "app.py",
+        "source_line": 173,
+        "new_hot_samples": 1384,
+        "new_total_samples": 1384
+      },
+      "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+      "profile_observer": "internal cooperative stack sampler",
+      "cleanup_verified": true,
+      "injection_active_through_fault_window": true,
+      "reasons": [],
+      "ai_root_cause_verified": false,
+      "fix_verified": false,
+      "artifact_sha256": {
+        "cleanup-snapshot.json": "0d5ea79f03d6a6028f67a03cddc8bfc9458e30cd560b2bb5e92311a3a496f6fe",
+        "fault-snapshots.json": "41859477db97d6c512666ba872516840abc33b307cc113b15cacedb60aa11177",
+        "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "recovery-snapshot.json": "2355871a023ffdbfd7006f780def249a326e00bfb9ae8b2a0323527ad4d706b8"
+      }
+    },
+    {
+      "runtime": "go",
+      "status": "CONTROL_VERIFIED",
+      "windows": {
+        "baseline": {
+          "pid": 3747,
+          "create_time": 1790852803.89,
+          "duration_seconds": 4.000301723000007,
+          "cpu_start_seconds": 0.0,
+          "cpu_end_seconds": 0.04,
+          "cpu_percent": 0.9999245749393672,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        },
+        "fault": {
+          "pid": 3747,
+          "create_time": 1790852803.89,
+          "duration_seconds": 8.00021214200001,
+          "cpu_start_seconds": 0.04,
+          "cpu_end_seconds": 8.76,
+          "cpu_percent": 108.99710964189568,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        },
+        "recovery": {
+          "pid": 3747,
+          "create_time": 1790852803.89,
+          "duration_seconds": 4.00019673700001,
+          "cpu_start_seconds": 14.76,
+          "cpu_end_seconds": 14.8,
+          "cpu_percent": 0.999950818168992,
+          "observer": "OS process CPU times / monotonic wall time; one-core percent"
+        }
+      },
+      "profile": {
+        "function": "main.goCPUHotFunction",
+        "cumulative_percent": 88.2,
+        "sample_cpu_seconds": 5.51
+      },
+      "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+      "profile_observer": "Go CPU pprof",
+      "cleanup_verified": true,
+      "injection_active_through_fault_window": true,
+      "reasons": [],
+      "ai_root_cause_verified": false,
+      "fix_verified": false,
+      "artifact_sha256": {
+        "cleanup-snapshot.json": "7c858d8942ef5c9a407028e542f5bd12216ef896e03579a2c7620c49a78d232e",
+        "fault-snapshots.json": "4b1a2dc350b32f5facada1cea249be1e3e43a8304dd4eee65d8b930dfbe3b20f",
+        "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pprof-top.txt": "31f0baa4849f09b96c16dc53f15a0f68363f91e79546c512dd085c23829c80f2",
+        "go-hotspot": "f40fa0ed9cc0e67a7037acc6a96e84acf0def70ab49c942e2a51ff5252499e6d",
+        "recovery-snapshot.json": "51f254eb7e18ff8af13179d158d97c74a41af22eca5ce7888f1b14ace49f3bea",
+        "cpu.pprof": "4037d2b7009ddcf81b4655c31ad757cefb82beeeb2b725bac689b86d5e0225ab"
+      }
+    }
+  ],
+  "source_changed": false,
+  "ai_root_cause_verified": false,
+  "fix_verified": false
+}

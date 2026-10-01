@@ -1,0 +1,53 @@
+{
+  "runtime": "python",
+  "status": "CONTROL_VERIFIED",
+  "windows": {
+    "baseline": {
+      "pid": 2109,
+      "create_time": 1790852767.44,
+      "duration_seconds": 4.000261778999999,
+      "cpu_start_seconds": 0.09000000000000001,
+      "cpu_end_seconds": 0.1,
+      "cpu_percent": 0.24998363988318373,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "fault": {
+      "pid": 2109,
+      "create_time": 1790852767.44,
+      "duration_seconds": 8.000179283000001,
+      "cpu_start_seconds": 0.12000000000000001,
+      "cpu_end_seconds": 7.62,
+      "cpu_percent": 93.74789907442626,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "recovery": {
+      "pid": 2109,
+      "create_time": 1790852767.44,
+      "duration_seconds": 4.000232390000001,
+      "cpu_start_seconds": 7.66,
+      "cpu_end_seconds": 7.67,
+      "cpu_percent": 0.24998547646877547,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    }
+  },
+  "profile": {
+    "function": "source_hot_function",
+    "source_file": "app.py",
+    "source_line": 173,
+    "new_hot_samples": 1384,
+    "new_total_samples": 1384
+  },
+  "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+  "profile_observer": "internal cooperative stack sampler",
+  "cleanup_verified": true,
+  "injection_active_through_fault_window": true,
+  "reasons": [],
+  "ai_root_cause_verified": false,
+  "fix_verified": false,
+  "artifact_sha256": {
+    "cleanup-snapshot.json": "0d5ea79f03d6a6028f67a03cddc8bfc9458e30cd560b2bb5e92311a3a496f6fe",
+    "fault-snapshots.json": "41859477db97d6c512666ba872516840abc33b307cc113b15cacedb60aa11177",
+    "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recovery-snapshot.json": "2355871a023ffdbfd7006f780def249a326e00bfb9ae8b2a0323527ad4d706b8"
+  }
+}
