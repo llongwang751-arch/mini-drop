@@ -16,6 +16,18 @@ afterEach(() => {
 });
 
 describe("FaultPlazaPanel", () => {
+  it("shows the full performance catalog when requested by the performance entry", async () => {
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [
+      { scenario_id: "source-hotspot", title: "Python CPU", target_runtime: "Python", family: "CPU" },
+      { scenario_id: "io-write-latency", title: "Python 同步写入", target_runtime: "Python", family: "IO" },
+      { scenario_id: "memory-growth", title: "Python 内存增长", target_runtime: "Python", family: "MEMORY" },
+    ] });
+    render(<FaultPlazaPanel initialFilter="all" />);
+    expect(await screen.findByText("Python 同步写入")).toBeInTheDocument();
+    expect(screen.getByText("Python 内存增长")).toBeInTheDocument();
+    expect(screen.getByText(/当前显示 3 \/ 3 个场景/)).toBeInTheDocument();
+    expect(api.startFaultPlazaScenario).not.toHaveBeenCalled();
+  });
   it("shows fresh acceptance gates and opens evidence without injecting a fault", async () => {
     api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
       scenario_id: "java-lock-contention", title: "Java 锁等待", target_runtime: "Java",

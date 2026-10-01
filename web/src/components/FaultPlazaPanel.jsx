@@ -112,13 +112,13 @@ function familyLabel(value) {
   return labels[String(value || "").toUpperCase()] || value || "综合故障";
 }
 
-export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, onOpenDiagnosis }) {
+export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, onOpenDiagnosis, initialFilter = "recommended" }) {
   const [plaza, setPlaza] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [duration, setDuration] = useState(60);
   const [busyKey, setBusyKey] = useState("");
-  const [runtimeFilter, setRuntimeFilter] = useState("recommended");
+  const [runtimeFilter, setRuntimeFilter] = useState(initialFilter);
   const [recentRecovery, setRecentRecovery] = useState("");
 
   const load = useCallback(async ({ silent = false } = {}) => {

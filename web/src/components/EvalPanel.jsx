@@ -192,6 +192,7 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
           <Space direction="vertical" size={18} style={{ width: "100%" }}>
             <PerformanceDiagnosisSummary />
             <FaultPlazaPanel
+              initialFilter="all"
               onStartDiagnosis={onStartDiagnosis}
               onOpenDiagnosis={onOpenDiagnosis}
               onPrepareSkillAB={(diagnosisRequest, started) => {
