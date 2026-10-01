@@ -23,6 +23,7 @@ import { listDiagnosticSkills } from "../api/client";
 import FaultPlazaPanel from "./FaultPlazaPanel";
 import EngineeringCasesPanel from "./EngineeringCasesPanel";
 import PerformanceDiagnosisSummary from "./PerformanceDiagnosisSummary";
+import EngineeringDiagnosisSummary from "./EngineeringDiagnosisSummary";
 import BusinessAcceptancePanel from "./BusinessAcceptancePanel";
 import LatsReplayPanel from "./LatsReplayPanel";
 import SkillABPanel from "./SkillABPanel";
@@ -160,6 +161,7 @@ function OverviewPanel({ onOpenSkills }) {
 export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesChanged }) {
   const [section, setSection] = useState("faults");
   const [skillABSeed, setSkillABSeed] = useState(null);
+  const [engineeringAcceptance, setEngineeringAcceptance] = useState(null);
 
   return (
     <div className="eval-center">
@@ -190,8 +192,10 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         {section === "business" && <BusinessAcceptancePanel />}
         {section === "faults" && (
           <Space direction="vertical" size={18} style={{ width: "100%" }}>
+            <EngineeringDiagnosisSummary onLoaded={setEngineeringAcceptance} onOpenDiagnosis={onOpenDiagnosis} />
             <PerformanceDiagnosisSummary />
             <FaultPlazaPanel
+              engineeringCases={engineeringAcceptance?.cases}
               initialFilter="all"
               onStartDiagnosis={onStartDiagnosis}
               onOpenDiagnosis={onOpenDiagnosis}

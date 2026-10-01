@@ -16,6 +16,26 @@ afterEach(() => {
 });
 
 describe("FaultPlazaPanel", () => {
+  it("prefers current engineering localization over a frozen strict failure", async () => {
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
+      scenario_id: "go-cpu-hotspot", title: "Go CPU", target_runtime: "Go", active: false,
+      latest_acceptance: { passed: false, root_cause_accepted: false },
+    }] });
+    render(<FaultPlazaPanel engineeringCases={[{ scenario_id: "go-cpu-hotspot", diagnosis_accepted: true,
+      localization_accepted: true, outcome: "LOCALIZED_ANOMALY" }]} />);
+    expect(await screen.findByText("工程定位通过")).toBeInTheDocument();
+    expect(screen.queryByText("历史严格复验未通过")).not.toBeInTheDocument();
+  });
+
+  it("does not count a measured refutation as positive root localization", async () => {
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
+      scenario_id: "go-file-io", title: "Go I/O", target_runtime: "Go", active: false,
+    }] });
+    render(<FaultPlazaPanel engineeringCases={[{ scenario_id: "go-file-io", diagnosis_accepted: true,
+      localization_accepted: false, outcome: "REFUTED" }]} />);
+    expect(await screen.findByText("判断通过 · 异常假设被反驳")).toBeInTheDocument();
+    expect(screen.queryByText("工程定位通过")).not.toBeInTheDocument();
+  });
   it("shows the full performance catalog when requested by the performance entry", async () => {
     api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [
       { scenario_id: "source-hotspot", title: "Python CPU", target_runtime: "Python", family: "CPU" },
@@ -39,8 +59,8 @@ describe("FaultPlazaPanel", () => {
     }] });
     const open = vi.fn();
     render(<FaultPlazaPanel onOpenDiagnosis={open} />);
-    expect(await screen.findByText("严格复验未通过")).toBeInTheDocument();
-    expect(screen.queryByText("严格复验通过 · 未验证代码修复")).not.toBeInTheDocument();
+    expect(await screen.findByText("历史严格复验未通过")).toBeInTheDocument();
+    expect(screen.queryByText("历史严格复验通过 · 未验证代码修复")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "查看复验诊断" }));
     expect(open).toHaveBeenCalledWith("insight-acceptance");
     expect(api.startFaultPlazaScenario).not.toHaveBeenCalled();

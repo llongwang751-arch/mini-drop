@@ -1,0 +1,115 @@
+{
+  "schema": "mini-drop.engineering-diagnosis-contract.v1",
+  "profile": "engineering-diagnosis.v1",
+  "default_acceptance": "Engineering diagnosis requires trusted scoped measurement or source-mapped profile; independent causal CONTROL, fixed rounds, COMPLETED and same-load fix are not mandatory.",
+  "mandatory": [
+    "target_identity",
+    "artifact_integrity",
+    "analyzer_validated",
+    "resolved_claims",
+    "domain_match",
+    "lab_recovery_and_cleanup"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "domain": "cpu_hotspot"
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "domain": "cpu_hot_path"
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "domain": "memory_growth"
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "domain": "io_latency"
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "domain": "noisy_neighbor"
+    },
+    {
+      "scenario_id": "load-saturation",
+      "domain": "load_saturation"
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "domain": "queue_backlog"
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "domain": "cpu_hot_path",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-cpu-hotspot.json",
+      "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+      "profile_contracts": [
+        "go-profile-and-os-cpu.v1"
+      ],
+      "minimum_profile_percent": 20
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "domain": "network_latency",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-network-latency.json",
+      "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a"
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "domain": "memory_growth"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "domain": "io_latency",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-file-io.json",
+      "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b"
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "domain": "jvm_gc"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "domain": "lock_contention"
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "domain": "downstream_latency"
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "domain": "memory_growth"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "domain": "io_latency"
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "domain": "cpu_hot_path"
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "domain": "lock_contention"
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "domain": "memory_growth"
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "domain": "io_latency"
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "domain": "downstream_latency"
+    }
+  ],
+  "evidence_manifests": [
+    {
+      "path": "reports/quality/performance-localization-20261001/manifest.json",
+      "sha256": "f5afd1717ed2902e285b4a3565b497aedc2839c9793e6e7a517a6f2bb4b512b4"
+    }
+  ]
+}

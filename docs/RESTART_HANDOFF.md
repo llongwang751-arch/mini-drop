@@ -1,5 +1,11 @@
 # Mini-Drop 重启交接点
 
+## 2026-10-01 默认工程诊断验收（候选，待发布）
+
+用户明确要求降低默认诊断门槛。新增engineering-diagnosis.v1：独立因果对照、固定轮次、必须COMPLETED和同负载修复不再作为工程诊断前提；目标身份、来源/SHA、数值真实性、对应信号域、撤销恢复与清理保持必需。严格评分器与冻结旧批次保留为专项，旧0/21不再代表当前项目完成度。数值和Profile仍为BOUNDED_OBSERVATION，不修改因果标志。
+
+当前对上轮冻结真机三案例按新规则重评：工程诊断判断3/3、具体异常路径2/3、有效反证1条；不是新一轮真机或完整21类成绩。21类已注册，18类仍未按工程规则验收。新合同支持多个独立证据清单，通用评分器与内存域复用测试支持扩展，生成物漂移检查加入CI。页面新增当前成绩，并优先用于对应卡片；历史严格分数明确标为历史。实现与扩展流程见[工程诊断验收](DIAGNOSIS_ACCEPTANCE.md)。候选待精确CI、Web发布与真实浏览器确认；不重跑已接受的一小时。
+
 ## 2026-10-01 性能路径、反证与案例链接最终交付
 
 最新Web发布`20261001T112302Z` / `ebb1a0e6a3a7396db789bb8a0a47c734d1219aff`；[精确CI36854620615](https://github.com/llongwang751-arch/mini-drop/actions/runs/36854620615)成功13/13，Python1358通过/10登记跳过、Web294通过、真实PostgreSQL8通过零跳过，Chroma与Go race/真实镜像/连续I/O专项通过。仅Web更换，其余12容器保持；Worker/Analyzer/Go demo仍为20261001T094553Z / c59aac566cedef6a239eb1d640ee8fb796524ae3。Worker/Analyzer各193文件、Web56文件SHA复核，13容器健康，API3依赖健康，21故障inactive；Office PID1650962、NRestarts=0，API与Office源码及数据保持。

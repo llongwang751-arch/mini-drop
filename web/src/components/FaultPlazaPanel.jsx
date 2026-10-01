@@ -34,15 +34,22 @@ function runtimeKey(value) {
   return "";
 }
 
-function maturityMeta(scenario) {
+function maturityMeta(scenario, engineering) {
+  if (engineering?.diagnosis_accepted === true) {
+    return engineering.localization_accepted === true
+      ? { color: "green", text: "工程定位通过" }
+      : engineering.outcome === "REFUTED"
+        ? { color: "blue", text: "判断通过 · 异常假设被反驳" }
+        : { color: "gold", text: "有证据支持的诊断候选" };
+  }
   const recent = scenario?.latest_acceptance;
   if (recent && typeof recent.passed === "boolean") {
     const verified = recent.passed && recent.lineage_verified === true
       && recent.root_cause_accepted === true && recent.recovery_observed === true
       && recent.cleanup_verified === true;
     return verified
-      ? { color: "green", text: "严格复验通过 · 未验证代码修复" }
-      : { color: "orange", text: "严格复验未通过" };
+      ? { color: "green", text: "历史严格复验通过 · 未验证代码修复" }
+      : { color: "orange", text: "历史严格复验未通过" };
   }
   const level = String(
     scenario?.acceptance_level || scenario?.validation_level || scenario?.maturity_level || "",
@@ -112,7 +119,7 @@ function familyLabel(value) {
   return labels[String(value || "").toUpperCase()] || value || "综合故障";
 }
 
-export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, onOpenDiagnosis, initialFilter = "recommended" }) {
+export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, onOpenDiagnosis, initialFilter = "recommended", engineeringCases = [] }) {
   const [plaza, setPlaza] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -289,7 +296,7 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
             const scenarioAvailable = scenario.available !== false;
             const unavailableReason = scenario.unavailable_reason || "当前运行时尚未准备好";
             const investigationStages = Array.isArray(scenario.investigation_stages) ? scenario.investigation_stages : [];
-            const maturity = maturityMeta(scenario);
+            const maturity = maturityMeta(scenario, engineeringCases.find(item => item.scenario_id === scenario.scenario_id));
             return (
             <article className={`fault-scenario ${scenario.active ? "is-active" : ""} ${scenarioAvailable ? "" : "is-unavailable"}`} key={scenario.scenario_id}>
               <div className="fault-scenario-heading">

@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3013 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3072 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 677 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 678 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2642,6 +2642,7 @@ python scripts/render_learning_guide.py
 | `web/public/report-assets/engineering-cases/notification-lifecycle/` | notification-lifecycle 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/engineering-cases/parallel-timing/` | parallel-timing 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/engineering-cases/skill-first-insert-race/` | skill-first-insert-race 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
+| `web/public/report-assets/engineering-diagnosis/` | engineering-diagnosis 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/evaluation/` | evaluation 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/performance-audit/` | performance-audit 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/profiling/` | profiling 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
@@ -2697,6 +2698,7 @@ python scripts/render_learning_guide.py
 | `web/public/report-assets/engineering-cases/parallel-timing/timing-before.py` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 10 个声明 |
 | `web/public/report-assets/engineering-cases/skill-first-insert-race/postgres-race-after.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/engineering-cases/skill-first-insert-race/postgres-race-before.xml` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
+| `web/public/report-assets/engineering-diagnosis/index.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/evaluation/root-cause-skill-ab.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/performance-audit/index.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
 | `web/public/report-assets/profiling/aggregation-report.json` | 随页面发布的评测/演示静态材料；不能当成当前会话的现场 Evidence。 | — |
@@ -2734,10 +2736,14 @@ python scripts/render_learning_guide.py
 | `web/src/components/DiagnosisShowcase.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/DiagnosisSkillOutcomeCard.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `routeText`、`DiagnosisSkillOutcomeCard` |
 | `web/src/components/DiagnosisSkillOutcomeCard.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | `candidate` |
+| `web/src/components/DiagnosisWelcome.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/components/DiagnosisWelcome.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `DiagnosisWelcome` |
 | `web/src/components/EBPFHistogram.jsx` | eBPF I/O 延迟直方图。 | `parseRangeMidpoint`、`EBPFHistogram` |
 | `web/src/components/EngineeringCasesPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/EngineeringCasesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `validCounts`、`validateCatalog`、`EngineeringCasesPanel` |
 | `web/src/components/EngineeringCasesPanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `web/src/components/EngineeringDiagnosisSummary.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `EngineeringDiagnosisSummary` |
+| `web/src/components/EngineeringDiagnosisSummary.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `web/src/components/ErrorAlert.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `ErrorAlert` |
 | `web/src/components/ErrorBoundary.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/components/EvalPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
@@ -2785,6 +2791,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/ToolCallCard.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/TopNChart.jsx` | 热点函数 TopN 图。 | `heatColor`、`TopNChart` |
 | `web/src/components/TopNChart.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/design-system.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/generated/errorCodes.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/generated/taskKinds.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/generated/taskStatuses.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
@@ -2810,10 +2817,11 @@ python scripts/render_learning_guide.py
 | `web/src/pages/TaskResult.jsx` | 任务详情；区分采集/分析状态并展示 Artifact 与可视化。 | `parseObject`、`detectProfileQualityIssue`、`readableTaskEventReason`、`TaskResult`、`SysMetricsView` 等 7 个声明 |
 | `web/src/pages/TaskResult.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/pages/TaskResult.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `renderTask` |
+| `web/src/pages/Workbench.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/router.jsx` | URL 到任务、Agent、诊断、计划任务和审计页面的映射。 | `Router` |
 | `web/src/setupTests.js` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/test/fixtures/performance-io-refutation.json` | React 前端模块，负责对应模块行为的展示或交互。 | — |
-| `web/src/theme.js` | 前端颜色、间距、字号等设计 Token。 | `COLORS`、`SPACING`、`FONT_SIZES`、`LAYOUT`、`ANIMATION` 等 6 个声明 |
+| `web/src/theme.js` | 前端颜色、间距、字号等设计 Token。 | `COLORS`、`SPACING`、`FONT_SIZES`、`LAYOUT`、`ANIMATION` 等 7 个声明 |
 | `web/src/utils/agentMetrics.js` | 格式化 Agent 自身指标与单位，区分未上报、非法值和实测零。 | `agentMetric`、`appendMetricSample` |
 | `web/src/utils/agentMetrics.test.js` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
 | `web/src/utils/asyncProfiler.js` | React 前端模块，负责性能 Profile的展示或交互。 | `decodeString`、`parseAsyncProfilerHtml` |
@@ -3081,6 +3089,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `contracts/business_test_plan.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/engineering_cases.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `contracts/engineering_diagnosis.json` | AI 诊断状态与流程的机器可读或人类可读稳定合同。 | — |
 | `contracts/error-codes.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/performance_audit.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/quality_plan.json` | 版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。 | — |
@@ -3246,6 +3255,7 @@ python scripts/render_learning_guide.py
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
 | `tests/test_engineering_case_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_catalog_grades_engineering_defects_separately_from_ai_roots`、`test_exact_frozen_code_reproduces_parallel_overlap_defect`、`test_missing_and_duplicate_tests_are_rejected`、`isolated_case`、`test_hash_tampering_is_rejected` 等 8 个声明 |
+| `tests/test_engineering_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `fixture`、`test_frozen_live_decisions_pass_engineering_response_without_rewriting_causal_grade`、`test_independent_control_and_fixed_rounds_are_optional_for_engineering_measurement`、`test_relaxed_profile_does_not_accept_wrong_identity_tampered_measurements_or_unsafe_lifecycle`、`test_new_registered_memory_signal_does_not_need_another_hardcoded_evaluator` 等 7 个声明 |
 | `tests/test_exploration_tree.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_live_tree_revision_grows_when_evidence_replans_a_new_round`、`test_live_tree_projects_backtracked_sibling_into_actual_lats_iteration`、`test_live_tree_projects_skill_trace_and_route_overlay` 等 6 个声明 |
 | `tests/test_fault_acceptance_index.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_projection_does_not_promote_partial_or_malformed_results`、`test_changed_raw_evidence_is_rejected` |
 | `tests/test_fault_diagnosis_instance_context.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_acceptance_preserves_operator_instance_without_injecting_oracle_pid` |
@@ -3319,6 +3329,7 @@ python scripts/render_learning_guide.py
 | `scripts/build_ai_diagnosis_test_report_docx.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
 | `scripts/build_business_acceptance_view.py` | 从完成且哈希一致的业务报告生成页面投影。 | `verified`、`build` |
 | `scripts/build_engineering_case_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
+| `scripts/build_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `generate`、`main` |
 | `scripts/build_fault_plaza_acceptance_index.py` | 校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。 | `verified_json`、`build` |
 | `scripts/build_knowledge_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/build_performance_audit.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `generate`、`main` |
@@ -3327,6 +3338,7 @@ python scripts/render_learning_guide.py
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
 | `scripts/check_web_bundle.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |
@@ -3375,6 +3387,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_external_acceptance.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_fault_plaza_runtime_smoke.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_smoke`、`main` |
 | `scripts/verify_final_ui_acceptance.mjs` | 通过公网只读验证首屏、移动布局、已有报告、探索树、验证中心和记忆，阻止业务写请求。 | — |
+| `scripts/verify_frontend_design.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_frontend_workbench.mjs` | 使用本地合成 API 与 Chromium 验证首屏、响应式、树和失败刷新；不连接云端。 | — |
 | `scripts/verify_go_io_window.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `window_average`、`main` |
 | `scripts/verify_hotspot_controls.py` | 隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。 | `write`、`api`、`pprof_result`、`evaluate`、`cpu_window` 等 7 个声明 |
@@ -3616,11 +3629,13 @@ python scripts/render_learning_guide.py
 | `docs/demo/generate_demo_text.py` | 项目设计、使用、部署、接口或验收说明。 | `main` |
 | `docs/demo/mini-drop-demo-20k.txt` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/DIAGNOSIS_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/DISTRIBUTED_LOAD.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/ENGINEERING_CASES.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/ENGINEERING_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
+| `docs/FRONTEND_DESIGN.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FULL_CHAIN_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
@@ -5288,8 +5303,53 @@ python scripts/render_learning_guide.py
 | `output/demo-guide-20260924/inspect.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/demo-guide-20260924/tree.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/after-entry.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/agent-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/agent-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/anomaly-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/anomaly-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/anomaly-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/anomaly-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/audit-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/audit-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-redesign-20261001/before.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/browser-report.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/frontend-redesign-20261001/capture.mjs` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/entry-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/entry-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/entry-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/entry-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/experiments-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/experiments-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/experiments-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/experiments-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/final-tests.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/full-tests.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/generate_review.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/mobile-navigation.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/restructure_css.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `migrate` |
+| `output/frontend-redesign-20261001/review.html` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/schedules-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/schedules-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/secondary_pages.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/frontend-redesign-20261001/services-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/services-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/services-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/services-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/services-error-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/task-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/task-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/tasks-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/tasks-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/frontend-redesign-20261001/tree-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/01-start-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/02-start-mobile.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/frontend-review-20260909/03-finding-desktop.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |

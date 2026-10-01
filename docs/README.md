@@ -1,5 +1,6 @@
 # 文档入口
 
+- [工程诊断验收与扩展新问题](DIAGNOSIS_ACCEPTANCE.md)：默认门槛、冻结记录重评与新问题注册流程
 - [性能路径定位修复与真实验收](../reports/architecture/performance-localization-20261001.md)：数值合同、实际规划丢失、CPU源码路径、同步I/O采样连续性、部署和因果边界
 - [`PERFORMANCE_DIAGNOSIS.md`](PERFORMANCE_DIAGNOSIS.md)：正常/异常/观测/根因分开判断，21类失败复盘、数值判据与尚需采集的证据
 - [`ENGINEERING_CASES.md`](ENGINEERING_CASES.md)：4个真实缺陷、修复前失败与修复后回归，与21类性能实验独立统计
