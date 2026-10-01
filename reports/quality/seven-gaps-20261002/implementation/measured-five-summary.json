@@ -1,0 +1,268 @@
+[
+  {
+    "scenario": "source-hotspot",
+    "outcome": "LOCALIZED_ANOMALY",
+    "measurements": [
+      {
+        "tool": "pyspy",
+        "predicate": {
+          "outcome": "SUPPORT",
+          "version": "hypothesis-predicate-v2",
+          "reason": "Registered Python source-profile concentration was observed in its own collection window",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "dominant_function": "source_hot_function",
+            "dominant_percent": 33.4,
+            "concentrated_percent": 99.5,
+            "concentrated_functions": [
+              {
+                "name": "source_hot_function",
+                "percent": 33.4,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 171,
+                    "percent": 21.7
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 172,
+                    "percent": 5.0
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 173,
+                    "percent": 3.9
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 170,
+                    "percent": 2.8
+                  }
+                ]
+              },
+              {
+                "name": "_sample",
+                "percent": 33.3,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 254,
+                    "percent": 33.3
+                  }
+                ]
+              },
+              {
+                "name": "_publish_application_metrics",
+                "percent": 32.800000000000004,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 781,
+                    "percent": 32.7
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 776,
+                    "percent": 0.1
+                  }
+                ]
+              }
+            ],
+            "profile_semantics": "source_function_share",
+            "observation_contract": "python-profile-and-os-cpu.v1"
+          }
+        }
+      },
+      {
+        "tool": "pyspy",
+        "predicate": {
+          "outcome": "SUPPORT",
+          "version": "hypothesis-predicate-v2",
+          "reason": "Registered Python source-profile concentration was observed in its own collection window",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "dominant_function": "source_hot_function",
+            "dominant_percent": 33.4,
+            "concentrated_percent": 99.5,
+            "concentrated_functions": [
+              {
+                "name": "source_hot_function",
+                "percent": 33.4,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 171,
+                    "percent": 21.7
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 172,
+                    "percent": 5.0
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 173,
+                    "percent": 3.9
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 170,
+                    "percent": 2.8
+                  }
+                ]
+              },
+              {
+                "name": "_sample",
+                "percent": 33.3,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 254,
+                    "percent": 33.3
+                  }
+                ]
+              },
+              {
+                "name": "_publish_application_metrics",
+                "percent": 32.800000000000004,
+                "locations": [
+                  {
+                    "file": "/app/app.py",
+                    "line": 781,
+                    "percent": 32.7
+                  },
+                  {
+                    "file": "/app/app.py",
+                    "line": 776,
+                    "percent": 0.1
+                  }
+                ]
+              }
+            ],
+            "profile_semantics": "source_function_share",
+            "observation_contract": "python-profile-and-os-cpu.v1"
+          }
+        }
+      }
+    ],
+    "downloads": 6
+  },
+  {
+    "scenario": "cpp-lock-contention",
+    "outcome": "SUPPORTED_OBSERVATION",
+    "measurements": [
+      {
+        "tool": "sys_metrics",
+        "predicate": {
+          "outcome": "SUPPORT",
+          "version": "performance-criterion-v1",
+          "reason": "Exact numeric performance observation matched declared criteria",
+          "criterion_indexes": [
+            0,
+            1,
+            2
+          ],
+          "metrics": {
+            "average_wait_ms": 2.976,
+            "lock_contentions_delta": 16711.0,
+            "lock_acquisitions_delta": 16785.0
+          },
+          "signal": "lock_contention",
+          "claim_scope": "BOUNDED_OBSERVATION"
+        }
+      }
+    ],
+    "downloads": 2
+  },
+  {
+    "scenario": "io-write-latency",
+    "outcome": "REFUTED",
+    "measurements": [
+      {
+        "tool": "sys_metrics",
+        "predicate": {
+          "outcome": "COUNTER",
+          "version": "performance-criterion-v1",
+          "reason": "Exact numeric performance observation matched declared criteria",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "average_latency_ms": 0.073
+          },
+          "signal": "io_latency",
+          "claim_scope": "BOUNDED_OBSERVATION"
+        }
+      }
+    ],
+    "downloads": 6
+  },
+  {
+    "scenario": "java-file-io",
+    "outcome": "REFUTED",
+    "measurements": [
+      {
+        "tool": "sys_metrics",
+        "predicate": {
+          "outcome": "COUNTER",
+          "version": "performance-criterion-v1",
+          "reason": "Exact numeric performance observation matched declared criteria",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "average_latency_ms": 0.092
+          },
+          "signal": "io_latency",
+          "claim_scope": "BOUNDED_OBSERVATION"
+        }
+      },
+      {
+        "tool": "java_async",
+        "predicate": {
+          "outcome": "SUPPORT",
+          "version": "hypothesis-predicate-v2",
+          "reason": "async-profiler alloc profile captured Java path Hotspot$$Lambda.0x00007a28e8002460.run at 70.0%",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "dominant_function": "Hotspot$$Lambda.0x00007a28e8002460.run",
+            "dominant_percent": 70.0,
+            "profile_event": "alloc",
+            "profile_semantics": "inclusive"
+          }
+        }
+      }
+    ],
+    "downloads": 5
+  },
+  {
+    "scenario": "cpp-file-io",
+    "outcome": "REFUTED",
+    "measurements": [
+      {
+        "tool": "sys_metrics",
+        "predicate": {
+          "outcome": "COUNTER",
+          "version": "performance-criterion-v1",
+          "reason": "Exact numeric performance observation matched declared criteria",
+          "criterion_indexes": [
+            0
+          ],
+          "metrics": {
+            "average_latency_ms": 0.073
+          },
+          "signal": "io_latency",
+          "claim_scope": "BOUNDED_OBSERVATION"
+        }
+      }
+    ],
+    "downloads": 2
+  }
+]

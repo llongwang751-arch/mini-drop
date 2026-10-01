@@ -1,5 +1,7 @@
 # 文档入口
 
+- [七类观测与规划缺口补齐](../reports/architecture/seven-gaps-20261002.md)：最新21/21工程判断、7新+14历史、源码路径/锁/配额与I/O反证，保留两次失败。
+
 - [面试五个重点补齐](../reports/architecture/interview-completion-20261001.md)：三态体检、真实业务同负载修复、PG中断恢复、精确发布及21类工程成绩。
 
 - [工程诊断验收与扩展新问题](DIAGNOSIS_ACCEPTANCE.md)：默认门槛、冻结记录重评与新问题注册流程

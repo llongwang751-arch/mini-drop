@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="17" time="5.386" timestamp="2026-10-02T00:43:00.925645+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_seven_gap_telemetry" name="test_native_shared_quota_window_observes_two_consumers_and_actual_throttling" time="0.001"><failure message="KeyError: 'peer_cpu_ticks_delta'">def test_native_shared_quota_window_observes_two_consumers_and_actual_throttling():
+        result = _parse_sys_metrics_document(_document())
+        signal = result["signals"]["noisy_neighbor"]
+        assert signal["measurement_scope"] == "TARGET_SHARED_CGROUP_CPU"
+&gt;       assert signal["peer_cpu_ticks_delta"] == 40
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'peer_cpu_ticks_delta'
+
+tests\test_seven_gap_telemetry.py:48: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_telemetry" name="test_complete_zero_throttling_is_a_measurement_and_not_missing" time="0.001"><failure message="KeyError: 'throttled_usec_delta'">def test_complete_zero_throttling_is_a_measurement_and_not_missing():
+        result = _parse_sys_metrics_document(_document(False))
+        assert result["signals"]["noisy_neighbor"]["detected"] is False
+&gt;       assert result["signals"]["noisy_neighbor"]["throttled_usec_delta"] == 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'throttled_usec_delta'
+
+tests\test_seven_gap_telemetry.py:59: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;0]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;1]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;2]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;3]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;4]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;5]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;6]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;7]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;8]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;9]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;10]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;11]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_application_peer_active_cpu_ticks_cannot_claim_resource_competition" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_acquisition_wait_mean_uses_new_counter_window_and_keeps_zero_known" time="0.000"><failure message="KeyError: 'average_wait_ms'">def test_acquisition_wait_mean_uses_new_counter_window_and_keeps_zero_known():
+        before = {"schema_version": "mini-drop.application-metrics.v1", "host_pid": 42,
+                  "lock_acquisitions": 10, "lock_wait_ms": 50, "lock_contentions": 3}
+        _, signals = summarize_application_metric_window(before, {
+            **before, "lock_acquisitions": 20, "lock_wait_ms": 80, "lock_contentions": 10})
+&gt;       assert signals["lock_contention"]["average_wait_ms"] == 3
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'average_wait_ms'
+
+tests\test_seven_gap_telemetry.py:100: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_telemetry" name="test_python_sync_io_counts_close_duration_but_excludes_pacing_and_rotates" time="5.062"><failure message="KeyError: 'io_operations'">tmp_path = WindowsPath('D:/tx/mini-drop/.pytest-work/test_python_sync_io_counts_clo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000210B401CC30&gt;
+
+    def test_python_sync_io_counts_close_duration_but_excludes_pacing_and_rotates(tmp_path, monkeypatch):
+        monkeypatch.setenv("CPU_HOTSPOT_ACTIVE", "0")
+        root = Path(__file__).parents[1]
+        path = Path(os.getenv("MINI_DROP_TEST_PYTHON_HOTSPOT_SOURCE", root / "demo/python-hotspot/app.py"))
+        spec = spec_from_file_location("seven_gap_python_demo", path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        # Windows lacks fdatasync; fsync still performs an actual file flush.
+        monkeypatch.setattr(module.os, "fdatasync", os.fsync, raising=False)
+        ticks = iter(range(0, 10**12, 5_000_000))
+        monkeypatch.setattr(module, "time", SimpleNamespace(
+            monotonic=time.monotonic, time=time.time, sleep=time.sleep,
+            perf_counter_ns=lambda: next(ticks),
+        ))
+        fault = module.IoFault()
+        fault._path = str(tmp_path / "isolated-sync-io.bin")
+        Path(fault._path).write_bytes(b"x" * (8 * 1024 * 1024 - 1))
+        try:
+            fault.start(15)
+            deadline = time.monotonic() + 5
+            while fault.snapshot().get("io_operations", 0) &lt; 3 and time.monotonic() &lt; deadline:
+                time.sleep(.01)
+            snapshot = fault.snapshot()
+&gt;           assert snapshot["io_operations"] &gt;= 3
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'io_operations'
+
+tests\test_seven_gap_telemetry.py:130: KeyError</failure></testcase></testsuite></testsuites>

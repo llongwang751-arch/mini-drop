@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/verify_perf_source_toolchain.py", line 203, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/verify_perf_source_toolchain.py", line 195, in main
+    print(json.dumps(check_in_container(args.binary, args.stackcollapse)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/verify_perf_source_toolchain.py", line 55, in check_in_container
+    raise RuntimeError("Expected one real cpp_cpu_hot_function text symbol")
+RuntimeError: Expected one real cpp_cpu_hot_function text symbol

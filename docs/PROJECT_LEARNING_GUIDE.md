@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2833 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3090 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 489 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 545 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2420,6 +2420,62 @@ python scripts/render_learning_guide.py
 | `reports/quality/security-cancel-20260930/` | security-cancel-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/browser-cancel/` | browser-cancel 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/browser-rehearsal/` | browser-rehearsal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/` | seven-gaps-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/` | cpp-retry-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/` | cpp-cpu-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/` | implementation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/` | ci-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/` | ci-artifacts-phase2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/native-agent-binary-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | native-agent-binary-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/web-browser-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/` | web-browser-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/` | failed-toolchain-36903574783 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/artifact/` | artifact 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/artifact/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/native-agent-binary-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | native-agent-binary-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/web-browser-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/` | web-browser-2e7db027048535fb70b4d2db7e0986b17225cb2c-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-release/` | phase2-release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/implementation/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/noisy-retry-cases/` | noisy-retry-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/noisy-retry-cases/noisy-neighbor-artifacts/` | noisy-neighbor-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/` | seven-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-cpu-hotspot-artifacts/` | cpp-cpu-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-file-io-artifacts/` | cpp-file-io-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-lock-contention-artifacts/` | cpp-lock-contention-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/` | io-write-latency-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/` | java-file-io-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/` | noisy-neighbor-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/` | source-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `scripts/` | 可重复运行的生成、检验、截图、评测与运维辅助入口。 |
 | `server/` | Python 服务包。 |
 | `server/app/` | Python 服务基础能力、数据模型、Worker 和分析调度。 |
@@ -3630,6 +3686,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/resource-controls-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/security-cancel-delivery-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/service-exam-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/seven-gaps-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-chroma-20260919-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-chroma-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/sre-agent-final-validation-20260919.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -5384,6 +5441,262 @@ python scripts/render_learning_guide.py
 | `reports/quality/security-cancel-20260930/verify_rehearsal.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/security-cancel-20260930/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/security-cancel-20260930/web-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/campaign-runner-frozen.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `download_artifacts`、`run_case`、`run_campaign` |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175444_ba95c3-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175532_a59ce1-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot-artifacts/task_20261001_175532_a59ce1-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/cpp-retry.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/agent-fresh-receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/analyzer-command-failure.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-negative-expanded.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-negative-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-negative-initial.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-new-acceptance-matrix.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-old-seven.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-perf-toolchain-local-check.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-perf-toolchain-parser.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-perf-toolchain-real-proof.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-planning-final-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-planning-final-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-planning-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-planning-initial.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-planning-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/audit-prior-score-regression.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/baseline-clean-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/before-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/binutils-build-job.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/binutils-build-preflight.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/binutils-build-receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/cgroup-read-probe.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/cleanup-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/fault-snapshots.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/recovery-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/go/target.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/cleanup-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/fault-snapshots.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/recovery-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/python/target.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/hotspot-controls/measurement/source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/hotspot-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870120.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870164.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870213.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870274.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870288.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870326.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870376.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/logs/job-110511870630.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/native-agent-binary-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/perf-source-toolchain/toolchain.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/perf-source-toolchain/toolchain.stdout.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/observation-controls-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/official-artifacts-36904602187.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/official-git-ci-merge.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/official-git-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/official-jobs-36904602187.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/official-run-36904602187.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/go.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/postgres.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/postgres-concurrency-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/contracts/command-9.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/python-quality-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts-phase2/web-browser-bcc12e60941ac0bff3820411a2eaaa7cd823ec9b-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/artifact/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/artifact/perf-source-toolchain/toolchain.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/artifact/perf-source-toolchain/toolchain.stdout.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/failure-evidence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/job-110508421464.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/failed-toolchain-36903574783/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/cleanup-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/fault-snapshots.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/recovery-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/go/target.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/cleanup-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/fault-snapshots.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/recovery-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/python/target.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/hotspot-controls/measurement/source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/hotspot-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487616937.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487616958.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487616982.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487617082.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487617125.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487617241.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487617249.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/logs/job-110487618385.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/native-agent-binary-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/native-binary-proof.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/observation-controls-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/official-artifacts-36897365758.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/official-jobs-36897365758.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/official-run-36897365758.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/go.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/postgres.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/postgres-concurrency-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/contracts/command-9.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/python-quality-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-artifacts/web-browser-2e7db027048535fb70b4d2db7e0986b17225cb2c-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-evidence-download-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-evidence-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-evidence-summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-phase2-evidence-download-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-phase2-evidence-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-phase2-evidence-summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-phase2-source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/ci-source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/cpp-perf-analysis-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/cpp-perf-readonly-replay.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/cpp-perf-tool-availability.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/cpp-retry.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/dependency-activation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/dependency-image-proof.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/deployment-preflight.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-concentration-fixed-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-concentration-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-final-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-initial.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-integrated.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-noisy-domain-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-old-registry-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-old-registry.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-old-source-proof-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-old-source-proof.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/diagnosis-planning-domain-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-campaign-provenance-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-campaign-provenance.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-final-campaign.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-final-web.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-frozen-regression.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/engineering-refuted-web.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/final-planning.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/full-worktree-r1.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/integration-r1.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/integration-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/measured-five-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/noisy-boot-identity-replay.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/noisy-boot-identity.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/noisy-retry.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/office-disk-readonly-receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-release/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/phase2-source-regression.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/planning-lats-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/planning-lats-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/plaza-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/release/20261001T171638Z-platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/release/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/routing-regression-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/runtime-baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/runtime-pre-trials.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/seven.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/source-tree-proof.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/staged-source-files.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/telemetry-after-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/telemetry-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/telemetry-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/implementation/telemetry-original-source.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/noisy-retry-cases/noisy-neighbor-artifacts/task_20261001_181733_aefc9b-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/noisy-retry-cases/noisy-neighbor-artifacts/task_20261001_181733_aefc9b-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/noisy-retry-cases/noisy-neighbor.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/noisy-retry.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/performance-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-cpu-hotspot-artifacts/task_20261001_173422_31082f-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-cpu-hotspot-artifacts/task_20261001_173422_31082f-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-file-io-artifacts/task_20261001_174413_db953f-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-file-io-artifacts/task_20261001_174413_db953f-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-lock-contention-artifacts/task_20261001_173647_ac6f09-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-lock-contention-artifacts/task_20261001_173647_ac6f09-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/cpp-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173822_85355f-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173822_85355f-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173941_38c496-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173941_38c496-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173941_38c496-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency-artifacts/task_20261001_173941_38c496-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/io-write-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/task_20261001_174057_4044ac-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/task_20261001_174057_4044ac-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/task_20261001_174219_59dd08-java_flamegraph_html.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/task_20261001_174219_59dd08-jvm_gc_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io-artifacts/task_20261001_174219_59dd08-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/java-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174653_89d3f3-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174653_89d3f3-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor-artifacts/task_20261001_174750_499285-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/noisy-neighbor.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173226_6ece8d-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173226_6ece8d-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173226_6ece8d-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173226_6ece8d-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173245_976dae-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot-artifacts/task_20261001_173245_976dae-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/seven-gaps-20261002/seven.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/面试反馈与项目优化方案-20260913.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 
 ### 34.19 output：交付型派生材料

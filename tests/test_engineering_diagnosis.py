@@ -83,13 +83,30 @@ def test_new_registered_memory_signal_does_not_need_another_hardcoded_evaluator(
 
 def test_generated_view_distinguishes_new_trials_from_prior_regrading():
     document = json.loads(generate(ROOT))
-    assert document['diagnosis_accepted'] == 14
-    assert document['localization_accepted'] == 4 and document['refuted'] == 5
+    assert document['diagnosis_accepted'] == 21
+    assert document['localization_accepted'] == 6 and document['refuted'] == 8
     assert document['registered_scenarios'] == document['evaluated_scenarios'] == 21
     assert document['not_evaluated'] == []
     assert document['evaluation_mode'] == 'MIXED_LIVE_CAMPAIGNS'
-    assert document['fresh_live_scenarios'] == 18 and document['regraded_prior_scenarios'] == 3
+    assert document['fresh_live_scenarios'] == 7 and document['regraded_prior_scenarios'] == 14
     assert document['fresh_live_run'] is False
+    assert document['current_campaign_id'] == 'seven-gaps-20261002'
+    current = [case for case in document['cases'] if case['campaign_id'] == document['current_campaign_id']]
+    prior = [case for case in document['cases'] if case['campaign_id'] != document['current_campaign_id']]
+    assert len(current) == 7 and len(prior) == 14
+    assert {case['scenario_id'] for case in current} == {
+        'source-hotspot', 'cpp-cpu-hotspot', 'cpp-lock-contention',
+        'io-write-latency', 'java-file-io', 'cpp-file-io', 'noisy-neighbor',
+    }
+    assert all(case['fresh_live_run'] is True and case['originally_live_record'] is True for case in current)
+    assert all(case['fresh_live_run'] is False for case in prior)
+    assert all(case['causal_root_cause_verified'] is False and case['same_load_fix_verified'] is False
+               for case in document['cases'])
+    campaigns = document['campaigns']
+    assert sum(group['evaluated_scenarios'] for group in campaigns if group['current_campaign']) == 7
+    assert sum(group['evaluated_scenarios'] for group in campaigns if not group['current_campaign']) == 14
+    assert all(group['current_campaign'] is (group['campaign_id'] == document['current_campaign_id'])
+               for group in campaigns)
 
 
 @pytest.mark.parametrize('fault', ['duplicate','unknown_domain','case_hash','manifest_hash'])

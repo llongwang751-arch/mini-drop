@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="16" time="1.100" timestamp="2026-10-02T00:56:13.952157+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_seven_gap_planning" name="test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted[UCT-PYTHON]" time="0.078"><failure message="StopIteration">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D6A75F30&gt;
+runtime = 'PYTHON', policy = 'UCT'
+
+    @pytest.mark.parametrize("runtime", ["PYTHON", "CPP"])
+    @pytest.mark.parametrize("policy", ["UCT", "PUCT"])
+    def test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted(planning, runtime, policy):
+        proposal = _invalid_cpu_proposal(runtime)
+        before = deepcopy(proposal)
+        planning(f"{runtime} CPU 持续升高，定位 CPU 热点", runtime, proposal, selection_policy=policy)
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+        canonical = service.cpu_observation_plan(runtime)
+        selected = result["hypothesis"]
+        assert selected["statement"] == canonical["statement"]
+        assert selected["expected_observations"] == canonical["expected_observations"]
+        assert selected["source"] == "REGISTERED_OBSERVATION_RULE"
+        assert result["decision_source"] == "REGISTERED_OBSERVATION_RULE"
+        assert proposal == before
+        with new_session() as db:
+            rejected = db.query(DropInsightEventModel).filter_by(event_type="planner.cpu_contract_rejected").one()
+            assert rejected.payload_json["candidate"]["statement"] == before["hypotheses"][0]["statement"]
+            assert rejected.payload_json["candidate"]["expected_observations"] == before["hypotheses"][0]["expected_observations"]
+            assert rejected.payload_json["criteria_rewritten"] is False
+            assert rejected.payload_json["dispatched"] is False
+            assert not db.query(DropInsightHypothesisModel).filter_by(statement=before["hypotheses"][0]["statement"]).all()
+            events = db.query(DropInsightEventModel).filter_by(event_type="hypothesis.created").all()
+&gt;           registered = next(event for event in events if event.payload_json.get("statement") == canonical["statement"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           StopIteration
+
+tests\test_seven_gap_planning.py:107: StopIteration</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted[UCT-CPP]" time="0.050"><failure message="StopIteration">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D6CA8460&gt;
+runtime = 'CPP', policy = 'UCT'
+
+    @pytest.mark.parametrize("runtime", ["PYTHON", "CPP"])
+    @pytest.mark.parametrize("policy", ["UCT", "PUCT"])
+    def test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted(planning, runtime, policy):
+        proposal = _invalid_cpu_proposal(runtime)
+        before = deepcopy(proposal)
+        planning(f"{runtime} CPU 持续升高，定位 CPU 热点", runtime, proposal, selection_policy=policy)
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+        canonical = service.cpu_observation_plan(runtime)
+        selected = result["hypothesis"]
+        assert selected["statement"] == canonical["statement"]
+        assert selected["expected_observations"] == canonical["expected_observations"]
+        assert selected["source"] == "REGISTERED_OBSERVATION_RULE"
+        assert result["decision_source"] == "REGISTERED_OBSERVATION_RULE"
+        assert proposal == before
+        with new_session() as db:
+            rejected = db.query(DropInsightEventModel).filter_by(event_type="planner.cpu_contract_rejected").one()
+            assert rejected.payload_json["candidate"]["statement"] == before["hypotheses"][0]["statement"]
+            assert rejected.payload_json["candidate"]["expected_observations"] == before["hypotheses"][0]["expected_observations"]
+            assert rejected.payload_json["criteria_rewritten"] is False
+            assert rejected.payload_json["dispatched"] is False
+            assert not db.query(DropInsightHypothesisModel).filter_by(statement=before["hypotheses"][0]["statement"]).all()
+            events = db.query(DropInsightEventModel).filter_by(event_type="hypothesis.created").all()
+&gt;           registered = next(event for event in events if event.payload_json.get("statement") == canonical["statement"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           StopIteration
+
+tests\test_seven_gap_planning.py:107: StopIteration</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted[PUCT-PYTHON]" time="0.048"><failure message="StopIteration">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D6D1B530&gt;
+runtime = 'PYTHON', policy = 'PUCT'
+
+    @pytest.mark.parametrize("runtime", ["PYTHON", "CPP"])
+    @pytest.mark.parametrize("policy", ["UCT", "PUCT"])
+    def test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted(planning, runtime, policy):
+        proposal = _invalid_cpu_proposal(runtime)
+        before = deepcopy(proposal)
+        planning(f"{runtime} CPU 持续升高，定位 CPU 热点", runtime, proposal, selection_policy=policy)
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+        canonical = service.cpu_observation_plan(runtime)
+        selected = result["hypothesis"]
+        assert selected["statement"] == canonical["statement"]
+        assert selected["expected_observations"] == canonical["expected_observations"]
+        assert selected["source"] == "REGISTERED_OBSERVATION_RULE"
+        assert result["decision_source"] == "REGISTERED_OBSERVATION_RULE"
+        assert proposal == before
+        with new_session() as db:
+            rejected = db.query(DropInsightEventModel).filter_by(event_type="planner.cpu_contract_rejected").one()
+            assert rejected.payload_json["candidate"]["statement"] == before["hypotheses"][0]["statement"]
+            assert rejected.payload_json["candidate"]["expected_observations"] == before["hypotheses"][0]["expected_observations"]
+            assert rejected.payload_json["criteria_rewritten"] is False
+            assert rejected.payload_json["dispatched"] is False
+            assert not db.query(DropInsightHypothesisModel).filter_by(statement=before["hypotheses"][0]["statement"]).all()
+            events = db.query(DropInsightEventModel).filter_by(event_type="hypothesis.created").all()
+&gt;           registered = next(event for event in events if event.payload_json.get("statement") == canonical["statement"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           StopIteration
+
+tests\test_seven_gap_planning.py:107: StopIteration</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted[PUCT-CPP]" time="0.046"><failure message="StopIteration">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D7DB28D0&gt;
+runtime = 'CPP', policy = 'PUCT'
+
+    @pytest.mark.parametrize("runtime", ["PYTHON", "CPP"])
+    @pytest.mark.parametrize("policy", ["UCT", "PUCT"])
+    def test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted(planning, runtime, policy):
+        proposal = _invalid_cpu_proposal(runtime)
+        before = deepcopy(proposal)
+        planning(f"{runtime} CPU 持续升高，定位 CPU 热点", runtime, proposal, selection_policy=policy)
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+        canonical = service.cpu_observation_plan(runtime)
+        selected = result["hypothesis"]
+        assert selected["statement"] == canonical["statement"]
+        assert selected["expected_observations"] == canonical["expected_observations"]
+        assert selected["source"] == "REGISTERED_OBSERVATION_RULE"
+        assert result["decision_source"] == "REGISTERED_OBSERVATION_RULE"
+        assert proposal == before
+        with new_session() as db:
+            rejected = db.query(DropInsightEventModel).filter_by(event_type="planner.cpu_contract_rejected").one()
+            assert rejected.payload_json["candidate"]["statement"] == before["hypotheses"][0]["statement"]
+            assert rejected.payload_json["candidate"]["expected_observations"] == before["hypotheses"][0]["expected_observations"]
+            assert rejected.payload_json["criteria_rewritten"] is False
+            assert rejected.payload_json["dispatched"] is False
+            assert not db.query(DropInsightHypothesisModel).filter_by(statement=before["hypotheses"][0]["statement"]).all()
+            events = db.query(DropInsightEventModel).filter_by(event_type="hypothesis.created").all()
+&gt;           registered = next(event for event in events if event.payload_json.get("statement") == canonical["statement"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           StopIteration
+
+tests\test_seven_gap_planning.py:107: StopIteration</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_cpp_registered_profile_requests_one_independent_os_probe_for_same_persisted_hypothesis" time="0.055" /><testcase classname="tests.test_seven_gap_planning" name="test_measured_domains_collect_target_system_metrics_before_optional_deep_tools[C++ mutex \u9501\u7ade\u4e89\u4f7f\u8bf7\u6c42\u7b49\u5f85-CPP-LOCK_CONTENTION]" time="0.044" /><testcase classname="tests.test_seven_gap_planning" name="test_measured_domains_collect_target_system_metrics_before_optional_deep_tools[Python fsync \u540c\u6b65\u5199 IO \u8017\u65f6\u5347\u9ad8-PYTHON-IO_LATENCY]" time="0.044" /><testcase classname="tests.test_seven_gap_planning" name="test_measured_domains_collect_target_system_metrics_before_optional_deep_tools[Java fsync \u540c\u6b65\u5199 IO \u8017\u65f6\u5347\u9ad8-JAVA-IO_LATENCY]" time="0.044" /><testcase classname="tests.test_seven_gap_planning" name="test_measured_domains_collect_target_system_metrics_before_optional_deep_tools[C++ fsync \u540c\u6b65\u5199 IO \u8017\u65f6\u5347\u9ad8-CPP-IO_LATENCY]" time="0.044" /><testcase classname="tests.test_seven_gap_planning" name="test_measured_domains_collect_target_system_metrics_before_optional_deep_tools[Python \u566a\u58f0\u90bb\u5c45 CPU \u914d\u989d\u5171\u4eab\u65f6\u8d44\u6e90\u4e89\u62a2-PYTHON-NOISY_NEIGHBOR]" time="0.036"><failure message="KeyError: 'category'">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D81ECEB0&gt;
+query = 'Python 噪声邻居 CPU 配额共享时资源争抢', runtime = 'PYTHON'
+category = 'NOISY_NEIGHBOR'
+
+    @pytest.mark.parametrize("query,runtime,category", [
+        ("C++ mutex 锁竞争使请求等待", "CPP", "LOCK_CONTENTION"),
+        ("Python fsync 同步写 IO 耗时升高", "PYTHON", "IO_LATENCY"),
+        ("Java fsync 同步写 IO 耗时升高", "JAVA", "IO_LATENCY"),
+        ("C++ fsync 同步写 IO 耗时升高", "CPP", "IO_LATENCY"),
+        ("Python 噪声邻居 CPU 配额共享时资源争抢", "PYTHON", "NOISY_NEIGHBOR"),
+    ])
+    def test_measured_domains_collect_target_system_metrics_before_optional_deep_tools(planning, query, runtime, category):
+        planning(query, runtime)
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+&gt;       assert result["category"] == category
+               ^^^^^^^^^^^^^^^^^^
+E       KeyError: 'category'
+
+tests\test_seven_gap_planning.py:144: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_java_lock_keeps_async_lock_event_and_does_not_impose_cpp_application_counter_contract" time="0.043" /><testcase classname="tests.test_seven_gap_planning" name="test_foreign_numeric_domain_with_high_model_value_does_not_replace_io_observation[UCT]" time="0.046" /><testcase classname="tests.test_seven_gap_planning" name="test_foreign_numeric_domain_with_high_model_value_does_not_replace_io_observation[PUCT]" time="0.043" /><testcase classname="tests.test_seven_gap_planning" name="test_puct_high_value_unknown_cannot_spend_first_probe_budget_ahead_of_registered_observation" time="0.040"><failure message="AssertionError: assert 'SYSTEM_FALLBACK' == 'REGISTERED_OBSERVATION_RULE'&#10;  &#10;  - REGISTERED_OBSERVATION_RULE&#10;  + SYSTEM_FALLBACK">planning = &lt;function planning.&lt;locals&gt;.configure at 0x00000270D8478F60&gt;
+
+    def test_puct_high_value_unknown_cannot_spend_first_probe_budget_ahead_of_registered_observation(planning):
+        proposal = {"tool_name": "start_perf_profile", "hypotheses": [{
+            "statement": "其他未知原因（OTHER/UNKNOWN）", "expected_observations": ["Unknown explanation"],
+            "falsification_criteria": ["Known explanation"], "prior_probability": 1.0, "estimated_value": 1.0}]}
+        planning("C++ CPU 持续升高，定位 CPU 热点", "CPP", proposal, selection_policy="PUCT")
+        result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+&gt;       assert result["hypothesis"]["source"] == "REGISTERED_OBSERVATION_RULE"
+E       AssertionError: assert 'SYSTEM_FALLBACK' == 'REGISTERED_OBSERVATION_RULE'
+E         
+E         - REGISTERED_OBSERVATION_RULE
+E         + SYSTEM_FALLBACK
+
+tests\test_seven_gap_planning.py:179: AssertionError</failure></testcase><testcase classname="tests.test_seven_gap_planning" name="test_skill_deep_probe_does_not_discard_first_registered_target_counter_window[C++ mutex \u9501\u7ade\u4e89\u4f7f\u8bf7\u6c42\u7b49\u5f85-start_perf_profile]" time="0.058" /><testcase classname="tests.test_seven_gap_planning" name="test_skill_deep_probe_does_not_discard_first_registered_target_counter_window[C++ fsync \u540c\u6b65\u5199 IO \u8017\u65f6\u5347\u9ad8-start_ebpf_io_profile]" time="0.046" /></testsuite></testsuites>

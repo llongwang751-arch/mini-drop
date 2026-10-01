@@ -8,11 +8,15 @@ it("shows engineering acceptance separately from localization, refutation and un
   const open = vi.fn();
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => index }));
   render(<EngineeringDiagnosisSummary onOpenDiagnosis={open} />);
-  expect(await screen.findByText("工程诊断判断通过 14/21")).toBeInTheDocument();
-  expect(screen.getByText("异常路径定位 4/21")).toBeInTheDocument();
+  expect(await screen.findByText("工程诊断判断通过 21/21")).toBeInTheDocument();
+  expect(screen.getByText("异常路径定位 6/21")).toBeInTheDocument();
   expect(screen.getByText("已注册 21 类 · 待验收 0 类")).toBeInTheDocument();
-  expect(screen.getAllByText("判断通过 · 异常假设被反驳")).toHaveLength(5);
-  expect(screen.getByText(/18 类新真机实验、3 类此前真实记录/)).toBeInTheDocument();
+  expect(screen.getAllByText("判断通过 · 异常假设被反驳")).toHaveLength(8);
+  expect(screen.getByText(/7 类新真机实验、14 类此前真实记录/)).toBeInTheDocument();
+  expect(index.current_campaign_id).toBe("seven-gaps-20261002");
+  expect(index.cases.filter(c => c.campaign_id === index.current_campaign_id && c.fresh_live_run)).toHaveLength(7);
+  expect(index.cases.filter(c => c.campaign_id !== index.current_campaign_id && !c.fresh_live_run)).toHaveLength(14);
+  expect(screen.getByText(/汇总成绩不表示全部案例在本次重新运行/)).toBeInTheDocument();
   fireEvent.click(screen.getAllByRole("button", { name: "查看判断" })[0]);
   expect(open).toHaveBeenCalledWith(index.cases[0].diagnosis_id);
 });
@@ -25,7 +29,7 @@ it("rejects a malformed projection that promotes bounded records to causal succe
   render(<EngineeringDiagnosisSummary onLoaded={loaded} />);
   expect(await screen.findByText("工程诊断成绩读取失败，不推测通过数量")).toBeInTheDocument();
   expect(loaded).not.toHaveBeenCalledWith(bad);
-  expect(screen.queryByText("工程诊断判断通过 14/21")).not.toBeInTheDocument();
+  expect(screen.queryByText("工程诊断判断通过 21/21")).not.toBeInTheDocument();
 });
 
 it("allows a failed index load to be retried", async () => {
@@ -33,7 +37,7 @@ it("allows a failed index load to be retried", async () => {
     .mockResolvedValue({ ok: true, json: async () => index }));
   render(<EngineeringDiagnosisSummary />);
   fireEvent.click(await screen.findByRole("button", { name: "重试工程验收" }));
-  expect(await screen.findByText("工程诊断判断通过 14/21")).toBeInTheDocument();
+  expect(await screen.findByText("工程诊断判断通过 21/21")).toBeInTheDocument();
 });
 
 it("rejects an index that mislabels regraded records as a fresh complete campaign", async () => {

@@ -1,0 +1,23 @@
+Sending build context to Docker daemon  11.08MB
+
+Step 1/2 : FROM sha256:6cc7aa8b8c2619ff0860e838071bda8eae006e81f26fcef517b0976fc5d57d5c
+ ---> 6cc7aa8b8c26
+Step 2/2 : COPY --chmod=0755 deploy/bin/mini-drop-native-agent /usr/local/bin/mini-drop-native-agent
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+the --chmod option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+Traceback (most recent call last):
+  File "/root/incoming-20261001T171638Z/deploy_runtime.py", line 271, in <module>
+    main()
+  File "/root/incoming-20261001T171638Z/deploy_runtime.py", line 192, in main
+    subprocess.run(['docker', 'build', '-f', str(recipe), '-t', image, str(context)], check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'build', '-f', '/root/incoming-20261001T171638Z/Dockerfile.demo-agent', '-t', 'mini-drop-demo-agent:20261001T171638Z', '/root/incoming-20261001T171638Z/source']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['python3', '/root/incoming-20261001T171638Z/deploy_runtime.py']' returned non-zero exit status 1.

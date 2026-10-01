@@ -1,0 +1,265 @@
+{
+  "status": "VERIFIED",
+  "scratch": "/root/mini-drop-seven-binutils-20261002-1790876703603131530",
+  "raw_sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+  "images": {
+    "diagnosis-worker": {
+      "tag": "mini-drop-diagnosis-worker:seven-binutils-20261002",
+      "image_id": "sha256:00900f5f3222c97f705a96791d0b161f30f59529008f4e539e6bbb3840f3c73e",
+      "base_image": "sha256:7b723bebc4812bd009e32e709bc06ed62c8d2e1aa94b2155e60bfa2668686982"
+    },
+    "analyzer": {
+      "tag": "mini-drop-analyzer:seven-binutils-20261002",
+      "image_id": "sha256:ba08dc5a3221c18bbf8f66d51e86d5b0c30c0808e134aeec469d3b057c670efa",
+      "base_image": "sha256:8f2873cdd488caec037a3ebe794b82200fa5b958804fb8e60494e08491202d65"
+    }
+  },
+  "smoke": {
+    "diagnosis-worker": {
+      "service": "diagnosis-worker",
+      "addr2line": "/usr/bin/addr2line",
+      "raw_sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+      "cpp_binary_sha256": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+      "perf_script": {
+        "returncode": 0,
+        "stdout_bytes": 458864,
+        "stderr": "",
+        "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f"
+      },
+      "stackcollapse": {
+        "returncode": 0,
+        "stdout_bytes": 688,
+        "stderr": "Unrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 5.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 15.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 25.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 35.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 45.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 55.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 65.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 75.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 85.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 95.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 105.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 115.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 125.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 135.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 145.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 155.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 165.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 175.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 185.\nUnrecognized line:   main.cpp:152 a",
+        "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd"
+      },
+      "cli": {
+        "returncode": 0,
+        "summary": {
+          "task_id": "cpp-dependency-smoke",
+          "status": "SUCCESS",
+          "summary": "- 未命中预置规则，建议结合 AI 归因深入分析",
+          "sample_count": 952,
+          "profile_quality": {
+            "status": "USABLE",
+            "reason_code": "OK",
+            "valid_stack_lines": 4
+          },
+          "top_functions": [
+            {
+              "name": "cpp-hotspot",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "execute_native_thread_routine:thread.cc:0",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "std::thread::_State_impl<std::thread::_Invoker<std::tuple<void ",
+              "file": "std_thread.h",
+              "line": 255,
+              "folded_frame": "std::thread::_State_impl<std::thread::_Invoker<std::tuple<void :std_thread.h:255",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "cpp_cpu_hot_function",
+              "file": "main.cpp",
+              "line": 38,
+              "folded_frame": "cpp_cpu_hot_function:main.cpp:38",
+              "samples": 326,
+              "percent": 34.2
+            },
+            {
+              "name": "cpp_cpu_hot_function",
+              "file": "main.cpp",
+              "line": 39,
+              "folded_frame": "cpp_cpu_hot_function:main.cpp:39",
+              "samples": 305,
+              "percent": 32.0
+            }
+          ],
+          "output_files": {
+            "flamegraph_json": "/work/smoke-diagnosis-worker/cli/cpp-dependency-smoke/flamegraph.json",
+            "flamegraph_svg": "/work/smoke-diagnosis-worker/cli/cpp-dependency-smoke/flamegraph.svg",
+            "top_json": "/work/smoke-diagnosis-worker/cli/cpp-dependency-smoke/top.json",
+            "callgraph_json": "/work/smoke-diagnosis-worker/cli/cpp-dependency-smoke/callgraph.json",
+            "suggestions_md": "/work/smoke-diagnosis-worker/cli/cpp-dependency-smoke/suggestions.md"
+          }
+        },
+        "stderr": ""
+      },
+      "files": {
+        "smoke-diagnosis-worker/collapsed.txt": {
+          "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd",
+          "size_bytes": 688
+        },
+        "smoke-diagnosis-worker/perf.script.txt": {
+          "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f",
+          "size_bytes": 458864
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/collapsed.txt": {
+          "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd",
+          "size_bytes": 688
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/suggestions.md": {
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "size_bytes": 60
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/callgraph.json": {
+          "sha256": "f6f73d78074b7d97dadaca8df9e1b5f5bf145aa11689ec16ef5229c197eb0b1a",
+          "size_bytes": 2137
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/top.json": {
+          "sha256": "2b5c6db1ca5f61a6aba5b643900eef5f7b6be1600b10c54eeb584b07aaa8a407",
+          "size_bytes": 1188
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/flamegraph.svg": {
+          "sha256": "bcee6fb1b1e217614c9ed9035aa64be885131a270abac8536aa21afb04d59b24",
+          "size_bytes": 15024
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/flamegraph.json": {
+          "sha256": "02c878c6eaf3848fb0a2397784b1131a460f1d7d60e2a6cd31346827ca3ba316",
+          "size_bytes": 563
+        },
+        "smoke-diagnosis-worker/cli/cpp-dependency-smoke/perf.script.txt": {
+          "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f",
+          "size_bytes": 458864
+        }
+      }
+    },
+    "analyzer": {
+      "service": "analyzer",
+      "addr2line": "/usr/bin/addr2line",
+      "raw_sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+      "cpp_binary_sha256": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+      "perf_script": {
+        "returncode": 0,
+        "stdout_bytes": 458864,
+        "stderr": "",
+        "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f"
+      },
+      "stackcollapse": {
+        "returncode": 0,
+        "stdout_bytes": 688,
+        "stderr": "Unrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 5.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 15.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 25.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 35.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 45.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 55.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 65.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 75.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 85.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 95.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 105.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 115.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 125.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 135.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 145.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 155.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 165.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 175.\nUnrecognized line:   main.cpp:152 at /app/analyzer/scripts/stackcollapse-perf.pl line 429, <> line 185.\nUnrecognized line:   main.cpp:152 a",
+        "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd"
+      },
+      "cli": {
+        "returncode": 0,
+        "summary": {
+          "task_id": "cpp-dependency-smoke",
+          "status": "SUCCESS",
+          "summary": "- 未命中预置规则，建议结合 AI 归因深入分析",
+          "sample_count": 952,
+          "profile_quality": {
+            "status": "USABLE",
+            "reason_code": "OK",
+            "valid_stack_lines": 4
+          },
+          "top_functions": [
+            {
+              "name": "cpp-hotspot",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "execute_native_thread_routine:thread.cc:0",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "std::thread::_State_impl<std::thread::_Invoker<std::tuple<void ",
+              "file": "std_thread.h",
+              "line": 255,
+              "folded_frame": "std::thread::_State_impl<std::thread::_Invoker<std::tuple<void :std_thread.h:255",
+              "samples": 952,
+              "percent": 100.0
+            },
+            {
+              "name": "cpp_cpu_hot_function",
+              "file": "main.cpp",
+              "line": 38,
+              "folded_frame": "cpp_cpu_hot_function:main.cpp:38",
+              "samples": 326,
+              "percent": 34.2
+            },
+            {
+              "name": "cpp_cpu_hot_function",
+              "file": "main.cpp",
+              "line": 39,
+              "folded_frame": "cpp_cpu_hot_function:main.cpp:39",
+              "samples": 305,
+              "percent": 32.0
+            }
+          ],
+          "output_files": {
+            "flamegraph_json": "/work/smoke-analyzer/cli/cpp-dependency-smoke/flamegraph.json",
+            "flamegraph_svg": "/work/smoke-analyzer/cli/cpp-dependency-smoke/flamegraph.svg",
+            "top_json": "/work/smoke-analyzer/cli/cpp-dependency-smoke/top.json",
+            "callgraph_json": "/work/smoke-analyzer/cli/cpp-dependency-smoke/callgraph.json",
+            "suggestions_md": "/work/smoke-analyzer/cli/cpp-dependency-smoke/suggestions.md"
+          }
+        },
+        "stderr": ""
+      },
+      "files": {
+        "smoke-analyzer/collapsed.txt": {
+          "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd",
+          "size_bytes": 688
+        },
+        "smoke-analyzer/perf.script.txt": {
+          "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f",
+          "size_bytes": 458864
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/collapsed.txt": {
+          "sha256": "aaf075cd0b108ab91c2378582847d91f1381ce4d38e795fe38e096a5ee6b25cd",
+          "size_bytes": 688
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/suggestions.md": {
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "size_bytes": 60
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/callgraph.json": {
+          "sha256": "f6f73d78074b7d97dadaca8df9e1b5f5bf145aa11689ec16ef5229c197eb0b1a",
+          "size_bytes": 2137
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/top.json": {
+          "sha256": "2b5c6db1ca5f61a6aba5b643900eef5f7b6be1600b10c54eeb584b07aaa8a407",
+          "size_bytes": 1188
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/flamegraph.svg": {
+          "sha256": "dc6dc073c1af1aaca44ff82add8f1e9b1e77220cbca0ea020cea379de84474ae",
+          "size_bytes": 15024
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/flamegraph.json": {
+          "sha256": "02c878c6eaf3848fb0a2397784b1131a460f1d7d60e2a6cd31346827ca3ba316",
+          "size_bytes": 563
+        },
+        "smoke-analyzer/cli/cpp-dependency-smoke/perf.script.txt": {
+          "sha256": "612ecf95fcbc283054d6b73bb5c07b0c5321dafa1d599f760d9bc2cb83309d4f",
+          "size_bytes": 458864
+        }
+      }
+    }
+  },
+  "source_preserved": {
+    "diagnosis-worker": {
+      "file_count": 210,
+      "same_as_running_base": true,
+      "matches_release_manifest": true
+    },
+    "analyzer": {
+      "file_count": 210,
+      "same_as_running_base": true,
+      "matches_release_manifest": true
+    }
+  },
+  "same_cpp_binary_sha256": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+  "checks": {
+    "one_same_elf": true,
+    "sources_match": true,
+    "smokes_pass": true
+  }
+}
