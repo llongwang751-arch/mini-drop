@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="60" time="2.291" timestamp="2026-10-01T21:37:47.200571+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[10-NORMAL_OBSERVED]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[50-ANOMALY_OBSERVED]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[240-ANOMALY_OBSERVED]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[True-INSUFFICIENT_OBSERVABILITY]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[None-INSUFFICIENT_OBSERVABILITY]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[inf-INSUFFICIENT_OBSERVABILITY]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[pid]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[start]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[agent]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[sha]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[analyzer]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[samples]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[duration]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[rss]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[degraded]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[truncated]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[admission]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[attempt]" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_http_failure_is_detected_but_no_requests_does_not_claim_http_health" time="0.000" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[10-NORMAL_OBSERVED-COMPLETED]" time="0.080" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[80-ANOMALY_OBSERVED-COMPLETED]" time="0.042" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[None-INSUFFICIENT_OBSERVABILITY-INSUFFICIENT_EVIDENCE]" time="0.039" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[CANCELLED]" time="0.028" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[FAILED]" time="0.028" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[COMPLETED]" time="0.028" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[INSUFFICIENT_EVIDENCE]" time="0.028" /><testcase classname="tests.test_health_check_flow" name="test_an_incident_is_not_short_circuited_as_a_health_check" time="0.030" /><testcase classname="tests.test_health_check_flow" name="test_advance_completes_health_without_cpu_control_or_root_report" time="0.041"><failure message="pydantic_core._pydantic_core.ValidationError: 7 validation errors for EvidenceEnvelope&#10;evidence_id&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;diagnosis_id&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;evidence_type&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;source.analyzer_version&#10;  Field required [type=missing, input_value={'tool_name': 'sys_metric...aaaaaaaaaaaaaaaaaaaaaa'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;time_range&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;quality.level&#10;  Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;quality.sample_count&#10;  Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing">db = None
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A6D8C1EA80&gt;
+
+    def test_advance_completes_health_without_cpu_control_or_root_report(db,monkeypatch):
+        did=seed()
+        monkeypatch.setattr(service,'import_task_evidence',lambda *args,**kwargs: [])
+        monkeypatch.setattr(service,'generate_report',lambda *args,**kwargs: pytest.fail('health check must not invent a root report'))
+        monkeypatch.setattr(service,'_request_cpu_control_before_report',lambda *args: pytest.fail('healthy baseline does not require causal control'))
+&gt;       result=service.advance_diagnosis(did)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_health_check_flow.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+server\app\drop_insight\service.py:6795: in advance_diagnosis
+    _score_candidate_hypotheses(diagnosis_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+diagnosis_id = 'insight_fba4c2c70b5d4eeebe8cbe233cfbf3fb'
+
+    def _score_candidate_hypotheses(diagnosis_id: str) -&gt; None:
+        """基于已导入证据给「非主假设」的候选假设打分。
+    
+        主假设状态由报告生成决定（generate_report）；这里只更新备选假设与
+        OTHER/UNKNOWN，让候选集合保留支持/反证/未知三种合法状态。
+        """
+        session = new_session()
+        try:
+            # Several orchestrator callers may advance the same diagnosis at the
+            # same time (background Worker, browser retry and an acceptance poller).
+            # Lock before reading candidate statuses so every scorer observes the
+            # previously committed transition instead of all racing from OPEN.
+            # `_append_event` takes the same row lock later and is therefore a
+            # re-entrant no-op inside this transaction.
+            if _lock_diagnosis(session, diagnosis_id) is None:
+                return
+            hypotheses = (
+                session.query(DropInsightHypothesisModel)
+                .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+                .order_by(
+                    DropInsightHypothesisModel.round_index.asc(),
+                    DropInsightHypothesisModel.id.asc(),
+                )
+                .all()
+            )
+            if not hypotheses:
+                return
+            report_hypothesis_ids = {
+                row.hypothesis_id
+                for row in session.query(DropInsightReportModel)
+                .filter(DropInsightReportModel.diagnosis_id == diagnosis_id)
+                .all()
+                if row.hypothesis_id
+            }
+            evidence_rows = (
+                session.query(DropInsightEvidenceModel)
+                .filter(DropInsightEvidenceModel.diagnosis_id == diagnosis_id)
+                .order_by(DropInsightEvidenceModel.created_at.desc())
+                .all()
+            )
+            metadata = None
+            for row in evidence_rows:
+&gt;               envelope = EvidenceEnvelope.model_validate(row.envelope_json)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               pydantic_core._pydantic_core.ValidationError: 7 validation errors for EvidenceEnvelope
+E               evidence_id
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               diagnosis_id
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               evidence_type
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               source.analyzer_version
+E                 Field required [type=missing, input_value={'tool_name': 'sys_metric...aaaaaaaaaaaaaaaaaaaaaa'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               time_range
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               quality.level
+E                 Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               quality.sample_count
+E                 Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+
+server\app\drop_insight\service.py:7558: ValidationError</failure></testcase><testcase classname="tests.test_health_check_flow" name="test_failed_sampling_finishes_unknown_without_replanning" time="0.044"><failure message="pydantic_core._pydantic_core.ValidationError: 7 validation errors for EvidenceEnvelope&#10;evidence_id&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;diagnosis_id&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;evidence_type&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;source.analyzer_version&#10;  Field required [type=missing, input_value={'tool_name': 'sys_metric...aaaaaaaaaaaaaaaaaaaaaa'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;time_range&#10;  Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;quality.level&#10;  Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing&#10;quality.sample_count&#10;  Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.13/v/missing">db = None
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A6D92EBA10&gt;
+
+    def test_failed_sampling_finishes_unknown_without_replanning(db,monkeypatch):
+        did=seed(task_status='FAILED',terminal='NONE')
+        monkeypatch.setattr(service,'_replan_after_insufficient_evidence',lambda *args: pytest.fail('failed check must offer explicit resampling'))
+&gt;       result=service.advance_diagnosis(did)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_health_check_flow.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+server\app\drop_insight\service.py:6795: in advance_diagnosis
+    _score_candidate_hypotheses(diagnosis_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+diagnosis_id = 'insight_ab3ae9c23bec4da8af44716a2a4e2e57'
+
+    def _score_candidate_hypotheses(diagnosis_id: str) -&gt; None:
+        """基于已导入证据给「非主假设」的候选假设打分。
+    
+        主假设状态由报告生成决定（generate_report）；这里只更新备选假设与
+        OTHER/UNKNOWN，让候选集合保留支持/反证/未知三种合法状态。
+        """
+        session = new_session()
+        try:
+            # Several orchestrator callers may advance the same diagnosis at the
+            # same time (background Worker, browser retry and an acceptance poller).
+            # Lock before reading candidate statuses so every scorer observes the
+            # previously committed transition instead of all racing from OPEN.
+            # `_append_event` takes the same row lock later and is therefore a
+            # re-entrant no-op inside this transaction.
+            if _lock_diagnosis(session, diagnosis_id) is None:
+                return
+            hypotheses = (
+                session.query(DropInsightHypothesisModel)
+                .filter(DropInsightHypothesisModel.diagnosis_id == diagnosis_id)
+                .order_by(
+                    DropInsightHypothesisModel.round_index.asc(),
+                    DropInsightHypothesisModel.id.asc(),
+                )
+                .all()
+            )
+            if not hypotheses:
+                return
+            report_hypothesis_ids = {
+                row.hypothesis_id
+                for row in session.query(DropInsightReportModel)
+                .filter(DropInsightReportModel.diagnosis_id == diagnosis_id)
+                .all()
+                if row.hypothesis_id
+            }
+            evidence_rows = (
+                session.query(DropInsightEvidenceModel)
+                .filter(DropInsightEvidenceModel.diagnosis_id == diagnosis_id)
+                .order_by(DropInsightEvidenceModel.created_at.desc())
+                .all()
+            )
+            metadata = None
+            for row in evidence_rows:
+&gt;               envelope = EvidenceEnvelope.model_validate(row.envelope_json)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               pydantic_core._pydantic_core.ValidationError: 7 validation errors for EvidenceEnvelope
+E               evidence_id
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               diagnosis_id
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               evidence_type
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               source.analyzer_version
+E                 Field required [type=missing, input_value={'tool_name': 'sys_metric...aaaaaaaaaaaaaaaaaaaaaa'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               time_range
+E                 Field required [type=missing, input_value={'scope': {'agent_id': 'h... 'vmrss_mb_delta': 0}}}}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               quality.level
+E                 Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+E               quality.sample_count
+E                 Field required [type=missing, input_value={'schema_valid': True, 'a...True, 'degraded': False}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.13/v/missing
+
+server\app\drop_insight\service.py:7558: ValidationError</failure></testcase><testcase classname="tests.test_managed_services" name="test_service_entry_is_not_proof_of_running_process" time="0.023" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[0-True-OBSERVED]" time="0.030" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[3600-True-STALE]" time="0.030" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[0-False-UNAVAILABLE]" time="0.028" /><testcase classname="tests.test_managed_services" name="test_exact_service_match_not_substring" time="0.028" /><testcase classname="tests.test_managed_services" name="test_restart_rebinds_new_pid_and_cannot_select_other_agent" time="0.066" /><testcase classname="tests.test_managed_services" name="test_multiple_workers_require_selection_not_guessed_pid" time="0.038" /><testcase classname="tests.test_managed_services" name="test_business_request_is_resolved_server_side_before_creating_case" time="0.026" /><testcase classname="tests.test_managed_services" name="test_health_check_uses_one_real_system_baseline_without_fault_clarification" time="0.196" /><testcase classname="tests.test_managed_services" name="test_worker_role_does_not_select_router_or_background_processor" time="0.019" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_deadline_stops_expansion_and_finalizes_without_claiming_root_cause" time="0.035" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_unverified_report_never_commits_a_transient_terminal_state" time="0.035" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_without_support_finalizes_as_insufficient_once" time="0.034" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_uses_best_supported_report_instead_of_overwriting_it" time="0.037" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_maintenance_does_not_finish_partial_report_before_replanning" time="0.024" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_low_confidence_verified_report_replans_instead_of_spinning" time="0.028" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_verified_report_before_required_minimum_round_replans_cross_domain" time="0.030" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_before_required_minimum_never_claims_completion" time="0.034" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_lats_verified_observation_before_minimum_reflects_and_keeps_search_open" time="0.035" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_is_idempotent_even_with_original_version_and_preserves_actor" time="0.030" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[PENDING]" time="0.047" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[RUNNING]" time="0.046" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[UPLOADING]" time="0.044" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[ANALYZING]" time="0.044" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[COMPLETED]" time="0.025" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[INSUFFICIENT_EVIDENCE]" time="0.025" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[FAILED]" time="0.025" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_rejects_stale_version_without_side_effects" time="0.023" /><testcase classname="tests.test_diagnosis_cancellation" name="test_late_planner_cannot_create_hypothesis_or_tool_after_cancel" time="0.030" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_preserves_completed_tool_result_and_missing_or_archived_is_not_found" time="0.037" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_revokes_analyzer_lease_and_discards_late_output" time="0.040" /></testsuite></testsuites>

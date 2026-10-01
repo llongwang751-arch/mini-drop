@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2355 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2451 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 334 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 360 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2121,6 +2121,32 @@ python scripts/render_learning_guide.py
 | `reports/quality/engineering-diagnosis-20261001/local/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/engineering-diagnosis-20261001/local/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/` | health-check-flow-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/browser-check-live/` | browser-check-live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci-logs/` | ci-logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci/hotspot-controls-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/` | hotspot-controls-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci/postgres-concurrency-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/` | postgres-concurrency-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci/python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/` | python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/ci/python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/health-live/` | health-live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/helpers/` | helpers 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/resample-live/` | resample-live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/` | source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/docs/` | docs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/docs/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/server/` | server 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/server/app/` | app 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/server/app/drop_insight/` | drop_insight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/source/tests/` | tests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/tests/` | tests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/web-source/` | web-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/web-source/web/` | web 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/` | src 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/` | components 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/pages/` | pages 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/` | performance-diagnosis-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/before-source/` | before-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3434,6 +3460,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/conclusion-integrity-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/deployment-validation-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/engineering-diagnosis-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/health-check-flow-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/instance-scope-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3754,6 +3781,101 @@ python scripts/render_learning_guide.py
 | `reports/quality/focused-delivery-20260929/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/regression-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/scope-before-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser-check-live/manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser-check-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser-check-live/selected-existing-case.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser-check-live/sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser/browser-created-id.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser/browser-created-normal-check.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/completed-check-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/completed-check-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/current-engineering-acceptance.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/engineering-cpu-button.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/history-back-network.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/history-forward-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/browser/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/health-check-flow-20261001/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci-logs/110406958393.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci-logs/110406958567.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/hotspot-controls-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/postgres-concurrency-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/postgres-concurrency-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/ci/python-quality-5e40ad367f6e33563e9591c4862c28a61adc3ed7-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/health-live/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/health-live/manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/health-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/health-live/sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/browser_engineering.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/collect_browser_check.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/live-health-first-validator.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_check` |
+| `reports/quality/health-check-flow-20261001/helpers/live_health.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_check` |
+| `reports/quality/health-check-flow-20261001/helpers/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/prepare_web.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/run_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/update_release_contract.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/helpers/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/live-check-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/health-check-flow-20261001/release/ci-first-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/ci-first-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/ci-web-first-failure.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/resample-live/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/resample-live/manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/resample-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/resample-live/sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/runtime-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/source/docs/contracts/openapi.v1.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/source/server/app/drop_insight/health_assessment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `assess_health_window` |
+| `reports/quality/health-check-flow-20261001/source/server/app/drop_insight/managed_services.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
+| `reports/quality/health-check-flow-20261001/source/tests/test_health_check_flow.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evidence`、`test_measured_outcome_never_requires_positive_root_support`、`test_missing_or_untrusted_data_never_reports_normal`、`test_http_failure_is_detected_but_no_requests_does_not_claim_http_health`、`db` 等 12 个声明 |
+| `reports/quality/health-check-flow-20261001/source/tests/test_managed_services.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `isolated`、`snapshot`、`start`、`test_service_entry_is_not_proof_of_running_process`、`test_current_snapshot_controls_availability` 等 17 个声明 |
+| `reports/quality/health-check-flow-20261001/tests/backend-contract.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/backend-r1.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/backend-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/backend-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/backend-r4.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-frozen-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-frozen-selector-tests.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-frozen-selector-tests.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-frozen-tests.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-frozen-tests.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-r1.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-r2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/tests/web-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/validator-first-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/web-source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/HealthCheckActions.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `healthCheckResult`、`HealthCheckActions` |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/HealthCheckActions.test.jsx` | 前端自动化测试，验证同名模块的源码定位。 | — |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/ManagedServicesPanel.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `dominantIngestStage`、`OfficeExercise`、`businessLink`、`ManagedServicesPanel` |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/ManagedServicesPanel.test.jsx` | 前端自动化测试，验证同名模块的源码定位。 | — |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/ObservabilityOverview.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `rows`、`number`、`compact`、`evidenceMetadata`、`evidenceSource` 等 9 个声明 |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/components/ObservabilityOverview.test.jsx` | 前端自动化测试，验证同名模块的源码定位。 | — |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/pages/AIDiagnosis.jsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `canonicalStatus`、`nativeId`、`selectionKey`、`normalizeCase`、`isVerifiedReport` 等 7 个声明 |
+| `reports/quality/health-check-flow-20261001/web-source/web/src/pages/AIDiagnosis.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `reports/quality/instance-scope-20260930/business-measurements.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/campaign-analysis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/ci-archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

@@ -1,12 +1,14 @@
 # AI 诊断方案
 
-## 2026-10-01 当前状态检查与根因调查分别结束（候选）
+## 2026-10-01 当前状态检查与根因调查分别结束（已部署）
 
 服务目录的“检查当前状态”显式设置 `health_check=true`，规则规划只下发一个 `collect_sys_metrics`，预算120秒/1工具/1轮，不请求模型判断根因。真实 Task、Attempt、Artifact SHA、Analyzer 和可信进程身份通过准入后，由 `health_assessment.py` 计算已检查范围的结果。阈值沿用 [性能诊断](PERFORMANCE_DIAGNOSIS.md) 的初筛合同，缺失指标不能当作0，无HTTP请求时不宣称HTTP已检查。
 
 系统通过一个事务保存 `health_check.completed` 事件、会话终态和工具副作用完成标记，重复推进不重复写入。正常 `NORMAL_OBSERVED` 和异常 `ANOMALY_OBSERVED` 均为 COMPLETED，表示体检结束；采集失败或数据不足 `INSUFFICIENT_OBSERVABILITY` 为 INSUFFICIENT_EVIDENCE，表示无法判断。三种结果均 `causal_root_cause_verified=false`，没有根因报告，不改变假设为 SUPPORTED。取消、失败、归档或已有终态历史不被迟到采集复活。页面优先读取持久化结果，旧记录仍按旧展示合同读取。
 
 正常结果提供“再次检查”，数据不足提供“重新采集”，异常结果提供“深入诊断”。调用同一服务入口并携带 `follow_up_diagnosis_id`：服务器校验父记录属于当前用户、同一服务并已保存体检结果；只有异常结果允许直接深入调查。创建独立会话，重新发现与绑定当前进程，服务重启后不能沿用旧PID。当前状态检查不关联历史 `request_id`，历史请求仍从业务请求入口调查。不自动注入故障，也不提供持续健康监控；正常只覆盖本次窗口和列出的检查项。
+
+真实Office三次体检及两条后续关联记录均正常结束，6份原始采集文件SHA一致；异常/不足分支为回归验证，未新注入故障。源码CI13/13与发布核对通过，详见 [体检流程交付](../reports/architecture/health-check-flow-20261001.md)。
 
 ## 2026-10-01 数值观测与性能路径合同已部署
 

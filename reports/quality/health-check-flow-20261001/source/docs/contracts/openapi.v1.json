@@ -1,0 +1,284 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Mini-Drop Public API",
+    "version": "2.0.0",
+    "description": "Go apiserver 的当前公开 HTTP/SSE 契约。/api/v2 由 Go 通过私有 gRPC 调用 Python Diagnosis Worker。"
+  },
+  "servers": [{"url": "/"}],
+  "security": [{"ApiKeyAuth": []}],
+  "paths": {
+    "/api/v2/diagnoses/{diagnosis_id}/cancel": {"parameters": [{"name": "diagnosis_id", "in": "path", "required": true, "schema": {"type": "string"}}], "post": {"operationId": "cancelDiagnosis", "description": "Operator/admin cancellation. Atomically cancels the session and owned active tasks; Agent terminates collection on heartbeat. Repeated CANCELLED requests are idempotent even with the original version. Completed history and existing evidence remain immutable.", "requestBody": {"required": true, "content": {"application/json": {"schema": {"additionalProperties": false, "properties": {"reason": {"default": "用户停止本次诊断", "maxLength": 512, "minLength": 1, "title": "Reason", "type": "string"}, "expected_version": {"anyOf": [{"minimum": 1, "type": "integer"}, {"type": "null"}], "default": null, "title": "Expected Version"}}, "title": "CancelDiagnosisRequest", "type": "object"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}, "403": {"description": "Role or resource scope rejected"}, "404": {"description": "Diagnosis missing or archived"}, "409": {"description": "Version conflict or other terminal state"}, "422": {"description": "Invalid cancellation input"}}}},
+    "/api/v2/services": {"get": {"operationId": "listManagedServices", "description": "Operator-registered backend services joined with fresh authoritative Agent snapshots. Process presence is not application health.", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/services/{service_id}/diagnoses": {
+      "parameters": [{"name": "service_id", "in": "path", "required": true, "schema": {"type": "string"}}],
+      "post": {
+        "operationId": "startManagedServiceDiagnosis",
+        "description": "Resolve the registered service on its configured Agent and issue a fresh opaque process binding. Ambiguous instances require clarification; no arbitrary PID or shell accepted.",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"additionalProperties": false, "properties": {"query": {"maxLength": 2000, "minLength": 3, "title": "Query", "type": "string"}, "mode": {"default": "AUTONOMOUS", "enum": ["AUTONOMOUS", "ASSISTED"], "title": "Mode", "type": "string"}, "request_id": {"anyOf": [{"pattern": "^[a-f0-9]{32}$", "type": "string"}, {"type": "null"}], "default": null, "title": "Request Id"}, "health_check": {"default": false, "title": "Health Check", "type": "boolean"}, "follow_up_diagnosis_id": {"anyOf": [{"maxLength": 128, "minLength": 1, "type": "string"}, {"type": "null"}], "default": null, "title": "Follow Up Diagnosis Id"}}, "required": ["query"], "title": "StartServiceDiagnosis", "type": "object"}}}},
+        "responses": {"201": {"$ref": "#/components/responses/Success"}, "404": {"description": "Unknown service"}, "409": {"description": "Service not observed in a fresh authoritative snapshot"}}
+      }
+    },
+    "/livez": {"get": {"operationId": "liveness", "responses": {"200": {"description": "process alive"}}}},
+    "/readyz": {"get": {"operationId": "readiness", "responses": {"200": {"description": "dependencies ready"}}}},
+    "/healthz": {"get": {"operationId": "healthz", "responses": {"200": {"description": "compatibility readiness endpoint"}}}},
+    "/api/healthz": {"get": {"operationId": "apiHealthz", "responses": {"200": {"description": "API readiness"}}}},
+    "/api/auth/session": {
+      "post": {"operationId": "createBrowserSession", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "delete": {"operationId": "deleteBrowserSession", "responses": {"200": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/me": {"get": {"operationId": "currentPrincipal", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/metrics": {"get": {"operationId": "prometheusMetrics", "responses": {"200": {"description": "Prometheus text exposition format", "content": {"text/plain": {"schema": {"type": "string"}}}}}}},
+    "/api/task-kinds": {"get": {"operationId": "listTaskKinds", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/agents": {"get": {"operationId": "listAgents", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/top-processes": {"get": {"operationId": "listTopProcesses", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks": {
+      "get": {"operationId": "listTasks", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "post": {"operationId": "createTask", "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object"}}}}, "responses": {"201": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/tasks/{task_id}": {
+      "parameters": [{"$ref": "#/components/parameters/TaskId"}],
+      "get": {"operationId": "getTask", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "delete": {"operationId": "archiveTask", "responses": {"200": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/tasks/{task_id}/cancel": {"parameters": [{"$ref": "#/components/parameters/TaskId"}], "post": {"operationId": "cancelTask", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks/{task_id}/events": {"parameters": [{"$ref": "#/components/parameters/TaskId"}], "get": {"operationId": "getTaskEvents", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks/{task_id}/attempts": {"parameters": [{"$ref": "#/components/parameters/TaskId"}], "get": {"operationId": "getTaskAttempts", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks/{task_id}/artifacts": {"parameters": [{"$ref": "#/components/parameters/TaskId"}], "get": {"operationId": "getTaskArtifacts", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks/{task_id}/artifacts/{artifact_type}/content": {"parameters": [{"$ref": "#/components/parameters/TaskId"}, {"$ref": "#/components/parameters/ArtifactType"}], "get": {"operationId": "getArtifactContent", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/tasks/{task_id}/artifacts/{artifact_type}/download": {"parameters": [{"$ref": "#/components/parameters/TaskId"}, {"$ref": "#/components/parameters/ArtifactType"}], "get": {"operationId": "downloadArtifact", "responses": {"200": {"description": "artifact bytes"}}}},
+    "/api/audit-logs": {"get": {"operationId": "listAuditLogs", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/events/stream": {"get": {"operationId": "streamPlatformEvents", "responses": {"200": {"description": "text/event-stream"}}}},
+    "/api/schedules": {
+      "get": {"operationId": "listSchedules", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "post": {"operationId": "createSchedule", "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object"}}}}, "responses": {"201": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/schedules/{schedule_id}": {
+      "parameters": [{"$ref": "#/components/parameters/ScheduleId"}],
+      "put": {"operationId": "updateSchedule", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "delete": {"operationId": "deleteSchedule", "responses": {"200": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/schedules/{schedule_id}/trigger": {"parameters": [{"$ref": "#/components/parameters/ScheduleId"}], "post": {"operationId": "triggerSchedule", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/schedules/{schedule_id}/records": {"parameters": [{"$ref": "#/components/parameters/ScheduleId"}], "get": {"operationId": "getScheduleRecords", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-tools": {"get": {"operationId": "listDiagnosticTools", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/agent-runtime/status": {"get": {"operationId": "getAgentRuntimeStatus", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/mentor-complex": {"get": {"operationId": "getMentorComplexShowcase", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/business-acceptance": {"get": {"operationId": "getBusinessAcceptance", "description": "Read server-owned business measurement results; does not certify AI root causes.", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/fault-plaza": {"get": {"operationId": "getFaultPlaza", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/fault-plaza/{scenario_id}/{action}": {"parameters": [{"$ref": "#/components/parameters/ScenarioId"}, {"$ref": "#/components/parameters/FaultScenarioAction"}], "post": {"operationId": "transitionFaultScenario", "requestBody": {"required": false, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/StartFaultScenarioRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/lats-replays": {"get": {"operationId": "listLATSReplayShowcases", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/showcases/lats-replays/{scenario_id}/runs": {"parameters": [{"$ref": "#/components/parameters/ScenarioId"}], "post": {"operationId": "startLATSReplayRun", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/StartFrozenReplayRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}, "201": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/operator-memories": {
+      "get": {"operationId": "listOperatorMemories", "parameters": [{"name": "project_scope", "in": "query", "required": false, "schema": {"type": "string", "default": "*"}}], "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "put": {"operationId": "putOperatorMemory", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OperatorMemoryRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "delete": {"operationId": "deleteOperatorMemory", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DeleteOperatorMemoryRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/v2/diagnostic-experiments": {
+      "get": {"operationId": "listDiagnosticExperiments", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "post": {"operationId": "createDiagnosticExperiment", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateDiagnosticExperimentRequest"}}}}, "responses": {"201": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/v2/diagnostic-experiments/{experiment_id}": {"parameters": [{"$ref": "#/components/parameters/ExperimentId"}], "get": {"operationId": "getDiagnosticExperiment", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-experiments/{experiment_id}/{action}": {"parameters": [{"$ref": "#/components/parameters/ExperimentId"}, {"name": "action", "in": "path", "required": true, "schema": {"type": "string", "enum": ["assign", "evaluate", "approve"]}}], "post": {"operationId": "transitionDiagnosticExperiment", "requestBody": {"required": false, "content": {"application/json": {"schema": {"oneOf": [{"$ref": "#/components/schemas/AssignDiagnosticExperimentRequest"}, {"$ref": "#/components/schemas/ApproveDiagnosticExperimentRequest"}]}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-experiments/{experiment_id}/diagnoses/{diagnosis_id}/outcome": {"parameters": [{"$ref": "#/components/parameters/ExperimentId"}, {"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "recordDiagnosticExperimentOutcome", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DiagnosticExperimentOutcomeRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-skills": {"get": {"operationId": "listDiagnosticSkills", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-skills/{skill_id}": {"parameters": [{"$ref": "#/components/parameters/SkillId"}], "get": {"operationId": "getDiagnosticSkill", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnostic-skills/{skill_id}/{action}": {"parameters": [{"$ref": "#/components/parameters/SkillId"}, {"name": "action", "in": "path", "required": true, "schema": {"type": "string", "enum": ["evaluate", "campaign", "publish", "quarantine", "rollback"]}}], "post": {"operationId": "transitionDiagnosticSkill", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses": {
+      "get": {"operationId": "listDiagnoses", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "post": {"operationId": "createDiagnosis", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateDiagnosisRequest"}}}}, "responses": {"201": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/v2/diagnoses/{diagnosis_id}": {
+      "parameters": [{"$ref": "#/components/parameters/DiagnosisId"}],
+      "get": {"operationId": "getDiagnosis", "responses": {"200": {"$ref": "#/components/responses/Success"}}},
+      "delete": {"operationId": "archiveDiagnosis", "responses": {"200": {"$ref": "#/components/responses/Success"}}}
+    },
+    "/api/v2/diagnoses/{diagnosis_id}/events": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listDiagnosisEvents", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/retrievals": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listDiagnosisKnowledgeRetrievals", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/events/stream": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "streamDiagnosisEvents", "responses": {"200": {"description": "text/event-stream"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/exploration-tree": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "getExplorationTree", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/target-candidates": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "getTargetCandidates", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/hypotheses": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listHypotheses", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "createHypothesis", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/evidence": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listEvidence", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "addEvidence", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/evidence/import-task": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "importTaskEvidence", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/reports": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listReports", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "generateReport", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/feedback": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listFeedback", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "submitFeedback", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/interventions": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listDiagnosisInterventions", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "interveneDiagnosis", "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/InterveneDiagnosisRequest"}}}}, "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/tool-calls": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listToolCalls", "responses": {"200": {"$ref": "#/components/responses/Success"}}}, "post": {"operationId": "requestToolCall", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/tool-calls/preview": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "previewToolCall", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/tool-calls/{tool_call_id}": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}, {"$ref": "#/components/parameters/ToolCallId"}], "put": {"operationId": "updateToolCall", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/tool-calls/{tool_call_id}/decision": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}, {"$ref": "#/components/parameters/ToolCallId"}], "post": {"operationId": "decideToolCall", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/planner/run": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "runPlanner", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/budget": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "getDiagnosisBudget", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/orchestrator/advance": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "advanceDiagnosis", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/fix": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listFixVerifications", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/fix/verify": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "verifyFix", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/clarify": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "clarifyDiagnosis", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/diagnostic-skills/candidate": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "post": {"operationId": "createSkillCandidate", "responses": {"200": {"$ref": "#/components/responses/Success"}}}},
+    "/api/v2/diagnoses/{diagnosis_id}/diagnostic-skill-activations": {"parameters": [{"$ref": "#/components/parameters/DiagnosisId"}], "get": {"operationId": "listSkillActivations", "responses": {"200": {"$ref": "#/components/responses/Success"}}}}
+  },
+  "components": {
+    "securitySchemes": {"ApiKeyAuth": {"type": "apiKey", "in": "header", "name": "X-API-Key"}},
+    "parameters": {
+      "IdempotencyKey": {"name": "Idempotency-Key", "in": "header", "required": false, "schema": {"type": "string", "maxLength": 128}},
+      "TaskId": {"name": "task_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "ArtifactType": {"name": "artifact_type", "in": "path", "required": true, "schema": {"type": "string"}},
+      "ScheduleId": {"name": "schedule_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "DiagnosisId": {"name": "diagnosis_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "ScenarioId": {"name": "scenario_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "FaultScenarioAction": {"name": "action", "in": "path", "required": true, "schema": {"type": "string", "enum": ["start", "stop"]}},
+      "SkillId": {"name": "skill_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "ExperimentId": {"name": "experiment_id", "in": "path", "required": true, "schema": {"type": "string"}},
+      "ToolCallId": {"name": "tool_call_id", "in": "path", "required": true, "schema": {"type": "string"}}
+    },
+    "responses": {
+      "Success": {"description": "Mini-Drop envelope", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Envelope"}}}}
+    },
+    "schemas": {
+      "Envelope": {"type": "object", "required": ["code", "message", "data"], "properties": {"code": {"type": "integer"}, "message": {"type": "string"}, "data": {}}},
+      "DiagnosticTarget": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "service": {"type": ["string", "null"], "minLength": 1, "maxLength": 128},
+          "environment": {"type": ["string", "null"], "minLength": 1, "maxLength": 64},
+          "agent_id": {"type": ["string", "null"]},
+          "host_id": {"type": ["string", "null"]},
+          "container_id": {"type": ["string", "null"]},
+          "pid": {"type": ["integer", "null"], "minimum": 1},
+          "instance_id": {"type": ["string", "null"]}
+        }
+      },
+      "DiagnosticTimeRange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["start", "end"],
+        "properties": {
+          "start": {"type": "string", "format": "date-time"},
+          "end": {"type": "string", "format": "date-time"},
+          "timezone": {"type": "string", "default": "Asia/Shanghai"}
+        }
+      },
+      "DiagnosisBudget": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "investigation_strategy": {"type": "string", "enum": ["LATS", "REACT"], "default": "LATS"},
+          "max_duration_seconds": {"type": "integer", "minimum": 10, "maximum": 1800, "default": 300},
+          "max_tool_calls": {"type": "integer", "minimum": 1, "maximum": 50, "default": 12},
+          "min_diagnosis_rounds": {"type": "integer", "minimum": 1, "maximum": 4, "default": 1},
+          "max_diagnosis_rounds": {"type": "integer", "minimum": 1, "maximum": 12, "default": 6},
+          "max_concurrent_tasks": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
+          "max_hosts": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
+          "max_artifact_bytes": {"type": "integer", "minimum": 1, "default": 524288000},
+          "max_risk_level": {"type": "string", "enum": ["R0", "R1", "R2"], "default": "R2"},
+          "lats_top_k": {"type": "integer", "minimum": 1, "maximum": 8, "default": 3},
+          "max_lats_iterations": {"type": ["integer", "null"], "minimum": 1, "maximum": 12, "default": null},
+          "lats_exploration_constant": {"type": "number", "minimum": 0, "maximum": 8, "default": 1.4142135623730951},
+          "lats_selection_policy": {"type": "string", "enum": ["UCT", "PUCT"], "default": "UCT"},
+          "lats_value_lambda": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.5}
+        }
+      },
+      "CreateDiagnosisRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["query"],
+        "properties": {
+          "query": {"type": "string", "minLength": 3, "maxLength": 2000},
+          "target": {"$ref": "#/components/schemas/DiagnosticTarget"},
+          "time_range": {"oneOf": [{"$ref": "#/components/schemas/DiagnosticTimeRange"}, {"type": "null"}]},
+          "auto_scope": {"type": "boolean", "default": false},
+          "mode": {"type": "string", "enum": ["AUTONOMOUS", "ASSISTED", "OBSERVE_ONLY", "REPRODUCTION", "REPLAY"], "default": "ASSISTED"},
+          "skill_policy": {"type": "string", "enum": ["AUTO", "DISABLED"], "default": "AUTO"},
+          "budget": {"$ref": "#/components/schemas/DiagnosisBudget"}
+        }
+      },
+      "StartFaultScenarioRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "duration_seconds": {"type": "integer", "minimum": 15, "maximum": 300, "default": 60}
+        }
+      },
+      "StartFrozenReplayRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["client_run_id"],
+        "properties": {
+          "client_run_id": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}
+        }
+      },
+      "CreateDiagnosticExperimentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string", "minLength": 3, "maxLength": 256},
+          "treatment_ratio": {"type": "number", "minimum": 0.05, "maximum": 0.95, "default": 0.5},
+          "minimum_labeled_per_arm": {"type": "integer", "minimum": 5, "default": 30},
+          "minimum_effect_percentage_points": {"type": "number", "minimum": 0, "maximum": 100, "default": 5},
+          "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1, "default": 0.05},
+          "guardrails": {"type": "object"}
+        }
+      },
+      "DiagnosticExperimentOutcomeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["root_cause_correct"],
+        "properties": {
+          "root_cause_correct": {"type": "boolean"},
+          "outcome_source": {"type": "string", "enum": ["HUMAN", "CONTROLLED_ORACLE"], "default": "HUMAN"},
+          "safety_violation_count": {"type": "integer", "minimum": 0, "default": 0},
+          "notes": {"type": ["string", "null"], "maxLength": 4000},
+          "metadata": {"type": "object"}
+        }
+      },
+      "AssignDiagnosticExperimentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_key", "diagnosis"],
+        "properties": {
+          "unit_key": {"type": "string", "minLength": 3, "maxLength": 512},
+          "stratum": {"type": "string", "minLength": 1, "maxLength": 128, "default": "default"},
+          "diagnosis": {"$ref": "#/components/schemas/CreateDiagnosisRequest"}
+        }
+      },
+      "ApproveDiagnosticExperimentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reason"],
+        "properties": {"reason": {"type": "string", "minLength": 3, "maxLength": 2000}}
+      },
+      "OperatorMemoryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["memory_key", "value"],
+        "properties": {
+          "project_scope": {"type": "string", "default": "*"},
+          "memory_key": {"type": "string", "enum": ["explanation_depth", "preferred_low_risk_first", "response_language", "timezone"]},
+          "value": {}
+        }
+      },
+      "DeleteOperatorMemoryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["memory_key"],
+        "properties": {
+          "project_scope": {"type": "string", "default": "*"},
+          "memory_key": {"type": "string", "enum": ["explanation_depth", "preferred_low_risk_first", "response_language", "timezone"]}
+        }
+      },
+      "InterveneDiagnosisRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "expected_version": {"type": ["integer", "null"], "minimum": 1},
+          "action": {"type": "string", "enum": ["ADD_CONTEXT", "CHALLENGE_HYPOTHESIS", "CHANGE_DIRECTION", "CONTINUE_INVESTIGATION"], "default": "ADD_CONTEXT"},
+          "message": {"type": "string", "minLength": 2, "maxLength": 4000},
+          "hypothesis_id": {"type": ["string", "null"], "minLength": 3, "maxLength": 128},
+          "idempotency_key": {"type": ["string", "null"], "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$"}
+        }
+      }
+    }
+  }
+}

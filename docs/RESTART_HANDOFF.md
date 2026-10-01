@@ -1,6 +1,6 @@
 # Mini-Drop 重启交接点
 
-2026-10-01 当前正在交付体检独立结束与后续新会话流程：检查 `health_check.completed` 持久化事件，不要求正常体检生成根因报告。候选和发布状态以 [项目上下文](PROJECT_CONTEXT.md) 顶部及 [AI 诊断](AI_DIAGNOSIS.md) 为准。保留旧21类、工程评分与一小时结果；本轮验收资料在 `output/acceptance/health-check-flow-20261001/`。
+2026-10-01 已交付体检独立结束与后续新会话流程，发布20261001T140111Z、源码CI13/13、三次真实正常检查与浏览器后续按钮通过：检查 `health_check.completed` 持久化事件，不要求正常体检生成根因报告。候选和发布状态以 [项目上下文](PROJECT_CONTEXT.md) 顶部及 [AI 诊断](AI_DIAGNOSIS.md) 为准。保留旧21类、工程评分与一小时结果；本轮原始记录已归档于 `reports/quality/health-check-flow-20261001/`，详见 [体检流程交付](../reports/architecture/health-check-flow-20261001.md)。
 
 ## 2026-10-01 默认工程诊断验收已验证上线
 

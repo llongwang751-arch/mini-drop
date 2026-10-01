@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="66" time="5.371" timestamp="2026-10-01T21:43:47.132419+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[10-NORMAL_OBSERVED]" time="0.002" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[50-ANOMALY_OBSERVED]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[240-ANOMALY_OBSERVED]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[True-INSUFFICIENT_OBSERVABILITY]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[None-INSUFFICIENT_OBSERVABILITY]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_measured_outcome_never_requires_positive_root_support[inf-INSUFFICIENT_OBSERVABILITY]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[pid]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[start]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[agent]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[sha]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[analyzer]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[samples]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[duration]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[rss]" time="0.002" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[degraded]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[truncated]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[admission]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_missing_or_untrusted_data_never_reports_normal[attempt]" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_http_failure_is_detected_but_no_requests_does_not_claim_http_health" time="0.001" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[10-NORMAL_OBSERVED-COMPLETED]" time="0.156" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[80-ANOMALY_OBSERVED-COMPLETED]" time="0.077" /><testcase classname="tests.test_health_check_flow" name="test_check_result_is_durable_idempotent_and_does_not_create_a_root_report[None-INSUFFICIENT_OBSERVABILITY-INSUFFICIENT_EVIDENCE]" time="0.078" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[CANCELLED]" time="0.053" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[FAILED]" time="0.066" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[COMPLETED]" time="0.067" /><testcase classname="tests.test_health_check_flow" name="test_late_window_does_not_rewrite_terminal_history[INSUFFICIENT_EVIDENCE]" time="0.062" /><testcase classname="tests.test_health_check_flow" name="test_an_incident_is_not_short_circuited_as_a_health_check" time="0.060" /><testcase classname="tests.test_health_check_flow" name="test_advance_completes_health_without_cpu_control_or_root_report" time="0.091" /><testcase classname="tests.test_health_check_flow" name="test_failed_sampling_finishes_unknown_without_replanning" time="0.093" /><testcase classname="tests.test_managed_services" name="test_service_entry_is_not_proof_of_running_process" time="0.053" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[0-True-OBSERVED]" time="0.058" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[3600-True-STALE]" time="0.056" /><testcase classname="tests.test_managed_services" name="test_current_snapshot_controls_availability[0-False-UNAVAILABLE]" time="0.053" /><testcase classname="tests.test_managed_services" name="test_exact_service_match_not_substring" time="0.053" /><testcase classname="tests.test_managed_services" name="test_restart_rebinds_new_pid_and_cannot_select_other_agent" time="0.128" /><testcase classname="tests.test_managed_services" name="test_multiple_workers_require_selection_not_guessed_pid" time="0.074" /><testcase classname="tests.test_managed_services" name="test_business_request_is_resolved_server_side_before_creating_case" time="0.061" /><testcase classname="tests.test_managed_services" name="test_health_check_uses_one_real_system_baseline_without_fault_clarification" time="0.369" /><testcase classname="tests.test_managed_services" name="test_worker_role_does_not_select_router_or_background_processor" time="0.036" /><testcase classname="tests.test_managed_services" name="test_resampling_rebinds_after_restart_and_preserves_the_completed_parent" time="0.088"><failure message="TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel">def test_resampling_rebinds_after_restart_and_preserves_the_completed_parent():
+&gt;       parent = completed_check()
+                 ^^^^^^^^^^^^^^^^^
+
+tests\test_managed_services.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_managed_services.py:116: in completed_check
+    session.add(DropInsightEventModel(id="check-result", diagnosis_id=result["diagnosis_id"],
+&lt;string&gt;:4: in __init__
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:571: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:569: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;server.app.models.DropInsightEventModel object at 0x000002436AA47750&gt;
+kwargs = {'actor': 'SYSTEM', 'created_at': datetime.datetime(2026, 10, 1, 13, 43, 49, 252419, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'insight_d3f7af90991f4889b7973e17207ca850', 'event_type': 'health_check.completed', ...}
+cls_ = &lt;class 'server.app.models.DropInsightEventModel'&gt;, k = 'created_at'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -&gt; None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+&gt;               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel
+
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\decl_base.py:2173: TypeError</failure></testcase><testcase classname="tests.test_managed_services" name="test_deep_follow_up_requires_an_observed_anomaly[NORMAL_OBSERVED]" time="0.096"><failure message="TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel">code = 'NORMAL_OBSERVED'
+
+    @pytest.mark.parametrize("code", ["NORMAL_OBSERVED", "INSUFFICIENT_OBSERVABILITY"])
+    def test_deep_follow_up_requires_an_observed_anomaly(code):
+&gt;       parent = completed_check(code)
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_managed_services.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_managed_services.py:116: in completed_check
+    session.add(DropInsightEventModel(id="check-result", diagnosis_id=result["diagnosis_id"],
+&lt;string&gt;:4: in __init__
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:571: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:569: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;server.app.models.DropInsightEventModel object at 0x000002436ACF3F70&gt;
+kwargs = {'actor': 'SYSTEM', 'created_at': datetime.datetime(2026, 10, 1, 13, 43, 50, 280670, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'insight_f674b2638b044927ab19078308c98e3a', 'event_type': 'health_check.completed', ...}
+cls_ = &lt;class 'server.app.models.DropInsightEventModel'&gt;, k = 'created_at'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -&gt; None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+&gt;               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel
+
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\decl_base.py:2173: TypeError</failure></testcase><testcase classname="tests.test_managed_services" name="test_deep_follow_up_requires_an_observed_anomaly[INSUFFICIENT_OBSERVABILITY]" time="0.090"><failure message="TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel">code = 'INSUFFICIENT_OBSERVABILITY'
+
+    @pytest.mark.parametrize("code", ["NORMAL_OBSERVED", "INSUFFICIENT_OBSERVABILITY"])
+    def test_deep_follow_up_requires_an_observed_anomaly(code):
+&gt;       parent = completed_check(code)
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_managed_services.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_managed_services.py:116: in completed_check
+    session.add(DropInsightEventModel(id="check-result", diagnosis_id=result["diagnosis_id"],
+&lt;string&gt;:4: in __init__
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:571: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:569: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;server.app.models.DropInsightEventModel object at 0x000002436ACC1A90&gt;
+kwargs = {'actor': 'SYSTEM', 'created_at': datetime.datetime(2026, 10, 1, 13, 43, 50, 457589, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'insight_29701ecabebd4fe79b0dd2da00074a89', 'event_type': 'health_check.completed', ...}
+cls_ = &lt;class 'server.app.models.DropInsightEventModel'&gt;, k = 'created_at'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -&gt; None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+&gt;               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel
+
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\decl_base.py:2173: TypeError</failure></testcase><testcase classname="tests.test_managed_services" name="test_anomalous_check_opens_a_separate_full_diagnosis" time="0.086"><failure message="TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel">def test_anomalous_check_opens_a_separate_full_diagnosis():
+&gt;       parent = completed_check("ANOMALY_OBSERVED")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_managed_services.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_managed_services.py:116: in completed_check
+    session.add(DropInsightEventModel(id="check-result", diagnosis_id=result["diagnosis_id"],
+&lt;string&gt;:4: in __init__
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:571: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:569: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;server.app.models.DropInsightEventModel object at 0x000002436ADFFCF0&gt;
+kwargs = {'actor': 'SYSTEM', 'created_at': datetime.datetime(2026, 10, 1, 13, 43, 50, 636038, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'insight_b6a62f595b6d410aa011ccfd55056c6a', 'event_type': 'health_check.completed', ...}
+cls_ = &lt;class 'server.app.models.DropInsightEventModel'&gt;, k = 'created_at'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -&gt; None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+&gt;               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel
+
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\decl_base.py:2173: TypeError</failure></testcase><testcase classname="tests.test_managed_services" name="test_follow_up_cannot_use_another_users_check" time="0.095"><failure message="TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel">def test_follow_up_cannot_use_another_users_check():
+&gt;       parent = completed_check()
+                 ^^^^^^^^^^^^^^^^^
+
+tests\test_managed_services.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_managed_services.py:116: in completed_check
+    session.add(DropInsightEventModel(id="check-result", diagnosis_id=result["diagnosis_id"],
+&lt;string&gt;:4: in __init__
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:571: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state.py:569: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;server.app.models.DropInsightEventModel object at 0x000002436B329EF0&gt;
+kwargs = {'actor': 'SYSTEM', 'created_at': datetime.datetime(2026, 10, 1, 13, 43, 50, 841992, tzinfo=datetime.timezone.utc), 'diagnosis_id': 'insight_e75dbb8ae06b4892b24daef1de180a85', 'event_type': 'health_check.completed', ...}
+cls_ = &lt;class 'server.app.models.DropInsightEventModel'&gt;, k = 'created_at'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -&gt; None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+&gt;               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'created_at' is an invalid keyword argument for DropInsightEventModel
+
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\decl_base.py:2173: TypeError</failure></testcase><testcase classname="tests.test_managed_services" name="test_current_check_cannot_reuse_a_historical_business_request" time="0.042" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_deadline_stops_expansion_and_finalizes_without_claiming_root_cause" time="0.067" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_unverified_report_never_commits_a_transient_terminal_state" time="0.060" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_without_support_finalizes_as_insufficient_once" time="0.064" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_uses_best_supported_report_instead_of_overwriting_it" time="0.070" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_maintenance_does_not_finish_partial_report_before_replanning" time="0.053" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_low_confidence_verified_report_replans_instead_of_spinning" time="0.058" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_verified_report_before_required_minimum_round_replans_cross_domain" time="0.054" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_search_exhaustion_before_required_minimum_never_claims_completion" time="0.061" /><testcase classname="tests.test_diagnosis_terminal_finalization" name="test_lats_verified_observation_before_minimum_reflects_and_keeps_search_open" time="0.066" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_is_idempotent_even_with_original_version_and_preserves_actor" time="0.055" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[PENDING]" time="0.100" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[RUNNING]" time="0.125" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[UPLOADING]" time="0.099" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_stops_owned_active_task_and_releases_budget[ANALYZING]" time="0.112" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[COMPLETED]" time="0.056" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[INSUFFICIENT_EVIDENCE]" time="0.060" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_does_not_rewrite_completed_history[FAILED]" time="0.060" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_rejects_stale_version_without_side_effects" time="0.057" /><testcase classname="tests.test_diagnosis_cancellation" name="test_late_planner_cannot_create_hypothesis_or_tool_after_cancel" time="0.071" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_preserves_completed_tool_result_and_missing_or_archived_is_not_found" time="0.080" /><testcase classname="tests.test_diagnosis_cancellation" name="test_cancel_revokes_analyzer_lease_and_discards_late_output" time="0.087" /></testsuite></testsuites>
