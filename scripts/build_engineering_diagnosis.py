@@ -61,10 +61,15 @@ def generate(root=ROOT):
         if case.get('scenario_id') != spec['scenario_id']:
             raise ValueError('case/scenario mismatch')
         result = evaluate_engineering_case(case, spec)
-        result.update(title=case['title'], case_sha256=spec['case_sha256'])
+        result.update(title=case['title'], case_sha256=spec['case_sha256'],
+            fresh_live_run=case.get('fresh_live_run') is True)
         results.append(result)
+    fresh = sum(r['fresh_live_run'] for r in results)
     document = {'schema': 'mini-drop.engineering-diagnosis-index.v1', 'profile': plan['profile'],
-        'evaluation_mode': 'REGRADING_FROZEN_LIVE_RECORDS', 'fresh_live_run': False,
+        'evaluation_mode': ('MIXED_LIVE_CAMPAIGNS' if fresh and fresh < len(results)
+            else 'FRESH_LIVE_CAMPAIGN' if fresh else 'REGRADING_FROZEN_LIVE_RECORDS'),
+        'fresh_live_run': bool(results) and fresh == len(results),
+        'fresh_live_scenarios': fresh, 'regraded_prior_scenarios': len(results) - fresh,
         'registered_scenarios': len(registry), 'evaluated_scenarios': len(results),
         'diagnosis_accepted': sum(r['diagnosis_accepted'] for r in results),
         'localization_accepted': sum(r['localization_accepted'] for r in results),

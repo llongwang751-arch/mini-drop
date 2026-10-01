@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.455" timestamp="2026-10-01T23:34:32.250987+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_diagnosis_trace_correlation" name="test_trace_correlation_survives_clarification_and_does_not_create_binding[correlation0]" time="0.074"><failure message="KeyError: 'trace_id'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000166DB569CD0&gt;
+correlation = {'trace_id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+
+    @pytest.mark.parametrize('correlation',[{'trace_id':'a'*32},{'trace_id':'a'*32,'span_id':'b'*16}])
+    def test_trace_correlation_survives_clarification_and_does_not_create_binding(monkeypatch,correlation):
+        monkeypatch.setenv('DATABASE_URL','sqlite:///:memory:');reset_engine();init_db()
+        try:
+            diagnosis=service.create_diagnosis(CreateDiagnosisRequestV2(query='知识查询重排慢',target={**correlation,'pid':123,'agent_id':'untrusted-hint'}))
+            result=service.clarify_diagnosis(diagnosis.id,ClarifyDiagnosisRequest(target={'service':'knowledge-api'}))
+&gt;           assert all(result['target'][key]==value for key,value in correlation.items())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_diagnosis_trace_correlation.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;dict_itemiterator object at 0x00000166DB7173D0&gt;
+
+&gt;   assert all(result['target'][key]==value for key,value in correlation.items())
+               ^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'trace_id'
+
+tests\test_diagnosis_trace_correlation.py:15: KeyError</failure></testcase><testcase classname="tests.test_diagnosis_trace_correlation" name="test_trace_correlation_survives_clarification_and_does_not_create_binding[correlation1]" time="0.030"><failure message="KeyError: 'trace_id'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000166DB8255B0&gt;
+correlation = {'span_id': 'bbbbbbbbbbbbbbbb', 'trace_id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+
+    @pytest.mark.parametrize('correlation',[{'trace_id':'a'*32},{'trace_id':'a'*32,'span_id':'b'*16}])
+    def test_trace_correlation_survives_clarification_and_does_not_create_binding(monkeypatch,correlation):
+        monkeypatch.setenv('DATABASE_URL','sqlite:///:memory:');reset_engine();init_db()
+        try:
+            diagnosis=service.create_diagnosis(CreateDiagnosisRequestV2(query='知识查询重排慢',target={**correlation,'pid':123,'agent_id':'untrusted-hint'}))
+            result=service.clarify_diagnosis(diagnosis.id,ClarifyDiagnosisRequest(target={'service':'knowledge-api'}))
+&gt;           assert all(result['target'][key]==value for key,value in correlation.items())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_diagnosis_trace_correlation.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;dict_itemiterator object at 0x00000166DB79B600&gt;
+
+&gt;   assert all(result['target'][key]==value for key,value in correlation.items())
+               ^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'trace_id'
+
+tests\test_diagnosis_trace_correlation.py:15: KeyError</failure></testcase></testsuite></testsuites>

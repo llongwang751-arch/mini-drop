@@ -1,0 +1,2923 @@
+{
+  "scenario_id": "queue-backlog",
+  "title": "生产消费队列堆积",
+  "started_at": "2026-10-01T15:10:18.510515+00:00",
+  "windows": {
+    "baseline": {
+      "first": {
+        "observed_at": "2026-10-01T15:10:18.592079+00:00",
+        "snapshot": {
+          "timestamp": 1790867433.4114413,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.06,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.25,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3335.2,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:10:23.060664+00:00",
+        "snapshot": {
+          "timestamp": 1790867437.9581776,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 2.62,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.25,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3335.2,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.0185593999995035
+    },
+    "fault": {
+      "first": {
+        "observed_at": "2026-10-01T15:10:26.656138+00:00",
+        "snapshot": {
+          "timestamp": 1790867441.4791713,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 4.86,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.59,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": true,
+          "queue_offered_rps": 244.69,
+          "queue_completed_rps": 38.41,
+          "queue_rejected_requests": 580,
+          "queue_queue_depth": 128,
+          "queue_latency_ms": 1450.67,
+          "queue_auto_stop_remaining_seconds": 296.56,
+          "producer_rate": 244.69,
+          "consumer_rate": 38.41,
+          "queue_lag": 128,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:10:31.130384+00:00",
+        "snapshot": {
+          "timestamp": 1790867445.9617112,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 5.81,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.59,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": true,
+          "queue_offered_rps": 243.58,
+          "queue_completed_rps": 38.39,
+          "queue_rejected_requests": 1496,
+          "queue_queue_depth": 128,
+          "queue_latency_ms": 2511.05,
+          "queue_auto_stop_remaining_seconds": 292.08,
+          "producer_rate": 243.58,
+          "consumer_rate": 38.39,
+          "queue_lag": 128,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 4.956604799997876
+    },
+    "recovery": {
+      "first": {
+        "observed_at": "2026-10-01T15:11:20.217462+00:00",
+        "snapshot": {
+          "timestamp": 1790867495.0827556,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 4.96,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.59,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.28,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.28,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:11:24.729941+00:00",
+        "snapshot": {
+          "timestamp": 1790867499.5745945,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.22,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.59,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 642.94,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.12,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.12,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.004798999994819
+    }
+  },
+  "cleanup_verified": true,
+  "session_drained": true,
+  "acceptance_profile": "engineering-diagnosis.v1",
+  "fresh_live_run": true,
+  "target": {
+    "agent_id": "control-interview-demo-agent",
+    "pid": 906287,
+    "comm": "python-hotspot"
+  },
+  "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+  "fault_before_stop": {
+    "observed_at": "2026-10-01T15:11:16.244928+00:00",
+    "snapshot": {
+      "timestamp": 1790867491.456383,
+      "fault": "CPU_HOTSPOT",
+      "fault_active": false,
+      "process_cpu_percent": 27.89,
+      "operation_count": 2087112600,
+      "pid": 1,
+      "host_pid": 1,
+      "started_at": 1790753023.6424232,
+      "auto_stop_remaining_seconds": null,
+      "source_fault_active": false,
+      "source_profile_samples": 34939,
+      "hot_function": "source_hot_function",
+      "source_file": "app.py",
+      "source_line": 173,
+      "hot_function_samples": 34810,
+      "source_auto_stop_remaining_seconds": null,
+      "memory_fault_active": false,
+      "process_rss_mb": 23.59,
+      "retained_memory_mb": 0.0,
+      "memory_auto_stop_remaining_seconds": null,
+      "io_fault_active": false,
+      "io_workload_bytes": 1109065728,
+      "process_write_bytes": 0,
+      "io_auto_stop_remaining_seconds": null,
+      "noisy_neighbor_active": false,
+      "peer_pid": null,
+      "peer_cpu_ticks": 0,
+      "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "same_host_verified": false,
+      "noisy_auto_stop_remaining_seconds": null,
+      "load_fault_active": false,
+      "load_offered_rps": 0.0,
+      "load_completed_rps": 0.0,
+      "load_rejected_requests": 0,
+      "load_queue_depth": 0,
+      "load_latency_ms": 642.94,
+      "load_auto_stop_remaining_seconds": null,
+      "queue_fault_active": true,
+      "queue_offered_rps": 244.37,
+      "queue_completed_rps": 38.62,
+      "queue_rejected_requests": 10861,
+      "queue_queue_depth": 128,
+      "queue_latency_ms": 3213.23,
+      "queue_auto_stop_remaining_seconds": 246.59,
+      "producer_rate": 244.37,
+      "consumer_rate": 38.62,
+      "queue_lag": 128,
+      "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "acceptance_process_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906287,
+        "namespace_pid": 1,
+        "start_ticks": 14403834,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+        "container_started_at": "2026-09-08T05:27:43.229759068Z"
+      }
+    }
+  },
+  "records": {
+    "diagnosis": {
+      "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+      "query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "target": {
+        "service": "python-hotspot",
+        "environment": "docker-2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79b",
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "process_binding": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906287,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "process_start_ticks": 14403834,
+          "pid_namespace_inode": 4026532805,
+          "namespace_pid": 1,
+          "executable_identity": "python3.12",
+          "process_snapshot_id": "psnap_0cfc17fbbeaf7738",
+          "snapshot_generation": 306327,
+          "snapshot_received_at": "2026-10-01T15:10:43.785128+00:00"
+        }
+      },
+      "time_range": {
+        "start": "2026-10-01T15:10:46.123613Z",
+        "end": "2026-10-01T15:15:46.123613Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "requested_time_range": {
+        "start": "2026-10-01T15:10:46.123613Z",
+        "end": "2026-10-01T15:15:46.123613Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "effective_time_range": {},
+      "mode": "AUTONOMOUS",
+      "skill_policy": "AUTO",
+      "created_by": "legacy_admin",
+      "budget": {
+        "investigation_strategy": "LATS",
+        "max_duration_seconds": 180,
+        "max_tool_calls": 6,
+        "min_diagnosis_rounds": 1,
+        "max_diagnosis_rounds": 2,
+        "max_concurrent_tasks": 3,
+        "max_hosts": 1,
+        "max_artifact_bytes": 524288000,
+        "max_risk_level": "R2",
+        "lats_top_k": 3,
+        "max_lats_iterations": null,
+        "lats_exploration_constant": 1.4142135623730951,
+        "lats_selection_policy": "UCT",
+        "lats_value_lambda": 0.5
+      },
+      "status": "COMPLETED",
+      "version": 9,
+      "clarification_questions": [],
+      "created_at": "2026-10-01 15:10:46.098757+00:00",
+      "updated_at": "2026-10-01 15:11:29.994378+00:00",
+      "deleted_at": null,
+      "deleted_by": null
+    },
+    "reports": [
+      {
+        "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+        "conclusion": "已验证观测：队列速率与积压已满足声明的数值判据：queue_lag=128。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。",
+        "confidence": 0.6,
+        "evidence_refs": [
+          "ev_task_task_20261001_151109_4d71a5_4544"
+        ],
+        "counter_evidence_refs": [],
+        "assumptions": [
+          "结论仅适用于当前诊断目标与时间窗口"
+        ],
+        "limitations": [
+          "缺少独立反证或对照证据；当前只是阶段性发现，尚不能确认因果关系或故障已修复。"
+        ],
+        "next_actions": [
+          "在相同负载下执行修复前后复测，确认热点和副作用变化"
+        ],
+        "claims": [
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "HYPOTHESIS_PREDICATE",
+            "statement": "Exact numeric performance observation matched declared criteria",
+            "json_pointer": "/metadata/hypothesis_predicate/outcome",
+            "claimed_value": "SUPPORT",
+            "criterion": {
+              "kind": "expected",
+              "index": 0
+            }
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+            "statement": "用户态 CPU 占比: 14.177",
+            "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+            "claimed_value": 14.177,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+            "statement": "系统态 CPU 占比: 4.387",
+            "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+            "claimed_value": 4.387,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+            "statement": "I/O wait 占比: 0.073",
+            "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+            "claimed_value": 0.073,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+            "statement": "进程 CPU 核占用: 3.642",
+            "json_pointer": "/metadata/summary/process_cpu_core_usage",
+            "claimed_value": 3.642,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+            "statement": "系统一分钟负载: 0.863",
+            "json_pointer": "/metadata/summary/load1m",
+            "claimed_value": 0.863,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_RSS",
+            "statement": "进程 RSS: 23.586",
+            "json_pointer": "/metadata/summary/vmrss_mb",
+            "claimed_value": 23.586,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+            "statement": "进程 RSS 峰值: 23.586",
+            "json_pointer": "/metadata/summary/vmrss_mb_max",
+            "claimed_value": 23.586,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_FD_COUNT",
+            "statement": "文件描述符数量: 4.0",
+            "json_pointer": "/metadata/summary/fd_count",
+            "claimed_value": 4.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_FD_TREND",
+            "statement": "文件描述符趋势: 0.0",
+            "json_pointer": "/metadata/summary/fd_trend",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_THREAD_COUNT",
+            "statement": "线程数量: 11.0",
+            "json_pointer": "/metadata/summary/thread_count",
+            "claimed_value": 11.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_THREAD_TREND",
+            "statement": "线程数量趋势: 0.0",
+            "json_pointer": "/metadata/summary/thread_trend",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+            "statement": "非自愿上下文切换速率: 0.286",
+            "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+            "claimed_value": 0.286,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+            "statement": "磁盘读取吞吐: 0.0",
+            "json_pointer": "/metadata/summary/disk_read_kbps",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+            "statement": "磁盘写入吞吐: 0.0",
+            "json_pointer": "/metadata/summary/disk_write_kbps",
+            "claimed_value": 0.0,
+            "criterion": null
+          }
+        ],
+        "verification": {
+          "status": "VERIFIED",
+          "claims": [
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "HYPOTHESIS_PREDICATE",
+              "statement": "Exact numeric performance observation matched declared criteria",
+              "json_pointer": "/metadata/hypothesis_predicate/outcome",
+              "claimed_value": "SUPPORT",
+              "criterion": {
+                "kind": "expected",
+                "index": 0
+              }
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+              "statement": "用户态 CPU 占比: 14.177",
+              "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+              "claimed_value": 14.177,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+              "statement": "系统态 CPU 占比: 4.387",
+              "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+              "claimed_value": 4.387,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+              "statement": "I/O wait 占比: 0.073",
+              "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+              "claimed_value": 0.073,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+              "statement": "进程 CPU 核占用: 3.642",
+              "json_pointer": "/metadata/summary/process_cpu_core_usage",
+              "claimed_value": 3.642,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+              "statement": "系统一分钟负载: 0.863",
+              "json_pointer": "/metadata/summary/load1m",
+              "claimed_value": 0.863,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_PROCESS_RSS",
+              "statement": "进程 RSS: 23.586",
+              "json_pointer": "/metadata/summary/vmrss_mb",
+              "claimed_value": 23.586,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+              "statement": "进程 RSS 峰值: 23.586",
+              "json_pointer": "/metadata/summary/vmrss_mb_max",
+              "claimed_value": 23.586,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_FD_COUNT",
+              "statement": "文件描述符数量: 4.0",
+              "json_pointer": "/metadata/summary/fd_count",
+              "claimed_value": 4.0,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_FD_TREND",
+              "statement": "文件描述符趋势: 0.0",
+              "json_pointer": "/metadata/summary/fd_trend",
+              "claimed_value": 0.0,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_THREAD_COUNT",
+              "statement": "线程数量: 11.0",
+              "json_pointer": "/metadata/summary/thread_count",
+              "claimed_value": 11.0,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_THREAD_TREND",
+              "statement": "线程数量趋势: 0.0",
+              "json_pointer": "/metadata/summary/thread_trend",
+              "claimed_value": 0.0,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+              "statement": "非自愿上下文切换速率: 0.286",
+              "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+              "claimed_value": 0.286,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+              "statement": "磁盘读取吞吐: 0.0",
+              "json_pointer": "/metadata/summary/disk_read_kbps",
+              "claimed_value": 0.0,
+              "criterion": null
+            },
+            {
+              "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+              "artifact_id": "4544",
+              "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "direction": "SUPPORT",
+              "valid": true,
+              "reasons": [],
+              "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+              "statement": "磁盘写入吞吐: 0.0",
+              "json_pointer": "/metadata/summary/disk_write_kbps",
+              "claimed_value": 0.0,
+              "criterion": null
+            }
+          ],
+          "rejected_claims": [],
+          "support_claim_count": 15,
+          "counter_claim_count": 0,
+          "coverage_ratio": 0.5,
+          "has_independent_counter_or_control": false,
+          "control_claim_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "制定受控变更计划",
+                "urgency": "LOW",
+                "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"
+              }
+            ],
+            "root_cause_fixes": [
+              {
+                "title": "CPU 治理验证计划",
+                "action": "比较热点自身采样、进程 CPU 与请求延迟；确认容量或算法瓶颈后制定限流或代码优化方案。",
+                "scope": "REVIEW_REQUIRED",
+                "preconditions": "确认目标身份、当前配置、业务负载与回滚方案",
+                "validation": "同负载比较 P95/P99、吞吐、错误率及对应资源指标"
+              },
+              {
+                "title": "内存 治理验证计划",
+                "action": "先确认运行时，区分堆内、堆外、瞬态分配和持续增长；验证对象生命周期与内存限制，不自动触发 GC 或发送信号。",
+                "scope": "REVIEW_REQUIRED",
+                "preconditions": "确认目标身份、当前配置、业务负载与回滚方案",
+                "validation": "同负载比较 P95/P99、吞吐、错误率及对应资源指标"
+              },
+              {
+                "title": "I/O 治理验证计划",
+                "action": "确认 I/O 归属与同步等待路径；评估缓冲或异步化时同时验证持久性要求，不直接降低刷盘保障。",
+                "scope": "REVIEW_REQUIRED",
+                "preconditions": "确认目标身份、当前配置、业务负载与回滚方案",
+                "validation": "同负载比较 P95/P99、吞吐、错误率及对应资源指标"
+              },
+              {
+                "title": "FD 治理验证计划",
+                "action": "比较句柄增长与当前上限，定位未关闭资源；调整限制前检查系统容量和回滚值。",
+                "scope": "REVIEW_REQUIRED",
+                "preconditions": "确认目标身份、当前配置、业务负载与回滚方案",
+                "validation": "同负载比较 P95/P99、吞吐、错误率及对应资源指标"
+              }
+            ]
+          },
+          "verification": {
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "has_independent_counter_or_control": false,
+            "support_claim_count": 15,
+            "counter_claim_count": 0,
+            "control_claim_count": 0,
+            "coverage_ratio": 0.5,
+            "covered_expected": [
+              0
+            ],
+            "covered_falsification": [],
+            "missing_expected": [],
+            "missing_falsification": [
+              0
+            ],
+            "needs_independent_counter_or_control": true,
+            "rejected_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "observation_verification": {
+              "schema_version": "performance-observation-verification.v1",
+              "status": "VERIFIED",
+              "checked_ratio": 1.0,
+              "criteria": [
+                {
+                  "kind": "expected",
+                  "index": 0,
+                  "criterion": "queue_backlog.queue_lag >= 1",
+                  "checked": true,
+                  "matches": true,
+                  "measurement": {
+                    "signal": "queue_backlog",
+                    "field": "queue_lag",
+                    "value": 128.0,
+                    "threshold": 1.0,
+                    "matches": true
+                  },
+                  "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544"
+                },
+                {
+                  "kind": "falsification",
+                  "index": 0,
+                  "criterion": "queue_backlog.queue_lag < 1",
+                  "checked": true,
+                  "matches": false,
+                  "measurement": {
+                    "signal": "queue_backlog",
+                    "field": "queue_lag",
+                    "value": 128.0,
+                    "threshold": 1.0,
+                    "matches": false
+                  },
+                  "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544"
+                }
+              ],
+              "evidence_refs": [
+                "ev_task_task_20261001_151109_4d71a5_4544"
+              ],
+              "independent_control_verified": false,
+              "claim_scope": "BOUNDED_OBSERVATION",
+              "causal_root_cause_verified": false
+            }
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "VERIFIED",
+            "checked_ratio": 1.0,
+            "criteria": [
+              {
+                "kind": "expected",
+                "index": 0,
+                "criterion": "queue_backlog.queue_lag >= 1",
+                "checked": true,
+                "matches": true,
+                "measurement": {
+                  "signal": "queue_backlog",
+                  "field": "queue_lag",
+                  "value": 128.0,
+                  "threshold": 1.0,
+                  "matches": true
+                },
+                "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544"
+              },
+              {
+                "kind": "falsification",
+                "index": 0,
+                "criterion": "queue_backlog.queue_lag < 1",
+                "checked": true,
+                "matches": false,
+                "measurement": {
+                  "signal": "queue_backlog",
+                  "field": "queue_lag",
+                  "value": 128.0,
+                  "threshold": 1.0,
+                  "matches": false
+                },
+                "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544"
+              }
+            ],
+            "evidence_refs": [
+              "ev_task_task_20261001_151109_4d71a5_4544"
+            ],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          },
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "causal_root_cause_verified": false,
+          "matched_verification_status": "PARTIAL_WITHOUT_COUNTER",
+          "verification_kind": "PERFORMANCE_OBSERVATION",
+          "source_context": {
+            "configured_roots": 7,
+            "language_filter": "python",
+            "scanned_files": 0,
+            "scanned_by_language": {
+              "python": 0,
+              "go": 0,
+              "java": 0,
+              "ruby": 0,
+              "cpp": 0
+            },
+            "mappings": [],
+            "unresolved_symbols": []
+          },
+          "bottleneck_localization": {
+            "schema_version": "bottleneck-localization.v1",
+            "status": "NOT_LOCALIZED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false,
+            "same_load_fix_verified": false,
+            "evidence_refs": []
+          }
+        },
+        "effects_status": "APPLIED",
+        "effects_phase": "EFFECTS_COMPLETED",
+        "effects_owner": null,
+        "effects_lease_expires_at": null,
+        "effects_fencing_token": 1,
+        "effects_applied_at": "2026-10-01 15:11:30.031025+00:00",
+        "created_at": "2026-10-01 15:11:29.994378+00:00"
+      }
+    ],
+    "evidence": [
+      {
+        "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+        "role": "SUPPORT",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_151109_4d71a5_4544",
+          "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+          "evidence_type": "SYS_METRICS_SYS_METRICS",
+          "source": {
+            "tool_name": "sys_metrics",
+            "task_id": "task_20261001_151109_4d71a5",
+            "task_attempt_id": "attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9",
+            "artifact_id": "4544",
+            "artifact_sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "analysis_job_id": "analysis_b85e15c088bf7dae",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:11:14.139273Z",
+            "end": "2026-10-01T15:11:29.631203Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "sys_metrics",
+            "object_key": "tasks/task_20261001_151109_4d71a5/attempts/attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9/raw/sys_metrics.json",
+            "content_type": "application/json",
+            "size_bytes": 23816,
+            "metadata": {
+              "collector_plugin": "sys_metrics",
+              "collector_runtime": "native-cpp",
+              "contract_version": "1.0.0",
+              "schema_version": "sys_metrics_analysis.v2",
+              "source_schema_version": "sys_metrics.v2",
+              "sample_count": 15,
+              "window_duration_seconds": 14.004,
+              "process_identity": {
+                "pid": 906287,
+                "namespace_pid": 1,
+                "start_ticks": 14403834,
+                "verified": true
+              },
+              "summary": {
+                "vmrss_mb": 23.586,
+                "vmrss_mb_first": 23.586,
+                "vmrss_mb_max": 23.586,
+                "vmrss_mb_delta": 0.0,
+                "fd_count": 4.0,
+                "fd_count_first": 4.0,
+                "fd_count_max": 4.0,
+                "thread_count": 11.0,
+                "thread_count_first": 11.0,
+                "thread_count_max": 11.0,
+                "fd_trend": 0.0,
+                "thread_trend": 0.0,
+                "load1m": 0.863,
+                "load1m_max": 0.89,
+                "process_cpu_core_usage": 3.642,
+                "avg_cpu_user_pct": 14.177,
+                "avg_cpu_sys_pct": 4.387,
+                "avg_cpu_iowait_pct": 0.073,
+                "host_cpu_busy_pct": 18.564,
+                "disk_read_kbps": 0.0,
+                "disk_write_kbps": 0.0,
+                "ctx_nonvoluntary_rate": 0.286
+              },
+              "process_cpu_window": {
+                "source": "linux_proc_stat",
+                "clock_ticks_per_second": 100,
+                "start_cpu_ticks": 1296227,
+                "end_cpu_ticks": 1296278,
+                "start_unix_ms": 1790867474177.0,
+                "end_unix_ms": 1790867488181.0,
+                "sample_count": 15,
+                "process_cpu_core_usage": 3.6418166238217657
+              },
+              "application_metrics": {
+                "schema_version": "application_metrics_analysis.v1",
+                "sample_count": 15,
+                "identity": {
+                  "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+                  "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+                  "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+                  "host_pid": 906287,
+                  "namespace_pid": 1,
+                  "runtime": "python",
+                  "identity_verified": true,
+                  "pid": 1,
+                  "same_host_verified": false
+                },
+                "before": {
+                  "consumer_rate": 38.63,
+                  "hot_function_samples": 34810.0,
+                  "io_workload_bytes": 1109065728.0,
+                  "load_completed_rps": 0.0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0.0,
+                  "load_queue_depth": 0.0,
+                  "load_rejected_requests": 0.0,
+                  "operation_count": 2087112600.0,
+                  "peer_cpu_ticks": 0.0,
+                  "process_cpu_percent": 2.96,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0.0,
+                  "producer_rate": 244.42,
+                  "queue_completed_rps": 38.63,
+                  "queue_lag": 128.0,
+                  "queue_latency_ms": 3153.9,
+                  "queue_offered_rps": 244.42,
+                  "queue_queue_depth": 128.0,
+                  "queue_rejected_requests": 7271.0,
+                  "retained_memory_mb": 0.0,
+                  "source_profile_samples": 34939.0
+                },
+                "after": {
+                  "consumer_rate": 38.64,
+                  "hot_function_samples": 34810.0,
+                  "io_workload_bytes": 1109065728.0,
+                  "load_completed_rps": 0.0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0.0,
+                  "load_queue_depth": 0.0,
+                  "load_rejected_requests": 0.0,
+                  "operation_count": 2087112600.0,
+                  "peer_cpu_ticks": 0.0,
+                  "process_cpu_percent": 2.97,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0.0,
+                  "producer_rate": 244.56,
+                  "queue_completed_rps": 38.64,
+                  "queue_lag": 128.0,
+                  "queue_latency_ms": 3204.46,
+                  "queue_offered_rps": 244.56,
+                  "queue_queue_depth": 128.0,
+                  "queue_rejected_requests": 10167.0,
+                  "retained_memory_mb": 0.0,
+                  "source_profile_samples": 34939.0
+                },
+                "max": {
+                  "consumer_rate": 38.65,
+                  "hot_function_samples": 34810.0,
+                  "io_workload_bytes": 1109065728.0,
+                  "load_completed_rps": 0.0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0.0,
+                  "load_queue_depth": 0.0,
+                  "load_rejected_requests": 0.0,
+                  "operation_count": 2087112600.0,
+                  "peer_cpu_ticks": 0.0,
+                  "process_cpu_percent": 5.67,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0.0,
+                  "producer_rate": 244.56,
+                  "queue_completed_rps": 38.65,
+                  "queue_lag": 128.0,
+                  "queue_latency_ms": 3204.46,
+                  "queue_offered_rps": 244.56,
+                  "queue_queue_depth": 128.0,
+                  "queue_rejected_requests": 10167.0,
+                  "retained_memory_mb": 0.0,
+                  "source_profile_samples": 34939.0
+                },
+                "delta": {
+                  "consumer_rate": 0.01,
+                  "hot_function_samples": 0.0,
+                  "io_workload_bytes": 0.0,
+                  "load_completed_rps": 0.0,
+                  "load_latency_ms": 0.0,
+                  "load_offered_rps": 0.0,
+                  "load_queue_depth": 0.0,
+                  "load_rejected_requests": 0.0,
+                  "operation_count": 0.0,
+                  "peer_cpu_ticks": 0.0,
+                  "process_cpu_percent": 0.01,
+                  "process_rss_mb": 0.0,
+                  "process_write_bytes": 0.0,
+                  "producer_rate": 0.14,
+                  "queue_completed_rps": 0.01,
+                  "queue_lag": 0.0,
+                  "queue_latency_ms": 50.56,
+                  "queue_offered_rps": 0.14,
+                  "queue_queue_depth": 0.0,
+                  "queue_rejected_requests": 2896.0,
+                  "retained_memory_mb": 0.0,
+                  "source_profile_samples": 0.0
+                }
+              },
+              "application_metrics_status": "AVAILABLE",
+              "application_metrics_limitations": [],
+              "signals": {
+                "cpu_hotspot": {
+                  "detected": false,
+                  "reason": "target process CPU usage checked against the observation threshold",
+                  "metrics": {
+                    "process_cpu_core_usage": 3.642,
+                    "application_cpu_percent": 5.67,
+                    "cpu_operations_delta": 0.0
+                  }
+                },
+                "memory_growth": {
+                  "detected": false,
+                  "reason": "process memory footprint and retained memory change checked against the growth threshold",
+                  "metrics": {
+                    "retained_memory_mb": 0.0,
+                    "rss_delta_mb": 0.0,
+                    "retained_memory_delta_mb": 0.0
+                  }
+                },
+                "queue_backlog": {
+                  "detected": true,
+                  "reason": "producer rate exceeded consumer rate while queue lag was non-zero",
+                  "metrics": {
+                    "producer_rate": 244.56,
+                    "consumer_rate": 38.65,
+                    "queue_lag": 128.0
+                  }
+                }
+              },
+              "analysis_limitations": [],
+              "collector_type": "sys_metrics",
+              "analyzer_type": "collector.sys_metrics",
+              "analyzer_version": "1.0.0",
+              "hypothesis_predicate": {
+                "outcome": "SUPPORT",
+                "version": "performance-criterion-v1",
+                "reason": "Exact numeric performance observation matched declared criteria",
+                "criterion_indexes": [
+                  0
+                ],
+                "metrics": {
+                  "queue_lag": 128.0
+                },
+                "signal": "queue_backlog",
+                "claim_scope": "BOUNDED_OBSERVATION"
+              }
+            }
+          },
+          "quality": {
+            "level": "HIGH",
+            "sample_count": 15,
+            "sample_count_known": true,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": true,
+            "analyzer_validated": true,
+            "minimum_samples": 5
+          },
+          "limitations": []
+        },
+        "classification": {
+          "decision": "ACCEPT_SUPPORT",
+          "can_support_conclusion": true,
+          "reasons": []
+        },
+        "created_at": "2026-10-01 15:11:29.971197+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_151109_4d71a5_4545",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_151109_4d71a5_4545",
+          "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+          "evidence_type": "SYS_METRICS_MANIFEST",
+          "source": {
+            "tool_name": "sys_metrics",
+            "task_id": "task_20261001_151109_4d71a5",
+            "task_attempt_id": "attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9",
+            "artifact_id": "4545",
+            "artifact_sha256": "bdc4606c5c574ec79d3d1d7dddd5c0f54b3a027798baf66485ae6dd14a85f7cf",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:11:14.139273Z",
+            "end": "2026-10-01T15:11:29.631203Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "manifest",
+            "object_key": "tasks/task_20261001_151109_4d71a5/attempts/attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9/manifest.json",
+            "content_type": "application/json",
+            "size_bytes": 1109,
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 5
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:11:29.971197+00:00"
+      }
+    ],
+    "tool-calls": [
+      {
+        "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+        "tool_name": "collect_sys_metrics",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906287,
+          "duration_seconds": 15
+        },
+        "policy_decision": "ALLOW",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "NOT_REQUIRED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "PASS",
+            "remaining_seconds": 156.588226,
+            "required_seconds": 45
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 15,
+            "limit": 180
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 1
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 2097152,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "策略检查通过",
+        "status": "COMPLETED",
+        "task_id": "task_20261001_151109_4d71a5",
+        "result": {
+          "task_status": "DONE",
+          "task_id": "task_20261001_151109_4d71a5"
+        },
+        "budget_reservation": {
+          "duration_seconds": 15,
+          "artifact_bytes": 2097152,
+          "agent_id": "control-interview-demo-agent",
+          "concurrent_tasks": 1
+        },
+        "budget_settlement": {
+          "duration_seconds": 15,
+          "artifact_bytes": 24925,
+          "agent_id": "control-interview-demo-agent",
+          "settled_at": "2026-10-01T15:11:29.954391+00:00"
+        },
+        "budget_reservation_status": "SETTLED",
+        "terminal_processing_status": "REPORT_EFFECTS_DONE",
+        "terminal_processed_at": "2026-10-01 15:11:30.034921+00:00",
+        "requested_by": "system:autonomous-worker",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-10-01 15:11:09.510550+00:00",
+        "decided_at": null,
+        "executed_at": "2026-10-01 15:11:09.527553+00:00"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "statement": "目标进程队列积压的有界观测",
+        "expected_observations": [
+          "queue_backlog.queue_lag >= 1"
+        ],
+        "falsification_criteria": [
+          "queue_backlog.queue_lag < 1"
+        ],
+        "status": "SUPPORTED",
+        "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:11:09.458127+00:00",
+        "updated_at": "2026-10-01 15:11:29.994378+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_f4542299ace944d5906624f42b8065cd",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "statement": "消费者处理能力不足导致积压",
+        "expected_observations": [
+          "消费者资源饱和且消费速率跟不上生产"
+        ],
+        "falsification_criteria": [
+          "消费者资源充足且队列持续积压"
+        ],
+        "status": "OPEN",
+        "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:11:09.467222+00:00",
+        "updated_at": "2026-10-01 15:11:09.467222+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_aefabd1e4d8846dd86af5e8db5df499b",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "statement": "生产者突发写入导致瞬时积压",
+        "expected_observations": [
+          "生产速率出现尖峰"
+        ],
+        "falsification_criteria": [
+          "生产速率平稳但消费速率下降"
+        ],
+        "status": "OPEN",
+        "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:11:09.475087+00:00",
+        "updated_at": "2026-10-01 15:11:09.475087+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_99e45892eb7e4548842444f2c6662d10",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "statement": "其他未知原因（OTHER/UNKNOWN）",
+        "expected_observations": [
+          "存在尚未被既有候选假设充分解释的观测现象"
+        ],
+        "falsification_criteria": [
+          "所有观测现象均能被既有候选假设充分解释"
+        ],
+        "status": "OPEN",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:11:09.482215+00:00",
+        "updated_at": "2026-10-01 15:11:09.482215+00:00"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "event_de743a9e8fcd45bb84a63233a27a1d34",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 1,
+        "event_type": "diagnosis.created",
+        "actor": "USER",
+        "payload": {
+          "status": "NEEDS_CLARIFICATION",
+          "skill_policy": "AUTO",
+          "created_by": "legacy_admin",
+          "auto_scope": true,
+          "health_check": false
+        },
+        "occurred_at": "2026-10-01 15:10:46.098757+00:00"
+      },
+      {
+        "event_id": "event_a73a156077e34944834dec409349dfc8",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 2,
+        "event_type": "diagnosis.clarified",
+        "actor": "AI_SCOPE_RESOLVER",
+        "payload": {
+          "target": {
+            "service": "python-hotspot",
+            "environment": "docker-2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79b",
+            "agent_id": "control-interview-demo-agent",
+            "pid": 906287,
+            "process_binding": {
+              "agent_id": "control-interview-demo-agent",
+              "pid": 906287,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+              "process_start_ticks": 14403834,
+              "pid_namespace_inode": 4026532805,
+              "namespace_pid": 1,
+              "executable_identity": "python3.12",
+              "process_snapshot_id": "psnap_0cfc17fbbeaf7738",
+              "snapshot_generation": 306327,
+              "snapshot_received_at": "2026-10-01T15:10:43.785128+00:00"
+            }
+          },
+          "time_range": {
+            "start": "2026-10-01T15:10:46.123613Z",
+            "end": "2026-10-01T15:15:46.123613Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "requested_time_range": {
+            "start": "2026-10-01T15:10:46.123613Z",
+            "end": "2026-10-01T15:15:46.123613Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "effective_time_range": {}
+        },
+        "occurred_at": "2026-10-01 15:10:46.125237+00:00"
+      },
+      {
+        "event_id": "event_f1254d2cbc3c420db4a986186a6d4a29",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 3,
+        "event_type": "skill.route_activated",
+        "actor": "SYSTEM",
+        "payload": {
+          "applied": true,
+          "state": "ACTIVATED",
+          "skill_id": "builtin_queue_backlog_diagnosis_12cf90febd44",
+          "skill_name": "queue-backlog-diagnosis",
+          "version": 2,
+          "category": "QUEUE_CONGESTION",
+          "skill_category": "QUEUE_CONGESTION",
+          "baseline_category": "QUEUE_CONGESTION",
+          "selected_category": "QUEUE_CONGESTION",
+          "match_score": 0.757,
+          "baseline_tool": "collect_sys_metrics",
+          "selected_tool": "collect_sys_metrics",
+          "reuse_step": {
+            "trace_key": "1:INITIAL_PLAN",
+            "round_index": 1,
+            "phase": "INITIAL_PLAN",
+            "state": "ACTIVATED",
+            "baseline_tool": "collect_sys_metrics",
+            "selected_tool": "collect_sys_metrics",
+            "selected_route_index": 1,
+            "route_length": 2,
+            "completed_route_tools": [],
+            "attempted_tools": [],
+            "category_before": "QUEUE_CONGESTION",
+            "category_after": "QUEUE_CONGESTION",
+            "category_corrected": false,
+            "applied_at": "2026-10-01T15:10:47.524055+00:00"
+          },
+          "load_mode": "FULL_SKILL_MD",
+          "content_sha256": "9b2675c2e0c5b85d42630ed024f40fe3b57b2373ccf3a7c55edb5987595a94e3",
+          "source_sha256": "9b2675c2e0c5b85d42630ed024f40fe3b57b2373ccf3a7c55edb5987595a94e3",
+          "source_path": "skills/queue-backlog-diagnosis/SKILL.md",
+          "loaded_sections": [
+            "目标",
+            "输入契约",
+            "适用与停止条件",
+            "取证顺序",
+            "结论门槛",
+            "必需证据与反证",
+            "安全边界",
+            "输出契约",
+            "回归门禁"
+          ],
+          "round_index": 1,
+          "phase": "INITIAL_PLAN",
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:10:47.527910+00:00"
+      },
+      {
+        "event_id": "event_6a04b77f5a6b45f9a059c8700d2bd5ba",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 4,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "INITIAL_PLAN",
+          "round_index": 1,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+                  "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 5,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\nQUEUE_CONGESTION",
+            "query_hash": "ac6c17e2cdfbadd9af14c8ce1c7763cdc23b1cc6c732c6cba7a83727d49bf74c",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                "knowledge_id": "sre.latency.measurement",
+                "title": "延迟分位数与同负载复测",
+                "document": "knowledge/latency_measurement.md",
+                "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+                "excerpt": "# 延迟分位数与同负载测量\n\n记录请求到达率、并发、输入分布、超时策略、预热期和测量时长。修复前后改变请求量会破坏比较；失败及超时请求也必须计数。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\nQUEUE_CONGESTION",
+                "score": 0.519151,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                "knowledge_id": "jvm.gc.pressure",
+                "title": "JVM GC 暂停与分配压力",
+                "document": "knowledge/jvm_gc.md",
+                "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+                "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。",
+                "required_evidence": [
+                  "GC pause P95",
+                  "GC 时间占比",
+                  "堆分代占用"
+                ],
+                "caveats": [
+                  "CPU 高可能是 GC 的原因，也可能是结果"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\nQUEUE_CONGESTION",
+                "score": 0.352535,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                "knowledge_id": "python.sampling.attribution",
+                "title": "Python 采样归因与空闲线程",
+                "document": "knowledge/python_sampling.md",
+                "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+                "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。\nQUEUE_CONGESTION",
+                "score": 0.289791,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            }
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:10:48.373752+00:00"
+      },
+      {
+        "event_id": "event_22ad847a269646188b2c39539d556e33",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 5,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+          "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:11:09.458127+00:00"
+      },
+      {
+        "event_id": "event_c99681e5b45f4c9792de0a4a0fbc1b68",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 6,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_f4542299ace944d5906624f42b8065cd",
+          "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:11:09.467222+00:00"
+      },
+      {
+        "event_id": "event_73f4d00bfdc748adb81c1f72e1cf5093",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 7,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_aefabd1e4d8846dd86af5e8db5df499b",
+          "source": "SERVER_LANGUAGE_RULE_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:11:09.475087+00:00"
+      },
+      {
+        "event_id": "event_8550a7db82944b8ea19451d70fa60235",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 8,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_99e45892eb7e4548842444f2c6662d10",
+          "source": "SYSTEM_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:11:09.482215+00:00"
+      },
+      {
+        "event_id": "event_ac32127b28f34db4b51925ade51bfefa",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 9,
+        "event_type": "lats.search_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "algorithm": "LATS-UCT",
+          "algorithm_version": "drop-insight-lats-v1",
+          "semantics": {
+            "execution_mode": "BUDGETED_LATS",
+            "environment_semantics": "LIVE_PROGRESSIVE",
+            "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+            "strict_environment_reversibility": false,
+            "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+          },
+          "config": {
+            "investigation_strategy": "LATS",
+            "top_k": 3,
+            "exploration_constant": 1.4142135623730951,
+            "max_iterations": 2,
+            "max_tool_calls": 6,
+            "selection_policy": "UCT",
+            "value_lambda": 0.5,
+            "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+            "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+          },
+          "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+          "model_has_shell_access": false
+        },
+        "occurred_at": "2026-10-01 15:11:09.488139+00:00"
+      },
+      {
+        "event_id": "event_f2f44e121bee48bd971b2f9f0a09ba17",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 10,
+        "event_type": "lats.candidates_expanded",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "candidates": [
+            {
+              "candidate_key": "candidate:efd62294ea30b832a7a5",
+              "statement": "目标进程队列积压的有界观测",
+              "expected_observations": [
+                "queue_backlog.queue_lag >= 1"
+              ],
+              "falsification_criteria": [
+                "queue_backlog.queue_lag < 1"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.522648,
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 0,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+              "hypothesis_id": "hyp_fa3004f299464baea00125386e217388",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:2c4c0d4fc2e1bbaaaa4c",
+              "statement": "消费者处理能力不足导致积压",
+              "expected_observations": [
+                "消费者资源饱和且消费速率跟不上生产"
+              ],
+              "falsification_criteria": [
+                "消费者资源充足且队列持续积压"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.261324,
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 1,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_f4542299ace944d5906624f42b8065cd",
+              "hypothesis_id": "hyp_f4542299ace944d5906624f42b8065cd",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:5bffce13b43687181ce2",
+              "statement": "生产者突发写入导致瞬时积压",
+              "expected_observations": [
+                "生产速率出现尖峰"
+              ],
+              "falsification_criteria": [
+                "生产速率平稳但消费速率下降"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.174216,
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 2,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_aefabd1e4d8846dd86af5e8db5df499b",
+              "hypothesis_id": "hyp_aefabd1e4d8846dd86af5e8db5df499b",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:other-unknown",
+              "statement": "其他未知原因（OTHER/UNKNOWN）",
+              "expected_observations": [
+                "存在尚未被既有候选假设充分解释的观测现象"
+              ],
+              "falsification_criteria": [
+                "所有观测现象均能被既有候选假设充分解释"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.041812,
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 3,
+              "is_open_world_sentinel": true,
+              "node_id": "hypothesis:hyp_99e45892eb7e4548842444f2c6662d10",
+              "hypothesis_id": "hyp_99e45892eb7e4548842444f2c6662d10",
+              "depth": 0,
+              "parent_node_id": null
+            }
+          ],
+          "progressive_widening": true
+        },
+        "occurred_at": "2026-10-01 15:11:09.488139+00:00"
+      },
+      {
+        "event_id": "event_7f4b7c9e9cc0450e9b1a27bc57679a7a",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 11,
+        "event_type": "lats.candidates_evaluated",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "evaluations": [
+            {
+              "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_f4542299ace944d5906624f42b8065cd",
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_aefabd1e4d8846dd86af5e8db5df499b",
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_99e45892eb7e4548842444f2c6662d10",
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            }
+          ],
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+          "evidence_gate_is_separate": true
+        },
+        "occurred_at": "2026-10-01 15:11:09.488139+00:00"
+      },
+      {
+        "event_id": "event_b07c171a038b4c2c9da1ca0578b5826b",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 12,
+        "event_type": "lats.node_selected",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "candidate_key": "candidate:efd62294ea30b832a7a5",
+          "score": 1000000.0,
+          "components": {
+            "q": 0.68,
+            "exploration": 1000000.0,
+            "prior_bonus": 0.0,
+            "prior": 0.522648,
+            "visits": 0,
+            "virtual_loss": 0.0,
+            "unvisited": true
+          },
+          "rank": 0,
+          "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+          "selection_policy": "UCT",
+          "scores": [
+            {
+              "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+              "candidate_key": "candidate:efd62294ea30b832a7a5",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.68,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.522648,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 0
+            },
+            {
+              "node_id": "hypothesis:hyp_f4542299ace944d5906624f42b8065cd",
+              "candidate_key": "candidate:2c4c0d4fc2e1bbaaaa4c",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.57,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.261324,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 1
+            },
+            {
+              "node_id": "hypothesis:hyp_aefabd1e4d8846dd86af5e8db5df499b",
+              "candidate_key": "candidate:5bffce13b43687181ce2",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.46,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.174216,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 2
+            },
+            {
+              "node_id": "hypothesis:hyp_99e45892eb7e4548842444f2c6662d10",
+              "candidate_key": "candidate:other-unknown",
+              "score": 1000000.0,
+              "components": {
+                "q": -0.05,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.041812,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 3
+            }
+          ],
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+        },
+        "occurred_at": "2026-10-01 15:11:09.488139+00:00"
+      },
+      {
+        "event_id": "event_2f9c53831bf340279791eb06cb416095",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 13,
+        "event_type": "tool_call.requested",
+        "actor": "PLANNER",
+        "payload": {
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "status": "APPROVED"
+        },
+        "occurred_at": "2026-10-01 15:11:09.510550+00:00"
+      },
+      {
+        "event_id": "event_1ce159f253a94bdbbcf49d5e73701362",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 14,
+        "event_type": "tool_call.task_created",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5"
+        },
+        "occurred_at": "2026-10-01 15:11:09.527553+00:00"
+      },
+      {
+        "event_id": "event_36b5dd66bbfe4af0ab195a725a1b8721",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 15,
+        "event_type": "lats.action_proposed",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "TASK_CREATED",
+          "proposal_only": false
+        },
+        "occurred_at": "2026-10-01 15:11:09.535353+00:00"
+      },
+      {
+        "event_id": "event_c1e0dc78571f4d8dafd34c3bd090fab1",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 16,
+        "event_type": "lats.simulation_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+          "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+        },
+        "occurred_at": "2026-10-01 15:11:09.535353+00:00"
+      },
+      {
+        "event_id": "event_f9fcc30df9cb488fa227b88d19b354ec",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 17,
+        "event_type": "lats.action_dispatched",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:11:09.535353+00:00"
+      },
+      {
+        "event_id": "event_0f498f53fe6c48cea9dc5c32566c242d",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 18,
+        "event_type": "tool_call.progress",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5",
+          "task_status": "RUNNING",
+          "status": "RUNNING"
+        },
+        "occurred_at": "2026-10-01 15:11:15.698675+00:00"
+      },
+      {
+        "event_id": "event_26df7d3cef4a453abbcc1926b0148f24",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 19,
+        "event_type": "tool_call.task_terminal",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_ab059f3819fd4c0688cb76c470f5c187",
+          "task_id": "task_20261001_151109_4d71a5",
+          "task_status": "DONE"
+        },
+        "occurred_at": "2026-10-01 15:11:29.954391+00:00"
+      },
+      {
+        "event_id": "event_0c69bdea5bfb4b47ad06d9187cffab3e",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 20,
+        "event_type": "task_evidence.imported",
+        "actor": "SYSTEM",
+        "payload": {
+          "task_id": "task_20261001_151109_4d71a5",
+          "task_attempt_id": "attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9",
+          "evidence_refs": [
+            "ev_task_task_20261001_151109_4d71a5_4544",
+            "ev_task_task_20261001_151109_4d71a5_4545"
+          ]
+        },
+        "occurred_at": "2026-10-01 15:11:29.971197+00:00"
+      },
+      {
+        "event_id": "event_7bcb9a2c222b45b3a2db8cd74566184f",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 21,
+        "event_type": "report.generated",
+        "actor": "SYSTEM",
+        "payload": {
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "confidence": 0.6,
+          "coverage_ratio": 0.5,
+          "evidence_refs": [
+            "ev_task_task_20261001_151109_4d71a5_4544"
+          ],
+          "verification_status": "VERIFIED",
+          "verified_claim_count": 15,
+          "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 1,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:11:29.994378+00:00"
+      },
+      {
+        "event_id": "event_f7b0b164eb0f4b3db48aa2dd55b21f0d",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 22,
+        "event_type": "lats.observation_recorded",
+        "actor": "ENVIRONMENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "observation_id": "report:report_fb136d4ab160ad3978d97d80941371b7",
+          "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+          "summary": "真实采集完成：支持 1 条、反证 0 条、质量拒绝 1 条；门禁=VERIFIED。",
+          "tool_call_ids": [
+            "toolcall_ab059f3819fd4c0688cb76c470f5c187"
+          ],
+          "task_ids": [
+            "task_20261001_151109_4d71a5"
+          ],
+          "evidence_ids": [
+            "ev_task_task_20261001_151109_4d71a5_4544",
+            "ev_task_task_20261001_151109_4d71a5_4545"
+          ],
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "external_observation": true,
+          "cached_observation": true,
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:11:30.014244+00:00"
+      },
+      {
+        "event_id": "event_9227792a9b6f4348bf31533ee9d53ab8",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 23,
+        "event_type": "lats.reflection_recorded",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "decision": "STOP_VERIFIED",
+          "summary": "证据门已验证当前假设；保留限制项并停止搜索。",
+          "grounded_in_observation": "report:report_fb136d4ab160ad3978d97d80941371b7",
+          "reflection_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:11:30.014244+00:00"
+      },
+      {
+        "event_id": "event_ce0f1e8bbd7e46cb8ca7cc2c895542d7",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 24,
+        "event_type": "lats.backpropagated",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_fa3004f299464baea00125386e217388",
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "path_node_ids": [
+            "hypothesis:hyp_fa3004f299464baea00125386e217388"
+          ],
+          "reward": 0.88,
+          "outcome": "VERIFIED",
+          "components": {
+            "evidence_gate": 0.9,
+            "confidence": 0.02,
+            "quality_penalty": 0.04,
+            "support_count": 1,
+            "counter_count": 0,
+            "rejected_count": 1
+          }
+        },
+        "occurred_at": "2026-10-01 15:11:30.014244+00:00"
+      },
+      {
+        "event_id": "event_d744ddc5ac4146fd8ce491cc68fb378f",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 25,
+        "event_type": "lats.search_terminated",
+        "actor": "SYSTEM",
+        "payload": {
+          "reason": "VERIFIED",
+          "detail": "证据门已验证当前假设；保留限制项并停止搜索。",
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "confidence": 0.6,
+          "best_path_node_ids": [
+            "hypothesis:hyp_fa3004f299464baea00125386e217388"
+          ]
+        },
+        "occurred_at": "2026-10-01 15:11:30.014244+00:00"
+      },
+      {
+        "event_id": "event_c3675048ff4c4012883566330987e515",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "sequence": 26,
+        "event_type": "diagnosis.route_learned",
+        "actor": "SYSTEM",
+        "payload": {
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "tool_route": [
+            "collect_sys_metrics"
+          ],
+          "learning_scope": "verified_route_prior",
+          "note": "仅提升后续路线排序，不自动新增工具或绕过策略。"
+        },
+        "occurred_at": "2026-10-01 15:11:30.026433+00:00"
+      }
+    ],
+    "tasks": [
+      {
+        "task_id": "task_20261001_151109_4d71a5",
+        "collector_type": "sys_metrics",
+        "status": "DONE",
+        "status_reason": "系统指标产物已完成兼容契约校验",
+        "error_code": null,
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "event_count": 5,
+        "attempts": [
+          {
+            "id": "attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9",
+            "status": "SUCCEEDED",
+            "started_at": "2026-10-01T15:11:14.139273Z",
+            "finished_at": "2026-10-01T15:11:29.303748Z"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": 4544,
+            "artifact_type": "sys_metrics",
+            "size_bytes": 23816,
+            "sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "integrity_status": "VERIFIED",
+            "sample_count": 15
+          },
+          {
+            "id": 4545,
+            "artifact_type": "manifest",
+            "size_bytes": 1109,
+            "sha256": "bdc4606c5c574ec79d3d1d7dddd5c0f54b3a027798baf66485ae6dd14a85f7cf",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          }
+        ],
+        "_raw_artifacts": [
+          {
+            "artifact_type": "sys_metrics",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:11:29.303748Z",
+            "filename": "sys_metrics.json",
+            "id": 4544,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "sys_metrics",
+              "content_type": "application/json",
+              "object_key": "tasks/task_20261001_151109_4d71a5/attempts/attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9/raw/sys_metrics.json",
+              "schema_version": "mini-drop.artifact.v1",
+              "sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+              "size_bytes": 23816,
+              "task_attempt_id": "attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9",
+              "task_id": "task_20261001_151109_4d71a5"
+            },
+            "metadata": {
+              "analysis_limitations": [],
+              "analyzer_type": "collector.sys_metrics",
+              "analyzer_version": "1.0.0",
+              "application_metrics": {
+                "after": {
+                  "consumer_rate": 38.64,
+                  "hot_function_samples": 34810,
+                  "io_workload_bytes": 1109065728,
+                  "load_completed_rps": 0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0,
+                  "load_queue_depth": 0,
+                  "load_rejected_requests": 0,
+                  "operation_count": 2087112600,
+                  "peer_cpu_ticks": 0,
+                  "process_cpu_percent": 2.97,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0,
+                  "producer_rate": 244.56,
+                  "queue_completed_rps": 38.64,
+                  "queue_lag": 128,
+                  "queue_latency_ms": 3204.46,
+                  "queue_offered_rps": 244.56,
+                  "queue_queue_depth": 128,
+                  "queue_rejected_requests": 10167,
+                  "retained_memory_mb": 0,
+                  "source_profile_samples": 34939
+                },
+                "before": {
+                  "consumer_rate": 38.63,
+                  "hot_function_samples": 34810,
+                  "io_workload_bytes": 1109065728,
+                  "load_completed_rps": 0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0,
+                  "load_queue_depth": 0,
+                  "load_rejected_requests": 0,
+                  "operation_count": 2087112600,
+                  "peer_cpu_ticks": 0,
+                  "process_cpu_percent": 2.96,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0,
+                  "producer_rate": 244.42,
+                  "queue_completed_rps": 38.63,
+                  "queue_lag": 128,
+                  "queue_latency_ms": 3153.9,
+                  "queue_offered_rps": 244.42,
+                  "queue_queue_depth": 128,
+                  "queue_rejected_requests": 7271,
+                  "retained_memory_mb": 0,
+                  "source_profile_samples": 34939
+                },
+                "delta": {
+                  "consumer_rate": 0.01,
+                  "hot_function_samples": 0,
+                  "io_workload_bytes": 0,
+                  "load_completed_rps": 0,
+                  "load_latency_ms": 0,
+                  "load_offered_rps": 0,
+                  "load_queue_depth": 0,
+                  "load_rejected_requests": 0,
+                  "operation_count": 0,
+                  "peer_cpu_ticks": 0,
+                  "process_cpu_percent": 0.01,
+                  "process_rss_mb": 0,
+                  "process_write_bytes": 0,
+                  "producer_rate": 0.14,
+                  "queue_completed_rps": 0.01,
+                  "queue_lag": 0,
+                  "queue_latency_ms": 50.56,
+                  "queue_offered_rps": 0.14,
+                  "queue_queue_depth": 0,
+                  "queue_rejected_requests": 2896,
+                  "retained_memory_mb": 0,
+                  "source_profile_samples": 0
+                },
+                "identity": {
+                  "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+                  "host_pid": 906287,
+                  "identity_verified": true,
+                  "namespace_pid": 1,
+                  "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+                  "pid": 1,
+                  "runtime": "python",
+                  "same_host_verified": false,
+                  "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a"
+                },
+                "max": {
+                  "consumer_rate": 38.65,
+                  "hot_function_samples": 34810,
+                  "io_workload_bytes": 1109065728,
+                  "load_completed_rps": 0,
+                  "load_latency_ms": 642.94,
+                  "load_offered_rps": 0,
+                  "load_queue_depth": 0,
+                  "load_rejected_requests": 0,
+                  "operation_count": 2087112600,
+                  "peer_cpu_ticks": 0,
+                  "process_cpu_percent": 5.67,
+                  "process_rss_mb": 23.59,
+                  "process_write_bytes": 0,
+                  "producer_rate": 244.56,
+                  "queue_completed_rps": 38.65,
+                  "queue_lag": 128,
+                  "queue_latency_ms": 3204.46,
+                  "queue_offered_rps": 244.56,
+                  "queue_queue_depth": 128,
+                  "queue_rejected_requests": 10167,
+                  "retained_memory_mb": 0,
+                  "source_profile_samples": 34939
+                },
+                "sample_count": 15,
+                "schema_version": "application_metrics_analysis.v1"
+              },
+              "application_metrics_limitations": [],
+              "application_metrics_status": "AVAILABLE",
+              "collector_plugin": "sys_metrics",
+              "collector_runtime": "native-cpp",
+              "collector_type": "sys_metrics",
+              "contract_version": "1.0.0",
+              "process_cpu_window": {
+                "clock_ticks_per_second": 100,
+                "end_cpu_ticks": 1296278,
+                "end_unix_ms": 1790867488181,
+                "process_cpu_core_usage": 3.6418166238217657,
+                "sample_count": 15,
+                "source": "linux_proc_stat",
+                "start_cpu_ticks": 1296227,
+                "start_unix_ms": 1790867474177
+              },
+              "process_identity": {
+                "namespace_pid": 1,
+                "pid": 906287,
+                "start_ticks": 14403834,
+                "verified": true
+              },
+              "sample_count": 15,
+              "schema_version": "sys_metrics_analysis.v2",
+              "signals": {
+                "cpu_hotspot": {
+                  "detected": false,
+                  "metrics": {
+                    "application_cpu_percent": 5.67,
+                    "cpu_operations_delta": 0,
+                    "process_cpu_core_usage": 3.642
+                  },
+                  "reason": "target process CPU usage checked against the observation threshold"
+                },
+                "memory_growth": {
+                  "detected": false,
+                  "metrics": {
+                    "retained_memory_delta_mb": 0,
+                    "retained_memory_mb": 0,
+                    "rss_delta_mb": 0
+                  },
+                  "reason": "process memory footprint and retained memory change checked against the growth threshold"
+                },
+                "queue_backlog": {
+                  "detected": true,
+                  "metrics": {
+                    "consumer_rate": 38.65,
+                    "producer_rate": 244.56,
+                    "queue_lag": 128
+                  },
+                  "reason": "producer rate exceeded consumer rate while queue lag was non-zero"
+                }
+              },
+              "source_schema_version": "sys_metrics.v2",
+              "summary": {
+                "avg_cpu_iowait_pct": 0.073,
+                "avg_cpu_sys_pct": 4.387,
+                "avg_cpu_user_pct": 14.177,
+                "ctx_nonvoluntary_rate": 0.286,
+                "disk_read_kbps": 0,
+                "disk_write_kbps": 0,
+                "fd_count": 4,
+                "fd_count_first": 4,
+                "fd_count_max": 4,
+                "fd_trend": 0,
+                "host_cpu_busy_pct": 18.564,
+                "load1m": 0.863,
+                "load1m_max": 0.89,
+                "process_cpu_core_usage": 3.642,
+                "thread_count": 11,
+                "thread_count_first": 11,
+                "thread_count_max": 11,
+                "thread_trend": 0,
+                "vmrss_mb": 23.586,
+                "vmrss_mb_delta": 0,
+                "vmrss_mb_first": 23.586,
+                "vmrss_mb_max": 23.586
+              },
+              "window_duration_seconds": 14.004
+            },
+            "object_key": "tasks/task_20261001_151109_4d71a5/attempts/attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9/raw/sys_metrics.json",
+            "sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76",
+            "size_bytes": 23816,
+            "task_id": "task_20261001_151109_4d71a5"
+          },
+          {
+            "artifact_type": "manifest",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:11:29.303748Z",
+            "filename": "manifest.json",
+            "id": 4545,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "manifest_version": "mini-drop.artifact.v1",
+              "producer": "native-cpp"
+            },
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            },
+            "object_key": "tasks/task_20261001_151109_4d71a5/attempts/attempt_cf19133c014c4e04b7e3fcbe6fe3f6d9/manifest.json",
+            "sha256": "bdc4606c5c574ec79d3d1d7dddd5c0f54b3a027798baf66485ae6dd14a85f7cf",
+            "size_bytes": 1109,
+            "task_id": "task_20261001_151109_4d71a5"
+          }
+        ]
+      }
+    ]
+  },
+  "downloads": [
+    {
+      "task_id": "task_20261001_151109_4d71a5",
+      "artifact_id": 4544,
+      "artifact_type": "sys_metrics",
+      "file": "task_20261001_151109_4d71a5-sys_metrics.raw",
+      "sha256": "a0b4aa7ac64c533ca5eaffd75610570cf256e30f120e6e9a754b186288367f76"
+    },
+    {
+      "task_id": "task_20261001_151109_4d71a5",
+      "artifact_id": 4545,
+      "artifact_type": "manifest",
+      "file": "task_20261001_151109_4d71a5-manifest.raw",
+      "sha256": "bdc4606c5c574ec79d3d1d7dddd5c0f54b3a027798baf66485ae6dd14a85f7cf"
+    }
+  ],
+  "intervention": {
+    "field": "queue_lag",
+    "mode": "gauge",
+    "values": {
+      "baseline": 0.0,
+      "fault": 128.0,
+      "recovery": 0.0
+    },
+    "process_identity": {
+      "verified": true,
+      "identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906287,
+        "namespace_pid": 1,
+        "start_ticks": 14403834,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+        "container_started_at": "2026-09-08T05:27:43.229759068Z"
+      },
+      "snapshot_count": 6
+    },
+    "injection_observed": true,
+    "recovery_observed": true,
+    "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+  },
+  "lineage_evaluation": {
+    "recorded_chain_consistent": true,
+    "matched_evidence_ids": [
+      "ev_task_task_20261001_151109_4d71a5_4544"
+    ],
+    "unmatched_evidence_ids": [
+      "ev_task_task_20261001_151109_4d71a5_4545"
+    ],
+    "problems": [],
+    "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+  },
+  "engineering_evaluation": {
+    "scenario_id": "queue-backlog",
+    "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+    "diagnosis_accepted": true,
+    "localization_accepted": false,
+    "outcome": "SUPPORTED_OBSERVATION",
+    "location": null,
+    "causal_root_cause_verified": false,
+    "same_load_fix_verified": false,
+    "recorded_chain_verified": true,
+    "cleanup_and_recovery_verified": true,
+    "reports": [
+      {
+        "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "independent_control_required": false
+      }
+    ],
+    "profile": "engineering-diagnosis.v1"
+  },
+  "finished_at": "2026-10-01T15:11:25.938358+00:00"
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "mini-drop.same-load-business-fix.v1",
+  "passed": true,
+  "checks": {
+    "all_slots_recorded": true,
+    "same_workload": true,
+    "same_actual_candidates": true,
+    "same_lifetime": true,
+    "target_lifetime_matches": true,
+    "changed_source_matches": true,
+    "success_and_quality_preserved": true,
+    "user_latency_improved": true,
+    "rerank_improved": true,
+    "slow_request_linked": true,
+    "diagnosis_closed": true,
+    "raw_downloads": true,
+    "remote_cleanup": true,
+    "recorded_probe_lineage": true,
+    "actual_similarity_samples": true,
+    "same_phase_probe": true
+  },
+  "metrics": {
+    "baseline": {
+      "requests": 360,
+      "p95_ms": 4.842287860810757,
+      "rerank_p95_ms": 2.63822078704834,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.1904759556055069,
+      "candidate_counts": [
+        4
+      ]
+    },
+    "before": {
+      "requests": 360,
+      "p95_ms": 68.37673299014568,
+      "rerank_p95_ms": 65.88468793779612,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.17821742221713066,
+      "candidate_counts": [
+        96
+      ]
+    },
+    "after": {
+      "requests": 360,
+      "p95_ms": 2.695529256016016,
+      "rerank_p95_ms": 0.14165928587317467,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.18132198601961136,
+      "candidate_counts": [
+        96
+      ]
+    }
+  },
+  "source_manifest": {
+    "before.py": "9293bd0204c7700778d3110ceff2fb6f9af853696d7e63dc8a4517cee6c93df2",
+    "after.py": "016074fdfe4aa48f7f4f67b9ed492bb27696f5b46d1cd451a8dc6b5b92cf9be1",
+    "fixture.py": "4b2cdd24f1616ab1b611788488ef93cf7e56b17820a55534bf560db6631e72b9"
+  },
+  "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "reports": [
+    {
+      "id": "report_6719ee4921d31321dcdd711ec18466ca",
+      "conclusion": "阶段性观测：在 527 个有效样本中，在 Profile 采集窗口观察到可归属路径 `find_longest_match`，按函数归并的采样占比 69.8%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。本次诊断另有反证，完整观察合同尚未成立。",
+      "verification_status": "VERIFIED"
+    }
+  ],
+  "download_sha_verified": 6,
+  "scope": "ISOLATED_REAL_SQLITE_FTS5_HTTP_BUSINESS; EXTRACTIVE_LOCAL; NOT_OFFICE_OR_LIVE_LLM",
+  "change": "same 96 returned candidates and same 4RPS/360 requests; frozen uncached code -> bounded lexical score cache",
+  "causal_root_cause_verified_by_agent": false
+}

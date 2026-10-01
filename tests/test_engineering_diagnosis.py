@@ -81,11 +81,14 @@ def test_new_registered_memory_signal_does_not_need_another_hardcoded_evaluator(
     assert not result['localization_accepted']
 
 
-def test_generated_view_states_regrading_scope_and_unexamined_scenarios():
+def test_generated_view_distinguishes_new_trials_from_prior_regrading():
     document = json.loads(generate(ROOT))
-    assert document['diagnosis_accepted'] == 3
-    assert document['localization_accepted'] == 2 and document['refuted'] == 1
-    assert document['registered_scenarios'] == 21 and len(document['not_evaluated']) == 18
+    assert document['diagnosis_accepted'] == 14
+    assert document['localization_accepted'] == 4 and document['refuted'] == 5
+    assert document['registered_scenarios'] == document['evaluated_scenarios'] == 21
+    assert document['not_evaluated'] == []
+    assert document['evaluation_mode'] == 'MIXED_LIVE_CAMPAIGNS'
+    assert document['fresh_live_scenarios'] == 18 and document['regraded_prior_scenarios'] == 3
     assert document['fresh_live_run'] is False
 
 

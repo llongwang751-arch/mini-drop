@@ -1,0 +1,4150 @@
+{
+  "scenario_id": "cpp-file-io",
+  "title": "C++ 同步文件写入",
+  "started_at": "2026-10-01T15:40:43.816386+00:00",
+  "windows": {
+    "baseline": {
+      "first": {
+        "observed_at": "2026-10-01T15:40:43.885026+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1827405824,
+          "io_operations": 13942,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:40:48.283165+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1827405824,
+          "io_operations": 13942,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "elapsed_seconds": 4.860885200003395
+    },
+    "fault": {
+      "first": {
+        "observed_at": "2026-10-01T15:40:51.794471+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": true,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 29097984,
+          "io_operations": 222,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 296,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:40:56.201692+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": true,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 70909952,
+          "io_operations": 541,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 291,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.255243899999186
+    },
+    "recovery": {
+      "first": {
+        "observed_at": "2026-10-01T15:43:35.669238+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1414791168,
+          "io_operations": 10794,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:43:40.152385+00:00",
+        "snapshot": {
+          "runtime": "C++",
+          "pid": 1,
+          "host_pid": 1,
+          "fault_active": false,
+          "cpu_fault_active": false,
+          "lock_fault_active": false,
+          "memory_fault_active": false,
+          "io_fault_active": false,
+          "downstream_fault_active": false,
+          "cpu_operations": 49291001856,
+          "lock_acquisitions": 188184,
+          "lock_wait_ms": 561846.43,
+          "retained_memory_mb": 0,
+          "io_bytes_written": 1414791168,
+          "io_operations": 10794,
+          "io_failures": 0,
+          "downstream_requests": 732,
+          "downstream_failures": 0,
+          "downstream_mean_latency_ms": 260.33,
+          "rss_mb": 0.9,
+          "cpu_auto_stop_remaining_seconds": 0,
+          "lock_auto_stop_remaining_seconds": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "io_auto_stop_remaining_seconds": 0,
+          "downstream_auto_stop_remaining_seconds": 0,
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906297,
+            "namespace_pid": 1,
+            "start_ticks": 14403835,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+            "container_started_at": "2026-09-08T05:27:43.233710536Z"
+          }
+        }
+      },
+      "elapsed_seconds": 4.944052200000442
+    }
+  },
+  "cleanup_verified": true,
+  "session_drained": true,
+  "acceptance_profile": "engineering-diagnosis.v1",
+  "fresh_live_run": true,
+  "target": {
+    "agent_id": "control-interview-demo-agent",
+    "pid": 906297,
+    "comm": "cpp-hotspot"
+  },
+  "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+  "fault_before_stop": {
+    "observed_at": "2026-10-01T15:43:32.066635+00:00",
+    "snapshot": {
+      "runtime": "C++",
+      "pid": 1,
+      "host_pid": 1,
+      "fault_active": false,
+      "cpu_fault_active": false,
+      "lock_fault_active": false,
+      "memory_fault_active": false,
+      "io_fault_active": true,
+      "downstream_fault_active": false,
+      "cpu_operations": 49291001856,
+      "lock_acquisitions": 188184,
+      "lock_wait_ms": 561846.43,
+      "retained_memory_mb": 0,
+      "io_bytes_written": 1414135808,
+      "io_operations": 10789,
+      "io_failures": 0,
+      "downstream_requests": 732,
+      "downstream_failures": 0,
+      "downstream_mean_latency_ms": 260.33,
+      "rss_mb": 0.9,
+      "cpu_auto_stop_remaining_seconds": 0,
+      "lock_auto_stop_remaining_seconds": 0,
+      "memory_auto_stop_remaining_seconds": 0,
+      "io_auto_stop_remaining_seconds": 136,
+      "downstream_auto_stop_remaining_seconds": 0,
+      "acceptance_process_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906297,
+        "namespace_pid": 1,
+        "start_ticks": 14403835,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+        "container_started_at": "2026-09-08T05:27:43.233710536Z"
+      }
+    }
+  },
+  "records": {
+    "diagnosis": {
+      "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+      "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "target": {
+        "service": "cpp-hotspot",
+        "environment": "docker-92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e822",
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906297,
+        "process_binding": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906297,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "process_start_ticks": 14403835,
+          "pid_namespace_inode": 4026532931,
+          "namespace_pid": 1,
+          "executable_identity": "cpp-hotspot",
+          "process_snapshot_id": "psnap_d844db93c0e9c684",
+          "snapshot_generation": 306687,
+          "snapshot_received_at": "2026-10-01T15:41:10.503715+00:00"
+        }
+      },
+      "time_range": {
+        "start": "2026-10-01T15:41:11.774344Z",
+        "end": "2026-10-01T15:46:11.774344Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "requested_time_range": {
+        "start": "2026-10-01T15:41:11.774344Z",
+        "end": "2026-10-01T15:46:11.774344Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "effective_time_range": {},
+      "mode": "AUTONOMOUS",
+      "skill_policy": "AUTO",
+      "created_by": "legacy_admin",
+      "budget": {
+        "investigation_strategy": "LATS",
+        "max_duration_seconds": 180,
+        "max_tool_calls": 6,
+        "min_diagnosis_rounds": 1,
+        "max_diagnosis_rounds": 2,
+        "max_concurrent_tasks": 3,
+        "max_hosts": 1,
+        "max_artifact_bytes": 524288000,
+        "max_risk_level": "R2",
+        "lats_top_k": 3,
+        "max_lats_iterations": null,
+        "lats_exploration_constant": 1.4142135623730951,
+        "lats_selection_policy": "UCT",
+        "lats_value_lambda": 0.5
+      },
+      "status": "INSUFFICIENT_EVIDENCE",
+      "version": 17,
+      "clarification_questions": [],
+      "created_at": "2026-10-01 15:41:11.753747+00:00",
+      "updated_at": "2026-10-01 15:43:45.302944+00:00",
+      "deleted_at": null,
+      "deleted_by": null
+    },
+    "reports": [
+      {
+        "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "conclusion": "尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。",
+        "confidence": 0.0,
+        "evidence_refs": [],
+        "counter_evidence_refs": [],
+        "assumptions": [
+          "结论仅适用于当前诊断目标与时间窗口"
+        ],
+        "limitations": [
+          "没有通过证据门禁的支持证据，当前不能建立根因结论。",
+          "主机 I/O 仅作背景观察，不是目标进程的支持证据或反证。故障修复状态需独立复测。"
+        ],
+        "next_actions": [
+          "将同窗口的目标进程读写计数、阻塞调用栈与主机 I/O 分布关联；队列积压还需比较生产速率、消费速率和队列长度。主机延迟不能直接归因为该进程。"
+        ],
+        "claims": [],
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claims": [],
+          "rejected_claims": [],
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "has_independent_counter_or_control": false,
+          "control_claim_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          },
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "has_independent_counter_or_control": false,
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "control_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "covered_expected": [],
+            "covered_falsification": [],
+            "missing_expected": [
+              0
+            ],
+            "missing_falsification": [
+              0
+            ],
+            "needs_independent_counter_or_control": true,
+            "rejected_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "observation_verification": {
+              "schema_version": "performance-observation-verification.v1",
+              "status": "UNSUPPORTED_PLAN",
+              "checked_ratio": 0.0,
+              "criteria": [],
+              "evidence_refs": [],
+              "independent_control_verified": false,
+              "claim_scope": "BOUNDED_OBSERVATION",
+              "causal_root_cause_verified": false
+            }
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "UNSUPPORTED_PLAN",
+            "checked_ratio": 0.0,
+            "criteria": [],
+            "evidence_refs": [],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          },
+          "source_context": {
+            "configured_roots": 7,
+            "language_filter": "cpp",
+            "scanned_files": 0,
+            "scanned_by_language": {
+              "python": 0,
+              "go": 0,
+              "java": 0,
+              "ruby": 0,
+              "cpp": 0
+            },
+            "mappings": [],
+            "unresolved_symbols": []
+          },
+          "bottleneck_localization": {
+            "schema_version": "bottleneck-localization.v1",
+            "status": "NOT_LOCALIZED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false,
+            "same_load_fix_verified": false,
+            "evidence_refs": []
+          }
+        },
+        "effects_status": "APPLIED",
+        "effects_phase": "EFFECTS_COMPLETED",
+        "effects_owner": null,
+        "effects_lease_expires_at": null,
+        "effects_fencing_token": 1,
+        "effects_applied_at": "2026-10-01 15:43:45.318450+00:00",
+        "created_at": "2026-10-01 15:43:45.234821+00:00"
+      },
+      {
+        "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标进程同步写操作耗时的有界观测，尚未归因块设备”仍待验证。",
+        "confidence": 0.0,
+        "evidence_refs": [],
+        "counter_evidence_refs": [],
+        "assumptions": [
+          "结论仅适用于当前诊断目标与时间窗口"
+        ],
+        "limitations": [
+          "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+        ],
+        "next_actions": [
+          "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+        ],
+        "claims": [],
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claims": [],
+          "rejected_claims": [],
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "has_independent_counter_or_control": false,
+          "control_claim_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          },
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "has_independent_counter_or_control": false,
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "control_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "covered_expected": [],
+            "covered_falsification": [],
+            "missing_expected": [
+              0,
+              1
+            ],
+            "missing_falsification": [
+              0
+            ],
+            "needs_independent_counter_or_control": true,
+            "rejected_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "observation_verification": {
+              "schema_version": "performance-observation-verification.v1",
+              "status": "INSUFFICIENT_OBSERVABILITY",
+              "checked_ratio": 0.0,
+              "criteria": [
+                {
+                  "kind": "expected",
+                  "index": 0,
+                  "criterion": "io_latency.average_latency_ms >= 10",
+                  "checked": false,
+                  "matches": null,
+                  "measurement": null,
+                  "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+                },
+                {
+                  "kind": "expected",
+                  "index": 1,
+                  "criterion": "io_latency.operation_count_delta >= 5",
+                  "checked": false,
+                  "matches": null,
+                  "measurement": null,
+                  "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+                },
+                {
+                  "kind": "falsification",
+                  "index": 0,
+                  "criterion": "io_latency.average_latency_ms < 10",
+                  "checked": false,
+                  "matches": null,
+                  "measurement": null,
+                  "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+                }
+              ],
+              "evidence_refs": [
+                "ev_task_task_20261001_154158_b64c7a_4600"
+              ],
+              "independent_control_verified": false,
+              "claim_scope": "BOUNDED_OBSERVATION",
+              "causal_root_cause_verified": false
+            }
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "INSUFFICIENT_OBSERVABILITY",
+            "checked_ratio": 0.0,
+            "criteria": [
+              {
+                "kind": "expected",
+                "index": 0,
+                "criterion": "io_latency.average_latency_ms >= 10",
+                "checked": false,
+                "matches": null,
+                "measurement": null,
+                "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+              },
+              {
+                "kind": "expected",
+                "index": 1,
+                "criterion": "io_latency.operation_count_delta >= 5",
+                "checked": false,
+                "matches": null,
+                "measurement": null,
+                "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+              },
+              {
+                "kind": "falsification",
+                "index": 0,
+                "criterion": "io_latency.average_latency_ms < 10",
+                "checked": false,
+                "matches": null,
+                "measurement": null,
+                "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600"
+              }
+            ],
+            "evidence_refs": [
+              "ev_task_task_20261001_154158_b64c7a_4600"
+            ],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          },
+          "source_context": {
+            "configured_roots": 7,
+            "language_filter": "cpp",
+            "scanned_files": 0,
+            "scanned_by_language": {
+              "python": 0,
+              "go": 0,
+              "java": 0,
+              "ruby": 0,
+              "cpp": 0
+            },
+            "mappings": [],
+            "unresolved_symbols": []
+          },
+          "bottleneck_localization": {
+            "schema_version": "bottleneck-localization.v1",
+            "status": "NOT_LOCALIZED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false,
+            "same_load_fix_verified": false,
+            "evidence_refs": []
+          }
+        },
+        "effects_status": "APPLIED",
+        "effects_phase": "EFFECTS_COMPLETED",
+        "effects_owner": null,
+        "effects_lease_expires_at": null,
+        "effects_fencing_token": 1,
+        "effects_applied_at": "2026-10-01 15:43:18.484172+00:00",
+        "created_at": "2026-10-01 15:42:17.433556+00:00"
+      }
+    ],
+    "evidence": [
+      {
+        "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_154158_b64c7a_4600",
+          "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+          "evidence_type": "SYS_METRICS_SYS_METRICS",
+          "source": {
+            "tool_name": "sys_metrics",
+            "task_id": "task_20261001_154158_b64c7a",
+            "task_attempt_id": "attempt_b11cbbe85a1e4425a287c580f806bced",
+            "artifact_id": "4600",
+            "artifact_sha256": "5515f1bb8e0ac07716378157edeca1530945989db4ad493260a9a8efd0b4f3b7",
+            "analysis_job_id": "analysis_0f2bb2a988924d23",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "cpp-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906297
+          },
+          "time_range": {
+            "start": "2026-10-01T15:42:01.144120Z",
+            "end": "2026-10-01T15:42:17.101965Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "sys_metrics",
+            "object_key": "tasks/task_20261001_154158_b64c7a/attempts/attempt_b11cbbe85a1e4425a287c580f806bced/raw/sys_metrics.json",
+            "content_type": "application/json",
+            "size_bytes": 15307,
+            "metadata": {
+              "collector_plugin": "sys_metrics",
+              "collector_runtime": "native-cpp",
+              "contract_version": "1.0.0",
+              "schema_version": "sys_metrics_analysis.v2",
+              "source_schema_version": "sys_metrics.v2",
+              "sample_count": 15,
+              "window_duration_seconds": 14.006,
+              "process_identity": {
+                "pid": 906297,
+                "namespace_pid": 1,
+                "start_ticks": 14403835,
+                "verified": true
+              },
+              "summary": {
+                "vmrss_mb": 0.895,
+                "vmrss_mb_first": 0.895,
+                "vmrss_mb_max": 0.895,
+                "vmrss_mb_delta": 0.0,
+                "fd_count": 4.0,
+                "fd_count_first": 4.0,
+                "fd_count_max": 4.0,
+                "thread_count": 12.0,
+                "thread_count_first": 12.0,
+                "thread_count_max": 12.0,
+                "fd_trend": 0.0,
+                "thread_trend": 0.0,
+                "load1m": 0.738,
+                "load1m_max": 0.85,
+                "process_cpu_core_usage": 1.071,
+                "avg_cpu_user_pct": 20.079,
+                "avg_cpu_sys_pct": 6.609,
+                "avg_cpu_iowait_pct": 0.144,
+                "host_cpu_busy_pct": 26.688,
+                "disk_read_kbps": 0.0,
+                "disk_write_kbps": 0.0,
+                "ctx_nonvoluntary_rate": 0.0
+              },
+              "process_cpu_window": {
+                "source": "linux_proc_stat",
+                "clock_ticks_per_second": 100,
+                "start_cpu_ticks": 748707,
+                "end_cpu_ticks": 748722,
+                "start_unix_ms": 1790869321238.0,
+                "end_unix_ms": 1790869335244.0,
+                "sample_count": 15,
+                "process_cpu_core_usage": 1.0709695844638012
+              },
+              "application_metrics": {
+                "schema_version": "application_metrics_analysis.v1",
+                "sample_count": 15,
+                "identity": {
+                  "host_pid": 906297,
+                  "namespace_pid": 1,
+                  "runtime": "c++",
+                  "identity_verified": true,
+                  "pid": 1
+                },
+                "before": {
+                  "cpu_operations": 49291001856.0,
+                  "downstream_failures": 0.0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732.0,
+                  "io_bytes_written": 500301824.0,
+                  "io_failures": 0.0,
+                  "io_operations": 3817.0,
+                  "lock_acquisitions": 188184.0,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0.0,
+                  "rss_mb": 0.9
+                },
+                "after": {
+                  "cpu_operations": 49291001856.0,
+                  "downstream_failures": 0.0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732.0,
+                  "io_bytes_written": 621281280.0,
+                  "io_failures": 0.0,
+                  "io_operations": 4740.0,
+                  "lock_acquisitions": 188184.0,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0.0,
+                  "rss_mb": 0.9
+                },
+                "max": {
+                  "cpu_operations": 49291001856.0,
+                  "downstream_failures": 0.0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732.0,
+                  "io_bytes_written": 621281280.0,
+                  "io_failures": 0.0,
+                  "io_operations": 4740.0,
+                  "lock_acquisitions": 188184.0,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0.0,
+                  "rss_mb": 0.9
+                },
+                "delta": {
+                  "cpu_operations": 0.0,
+                  "downstream_failures": 0.0,
+                  "downstream_mean_latency_ms": 0.0,
+                  "downstream_requests": 0.0,
+                  "io_bytes_written": 120979456.0,
+                  "io_failures": 0.0,
+                  "io_operations": 923.0,
+                  "lock_acquisitions": 0.0,
+                  "lock_wait_ms": 0.0,
+                  "retained_memory_mb": 0.0,
+                  "rss_mb": 0.0
+                }
+              },
+              "application_metrics_status": "AVAILABLE",
+              "application_metrics_limitations": [],
+              "signals": {
+                "cpu_hotspot": {
+                  "detected": false,
+                  "reason": "target process CPU usage checked against the observation threshold",
+                  "metrics": {
+                    "process_cpu_core_usage": 1.071,
+                    "cpu_operations_delta": 0.0
+                  }
+                },
+                "memory_growth": {
+                  "detected": false,
+                  "reason": "process memory footprint and retained memory change checked against the growth threshold",
+                  "metrics": {
+                    "retained_memory_mb": 0.0,
+                    "rss_delta_mb": 0.0,
+                    "retained_memory_delta_mb": 0.0
+                  }
+                },
+                "io_activity": {
+                  "detected": true,
+                  "reason": "target process produced measurable write activity in the observation window",
+                  "metrics": {
+                    "disk_write_kbps": 0.0,
+                    "io_bytes_written_delta": 120979456.0,
+                    "io_operations_delta": 923.0
+                  }
+                }
+              },
+              "analysis_limitations": [],
+              "collector_type": "sys_metrics",
+              "analyzer_type": "collector.sys_metrics",
+              "analyzer_version": "1.0.0"
+            }
+          },
+          "quality": {
+            "level": "HIGH",
+            "sample_count": 15,
+            "sample_count_known": true,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": true,
+            "analyzer_validated": true,
+            "minimum_samples": 5
+          },
+          "limitations": []
+        },
+        "classification": {
+          "decision": "ACCEPT_NEUTRAL",
+          "can_support_conclusion": false,
+          "reasons": [
+            "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+          ]
+        },
+        "created_at": "2026-10-01 15:42:17.412523+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_154158_b64c7a_4601",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_154158_b64c7a_4601",
+          "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+          "evidence_type": "SYS_METRICS_MANIFEST",
+          "source": {
+            "tool_name": "sys_metrics",
+            "task_id": "task_20261001_154158_b64c7a",
+            "task_attempt_id": "attempt_b11cbbe85a1e4425a287c580f806bced",
+            "artifact_id": "4601",
+            "artifact_sha256": "86981a2cd536444c9e7735804124af0fe578486759aca69b66565ddb7a2797f6",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "cpp-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906297
+          },
+          "time_range": {
+            "start": "2026-10-01T15:42:01.144120Z",
+            "end": "2026-10-01T15:42:17.101965Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "manifest",
+            "object_key": "tasks/task_20261001_154158_b64c7a/attempts/attempt_b11cbbe85a1e4425a287c580f806bced/manifest.json",
+            "content_type": "application/json",
+            "size_bytes": 1109,
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 5
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:42:17.412523+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_154318_f53343_4602",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_154318_f53343_4602",
+          "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+          "evidence_type": "EBPF_IO_EBPF_METRICS",
+          "source": {
+            "tool_name": "ebpf_io",
+            "task_id": "task_20261001_154318_f53343",
+            "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+            "artifact_id": "4602",
+            "artifact_sha256": "aacfcc5c302cedcb31b01981232822f97201f8ca82deffa7afcea89d5cf716d8",
+            "analysis_job_id": "analysis_ed889647955ef845",
+            "analyzer_type": "collector.ebpf_io",
+            "analyzer_version": "1.0.0",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "cpp-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906297
+          },
+          "time_range": {
+            "start": "2026-10-01T15:43:22.255933Z",
+            "end": "2026-10-01T15:43:43.379328Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "ebpf_metrics",
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/ebpf_metrics.json",
+            "content_type": "application/json",
+            "size_bytes": 155,
+            "metadata": {
+              "collector_plugin": "ebpf_io",
+              "collector_runtime": "native-cpp",
+              "probe": "block tracepoint",
+              "schema_version": "ebpf_io_analysis.v1",
+              "total_samples": 394,
+              "source_schema_version": "ebpf_io.v1",
+              "sample_count": 394,
+              "summary": {
+                "io_latency_us": 2000,
+                "block_latency_us": 2000,
+                "latency_p50_us": 1000,
+                "latency_p95_us": 2000,
+                "latency_p99_us": 4000,
+                "high_latency_samples": 56,
+                "high_latency_ratio": 0.142
+              },
+              "signals": {
+                "io_latency": {
+                  "detected": true,
+                  "reason": "host block-device tracepoints observed a measurable high-latency tail",
+                  "metrics": {
+                    "latency_p95_us": 2000.0,
+                    "high_latency_samples": 56.0,
+                    "total_samples": 394.0
+                  }
+                }
+              },
+              "scope_semantics": "HOST_BLOCK_DEVICE",
+              "target_attributed": false,
+              "analysis_notes": [
+                "block tracepoints are host-level; correlate with target process write counters before root-cause attribution"
+              ],
+              "collector_type": "ebpf_io",
+              "analyzer_type": "collector.ebpf_io",
+              "analyzer_version": "1.0.0",
+              "hypothesis_predicate": {
+                "outcome": "NEUTRAL",
+                "version": "hypothesis-predicate-v3",
+                "reason": "仅观察到宿主机块设备 I/O，未归属目标进程；需要同窗口的进程读写与等待栈关联",
+                "criterion_indexes": [],
+                "metrics": {}
+              }
+            }
+          },
+          "quality": {
+            "level": "HIGH",
+            "sample_count": 394,
+            "sample_count_known": true,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": true,
+            "analyzer_validated": true,
+            "minimum_samples": 10
+          },
+          "limitations": []
+        },
+        "classification": {
+          "decision": "ACCEPT_LIMITED",
+          "can_support_conclusion": false,
+          "reasons": [
+            "仅观察到宿主机块设备 I/O，未归属目标进程；不能支持或反驳该进程的根因"
+          ]
+        },
+        "created_at": "2026-10-01 15:43:45.202369+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_154318_f53343_4603",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_154318_f53343_4603",
+          "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+          "evidence_type": "EBPF_IO_EBPF_RAW",
+          "source": {
+            "tool_name": "ebpf_io",
+            "task_id": "task_20261001_154318_f53343",
+            "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+            "artifact_id": "4603",
+            "artifact_sha256": "3cb2cc963df051064e4fcab9862bbcc137536f2eefebaf143fe92b0fd7de13a6",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "cpp-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906297
+          },
+          "time_range": {
+            "start": "2026-10-01T15:43:22.255933Z",
+            "end": "2026-10-01T15:43:43.379328Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "ebpf_raw",
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/io_latency.txt",
+            "content_type": "text/plain",
+            "size_bytes": 3943,
+            "metadata": {
+              "collector_runtime": "native-cpp"
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 10
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:43:45.202369+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_154318_f53343_4604",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_154318_f53343_4604",
+          "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+          "evidence_type": "EBPF_IO_MANIFEST",
+          "source": {
+            "tool_name": "ebpf_io",
+            "task_id": "task_20261001_154318_f53343",
+            "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+            "artifact_id": "4604",
+            "artifact_sha256": "6ed9c98e8ff813fbb4db325ec99c49b37da62baa2eebb80d0907452b738f2749",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "cpp-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906297
+          },
+          "time_range": {
+            "start": "2026-10-01T15:43:22.255933Z",
+            "end": "2026-10-01T15:43:43.379328Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "manifest",
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/manifest.json",
+            "content_type": "application/json",
+            "size_bytes": 1942,
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 10
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:43:45.202369+00:00"
+      }
+    ],
+    "tool-calls": [
+      {
+        "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "tool_name": "collect_sys_metrics",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906297,
+          "duration_seconds": 15
+        },
+        "policy_decision": "ALLOW",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "NOT_REQUIRED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "PASS",
+            "remaining_seconds": 132.82129,
+            "required_seconds": 45
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 15,
+            "limit": 180
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 1
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 2097152,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "策略检查通过",
+        "status": "COMPLETED",
+        "task_id": "task_20261001_154158_b64c7a",
+        "result": {
+          "task_status": "DONE",
+          "task_id": "task_20261001_154158_b64c7a"
+        },
+        "budget_reservation": {
+          "duration_seconds": 15,
+          "artifact_bytes": 2097152,
+          "agent_id": "control-interview-demo-agent",
+          "concurrent_tasks": 1
+        },
+        "budget_settlement": {
+          "duration_seconds": 15,
+          "artifact_bytes": 16416,
+          "agent_id": "control-interview-demo-agent",
+          "settled_at": "2026-10-01T15:42:17.399889+00:00"
+        },
+        "budget_reservation_status": "SETTLED",
+        "terminal_processing_status": "REPORT_EFFECTS_DONE",
+        "terminal_processed_at": "2026-10-01 15:43:18.487861+00:00",
+        "requested_by": "system:autonomous-worker",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-10-01 15:41:58.932482+00:00",
+        "decided_at": null,
+        "executed_at": "2026-10-01 15:41:58.949958+00:00"
+      },
+      {
+        "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "tool_name": "start_ebpf_io_profile",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906297,
+          "duration_seconds": 15
+        },
+        "policy_decision": "ALLOW",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "SESSION_PREAUTHORIZED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "PASS",
+            "remaining_seconds": 53.312116,
+            "required_seconds": 45
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 30,
+            "limit": 180
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 1
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 16793632,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "自主会话已在创建时预授权；目标、能力、风险和预算检查通过",
+        "status": "COMPLETED",
+        "task_id": "task_20261001_154318_f53343",
+        "result": {
+          "task_status": "DONE",
+          "task_id": "task_20261001_154318_f53343"
+        },
+        "budget_reservation": {
+          "duration_seconds": 15,
+          "artifact_bytes": 16777216,
+          "agent_id": "control-interview-demo-agent",
+          "concurrent_tasks": 1
+        },
+        "budget_settlement": {
+          "duration_seconds": 15,
+          "artifact_bytes": 6040,
+          "agent_id": "control-interview-demo-agent",
+          "settled_at": "2026-10-01T15:43:45.169743+00:00"
+        },
+        "budget_reservation_status": "SETTLED",
+        "terminal_processing_status": "REPORT_EFFECTS_DONE",
+        "terminal_processed_at": "2026-10-01 15:43:45.324600+00:00",
+        "requested_by": "system:insufficient-evidence-replanner",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-10-01 15:43:18.441649+00:00",
+        "decided_at": null,
+        "executed_at": "2026-10-01 15:43:18.458653+00:00"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+        "expected_observations": [
+          "io_latency.average_latency_ms >= 10",
+          "io_latency.operation_count_delta >= 5"
+        ],
+        "falsification_criteria": [
+          "io_latency.average_latency_ms < 10"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:41:58.883749+00:00",
+        "updated_at": "2026-10-01 15:42:17.433556+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_8670f3bb371143a8ae2d643a8dce630b",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "同宿主机 IO 争抢导致目标进程写盘变慢",
+        "expected_observations": [
+          "同窗口其他容器存在高 IO 负载或队列深度上升"
+        ],
+        "falsification_criteria": [
+          "宿主机 IO 平稳且目标进程自身同步写盘占主导"
+        ],
+        "status": "OPEN",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:41:58.890850+00:00",
+        "updated_at": "2026-10-01 15:41:58.890850+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "目标进程同步写盘或落盘路径过重",
+        "expected_observations": [
+          "IO 热点集中在目标进程的写系统调用"
+        ],
+        "falsification_criteria": [
+          "目标进程 IO 占比低但块设备延迟仍高"
+        ],
+        "status": "OPEN",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:41:58.899361+00:00",
+        "updated_at": "2026-10-01 15:41:58.899361+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_66b286696c12453e982a59465b684d49",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "其他未知原因（OTHER/UNKNOWN）",
+        "expected_observations": [
+          "存在尚未被既有候选假设充分解释的观测现象"
+        ],
+        "falsification_criteria": [
+          "所有观测现象均能被既有候选假设充分解释"
+        ],
+        "status": "OPEN",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:41:58.905590+00:00",
+        "updated_at": "2026-10-01 15:41:58.905590+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+        "expected_observations": [
+          "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+        ],
+        "falsification_criteria": [
+          "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证KERNEL_IO 证据域。",
+        "created_at": "2026-10-01 15:43:18.392022+00:00",
+        "updated_at": "2026-10-01 15:43:45.234821+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+        "expected_observations": [
+          "CPU 样本稳定集中在可归属的调用路径或等待路径"
+        ],
+        "falsification_criteria": [
+          "调用栈样本分散，未出现稳定热点或等待路径"
+        ],
+        "status": "OPEN",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+        "created_at": "2026-10-01 15:43:18.402502+00:00",
+        "updated_at": "2026-10-01 15:43:18.402502+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "statement": "第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+        "expected_observations": [
+          "RSS、PSS、swap 或内存映射变化与故障时间窗一致"
+        ],
+        "falsification_criteria": [
+          "目标进程内存足迹稳定，且没有换页或映射异常"
+        ],
+        "status": "OPEN",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+        "created_at": "2026-10-01 15:43:18.410908+00:00",
+        "updated_at": "2026-10-01 15:43:18.410908+00:00"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "event_ba66a4d9752c440bb57ca777f85a6224",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 1,
+        "event_type": "diagnosis.created",
+        "actor": "USER",
+        "payload": {
+          "status": "NEEDS_CLARIFICATION",
+          "skill_policy": "AUTO",
+          "created_by": "legacy_admin",
+          "auto_scope": true,
+          "health_check": false
+        },
+        "occurred_at": "2026-10-01 15:41:11.753747+00:00"
+      },
+      {
+        "event_id": "event_5c2878b1b725434bb005687f59a34d94",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 2,
+        "event_type": "diagnosis.clarified",
+        "actor": "AI_SCOPE_RESOLVER",
+        "payload": {
+          "target": {
+            "service": "cpp-hotspot",
+            "environment": "docker-92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e822",
+            "agent_id": "control-interview-demo-agent",
+            "pid": 906297,
+            "process_binding": {
+              "agent_id": "control-interview-demo-agent",
+              "pid": 906297,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+              "process_start_ticks": 14403835,
+              "pid_namespace_inode": 4026532931,
+              "namespace_pid": 1,
+              "executable_identity": "cpp-hotspot",
+              "process_snapshot_id": "psnap_d844db93c0e9c684",
+              "snapshot_generation": 306687,
+              "snapshot_received_at": "2026-10-01T15:41:10.503715+00:00"
+            }
+          },
+          "time_range": {
+            "start": "2026-10-01T15:41:11.774344Z",
+            "end": "2026-10-01T15:46:11.774344Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "requested_time_range": {
+            "start": "2026-10-01T15:41:11.774344Z",
+            "end": "2026-10-01T15:46:11.774344Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "effective_time_range": {}
+        },
+        "occurred_at": "2026-10-01 15:41:11.775962+00:00"
+      },
+      {
+        "event_id": "event_1b672880a92148f689e343f627c4103a",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 3,
+        "event_type": "skill.route_activated",
+        "actor": "SYSTEM",
+        "payload": {
+          "applied": true,
+          "state": "ACTIVATED",
+          "skill_id": "builtin_io_latency_diagnosis_86e4f1b8a90a",
+          "skill_name": "io-latency-diagnosis",
+          "version": 2,
+          "category": "IO_LATENCY",
+          "skill_category": "IO_LATENCY",
+          "baseline_category": "IO_LATENCY",
+          "selected_category": "IO_LATENCY",
+          "match_score": 0.653,
+          "baseline_tool": "start_ebpf_io_profile",
+          "selected_tool": "collect_sys_metrics",
+          "reuse_step": {
+            "trace_key": "1:INITIAL_PLAN",
+            "round_index": 1,
+            "phase": "INITIAL_PLAN",
+            "state": "ACTIVATED",
+            "baseline_tool": "start_ebpf_io_profile",
+            "selected_tool": "collect_sys_metrics",
+            "selected_route_index": 1,
+            "route_length": 2,
+            "completed_route_tools": [],
+            "attempted_tools": [],
+            "category_before": "IO_LATENCY",
+            "category_after": "IO_LATENCY",
+            "category_corrected": false,
+            "applied_at": "2026-10-01T15:41:12.870068+00:00"
+          },
+          "load_mode": "FULL_SKILL_MD",
+          "content_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+          "source_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+          "source_path": "skills/io-latency-diagnosis/SKILL.md",
+          "loaded_sections": [
+            "目标",
+            "输入契约",
+            "适用与停止条件",
+            "取证顺序",
+            "结论门槛",
+            "必需证据与反证",
+            "安全边界",
+            "输出契约",
+            "回归门禁"
+          ],
+          "round_index": 1,
+          "phase": "INITIAL_PLAN",
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:41:12.873136+00:00"
+      },
+      {
+        "event_id": "event_706eb0ef13df411db2189d169f26b17f",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 4,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "INITIAL_PLAN",
+          "round_index": 1,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                  "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+                  "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 11,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nIO_LATENCY",
+            "query_hash": "6e648770ed77d6a1da136a1a2549675af7e2ab7962976b3d76d4d6ec2780d18d",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nIO_LATENCY",
+                "score": 0.997369,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "knowledge_id": "python.sampling.attribution",
+                "title": "Python 采样归因与空闲线程",
+                "document": "knowledge/python_sampling.md",
+                "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+                "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nIO_LATENCY",
+                "score": 0.454954,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "knowledge_id": "linux.cpu.kernel_overhead",
+                "title": "Linux 系统态 CPU 偏高",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU system 比例",
+                  "内核栈或系统调用分布"
+                ],
+                "caveats": [
+                  "不能仅凭 system% 判断具体内核模块"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nIO_LATENCY",
+                "score": 0.405816,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            }
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:41:13.732915+00:00"
+      },
+      {
+        "event_id": "event_30b024ad11894380b9f7058bfbdc0066",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 5,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:41:58.883749+00:00"
+      },
+      {
+        "event_id": "event_8fd05e538da045cca1f9194a50c7b75a",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 6,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_8670f3bb371143a8ae2d643a8dce630b",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:41:58.890850+00:00"
+      },
+      {
+        "event_id": "event_93f7692610564971af9369980b6483bf",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 7,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:41:58.899361+00:00"
+      },
+      {
+        "event_id": "event_48334a1237ec4a5788440091653cb15d",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 8,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_66b286696c12453e982a59465b684d49",
+          "source": "SYSTEM_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:41:58.905590+00:00"
+      },
+      {
+        "event_id": "event_bba2d1d891a9401c8194a8cc1514a3b1",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 9,
+        "event_type": "lats.search_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "algorithm": "LATS-UCT",
+          "algorithm_version": "drop-insight-lats-v1",
+          "semantics": {
+            "execution_mode": "BUDGETED_LATS",
+            "environment_semantics": "LIVE_PROGRESSIVE",
+            "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+            "strict_environment_reversibility": false,
+            "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+          },
+          "config": {
+            "investigation_strategy": "LATS",
+            "top_k": 3,
+            "exploration_constant": 1.4142135623730951,
+            "max_iterations": 2,
+            "max_tool_calls": 6,
+            "selection_policy": "UCT",
+            "value_lambda": 0.5,
+            "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+            "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+          },
+          "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+          "model_has_shell_access": false
+        },
+        "occurred_at": "2026-10-01 15:41:58.911350+00:00"
+      },
+      {
+        "event_id": "event_960532042e324cfdab304c9f0e9a2c4e",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 10,
+        "event_type": "lats.candidates_expanded",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "candidates": [
+            {
+              "candidate_key": "candidate:92f786c93e898c8a6cba",
+              "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+              "expected_observations": [
+                "io_latency.average_latency_ms >= 10",
+                "io_latency.operation_count_delta >= 5"
+              ],
+              "falsification_criteria": [
+                "io_latency.average_latency_ms < 10"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.522648,
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 0,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+              "hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:10212e92b2da2afb8fc6",
+              "statement": "同宿主机 IO 争抢导致目标进程写盘变慢",
+              "expected_observations": [
+                "同窗口其他容器存在高 IO 负载或队列深度上升"
+              ],
+              "falsification_criteria": [
+                "宿主机 IO 平稳且目标进程自身同步写盘占主导"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.261324,
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 1,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_8670f3bb371143a8ae2d643a8dce630b",
+              "hypothesis_id": "hyp_8670f3bb371143a8ae2d643a8dce630b",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:0f7cfe849b2239e5fdd3",
+              "statement": "目标进程同步写盘或落盘路径过重",
+              "expected_observations": [
+                "IO 热点集中在目标进程的写系统调用"
+              ],
+              "falsification_criteria": [
+                "目标进程 IO 占比低但块设备延迟仍高"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.174216,
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 2,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+              "hypothesis_id": "hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:other-unknown",
+              "statement": "其他未知原因（OTHER/UNKNOWN）",
+              "expected_observations": [
+                "存在尚未被既有候选假设充分解释的观测现象"
+              ],
+              "falsification_criteria": [
+                "所有观测现象均能被既有候选假设充分解释"
+              ],
+              "reason": "",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": null,
+              "prior": 0.041812,
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 3,
+              "is_open_world_sentinel": true,
+              "node_id": "hypothesis:hyp_66b286696c12453e982a59465b684d49",
+              "hypothesis_id": "hyp_66b286696c12453e982a59465b684d49",
+              "depth": 0,
+              "parent_node_id": null
+            }
+          ],
+          "progressive_widening": true
+        },
+        "occurred_at": "2026-10-01 15:41:58.911350+00:00"
+      },
+      {
+        "event_id": "event_cf6a814a5f3445eaa0a7de0e57daa2f8",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 11,
+        "event_type": "lats.candidates_evaluated",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "evaluations": [
+            {
+              "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_8670f3bb371143a8ae2d643a8dce630b",
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_66b286696c12453e982a59465b684d49",
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            }
+          ],
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+          "evidence_gate_is_separate": true
+        },
+        "occurred_at": "2026-10-01 15:41:58.911350+00:00"
+      },
+      {
+        "event_id": "event_889dfc2e14324147815216e38bb3ab7a",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 12,
+        "event_type": "lats.node_selected",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "candidate_key": "candidate:92f786c93e898c8a6cba",
+          "score": 1000000.0,
+          "components": {
+            "q": 0.68,
+            "exploration": 1000000.0,
+            "prior_bonus": 0.0,
+            "prior": 0.522648,
+            "visits": 0,
+            "virtual_loss": 0.0,
+            "unvisited": true
+          },
+          "rank": 0,
+          "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+          "selection_policy": "UCT",
+          "scores": [
+            {
+              "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+              "candidate_key": "candidate:92f786c93e898c8a6cba",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.68,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.522648,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 0
+            },
+            {
+              "node_id": "hypothesis:hyp_8670f3bb371143a8ae2d643a8dce630b",
+              "candidate_key": "candidate:10212e92b2da2afb8fc6",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.57,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.261324,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 1
+            },
+            {
+              "node_id": "hypothesis:hyp_02cd25dcc74f42fc9ea07c33c522a6b7",
+              "candidate_key": "candidate:0f7cfe849b2239e5fdd3",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.46,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.174216,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 2
+            },
+            {
+              "node_id": "hypothesis:hyp_66b286696c12453e982a59465b684d49",
+              "candidate_key": "candidate:other-unknown",
+              "score": 1000000.0,
+              "components": {
+                "q": -0.05,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.041812,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 3
+            }
+          ],
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+        },
+        "occurred_at": "2026-10-01 15:41:58.911350+00:00"
+      },
+      {
+        "event_id": "event_90018cbb12bd4088a650c6ccf5a467dd",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 13,
+        "event_type": "tool_call.requested",
+        "actor": "PLANNER",
+        "payload": {
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "status": "APPROVED"
+        },
+        "occurred_at": "2026-10-01 15:41:58.932482+00:00"
+      },
+      {
+        "event_id": "event_6ea86e0dc12247d887d4f01db2b558df",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 14,
+        "event_type": "tool_call.task_created",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a"
+        },
+        "occurred_at": "2026-10-01 15:41:58.949958+00:00"
+      },
+      {
+        "event_id": "event_52d38fa7c0da422b9bcf8b8e43b935be",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 15,
+        "event_type": "lats.action_proposed",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "TASK_CREATED",
+          "proposal_only": false
+        },
+        "occurred_at": "2026-10-01 15:41:58.956858+00:00"
+      },
+      {
+        "event_id": "event_77de06ea503845c095022633082c2442",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 16,
+        "event_type": "lats.simulation_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+          "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+        },
+        "occurred_at": "2026-10-01 15:41:58.956858+00:00"
+      },
+      {
+        "event_id": "event_b6d21762bd21441fa92538f37a6c3d3f",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 17,
+        "event_type": "lats.action_dispatched",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:41:58.956858+00:00"
+      },
+      {
+        "event_id": "event_9036a35f67e2498d86f57b1b1acd7244",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 18,
+        "event_type": "tool_call.progress",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a",
+          "task_status": "RUNNING",
+          "status": "RUNNING"
+        },
+        "occurred_at": "2026-10-01 15:42:03.092524+00:00"
+      },
+      {
+        "event_id": "event_fb16a13050cb4436b2020509999ec570",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 19,
+        "event_type": "tool_call.task_terminal",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_a56d3ca406e74e8aa78281292cb8f073",
+          "task_id": "task_20261001_154158_b64c7a",
+          "task_status": "DONE"
+        },
+        "occurred_at": "2026-10-01 15:42:17.399889+00:00"
+      },
+      {
+        "event_id": "event_9982f4eec8b14233a6b77251a69d80ee",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 20,
+        "event_type": "task_evidence.imported",
+        "actor": "SYSTEM",
+        "payload": {
+          "task_id": "task_20261001_154158_b64c7a",
+          "task_attempt_id": "attempt_b11cbbe85a1e4425a287c580f806bced",
+          "evidence_refs": [
+            "ev_task_task_20261001_154158_b64c7a_4600",
+            "ev_task_task_20261001_154158_b64c7a_4601"
+          ]
+        },
+        "occurred_at": "2026-10-01 15:42:17.412523+00:00"
+      },
+      {
+        "event_id": "event_b2045647e8f94a33be7df9b4129946d2",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 21,
+        "event_type": "report.generated",
+        "actor": "SYSTEM",
+        "payload": {
+          "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+          "confidence": 0.0,
+          "coverage_ratio": 0.0,
+          "evidence_refs": [],
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "verified_claim_count": 0,
+          "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 1,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:42:17.433556+00:00"
+      },
+      {
+        "event_id": "event_55d7b4d89e074e3595a6bf10e978ba28",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 22,
+        "event_type": "lats.observation_recorded",
+        "actor": "ENVIRONMENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "observation_id": "report:report_c95c92270513315f8643a0cb8f28eac2",
+          "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+          "summary": "真实采集完成：支持 0 条、反证 0 条、质量拒绝 1 条；门禁=INSUFFICIENT_EVIDENCE。",
+          "tool_call_ids": [
+            "toolcall_a56d3ca406e74e8aa78281292cb8f073"
+          ],
+          "task_ids": [
+            "task_20261001_154158_b64c7a"
+          ],
+          "evidence_ids": [
+            "ev_task_task_20261001_154158_b64c7a_4600",
+            "ev_task_task_20261001_154158_b64c7a_4601"
+          ],
+          "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+          "external_observation": true,
+          "cached_observation": true,
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:42:17.450784+00:00"
+      },
+      {
+        "event_id": "event_0600e82cb36f454c816afc09c7f7da0b",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 23,
+        "event_type": "lats.reflection_recorded",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+          "decision": "PROGRESSIVE_WIDEN",
+          "summary": "当前证据区分力不足；缓存本次真实观测并在预算内扩展新的证据域。",
+          "grounded_in_observation": "report:report_c95c92270513315f8643a0cb8f28eac2",
+          "reflection_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:42:17.450784+00:00"
+      },
+      {
+        "event_id": "event_386c05f6334f4068baf74b58365be1cb",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 24,
+        "event_type": "lats.backpropagated",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+          "path_node_ids": [
+            "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+          ],
+          "reward": -0.49,
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "components": {
+            "evidence_gate": -0.35,
+            "confidence": -0.1,
+            "quality_penalty": 0.04,
+            "support_count": 0,
+            "counter_count": 0,
+            "rejected_count": 1
+          }
+        },
+        "occurred_at": "2026-10-01 15:42:17.450784+00:00"
+      },
+      {
+        "event_id": "event_03779f8ca6f343739e2041112a17b285",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 25,
+        "event_type": "skill.route_reused",
+        "actor": "SYSTEM",
+        "payload": {
+          "applied": true,
+          "state": "REUSED",
+          "skill_id": "builtin_io_latency_diagnosis_86e4f1b8a90a",
+          "skill_name": "io-latency-diagnosis",
+          "version": 2,
+          "category": "IO_LATENCY",
+          "skill_category": "IO_LATENCY",
+          "baseline_category": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "selected_category": "IO_LATENCY",
+          "match_score": 0.73,
+          "baseline_tool": "start_perf_profile",
+          "selected_tool": "start_ebpf_io_profile",
+          "reuse_step": {
+            "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+            "round_index": 2,
+            "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "state": "REUSED",
+            "baseline_tool": "start_perf_profile",
+            "selected_tool": "start_ebpf_io_profile",
+            "selected_route_index": 2,
+            "route_length": 2,
+            "completed_route_tools": [
+              "collect_sys_metrics"
+            ],
+            "attempted_tools": [
+              "collect_sys_metrics"
+            ],
+            "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "category_after": "IO_LATENCY",
+            "category_corrected": true,
+            "applied_at": "2026-10-01T15:42:17.475720+00:00"
+          },
+          "load_mode": "FULL_SKILL_MD",
+          "content_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+          "source_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+          "source_path": "skills/io-latency-diagnosis/SKILL.md",
+          "loaded_sections": [
+            "目标",
+            "输入契约",
+            "适用与停止条件",
+            "取证顺序",
+            "结论门槛",
+            "必需证据与反证",
+            "安全边界",
+            "输出契约",
+            "回归门禁"
+          ],
+          "round_index": 2,
+          "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:42:17.477301+00:00"
+      },
+      {
+        "event_id": "event_68b14f45343c46999c31c21286217157",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 26,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "round_index": 2,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+                  "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 11,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+            "query_hash": "adc60ff7cedf6f0999e764766e029eeaff0baa7eca9f64ef448b56f470703245",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.99753,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "knowledge_id": "linux.cpu.kernel_overhead",
+                "title": "Linux 系统态 CPU 偏高",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU system 比例",
+                  "内核栈或系统调用分布"
+                ],
+                "caveats": [
+                  "不能仅凭 system% 判断具体内核模块"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.923527,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "knowledge_id": "linux.cpu.process_pressure",
+                "title": "Linux 进程用户态 CPU 热点",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU user/system 比例",
+                  "Profile TopN",
+                  "同宿主资源对比"
+                ],
+                "caveats": [
+                  "单次 CPU 高不能证明代码回归",
+                  "缺少符号时应返回证据不足"
+                ],
+                "query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.922767,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            }
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:42:18.333851+00:00"
+      },
+      {
+        "event_id": "event_a56b874ad35745c58fab5790488cc178",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 27,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "AGENT_LOOKUP",
+          "round_index": null,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 14,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 0,
+                "chunk_ids": []
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "eBPF I/O 延迟探针 测量 write fdatasync 块设备延迟",
+            "query_hash": "cf0124c1932be02deda5e2431596218b90ab618d396d4e4e6f781c8ec2a720de",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 1,
+            "matches": [
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "query": "eBPF I/O 延迟探针 测量 write fdatasync 块设备延迟",
+                "score": 0.995295,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            },
+            "is_evidence": false,
+            "trust": "UNTRUSTED_REFERENCE_ONLY",
+            "tool": "search_knowledge"
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:43:18.368505+00:00"
+      },
+      {
+        "event_id": "event_319f6fe76e604a0eb3573af7fafed26d",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 28,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "AGENT_LOOKUP",
+          "round_index": null,
+          "retrieval_trace": {
+            "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+            "knowledge_id": "linux.iowait.shared_block_device",
+            "title": "共享块设备与 I/O wait 争抢",
+            "document": "knowledge/linux_iowait.md",
+            "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+            "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+            "recall_anchors": [
+              "block",
+              "host_resource_contention",
+              "io",
+              "iowait",
+              "linux.iowait.shared_block_device",
+              "共享",
+              "磁盘"
+            ],
+            "required_evidence": [
+              "目标与邻居 iowait",
+              "块设备延迟直方图",
+              "设备队列深度"
+            ],
+            "caveats": [
+              "相关性不等于噪声邻居导致",
+              "虚拟磁盘可能共享宿主物理设备"
+            ],
+            "is_evidence": false,
+            "trust": "UNTRUSTED_REFERENCE_ONLY",
+            "tool": "read_knowledge_chunk",
+            "query": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+            "retriever": "read_knowledge_chunk",
+            "query_hash": "44349610b2bd22511d8e4ee2e89b9aeb262d25579e2d2dd44b3ddcdb56df1f74",
+            "matches": [
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "recall_anchors": [
+                  "block",
+                  "host_resource_contention",
+                  "io",
+                  "iowait",
+                  "linux.iowait.shared_block_device",
+                  "共享",
+                  "磁盘"
+                ],
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "is_evidence": false,
+                "query": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "retriever": "read_knowledge_chunk",
+                "query_hash": "44349610b2bd22511d8e4ee2e89b9aeb262d25579e2d2dd44b3ddcdb56df1f74"
+              }
+            ]
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:43:18.375238+00:00"
+      },
+      {
+        "event_id": "event_aaaf483344ba4b70a2ad9a69bb327265",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 29,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "AGENT_LOOKUP",
+          "round_index": null,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 17,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 0,
+                "chunk_ids": []
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+                  "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "start_ebpf_io_profile 测量什么指标 延迟直方图 operation_count_delta",
+            "query_hash": "2c9e3574fbb0f1ccb58ed19e7eb0f8f2ab1d8a96d1e5986c393d2f5ac20745f7",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "query": "start_ebpf_io_profile 测量什么指标 延迟直方图 operation_count_delta",
+                "score": 0.819703,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                "knowledge_id": "sre.latency.measurement",
+                "title": "延迟分位数与同负载复测",
+                "document": "knowledge/latency_measurement.md",
+                "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+                "excerpt": "# 延迟分位数与同负载测量\n\n记录请求到达率、并发、输入分布、超时策略、预热期和测量时长。修复前后改变请求量会破坏比较；失败及超时请求也必须计数。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "start_ebpf_io_profile 测量什么指标 延迟直方图 operation_count_delta",
+                "score": 0.663321,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "knowledge_id": "linux.cpu.process_pressure",
+                "title": "Linux 进程用户态 CPU 热点",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU user/system 比例",
+                  "Profile TopN",
+                  "同宿主资源对比"
+                ],
+                "caveats": [
+                  "单次 CPU 高不能证明代码回归",
+                  "缺少符号时应返回证据不足"
+                ],
+                "query": "start_ebpf_io_profile 测量什么指标 延迟直方图 operation_count_delta",
+                "score": 0.183453,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            },
+            "is_evidence": false,
+            "trust": "UNTRUSTED_REFERENCE_ONLY",
+            "tool": "search_knowledge"
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:43:18.380616+00:00"
+      },
+      {
+        "event_id": "event_4bd58bff90ce4f17b60799c88e558aff",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 30,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+        },
+        "occurred_at": "2026-10-01 15:43:18.392022+00:00"
+      },
+      {
+        "event_id": "event_93827f58aa1346df891a5534de1c6d6e",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 31,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+        },
+        "occurred_at": "2026-10-01 15:43:18.402502+00:00"
+      },
+      {
+        "event_id": "event_672d21292fe844c0a10ccc0d036c5fdd",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 32,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+        },
+        "occurred_at": "2026-10-01 15:43:18.410908+00:00"
+      },
+      {
+        "event_id": "event_e217d99c41354d67b0480b263ace2e02",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 33,
+        "event_type": "lats.candidates_expanded",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "round_index": 2,
+          "tree_depth": 2,
+          "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "candidate_count": 3,
+          "candidates": [
+            {
+              "candidate_key": "candidate:7d881da258e7e0477cdf",
+              "statement": "第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+              "expected_observations": [
+                "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+              ],
+              "falsification_criteria": [
+                "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证KERNEL_IO 证据域。",
+              "recommended_tool": "start_ebpf_io_profile",
+              "evidence_domain": "KERNEL_IO",
+              "prior": 0.545455,
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 0,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+              "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 0,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+            },
+            {
+              "candidate_key": "candidate:14d62a5ca1110b690d9f",
+              "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+              "expected_observations": [
+                "CPU 样本稳定集中在可归属的调用路径或等待路径"
+              ],
+              "falsification_criteria": [
+                "调用栈样本分散，未出现稳定热点或等待路径"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+              "recommended_tool": "start_perf_profile",
+              "evidence_domain": "NATIVE_CPU_STACK",
+              "prior": 0.272727,
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 1,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+              "hypothesis_id": "hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 1,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+            },
+            {
+              "candidate_key": "candidate:b466167a28acb24ad0bf",
+              "statement": "第 2 轮：目标进程可能存在 RSS/PSS 增长、换页或缓存压力",
+              "expected_observations": [
+                "RSS、PSS、swap 或内存映射变化与故障时间窗一致"
+              ],
+              "falsification_criteria": [
+                "目标进程内存足迹稳定，且没有换页或映射异常"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+              "recommended_tool": "collect_memory_profile",
+              "evidence_domain": "PROCESS_MEMORY",
+              "prior": 0.181818,
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 2,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+              "hypothesis_id": "hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 2,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f"
+            }
+          ],
+          "progressive_widening": true
+        },
+        "occurred_at": "2026-10-01 15:43:18.420120+00:00"
+      },
+      {
+        "event_id": "event_69943aff33874ee0a71f87ca1ffece63",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 34,
+        "event_type": "lats.candidates_evaluated",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "evaluations": [
+            {
+              "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            }
+          ],
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+          "evidence_gate_is_separate": true
+        },
+        "occurred_at": "2026-10-01 15:43:18.420120+00:00"
+      },
+      {
+        "event_id": "event_bd985628f3fc41cabf6a89794a3808fd",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 35,
+        "event_type": "lats.node_selected",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "candidate_key": "candidate:7d881da258e7e0477cdf",
+          "score": 1000000.0,
+          "components": {
+            "q": 0.68,
+            "exploration": 1000000.0,
+            "prior_bonus": 0.0,
+            "prior": 0.545455,
+            "visits": 0,
+            "virtual_loss": 0.0,
+            "unvisited": true
+          },
+          "rank": 0,
+          "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+          "selection_policy": "UCT",
+          "scores": [
+            {
+              "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+              "candidate_key": "candidate:7d881da258e7e0477cdf",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.68,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.545455,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 0
+            },
+            {
+              "node_id": "hypothesis:hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+              "candidate_key": "candidate:14d62a5ca1110b690d9f",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.57,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.272727,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 1
+            },
+            {
+              "node_id": "hypothesis:hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+              "candidate_key": "candidate:b466167a28acb24ad0bf",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.46,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.181818,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 2
+            }
+          ],
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "round_index": 2,
+          "tree_depth": 2,
+          "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "candidate_count": 3,
+          "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+        },
+        "occurred_at": "2026-10-01 15:43:18.420120+00:00"
+      },
+      {
+        "event_id": "event_d55879fdf84745e6b840eca9fcfd76bb",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 36,
+        "event_type": "tool_call.requested",
+        "actor": "PLANNER",
+        "payload": {
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "tool_name": "start_ebpf_io_profile",
+          "policy_decision": "ALLOW",
+          "status": "APPROVED"
+        },
+        "occurred_at": "2026-10-01 15:43:18.441649+00:00"
+      },
+      {
+        "event_id": "event_c199590737e347b6b288d94636a74def",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 37,
+        "event_type": "tool_call.task_created",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343"
+        },
+        "occurred_at": "2026-10-01 15:43:18.458653+00:00"
+      },
+      {
+        "event_id": "event_278937818e214b0b8b6158dc8a81b59b",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 38,
+        "event_type": "lats.action_proposed",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343",
+          "tool_name": "start_ebpf_io_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "TASK_CREATED",
+          "proposal_only": false
+        },
+        "occurred_at": "2026-10-01 15:43:18.466499+00:00"
+      },
+      {
+        "event_id": "event_6325bab54434476ea2e1621132896bbb",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 39,
+        "event_type": "lats.simulation_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343",
+          "tool_name": "start_ebpf_io_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+          "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+        },
+        "occurred_at": "2026-10-01 15:43:18.466499+00:00"
+      },
+      {
+        "event_id": "event_ce5a01c9386844eab9e73d30bb74a3cf",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 40,
+        "event_type": "lats.action_dispatched",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343",
+          "tool_name": "start_ebpf_io_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:43:18.466499+00:00"
+      },
+      {
+        "event_id": "event_8fc4d5df546a4f5fba49146a4b7a190f",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 41,
+        "event_type": "planner.insufficient_replanned",
+        "actor": "SYSTEM",
+        "payload": {
+          "round_index": 2,
+          "previous_hypothesis_id": "hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+          "hypothesis_id": "hyp_f41e474bd4794997a3f8e8ac84189222",
+          "tool_name": "start_ebpf_io_profile",
+          "planner_kind": "DETERMINISTIC_FALLBACK",
+          "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证KERNEL_IO 证据域。",
+          "requires_approval": false,
+          "lats_selection": {
+            "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+            "candidate_key": "candidate:7d881da258e7e0477cdf",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.68,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.545455,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 0,
+            "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+            "selection_policy": "UCT",
+            "scores": [
+              {
+                "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+                "candidate_key": "candidate:7d881da258e7e0477cdf",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.68,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.545455,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 0
+              },
+              {
+                "node_id": "hypothesis:hyp_6cb1ed26ebf94e59aa88ad28de16ee8b",
+                "candidate_key": "candidate:14d62a5ca1110b690d9f",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.57,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.272727,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 1
+              },
+              {
+                "node_id": "hypothesis:hyp_d1e4a1f61a1a4495b92363c3dec10f27",
+                "candidate_key": "candidate:b466167a28acb24ad0bf",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.46,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.181818,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 2
+              }
+            ],
+            "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+            "iteration": 2,
+            "round_index": 2,
+            "tree_depth": 2,
+            "parent_node_id": "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+            "candidate_count": 3,
+            "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+          },
+          "skill_reuse": {
+            "applied": true,
+            "state": "REUSED",
+            "skill_id": "builtin_io_latency_diagnosis_86e4f1b8a90a",
+            "skill_name": "io-latency-diagnosis",
+            "version": 2,
+            "category": "IO_LATENCY",
+            "skill_category": "IO_LATENCY",
+            "baseline_category": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "selected_category": "IO_LATENCY",
+            "match_score": 0.73,
+            "baseline_tool": "start_perf_profile",
+            "selected_tool": "start_ebpf_io_profile",
+            "reuse_step": {
+              "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+              "round_index": 2,
+              "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+              "state": "REUSED",
+              "baseline_tool": "start_perf_profile",
+              "selected_tool": "start_ebpf_io_profile",
+              "selected_route_index": 2,
+              "route_length": 2,
+              "completed_route_tools": [
+                "collect_sys_metrics"
+              ],
+              "attempted_tools": [
+                "collect_sys_metrics"
+              ],
+              "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+              "category_after": "IO_LATENCY",
+              "category_corrected": true,
+              "applied_at": "2026-10-01T15:42:17.475720+00:00"
+            },
+            "load_mode": "FULL_SKILL_MD",
+            "content_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+            "source_sha256": "0b40b1a121246936d004f346a832ebffc85a960852c9ad994dc3697b0b454f23",
+            "source_path": "skills/io-latency-diagnosis/SKILL.md",
+            "loaded_sections": [
+              "目标",
+              "输入契约",
+              "适用与停止条件",
+              "取证顺序",
+              "结论门槛",
+              "必需证据与反证",
+              "安全边界",
+              "输出契约",
+              "回归门禁"
+            ]
+          }
+        },
+        "occurred_at": "2026-10-01 15:43:18.476501+00:00"
+      },
+      {
+        "event_id": "event_8492bf48c15f4281a7a440e5518fe060",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 42,
+        "event_type": "tool_call.progress",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343",
+          "task_status": "RUNNING",
+          "status": "RUNNING"
+        },
+        "occurred_at": "2026-10-01 15:43:22.670708+00:00"
+      },
+      {
+        "event_id": "event_045f4e455bd4445fa6fd63b894b2dea4",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 43,
+        "event_type": "tool_call.task_terminal",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_5dd8c8d2928d415ebf98b45658f217bd",
+          "task_id": "task_20261001_154318_f53343",
+          "task_status": "DONE"
+        },
+        "occurred_at": "2026-10-01 15:43:45.169743+00:00"
+      },
+      {
+        "event_id": "event_74f3fe796d484de9a1a93675693ad358",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 44,
+        "event_type": "task_evidence.imported",
+        "actor": "SYSTEM",
+        "payload": {
+          "task_id": "task_20261001_154318_f53343",
+          "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+          "evidence_refs": [
+            "ev_task_task_20261001_154318_f53343_4602",
+            "ev_task_task_20261001_154318_f53343_4603",
+            "ev_task_task_20261001_154318_f53343_4604"
+          ]
+        },
+        "occurred_at": "2026-10-01 15:43:45.202369+00:00"
+      },
+      {
+        "event_id": "event_ac793ccd20ee4cc4a001d54431f19903",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 45,
+        "event_type": "report.generated",
+        "actor": "SYSTEM",
+        "payload": {
+          "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+          "confidence": 0.0,
+          "coverage_ratio": 0.0,
+          "evidence_refs": [],
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "verified_claim_count": 0,
+          "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 2,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:43:45.234821+00:00"
+      },
+      {
+        "event_id": "event_709ba74955854dd2ad0ed7bce12a4a4d",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 46,
+        "event_type": "lats.observation_recorded",
+        "actor": "ENVIRONMENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "observation_id": "report:report_b0670dfc4d1996249da7e1de1516a8ab",
+          "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+          "summary": "真实采集完成：支持 0 条、反证 0 条、质量拒绝 2 条；门禁=INSUFFICIENT_EVIDENCE。",
+          "tool_call_ids": [
+            "toolcall_5dd8c8d2928d415ebf98b45658f217bd"
+          ],
+          "task_ids": [
+            "task_20261001_154318_f53343"
+          ],
+          "evidence_ids": [
+            "ev_task_task_20261001_154318_f53343_4602",
+            "ev_task_task_20261001_154318_f53343_4603",
+            "ev_task_task_20261001_154318_f53343_4604"
+          ],
+          "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+          "external_observation": true,
+          "cached_observation": true,
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:43:45.277588+00:00"
+      },
+      {
+        "event_id": "event_3c8b81bbff4743fc8949629f6352fbf4",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 47,
+        "event_type": "lats.reflection_recorded",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+          "decision": "PROGRESSIVE_WIDEN",
+          "summary": "当前证据区分力不足；缓存本次真实观测并在预算内扩展新的证据域。",
+          "grounded_in_observation": "report:report_b0670dfc4d1996249da7e1de1516a8ab",
+          "reflection_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:43:45.277588+00:00"
+      },
+      {
+        "event_id": "event_4e5f852b4e5345099fa2c7f3984ada01",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 48,
+        "event_type": "lats.backpropagated",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222",
+          "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+          "path_node_ids": [
+            "hypothesis:hyp_78a2e3810b0d4c2996c9547b5c2ce32f",
+            "hypothesis:hyp_f41e474bd4794997a3f8e8ac84189222"
+          ],
+          "reward": -0.53,
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "components": {
+            "evidence_gate": -0.35,
+            "confidence": -0.1,
+            "quality_penalty": 0.08,
+            "support_count": 0,
+            "counter_count": 0,
+            "rejected_count": 2
+          }
+        },
+        "occurred_at": "2026-10-01 15:43:45.277588+00:00"
+      },
+      {
+        "event_id": "event_01d77151d7bd487a82a553600428f263",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 49,
+        "event_type": "diagnosis.insufficient_evidence_finalized",
+        "actor": "SYSTEM",
+        "payload": {
+          "termination_reason": "BUDGET_EXHAUSTED",
+          "termination_detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+          "accepted_support_report": false,
+          "best_supported_report_id": null,
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 2,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:43:45.302944+00:00"
+      },
+      {
+        "event_id": "event_47f2b54626a942d68d96d68ddea59e44",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "sequence": 50,
+        "event_type": "lats.search_terminated",
+        "actor": "SYSTEM",
+        "payload": {
+          "reason": "BUDGET_EXHAUSTED",
+          "detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+          "final_status": "INSUFFICIENT_EVIDENCE",
+          "best_report_id": null
+        },
+        "occurred_at": "2026-10-01 15:43:45.310112+00:00"
+      }
+    ],
+    "tasks": [
+      {
+        "task_id": "task_20261001_154158_b64c7a",
+        "collector_type": "sys_metrics",
+        "status": "DONE",
+        "status_reason": "系统指标产物已完成兼容契约校验",
+        "error_code": null,
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "event_count": 5,
+        "attempts": [
+          {
+            "id": "attempt_b11cbbe85a1e4425a287c580f806bced",
+            "status": "SUCCEEDED",
+            "started_at": "2026-10-01T15:42:01.14412Z",
+            "finished_at": "2026-10-01T15:42:16.416569Z"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": 4600,
+            "artifact_type": "sys_metrics",
+            "size_bytes": 15307,
+            "sha256": "5515f1bb8e0ac07716378157edeca1530945989db4ad493260a9a8efd0b4f3b7",
+            "integrity_status": "VERIFIED",
+            "sample_count": 15
+          },
+          {
+            "id": 4601,
+            "artifact_type": "manifest",
+            "size_bytes": 1109,
+            "sha256": "86981a2cd536444c9e7735804124af0fe578486759aca69b66565ddb7a2797f6",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          }
+        ],
+        "_raw_artifacts": [
+          {
+            "artifact_type": "sys_metrics",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:42:16.416569Z",
+            "filename": "sys_metrics.json",
+            "id": 4600,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "sys_metrics",
+              "content_type": "application/json",
+              "object_key": "tasks/task_20261001_154158_b64c7a/attempts/attempt_b11cbbe85a1e4425a287c580f806bced/raw/sys_metrics.json",
+              "schema_version": "mini-drop.artifact.v1",
+              "sha256": "5515f1bb8e0ac07716378157edeca1530945989db4ad493260a9a8efd0b4f3b7",
+              "size_bytes": 15307,
+              "task_attempt_id": "attempt_b11cbbe85a1e4425a287c580f806bced",
+              "task_id": "task_20261001_154158_b64c7a"
+            },
+            "metadata": {
+              "analysis_limitations": [],
+              "analyzer_type": "collector.sys_metrics",
+              "analyzer_version": "1.0.0",
+              "application_metrics": {
+                "after": {
+                  "cpu_operations": 49291001856,
+                  "downstream_failures": 0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732,
+                  "io_bytes_written": 621281280,
+                  "io_failures": 0,
+                  "io_operations": 4740,
+                  "lock_acquisitions": 188184,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0,
+                  "rss_mb": 0.9
+                },
+                "before": {
+                  "cpu_operations": 49291001856,
+                  "downstream_failures": 0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732,
+                  "io_bytes_written": 500301824,
+                  "io_failures": 0,
+                  "io_operations": 3817,
+                  "lock_acquisitions": 188184,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0,
+                  "rss_mb": 0.9
+                },
+                "delta": {
+                  "cpu_operations": 0,
+                  "downstream_failures": 0,
+                  "downstream_mean_latency_ms": 0,
+                  "downstream_requests": 0,
+                  "io_bytes_written": 120979456,
+                  "io_failures": 0,
+                  "io_operations": 923,
+                  "lock_acquisitions": 0,
+                  "lock_wait_ms": 0,
+                  "retained_memory_mb": 0,
+                  "rss_mb": 0
+                },
+                "identity": {
+                  "host_pid": 906297,
+                  "identity_verified": true,
+                  "namespace_pid": 1,
+                  "pid": 1,
+                  "runtime": "c++"
+                },
+                "max": {
+                  "cpu_operations": 49291001856,
+                  "downstream_failures": 0,
+                  "downstream_mean_latency_ms": 260.33,
+                  "downstream_requests": 732,
+                  "io_bytes_written": 621281280,
+                  "io_failures": 0,
+                  "io_operations": 4740,
+                  "lock_acquisitions": 188184,
+                  "lock_wait_ms": 561846.43,
+                  "retained_memory_mb": 0,
+                  "rss_mb": 0.9
+                },
+                "sample_count": 15,
+                "schema_version": "application_metrics_analysis.v1"
+              },
+              "application_metrics_limitations": [],
+              "application_metrics_status": "AVAILABLE",
+              "collector_plugin": "sys_metrics",
+              "collector_runtime": "native-cpp",
+              "collector_type": "sys_metrics",
+              "contract_version": "1.0.0",
+              "process_cpu_window": {
+                "clock_ticks_per_second": 100,
+                "end_cpu_ticks": 748722,
+                "end_unix_ms": 1790869335244,
+                "process_cpu_core_usage": 1.0709695844638012,
+                "sample_count": 15,
+                "source": "linux_proc_stat",
+                "start_cpu_ticks": 748707,
+                "start_unix_ms": 1790869321238
+              },
+              "process_identity": {
+                "namespace_pid": 1,
+                "pid": 906297,
+                "start_ticks": 14403835,
+                "verified": true
+              },
+              "sample_count": 15,
+              "schema_version": "sys_metrics_analysis.v2",
+              "signals": {
+                "cpu_hotspot": {
+                  "detected": false,
+                  "metrics": {
+                    "cpu_operations_delta": 0,
+                    "process_cpu_core_usage": 1.071
+                  },
+                  "reason": "target process CPU usage checked against the observation threshold"
+                },
+                "io_activity": {
+                  "detected": true,
+                  "metrics": {
+                    "disk_write_kbps": 0,
+                    "io_bytes_written_delta": 120979456,
+                    "io_operations_delta": 923
+                  },
+                  "reason": "target process produced measurable write activity in the observation window"
+                },
+                "memory_growth": {
+                  "detected": false,
+                  "metrics": {
+                    "retained_memory_delta_mb": 0,
+                    "retained_memory_mb": 0,
+                    "rss_delta_mb": 0
+                  },
+                  "reason": "process memory footprint and retained memory change checked against the growth threshold"
+                }
+              },
+              "source_schema_version": "sys_metrics.v2",
+              "summary": {
+                "avg_cpu_iowait_pct": 0.144,
+                "avg_cpu_sys_pct": 6.609,
+                "avg_cpu_user_pct": 20.079,
+                "ctx_nonvoluntary_rate": 0,
+                "disk_read_kbps": 0,
+                "disk_write_kbps": 0,
+                "fd_count": 4,
+                "fd_count_first": 4,
+                "fd_count_max": 4,
+                "fd_trend": 0,
+                "host_cpu_busy_pct": 26.688,
+                "load1m": 0.738,
+                "load1m_max": 0.85,
+                "process_cpu_core_usage": 1.071,
+                "thread_count": 12,
+                "thread_count_first": 12,
+                "thread_count_max": 12,
+                "thread_trend": 0,
+                "vmrss_mb": 0.895,
+                "vmrss_mb_delta": 0,
+                "vmrss_mb_first": 0.895,
+                "vmrss_mb_max": 0.895
+              },
+              "window_duration_seconds": 14.006
+            },
+            "object_key": "tasks/task_20261001_154158_b64c7a/attempts/attempt_b11cbbe85a1e4425a287c580f806bced/raw/sys_metrics.json",
+            "sha256": "5515f1bb8e0ac07716378157edeca1530945989db4ad493260a9a8efd0b4f3b7",
+            "size_bytes": 15307,
+            "task_id": "task_20261001_154158_b64c7a"
+          },
+          {
+            "artifact_type": "manifest",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:42:16.416569Z",
+            "filename": "manifest.json",
+            "id": 4601,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "manifest_version": "mini-drop.artifact.v1",
+              "producer": "native-cpp"
+            },
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            },
+            "object_key": "tasks/task_20261001_154158_b64c7a/attempts/attempt_b11cbbe85a1e4425a287c580f806bced/manifest.json",
+            "sha256": "86981a2cd536444c9e7735804124af0fe578486759aca69b66565ddb7a2797f6",
+            "size_bytes": 1109,
+            "task_id": "task_20261001_154158_b64c7a"
+          }
+        ]
+      },
+      {
+        "task_id": "task_20261001_154318_f53343",
+        "collector_type": "ebpf_io",
+        "status": "DONE",
+        "status_reason": "eBPF IO 延迟分布已通过产物契约验证",
+        "error_code": null,
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "event_count": 5,
+        "attempts": [
+          {
+            "id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+            "status": "SUCCEEDED",
+            "started_at": "2026-10-01T15:43:22.255933Z",
+            "finished_at": "2026-10-01T15:43:42.492168Z"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": 4602,
+            "artifact_type": "ebpf_metrics",
+            "size_bytes": 155,
+            "sha256": "aacfcc5c302cedcb31b01981232822f97201f8ca82deffa7afcea89d5cf716d8",
+            "integrity_status": "VERIFIED",
+            "sample_count": 394
+          },
+          {
+            "id": 4603,
+            "artifact_type": "ebpf_raw",
+            "size_bytes": 3943,
+            "sha256": "3cb2cc963df051064e4fcab9862bbcc137536f2eefebaf143fe92b0fd7de13a6",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          },
+          {
+            "id": 4604,
+            "artifact_type": "manifest",
+            "size_bytes": 1942,
+            "sha256": "6ed9c98e8ff813fbb4db325ec99c49b37da62baa2eebb80d0907452b738f2749",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          }
+        ],
+        "_raw_artifacts": [
+          {
+            "artifact_type": "ebpf_metrics",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:43:42.492168Z",
+            "filename": "ebpf_metrics.json",
+            "id": 4602,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "ebpf_metrics",
+              "content_type": "application/json",
+              "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/ebpf_metrics.json",
+              "schema_version": "mini-drop.artifact.v1",
+              "sha256": "aacfcc5c302cedcb31b01981232822f97201f8ca82deffa7afcea89d5cf716d8",
+              "size_bytes": 155,
+              "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+              "task_id": "task_20261001_154318_f53343"
+            },
+            "metadata": {
+              "analysis_notes": [
+                "block tracepoints are host-level; correlate with target process write counters before root-cause attribution"
+              ],
+              "analyzer_type": "collector.ebpf_io",
+              "analyzer_version": "1.0.0",
+              "collector_plugin": "ebpf_io",
+              "collector_runtime": "native-cpp",
+              "collector_type": "ebpf_io",
+              "probe": "block tracepoint",
+              "sample_count": 394,
+              "schema_version": "ebpf_io_analysis.v1",
+              "scope_semantics": "HOST_BLOCK_DEVICE",
+              "signals": {
+                "io_latency": {
+                  "detected": true,
+                  "metrics": {
+                    "high_latency_samples": 56,
+                    "latency_p95_us": 2000,
+                    "total_samples": 394
+                  },
+                  "reason": "host block-device tracepoints observed a measurable high-latency tail"
+                }
+              },
+              "source_schema_version": "ebpf_io.v1",
+              "summary": {
+                "block_latency_us": 2000,
+                "high_latency_ratio": 0.142,
+                "high_latency_samples": 56,
+                "io_latency_us": 2000,
+                "latency_p50_us": 1000,
+                "latency_p95_us": 2000,
+                "latency_p99_us": 4000
+              },
+              "target_attributed": false,
+              "total_samples": 394
+            },
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/ebpf_metrics.json",
+            "sha256": "aacfcc5c302cedcb31b01981232822f97201f8ca82deffa7afcea89d5cf716d8",
+            "size_bytes": 155,
+            "task_id": "task_20261001_154318_f53343"
+          },
+          {
+            "artifact_type": "ebpf_raw",
+            "bucket": "mini-drop",
+            "content_type": "text/plain",
+            "created_at": "2026-10-01T15:43:42.492168Z",
+            "filename": "io_latency.txt",
+            "id": 4603,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "ebpf_raw",
+              "content_type": "text/plain",
+              "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/io_latency.txt",
+              "schema_version": "mini-drop.artifact.v1",
+              "sha256": "3cb2cc963df051064e4fcab9862bbcc137536f2eefebaf143fe92b0fd7de13a6",
+              "size_bytes": 3943,
+              "task_attempt_id": "attempt_16d2684b592e46268fe634c5aa0f4333",
+              "task_id": "task_20261001_154318_f53343"
+            },
+            "metadata": {
+              "collector_runtime": "native-cpp"
+            },
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/raw/io_latency.txt",
+            "sha256": "3cb2cc963df051064e4fcab9862bbcc137536f2eefebaf143fe92b0fd7de13a6",
+            "size_bytes": 3943,
+            "task_id": "task_20261001_154318_f53343"
+          },
+          {
+            "artifact_type": "manifest",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:43:42.492168Z",
+            "filename": "manifest.json",
+            "id": 4604,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "manifest_version": "mini-drop.artifact.v1",
+              "producer": "native-cpp"
+            },
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            },
+            "object_key": "tasks/task_20261001_154318_f53343/attempts/attempt_16d2684b592e46268fe634c5aa0f4333/manifest.json",
+            "sha256": "6ed9c98e8ff813fbb4db325ec99c49b37da62baa2eebb80d0907452b738f2749",
+            "size_bytes": 1942,
+            "task_id": "task_20261001_154318_f53343"
+          }
+        ]
+      }
+    ]
+  },
+  "downloads": [
+    {
+      "task_id": "task_20261001_154158_b64c7a",
+      "artifact_id": 4600,
+      "artifact_type": "sys_metrics",
+      "file": "task_20261001_154158_b64c7a-sys_metrics.raw",
+      "sha256": "5515f1bb8e0ac07716378157edeca1530945989db4ad493260a9a8efd0b4f3b7"
+    },
+    {
+      "task_id": "task_20261001_154158_b64c7a",
+      "artifact_id": 4601,
+      "artifact_type": "manifest",
+      "file": "task_20261001_154158_b64c7a-manifest.raw",
+      "sha256": "86981a2cd536444c9e7735804124af0fe578486759aca69b66565ddb7a2797f6"
+    },
+    {
+      "task_id": "task_20261001_154318_f53343",
+      "artifact_id": 4602,
+      "artifact_type": "ebpf_metrics",
+      "file": "task_20261001_154318_f53343-ebpf_metrics.raw",
+      "sha256": "aacfcc5c302cedcb31b01981232822f97201f8ca82deffa7afcea89d5cf716d8"
+    },
+    {
+      "task_id": "task_20261001_154318_f53343",
+      "artifact_id": 4603,
+      "artifact_type": "ebpf_raw",
+      "file": "task_20261001_154318_f53343-ebpf_raw.raw",
+      "sha256": "3cb2cc963df051064e4fcab9862bbcc137536f2eefebaf143fe92b0fd7de13a6"
+    },
+    {
+      "task_id": "task_20261001_154318_f53343",
+      "artifact_id": 4604,
+      "artifact_type": "manifest",
+      "file": "task_20261001_154318_f53343-manifest.raw",
+      "sha256": "6ed9c98e8ff813fbb4db325ec99c49b37da62baa2eebb80d0907452b738f2749"
+    }
+  ],
+  "intervention": {
+    "field": "io_bytes_written",
+    "mode": "counter",
+    "values": {
+      "baseline": 0.0,
+      "fault": 7956237.387955766,
+      "recovery": 0.0
+    },
+    "process_identity": {
+      "verified": true,
+      "identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906297,
+        "namespace_pid": 1,
+        "start_ticks": 14403835,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "92eae9b6ef74f6e472521c681421025a457f3e62de5e5f5aeadd0e8225774402",
+        "container_started_at": "2026-09-08T05:27:43.233710536Z"
+      },
+      "snapshot_count": 6
+    },
+    "injection_observed": true,
+    "recovery_observed": true,
+    "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+  },
+  "lineage_evaluation": {
+    "recorded_chain_consistent": true,
+    "matched_evidence_ids": [
+      "ev_task_task_20261001_154158_b64c7a_4600",
+      "ev_task_task_20261001_154318_f53343_4602"
+    ],
+    "unmatched_evidence_ids": [
+      "ev_task_task_20261001_154158_b64c7a_4601",
+      "ev_task_task_20261001_154318_f53343_4603",
+      "ev_task_task_20261001_154318_f53343_4604"
+    ],
+    "problems": [],
+    "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+  },
+  "engineering_evaluation": {
+    "scenario_id": "cpp-file-io",
+    "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+    "diagnosis_accepted": false,
+    "localization_accepted": false,
+    "outcome": "INSUFFICIENT_EVIDENCE",
+    "location": null,
+    "causal_root_cause_verified": false,
+    "same_load_fix_verified": false,
+    "recorded_chain_verified": true,
+    "cleanup_and_recovery_verified": true,
+    "reports": [
+      {
+        "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "independent_control_required": false
+      },
+      {
+        "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "independent_control_required": false
+      }
+    ],
+    "profile": "engineering-diagnosis.v1"
+  },
+  "finished_at": "2026-10-01T15:43:41.684031+00:00"
+}

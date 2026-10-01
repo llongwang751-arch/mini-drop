@@ -16,7 +16,11 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
         if (!response.ok) throw new Error("acceptance unavailable");
         const doc = await response.json();
         if (doc.schema !== "mini-drop.engineering-diagnosis-index.v1" || doc.profile !== "engineering-diagnosis.v1"
-            || !Array.isArray(doc.cases) || !Array.isArray(doc.not_evaluated) || doc.fresh_live_run !== false
+            || !Array.isArray(doc.cases) || !Array.isArray(doc.not_evaluated) || typeof doc.fresh_live_run !== 'boolean'
+            || !['REGRADING_FROZEN_LIVE_RECORDS', 'MIXED_LIVE_CAMPAIGNS', 'FRESH_LIVE_CAMPAIGN'].includes(doc.evaluation_mode)
+            || doc.fresh_live_scenarios !== doc.cases.filter(c => c.fresh_live_run === true).length
+            || doc.regraded_prior_scenarios !== doc.cases.filter(c => c.fresh_live_run !== true).length
+            || doc.fresh_live_run !== (doc.cases.length > 0 && doc.fresh_live_scenarios === doc.cases.length)
             || doc.evaluated_scenarios !== doc.cases.length
             || doc.registered_scenarios !== doc.cases.length + doc.not_evaluated.length
             || doc.diagnosis_accepted !== doc.cases.filter(c => c.diagnosis_accepted === true).length
@@ -40,7 +44,7 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
         <Tag color="blue">有效反证 {data.refuted}</Tag>
         <Tag>已注册 {data.registered_scenarios} 类 · 待验收 {data.not_evaluated.length} 类</Tag>
       </Space>
-      <p>当前按工程标准重评已冻结的真实案例，不是新一轮 21 类验收。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。</p>
+      <p>当前包含 {data.fresh_live_scenarios} 类新真机实验、{data.regraded_prior_scenarios} 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。</p>
       <Table rowKey="scenario_id" size="small" pagination={false} scroll={{ x: 620 }} dataSource={data.cases}
         columns={[{ title: "案例", dataIndex: "title" }, { title: "工程验收", dataIndex: "outcome", render: x => LABELS[x] || "证据不足" },
           { title: "已定位路径", dataIndex: "location", render: x => x || "未宣称异常路径" },

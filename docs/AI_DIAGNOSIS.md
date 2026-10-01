@@ -1,5 +1,10 @@
 # AI 诊断方案
 
+## 2026-10-01 请求关联保留
+
+进程澄清与可信绑定替换target时保留原请求trace_id/span_id。它们是关联标签，不提供PID、Agent或采样授权；当前目标仍由服务端重新验证。旧代码丢失两项关联的2项负向复现与修复回归见面试补齐记录；历史请求与后续Profile不是同一时间窗，不宣称自动请求级因果证明。
+
+
 ## 2026-10-01 当前状态检查与根因调查分别结束（已部署）
 
 服务目录的“检查当前状态”显式设置 `health_check=true`，规则规划只下发一个 `collect_sys_metrics`，预算120秒/1工具/1轮，不请求模型判断根因。真实 Task、Attempt、Artifact SHA、Analyzer 和可信进程身份通过准入后，由 `health_assessment.py` 计算已检查范围的结果。阈值沿用 [性能诊断](PERFORMANCE_DIAGNOSIS.md) 的初筛合同，缺失指标不能当作0，无HTTP请求时不宣称HTTP已检查。

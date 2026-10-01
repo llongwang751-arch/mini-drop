@@ -1,5 +1,20 @@
 # 测试开发、后端与 Agent 开发：工程交付入口
 
+## 2026-10-01 当前演示补齐
+
+入口仍为 https://120.24.187.205/ai-diagnosis，具体线上提交及发布状态先看PROJECT_CONTEXT顶部。新增21类工程索引为判断14/21、路径4/21、反证5条（18类新实验+3类先前记录），7类不足公开保留，旧因果0/21单列。不要把工程判断、具体定位与因果根因混为同一个成功率。
+
+面试用5分钟完成一条主线：先展示正常、异常、无法判断三个体检结果，再看真实采样产物和目标寿命，最后展示同负载修复记录。正常仅说明本次已检查范围；异常可以进入深入调查，采集不足可以重新采集，后续新会话须重绑当前进程，不复用旧PID权限。管理服务后续按钮已有实浏览器记录，本轮隔离Go三态的后续恢复/重采是独立新会话。
+
+可直接打开[正常体检](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_8d7d9d15496e42f18be26711329658b3)、[CPU异常体检](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_7785e3d08c3942e7b82f654c7eaf5e83)、[采集不足](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_9655a7bce3e74b58af7ff18e7695be68)、[真实业务采样报告](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_1c11b8b7314d4108be44811fd8ded2ca)。这是历史现场证据，当前状态要再次检查。
+
+业务讲稿：固定问题与96候选的HTTP知识检索服务，排序计算中采到difflib.find_longest_match；人工修复缓存与连接处理，三窗各360请求，同一进程/输入/4RPS，上限8并发，P95从68.38ms降至2.70ms，质量100%。6份采样下载SHA一致。它是独立真实SQLite业务样例，不是Office/LLM效果评测，也不是AI自动因果根因。面试官可按[原始修复记录](../reports/quality/interview-completion-20261001/business-fix-r3/validated-comparison.json)重算。
+
+测开重点讲测试预言、三窗对照、原始证据校验、负向篡改用例与PG进程中断；后端重点讲行锁、原子事件与状态、取消竞争、trace/span在可信重绑时保留；Agent重点讲执行合同、预算/审批、取证及反证，不能用采样占比替代CPU百分比。14项真实PG通过零跳过，其他测试与最终CI见补齐交付。不要在现场重跑一小时或承诺21类全部定位。
+
+复核命令：`python scripts/build_engineering_diagnosis.py --check`；`python scripts/evaluate_same_load_business_fix.py reports/quality/interview-completion-20261001/business-fix-r3`；`python -m pytest tests/test_same_load_business_fix.py tests/test_diagnosis_trace_correlation.py tests/test_engineering_java_profiles.py -q`。真实PG需要专用测试库及RUN_POSTGRES_TESTS=1，CI负责实际运行；不要把本机跳过算通过。样例复现源为scripts/same_load_rag_fix_fixture.py及原始记录中的source目录，用隔离一次性进程，stdin依次发送baseline/before/after，关闭stdin退出；平台取证仍需可信Agent绑定和批准。
+
+
 ## 2026-10-01 最终演示版本复核
 
 并发案例源码入口已指向实际修改的skill_evolution.py；最终Web为 `20260930T181400Z` / `5bbeb4c`，55份文件SHA通过，其余12容器保持、13容器健康。精确源码CI [36757023388](https://github.com/llongwang751-arch/mini-drop/actions/runs/36757023388)成功13/13。再次实浏览器核验4项案例、9份下载SHA、4种宽度和旧21类停止入口全部通过，旧根因0/21与停用状态保持。修正仅涉及源码链接元数据，不修改测试、阈值或原始成绩。

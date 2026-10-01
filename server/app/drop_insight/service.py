@@ -8836,6 +8836,8 @@ def clarify_diagnosis(
             for key, value in {
                 "service": service,
                 "environment": environment,
+                "trace_id": previous_target.get("trace_id"),
+                "span_id": previous_target.get("span_id"),
             }.items()
             if value is not None
         }

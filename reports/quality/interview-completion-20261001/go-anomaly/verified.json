@@ -1,0 +1,34 @@
+{
+  "result": {
+    "schema": "mini-drop.health-check.v1",
+    "code": "ANOMALY_OBSERVED",
+    "title": "已发现性能异常，原因待确认",
+    "checked": [
+      "进程 CPU < 50%（单核口径）",
+      "窗口 RSS 增量 < 8 MiB"
+    ],
+    "anomalies": [
+      "进程 CPU 64.8%"
+    ],
+    "evidence_refs": [
+      "ev_task_task_20261001_145941_a298c4_4526"
+    ],
+    "causal_root_cause_verified": false,
+    "unmeasured": [
+      "磁盘操作延迟",
+      "丢包/重传",
+      "内存限额",
+      "全部业务接口和业务正确性"
+    ],
+    "window_duration_seconds": 14.006,
+    "sample_count": 15,
+    "detail": "已观测：进程 CPU 64.8%。可继续调查具体原因。",
+    "diagnosis_id": "insight_7785e3d08c3942e7b82f654c7eaf5e83",
+    "service_id": null,
+    "task_id": "task_20261001_145941_a298c4",
+    "tool_call_id": "toolcall_e279f763bca84e579515da9fb842a8e2",
+    "task_status": "DONE"
+  },
+  "download_sha_verified": 2,
+  "interrupted": false
+}

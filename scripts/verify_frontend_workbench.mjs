@@ -75,7 +75,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": mime }); res.end(content);
   } catch { res.writeHead(404); res.end(); }
 });
-await new Promise((resolve) => server.listen(5174, "127.0.0.1", resolve));
+await new Promise((resolve, reject) => {
+  server.once("error", reject);
+  server.listen(0, "127.0.0.1", resolve);
+});
+const httpPort = server.address().port;
 // MINI_DROP_ACCEPTANCE_CHROME wins; otherwise use the newest installed
 // Playwright Chromium (Windows and Linux layouts) so CI and local runs share one path.
 async function resolveChrome() {
@@ -101,7 +105,8 @@ async function resolveChrome() {
 }
 const chrome = await resolveChrome();
 assert(existsSync(chrome), `Set MINI_DROP_ACCEPTANCE_CHROME to a Chromium executable (looked for: ${chrome})`);
-const browser = spawn(chrome, ["--headless=new", "--remote-debugging-port=9336", `--user-data-dir=${path.join(os.tmpdir(), `mini-drop-ui-${process.pid}`)}`, "--no-first-run", "about:blank"], { windowsHide: true, stdio: "ignore" });
+const browserProfile = path.join(os.tmpdir(), `mini-drop-ui-${process.pid}`);
+const browser = spawn(chrome, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${browserProfile}`, "--no-first-run", "about:blank"], { windowsHide: true, stdio: "ignore" });
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let socket;
 const errors = [];
@@ -109,7 +114,10 @@ const checks = [];
 try {
   let target;
   for (let i = 0; i < 40; i++) {
-    try { target = await (await fetch("http://127.0.0.1:9336/json/new?about%3Ablank", { method: "PUT" })).json(); break; } catch { await pause(250); }
+    try {
+      const debugPort = (await readFile(path.join(browserProfile, "DevToolsActivePort"), "utf8")).split("\n")[0].trim();
+      target = await (await fetch(`http://127.0.0.1:${debugPort}/json/new?about%3Ablank`, { method: "PUT" })).json(); break;
+    } catch { await pause(250); }
   }
   assert(target, "Chromium did not start");
   socket = new WebSocket(target.webSocketDebuggerUrl);
@@ -143,25 +151,28 @@ try {
     const result = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
     await writeFile(path.join(output, name), Buffer.from(result.data, "base64"));
   };
-  const navigate = async (route) => { await send("Page.navigate", { url: `http://127.0.0.1:5174${route}` }); await waitFor("Boolean(document.querySelector('.diagnosis-composer'))"); };
+  const navigate = async (route) => { await send("Page.navigate", { url: `http://127.0.0.1:${httpPort}${route}` }); await waitFor("Boolean(document.querySelector('.diagnosis-composer'))"); };
   await send("Page.enable"); await send("Runtime.enable");
   await viewport(1366, 768); await navigate("/ai-diagnosis");
-  assert(await evaluate("document.querySelector('.diagnosis-composer textarea').getBoundingClientRect().bottom < innerHeight"), "New diagnosis input must fit in first viewport");
+  assert(await evaluate("(() => { const entry = document.querySelector('.diagnosis-welcome button') || document.querySelector('.diagnosis-composer textarea'); const box = entry.getBoundingClientRect(); return box.top >= 0 && box.bottom < innerHeight; })()"), "Primary diagnosis entry must fit in the first viewport");
   await clickText("CPU 升高");
   assert(await evaluate("document.querySelector('textarea').value.includes('订单服务')"));
-  await screenshot("01-start-desktop.png"); checks.push("desktop composer visible; example fills input");
+  await waitFor("document.activeElement === document.querySelector('.diagnosis-composer textarea')");
+  assert(await evaluate("document.querySelector('.diagnosis-composer textarea').getBoundingClientRect().bottom < innerHeight"), "Choosing a symptom must focus the visible diagnosis input");
+  await screenshot("01-start-desktop.png"); checks.push("primary entry visible; example fills and focuses the visible composer");
   await viewport(390, 844); await navigate("/ai-diagnosis");
   await pause(300);
   assert(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), "Mobile page must not overflow horizontally");
   await screenshot("02-start-mobile.png"); checks.push("mobile no page overflow");
   await viewport(1366, 768); await navigate("/ai-diagnosis?case=drop_insight_v2%3Aui-fixture");
   await waitFor("Boolean(document.querySelector('.diagnosis-finding'))");
-  const findingTop = await evaluate("document.querySelector('.diagnosis-finding').getBoundingClientRect().top");
-  // The exam-workflow redesign renders the observability summary above the
-  // finding; the finding itself must still start inside the first viewport.
+  const resultTop = await evaluate("(document.querySelector('.diagnosis-observation') || document.querySelector('.diagnosis-finding')).getBoundingClientRect().top");
+  // The current workbench presents the measured check result first. A detailed
+  // root finding remains readable below it and must retain its persisted text.
   const viewportHeight = await evaluate("innerHeight");
-  assert(findingTop < viewportHeight, `Persisted finding must be visible without scrolling; measured top=${findingTop} vs viewport=${viewportHeight}`);
-  await screenshot("03-finding-desktop.png"); checks.push(`persisted finding visible in first viewport (top=${Math.round(findingTop)}px)`);
+  assert(resultTop < viewportHeight, `Check result must be visible without scrolling; measured top=${resultTop} vs viewport=${viewportHeight}`);
+  assert(await evaluate("document.querySelector('.diagnosis-finding').innerText.includes('calculateTotal')"));
+  await screenshot("03-finding-desktop.png"); checks.push(`check result visible in first viewport; persisted finding retained (top=${Math.round(resultTop)}px)`);
   await viewport(1093, 768); await pause(300);
   assert(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), "Narrow laptop must not overflow");
   await screenshot("07-finding-narrow.png");
@@ -192,9 +203,12 @@ try {
   assert.equal(errors.length, 0, `Browser exceptions: ${errors.join(', ')}`);
   await writeFile(path.join(output, "result.json"), JSON.stringify({ scope: "LOCAL_SYNTHETIC_UI_FIXTURES", checks, browserExceptions: errors, passed: true }, null, 2));
   console.log(JSON.stringify({ passed: true, checks, output }));
+} catch (error) {
+  await writeFile(path.join(output, "result.json"), JSON.stringify({ scope: "LOCAL_SYNTHETIC_UI_FIXTURES", checks, browserExceptions: errors, passed: false, error: String(error) }, null, 2));
+  throw error;
 } finally {
   socket?.close(); browser.kill();
   for (const stream of streams) stream.end();
   if (!process.argv.includes("--serve")) server.close();
-  else console.log("Read-only fixture preview: http://127.0.0.1:5174/ai-diagnosis");
+  else console.log(`Read-only fixture preview: http://127.0.0.1:${httpPort}/ai-diagnosis`);
 }

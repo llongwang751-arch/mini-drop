@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2457 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2660 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 360 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 390 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2148,6 +2148,36 @@ python scripts/render_learning_guide.py
 | `reports/quality/health-check-flow-20261001/web-source/web/src/components/` | components 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/health-check-flow-20261001/web-source/web/src/pages/` | pages 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/` | interview-completion-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/business-fix/` | business-fix 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/business-fix-r2/` | business-fix-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/business-fix-r3/` | business-fix-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/` | artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/business-fix-r3/source/` | source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-anomaly/` | go-anomaly 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-interrupted/` | go-interrupted 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-normal/` | go-normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-recovery/` | go-recovery 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-resampled/` | go-resampled 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/` | performance-18-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/` | cpp-cpu-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-downstream-latency-artifacts/` | cpp-downstream-latency-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/` | cpp-file-io-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/` | cpp-lock-contention-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-memory-growth-artifacts/` | cpp-memory-growth-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/` | cpu-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/go-memory-growth-artifacts/` | go-memory-growth-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/` | io-write-latency-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-downstream-latency-artifacts/` | java-downstream-latency-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/` | java-file-io-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/` | java-gc-pressure-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/` | java-lock-contention-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-offheap-growth-artifacts/` | java-offheap-growth-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/load-saturation-artifacts/` | load-saturation-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/` | memory-pressure-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/` | noisy-neighbor-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog-artifacts/` | queue-backlog-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/` | source-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/` | performance-diagnosis-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/before-source/` | before-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/` | coverage-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2928,6 +2958,7 @@ python scripts/render_learning_guide.py
 | `tests/test_diagnosis_rounds.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_selection_iteration_is_the_real_round_after_backtracking`、`test_legacy_diagnosis_falls_back_to_hypothesis_birth_round` |
 | `tests/test_diagnosis_session_expiry.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_expired_autonomous_session_is_cancelled_with_a_durable_reason` |
 | `tests/test_diagnosis_terminal_finalization.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `isolated_database`、`test_deadline_stops_expansion_and_finalizes_without_claiming_root_cause`、`test_unverified_report_never_commits_a_transient_terminal_state`、`test_search_exhaustion_without_support_finalizes_as_insufficient_once`、`test_search_exhaustion_uses_best_supported_report_instead_of_overwriting_it` 等 12 个声明 |
+| `tests/test_diagnosis_trace_correlation.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_trace_correlation_survives_clarification_and_does_not_create_binding` |
 | `tests/test_diagnosis_worker.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_process_binding_authority_rejects_legacy_target`、`test_process_binding_authority_accepts_attested_target`、`test_worker_starts_and_advances_autonomous_sessions` |
 | `tests/test_diagnostic_ai_rpc.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `AbortedRPC`、`test_cancellation_rpc_forwards_authenticated_principal`、`test_cancellation_rpc_rejects_invalid_input`、`FakeContext`、`test_private_diagnostic_rpc_rejects_invalid_token` 等 11 个声明 |
 | `tests/test_diagnostic_skill_evolution.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_latest_verified_report_can_generate_candidate_before_human_publish_approval`、`test_verified_trajectory_becomes_versioned_active_skill_once`、`test_failed_cross_environment_campaign_blocks_publish`、`test_verified_campaign_trust_chain_can_become_candidate_without_tool_call` 等 21 个声明 |
@@ -2940,6 +2971,8 @@ python scripts/render_learning_guide.py
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
 | `tests/test_engineering_case_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_catalog_grades_engineering_defects_separately_from_ai_roots`、`test_exact_frozen_code_reproduces_parallel_overlap_defect`、`test_missing_and_duplicate_tests_are_rejected`、`isolated_case`、`test_hash_tampering_is_rejected` 等 8 个声明 |
 | `tests/test_engineering_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `fixture`、`test_frozen_live_decisions_pass_engineering_response_without_rewriting_causal_grade`、`test_independent_control_and_fixed_rounds_are_optional_for_engineering_measurement`、`test_relaxed_profile_does_not_accept_wrong_identity_tampered_measurements_or_unsafe_lifecycle`、`test_new_registered_memory_signal_does_not_need_another_hardcoded_evaluator` 等 7 个声明 |
+| `tests/test_engineering_java_profiles.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `fixture`、`test_real_java_profile_is_a_bounded_engineering_observation`、`test_java_measurement_rejects_wrong_domains_missing_counters_or_tampered_numbers`、`test_cpu_refutation_does_not_refute_a_measured_java_lock_wait`、`test_python_profile_and_independent_os_counters_are_recomputed` 等 6 个声明 |
+| `tests/test_engineering_live_campaign.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_download_tamper_is_rejected_before_writing_a_successful_artifact`、`test_failed_snapshot_does_not_prevent_fault_withdrawal`、`test_campaign_never_overwrites_existing_records` |
 | `tests/test_exploration_tree.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_live_tree_revision_grows_when_evidence_replans_a_new_round`、`test_live_tree_projects_backtracked_sibling_into_actual_lats_iteration`、`test_live_tree_projects_skill_trace_and_route_overlay` 等 6 个声明 |
 | `tests/test_fault_acceptance_index.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_projection_does_not_promote_partial_or_malformed_results`、`test_changed_raw_evidence_is_rejected` |
 | `tests/test_fault_diagnosis_instance_context.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_acceptance_preserves_operator_instance_without_injecting_oracle_pid` |
@@ -2992,6 +3025,7 @@ python scripts/render_learning_guide.py
 | `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 25 个声明 |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_without_intervention_stays_an_observation`、`test_support_without_specific_finding_is_not_promoted_to_root_cause`、`test_numeric_performance_findings_render_actual_measurements_with_scope` 等 27 个声明 |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
+| `tests/test_same_load_business_fix.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_business_fix_preserves_workload_quality_and_probe_integrity`、`test_business_comparison_rejects_changed_inputs_or_unverified_outputs` |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
 | `tests/test_skill_policy.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `isolated_database`、`test_skill_policy_defaults_to_auto_and_is_persisted`、`test_disabled_skill_policy_is_persisted`、`test_disabled_policy_bypasses_skill_retrieval`、`test_skill_round_metadata_and_full_instructions_are_forwarded` 等 9 个声明 |
 | `tests/test_source_mapper.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `test_maps_python_hot_symbol_to_ast_location`、`test_unknown_and_unconfigured_sources_are_explicit`、`test_maps_go_method_and_reports_concurrency_signals`、`test_maps_go_function_returning_a_slice`、`test_maps_cpp_qualified_function` 等 9 个声明 |
@@ -3024,8 +3058,10 @@ python scripts/render_learning_guide.py
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
 | `scripts/check_web_bundle.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/engineering_profile_observation.py` | 工程脚本，负责性能 Profile的生成、检查或验收。 | `finite`、`measured_runtime_profile` |
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
+| `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |
 | `scripts/generate_cancellation_contract.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | — |
@@ -3064,6 +3100,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_quality_gate.py` | 一键风险回归，严格判定测试结果并保留 HTML/JSON/JUnit/日志与源码摘要。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
 | `scripts/run_root_cause_benchmark.py` | 运行根因 Top-1 与 500 组 Skill A/B 并输出报告。 | `main` |
 | `scripts/run_scaled_skill_ab.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `main` |
+| `scripts/same_load_rag_fix_fixture.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `load`、`emit`、`identity`、`measure`、`main` |
 | `scripts/setup_local_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/start_demo_wsl.ps1` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_actual_rag_search.py` | 对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。 | `verify` |
@@ -3468,6 +3505,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/engineering-diagnosis-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/health-check-flow-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/instance-scope-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/interview-completion-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -3956,6 +3994,201 @@ python scripts/render_learning_guide.py
 | `reports/quality/instance-scope-20260930/source-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/worker-rpc-errors.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/baseline-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/before-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/diagnosis-created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/fixture-exit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/ready.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r2/source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/after-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_6e8a30-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_6e8a30-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_6e8a30-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_6e8a30-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_b600d6-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/task_20261001_154358_b600d6-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/baseline-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/before-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/comparison.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/diagnosis-created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/diagnosis-records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/fixture-exit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/human-hypothesis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/os-probe-requested.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/probe-approved.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/probe-requested.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/ready.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/remote-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix-r3/source/after.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Settings`、`lexical_score`、`KnowledgeService`、`serve` |
+| `reports/quality/interview-completion-20261001/business-fix-r3/source/before.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Settings`、`KnowledgeService`、`serve` |
+| `reports/quality/interview-completion-20261001/business-fix-r3/source/fixture.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load`、`emit`、`identity`、`measure`、`main` |
+| `reports/quality/interview-completion-20261001/business-fix-r3/validated-comparison.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/after-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/baseline-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/before-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/comparison.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/diagnosis-created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/diagnosis-records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/fixture-exit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/ready.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-fix/source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-domain-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/task_20261001_145941_a298c4-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/task_20261001_145941_a298c4-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-anomaly/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-interrupted/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-interrupted/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-interrupted/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-interrupted/task-cancel.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-interrupted/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/task_20261001_145919_fa1f47-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/task_20261001_145919_fa1f47-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-normal/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/task_20261001_150021_35193a-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/task_20261001_150021_35193a-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-recovery/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/task_20261001_150050_2f3461-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/task_20261001_150050_2f3461-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-resampled/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/grade_business_fix_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `p95` |
+| `reports/quality/interview-completion-20261001/health-business-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153057_749c8c-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153057_749c8c-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-downstream-latency-artifacts/task_20261001_153419_c147f4-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-downstream-latency-artifacts/task_20261001_153419_c147f4-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-downstream-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/task_20261001_154158_b64c7a-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/task_20261001_154158_b64c7a-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/task_20261001_154318_f53343-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/task_20261001_154318_f53343-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io-artifacts/task_20261001_154318_f53343-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_151930_d09227-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_151930_d09227-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-suggestions_md.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention-artifacts/task_20261001_152047_7cf3c0-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-memory-growth-artifacts/task_20261001_152201_0fe7da-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-memory-growth-artifacts/task_20261001_152201_0fe7da-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpp-memory-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152812_6a6699-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152812_6a6699-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152812_6a6699-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152812_6a6699-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152830_022778-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot-artifacts/task_20261001_152830_022778-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/go-memory-growth-artifacts/task_20261001_150444_fe277b-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/go-memory-growth-artifacts/task_20261001_150444_fe277b-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/go-memory-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/task_20261001_153610_66eea6-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/task_20261001_153610_66eea6-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/task_20261001_153727_7fa136-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/task_20261001_153727_7fa136-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency-artifacts/task_20261001_153727_7fa136-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-downstream-latency-artifacts/task_20261001_153239_8f6e0b-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-downstream-latency-artifacts/task_20261001_153239_8f6e0b-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-downstream-latency.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/task_20261001_153917_5220b9-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/task_20261001_153917_5220b9-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/task_20261001_154021_15e903-ebpf_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/task_20261001_154021_15e903-ebpf_raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io-artifacts/task_20261001_154021_15e903-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-file-io.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/task_20261001_150644_e12dc1-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/task_20261001_150644_e12dc1-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/task_20261001_150732_f5f8d0-java_flamegraph_html.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/task_20261001_150732_f5f8d0-jvm_gc_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure-artifacts/task_20261001_150732_f5f8d0-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/task_20261001_150914_550969-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/task_20261001_150914_550969-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/task_20261001_151002_8f5655-java_flamegraph_html.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/task_20261001_151002_8f5655-jvm_gc_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention-artifacts/task_20261001_151002_8f5655-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-offheap-growth-artifacts/task_20261001_151708_261dce-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-offheap-growth-artifacts/task_20261001_151708_261dce-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/java-offheap-growth.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/load-saturation-artifacts/task_20261001_151518_99f19e-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/load-saturation-artifacts/task_20261001_151518_99f19e-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/load-saturation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151225_d32695-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151225_d32695-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151332_58bde5-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151332_58bde5-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151332_58bde5-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure-artifacts/task_20261001_151332_58bde5-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154458_92fe98-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154458_92fe98-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154458_92fe98-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154458_92fe98-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154621_3441bd-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/task_20261001_154621_3441bd-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog-artifacts/task_20261001_151109_4d71a5-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog-artifacts/task_20261001_151109_4d71a5-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/task_20261001_152529_3a1dd1-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/task_20261001_152529_3a1dd1-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/task_20261001_152529_3a1dd1-raw.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/task_20261001_152529_3a1dd1-top_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/performance-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/profile-cpu-tests-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/profile-cpu-tests-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/profile-cpu-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/profile-tests-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/profile-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/run_business_fix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `reader` |
+| `reports/quality/interview-completion-20261001/run_business_fix_r2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/run_business_fix_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/run_health_states.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `save`、`check` |
+| `reports/quality/interview-completion-20261001/run_performance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/runner-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/runtime-after-trials.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/runtime-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/trace-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/trace-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/after-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

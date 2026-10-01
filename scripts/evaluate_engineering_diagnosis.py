@@ -6,6 +6,7 @@ import math
 
 from scripts.audit_fault_plaza_failures import evaluate_recorded_lineage
 from server.app.drop_insight.performance_criteria import evaluate_performance_criterion
+from scripts.engineering_profile_observation import measured_runtime_profile
 
 
 def _resolve(document, pointer):
@@ -74,12 +75,16 @@ def evaluate_engineering_case(case, contract):
                 continue
             predicate = (envelope.get('observation', {}).get('metadata') or {}).get('hypothesis_predicate') or {}
             metrics = predicate.get('metrics') or {}
-            profile = profile or (direction == 'SUPPORT'
+            claim_profile = (direction == 'SUPPORT'
                 and metrics.get('observation_contract') in contract.get('profile_contracts', [])
                 and bool(metrics.get('source_locations'))
                 and _finite(metrics.get('dominant_percent'))
                 and metrics['dominant_percent'] >= contract.get('minimum_profile_percent', 20))
-            if predicate.get('signal') == domain or profile:
+            profile_rule = contract.get('runtime_profile') or {}
+            claim_profile = claim_profile or (direction == 'SUPPORT' and bool(profile_rule)
+                and measured_runtime_profile(evidence, profile_rule, records, admitted, domain))
+            profile = profile or claim_profile
+            if predicate.get('signal') == domain or claim_profile:
                 valid_directions.add(direction)
 
         criteria = observation.get('criteria') or []
@@ -109,7 +114,7 @@ def evaluate_engineering_case(case, contract):
         refuted = (complete and observation.get('status') == 'REFUTED'
             and 'COUNTER' in valid_directions and bool(expected)
             and any(c['matches'] for c in falsification))
-        supported = (supported or profile) and not counters
+        supported = (supported or profile) and 'COUNTER' not in valid_directions
         localized = (supported and local.get('status') == 'LOCALIZED' and local.get('domain') == domain
             and bool(local.get('location')) and bool(local.get('evidence_refs'))
             and set(local['evidence_refs']).issubset(refs & admitted))
