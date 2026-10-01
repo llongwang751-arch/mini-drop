@@ -21,6 +21,9 @@ jobs:
       - run: python -m pip install "psutil>=7.2,<8"
       - name: Real demo processes, OS CPU windows and function profiles
         run: python scripts/run_quality_gate.py --profile hotspot-controls --output output/quality-hotspot-controls
+      - name: Go application I/O counters under concurrent readers and writers
+        working-directory: demo/go-hotspot
+        run: go test -race -count=1 ./...
       - uses: actions/upload-artifact@v4
         if: always()
         with:

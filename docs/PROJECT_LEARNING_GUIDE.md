@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2410 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2417 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2729,7 +2729,7 @@ python scripts/render_learning_guide.py
 | `web/src/utils/parseJsonOffMainThread.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/parseJsonPayload.js` | React 前端模块，负责对应模块行为的展示或交互。 | `limitTree`、`parseJsonPayload` |
 | `web/src/utils/parseJsonPayload.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
-| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`projectReportScopes`、`reportConclusionTitle` 等 15 个声明 |
+| `web/src/utils/reportPresentation.js` | 构造报告结论标题、证据边界和下一步，限制旧主机 I/O 观察被误读为进程根因。 | `verificationStatus`、`isCausalRootReport`、`isObservationReport`、`isLocalizedReport`、`projectReportScopes` 等 16 个声明 |
 | `web/src/utils/reportPresentation.test.js` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/utils/skillBenchmark.js` | React 前端模块，负责Skill 检索、策略与演进的展示或交互。 | `validateSkillBenchmark` |
 | `web/src/utils/skillBenchmark.test.js` | 前端自动化测试，验证同名模块的Skill 检索、策略与演进。 | — |
@@ -2816,6 +2816,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/adaptive_planner.py` | 模型辅助假设规划和中文确定性兜底。 | `propose_hypothesis_plan` |
 | `server/app/drop_insight/artifact_evidence.py` | 把 Artifact 质量保守转换为 Evidence 分类。 | `ArtifactEvidenceAssessment`、`assess_artifact_evidence`、`extract_sample_count` |
 | `server/app/drop_insight/benchmark_v2.py` | Python 服务模块，负责评测数据与指标。 | `canonical_sha256`、`load_json`、`evaluate_skill_reuse` |
+| `server/app/drop_insight/bottleneck_localization.py` | Python 服务模块，负责对应模块行为。 | `localize_verified_observation` |
 | `server/app/drop_insight/builtin_skills.py` | 把仓库 Skill catalog 同步到运行时数据库。 | `load_repository_skill_instructions`、`load_repository_skill_definitions`、`seed_repository_skills` 等 6 个声明 |
 | `server/app/drop_insight/business_acceptance.py` | 业务测量源合同与可比性、延迟、成功率、质量、降级门禁。 | `Contract`、`Workload`、`RequestOutcome`、`MeasurementWindow`、`AcceptancePolicy` 等 8 个声明 |
 | `server/app/drop_insight/business_observations.py` | Python 服务模块，负责对应模块行为。 | `OfficeObservation`、`GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` 等 7 个声明 |
@@ -2835,8 +2836,9 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/lats.py` | UCT/PUCT、Selection、Expansion、Simulation、Reflection 和价值回传原语。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
 | `server/app/drop_insight/managed_services.json` | Python 服务模块，负责对应模块行为。 | — |
 | `server/app/drop_insight/managed_services.py` | Python 服务模块，负责对应模块行为。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
+| `server/app/drop_insight/observation_verifier.py` | Python 服务模块，负责对应模块行为。 | `verify_performance_observation` |
 | `server/app/drop_insight/operator_memory.py` | 按 principal 隔离的显式偏好读写与删除，拒绝目标或权限等越界记忆。 | `list_operator_preferences`、`put_operator_preference`、`delete_operator_preference`、`load_safe_agent_preferences` 等 6 个声明 |
-| `server/app/drop_insight/performance_criteria.py` | Python 服务模块，负责对应模块行为。 | `performance_observation_plan`、`evaluate_performance_criterion` |
+| `server/app/drop_insight/performance_criteria.py` | Python 服务模块，负责对应模块行为。 | `performance_observation_plan`、`parse_performance_criterion`、`evaluate_performance_criterion` |
 | `server/app/drop_insight/policy.py` | 风险、预算、能力、目标和审批门禁。 | `PolicyContext`、`evaluate_tool_call` |
 | `server/app/drop_insight/rcaeval_benchmark.py` | Python 服务模块，负责评测数据与指标。 | `PrivateCase`、`TelemetrySignature`、`RouteSkill`、`Prediction`、`SkillGate` 等 28 个声明 |
 | `server/app/drop_insight/report_conclusion.py` | Python 服务模块，负责对应模块行为。 | `_ObservationFinding`、`_derive_report_conclusion`、`_concrete_report_finding`、`_derive_next_actions` |
@@ -2861,7 +2863,7 @@ python scripts/render_learning_guide.py
 | `server/app/generated/taskkind_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `server/app/kernel_compatibility.py` | Python 服务模块，负责Linux 内核兼容性。 | `CollectorSupport`、`kernel_tuple`、`evaluate_kernel_support` |
 | `server/app/logging_utils.py` | Python 服务模块，负责日志和 Trace。 | `bind_traceparent`、`reset_traceparent`、`current_traceparent`、`current_trace_id`、`log_event` 等 6 个声明 |
-| `server/app/metric_analyzers.py` | Python 服务模块，负责对应模块行为。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 25 个声明 |
+| `server/app/metric_analyzers.py` | Python 服务模块，负责对应模块行为。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 26 个声明 |
 | `server/app/models.py` | SQLAlchemy 领域表模型。 | `Base`、`AgentModel`、`ProcessCandidateSnapshotModel`、`ProcessCandidateModel`、`TaskModel` 等 35 个声明 |
 | `server/app/outbox_dispatcher.py` | 事务 Outbox 的带租约派发器。 | `OutboxDispatcher` |
 | `server/app/process_attestation.py` | 进程快照规范化与不可变 Agent/PID/启动时间 binding。 | `ProcessSnapshotState`、`ProcessCandidateInput`、`ProcessCandidateSnapshotInput`、`ProcessIdentityBinding`、`ResolvedProcessCandidate` 等 16 个声明 |
@@ -2987,7 +2989,8 @@ python scripts/render_learning_guide.py
 | `demo/cpp-hotspot/main.cpp` | cpp-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
 | `demo/go-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `demo/go-hotspot/go.mod` | Go 模块依赖与版本声明。 | — |
-| `demo/go-hotspot/main.go` | go-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `start`、`stop`、`snapshot`、`hostPID`、`writeJSON` 等 18 个声明 |
+| `demo/go-hotspot/main.go` | go-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `start`、`stop`、`snapshot`、`hostPID`、`writeJSON` 等 19 个声明 |
+| `demo/go-hotspot/main_test.go` | Go 单元测试，验证对应模块行为。 | `TestIOTimingSnapshotsKeepCountsAndElapsedInTheSameWindow` |
 | `demo/java-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `demo/java-hotspot/Hotspot.java` | java-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
 | `demo/python-hotspot/app.py` | python-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `CpuFault`、`source_hot_function`、`SourceHotspotFault`、`MemoryFault`、`IoFault` 等 21 个声明 |
@@ -3172,6 +3175,8 @@ python scripts/render_learning_guide.py
 | `tests/test_perf_callgraph.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_build_call_graph_has_direction_self_and_inclusive_samples`、`test_build_call_graph_is_bounded`、`test_native_perf_collector_recovers_header_only_vm_capture_with_cpu_clock` |
 | `tests/test_performance_audit_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_generated_history_does_not_turn_engineering_regressions_into_root_passes`、`test_changed_archived_evidence_is_rejected_instead_of_changing_the_score` |
 | `tests/test_performance_criteria.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hypothesis`、`test_http_wait_cannot_prove_packet_loss_queue_or_compound_claim`、`test_writing_bytes_cannot_prove_fsync_or_disk_latency`、`test_missing_or_invalid_measurement_never_becomes_zero_or_support`、`test_only_satisfied_exact_slots_earn_coverage_and_counter_is_retained` 等 8 个声明 |
+| `tests/test_performance_localization_evaluation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_localization_is_graded_separately_from_causal_and_fix_acceptance`、`test_localization_rejects_wrong_domain_or_unproven_contract`、`test_cpu_localization_requires_independent_cpu_observation_and_go_hot_path` |
+| `tests/test_performance_observation_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `measured`、`verify`、`test_abnormal_numeric_plan_is_checkable_without_requiring_its_opposite_to_be_true`、`test_observation_check_cannot_bypass_trust_quality_or_target_gates`、`test_unknown_slot_is_unchecked_and_conflicting_windows_are_not_merged` 等 11 个声明 |
 | `tests/test_pprof_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_profile_handles_gzip_and_raw`、`test_analyze_profile_rebuilds_top_and_flame_tree`、`test_pprof_cli_writes_outputs`、`test_pprof_cli_rejects_corrupt_input`、`test_analyzer_runner_pprof_integration` 等 6 个声明 |
 | `tests/test_process_cpu_control.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `document`、`hypothesis`、`test_real_analyzer_counter_window_makes_control_reachable`、`test_low_cpu_is_counter_and_zero_is_observed`、`test_explicit_threshold_languages_and_exact_boundary` 等 22 个声明 |
 | `tests/test_process_resource_monitor.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `rows`、`test_stable_resources_pass_and_first_cpu_sample_is_not_fabricated`、`test_sustained_growth_cannot_pass`、`test_threshold_is_inclusive_and_transient_peak_is_not_leak_proof`、`test_missing_or_sparse_resources_are_invalid` 等 14 个声明 |
@@ -3189,6 +3194,7 @@ python scripts/render_learning_guide.py
 | `tests/test_sre_collection_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_partial_tool_success_does_not_pass_chain`、`test_empty_or_rejected_evidence_does_not_pass_chain`、`test_complete_chain_passes_without_claiming_root_cause` |
 | `tests/test_state_machine.py` | Python 自动化测试，验证状态机的成功、失败与边界条件。 | `TestValidateTransition`、`TestBuildStatusEvent`、`TestAllowedTransitions`、`TestTerminalCheck`、`TestCancellationTransitions` |
 | `tests/test_storage.py` | Python 自动化测试，验证对象存储的成功、失败与边界条件。 | `TestEnsureBucket`、`TestBucketAvailable`、`TestUploadFile`、`TestReadObjectBytes`、`TestPresignedUrl` |
+| `tests/test_target_io_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_target_io_elapsed_time_is_not_inferred_from_writing_bytes`、`test_reset_missing_or_invalid_io_window_stays_unknown`、`test_real_analyzer_binds_io_measurements_to_process_identity_and_rejects_oracle_fields`、`test_measured_memory_decrease_can_refute_growth_without_fabricating_zero` |
 | `tests/test_taskkind_contract_generation.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_taskkind_contract_is_valid_and_generated_bindings_are_fresh`、`test_dual_status_contract_is_closed_and_generated_bindings_are_fresh`、`test_error_code_contract_is_unique_and_generated_bindings_are_fresh` |
 | `tests/test_three_route_retrieval.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `make_knowledge`、`test_exact_entity_recall_has_token_boundaries`、`test_three_routes_are_independently_auditable`、`test_vector_failure_keeps_two_local_routes_and_marks_degradation`、`test_changed_entity_contract_requires_new_snapshot` 等 6 个声明 |
 
@@ -3211,6 +3217,7 @@ python scripts/render_learning_guide.py
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
 | `scripts/check_web_bundle.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
+| `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |
 | `scripts/generate_cancellation_contract.py` | 工程脚本，负责跨语言合同的生成、检查或验收。 | — |

@@ -74,6 +74,8 @@ var retainedMemory [][]byte
 var ioBytesWritten atomic.Uint64
 var ioOperations atomic.Uint64
 var ioFailures atomic.Uint64
+var ioDurationNanos atomic.Uint64
+var ioMetricsMu sync.Mutex
 var ioWorkMu sync.Mutex
 
 const (
@@ -142,6 +144,9 @@ func snapshot() map[string]any {
 	memoryActive, memoryRemaining := memoryFault.snapshot()
 	ioActive, ioRemaining := ioFault.snapshot()
 	requests := networkRequests.Load()
+	ioMetricsMu.Lock()
+	ioBytes, ioCount, ioDuration := ioBytesWritten.Load(), ioOperations.Load(), ioDurationNanos.Load()
+	ioMetricsMu.Unlock()
 	var memoryStats runtime.MemStats
 	runtime.ReadMemStats(&memoryStats)
 	averageLatency := 0.0
@@ -164,8 +169,9 @@ func snapshot() map[string]any {
 		"heap_alloc_bytes":                    memoryStats.HeapAlloc,
 		"memory_auto_stop_remaining_seconds":  memoryRemaining,
 		"io_fault_active":                     ioActive,
-		"io_bytes_written":                    ioBytesWritten.Load(),
-		"io_operations":                       ioOperations.Load(),
+		"io_bytes_written":                    ioBytes,
+		"io_operations":                       ioCount,
+		"io_operation_duration_ms_total":      float64(ioDuration) / float64(time.Millisecond),
 		"io_failures":                         ioFailures.Load(),
 		"io_auto_stop_remaining_seconds":      ioRemaining,
 	}
@@ -181,7 +187,7 @@ func applicationMetricsSnapshot() map[string]any {
 		"runtime", "pid", "host_pid", "cpu_operations",
 		"network_delay_ms", "network_requests", "network_failures",
 		"network_average_latency_ms", "retained_memory_bytes",
-		"heap_alloc_bytes", "io_bytes_written", "io_operations", "io_failures",
+		"heap_alloc_bytes", "io_bytes_written", "io_operations", "io_failures", "io_operation_duration_ms_total",
 	} {
 		if value, ok := source[key]; ok {
 			metrics[key] = value
@@ -274,6 +280,14 @@ func cleanupGoIO() {
 	_ = os.Remove(goIOPath)
 }
 
+func recordSuccessfulIO(count int, elapsed time.Duration) {
+	ioMetricsMu.Lock()
+	defer ioMetricsMu.Unlock()
+	ioBytesWritten.Add(uint64(count))
+	ioDurationNanos.Add(uint64(elapsed))
+	ioOperations.Add(1)
+}
+
 func runIOFault() {
 	chunk := make([]byte, 128*1024)
 	copy(chunk, []byte("mini-drop-go-synchronous-io"))
@@ -295,6 +309,9 @@ func runIOFault() {
 			ioWorkMu.Unlock()
 			continue
 		}
+		// Measure the real open/write/sync/close path. Loop pacing and lock
+		// acquisition are outside this interval; this is not device await.
+		operationStarted := time.Now()
 		file, err := os.OpenFile(goIOPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 		if err == nil {
 			var count int
@@ -302,10 +319,12 @@ func runIOFault() {
 			if err == nil {
 				err = file.Sync()
 			}
-			_ = file.Close()
+			closeErr := file.Close()
 			if err == nil {
-				ioBytesWritten.Add(uint64(count))
-				ioOperations.Add(1)
+				err = closeErr
+			}
+			if err == nil {
+				recordSuccessfulIO(count, time.Since(operationStarted))
 			}
 		}
 		if err != nil {
@@ -449,8 +468,11 @@ func main() {
 		payload := requestPayload(request)
 		ioFault.stop()
 		cleanupGoIO()
+		ioMetricsMu.Lock()
 		ioBytesWritten.Store(0)
 		ioOperations.Store(0)
+		ioDurationNanos.Store(0)
+		ioMetricsMu.Unlock()
 		ioFailures.Store(0)
 		ioFault.start(intOption(payload, "duration_seconds", 60))
 		writeJSON(writer, http.StatusOK, snapshot())

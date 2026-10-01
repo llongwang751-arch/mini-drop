@@ -205,7 +205,7 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
         from .performance_criteria import SIGNAL_FIELDS
         signal = predicate.get("signal")
         labels = {"network_latency": "HTTP 网络路径耗时（尚未区分服务处理与传输等待）",
-                  "downstream_latency": "下游调用耗时", "io_latency": "已归属的 I/O 操作延迟",
+                  "downstream_latency": "下游调用耗时", "io_latency": "目标 I/O 操作耗时（应用同步操作不等于块设备延迟）",
                   "io_activity": "进程写入活动（不是磁盘延迟）", "memory_growth": "窗口内存增长",
                   "memory_retention": "进程保留内存（不是持续增长或泄漏证明）",
                   "lock_contention": "锁等待计数", "queue_backlog": "队列速率与积压",

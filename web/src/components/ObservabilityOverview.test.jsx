@@ -67,6 +67,16 @@ const resources = {
 };
 
 describe("ObservabilityOverview", () => {
+  it("shows the localized path and its remaining causal boundary", () => {
+    const model = buildObservationModel(detail, { ...resources, reports: [{ verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+      bottleneck_localization: { status: "LOCALIZED", location: "HTTP 调用耗时路径",
+        evidence_refs: ["ev-sys-1"], causal_root_cause_verified: false, same_load_fix_verified: false },
+    } }] });
+    expect(model.assessment.code).toBe("BOTTLENECK_LOCALIZED");
+    expect(model.assessment.detail).toContain("HTTP 调用耗时路径");
+    expect(model.assessment.title).toContain("根因仍待确认");
+  });
   it("shows independently verified observations without claiming a causal root", () => {
     const model = buildObservationModel(detail, { ...resources, reports: [{ verification: {
       status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,

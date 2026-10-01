@@ -61,6 +61,7 @@ _APPLICATION_METRIC_FIELDS = {
     "process_write_bytes",
     "io_bytes_written",
     "io_operations",
+    "io_operation_duration_ms_total",
     "io_failures",
     "peer_cpu_ticks",
     "load_offered_rps",
@@ -475,13 +476,13 @@ def _derive_signals(
     process_cpu = _optional_number(summary.get("process_cpu_core_usage"))
     app_cpu = _metric(application, "max", "process_cpu_percent")
     cpu_operations = _metric(application, "delta", "cpu_operations", "operation_count")
-    if max(process_cpu or 0.0, app_cpu or 0.0) >= 50.0:
-        signals["cpu_hotspot"] = _signal(
+    if process_cpu is not None or app_cpu is not None:
+        signals["cpu_hotspot"] = {**_signal(
             "target process CPU usage exceeded the observation threshold",
             process_cpu_core_usage=process_cpu,
             application_cpu_percent=app_cpu,
             cpu_operations_delta=cpu_operations,
-        )
+        ), "detected": max(process_cpu or 0.0, app_cpu or 0.0) >= 50.0}
 
     retained_mb = _metric(application, "max", "retained_memory_mb")
     retained_bytes = _metric(
@@ -499,14 +500,14 @@ def _derive_signals(
     retained_delta_bytes = _metric(application, "delta", "retained_memory_bytes", "offheap_retained_bytes")
     if retained_delta_bytes is not None:
         retained_delta_mb = retained_delta_bytes / (1024.0 * 1024.0)
-    if max(rss_delta or 0.0, pss_delta or 0.0, retained_delta_mb or 0.0) >= 8.0:
-        signals["memory_growth"] = _signal(
+    if any(value is not None for value in (rss_delta, pss_delta, retained_delta_mb)):
+        signals["memory_growth"] = {**_signal(
             "process memory footprint or instrumented retained memory increased materially",
             retained_memory_mb=max(retained_mb or 0.0, retained_from_bytes_mb or 0.0),
             rss_delta_mb=rss_delta,
             pss_delta_mb=pss_delta,
             retained_memory_delta_mb=retained_delta_mb,
-        )
+        ), "detected": max(rss_delta or 0.0, pss_delta or 0.0, retained_delta_mb or 0.0) >= 8.0}
     if max(retained_mb or 0.0, retained_from_bytes_mb or 0.0) >= 16.0:
         signals["memory_retention"] = _signal(
             "instrumented retained memory is present; this does not establish growth or a leak",
@@ -522,6 +523,12 @@ def _derive_signals(
         "process_write_bytes",
     )
     io_operations = _metric(application, "delta", "io_operations")
+    io_latency = _application_counter_average(application, "io_operations", "io_operation_duration_ms_total")
+    if io_latency is not None:
+        signals["io_latency"] = {**_signal(
+            "target application synchronous open/write/sync/close elapsed time; not block-device latency",
+            average_latency_ms=io_latency, operation_count_delta=io_operations),
+            "detected": io_latency >= 10.0, "measurement_scope": "TARGET_APPLICATION_SYNC_IO"}
     if (
         (process_write_rate or 0.0) >= 64.0
         or (io_bytes_delta or 0.0) >= 64 * 1024
@@ -661,6 +668,22 @@ def _derive_signals(
         )
 
     return signals
+
+
+def _application_counter_average(application, count_field, duration_field):
+    """Average only new successful operations; counter resets remain unknown."""
+    if not isinstance(application, dict):
+        return None
+    first, last = application.get("before") or {}, application.get("after") or {}
+    if not isinstance(first, dict) or not isinstance(last, dict):
+        return None
+    n0, n1 = _optional_number(first.get(count_field)), _optional_number(last.get(count_field))
+    t0, t1 = _optional_number(first.get(duration_field)), _optional_number(last.get(duration_field))
+    if (None in (n0, n1, t0, t1) or n0 < 0 or n1 <= n0 or not n0.is_integer()
+        or not n1.is_integer() or t0 < 0 or t1 < t0):
+        return None
+    average = (t1 - t0) / (n1 - n0)
+    return average if math.isfinite(average) else None
 
 
 def _application_window_average(application, count_field, *average_fields):

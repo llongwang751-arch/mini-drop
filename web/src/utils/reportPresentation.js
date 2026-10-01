@@ -19,6 +19,16 @@ export function isObservationReport(report) {
     || report?.verification?.causal_root_cause_verified === false;
 }
 
+export function isLocalizedReport(report) {
+  const result = report?.verification?.bottleneck_localization;
+  return verificationStatus(report) === "VERIFIED" && isObservationReport(report)
+    && report.verification.claim_scope === "BOUNDED_OBSERVATION"
+    && report.verification.causal_root_cause_verified === false && !hasUnattributedHostIO(report)
+    && result?.status === "LOCALIZED" && result.causal_root_cause_verified === false
+    && result.same_load_fix_verified === false && typeof result.location === "string" && Boolean(result.location)
+    && Array.isArray(result.evidence_refs) && result.evidence_refs.length > 0;
+}
+
 export function projectReportScopes(tree, reports = []) {
   if (!tree?.nodes) return tree;
   const byId = new Map(reports.map(report => [`report:${report.report_id}`, report]));
@@ -30,6 +40,7 @@ export function projectReportScopes(tree, reports = []) {
 
 export function reportConclusionTitle(report) {
   if (hasUnattributedHostIO(report)) return "尚未定位根因";
+  if (isLocalizedReport(report)) return "性能路径已定位，根因仍待确认";
   const status = verificationStatus(report);
   if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return "尚未定位根因";
   if (isObservationReport(report)) return status === "VERIFIED" ? "已验证观测" : "阶段性观测";

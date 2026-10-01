@@ -3,6 +3,19 @@ import { describe, expect, it } from "vitest";
 import ConclusionCard from "./ConclusionCard";
 
 describe("ConclusionCard", () => {
+  it("separates checked criteria from matching conditions and independent controls", () => {
+    render(<ConclusionCard report={{ conclusion: "已验证观测：调用耗时 240 ms。", verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+      bottleneck_localization: { status: "LOCALIZED", location: "HTTP 调用耗时路径",
+        evidence_refs: ["ev-1"], causal_root_cause_verified: false, same_load_fix_verified: false },
+      observation_verification: { schema_version: "performance-observation-verification.v1", status: "VERIFIED",
+        criteria: [{ checked: true, matches: true }, { checked: true, matches: false }] },
+    } }} />);
+    expect(screen.getByText("性能路径已定位，根因仍待确认")).toBeInTheDocument();
+    expect(screen.getByText(/数值判据已检查 2\/2 项/)).toBeInTheDocument();
+    expect(screen.getByText(/同一产物的多个数值不算独立对照/)).toBeInTheDocument();
+    expect(screen.queryByText("根因结论")).not.toBeInTheDocument();
+  });
   it("does not present historical host-only I/O as a process root cause", () => {
     render(<ConclusionCard report={{ confidence: .6, verification: { status: "PARTIAL_WITHOUT_COUNTER" },
       conclusion: "阶段性判断：尚未定位到具体函数", claims: [{ valid: true, statement: "host block-device tracepoints observed a measurable high-latency tail" }],

@@ -1,5 +1,11 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-10-01 数值观测验证与性能路径定位（候选，待部署验收）
+
+新数值计划分别记录判据是否已检查和条件是否成立；同一不可变系统采集产物需覆盖完整计划，不能拼接缺失窗口或把互斥条件都成立作为验证前提。通过测量合同的报告标为 VERIFIED / BOUNDED_OBSERVATION，保留原 coverage_ratio、独立对照标志及 matched_verification_status；因果与修复标志仍为 false。旧报告和旧21类根因0/21不改。
+
+新增 bottleneck-localization.v1，单独展示 CPU 热函数、HTTP/下游调用耗时路径与目标应用同步写路径。Go 同步 I/O 增加成功操作累计耗时，原生采集器现有应用指标通道传输，Analyzer按窗口差值计算平均值；不包含锁等待和循环休眠，不宣称块设备归因。预声明阈值为平均10ms且至少5次新操作。API和Office无需变更；候选发布涉及 Worker/Analyzer/Web/Go demo。详见[性能诊断](PERFORMANCE_DIAGNOSIS.md)。
+
 ## 2026-10-01 性能诊断判定与入口已部署
 
 Worker/Analyzer/Web发布`20261001T075239Z`，源码`10002e94cf8aa46a7e4778385138c35ddfc20d7d`；Worker/Analyzer各189份文件、Web56份文件SHA一致，其余10容器保持。13容器运行及健康检查通过，API3依赖健康；Office保持observer-20260930T145902Z/f37f44e、PID484342且NRestarts=0，API保持f9b143a及原二进制SHA。21故障inactive、历史因果根因0/21。

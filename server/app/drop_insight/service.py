@@ -1978,6 +1978,17 @@ def generate_report(
             expected_observations=hypothesis.expected_observations_json or [],
             falsification_criteria=hypothesis.falsification_criteria_json or [],
         )
+        # Reports persist the complete verifier result. Expose the new scoped
+        # check alongside the existing report fields; the nested verification
+        # retains the original claim-matching result for auditability.
+        checked_observation = verification["verification"]["observation_verification"]
+        verification["observation_verification"] = checked_observation
+        if checked_observation.get("status") == "VERIFIED":
+            verification["matched_verification_status"] = verification["status"]
+            verification["status"] = "VERIFIED"
+            verification["verification_kind"] = "PERFORMANCE_OBSERVATION"
+            verification["claim_scope"] = "BOUNDED_OBSERVATION"
+            verification["causal_root_cause_verified"] = False
         observation_contract = compile_cpu_observation_contract(
             hypothesis.statement,
             hypothesis.expected_observations_json or [],
@@ -2034,6 +2045,8 @@ def generate_report(
             # do registered CPU contracts. Neither is a causal intervention.
             verification["claim_scope"] = "BOUNDED_OBSERVATION"
             verification["causal_root_cause_verified"] = False
+        from .bottleneck_localization import localize_verified_observation
+        verification["bottleneck_localization"] = localize_verified_observation(verification, accepted_supporting)
         conclusion = _derive_report_conclusion(
             hypothesis.statement,
             support_refs=support_refs,

@@ -52,7 +52,8 @@ def test_retained_memory_is_not_growth_and_compute_activity_is_not_high_cpu():
     signals = _derive_signals({"process_cpu_core_usage": 0.5, "vmrss_mb_delta": 0}, {
         "max": {"retained_memory_mb": 96}, "delta": {"retained_memory_mb": 0, "cpu_operations": 1000},
     })
-    assert "memory_growth" not in signals and "cpu_hotspot" not in signals
+    assert signals["memory_growth"]["detected"] is False
+    assert signals["cpu_hotspot"]["detected"] is False
     assert signals["memory_retention"]["metrics"]["retained_memory_mb"] == 96
     signals = _derive_signals({"vmrss_mb_delta": 10}, None)
     assert signals["memory_growth"]["metrics"]["rss_delta_mb"] == 10

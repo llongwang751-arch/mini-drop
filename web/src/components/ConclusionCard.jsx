@@ -20,6 +20,7 @@ import {
   hasUnattributedHostIO,
   isCausalRootReport,
   isObservationReport,
+  isLocalizedReport,
 } from "../utils/reportPresentation";
 
 const { Text } = Typography;
@@ -75,6 +76,16 @@ export default function ConclusionCard({ report }) {
           strokeColor={verificationStatus === "VERIFIED" ? "#52c41a" : "#faad14"}
         />}
         <SafeMarkdown>{reportConclusionText(report)}</SafeMarkdown>
+        {isLocalizedReport(report) && <Text strong>已定位路径：{verification.bottleneck_localization.location}</Text>}
+        {verification.observation_verification?.schema_version === "performance-observation-verification.v1"
+          && verification.observation_verification.status !== "UNSUPPORTED_PLAN"
+          && Array.isArray(verification.observation_verification.criteria) && (
+          <Text type="secondary">
+            数值判据已检查 {verification.observation_verification.criteria.filter(item => item.checked === true).length}
+            /{verification.observation_verification.criteria.length} 项。
+            判据已检查与条件成立分别统计；同一产物的多个数值不算独立对照，因果与修复仍待验证。
+          </Text>
+        )}
         <Text type="secondary">证据评分是内部规则分，不是诊断正确概率。报告生成与故障修复是两个独立状态；本报告本身不证明故障已解决。</Text>
         {remediation && !hasUnattributedHostIO(report) && (
           <div className="diagnosis-remediation-section">

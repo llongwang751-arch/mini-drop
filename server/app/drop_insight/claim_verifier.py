@@ -137,7 +137,7 @@ def verify_report_claims(
             claims.append(candidate)
             _record_coverage(candidate, covered_expected, covered_falsification)
 
-    return _verification_result(
+    result = _verification_result(
         claims,
         rejected,
         covered_expected,
@@ -145,6 +145,10 @@ def verify_report_claims(
         len(expected_observations),
         len(falsification_criteria),
     )
+    from .observation_verifier import verify_performance_observation
+    result['verification']['observation_verification'] = verify_performance_observation(
+        evidence, expected_observations, falsification_criteria)
+    return result
 
 
 def verify_legacy_report_claims(report: Any, evidence: Any) -> dict[str, Any]:

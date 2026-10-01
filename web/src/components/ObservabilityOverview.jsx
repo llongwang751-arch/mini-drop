@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Tag, Tooltip } from "antd";
 import { diagnosticStatusLabel, diagnosticToolLabel } from "../utils/diagnosisDisplay";
-import { isCausalRootReport, isObservationReport } from "../utils/reportPresentation";
+import { isCausalRootReport, isObservationReport, isLocalizedReport } from "../utils/reportPresentation";
 import { assessObservationWindow } from "../utils/observationAssessment";
 
 const FINISHED = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
@@ -89,6 +89,7 @@ export function buildObservationModel(detail = {}, resources = {}) {
   const binding = target.process_binding || {};
   const status = String(detail.status || "").toUpperCase();
   const verified = reports.some(isCausalRootReport);
+  const localized = reports.find(isLocalizedReport);
   const observed = reports.some(report => isObservationReport(report)
     && String(report?.verification?.status || "").toUpperCase() === "VERIFIED");
   const windowAssessment = assessObservationWindow(metricEvidence, target);
@@ -114,11 +115,17 @@ export function buildObservationModel(detail = {}, resources = {}) {
       title: "已定位有证据支持的异常",
       detail: "根因结论已通过当前报告的证据门禁，可继续查看调用栈与修复验证。",
     };
+  } else if (localized) {
+    assessment = {
+      code: "BOTTLENECK_LOCALIZED",
+      title: "性能路径已定位，根因仍待确认",
+      detail: `${localized.verification.bottleneck_localization.location}。当前证据确认了这条路径的性能观测；因果贡献与修复效果仍需验证。`,
+    };
   } else if (observed) {
     assessment = {
       code: "OBSERVATION_VERIFIED",
       title: "已验证性能观测，根因仍待确认",
-      detail: "分别采集的调用栈与系统指标已通过观测规则；仍需独立实验确认它们对业务异常的因果贡献。",
+      detail: "已采集数据满足本报告声明的观测规则；仍需独立实验确认它们对业务异常的因果贡献。",
     };
   } else if (controlledFault) {
     assessment = {
@@ -242,7 +249,7 @@ export default function ObservabilityOverview({ detail, resources }) {
           <p>{assessment.detail}</p>
         </div>
         <Tag color={verifiedFault ? "red" : observedFault ? "orange" : healthyWindow ? "green" : "blue"}>
-          {healthyWindow ? "检查结果：正常" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
+          {healthyWindow ? "检查结果：正常" : assessment.code === "BOTTLENECK_LOCALIZED" ? "路径已定位" : observedFault ? "检查结果：异常" : diagnosticStatusLabel(detail?.status, "状态同步中")}
         </Tag>
       </header>
 

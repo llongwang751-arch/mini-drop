@@ -1,7 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { reportConclusionTitle, reportRemediation, projectReportScopes, selectBestReport } from "./reportPresentation";
+import { reportConclusionTitle, reportRemediation, projectReportScopes, selectBestReport, isLocalizedReport, isCausalRootReport } from "./reportPresentation";
 
 describe("structured report scope", () => {
+  const localized = { verification: {
+    status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+    bottleneck_localization: { status: "LOCALIZED", causal_root_cause_verified: false,
+      same_load_fix_verified: false, location: "HTTP 调用耗时路径", evidence_refs: ["ev-1"] },
+  } };
+  it("presents a localized path while preserving the causal boundary", () => {
+    expect(isLocalizedReport(localized)).toBe(true);
+    expect(isCausalRootReport(localized)).toBe(false);
+    expect(reportConclusionTitle(localized)).toBe("性能路径已定位，根因仍待确认");
+  });
+  it.each([
+    { status: "PARTIAL_WITHOUT_COUNTER" }, { claim_scope: "CAUSAL_ROOT_CAUSE" },
+    { causal_root_cause_verified: true },
+    { bottleneck_localization: { ...localized.verification.bottleneck_localization, same_load_fix_verified: true } },
+    { bottleneck_localization: { ...localized.verification.bottleneck_localization, evidence_refs: [] } },
+  ])("does not promote incomplete or contradictory localization %j", (change) => {
+    expect(isLocalizedReport({ verification: { ...localized.verification, ...change } })).toBe(false);
+  });
+  it("keeps historical host-only I/O outside localized process assessments", () => {
+    const report = { ...localized, claims: [{ statement: "host block-device tracepoints observed latency" }] };
+    expect(isLocalizedReport(report)).toBe(false);
+  });
   it("presents a verified bounded observation without a causal title or fixes", () => {
     const report = { verification: {
       status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,

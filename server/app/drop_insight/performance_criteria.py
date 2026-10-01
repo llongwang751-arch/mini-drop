@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import operator
 import re
 
@@ -16,7 +17,7 @@ SIGNAL_FIELDS = {
     "jvm_gc": ("allocated_bytes_delta", "gc_count_delta", "gc_time_ms_delta"),
     "downstream_latency": ("average_latency_ms", "request_count_delta", "failure_count_delta"),
     "network_latency": ("average_latency_ms", "request_count_delta", "failure_count_delta"),
-    "io_latency": ("latency_p95_us", "latency_p99_us"),
+    "io_latency": ("latency_p95_us", "latency_p99_us", "average_latency_ms", "operation_count_delta"),
     "io_activity": ("disk_write_kbps", "io_bytes_written_delta", "io_operations_delta"),
     "memory_growth": ("rss_delta_mb", "pss_delta_mb", "retained_memory_delta_mb"),
     "memory_retention": ("retained_memory_mb",),
@@ -32,6 +33,7 @@ _RULE_PLANS = {
     "QUEUE_CONGESTION": ("目标进程队列积压的有界观测", "queue_backlog", "queue_lag", 1),
     "LOAD_SATURATION": ("入口拒绝计数的有界观测", "load_saturation", "rejected_requests", 1),
     "MEMORY_PRESSURE": ("目标进程窗口内 RSS 增长的有界观测，尚未证明泄漏", "memory_growth", "rss_delta_mb", 8),
+    "IO_LATENCY": ("目标进程同步写操作耗时的有界观测，尚未归因块设备", "io_latency", "average_latency_ms", 10),
 }
 
 
@@ -40,18 +42,32 @@ def performance_observation_plan(category):
     if spec is None:
         return None
     statement, signal, metric, threshold = spec
-    return {"statement": statement, "expected": [f"{signal}.{metric} >= {threshold}"],
+    expected = [f"{signal}.{metric} >= {threshold}"]
+    if category == "IO_LATENCY":
+        expected.append("io_latency.operation_count_delta >= 5")
+    return {"statement": statement, "expected": expected,
             "falsification": [f"{signal}.{metric} < {threshold}"]}
 
 
-def evaluate_performance_criterion(text, signals):
-    """Return None for an unsupported/missing slot; absence is never a zero."""
+def parse_performance_criterion(text):
     match = _PATTERN.fullmatch(text.strip()) if isinstance(text, str) else None
     if not match:
         return None
     signal, field, operation, threshold = match.groups()
     if field not in SIGNAL_FIELDS.get(signal, ()):
         return None
+    threshold_value = observed_nonnegative(float(threshold))
+    if threshold_value is None:
+        return None
+    return {"signal": signal, "field": field, "operation": operation, "threshold": threshold_value}
+
+
+def evaluate_performance_criterion(text, signals):
+    """Return None for an unsupported/missing slot; absence is never a zero."""
+    criterion = parse_performance_criterion(text)
+    if criterion is None:
+        return None
+    signal, field = criterion["signal"], criterion["field"]
     observation = signals.get(signal)
     if not isinstance(observation, dict):
         return None
@@ -61,14 +77,12 @@ def evaluate_performance_criterion(text, signals):
     raw_value = metrics.get(field)
     if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
         return None
-    value = observed_nonnegative(raw_value, maximum=1 if field == "failure_rate" else None)
+    value = (float(raw_value) if signal == "memory_growth" and math.isfinite(raw_value)
+             else observed_nonnegative(raw_value, maximum=1 if field == "failure_rate" else None))
     if value is None:
         return None
-    threshold_value = observed_nonnegative(float(threshold))
-    if threshold_value is None:
-        return None
     return {"signal": signal, "field": field, "value": value,
-            "threshold": threshold_value, "matches": _OPS[operation](value, threshold_value)}
+            "threshold": criterion["threshold"], "matches": _OPS[criterion["operation"]](value, criterion["threshold"])}
 
 
 PERFORMANCE_PLANNING_REQUIREMENT = (
