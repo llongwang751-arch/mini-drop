@@ -54,7 +54,7 @@ it("keeps a current check separate from a selected historical request", async ()
     business_requests: { status: "AVAILABLE", items: [row] } }] });
   startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "fresh-check" });
   render(<ManagedServicesPanel />);
-  await screen.findByRole("heading", { name: "办公助手" });
+  await screen.findByText("已发现后台进程");
   fireEvent.mouseDown(screen.getByRole("combobox"));
   fireEvent.click(await screen.findByText(/140 ms/));
   fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
