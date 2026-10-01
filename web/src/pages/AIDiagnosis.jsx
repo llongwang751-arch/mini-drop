@@ -7,6 +7,7 @@ import {
   Drawer,
   Input,
   Modal,
+  Popover,
   Segmented,
   Space,
   Spin,
@@ -22,6 +23,7 @@ import {
   MenuUnfoldOutlined,
   ProfileOutlined,
   RobotOutlined,
+  SettingOutlined,
   SendOutlined,
   SyncOutlined,
   WifiOutlined,
@@ -35,6 +37,7 @@ import ActualExplorationTree from "../components/ActualExplorationTree";
 import DiagnosisCaseList from "../components/DiagnosisCaseList";
 import EvalPanel from "../components/EvalPanel";
 import ManagedServicesPanel from "../components/ManagedServicesPanel";
+import DiagnosisWelcome from "../components/DiagnosisWelcome";
 import MentorComplexShowcase from "../components/MentorComplexShowcase";
 import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
 import usePolling from "../hooks/usePolling";
@@ -71,6 +74,7 @@ import {
   updateDropInsightToolCall,
 } from "../api/client";
 import "./AIDiagnosis.css";
+import "./Workbench.css";
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -204,6 +208,7 @@ export default function AIDiagnosis() {
   const [replayOpen, setReplayOpen] = useState(false);
   const [caseDrawerOpen, setCaseDrawerOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [treeFullscreen, setTreeFullscreen] = useState(false);
   const [pendingTreeIntervention, setPendingTreeIntervention] = useState(null);
   const [composerAction, setComposerAction] = useState("ADD_CONTEXT");
@@ -831,6 +836,14 @@ export default function AIDiagnosis() {
           <div className="diagnosis-workbench-toolbar">
             <div className="diagnosis-case-title">
               <Space wrap size={8} className="diagnosis-workspace-navigation">
+                <Segmented
+                  className="diagnosis-workspace-tabs"
+                  aria-label="体检工作区"
+                  options={[{ label: "选择服务", value: "services" }, { label: "体检报告", value: "workspace" }, { label: "案例验证", value: "evaluation" }]}
+                  value={workspaceView}
+                  onChange={setWorkspaceView}
+                />
+                {hasActiveDiagnosis && <Button onClick={startBlankDiagnosis}>新建诊断</Button>}
                 <Button
                   icon={<MenuUnfoldOutlined />}
                   aria-label="打开诊断案例列表"
@@ -838,12 +851,6 @@ export default function AIDiagnosis() {
                 >
                   诊断案例{cases.length ? ` ${cases.length}` : ""}
                 </Button>
-                {hasActiveDiagnosis && <Button onClick={startBlankDiagnosis}>新建诊断</Button>}
-                <Segmented
-                  options={[{ label: "选择服务", value: "services" }, { label: "体检报告", value: "workspace" }, { label: "案例验证", value: "evaluation" }]}
-                  value={workspaceView}
-                  onChange={setWorkspaceView}
-                />
               </Space>
               <Text type="secondary">{workspaceView === "services" ? "第一步 · 选择对象" : workspaceView === "evaluation" ? "受控案例" : "本次体检"}</Text>
               <Title level={4}>{workspaceView === "services" ? "选择要检查的服务" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : diagnosisDisplayQuery(detail?.query || selectedCase?.query, "开始一次新诊断")}</Title>
@@ -857,21 +864,7 @@ export default function AIDiagnosis() {
                       Trace: {detail?.target?.trace_id || selectedCase?.target?.trace_id}
                     </Tag>
                   )}
-                  {frozenReplay ? (
-                    <span className="diagnosis-replay-badge">FULL_LATS · 冻结回放</span>
-                  ) : (
-                    <Segmented
-                      value={mode}
-                      onChange={(value) => {
-                        setMode(value);
-                        try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
-                      }}
-                      options={[
-                        { label: "自动检查", value: "simple" },
-                        { label: "人工审批", value: "expert" },
-                      ]}
-                    />
-                  )}
+                  {frozenReplay && <span className="diagnosis-replay-badge">FULL_LATS · 冻结回放</span>}
                   <Segmented
                     value={contentView}
                     onChange={setContentView}
@@ -890,14 +883,20 @@ export default function AIDiagnosis() {
                     >全屏树</Button>
                   )}
                   {readOnly && <span className="diagnosis-readonly-badge">只读记录</span>}
-                  <Button
-                    icon={<ExperimentOutlined />}
-                    onClick={() => setReplayOpen(true)}
-                    aria-label="打开当前复杂案例回放"
-                  >
-                    复杂案例回放{resources.explorationTree?.stats?.rounds ? ` · ${resources.explorationTree.stats.rounds} 轮` : ""}
-                  </Button>
-                  {isExpert && <Button icon={<ProfileOutlined />} onClick={() => setDetailOpen(true)}>审计细节</Button>}
+                  <Popover trigger="click" placement="bottomRight" open={optionsOpen} onOpenChange={setOptionsOpen}
+                    content={<div className="diagnosis-options">
+                      {!frozenReplay && <><Text strong>采集审批方式</Text><Text type="secondary">选择自动检查，或在执行探针前人工审批。</Text>
+                        <Segmented aria-label="采集审批方式" value={mode} onChange={(value) => {
+                          setMode(value);
+                          try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
+                        }} options={[{ label: "自动检查", value: "simple" }, { label: "人工审批", value: "expert" }]} /></>}
+                      <Button icon={<ExperimentOutlined />} aria-label="打开当前复杂案例回放" onClick={() => { setOptionsOpen(false); setReplayOpen(true); }}>
+                        复杂案例回放{resources.explorationTree?.stats?.rounds ? ` · ${resources.explorationTree.stats.rounds} 轮` : ""}
+                      </Button>
+                      {isExpert && <Button icon={<ProfileOutlined />} onClick={() => { setOptionsOpen(false); setDetailOpen(true); }}>审计细节</Button>}
+                    </div>}>
+                    <Button icon={<SettingOutlined />} aria-label="诊断选项" aria-expanded={optionsOpen}>更多选项</Button>
+                  </Popover>
                   {!settled && !frozenReplay && <Button type="primary" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
                   {!settled && !frozenReplay && <Button danger disabled={!detail || loading} loading={cancelling} onClick={confirmCancellation}>停止诊断</Button>}
                 </>}
@@ -960,21 +959,10 @@ export default function AIDiagnosis() {
               )}
 
               {!hasActiveDiagnosis && (
-                <section className="diagnosis-start-intro" aria-label="开始诊断">
-                  <h3>先选服务，做一次体检</h3>
-                  <p>已接入的业务可以直接检查当前状态。若有明显异常，也可以从下方描述现象开始。</p>
-                  <Button type="primary" size="large" onClick={() => setWorkspaceView("services")}>选择已接入服务</Button>
-                  <p className="diagnosis-manual-intro">或从异常现象开始排查</p>
-                  <div className="diagnosis-example-queries">
-                    {[
-                      ["CPU 升高", "订单服务最近 5 分钟 CPU 持续升高，请定位热点并排除同机争抢。"],
-                      ["内存增长", "Java 服务内存持续增长，请检查对象分配与 GC，并说明还需要哪些证据。"],
-                      ["请求变慢", "接口响应时间突然升高，请检查网络等待和下游依赖。"],
-                    ].map(([label, example]) => (
-                      <Button key={label} onClick={() => { setQuery(example); composerRef.current?.focus(); }}>{label}</Button>
-                    ))}
-                  </div>
-                </section>
+                <DiagnosisWelcome
+                  onSelectService={() => setWorkspaceView("services")}
+                  onExample={(example) => { setQuery(example); composerRef.current?.focus(); }}
+                />
               )}
               {hasActiveDiagnosis && <Spin spinning={loading}>
                 <div className={`diagnosis-workbench-grid ${detail ? `has-diagnosis view-${contentView}` : "is-empty"}`}>
@@ -1039,6 +1027,7 @@ export default function AIDiagnosis() {
               </details>}
 
               <div className="diagnosis-composer-shell">
+                {!hasActiveDiagnosis && <div className="diagnosis-composer-label"><Text strong>描述需要排查的现象</Text><Text type="secondary">也可以直接检查服务当前状态，无需制造故障</Text></div>}
                 {frozenReplay && (
                   <div className="diagnosis-replay-composer-note" role="note">
                     冻结回放为只读算法轨迹；如需采集当前环境，请新建普通诊断。
@@ -1059,9 +1048,9 @@ export default function AIDiagnosis() {
                     />
                   </div>
                 )}
-                {!selectedId && <Segmented size="small" aria-label="调查策略"
+                {!selectedId && <details className="diagnosis-strategy-settings"><summary>高级：调查策略</summary><Segmented size="small" aria-label="调查策略"
                   options={[{ label: "LATS 假设分支", value: "LATS" }, { label: "ReAct 顺序对照", value: "REACT" }]}
-                  value={investigationStrategy} onChange={setInvestigationStrategy} disabled={sending} />}
+                  value={investigationStrategy} onChange={setInvestigationStrategy} disabled={sending} /></details>}
                 <div className="diagnosis-composer">
                   <Input.TextArea
                     ref={composerRef}

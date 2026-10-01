@@ -452,7 +452,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+      <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
         <Skeleton.Input active size="small" style={{ width: 160 }} />
         <Row gutter={SPACING.lg}>
           {[1, 2, 3, 4].map((i) => (
@@ -474,17 +474,9 @@ export default function Dashboard() {
   }
 
   return (
-    <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+    <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
       {/* ── 页头 ──────────────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 8,
-        }}
-      >
+      <div className="workspace-page-header">
         <Space align="center">
           <DashboardOutlined style={{ fontSize: 20, color: COLORS.primary }} />
           <Typography.Title level={4} style={{ margin: 0 }}>

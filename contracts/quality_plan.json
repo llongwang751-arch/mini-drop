@@ -85,7 +85,8 @@
       "allowed_skips": [
         {"class": "tests.test_drop_insight_report_effects_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行"},
         {"class": "tests.test_outbox_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行"},
-        {"class": "tests.test_sre_agent_upgrade", "reason": "could not import 'chromadb'", "boundary": "可选 retrieval 依赖；未执行不能证明真实向量检索"}
+        {"class": "tests.test_sre_agent_upgrade", "reason": "could not import 'chromadb'", "boundary": "可选 retrieval 依赖；未执行不能证明真实向量检索"},
+          {"class": "tests.test_health_check_postgres", "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests", "boundary": "独立 PostgreSQL CI job 必须执行体检并发和进程中断恢复，零跳过"}
       ]
     },
     "retrieval-integration": {

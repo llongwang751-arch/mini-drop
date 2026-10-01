@@ -13,6 +13,7 @@ import {
   Switch,
   Table,
   Tag,
+  Typography,
   message,
 } from "antd";
 import { PlusOutlined, PlayCircleOutlined } from "@ant-design/icons";
@@ -170,7 +171,7 @@ export default function Schedules() {
   ];
 
   return (
-    <Card title="计划任务（Cron 定时规则）">
+    <Card className="schedule-workspace" title={<div className="schedule-workspace-heading"><Typography.Title level={3}>计划任务</Typography.Title><Typography.Text type="secondary">定期采集，留存每一次执行记录</Typography.Text></div>}>
       <Button
         type="primary"
         icon={<PlusOutlined />}
@@ -182,12 +183,12 @@ export default function Schedules() {
       >
         新建计划
       </Button>
-      <Table rowKey="id" loading={loading} dataSource={items} columns={columns} pagination={false} />
+      <Table rowKey="id" loading={loading} dataSource={items} columns={columns} pagination={false} scroll={{ x: 760 }} />
 
       <Drawer
         title="新建计划"
         open={creating}
-        width={480}
+        width="min(480px, calc(100vw - 24px))"
         onClose={() => setCreating(false)}
       >
         <Form form={createForm} layout="vertical" onFinish={handleCreate}>
@@ -235,13 +236,14 @@ export default function Schedules() {
       <Drawer
         title={records ? `执行记录：${records.name}` : "执行记录"}
         open={Boolean(records)}
-        width={520}
+        width="min(520px, calc(100vw - 24px))"
         onClose={() => setRecords(null)}
       >
         <Table
           rowKey="id"
           loading={recordsLoading}
           dataSource={records?.rows || []}
+          scroll={{ x: 600 }}
           pagination={false}
           columns={[
             { title: "计划触发时间", dataIndex: "scheduled_at", render: (v) => new Date(v).toLocaleString() },

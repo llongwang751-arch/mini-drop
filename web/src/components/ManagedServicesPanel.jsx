@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Card, Input, Select, Space, Tag, Typography, message } from "antd";
+import { Alert, Button, Card, Input, Select, Skeleton, Space, Tag, Typography, message } from "antd";
+import { ArrowRightOutlined, CloudServerOutlined } from "@ant-design/icons";
 import { listManagedServices, startManagedServiceDiagnosis } from "../api/client";
 import { collectorMeta } from "../utils/collectors";
 
@@ -129,6 +130,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
   const [starting, setStarting] = useState("");
   const [queries, setQueries] = useState({});
   const [selectedRequests, setSelectedRequests] = useState({});
+  const [selectedServiceId, setSelectedServiceId] = useState(null);
   const generation = useRef(0);
 
   async function refresh() {
@@ -165,15 +167,32 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
     } finally { setStarting(""); }
   }
 
-  return <Space direction="vertical" size={16} className="managed-service-exam">
-    <Card title="选择服务，开始体检" extra={<Button aria-label="刷新服务" loading={loading} onClick={refresh}>刷新服务</Button>}>
-      <Paragraph>可以直接检查当前状态；如果刚完成一次业务操作，先选中对应请求，体检会带上这次操作的时间与耗时。</Paragraph>
-      <div className="managed-service-steps" aria-label="服务体检流程"><span>1 选择服务</span><span>2 检查状态或描述异常</span><span>3 查看体检报告与排查树</span></div>
-      <details><summary>体检会采集什么？</summary><Text type="secondary">系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。</Text></details>
-    </Card>
+  const services = data?.items || [];
+  const selected = services.find(item => item.id === selectedServiceId) || services[0];
+
+  return <Space direction="vertical" size={24} className="managed-service-exam">
+    <div className="managed-service-intro">
+      <div><Text strong>选择服务，开始体检</Text><Paragraph>检查当前状态，或关联一次刚刚发生的业务请求。</Paragraph></div>
+      <Button aria-label="刷新服务" loading={loading} onClick={refresh}>刷新服务</Button>
+    </div>
     {error && <Alert type="error" showIcon message="服务状态读取失败" description={error} />}
     {data && !data.items?.length && <Alert type="info" message="尚未配置接入服务" description="请按后台服务接入文档登记服务名与负责采集的 Agent。" />}
-    {(data?.items || []).map(item => <Card key={item.id} title={item.name} className="managed-service-card">
+    {loading && !data && <Card aria-label="正在加载接入服务"><Skeleton active paragraph={{ rows: 4 }} /></Card>}
+    {services.length > 0 && <div className="managed-service-directory">
+      <nav className="managed-service-list" aria-label="接入服务目录">
+        <div className="managed-service-list-heading">已接入服务 <span>{services.length}</span></div>
+        {services.map(item => <button type="button" key={item.id}
+          className={`managed-service-option ${selected?.id === item.id ? "is-selected" : ""}`}
+          aria-label={`选择服务：${item.name}`} aria-current={selected?.id === item.id ? "true" : undefined}
+          onClick={() => setSelectedServiceId(item.id)}>
+          <CloudServerOutlined /><span><strong>{item.name}</strong><small>{item.runtime || "运行时未返回"} · {error ? "状态待刷新" : item.status === "OBSERVED" ? "进程已发现" : states[item.status] || "状态未知"}</small></span><ArrowRightOutlined />
+        </button>)}
+        <p>进程已发现表示可以开始采集，业务健康由体检结果判断。</p>
+      </nav>
+      <div className="managed-service-selected">
+    {selected && [selected].map(item => <Card key={item.id} title={<h3 className="managed-service-name">{item.name}</h3>} className="managed-service-card"
+      extra={<Button type="primary" aria-label="检查当前状态" loading={starting === item.id}
+        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前状态", true)}>检查当前状态</Button>}>
       <Space wrap style={{ marginBottom: 12 }}>
         <Tag color={!error && item.status === "OBSERVED" ? "blue" : "default"}>{error ? "状态待刷新" : states[item.status] || item.status}</Tag>
         <Tag>{item.runtime}</Tag><Tag>环境：{item.environment}</Tag>
@@ -182,7 +201,7 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
       </Space>
       <Paragraph className="managed-service-description">{item.description}</Paragraph>
       {item.id === "agi-office-backend" && <Paragraph type="secondary">上传长文档后，可在下方选“文档分块入库”请求，查看本次分块、索引、CPU 与内存，再发起进程诊断。</Paragraph>}
-      {item.id === "agi-office-backend" && <OfficeExercise item={item} onOpenDiagnosis={onOpenDiagnosis} />}
+      {item.id === "agi-office-backend" && <details className="managed-service-exercise"><summary>演示故障与恢复：真实知识库问答</summary><OfficeExercise item={item} onOpenDiagnosis={onOpenDiagnosis} /></details>}
       {item.maintenance_notice && <Alert type="warning" showIcon message={item.maintenance_notice} style={{ marginBottom: 12 }} />}
       <details style={{ marginBottom: 16 }}>
       <summary style={{ cursor: "pointer", marginBottom: 12 }}>查看采集进程与能力</summary>
@@ -232,14 +251,13 @@ export default function ManagedServicesPanel({ onOpenDiagnosis }) {
         placeholder="描述你做了什么、哪里变慢或失败。例如：上传文件时，其他页面也明显变慢。"
         value={queries[item.id] || ""} onChange={event => setQueries(old => ({ ...old, [item.id]: event.target.value }))}
         style={{ margin: "8px 0 12px" }} />
-      <div className="managed-service-actions"><Button type="primary" aria-label="检查当前状态" loading={starting === item.id}
-        disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting)} onClick={() => diagnose(item, "检查当前状态", true)}>
-        检查当前状态
-      </Button>
-      <Button aria-label="诊断这个后台" loading={starting === item.id}
+      <div className="managed-service-actions"><Button aria-label="诊断这个后台" loading={starting === item.id}
         disabled={Boolean(error) || item.status !== "OBSERVED" || Boolean(starting) || !(queries[item.id] || "").trim()} onClick={() => diagnose(item)}>
         排查描述的异常
       </Button></div>
     </Card>)}
+      </div>
+    </div>}
+    <details className="managed-service-collection-note"><summary>体检会采集什么？</summary><Text type="secondary">系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。</Text></details>
   </Space>;
 }

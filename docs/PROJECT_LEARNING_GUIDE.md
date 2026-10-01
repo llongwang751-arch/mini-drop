@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2451 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2457 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -2417,6 +2417,8 @@ python scripts/render_learning_guide.py
 | `web/src/components/DiagnosisShowcase.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/DiagnosisSkillOutcomeCard.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `routeText`、`DiagnosisSkillOutcomeCard` |
 | `web/src/components/DiagnosisSkillOutcomeCard.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | `candidate` |
+| `web/src/components/DiagnosisWelcome.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/components/DiagnosisWelcome.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `DiagnosisWelcome` |
 | `web/src/components/EBPFHistogram.jsx` | eBPF I/O 延迟直方图。 | `parseRangeMidpoint`、`EBPFHistogram` |
 | `web/src/components/EngineeringCasesPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/EngineeringCasesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `validCounts`、`validateCatalog`、`EngineeringCasesPanel` |
@@ -2472,6 +2474,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/ToolCallCard.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/TopNChart.jsx` | 热点函数 TopN 图。 | `heatColor`、`TopNChart` |
 | `web/src/components/TopNChart.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
+| `web/src/design-system.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/generated/errorCodes.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/generated/taskKinds.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `web/src/generated/taskStatuses.js` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
@@ -2497,10 +2500,11 @@ python scripts/render_learning_guide.py
 | `web/src/pages/TaskResult.jsx` | 任务详情；区分采集/分析状态并展示 Artifact 与可视化。 | `parseObject`、`detectProfileQualityIssue`、`readableTaskEventReason`、`TaskResult`、`SysMetricsView` 等 7 个声明 |
 | `web/src/pages/TaskResult.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/pages/TaskResult.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `renderTask` |
+| `web/src/pages/Workbench.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/router.jsx` | URL 到任务、Agent、诊断、计划任务和审计页面的映射。 | `Router` |
 | `web/src/setupTests.js` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/test/fixtures/performance-io-refutation.json` | React 前端模块，负责对应模块行为的展示或交互。 | — |
-| `web/src/theme.js` | 前端颜色、间距、字号等设计 Token。 | `COLORS`、`SPACING`、`FONT_SIZES`、`LAYOUT`、`ANIMATION` 等 6 个声明 |
+| `web/src/theme.js` | 前端颜色、间距、字号等设计 Token。 | `COLORS`、`SPACING`、`FONT_SIZES`、`LAYOUT`、`ANIMATION` 等 7 个声明 |
 | `web/src/utils/agentMetrics.js` | 格式化 Agent 自身指标与单位，区分未上报、非法值和实测零。 | `agentMetric`、`appendMetricSample` |
 | `web/src/utils/agentMetrics.test.js` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
 | `web/src/utils/asyncProfiler.js` | React 前端模块，负责性能 Profile的展示或交互。 | `decodeString`、`parseAsyncProfilerHtml` |
@@ -2949,6 +2953,7 @@ python scripts/render_learning_guide.py
 | `tests/test_go_demo_deployment_contract.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_demo_docker_toolchain_satisfies_its_go_module_requirement` |
 | `tests/test_go_io_window_harness.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_io_window_uses_new_operations_instead_of_the_lifetime_mean`、`test_missing_operations_resets_and_nonfinite_time_cannot_pass_fixture_verification` |
 | `tests/test_health_check_flow.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `evidence`、`test_measured_outcome_never_requires_positive_root_support`、`test_missing_or_untrusted_data_never_reports_normal`、`test_http_failure_is_detected_but_no_requests_does_not_claim_http_health`、`db` 等 12 个声明 |
+| `tests/test_health_check_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `seed`、`inspect`、`test_concurrent_completion_waits_for_parent_lock_and_commits_once`、`test_exception_rolls_back_event_terminal_status_and_call_phase`、`test_process_death_and_fresh_process_retry_preserve_atomic_completion` 等 7 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -3050,6 +3055,7 @@ python scripts/render_learning_guide.py
 | `scripts/run_diagnosis_benchmark_v2.py` | 运行生产 Skill 选择器 Benchmark。 | `main` |
 | `scripts/run_distributed_endurance.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `machine_identity`、`sources`、`validate_identity`、`validate_windows`、`verify_distributed` 等 10 个声明 |
 | `scripts/run_dual_format_benchmark.py` | 工程脚本，负责评测数据与指标的生成、检查或验收。 | `generate_dataset_files`、`generate_evaluation_reports`、`main` |
+| `scripts/run_engineering_diagnosis_acceptance.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `download_artifacts`、`run_case`、`run_campaign` |
 | `scripts/run_fault_plaza_closure_campaign.py` | 工程脚本，负责故障广场及受控故障的生成、检查或验收。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
 | `scripts/run_fault_plaza_strict_acceptance.py` | 21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。 | `now`、`RecordingClient`、`measure`、`evaluate_window_identity`、`evaluate_intervention` 等 10 个声明 |
 | `scripts/run_live_skill_ab_campaign.py` | 工程脚本，负责Skill 检索、策略与演进的生成、检查或验收。 | `Client`、`run_one`、`main` |

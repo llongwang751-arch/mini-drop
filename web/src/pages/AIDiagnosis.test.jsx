@@ -382,6 +382,7 @@ describe("AIDiagnosis V2 workspace", () => {
 
     render(<AIDiagnosis />);
 
+    fireEvent.click(await screen.findByRole("button", { name: "诊断选项" }));
     const trigger = await screen.findByRole("button", { name: "打开当前复杂案例回放" });
     expect(screen.getByRole("heading", { name: /当前诊断 · 第/ })).toBeInTheDocument();
     expect(screen.queryByLabelText("Mini-Drop 诊断架构分层")).not.toBeInTheDocument();

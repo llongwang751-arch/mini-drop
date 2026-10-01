@@ -5,12 +5,25 @@ import { listManagedServices, startManagedServiceDiagnosis } from "../api/client
 vi.mock("../api/client", () => ({ listManagedServices: vi.fn(), startManagedServiceDiagnosis: vi.fn() }));
 const entry = { id: "office", name: "办公助手", status: "OBSERVED", instances: [], entry_path: "/api/office/" };
 beforeEach(() => vi.clearAllMocks());
+it("switches the service inspector and sends the selected service identity", async () => {
+  listManagedServices.mockResolvedValue({ items: [entry, { ...entry, id: "notes", name: "笔记服务" }] });
+  startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "insight-notes" });
+  render(<ManagedServicesPanel />);
+  await screen.findByRole("heading", { name: "办公助手" });
+  fireEvent.click(screen.getByRole("button", { name: "选择服务：笔记服务" }));
+  expect(screen.queryByRole("heading", { name: "办公助手" })).not.toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "笔记服务" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
+  await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("notes", {
+    query: "检查当前状态", mode: "AUTONOMOUS", health_check: true,
+  }));
+});
 it("starts diagnosis by service identity and symptoms without sending a PID", async () => {
   listManagedServices.mockResolvedValue({ items: [entry] });
   startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "insight-office" });
   const open = vi.fn();
   render(<ManagedServicesPanel onOpenDiagnosis={open} />);
-  await screen.findByText("办公助手");
+  await screen.findByRole("heading", { name: "办公助手" });
   fireEvent.change(screen.getByLabelText("有异常现象？写在这里（可选）"), { target: { value: "知识库查询很慢" } });
   fireEvent.click(screen.getByRole("button", { name: "诊断这个后台" }));
   await waitFor(() => expect(open).toHaveBeenCalledWith("insight-office"));
@@ -26,7 +39,7 @@ it("checks the current state without requiring a fault description", async () =>
   listManagedServices.mockResolvedValue({ items: [entry] });
   startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "insight-normal" });
   render(<ManagedServicesPanel />);
-  await screen.findByText("办公助手");
+  await screen.findByRole("heading", { name: "办公助手" });
   fireEvent.click(screen.getByRole("button", { name: "检查当前状态" }));
   await waitFor(() => expect(startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
     query: "检查当前状态", mode: "AUTONOMOUS", health_check: true,
@@ -40,7 +53,7 @@ it("shows real RAG stages and leaves unavailable stages empty", async () => {
   listManagedServices.mockResolvedValue({ items: [{ ...entry, observation_source: "agi_office_rag_snapshot",
     business_observations: true, business_requests: { status: "AVAILABLE", items: [row] } }] });
   render(<ManagedServicesPanel />);
-  await screen.findByText("办公助手");
+  await screen.findByRole("heading", { name: "办公助手" });
   fireEvent.mouseDown(screen.getByRole("combobox"));
   fireEvent.click(await screen.findByText(/320 ms/));
   expect(screen.getByLabelText("知识库请求阶段耗时")).toHaveTextContent("生成：200 ms");
@@ -72,7 +85,7 @@ it("shows a real upload's chunking, indexing and process usage", async () => {
   listManagedServices.mockResolvedValue({ items: [{ ...entry, id: "agi-office-backend", observation_source: "agi_office_rag_snapshot",
     business_observations: true, business_requests: { status: "AVAILABLE", items: [row] } }] });
   render(<ManagedServicesPanel />);
-  await screen.findByText("办公助手");
+  await screen.findByRole("heading", { name: "办公助手" });
   fireEvent.mouseDown(screen.getByRole("combobox"));
   fireEvent.click(await screen.findByText(/2600 ms/));
   const stages = screen.getByLabelText("文档导入阶段耗时");
@@ -98,7 +111,7 @@ it("submits only the selected request ID and rejects an expired selection", asyn
   listManagedServices.mockResolvedValue({ items: [observed] });
   startManagedServiceDiagnosis.mockResolvedValue({ id: "insight-request" });
   render(<ManagedServicesPanel />);
-  await screen.findByText("办公助手");
+  await screen.findByRole("heading", { name: "办公助手" });
   fireEvent.mouseDown(screen.getByRole("combobox"));
   fireEvent.click(await screen.findByText(/140 ms/));
   fireEvent.change(screen.getByLabelText("有异常现象？写在这里（可选）"), { target: { value: "保存笔记明显变慢" } });
@@ -135,6 +148,7 @@ it.each([[3507, true], [3407, false], [3448, false]])("checks both original 2000
     const open = vi.fn();
     render(<ManagedServicesPanel onOpenDiagnosis={open} />);
     await screen.findByLabelText("AGI-saber 真实问答验收");
+    fireEvent.click(screen.getByText("演示故障与恢复：真实知识库问答"));
     fireEvent.click(screen.getByRole("button", { name: "运行三段验收" }));
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
     await waitFor(() => expect(screen.getByRole("button", { name: /运行三段验收/ })).not.toBeDisabled());

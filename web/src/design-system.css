@@ -1,0 +1,78 @@
+:root {
+  color-scheme: light;
+  --md-ink: #18243b;
+  --md-muted: #5d6b82;
+  --md-accent: #2458d3;
+  --md-accent-soft: #edf2fd;
+  --md-success: #14795a;
+  --md-warning: #a46b10;
+  --md-danger: #bf3e4c;
+  --md-canvas: #f6f7fa;
+  --md-surface: #fff;
+  --md-line: #e3e7ef;
+  --md-radius: 16px;
+  --md-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; margin: 0; }
+html { scroll-padding-top: 90px; }
+body {
+  color: var(--md-ink);
+  background: var(--md-canvas);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+::selection { color: var(--md-ink); background: #dbe6ff; }
+button, input, textarea { font: inherit; }
+button, summary { -webkit-tap-highlight-color: transparent; }
+:where(button, a, input, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--md-accent);
+  outline-offset: 3px;
+}
+.ant-btn { transition: background 180ms, border-color 180ms, box-shadow 180ms, transform 180ms; }
+.ant-btn:not(:disabled):active { transform: translateY(1px); }
+.ant-btn-primary:not(:disabled):hover { box-shadow: 0 5px 14px rgb(36 88 211 / 18%); }
+.ant-typography { overflow-wrap: anywhere; }
+.ant-statistic-content { font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+.ant-tag { border-radius: 6px; }
+.ant-tag.ant-tag-green, .ant-tag.ant-tag-success { color: var(--md-success); background: #eef7f3; border-color: #cce5d9; }
+.ant-tag.ant-tag-blue, .ant-tag.ant-tag-geekblue, .ant-tag.ant-tag-cyan, .ant-tag.ant-tag-processing { color: var(--md-accent); background: #f0f4fe; border-color: #d3def6; }
+.ant-tag.ant-tag-orange, .ant-tag.ant-tag-gold, .ant-tag.ant-tag-warning { color: #98600b; background: #fff8e9; border-color: #e9d8b2; }
+.ant-tag.ant-tag-red, .ant-tag.ant-tag-error { color: var(--md-danger); background: #fff2f3; border-color: #edcbd1; }
+.ant-tag.ant-tag-purple { color: #6941ae; background: #f5f0fb; border-color: #dfd3ef; }
+details > summary { min-height: 44px; display: list-item; cursor: pointer; line-height: 1.6; }
+details > summary::marker { color: var(--md-muted); }
+details[open] > summary { margin-bottom: 12px; }
+.ant-table-wrapper { min-width: 0; }
+.ant-card { box-shadow: 0 2px 6px rgb(24 36 59 / 2%); }
+.ant-card-head { letter-spacing: -0.02em; }
+.ant-drawer-content, .ant-modal-content { color: var(--md-ink); }
+.workspace-page { width: 100%; min-width: 0; }
+.workspace-page > .ant-space-item { min-width: 0; }
+.workspace-page-header { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+.workspace-page-header h4.ant-typography { color: var(--md-ink); font-size: 26px; letter-spacing: -0.035em; line-height: 1.5; }
+.workspace-page-header > .ant-space { min-width: 0; flex-wrap: wrap; }
+.workspace-page .ant-card { border-radius: var(--md-radius); }
+.workspace-page .ant-card-head { min-height: 58px; }
+.workspace-page .ant-table-thead > tr > th { color: var(--md-muted); font-size: 12px; font-weight: 600; }
+.schedule-workspace { border-radius: var(--md-radius); }
+.schedule-workspace-heading { padding: 16px 0; white-space: normal; }
+.schedule-workspace-heading h3.ant-typography { margin: 0 0 6px; color: var(--md-ink); font-size: 26px; letter-spacing: -0.035em; }
+.schedule-workspace-heading .ant-typography-secondary { font-size: 13px; font-weight: 400; }
+@media (max-width: 640px) {
+  .workspace-page-header { align-items: flex-start; }
+  .workspace-page-header h4.ant-typography { font-size: 22px; }
+  .ant-btn:not(.ant-btn-sm) { min-height: 44px; }
+  .ant-input, .ant-input-affix-wrapper { font-size: 16px; }
+  .diagnosis-tree-controls .ant-btn { min-width: 44px; min-height: 44px; }
+  .diagnosis-tree-controls { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

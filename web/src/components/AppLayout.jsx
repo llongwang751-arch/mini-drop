@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button, Input, Layout, Menu, message, Popover, Space, Tag, Tooltip, Typography } from "antd";
 import {
   ApiOutlined,
   AuditOutlined,
+  CloseOutlined,
   DashboardOutlined,
   KeyOutlined,
   MenuFoldOutlined,
@@ -16,6 +17,7 @@ import { getStoredApiKey, saveApiKey } from "../api/client";
 import { SSEProvider, useControlSSE } from "../hooks/SSEContext";
 import ErrorBoundary from "./ErrorBoundary";
 import styles from "./AppLayout.module.css";
+import { LAYOUT } from "../theme";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -83,11 +85,14 @@ function AppLayoutShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && Boolean(window.matchMedia?.("(max-width: 640px)").matches),
+    () => typeof window !== "undefined" && Boolean(window.matchMedia?.("(max-width: 820px)").matches),
   );
   const [collapsed, setCollapsed] = useState(isMobile);
   const [apiKey, setApiKey] = useState(getStoredApiKey() || "");
   const [credentialOpen, setCredentialOpen] = useState(false);
+  const [savingCredential, setSavingCredential] = useState(false);
+  const navigationToggle = useRef(null);
+  const navigationContent = useRef(null);
   const { connected: sseConnected } = useControlSSE();
   const [openKeys, setOpenKeys] = useState(() => {
     const { parent } = menuSelection(location.pathname);
@@ -99,7 +104,7 @@ function AppLayoutShell() {
   const diagnosisPage = location.pathname === "/ai-diagnosis";
 
   useEffect(() => {
-    const query = window.matchMedia?.("(max-width: 640px)");
+    const query = window.matchMedia?.("(max-width: 820px)");
     if (!query) return undefined;
     const handleChange = (event) => {
       setIsMobile(event.matches);
@@ -114,18 +119,62 @@ function AppLayoutShell() {
   }, [isMobile, location.pathname]);
 
   useEffect(() => {
+    if (!isMobile || collapsed) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => [...(navigationContent.current?.querySelectorAll('button, a[href], [tabindex="0"]') || [])]
+      .filter(element => !element.disabled && element.getAttribute("aria-hidden") !== "true");
+    let focusFrame;
+    let focusAttempts = 0;
+    const focusNavigation = () => {
+      const first = focusable()[0];
+      first?.focus();
+      if (first && document.activeElement !== first && ++focusAttempts < 20) {
+        focusFrame = window.requestAnimationFrame(focusNavigation);
+      }
+    };
+    focusFrame = window.requestAnimationFrame(focusNavigation);
+    const onEscape = (event) => {
+      if (event.key === "Escape") {
+        setCollapsed(true);
+      } else if (event.key === "Tab") {
+        const elements = focusable();
+        const first = elements[0];
+        const last = elements.at(-1);
+        if (first && ((!event.shiftKey && document.activeElement === last)
+            || (event.shiftKey && document.activeElement === first)
+            || !navigationContent.current?.contains(document.activeElement))) {
+          event.preventDefault();
+          (event.shiftKey ? last : first)?.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => {
+      window.removeEventListener("keydown", onEscape);
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      navigationToggle.current?.focus();
+    };
+  }, [isMobile, collapsed]);
+
+  useEffect(() => {
     if (selectedParent) {
       setOpenKeys((current) => current.includes(selectedParent) ? current : [...current, selectedParent]);
     }
   }, [selectedParent]);
 
   async function handleSaveKey() {
+    if (savingCredential) return;
+    setSavingCredential(true);
     try {
       await saveApiKey(apiKey.trim());
       setCredentialOpen(false);
       message.success(apiKey.trim() ? "访问凭据已验证，实时连接正在建立" : "访问凭据已清除");
     } catch (error) {
       message.error(error?.message || "访问凭据验证失败");
+    } finally {
+      setSavingCredential(false);
     }
   }
 
@@ -143,12 +192,13 @@ function AppLayoutShell() {
         onPressEnter={handleSaveKey}
         prefix={<KeyOutlined />}
       />
-      <Button type="primary" block onClick={handleSaveKey}>保存凭据</Button>
+      <Button type="primary" block loading={savingCredential} onClick={handleSaveKey}>保存凭据</Button>
     </div>
   );
 
   return (
     <Layout className={styles.layout}>
+      <a className={styles.skipLink} href="#main-content">跳到主要内容</a>
       {isMobile && !collapsed && (
         <button
           type="button"
@@ -161,10 +211,15 @@ function AppLayoutShell() {
         className={`${styles.sider} ${isMobile ? styles.mobileSider : ""}`}
         collapsed={collapsed}
         collapsedWidth={isMobile ? 0 : 72}
-        width={224}
-        theme="dark"
+        width={LAYOUT.siderWidth}
+        theme="light"
         trigger={null}
+        role="navigation"
+        aria-label="工作区导航"
+        aria-hidden={isMobile && collapsed ? true : undefined}
+        inert={isMobile && collapsed ? "" : undefined}
       >
+        <div ref={navigationContent}>
         <div className={`${styles.brand} ${collapsed ? styles.brandCollapsed : ""}`}>
           <span className={styles.brandMark}><ApiOutlined /></span>
           {!collapsed && (
@@ -173,15 +228,17 @@ function AppLayoutShell() {
               <small>证据优先的智能诊断</small>
             </span>
           )}
+          {isMobile && !collapsed && <Button type="text" className={styles.closeNavigation}
+            aria-label="关闭工作区导航" icon={<CloseOutlined />} onClick={() => setCollapsed(true)} />}
         </div>
 
         <div className={styles.menuLabel}>{collapsed ? "" : "工作区"}</div>
         <Menu
           className={styles.menu}
-          theme="dark"
+          theme="light"
           mode="inline"
           selectedKeys={[selectedKey]}
-          openKeys={openKeys}
+          openKeys={isMobile && collapsed ? [] : openKeys}
           onOpenChange={setOpenKeys}
           items={MENU_ITEMS}
           onClick={({ key }) => {
@@ -197,21 +254,24 @@ function AppLayoutShell() {
               {!collapsed && (
                 <span>
                   <b>{sseConnected ? "事件流已连接" : "轮询兜底中"}</b>
-                  <small>{sseConnected ? "SSE / Outbox" : "自动重连"}</small>
+                  <small>{sseConnected ? "状态更新同步中" : "自动重连"}</small>
                 </span>
               )}
             </div>
           </Tooltip>
         </div>
+        </div>
       </Sider>
 
-      <Layout className={styles.mainLayout}>
+      <Layout className={styles.mainLayout} inert={isMobile && !collapsed ? "" : undefined}>
         <Header className={styles.header}>
           <div className={styles.headerIdentity}>
             <Button
+              ref={navigationToggle}
               className={styles.collapseButton}
               type="text"
               aria-label={collapsed ? "展开导航" : "收起导航"}
+              aria-expanded={!collapsed}
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed((value) => !value)}
             />
@@ -232,15 +292,17 @@ function AppLayoutShell() {
               open={credentialOpen}
               onOpenChange={setCredentialOpen}
             >
-              <Button icon={<KeyOutlined />}>访问凭据</Button>
+              <Button aria-label="访问凭据" icon={<KeyOutlined />}>访问凭据</Button>
             </Popover>
           </Space>
         </Header>
 
         <Content className={`${styles.content} ${diagnosisPage ? styles.diagnosisContent : ""}`}>
-          <ErrorBoundary key={location.pathname}>
-            <Outlet />
-          </ErrorBoundary>
+          <div id="main-content" tabIndex={-1} className={styles.pageBody}>
+            <ErrorBoundary key={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
         </Content>
       </Layout>
     </Layout>
