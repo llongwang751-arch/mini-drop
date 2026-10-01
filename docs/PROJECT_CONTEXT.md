@@ -1,10 +1,10 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-10-01 数值观测验证与性能路径定位（后端已部署，反证展示修正待发布）
+## 2026-10-01 数值观测验证与性能路径定位（后端与反证展示已部署，案例链接修正待发布）
 
 Worker/Analyzer/Web/Go demo发布`20261001T094553Z`，源码`c59aac566cedef6a239eb1d640ee8fb796524ae3`；[精确CI36844752903](https://github.com/llongwang751-arch/mini-drop/actions/runs/36844752903)成功13/13，Python1358通过/10登记跳过、Web274通过、真实PG8通过零跳过、Chroma专项与Go race/真实镜像/连续I/O验证通过。Worker/Analyzer各193份文件、Web56份文件SHA一致，其余9容器保持，13容器健康。Office本轮部署前后PID1650962、NRestarts=0，源f37f44e与API f9b143a/二进制不改；历史PID484342属于此前窗口。
 
-独立新三案例已完成：CPU已定位goCPUHotFunction及runCPUFault，网络已验证240.713ms HTTP耗时；I/O新增684次操作平均0.081ms，完整三判据得到REFUTED，不计慢操作瓶颈通过。路径定位2/3、取证/撤销恢复/清理/收束3/3，37份原始下载SHA一致；严格因果仍0/3，旧0/21保留。浏览器发现有效I/O反证被后续主机报告盖住、ACCEPT_COUNTER未准入初筛及无效窗口覆盖有效测量，Web修正候选保留反证与明确范围，真实会话回归旧版5失败/修复后通过。完整证据见[本轮交付](../reports/architecture/performance-localization-20261001.md)。
+独立新三案例已完成：CPU已定位goCPUHotFunction及runCPUFault，网络已验证240.713ms HTTP耗时；I/O新增684次操作平均0.081ms，完整三判据得到REFUTED，不计慢操作瓶颈通过。路径定位2/3、取证/撤销恢复/清理/收束3/3，37份原始下载SHA一致；严格因果仍0/3，旧0/21保留。浏览器发现有效I/O反证被后续主机报告盖住、ACCEPT_COUNTER未准入初筛及无效窗口覆盖有效测量，Web反证修正已发布20261001T104413Z / ea24bb514aee396b72710d5d0cf3364c694d27b9，精确CI36850205619成功13/13、Web289通过；仅Web更换，其余12容器保持。真实会话回归旧版5失败/修复后通过。实浏览器进一步复现案例链接在React状态更新重放时丢失，以及首次列表失败后无法恢复链接；将状态更新改为纯函数，并等待成功列表再处理请求参数。旧源码2项失败，修复后全量Web291项通过，链接修正待单独发布。完整证据见[本轮交付](../reports/architecture/performance-localization-20261001.md)。
 
 新数值计划分别记录判据是否已检查和条件是否成立；同一不可变系统采集产物需覆盖完整计划，不能拼接缺失窗口或把互斥条件都成立作为验证前提。通过测量合同的报告标为 VERIFIED / BOUNDED_OBSERVATION，保留原 coverage_ratio、独立对照标志及 matched_verification_status；因果与修复标志仍为 false。旧报告和旧21类根因0/21不改。
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
 import AIDiagnosis from "./AIDiagnosis";
 
 vi.mock("../api/client", () => ({
@@ -68,6 +69,30 @@ describe("AIDiagnosis V2 workspace", () => {
   });
 
   afterEach(cleanup);
+
+  it("keeps a deep link available for retry after a transient list failure", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");
+    let rejectList;
+    api.listDropInsightDiagnoses.mockImplementationOnce(() => new Promise((_, reject) => { rejectList = reject; }));
+    render(<AIDiagnosis />);
+    await act(async () => rejectList(new Error("临时列表失败")));
+    expect(new URLSearchParams(window.location.search).get("case")).toBe("drop_insight_v2:diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    await act(async () => window.dispatchEvent(new Event("mini-drop:credentials-changed")));
+    await waitFor(() => expect(api.getDropInsightDiagnosis).toHaveBeenCalledWith("diag-1"));
+  });
+
+  it("retains the requested case while React replays asynchronous state updates", async () => {
+    const requested = { ...diagnosis, diagnosis_id: "diag-2", query: "网络等待案例" };
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-2");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis, requested]);
+    api.getDropInsightDiagnosis.mockImplementation(async id => id === requested.diagnosis_id ? requested : diagnosis);
+    render(<StrictMode><AIDiagnosis /></StrictMode>);
+    await waitFor(() => expect(api.getDropInsightDiagnosis).toHaveBeenCalledWith("diag-2"));
+    expect(new URLSearchParams(window.location.search).get("case")).toBe("drop_insight_v2:diag-2");
+    expect(await screen.findByText("网络等待案例")).toBeInTheDocument();
+  });
 
   it("confirms cancellation with session version and refreshes the terminal record", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");

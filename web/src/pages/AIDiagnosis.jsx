@@ -286,11 +286,11 @@ export default function AIDiagnosis() {
         .map(normalizeCase)
         .sort((a, b) => String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")));
       setCases(nextCases);
+      const requestedKey = initialCaseKey.current;
       setSelectedCase((current) => {
-        const requested = current?.selection_key || initialCaseKey.current;
+        const requested = current?.selection_key || requestedKey;
         if (!requested) return current;
         const match = nextCases.find((item) => item.selection_key === requested || item.diagnosis_id === requested);
-        if (match) initialCaseKey.current = "";
         return match || current;
       });
     } catch (error) {
@@ -394,12 +394,18 @@ export default function AIDiagnosis() {
   useEffect(() => { loadCases(); }, [loadCases]);
 
   useEffect(() => {
-    if (!selectedCase && initialCaseKey.current && listLoaded && !listLoading) {
+    const requested = initialCaseKey.current;
+    if (!requested || !listLoaded || listLoading || listError) return;
+    if (cases.some(item => item.selection_key === requested || item.diagnosis_id === requested)) {
+      if (selectedCase) initialCaseKey.current = "";
+      return;
+    }
+    if (!selectedCase) {
       setListError("链接中的诊断案例不存在或已从列表隐藏。");
       initialCaseKey.current = "";
       syncCaseQuery("");
     }
-  }, [listLoaded, listLoading, selectedCase]);
+  }, [cases, listError, listLoaded, listLoading, selectedCase]);
 
   useEffect(() => { loadSelectedDetail(selectedCase); }, [selectedCase, loadSelectedDetail]);
   useEffect(() => {
