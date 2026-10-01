@@ -1,0 +1,185 @@
+{
+  "schema": "mini-drop.engineering-diagnosis-contract.v1",
+  "profile": "engineering-diagnosis.v1",
+  "default_acceptance": "Engineering diagnosis requires trusted scoped measurement or source-mapped profile; independent causal CONTROL, fixed rounds, COMPLETED and same-load fix are not mandatory.",
+  "mandatory": [
+    "target_identity",
+    "artifact_integrity",
+    "analyzer_validated",
+    "resolved_claims",
+    "domain_match",
+    "lab_recovery_and_cleanup"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "domain": "cpu_hotspot",
+      "runtime_profile": {
+        "collector": "pyspy",
+        "observation_contract": "python-profile-and-os-cpu.v1",
+        "scope": "SOURCE_FUNCTION_SHARE_AND_SEPARATE_OS_CPU; NO_CAUSAL_PROOF"
+      },
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpu-hotspot.json",
+      "case_sha256": "dac45a784c0b828be5f5e8deb739349a953d8d8ccadd01c2df6cca059c6adcba"
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "domain": "cpu_hot_path",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot.json",
+      "case_sha256": "205e8f48cd99e45566ca50db3c51033c7d698a8b427c15438038d00c025265ae",
+      "runtime_profile": {
+        "collector": "pyspy",
+        "observation_contract": "python-profile-and-os-cpu.v1",
+        "scope": "MEASURED_SOURCE_PATH_AND_SEPARATE_OS_CPU; NO_CAUSAL_PROOF"
+      }
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "domain": "memory_growth",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/memory-pressure.json",
+      "case_sha256": "220c7e1873257336d18118ee10f3a274d8c7454a61de4eac8c47c4fe15568c4d"
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "domain": "io_latency",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/io-write-latency.json",
+      "case_sha256": "30f7524f041840a4af432bb0ca3560831a4c322f4a25f1da0a715da3128c067d"
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "domain": "noisy_neighbor",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor.json",
+      "case_sha256": "03bbdf4352fb529929b3a951d64d1b81bd89ed9aa5a83e8999c85043a6dea694"
+    },
+    {
+      "scenario_id": "load-saturation",
+      "domain": "load_saturation",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/load-saturation.json",
+      "case_sha256": "5c2e0afc0fefe832c881e8edfb98a36972c59d734ab46852653d0a3bb97fcdc5"
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "domain": "queue_backlog",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog.json",
+      "case_sha256": "b47c3c925d96046983c0519de4bf19a9d87e044447d3ff2b27b2874d30e789d6"
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "domain": "cpu_hot_path",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-cpu-hotspot.json",
+      "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+      "profile_contracts": [
+        "go-profile-and-os-cpu.v1"
+      ],
+      "minimum_profile_percent": 20
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "domain": "network_latency",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-network-latency.json",
+      "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a"
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "domain": "memory_growth",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/go-memory-growth.json",
+      "case_sha256": "3251e2ba16d079dc83b57086734a3a7ca1d6a9ca288e6e0de87ef5c7871fb517"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "domain": "io_latency",
+      "case_path": "reports/quality/performance-localization-20261001/deployed/strict-three-paths-r2-cases/go-file-io.json",
+      "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b"
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "domain": "jvm_gc",
+      "runtime_profile": {
+        "collector": "java_async",
+        "profile_event": "alloc",
+        "minimum_samples": 50,
+        "minimum_percent": 20,
+        "require_gc_counters": true,
+        "scope": "ALLOCATION_PATH_AND_SAME_TASK_GC_ACTIVITY"
+      },
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/java-gc-pressure.json",
+      "case_sha256": "2ef939e648d799f6d5f12fc80ec4c1affdcb9e94fc6f12687106b9bb4a7367cf"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "domain": "lock_contention",
+      "runtime_profile": {
+        "collector": "java_async",
+        "profile_event": "lock",
+        "minimum_samples": 50,
+        "minimum_percent": 20,
+        "scope": "LOCK_WAIT_PROFILE; NO_HOLDER_OR_CAUSAL_PROOF"
+      },
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/java-lock-contention.json",
+      "case_sha256": "fecc28a2b6b68014521f83d11b40ff36ac6354ea3d904340937ff4c5ce3bedba"
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "domain": "downstream_latency",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/java-downstream-latency.json",
+      "case_sha256": "69152f1971290e1a4a9a5b16163ee240abdf4352dc6e0f8ee5f9dff9479e6d17"
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "domain": "memory_growth",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/java-offheap-growth.json",
+      "case_sha256": "3dd011f0f05cf7c9ff2306da411c6f2b5f6e557362b92b60a53ac821ff25ffd7"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "domain": "io_latency",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/java-file-io.json",
+      "case_sha256": "f14a425e95152879abcba8e50c7de149f5d83162a782d1b2a2762482bb463731"
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "domain": "cpu_hot_path",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot.json",
+      "case_sha256": "d3dfc840dcb276a0a989dbeedd3e273a6e2c8df3dacf5e5b48f519ab283212a5",
+      "runtime_profile": {
+        "collector": "perf_cpu",
+        "observation_contract": "cpp-perf-and-os-cpu.v1",
+        "scope": "MEASURED_SOURCE_PATH_AND_SEPARATE_OS_CPU; NO_CAUSAL_PROOF"
+      }
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "domain": "lock_contention",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-lock-contention.json",
+      "case_sha256": "3cf1451c1c3bb69d022c9e3299ac5a650584eed0acb7fceee4c3370cf2efa8d3"
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "domain": "memory_growth",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-memory-growth.json",
+      "case_sha256": "c33e0842c025cf3b0384886f134c373d76fb3aa20a66873f376fcb375d8128bf"
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "domain": "io_latency",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-file-io.json",
+      "case_sha256": "f792715cb9cda5cb76c879e34676d7f855d7ddeb5070b419d1cd532b23cfccc1"
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "domain": "downstream_latency",
+      "case_path": "reports/quality/interview-completion-20261001/performance-18-cases/cpp-downstream-latency.json",
+      "case_sha256": "d8b9888911f2d3510e93d930da537b7e3d33c0d47048f006fa2384752d56476b"
+    }
+  ],
+  "evidence_manifests": [
+    {
+      "path": "reports/quality/performance-localization-20261001/manifest.json",
+      "sha256": "f5afd1717ed2902e285b4a3565b497aedc2839c9793e6e7a517a6f2bb4b512b4"
+    },
+    {
+      "path": "reports/quality/interview-completion-20261001/performance-manifest.json",
+      "sha256": "ad1803f60e94e2d11587b760414c0d8f09984fe64613e92e35e61d1833aeaf67"
+    }
+  ]
+}

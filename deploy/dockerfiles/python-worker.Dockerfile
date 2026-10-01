@@ -6,7 +6,7 @@ WORKDIR /src
 COPY demo/cpp-hotspot/main.cpp demo/cpp-hotspot/build.sh ./
 RUN chmod 0755 build.sh && ./build.sh /out/cpp-hotspot
 
-FROM python:3.11-slim
+FROM python:3.11-slim AS analyzer-toolchain
 
 ARG DEBIAN_MIRROR=""
 ARG DEBIAN_SECURITY_MIRROR=""
@@ -22,9 +22,11 @@ RUN if [ -n "$DEBIAN_MIRROR" ]; then \
     fi
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash gosu linux-perf perl \
+    bash gosu linux-perf perl binutils \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /bin/bash mini-drop
+
+FROM analyzer-toolchain AS runtime
 
 WORKDIR /app
 COPY pyproject.toml README.md alembic.ini ./

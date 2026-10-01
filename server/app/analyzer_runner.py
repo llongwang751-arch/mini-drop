@@ -14,10 +14,12 @@ from pathlib import Path
 
 from server.app import storage
 from server.app.artifact_integrity import prepare_artifact
-from server.app.logging_utils import log_event
+from server.app.logging_utils import _redact, log_event
 from server.app.metric_analyzers import summarize_application_metric_window
 
 ANALYZER_TIMEOUT_SEC = 180
+ANALYZER_FAILURE_JSON_LIMIT = 64 * 1024
+ANALYZER_FAILURE_MESSAGE_LIMIT = 1024
 
 
 class AnalyzerQualityError(ValueError):
@@ -50,6 +52,63 @@ class AnalyzerQualityError(ValueError):
         return json.dumps(self.payload, ensure_ascii=False, separators=(",", ":"))
 
 
+class AnalyzerCommandError(RuntimeError):
+    """Persist a CLI's bounded failure reason without copying its full output."""
+
+    def __init__(self, returncode: int, message: str) -> None:
+        self.payload = {
+            "error_code": "INTERNAL_ERROR",
+            "failure_kind": "ANALYZER_COMMAND",
+            "reason_code": "ANALYZER_COMMAND_FAILED",
+            "analyzer": "hotmethod_analyzer",
+            "returncode": returncode,
+            "message": _redact(message)[:ANALYZER_FAILURE_MESSAGE_LIMIT],
+        }
+        super().__init__(self.payload["message"])
+
+    def __str__(self) -> str:
+        return json.dumps(self.payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def _process_failure_payload(proc) -> dict | None:
+    """Decode a small CLI envelope; never parse arbitrary amounts of stdout."""
+
+    stdout = getattr(proc, "stdout", b"") or b""
+    if not isinstance(stdout, (str, bytes)) or len(stdout) > ANALYZER_FAILURE_JSON_LIMIT:
+        return None
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode("utf-8", errors="replace")
+    try:
+        payload = json.loads(stdout.strip())
+    except (TypeError, ValueError, RecursionError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _command_failure_from_process(proc) -> AnalyzerCommandError | None:
+    """Allow only the CLI's FAILED reason into the durable job error."""
+
+    payload = _process_failure_payload(proc)
+    if payload is None or payload.get("status") != "FAILED":
+        return None
+    message = next(
+        (payload[key].strip() for key in ("error", "message")
+         if isinstance(payload.get(key), str) and payload[key].strip()),
+        "Analyzer command failed without a structured reason",
+    )
+    return AnalyzerCommandError(proc.returncode, message)
+
+
+def _bounded_process_stream(value, limit: int = 500) -> str:
+    """Keep diagnostics small and apply the same redaction as runtime logs."""
+
+    decoded = (
+        value.decode("utf-8", errors="replace")
+        if isinstance(value, bytes) else str(value or "")
+    )
+    return _redact(decoded)[-limit:]
+
+
 def _quality_failure_from_process(
     proc,
     *,
@@ -57,16 +116,8 @@ def _quality_failure_from_process(
 ) -> AnalyzerQualityError | None:
     """Decode the analyzer CLI's structured sample-quality failure, if any."""
 
-    stdout = (
-        proc.stdout.decode("utf-8", errors="replace")
-        if isinstance(proc.stdout, bytes)
-        else str(proc.stdout or "")
-    )
-    try:
-        payload = json.loads(stdout.strip())
-    except (TypeError, ValueError, json.JSONDecodeError):
-        return None
-    if not isinstance(payload, dict) or payload.get("failure_kind") != "SAMPLE_QUALITY":
+    payload = _process_failure_payload(proc)
+    if payload is None or payload.get("failure_kind") != "SAMPLE_QUALITY":
         return None
     details = payload.get("details") if isinstance(payload.get("details"), dict) else {}
     return AnalyzerQualityError(
@@ -142,18 +193,26 @@ def analyze_raw_perf_artifacts(
             return []
         if proc.returncode != 0:
             quality_error = _quality_failure_from_process(proc)
+            command_error = None if quality_error else _command_failure_from_process(proc)
+            structured_error = quality_error or command_error
             log_event(
                 "warning",
                 "analyzer_runner_nonzero",
                 task_id=task_id,
                 returncode=proc.returncode,
                 reason_code=(
-                    quality_error.payload["reason_code"] if quality_error else None
+                    structured_error.payload["reason_code"] if structured_error else None
                 ),
-                stderr=proc.stderr.decode("utf-8", errors="replace")[-500:],
+                stderr=_bounded_process_stream(getattr(proc, "stderr", b"")),
+                stdout_tail=_bounded_process_stream(
+                    structured_error.payload["message"] if structured_error
+                    else getattr(proc, "stdout", b""),
+                ),
             )
             if quality_error is not None:
                 raise quality_error
+            if command_error is not None:
+                raise command_error
             return []
 
         output_dir = output_root / task_id

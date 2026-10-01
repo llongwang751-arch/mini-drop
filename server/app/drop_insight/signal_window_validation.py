@@ -109,8 +109,14 @@ def _shared_cpu(metadata):
         identities.append(set(peers_by_identity))
         peer_ticks.append(peers_by_identity)
     before, after = endpoints
-    stable = ('boot_id', 'cgroup_path', 'cpu_quota_us', 'cpu_period_us')
-    if (any(before[k] != after[k] or window.get(k) != before[k] for k in stable)
+    # /proc/sys/kernel/random/boot_id is a text file ending in a newline.
+    # The analyzer trims its summary while retaining both raw endpoint rows.
+    # Compare the same text identity, preserving the recorded endpoint bytes.
+    stable = ('cgroup_path', 'cpu_quota_us', 'cpu_period_us')
+    boot_id = before['boot_id'].strip()
+    if (not isinstance(window.get('boot_id'), str)
+        or window['boot_id'].strip() != boot_id or after['boot_id'].strip() != boot_id
+        or any(before[k] != after[k] or window.get(k) != before[k] for k in stable)
         or identities[0] != identities[1]
         or set((p.get('pid'), p.get('start_ticks')) for p in window.get('peer_identities', [])) != identities[0]):
         return False

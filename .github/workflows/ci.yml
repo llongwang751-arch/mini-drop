@@ -39,7 +39,7 @@ jobs:
   observation-controls:
     name: Real Python Java C++ observation windows
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -47,9 +47,13 @@ jobs:
           python-version: "3.11"
       - name: Build actual bounded demo images
         run: |
-          docker build -t mini-drop-python-hotspot:ci demo/python-hotspot
-          docker build -t mini-drop-java-hotspot:ci -f demo/java-hotspot/Dockerfile .
-          docker build -t mini-drop-cpp-hotspot:ci demo/cpp-hotspot
+          docker build --build-arg ALPINE_MIRROR=https://dl-cdn.alpinelinux.org/alpine -t mini-drop-python-hotspot:ci demo/python-hotspot
+          docker build --build-arg ALPINE_MIRROR=https://dl-cdn.alpinelinux.org/alpine -t mini-drop-java-hotspot:ci -f demo/java-hotspot/Dockerfile .
+          docker build --build-arg ALPINE_MIRROR=https://dl-cdn.alpinelinux.org/alpine -t mini-drop-cpp-hotspot:ci demo/cpp-hotspot
+      - name: Build the actual Analyzer perf source toolchain layer
+        run: docker build --target analyzer-toolchain --build-arg ALPINE_MIRROR=https://dl-cdn.alpinelinux.org/alpine -t mini-drop-analyzer-toolchain:ci -f deploy/dockerfiles/python-worker.Dockerfile .
+      - name: Read-only no-network C++ symbol and source mapping smoke
+        run: python scripts/verify_perf_source_toolchain.py --toolchain-image mini-drop-analyzer-toolchain:ci --cpp-image mini-drop-cpp-hotspot:ci --output output/quality-observation-controls/perf-source-toolchain
       - name: Continuous sync I/O, measured lock wait and quota contention
         run: |
           python scripts/verify_runtime_observation_controls.py --runtime python --image mini-drop-python-hotspot:ci --output output/quality-observation-controls/python

@@ -25,6 +25,7 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
             || doc.registered_scenarios !== doc.cases.length + doc.not_evaluated.length
             || doc.diagnosis_accepted !== doc.cases.filter(c => c.diagnosis_accepted === true).length
             || doc.localization_accepted !== doc.cases.filter(c => c.localization_accepted === true).length
+            || doc.refuted !== doc.cases.filter(c => c.outcome === 'REFUTED').length
             || doc.cases.some(c => c.causal_root_cause_verified !== false || c.same_load_fix_verified !== false)) {
           throw new Error("invalid acceptance index");
         }
@@ -45,6 +46,7 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
         <Tag>已注册 {data.registered_scenarios} 类 · 待验收 {data.not_evaluated.length} 类</Tag>
       </Space>
       <p>当前包含 {data.fresh_live_scenarios} 类新真机实验、{data.regraded_prior_scenarios} 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。</p>
+      {data.current_campaign_id && <p>新实验与历史记录分批保存；下表保留每类的原始诊断，汇总成绩不表示全部案例在本次重新运行。</p>}
       <Table rowKey="scenario_id" size="small" pagination={false} scroll={{ x: 620 }} dataSource={data.cases}
         columns={[{ title: "案例", dataIndex: "title" }, { title: "工程验收", dataIndex: "outcome", render: x => LABELS[x] || "证据不足" },
           { title: "已定位路径", dataIndex: "location", render: x => x || "未宣称异常路径" },

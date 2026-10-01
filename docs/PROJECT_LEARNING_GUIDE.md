@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2825 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2832 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 488 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 489 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2444,6 +2444,7 @@ python scripts/render_learning_guide.py
 | `skills/queue-backlog-diagnosis/` | queue-backlog-diagnosis 子目录；可复用调查路线正文和轻量 catalog，不保存当前事故 Evidence。 |
 | `skills/same-host-contention-diagnosis/` | same-host-contention-diagnosis 子目录；可复用调查路线正文和轻量 catalog，不保存当前事故 Evidence。 |
 | `tests/` | Python 行为、合同、可靠性与失败边界验证。 |
+| `tests/fixtures/` | fixtures 子目录；Python 行为、合同、可靠性与失败边界验证。 |
 | `web/` | React 前端工程，含依赖、构建配置、页面与测试。 |
 | `web/public/` | 随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
 | `web/public/report-assets/` | report-assets 子目录；随 Web 发布的公开静态资源；不能放密钥或私有真值。 |
@@ -2551,6 +2552,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/EngineeringCasesPanel.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/components/EngineeringCasesPanel.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `validCounts`、`validateCatalog`、`EngineeringCasesPanel` |
 | `web/src/components/EngineeringCasesPanel.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `web/src/components/EngineeringDiagnosisSummary.integrity.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `web/src/components/EngineeringDiagnosisSummary.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `EngineeringDiagnosisSummary` |
 | `web/src/components/EngineeringDiagnosisSummary.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
 | `web/src/components/ErrorAlert.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `ErrorAlert` |
@@ -2730,7 +2732,7 @@ python scripts/render_learning_guide.py
 | `server/app/agent_runtime/themes.py` | 版本化诊断行为主题和系统提示。 | `diagnosis_system_prompt`、`scope_system_prompt` |
 | `server/app/ai_provider.py` | Python 服务模块，负责对应模块行为。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
 | `server/app/analysis_jobs.py` | 持久化 AnalysisJob 的领取、运行、重试和终态编排。 | `analysis_error_code`、`artifact_input_checksum`、`enqueue_artifact_analysis`、`ProcessResult`、`AnalyzerOutput` 等 16 个声明 |
-| `server/app/analyzer_runner.py` | 统一调用 perf、py-spy、pprof、async-profiler 等解析器并执行质量门禁。 | `AnalyzerQualityError`、`analyze_raw_perf_artifacts`、`analyze_continuous_perf_bundle`、`analyze_pprof_artifacts`、`analyze_speedscope_artifacts` 等 26 个声明 |
+| `server/app/analyzer_runner.py` | 统一调用 perf、py-spy、pprof、async-profiler 等解析器并执行质量门禁。 | `AnalyzerQualityError`、`AnalyzerCommandError`、`analyze_raw_perf_artifacts`、`analyze_continuous_perf_bundle`、`analyze_pprof_artifacts` 等 30 个声明 |
 | `server/app/artifact_contracts.py` | Python 服务模块，负责采集产物、完整性和生命周期。 | `CollectorArtifactContract`、`ArtifactContractError`、`ArtifactQualityError`、`get_collector_contract` 等 6 个声明 |
 | `server/app/artifact_integrity.py` | Python 服务模块，负责采集产物、完整性和生命周期。 | `ArtifactIntegrityError`、`hash_chunks`、`hash_file`、`normalize_sha256`、`prepare_artifact` 等 6 个声明 |
 | `server/app/artifact_lifecycle.py` | Python 服务模块，负责采集产物、完整性和生命周期。 | `classify_family`、`retention_days`、`ArtifactReconciliation`、`reconcile_artifacts`、`list_expired_artifacts` 等 7 个声明 |
@@ -3017,6 +3019,7 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `tests/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `tests/conftest.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `postgres_sessions` |
+| `tests/fixtures/engineering_diagnosis_before_seven_gaps.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `tests/test_acceptance_client_transport.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `local_api`、`test_explicit_direct_route_reads_api_and_artifact_without_global_proxy`、`test_direct_route_uses_current_verified_tls_context`、`test_transport_failure_identifies_request_without_retry_or_credential`、`test_unknown_proxy_mode_rejected` |
 | `tests/test_actual_rag_adapter.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_service`、`test_trace_context_rejects_zero_or_malformed_ids_and_isolates_requests`、`test_failure_observations_and_bounded_retention_are_truthful`、`test_http_only_exposes_bounded_query_and_redacted_observations` |
 | `tests/test_agent_deadlines.py` | Python 自动化测试，验证Agent 注册、状态或能力的成功、失败与边界条件。 | `diagnosis`、`test_wall_clock_includes_planning_and_reserves_finalization`、`test_verifier_exposes_gaps_without_upgrading_partial_report`、`test_model_calls_share_deadline_and_override_provider_timeout`、`test_summarization_uses_bounded_copy` 等 7 个声明 |
@@ -3028,6 +3031,7 @@ python scripts/render_learning_guide.py
 | `tests/test_ai_provider.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_ai_defaults_use_official_deepseek_chat`、`test_ai_mode_none_disables_all`、`test_ai_mode_nlp_only`、`test_ai_custom_provider_env`、`test_ai_http_client_reuses_thread_local_connection_pool` 等 10 个声明 |
 | `tests/test_analysis_jobs.py` | Python 自动化测试，验证分析任务与质量状态的成功、失败与边界条件。 | `repo`、`test_enqueue_is_idempotent_for_same_input`、`test_analyzer_registry_is_version_aware`、`test_each_collector_contract_has_a_versioned_analyzer`、`test_analysis_job_can_enrich_existing_output_metadata` 等 24 个声明 |
 | `tests/test_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `TestParseTop`、`test_perf_script_omits_event_period_so_sample_count_is_observation_count`、`TestFlameTree`、`TestRules`、`TestAnalyzerConfig` 等 7 个声明 |
+| `tests/test_analyzer_command_failure.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `raw_perf`、`test_structured_cli_failure_preserves_reason`、`test_structured_message_is_supported_and_extra_fields_are_not_persisted`、`test_structured_failure_redacts_credentials_before_persistence`、`test_structured_failure_message_and_logs_are_bounded` 等 14 个声明 |
 | `tests/test_analyzer_runner.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_resolve_under_root_allows_artifact_root`、`test_resolve_under_root_rejects_outside_path` |
 | `tests/test_analyzer_runner_quality.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_raw_perf_runner_preserves_structured_empty_sample_failure`、`test_output_collector_rejects_zero_sample_flamegraph`、`test_output_collector_marks_valid_profile_as_usable`、`test_async_profiler_html_is_decoded_without_executing_javascript`、`test_async_profiler_event_is_read_from_the_real_h1_heading` 等 7 个声明 |
 | `tests/test_artifact_integrity.py` | Python 自动化测试，验证采集产物、完整性和生命周期的成功、失败与边界条件。 | `test_prepare_and_verify_local_artifact`、`test_prepare_rejects_declared_hash_mismatch`、`test_verify_rejects_tampered_local_artifact`、`test_legacy_artifact_is_explicitly_unverified`、`test_analyzer_upload_binds_temporary_output_to_verified_digest` |
@@ -3068,8 +3072,10 @@ python scripts/render_learning_guide.py
 | `tests/test_drop_insight_session_cas.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_illegal_status_transition_is_rejected_by_table`、`test_valid_transition_increments_version_via_cas`、`test_stale_version_conflicts_under_optimistic_lock` |
 | `tests/test_drop_insight_showcase.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_complex_showcase_preserves_real_exploration_before_skill_generation`、`test_complex_showcase_proves_reuse_and_rejects_false_transfer`、`test_showcase_library_contains_multiple_synchronised_multi_round_trees`、`test_complex_showcase_is_projected_as_a_multi_round_diagnosis_record` |
 | `tests/test_drop_insight_task_authority.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_pyspy_upload_authority_is_attempt_scoped`、`test_ebpf_upload_authority_covers_the_generated_contract` |
+| `tests/test_engineering_campaign_provenance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `digest`、`write_json`、`archive`、`repin`、`isolate_builder_scoring` 等 11 个声明 |
 | `tests/test_engineering_case_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_catalog_grades_engineering_defects_separately_from_ai_roots`、`test_exact_frozen_code_reproduces_parallel_overlap_defect`、`test_missing_and_duplicate_tests_are_rejected`、`isolated_case`、`test_hash_tampering_is_rejected` 等 8 个声明 |
 | `tests/test_engineering_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `fixture`、`test_frozen_live_decisions_pass_engineering_response_without_rewriting_causal_grade`、`test_independent_control_and_fixed_rounds_are_optional_for_engineering_measurement`、`test_relaxed_profile_does_not_accept_wrong_identity_tampered_measurements_or_unsafe_lifecycle`、`test_new_registered_memory_signal_does_not_need_another_hardcoded_evaluator` 等 7 个声明 |
+| `tests/test_engineering_frozen_before_seven.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_frozen_pre_seven_contract_and_real_pinned_evidence_keep_the_previous_score` |
 | `tests/test_engineering_java_profiles.py` | Python 自动化测试，验证性能 Profile的成功、失败与边界条件。 | `fixture`、`test_real_java_profile_is_a_bounded_engineering_observation`、`test_java_measurement_rejects_wrong_domains_missing_counters_or_tampered_numbers`、`test_cpu_refutation_does_not_refute_a_measured_java_lock_wait`、`test_python_profile_and_independent_os_counters_are_recomputed` 等 6 个声明 |
 | `tests/test_engineering_live_campaign.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_download_tamper_is_rejected_before_writing_a_successful_artifact`、`test_failed_snapshot_does_not_prevent_fault_withdrawal`、`test_campaign_never_overwrites_existing_records` |
 | `tests/test_exploration_tree.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `isolated_database`、`test_live_tree_revision_grows_when_evidence_replans_a_new_round`、`test_live_tree_projects_backtracked_sibling_into_actual_lats_iteration`、`test_live_tree_projects_skill_trace_and_route_overlay` 等 6 个声明 |
@@ -3106,6 +3112,7 @@ python scripts/render_learning_guide.py
 | `tests/test_migrations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_current_baseline_creates_only_runtime_models`、`test_current_baseline_downgrade_is_clean`、`test_current_baseline_adopts_legacy_revision` |
 | `tests/test_multi_cloud_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `FakeClient`、`test_select_process_avoids_pid_one_when_possible`、`test_run_agent_requires_real_task_lineage` |
 | `tests/test_multilanguage_fault_demos.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_go_fault_lab_is_idle_bounded_and_allow_listed`、`test_go_pprof_is_reachable_from_the_host_network_interview_agent`、`test_java_fault_lab_is_idle_bounded_and_has_runtime_faults`、`test_cpp_fault_lab_is_idle_bounded_and_caps_memory`、`test_python_fault_lab_defaults_to_idle` 等 6 个声明 |
+| `tests/test_noisy_neighbor_boot_identity.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_boot_file_newline_preserves_a_complete_numeric_predicate`、`test_boot_change_still_rejects_the_resource_window`、`test_missing_or_non_text_boot_identity_remains_unknown`、`test_boot_normalization_does_not_bypass_resource_or_counter_checks` |
 | `tests/test_office_query_cache.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `result`、`test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model`、`test_empty_or_failed_extraction_is_never_cached`、`test_restored_instances_reuse_query_extraction_but_always_read_current_graph`、`test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses` |
 | `tests/test_outbox_dispatcher.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_dispatcher_publishes_and_acknowledges` |
 | `tests/test_outbox_postgres.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_outbox_finalize_locks_out_expired_lease_takeover` |
@@ -3126,7 +3133,7 @@ python scripts/render_learning_guide.py
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_same_load_business_fix.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_business_fix_preserves_workload_quality_and_probe_integrity`、`test_business_comparison_rejects_changed_inputs_or_unverified_outputs` |
 | `tests/test_seven_gap_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_old_failures_remain_immutable_and_are_not_upgraded_by_new_rules`、`test_fifty_percent_cpu_contract_preserves_percentage_units`、`test_cpu_source_samples_cannot_be_relabelled_as_lock_holder_or_shared_quota_evidence`、`test_registered_cpp_path_requires_recomputed_independent_cpu_and_exact_plan`、`test_cpp_runtime_observation_rejects_correlated_or_forged_proof` 等 12 个声明 |
-| `tests/test_seven_gap_diagnosis_windows.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `hypothesis`、`test_actual_source_query_can_select_registered_cpu_observations`、`test_shared_cpu_quota_claim_does_not_turn_into_a_profile_high_cpu_contract`、`test_perf_keeps_actual_source_lines_and_cxx_symbol_colons`、`test_perf_commands_request_dwarf_source_lines_without_event_period` 等 13 个声明 |
+| `tests/test_seven_gap_diagnosis_windows.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `hypothesis`、`test_actual_source_query_can_select_registered_cpu_observations`、`test_shared_cpu_quota_claim_does_not_turn_into_a_profile_high_cpu_contract`、`test_unregistered_cpu_concentration_is_rejected_without_affecting_quota_domain`、`test_perf_keeps_actual_source_lines_and_cxx_symbol_colons` 等 14 个声明 |
 | `tests/test_seven_gap_planning.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `planning`、`test_model_strong_claim_is_rejected_original_preserved_and_distinct_rule_plan_persisted`、`test_cpp_registered_profile_requests_one_independent_os_probe_for_same_persisted_hypothesis`、`test_measured_domains_collect_target_system_metrics_before_optional_deep_tools`、`test_java_lock_keeps_async_lock_event_and_does_not_impose_cpp_application_counter_contract` 等 9 个声明 |
 | `tests/test_seven_gap_telemetry.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_shared_quota_window_observes_two_consumers_and_actual_throttling`、`test_complete_zero_throttling_is_a_measurement_and_not_missing`、`test_missing_changed_reset_or_different_cgroup_is_unknown`、`test_application_peer_active_cpu_ticks_cannot_claim_resource_competition`、`test_acquisition_wait_mean_uses_new_counter_window_and_keeps_zero_known` 等 7 个声明 |
 | `tests/test_skill_experiments.py` | Python 自动化测试，验证Skill 检索、策略与演进的成功、失败与边界条件。 | `test_randomized_experiment_persists_significance_and_human_gate`、`test_operator_memory_is_explicit_scoped_and_non_authoritative`、`test_background_monitor_snapshots_only_after_new_labels` |
@@ -3224,6 +3231,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_local_sre_browser.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_multi_replica.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_native_ebpf.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_perf_source_toolchain.py` | 工程脚本，负责源码定位的生成、检查或验收。 | `sha256`、`command`、`check_in_container`、`run_owned_containers`、`main` |
 | `scripts/verify_priority_collectors.py` | 验收持续 perf 与独立 eBPF Campaign。 | `run_acceptance`、`main` 等 7 个声明 |
 | `scripts/verify_report_presentation_ui.mjs` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_runtime_observation_controls.py` | 工程脚本，负责Agent Runtime的生成、检查或验收。 | `counter_window`、`main` |
