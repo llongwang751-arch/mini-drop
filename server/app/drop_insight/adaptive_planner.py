@@ -10,6 +10,9 @@ from server.app.ai_provider import chat_completions, get_ai_settings, is_feature
 from server.app.agent_runtime.retrieval import build_retrieval_trace
 from server.app.logging_utils import log_event
 from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT, cpu_plan_validation_error
+from .performance_criteria import PERFORMANCE_PLANNING_REQUIREMENT
+
+EVIDENCE_PLANNING_REQUIREMENT += PERFORMANCE_PLANNING_REQUIREMENT
 
 
 SYSTEM_PROMPT = """你是性能诊断假设规划器。基于问题、可信范围、已有证据和用户纠错，

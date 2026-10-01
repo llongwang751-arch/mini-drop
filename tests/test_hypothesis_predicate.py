@@ -112,7 +112,7 @@ def test_predicate_none_without_top_functions():
 
 def test_structured_analyzer_signal_supports_matching_hypothesis():
     hypothesis = _hypothesis(
-        expected=["生产速率高于消费速率，且队列深度持续增长"],
+        expected=["queue_backlog.queue_lag >= 50"],
         falsification=["生产消费速率平衡且队列没有积压"],
     )
     hypothesis.statement = "吞吐下降可能由生产速率超过消费速率并形成队列积压引起"
@@ -137,7 +137,7 @@ def test_structured_analyzer_signal_supports_matching_hypothesis():
 
     assert result is not None
     assert result["outcome"] == "SUPPORT"
-    assert result["version"] == "hypothesis-predicate-v3"
+    assert result["version"] == "performance-criterion-v1"
     assert result["signal"] == "queue_backlog"
     assert result["criterion_indexes"] == [0]
 
@@ -168,7 +168,7 @@ def test_structured_signal_does_not_support_unrelated_hypothesis():
 
 def test_downstream_latency_signal_supports_dependency_hypothesis():
     hypothesis = _hypothesis(
-        expected=["下游请求量与响应延迟在同一观测窗口内同步升高"],
+        expected=["downstream_latency.average_latency_ms >= 250"],
         falsification=["下游响应平稳且本实例存在独立热点"],
     )
     hypothesis.statement = "入口服务变慢可能由下游依赖响应延迟传播引起"

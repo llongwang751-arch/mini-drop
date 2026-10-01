@@ -34,6 +34,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT, cpu_plan_validation_error
+from .performance_criteria import PERFORMANCE_PLANNING_REQUIREMENT
+
+EVIDENCE_PLANNING_REQUIREMENT += PERFORMANCE_PLANNING_REQUIREMENT
 
 from server.app.ai_provider import AISettings
 from server.app.agent_runtime.context import (

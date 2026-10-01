@@ -188,7 +188,7 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
             profile_label = "Python 源码热点"
         else:
             profile_label = "性能热点"
-        return (
+        return _ObservationFinding(
             f"{sample_text}{profile_label}定位在 `{function_name}`{percent_text}。"
             "该函数是当前证据窗口内最集中的执行路径；仍需修复前后对照确认因果贡献。"
         )
@@ -200,6 +200,27 @@ def _concrete_report_finding(supporting: list[EvidenceEnvelope]) -> str | None:
             f"数据库锁等待链已被结构化证据确认：等待会话 {lock_wait_count} 个，"
             f"阻塞会话 {blocker_count} 个。需要解除阻塞并复测事务延迟。"
         )
+    predicate = metadata.get("hypothesis_predicate") or {}
+    if predicate.get("version") == "performance-criterion-v1":
+        from .performance_criteria import SIGNAL_FIELDS
+        signal = predicate.get("signal")
+        labels = {"network_latency": "HTTP 网络路径耗时（尚未区分服务处理与传输等待）",
+                  "downstream_latency": "下游调用耗时", "io_latency": "已归属的 I/O 操作延迟",
+                  "io_activity": "进程写入活动（不是磁盘延迟）", "memory_growth": "窗口内存增长",
+                  "memory_retention": "进程保留内存（不是持续增长或泄漏证明）",
+                  "lock_contention": "锁等待计数", "queue_backlog": "队列速率与积压",
+                  "load_saturation": "入口到达、完成与拒绝指标", "jvm_gc": "JVM 分配与 GC 活动",
+                  "noisy_neighbor": "同宿主机 peer CPU 活动（未证明资源争抢）",
+                  "cpu_hotspot": "进程 CPU 占用", "http_service_degradation": "HTTP 请求耗时与失败率"}
+        measured = [(key, observed_nonnegative(value)) for key, value in metrics.items()
+                    if key in SIGNAL_FIELDS.get(signal, ())]
+        measured = [(key, value) for key, value in measured if value is not None]
+        if measured and signal in labels:
+            return _ObservationFinding(
+                f"{labels[signal]}已满足声明的数值判据："
+                + "、".join(f"{key}={value:g}" for key, value in measured)
+                + "。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。"
+            )
     return None
 
 

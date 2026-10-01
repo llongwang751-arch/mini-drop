@@ -193,6 +193,7 @@ def run_case(client, scenario, provider, case_path: Path, *, agent_id, window_se
     recorder = RecordingClient(client)
     row = {"scenario_id": sid, "title": scenario.get("title"), "started_at": now(),
            "passed": False, "lineage_verified": False, "cleanup_verified": False,
+           "diagnosis_contract_verified": False,
            "root_cause_accepted": False, "fix_verified": False, "windows": {}, "session_drained": True}
     started = False
     try:
@@ -215,7 +216,7 @@ def run_case(client, scenario, provider, case_path: Path, *, agent_id, window_se
             demo_pid=int(target["pid"]), timeout_seconds=240, poll_seconds=2,
             minimum_rounds=3, expected_collector=legacy._decisive_collector(scenario),
             expected_hot_function="", profile_validation="lineage_only")
-        row["lineage_verified"] = True
+        row["diagnosis_contract_verified"] = True
     except Exception as exc:
         row["error"] = str(exc)
         row["error_type"] = type(exc).__name__
@@ -248,13 +249,16 @@ def run_case(client, scenario, provider, case_path: Path, *, agent_id, window_se
                     time.sleep(2)
                 records = collect_records(client, recorder.diagnosis_id)
                 row["records"] = records
+                from scripts.audit_fault_plaza_failures import evaluate_recorded_lineage
+                row["lineage_evaluation"] = evaluate_recorded_lineage(records, row.get("target"))
+                row["lineage_verified"] = row["lineage_evaluation"]["recorded_chain_consistent"]
                 row["report_evaluation"] = evaluate_reports(sid, records["reports"])
                 row["root_cause_accepted"] = row["report_evaluation"]["root_cause_accepted"]
             except Exception as exc:
                 row["session_drained"] = False
                 row["records_error"] = str(exc)
     row["intervention"] = evaluate_intervention(sid, row["windows"])
-    row["passed"] = bool(row["lineage_verified"] and row["root_cause_accepted"]
+    row["passed"] = bool(row["lineage_verified"] and row["diagnosis_contract_verified"] and row["root_cause_accepted"]
                          and row["intervention"]["recovery_observed"] and row["cleanup_verified"] and row["session_drained"])
     row["finished_at"] = now()
     row["report_sha256"] = legacy._canonical_sha256(row)
@@ -284,7 +288,7 @@ def run_campaign(client, provider, output: Path, *, agent_id="control-interview-
     if any(row.get("active") for row in items_of(plaza.get("scenarios"))):
         raise RuntimeError("a fault is already active; campaign not started")
     root = Path(__file__).resolve().parents[1]
-    sources = [Path(__file__), root / "scripts/run_fault_plaza_closure_campaign.py", root / "scripts/verify_interview_demo.py"]
+    sources = [Path(__file__), root / "scripts/run_fault_plaza_closure_campaign.py", root / "scripts/verify_interview_demo.py", root / "scripts/audit_fault_plaza_failures.py"]
     provenance = {"source_sha256": {str(p.relative_to(root)).replace("\\", "/"): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},
                   "deployment": deployment_provenance or {"status": "NOT_PROVIDED"}}
     try:
@@ -294,9 +298,9 @@ def run_campaign(client, provider, output: Path, *, agent_id="control-interview-
     # Reserve both destinations before performing any fault mutation.
     case_dir.mkdir(parents=True, exist_ok=False)
     output.open("x", encoding="utf-8").close()
-    report = {"provenance": provenance, "schema": "mini-drop.fault-plaza-strict-acceptance.v2", "started_at": now(),
+    report = {"provenance": provenance, "schema": "mini-drop.fault-plaza-strict-acceptance.v3", "started_at": now(),
               "run_status": "RUNNING", "selected_count": len(scenarios), "results": [],
-              "truth_boundary": "PASS requires legacy lineage, verified concrete scenario-matching root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports."}
+              "truth_boundary": "Recorded lineage and diagnosis outcome are separate. PASS still requires the full diagnosis execution contract, verified concrete scenario-matching causal root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports."}
     def checkpoint():
         report["completed_count"] = len(report["results"])
         report["passed_count"] = sum(x["passed"] for x in report["results"])

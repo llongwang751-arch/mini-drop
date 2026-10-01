@@ -11,6 +11,7 @@ import re
 from server.app.models import ArtifactModel, DropInsightHypothesisModel
 from .evidence import observed_count, observed_nonnegative
 from .cpu_criteria import process_cpu_thresholds, compile_cpu_observation_contract
+from .performance_criteria import evaluate_performance_criterion
 
 
 def _invalid_numeric_observation(reason: str = "Required numeric observation is missing, invalid or outside its domain") -> dict:
@@ -23,91 +24,25 @@ def _structured_signal_predicate(
     hypothesis: DropInsightHypothesisModel,
     metadata: dict,
 ) -> dict | None:
-    """Match allow-listed Analyzer signals to the planned observation."""
+    """Evaluate exact slots. A domain keyword cannot prove an arbitrary claim."""
 
     signals = metadata.get("signals")
     if not isinstance(signals, dict):
         return None
     expected = hypothesis.expected_observations_json or []
-    statement = str(hypothesis.statement or "").casefold()
-    hypothesis_text = " ".join(
-        [statement, *(str(item).casefold() for item in expected)]
-    )
-    signal_specs = (
-        (
-            "queue_backlog",
-            ("队列", "积压", "生产", "消费", "queue", "backlog", "consumer lag"),
-        ),
-        (
-            "load_saturation",
-            ("入口负载", "到达率", "完成率", "拒绝", "吞吐", "load saturation"),
-        ),
-        (
-            "noisy_neighbor",
-            ("噪声邻居", "同宿主机", "共享资源", "资源争抢", "noisy neighbor"),
-        ),
-        (
-            "lock_contention",
-            ("锁竞争", "锁等待", "futex", "mutex", "reentrantlock", "contention"),
-        ),
-        (
-            "jvm_gc",
-            ("jvm", "gc", "垃圾回收", "分配风暴", "allocation"),
-        ),
-        (
-            "downstream_latency",
-            ("下游", "依赖", "downstream", "响应慢", "端到端延迟"),
-        ),
-        (
-            "network_latency",
-            ("网络", "丢包", "重传", "network", "连接超时"),
-        ),
-        (
-            "io_latency",
-            ("磁盘", "块设备", "io 延迟", "i/o", "写入", "fdatasync", "fsync"),
-        ),
-        (
-            "io_activity",
-            ("磁盘", "i/o", "写入", "读取", "filechannel", "fdatasync", "fsync"),
-        ),
-        (
-            "memory_growth",
-            ("内存", "rss", "pss", "swap", "堆外", "offheap", "memory"),
-        ),
-        (
-            "cpu_hotspot",
-            ("cpu", "计算热点", "热点函数", "用户态热点", "cpu hotspot"),
-        ),
-    )
-    for signal_name, tokens in signal_specs:
-        if (
-            signal_name == "jvm_gc"
-            and str(metadata.get("schema_version") or "") == "jvm_gc_metrics.v1"
-        ):
-            # The dedicated JVM counter predicate below can promote this
-            # independent before/after window to CONTROL rather than SUPPORT.
-            continue
-        signal = signals.get(signal_name)
-        if not isinstance(signal, dict) or signal.get("detected") is not True:
-            continue
-        if not any(token in hypothesis_text for token in tokens):
-            continue
-        covered = [
-            index
-            for index, item in enumerate(expected)
-            if any(token in str(item).casefold() for token in tokens)
-        ]
-        return {
-            "outcome": "SUPPORT",
-            "version": "hypothesis-predicate-v3",
-            "reason": str(
-                signal.get("reason")
-                or f"structured analyzer signal {signal_name} was observed"
-            ),
-            "criterion_indexes": covered,
-            "metrics": dict(signal.get("metrics") or {}),
-            "signal": signal_name,
-        }
+    for direction, entries in (("COUNTER", hypothesis.falsification_criteria_json or []), ("SUPPORT", expected)):
+        evaluations = [(index, evaluate_performance_criterion(item, signals)) for index, item in enumerate(entries)]
+        matched = [(index, value) for index, value in evaluations if value and value["matches"]]
+        if matched:
+            signal_name = matched[0][1]["signal"]
+            matched = [(index, value) for index, value in matched if value["signal"] == signal_name]
+            return {"outcome": direction, "version": "performance-criterion-v1",
+                    "reason": "Exact numeric performance observation matched declared criteria",
+                    "criterion_indexes": [index for index, _ in matched],
+                    "metrics": {value["field"]: value["value"] for _, value in matched},
+                    "signal": signal_name, "claim_scope": "BOUNDED_OBSERVATION"}
+    # Legacy prose can still select an investigation domain, but cannot earn
+    # coverage: queue growth, packet loss and fsync latency require actual data.
     return None
 
 

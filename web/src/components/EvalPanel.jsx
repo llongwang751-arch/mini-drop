@@ -22,6 +22,7 @@ import {
 import { listDiagnosticSkills } from "../api/client";
 import FaultPlazaPanel from "./FaultPlazaPanel";
 import EngineeringCasesPanel from "./EngineeringCasesPanel";
+import PerformanceDiagnosisSummary from "./PerformanceDiagnosisSummary";
 import BusinessAcceptancePanel from "./BusinessAcceptancePanel";
 import LatsReplayPanel from "./LatsReplayPanel";
 import SkillABPanel from "./SkillABPanel";
@@ -31,10 +32,10 @@ import "./EvalPanel.css";
 const { Paragraph, Text, Title } = Typography;
 
 const NAV_ITEMS = [
-  { label: "已验证缺陷", value: "defects", icon: <SafetyCertificateOutlined /> },
+  { label: "性能故障实验", value: "faults", icon: <BugOutlined /> },
+  { label: "工程修复回归", value: "defects", icon: <SafetyCertificateOutlined /> },
   { label: "评测总览", value: "overview", icon: <ReadOutlined /> },
   { label: "业务案例", value: "business", icon: <ExperimentOutlined /> },
-  { label: "历史故障实验", value: "faults", icon: <BugOutlined /> },
   { label: "Skill A/B", value: "skill-ab", icon: <ExperimentOutlined /> },
   { label: "Skill 示例与沉淀", value: "skills", icon: <BranchesOutlined /> },
 ];
@@ -157,7 +158,7 @@ function OverviewPanel({ onOpenSkills }) {
 }
 
 export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesChanged }) {
-  const [section, setSection] = useState("defects");
+  const [section, setSection] = useState("faults");
   const [skillABSeed, setSkillABSeed] = useState(null);
 
   return (
@@ -171,7 +172,7 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         <div className="eval-header-status">
           <span className="eval-status-dot" />
           <Text strong>测试与修复闭环</Text>
-          <Text type="secondary">缺陷回归 · 业务验收 · 历史实验</Text>
+          <Text type="secondary">性能诊断 · 工程回归 · 业务验收</Text>
         </div>
       </header>
 
@@ -189,6 +190,7 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         {section === "business" && <BusinessAcceptancePanel />}
         {section === "faults" && (
           <Space direction="vertical" size={18} style={{ width: "100%" }}>
+            <PerformanceDiagnosisSummary />
             <FaultPlazaPanel
               onStartDiagnosis={onStartDiagnosis}
               onOpenDiagnosis={onOpenDiagnosis}

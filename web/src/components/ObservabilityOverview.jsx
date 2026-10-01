@@ -11,6 +11,7 @@ import {
 import { Tag, Tooltip } from "antd";
 import { diagnosticStatusLabel, diagnosticToolLabel } from "../utils/diagnosisDisplay";
 import { isCausalRootReport, isObservationReport } from "../utils/reportPresentation";
+import { assessObservationWindow } from "../utils/observationAssessment";
 
 const FINISHED = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
 const COMPLETED_WINDOWS = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "PARTIAL", "PARTIAL_COMPLETED"]);
@@ -34,9 +35,7 @@ function rows(value) {
 }
 
 function number(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function compact(value, digits = 1) {
@@ -92,11 +91,7 @@ export function buildObservationModel(detail = {}, resources = {}) {
   const verified = reports.some(isCausalRootReport);
   const observed = reports.some(report => isObservationReport(report)
     && String(report?.verification?.status || "").toUpperCase() === "VERIFIED");
-  const supportCount = evidence.filter((item) => {
-    const role = String(item?.role || "").toUpperCase();
-    return ["SUPPORT", "SUPPORTS", "SUPPORTED"].includes(role)
-      && item?.classification?.can_support_conclusion === true;
-  }).length;
+  const windowAssessment = assessObservationWindow(metricEvidence, target);
   const applicationMetrics = metricMetadata.application_metrics;
   const hasApplicationMetrics = applicationMetrics !== null
     && applicationMetrics !== undefined
@@ -144,12 +139,12 @@ export function buildObservationModel(detail = {}, resources = {}) {
         ? `这次导入的${dominant.label}阶段耗时 ${compact(dominant.ms)} ms，占总耗时 ${compact(dominant.ms / Number(businessObservation.duration_ms) * 100, 0)}%。这是业务阶段定位；具体代码原因需结合修复前后复测。`
         : "上传请求的分块、向量化、索引和进程资源来自 AGI-saber 进程内观测；AI 根因仍按独立证据门禁判断。",
     };
-  } else if (COMPLETED_WINDOWS.has(status) && metricEvidence && supportCount === 0) {
-    assessment = {
-      code: "NO_VERIFIED_FAULT",
-      title: "本次观测窗口未确认故障",
-      detail: "系统指标已经采集，但没有形成可验证的异常根因。这表示当前窗口未发现已验证故障，不代表服务永久健康。",
-    };
+  } else if (COMPLETED_WINDOWS.has(status) && metricEvidence) {
+    assessment = { ...windowAssessment, title: {
+      NORMAL_OBSERVED: "本次检查正常（已检查范围）",
+      ANOMALY_OBSERVED: "已发现性能异常，原因待确认",
+      INSUFFICIENT_OBSERVABILITY: "证据不足，暂时无法判断是否正常",
+    }[windowAssessment.code] };
   } else if (["FAILED", "CANCELLED"].includes(status)) {
     assessment = {
       code: "INCOMPLETE",
@@ -231,9 +226,9 @@ function TargetValue({ label, value, mono = false }) {
 export default function ObservabilityOverview({ detail, resources }) {
   const model = useMemo(() => buildObservationModel(detail, resources), [detail, resources]);
   const { assessment, target } = model;
-  const healthyWindow = assessment.code === "NO_VERIFIED_FAULT";
+  const healthyWindow = assessment.code === "NORMAL_OBSERVED";
   const verifiedFault = assessment.code === "FAULT_VERIFIED";
-  const observedFault = assessment.code === "CONTROLLED_FAULT_OBSERVED";
+  const observedFault = ["CONTROLLED_FAULT_OBSERVED", "ANOMALY_OBSERVED"].includes(assessment.code);
   const ingestObserved = assessment.code === "DOCUMENT_INGEST_OBSERVED";
 
   return (

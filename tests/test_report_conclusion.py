@@ -122,7 +122,7 @@ def test_java_alloc_report_renders_independent_gc_counter_window():
     assert "不能冒充 Full GC 次数" in conclusion
 
 
-def test_verified_profile_uses_final_root_cause_title():
+def test_verified_profile_without_intervention_stays_an_observation():
     evidence = _profile_evidence({
         "schema_version": "go_pprof_analysis.v1",
         "top_functions": [{"name": "main.goCPUHotFunction", "percent": 82.5}],
@@ -143,7 +143,7 @@ def test_verified_profile_uses_final_root_cause_title():
         verification_status="VERIFIED",
     )
 
-    assert conclusion.startswith("根因结论：")
+    assert conclusion.startswith("已验证观测：")
     assert "main.goCPUHotFunction" in conclusion
     assert "82.5%" in conclusion
 
@@ -160,6 +160,23 @@ def test_support_without_specific_finding_is_not_promoted_to_root_cause():
     assert conclusion.startswith("阶段性判断：")
     assert "尚未定位到具体函数、资源或依赖" in conclusion
     assert "最终根因" in conclusion
+
+
+@pytest.mark.parametrize("signal,metric,value,boundary", [
+    ("network_latency", "average_latency_ms", 240, "尚未区分服务处理与传输等待"),
+    ("io_activity", "io_bytes_written_delta", 65536, "不是磁盘延迟"),
+    ("memory_retention", "retained_memory_mb", 96, "不是持续增长或泄漏证明"),
+    ("lock_contention", "lock_wait_ms_delta", 125, "锁等待计数"),
+    ("queue_backlog", "queue_lag", 100, "队列速率与积压"),
+])
+def test_numeric_performance_findings_render_actual_measurements_with_scope(signal, metric, value, boundary):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "version": "performance-criterion-v1", "signal": signal, "metrics": {metric: value}}})
+    conclusion = _derive_report_conclusion("性能存在异常", support_refs=[evidence.evidence_id],
+        counter_refs=[], supporting=[evidence], verification_status="PARTIAL_WITHOUT_COUNTER")
+    assert conclusion.startswith("阶段性观测：")
+    assert boundary in conclusion and f"{metric}={value}" in conclusion
+    assert "根因结论" not in conclusion
 
 
 
@@ -265,7 +282,26 @@ def test_counter_evidence_prevents_final_title_even_with_verified_flag():
     e = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {"dominant_function": "work"}}})
     text = _derive_report_conclusion("hypothesis", support_refs=["s"], counter_refs=["c"],
                                      supporting=[e], verification_status="VERIFIED")
-    assert text.startswith("阶段性根因") and "反证" in text
+    assert text.startswith("阶段性观测") and "反证" in text
+
+
+def test_concrete_database_wait_chain_keeps_conflicting_evidence_visible():
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "metrics": {"lock_wait_count": 2, "blocker_count": 1}}})
+    final = _derive_report_conclusion("数据库阻塞", support_refs=["s"], counter_refs=[],
+        supporting=[evidence], verification_status="VERIFIED")
+    assert final.startswith("根因结论：") and "等待会话 2 个" in final
+    conflict = _derive_report_conclusion("数据库阻塞", support_refs=["s"], counter_refs=["c"],
+        supporting=[evidence], verification_status="VERIFIED")
+    assert conflict.startswith("阶段性根因：") and "反证" in conflict
+
+
+@pytest.mark.parametrize("signal,metrics", [("io_activity", {"io_bytes_written_delta": None}),
+    ("unregistered", {"invented": 999}), ("io_activity", {"invented": 999})])
+def test_invalid_numeric_signal_cannot_render_a_specific_finding(signal, metrics):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "version": "performance-criterion-v1", "signal": signal, "metrics": metrics}})
+    assert _concrete_report_finding([evidence]) is None
 
 
 @pytest.mark.parametrize("support,counter,expected", [([], [], "补充"),

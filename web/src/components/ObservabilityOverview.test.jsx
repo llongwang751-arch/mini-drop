@@ -23,15 +23,17 @@ const systemEvidence = {
   envelope: {
     evidence_type: "SYS_METRICS_SYS_METRICS",
     source: { tool_name: "sys_metrics" },
+    scope: { agent_id: "worker-1", pid: 4201 },
     quality: { sample_count: 15 },
     observation: {
       metadata: {
         sample_count: 15,
         window_duration_seconds: 14,
-        process_identity: { pid: 4201 },
+        process_identity: { pid: 4201, start_ticks: 123, verified: true },
         summary: {
           process_cpu_core_usage: 23.4,
           vmrss_mb: 128.2,
+          vmrss_mb_delta: 1.8,
           vmrss_mb_max: 130,
           thread_count: 12,
           thread_count_max: 12,
@@ -75,7 +77,7 @@ describe("ObservabilityOverview", () => {
   });
   it("treats a completed measured window without support as no verified fault", () => {
     const model = buildObservationModel(detail, resources);
-    expect(model.assessment.code).toBe("NO_VERIFIED_FAULT");
+    expect(model.assessment.code).toBe("NORMAL_OBSERVED");
     expect(model.target.pid).toBe(4201);
     expect(model.metrics.find((item) => item.key === "process-cpu")?.value).toBe("23.4%");
     expect(model.hasApplicationMetrics).toBe(false);
@@ -84,7 +86,7 @@ describe("ObservabilityOverview", () => {
   it("keeps the default view concise and exposes provenance on demand", () => {
     render(<ObservabilityOverview detail={detail} resources={resources} />);
     const panel = screen.getByLabelText("目标进程与性能观测");
-    expect(within(panel).getByText("本次观测窗口未确认故障")).toBeInTheDocument();
+    expect(within(panel).getByText("本次检查正常（已检查范围）")).toBeInTheDocument();
     expect(within(panel).getByText("23.4%")).toBeInTheDocument();
     expect(within(panel).getByText("128.2 MiB")).toBeInTheDocument();
     expect(within(panel).getByText("进程身份已校验")).toBeInTheDocument();
@@ -146,7 +148,7 @@ describe("ObservabilityOverview", () => {
     render(<ObservabilityOverview detail={{ ...detail, status: "INSUFFICIENT_EVIDENCE" }} resources={associated} />);
     expect(screen.getByText("业务慢检索已观测，AI 根因尚未验证")).toBeInTheDocument();
     expect(screen.getByText("受控检索延迟 2500 ms")).toBeInTheDocument();
-    expect(screen.queryByText("本次观测窗口未确认故障")).not.toBeInTheDocument();
+    expect(screen.queryByText("本次检查正常（已检查范围）")).not.toBeInTheDocument();
   });
 
   it("shows an uploaded document's actual ingest stages before any AI root-cause claim", () => {

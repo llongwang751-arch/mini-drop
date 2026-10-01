@@ -757,7 +757,7 @@ export default function AIDiagnosis() {
   }, [detail, resources]);
 
   const canonical = canonicalStatus(detail?.status || selectedCase?.status);
-  const normalObservation = detail && buildObservationModel(detail, resources).assessment.code === "NO_VERIFIED_FAULT";
+  const normalObservation = detail && buildObservationModel(detail, resources).assessment.code === "NORMAL_OBSERVED";
   const treeStats = resources.explorationTree?.stats || {};
   const hasActiveDiagnosis = Boolean(detail || selectedCase);
 
@@ -1090,7 +1090,7 @@ export default function AIDiagnosis() {
                 </div>
                 {!hasActiveDiagnosis && <div className="diagnosis-start-footnote">
                   <span>Enter 开始诊断 · Shift + Enter 换行</span>
-                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>查看已验证缺陷</Button>
+                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>查看性能故障实验</Button>
                 </div>}
               </div>
             </>

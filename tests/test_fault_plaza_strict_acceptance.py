@@ -146,7 +146,7 @@ def test_campaign_records_version_and_stops_after_unsafe_cleanup(tmp_path, monke
     result = strict.run_campaign(None, None, tmp_path / "campaign.json", deployment_provenance={"release": "test"})
     assert calls == ["source-hotspot"]
     assert result["run_status"] == "STOPPED_UNSAFE_TO_CONTINUE"
-    assert len(result["provenance"]["source_sha256"]) == 3
+    assert len(result["provenance"]["source_sha256"]) == 4
     assert result["provenance"]["deployment"] == {"release": "test"}
 
 

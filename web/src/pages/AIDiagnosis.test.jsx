@@ -237,21 +237,22 @@ describe("AIDiagnosis V2 workspace", () => {
   it("shows a measured normal window before the tree and keeps report limits available", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");
     api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
-    api.getDropInsightDiagnosis.mockResolvedValue({ ...diagnosis, target: { service: "orders-api", pid: 4201, agent_id: "worker-1" } });
+    api.getDropInsightDiagnosis.mockResolvedValue({ ...diagnosis, target: { service: "orders-api", pid: 4201, agent_id: "worker-1", process_binding: { boot_id: "boot", process_start_ticks: 123 } } });
     api.listDropInsightEvidence.mockResolvedValue([{
       evidence_id: "ev-sys-1", role: "NEUTRAL",
       envelope: { evidence_type: "SYS_METRICS_SYS_METRICS", source: { tool_name: "sys_metrics" },
-        observation: { metadata: { summary: { process_cpu_core_usage: 2.4, vmrss_mb: 128, thread_count: 5, fd_count: 12 } } } },
+        scope: { agent_id: "worker-1", pid: 4201 },
+        observation: { metadata: { sample_count: 15, window_duration_seconds: 14, process_identity: { pid: 4201, start_ticks: 123, verified: true }, summary: { process_cpu_core_usage: 2.4, vmrss_mb: 128, vmrss_mb_delta: 0, thread_count: 5, fd_count: 12 } } } },
       classification: { decision: "ACCEPT_LIMITED", can_support_conclusion: false },
     }]);
     api.listDropInsightReports.mockResolvedValue([{ report_id: "r-normal", verification: { status: "INSUFFICIENT_EVIDENCE" }, evidence_refs: [] }]);
     render(<AIDiagnosis />);
 
-    const assessment = await screen.findByText("本次观测窗口未确认故障");
+    const assessment = await screen.findByText("本次检查正常（已检查范围）");
     const tree = screen.getByLabelText("实时诊断探索树");
     expect(assessment.compareDocumentPosition(tree) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText("2.4%")).toBeInTheDocument();
-    const report = screen.getByText("查看完整报告与证据限制").closest("details");
+    const report = (await screen.findByText("查看完整报告与证据限制")).closest("details");
     expect(report).not.toHaveAttribute("open");
     fireEvent.click(screen.getByText("查看完整报告与证据限制"));
     expect(report).toHaveAttribute("open");

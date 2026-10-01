@@ -8038,6 +8038,12 @@ def run_diagnosis_planner(
         }
 
     plan = _cpu_rule_plan_for_query(plan, diagnosis.query, runtime=_diagnosis_runtime_family(diagnosis))
+    from .performance_criteria import performance_observation_plan
+    performance_plan = None if health_check else performance_observation_plan(plan["category"])
+    if performance_plan is not None:
+        # Select an executable observation before persistence. Existing
+        # hypotheses and causal assertions are never rewritten for a score.
+        plan = {**plan, **performance_plan}
     available_tools = _available_planner_tools(diagnosis, binding)
     allowed_tools = _category_allowed_tools(plan["category"], available_tools)
     if not allowed_tools:

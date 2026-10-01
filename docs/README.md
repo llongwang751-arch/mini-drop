@@ -1,6 +1,7 @@
 # 文档入口
 
-- [`ENGINEERING_CASES.md`](ENGINEERING_CASES.md)：默认面试演示的4个真实缺陷、修复前失败与修复后回归、证据生成合同及旧21类历史入口
+- [`PERFORMANCE_DIAGNOSIS.md`](PERFORMANCE_DIAGNOSIS.md)：正常/异常/观测/根因分开判断，21类失败复盘、数值判据与尚需采集的证据
+- [`ENGINEERING_CASES.md`](ENGINEERING_CASES.md)：4个真实缺陷、修复前失败与修复后回归，与21类性能实验独立统计
 
 - [性能修复与最终验收](../reports/architecture/performance-fix-20260930.md)：双机完整小时、HTTP复用/排序缓存、并行窗口计时、查询实体缓存、真实两组三段与浏览器、原始失败保留及根因能力边界
 

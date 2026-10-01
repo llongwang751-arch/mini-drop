@@ -475,9 +475,9 @@ def _derive_signals(
     process_cpu = _optional_number(summary.get("process_cpu_core_usage"))
     app_cpu = _metric(application, "max", "process_cpu_percent")
     cpu_operations = _metric(application, "delta", "cpu_operations", "operation_count")
-    if max(process_cpu or 0.0, app_cpu or 0.0) >= 50.0 or (cpu_operations or 0) > 0:
+    if max(process_cpu or 0.0, app_cpu or 0.0) >= 50.0:
         signals["cpu_hotspot"] = _signal(
-            "target process consumed sustained CPU or advanced its measured compute loop",
+            "target process CPU usage exceeded the observation threshold",
             process_cpu_core_usage=process_cpu,
             application_cpu_percent=app_cpu,
             cpu_operations_delta=cpu_operations,
@@ -495,15 +495,22 @@ def _derive_signals(
     )
     rss_delta = _optional_number(summary.get("vmrss_mb_delta"))
     pss_delta = _optional_number(summary.get("pss_mb_delta"))
-    if (
-        max(retained_mb or 0.0, retained_from_bytes_mb or 0.0) >= 16.0
-        or max(rss_delta or 0.0, pss_delta or 0.0) >= 8.0
-    ):
+    retained_delta_mb = _metric(application, "delta", "retained_memory_mb")
+    retained_delta_bytes = _metric(application, "delta", "retained_memory_bytes", "offheap_retained_bytes")
+    if retained_delta_bytes is not None:
+        retained_delta_mb = retained_delta_bytes / (1024.0 * 1024.0)
+    if max(rss_delta or 0.0, pss_delta or 0.0, retained_delta_mb or 0.0) >= 8.0:
         signals["memory_growth"] = _signal(
             "process memory footprint or instrumented retained memory increased materially",
             retained_memory_mb=max(retained_mb or 0.0, retained_from_bytes_mb or 0.0),
             rss_delta_mb=rss_delta,
             pss_delta_mb=pss_delta,
+            retained_memory_delta_mb=retained_delta_mb,
+        )
+    if max(retained_mb or 0.0, retained_from_bytes_mb or 0.0) >= 16.0:
+        signals["memory_retention"] = _signal(
+            "instrumented retained memory is present; this does not establish growth or a leak",
+            retained_memory_mb=max(retained_mb or 0.0, retained_from_bytes_mb or 0.0),
         )
 
     process_write_rate = _optional_number(summary.get("disk_write_kbps"))
@@ -527,22 +534,22 @@ def _derive_signals(
             io_operations_delta=io_operations,
         )
 
-    network_latency = _metric(application, "max", "network_average_latency_ms")
+    network_latency = _application_window_average(application, "network_requests", "network_average_latency_ms")
     network_requests = _metric(application, "delta", "network_requests")
     if (network_latency or 0.0) >= 100.0 and (network_requests or 0.0) > 0:
         signals["network_latency"] = _signal(
-            "instrumented requests observed sustained network-path latency",
+            "instrumented HTTP path requests observed elevated elapsed time; packet loss and retransmission are unmeasured",
             average_latency_ms=network_latency,
             request_count_delta=network_requests,
             failure_count_delta=_metric(application, "delta", "network_failures"),
         )
+    elif network_latency is not None and (network_requests or 0.0) > 0:
+        signals["network_latency"] = {**_signal("HTTP path elapsed time measured below observation threshold",
+            average_latency_ms=network_latency, request_count_delta=network_requests,
+            failure_count_delta=_metric(application, "delta", "network_failures")), "detected": False}
 
-    downstream_latency = _metric(
-        application,
-        "max",
-        "downstream_average_latency_ms",
-        "downstream_mean_latency_ms",
-    )
+    downstream_latency = _application_window_average(application, "downstream_requests",
+        "downstream_average_latency_ms", "downstream_mean_latency_ms")
     downstream_requests = _metric(application, "delta", "downstream_requests")
     if (downstream_latency or 0.0) >= 100.0 and (downstream_requests or 0.0) > 0:
         signals["downstream_latency"] = _signal(
@@ -551,6 +558,10 @@ def _derive_signals(
             request_count_delta=downstream_requests,
             failure_count_delta=_metric(application, "delta", "downstream_failures"),
         )
+    elif downstream_latency is not None and (downstream_requests or 0.0) > 0:
+        signals["downstream_latency"] = {**_signal("downstream elapsed time measured below observation threshold",
+            average_latency_ms=downstream_latency, request_count_delta=downstream_requests,
+            failure_count_delta=_metric(application, "delta", "downstream_failures")), "detected": False}
 
     http_requests = _metric(application, "delta", "http_requests")
     http_failures = _metric(application, "delta", "http_failures")
@@ -650,6 +661,25 @@ def _derive_signals(
         )
 
     return signals
+
+
+def _application_window_average(application, count_field, *average_fields):
+    """Derive elapsed time for new requests, not the largest lifetime average.
+
+    Application counters expose cumulative means. Subtracting cumulative
+    elapsed-time estimates retains the source's rounding precision. Missing
+    endpoints, resets and inconsistent counters remain unknown, never zero.
+    """
+    before_count = _metric(application, "before", count_field)
+    after_count = _metric(application, "after", count_field)
+    before_mean = _metric(application, "before", *average_fields)
+    after_mean = _metric(application, "after", *average_fields)
+    if (before_count is None or after_count is None or before_count < 0
+            or after_count <= before_count or not before_count.is_integer() or not after_count.is_integer()
+            or after_mean is None or after_mean < 0 or (before_count > 0 and (before_mean is None or before_mean < 0))):
+        return None
+    elapsed = after_mean * after_count - (before_mean or 0) * before_count
+    return elapsed / (after_count - before_count) if math.isfinite(elapsed) and elapsed >= 0 else None
 
 
 def _parse_sys_metrics_document(document: dict[str, Any]) -> dict[str, Any]:
