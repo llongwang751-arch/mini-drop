@@ -1,0 +1,66 @@
+Sending build context to Docker daemon  9.422MB
+
+Step 1/5 : FROM sha256:a546d49be47ebfa5d1e2104f19de718443c7036fcf1567d30a2fb9ae62f8f037
+ ---> a546d49be47e
+Step 2/5 : COPY server/ /app/server/
+ ---> 5b1783c44e3b
+Step 3/5 : COPY analyzer/ /app/analyzer/
+ ---> 70b6737f8337
+Step 4/5 : COPY scripts/ /app/scripts/
+ ---> b9e3ca43c015
+Step 5/5 : COPY contracts/ /app/contracts/
+ ---> 07b621049147
+Successfully built 07b621049147
+Successfully tagged mini-drop-diagnosis-worker:20261001T160532Z
+candidate imports passed
+Sending build context to Docker daemon  9.422MB
+
+Step 1/5 : FROM sha256:9a645ce41f763476851d9ff357882fecbf57d8cd4a9a1fa747644873b43b545c
+ ---> 9a645ce41f76
+Step 2/5 : COPY server/ /app/server/
+ ---> 4b2955310e4f
+Step 3/5 : COPY analyzer/ /app/analyzer/
+ ---> 613641f8bc7e
+Step 4/5 : COPY scripts/ /app/scripts/
+ ---> 2269d574a9ec
+Step 5/5 : COPY contracts/ /app/contracts/
+ ---> 73be817698b6
+Successfully built 73be817698b6
+Successfully tagged mini-drop-analyzer:20261001T160532Z
+candidate imports passed
+Sending build context to Docker daemon  9.422MB
+
+Step 1/2 : FROM sha256:ff3aa8f1c8834ebc5aa2ace41a0f8fd6fd3b755a23e3f156e5a29aa6281b9b3b
+ ---> ff3aa8f1c883
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 9583844104af
+Successfully built 9583844104af
+Successfully tagged mini-drop-web:20261001T160532Z
+{"release": "/opt/mini-drop-releases/20261001T160532Z", "previous_release": "/opt/mini-drop-releases/20261001T140111Z", "status": "HEALTHY", "manifest_sha256": "26a8802b2c73136ffa7506a31803542fa155c1233907d0c36fed3d26231d6a00", "source_head": "f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff", "changed_services": ["diagnosis-worker", "analyzer", "web"], "images": {"diagnosis-worker": {"old": "sha256:a546d49be47ebfa5d1e2104f19de718443c7036fcf1567d30a2fb9ae62f8f037", "new": "sha256:07b621049147d9b35fbf6d78a5310cf97aaf3f26761e0fa7ce25d89a6befc04c", "tag": "mini-drop-diagnosis-worker:20261001T160532Z"}, "analyzer": {"old": "sha256:9a645ce41f763476851d9ff357882fecbf57d8cd4a9a1fa747644873b43b545c", "new": "sha256:73be817698b663808cf2665b595dc7e348bb6649453e5ca88672567c7bbdba2e", "tag": "mini-drop-analyzer:20261001T160532Z"}, "web": {"old": "sha256:ff3aa8f1c8834ebc5aa2ace41a0f8fd6fd3b755a23e3f156e5a29aa6281b9b3b", "new": "sha256:9583844104af64dc89f94ade0809dd7a54f8aa034e0be6a4863fd17d7d006023", "tag": "mini-drop-web:20261001T160532Z"}}, "untouched_container_count": 10, "rollback_config": "/opt/mini-drop-releases/20261001T160532Z/private/rollback.compose.json"}
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+time="2026-10-02T00:10:51+08:00" level=warning msg="Found orphan containers ([mini-drop-control-go-hotspot-1 mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started
+time="2026-10-02T00:11:04+08:00" level=warning msg="Found orphan containers ([mini-drop-control-go-hotspot-1 mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-analyzer-1  Recreate
+ Container mini-drop-control-analyzer-1  Recreated
+ Container mini-drop-control-analyzer-1  Starting
+ Container mini-drop-control-analyzer-1  Started
+time="2026-10-02T00:11:27+08:00" level=warning msg="Found orphan containers ([mini-drop-control-go-hotspot-1 mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-diagnosis-worker-1  Recreate
+ Container mini-drop-control-diagnosis-worker-1  Recreated
+ Container mini-drop-control-diagnosis-worker-1  Starting
+ Container mini-drop-control-diagnosis-worker-1  Started

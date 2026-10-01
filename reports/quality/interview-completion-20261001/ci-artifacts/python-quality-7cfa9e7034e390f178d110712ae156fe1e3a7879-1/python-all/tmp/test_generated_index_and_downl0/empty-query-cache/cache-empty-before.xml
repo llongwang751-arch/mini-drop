@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="9" time="0.486" timestamp="2026-09-30T23:05:35.799371+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_office_query_cache" name="test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_empty_or_failed_extraction_is_never_cached" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_restored_instances_reuse_query_extraction_but_always_read_current_graph" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{&quot;entities&quot;:[],&quot;relations&quot;:[]}-1]" time="0.001"><failure message="assert 2 == 1&#10; +  where 2 = len([1, 1])">response = '{"entities":[],"relations":[]}', expected_calls = 1
+
+    @pytest.mark.parametrize('response,expected_calls', [
+        ('{"entities":[],"relations":[]}',1),
+        ('```json\n{"entities":[],"relations":[]}\n```',1),
+        ('invalid json',2),
+        ('{}',2),
+        ('{"entities":"wrong","relations":[]}',2),
+        (RuntimeError('model offline'),2),
+    ])
+    def test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses(response,expected_calls):
+        import json
+        calls=[]
+        def llm(*args):
+            calls.append(1)
+            if isinstance(response,Exception):raise response
+            return response
+        class Extractor:
+            def __init__(self,llm_fn):self.llm_fn=llm_fn
+            def extract(self,text):
+                try:
+                    raw=self.llm_fn('system',text).strip()
+                    if raw.startswith('```json'):raw=raw[7:]
+                    if raw.endswith('```'):raw=raw[:-3]
+                    json.loads(raw.strip())
+                except Exception:pass
+                return SimpleNamespace(entities=[],relations=[])
+        class Store:
+            def __init__(self,cfg,user_id):
+                self.user_id=user_id;self.extractor=Extractor(llm)
+            def search(self,text):return self.extractor.extract(text)
+        cache=QueryExtractionCache();install_on(Store,Extractor,cache)
+        store=Store('config','alice')
+        store.search('leave');store.search('leave')
+&gt;       assert len(calls)==expected_calls
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_office_query_cache.py:104: AssertionError</failure></testcase><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\n{&quot;entities&quot;:[],&quot;relations&quot;:[]}\n```-1]" time="0.001"><failure message="assert 2 == 1&#10; +  where 2 = len([1, 1])">response = '```json\n{"entities":[],"relations":[]}\n```', expected_calls = 1
+
+    @pytest.mark.parametrize('response,expected_calls', [
+        ('{"entities":[],"relations":[]}',1),
+        ('```json\n{"entities":[],"relations":[]}\n```',1),
+        ('invalid json',2),
+        ('{}',2),
+        ('{"entities":"wrong","relations":[]}',2),
+        (RuntimeError('model offline'),2),
+    ])
+    def test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses(response,expected_calls):
+        import json
+        calls=[]
+        def llm(*args):
+            calls.append(1)
+            if isinstance(response,Exception):raise response
+            return response
+        class Extractor:
+            def __init__(self,llm_fn):self.llm_fn=llm_fn
+            def extract(self,text):
+                try:
+                    raw=self.llm_fn('system',text).strip()
+                    if raw.startswith('```json'):raw=raw[7:]
+                    if raw.endswith('```'):raw=raw[:-3]
+                    json.loads(raw.strip())
+                except Exception:pass
+                return SimpleNamespace(entities=[],relations=[])
+        class Store:
+            def __init__(self,cfg,user_id):
+                self.user_id=user_id;self.extractor=Extractor(llm)
+            def search(self,text):return self.extractor.extract(text)
+        cache=QueryExtractionCache();install_on(Store,Extractor,cache)
+        store=Store('config','alice')
+        store.search('leave');store.search('leave')
+&gt;       assert len(calls)==expected_calls
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_office_query_cache.py:104: AssertionError</failure></testcase><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[invalid json-2]" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{}-2]" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{&quot;entities&quot;:&quot;wrong&quot;,&quot;relations&quot;:[]}-2]" time="0.001" /><testcase classname="tests.test_office_query_cache" name="test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[response5-2]" time="0.001" /></testsuite></testsuites>

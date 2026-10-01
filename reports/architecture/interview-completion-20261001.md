@@ -1,13 +1,21 @@
 # 面试交付五个重点补齐：2026-10-01
 
-本轮工程实验与实现已经完成，统一发布等待精确提交的CI。发布及浏览器回执将追加于本文，不提前把候选称为线上版本。
+本轮五个重点已经交付。统一发布20261001T160532Z / f8562dfb，精确CI13/13和真实浏览器通过。
+
+统一版本已发布`20261001T160532Z`，后端与Web都来自同一Git源码`f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff`。[CI36888942005](https://github.com/llongwang751-arch/mini-drop/actions/runs/36888942005)成功13/13；PR测试merge7cfa9e7与发布提交Git tree一致，证据已核对。Python1451通过/16登记跳过、Web309通过、真实PG14通过零跳过、真实Chromium7项回归通过；Chroma独立零跳过及Go race/安全/真实镜像与连续I/O专项通过。之前的CI浏览器失败、业务两次失败和原8/18评分保留。
+
+Worker/Analyzer各208份源码、Web58份容器内和公网文件SHA一致；13容器健康，另10容器ID保持，21故障inactive。部署前后Office保持紧邻基线PID2670585/NRestarts=0、agent-workspace-20261001T160559Z；本轮更早Office由外部工作独立更新，不能声称整轮不变。API二进制SHA保持。回滚配置`/opt/mini-drop-releases/20261001T160532Z/private/rollback.compose.json`，旧发布与数据保留。
+
+真实浏览器验证工程14/21/路径4/21/反证5、18新+3旧范围、五个体检状态、业务find_longest_match报告、原CPU/HTTP/I/O路径及浏览器前进后退、4工程案例/9份下载SHA与1440/1024/768/375宽度，无JS/HTTP错误。上线后另一个真实Go正常检查验证trace/span关联标签在可信重绑后保留，2份原始下载SHA一致；标签为明确测试值，不冒充真实请求因果。三次隔离业务进程均已退出。全部证据及发布回执见[补齐交付](interview-completion-20261001.md)与[归档清单](../quality/interview-completion-20261001/manifest.json)。
+
+
 
 | 重点 | 实际结果 | 可审查证据 |
 |---|---|---|
 | 当前状态检查 | 正常、真实CPU异常、故障撤销恢复、采样取消后无法判断、重新采样正常，五个独立会话；8份原始下载SHA一致，无根因报告 | `reports/quality/interview-completion-20261001/go-*` |
 | 业务修复闭环 | 隔离真实HTTP/SQLite FTS5，三窗共1080次、成功/质量100%；同96候选/4RPS/360次，P95 68.377→2.696ms | `business-fix-r3/validated-comparison.json`及原始三窗/source/6份产物；前两次失败保持 |
 | 数据库可靠性 | 新增真实PG并发收束、事务回滚、提交前/后进程退出、新进程重试、取消竞争、未完成采样门禁6项；CI36882851972新旧共14通过零跳过 | tests/test_health_check_postgres.py；CI真实PG job110438703399 |
-| 可复现交付 | 视觉源码与功能统一Git；修正浏览器旧视口断言/端口冲突；请求trace/span在重绑时保留，身份权限仍需重验 | 精确CI与发布回执待追加；旧trace2失败/修复后通过，Chromium旧布局失败保留 |
+| 可复现交付 | 视觉源码与功能统一Git；修正浏览器旧视口断言/端口冲突；请求trace/span在重绑时保留，身份权限仍需重验 | 精确CI13/13及发布回执已归档；旧trace2失败/修复后通过，Chromium旧布局失败保留 |
 | 性能扩展 | 18类独立新实验，79份原始下载SHA一致，18类撤销/恢复/收束完成；连同此前3条记录，工程判断14/21、具体路径4/21、有效反证5条 | performance-manifest.json、performance-18.json、18个原始case及生成工程索引 |
 
 工程14项包括4项具体路径、5项有界支持与5项有效反证。内存注入在诊断窗前已进入保留平台期，增长假设被反驳不代表无内存压力，更不能称为识别内存泄漏。Java GC观测要求分配Profile和同任务独立GC计数器；锁等待Profile只描述采到的等待，不提供锁持有者或代码级因果证明。Python支持要求重算具备源码位置的函数份额和独立Linux CPU计数，均不改原报告因果标志。

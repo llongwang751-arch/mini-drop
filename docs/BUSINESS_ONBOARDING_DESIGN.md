@@ -1,6 +1,14 @@
 # Mini-Drop 如何接入业务：优化设计与执行顺序
 
-## 2026-10-01 当前演示补齐
+## 2026-10-02 当前演示补齐（已部署）
+
+统一版本已发布`20261001T160532Z`，后端与Web都来自同一Git源码`f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff`。[CI36888942005](https://github.com/llongwang751-arch/mini-drop/actions/runs/36888942005)成功13/13；PR测试merge7cfa9e7与发布提交Git tree一致，证据已核对。Python1451通过/16登记跳过、Web309通过、真实PG14通过零跳过、真实Chromium7项回归通过；Chroma独立零跳过及Go race/安全/真实镜像与连续I/O专项通过。之前的CI浏览器失败、业务两次失败和原8/18评分保留。
+
+Worker/Analyzer各208份源码、Web58份容器内和公网文件SHA一致；13容器健康，另10容器ID保持，21故障inactive。部署前后Office保持紧邻基线PID2670585/NRestarts=0、agent-workspace-20261001T160559Z；本轮更早Office由外部工作独立更新，不能声称整轮不变。API二进制SHA保持。回滚配置`/opt/mini-drop-releases/20261001T160532Z/private/rollback.compose.json`，旧发布与数据保留。
+
+真实浏览器验证工程14/21/路径4/21/反证5、18新+3旧范围、五个体检状态、业务find_longest_match报告、原CPU/HTTP/I/O路径及浏览器前进后退、4工程案例/9份下载SHA与1440/1024/768/375宽度，无JS/HTTP错误。上线后另一个真实Go正常检查验证trace/span关联标签在可信重绑后保留，2份原始下载SHA一致；标签为明确测试值，不冒充真实请求因果。三次隔离业务进程均已退出。全部证据及发布回执见[补齐交付](../reports/architecture/interview-completion-20261001.md)与[归档清单](../reports/quality/interview-completion-20261001/manifest.json)。
+
+
 
 入口仍为 https://120.24.187.205/ai-diagnosis，具体线上提交及发布状态先看PROJECT_CONTEXT顶部。新增21类工程索引为判断14/21、路径4/21、反证5条（18类新实验+3类先前记录），7类不足公开保留，旧因果0/21单列。不要把工程判断、具体定位与因果根因混为同一个成功率。
 

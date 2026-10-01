@@ -1,0 +1,288 @@
+{
+  "schema": "mini-drop.quality-report.v1",
+  "run_id": "20261001T160308Z-7295e773",
+  "state": "COMPLETED",
+  "profile": "python",
+  "started_at": "2026-10-01T16:03:08.925881+00:00",
+  "scope": "Repository regression only; live diagnosis, capacity and production release are separate acceptances.",
+  "plan_sha256": "814808aaefe3205d16f49d722327c719a7dd02416449d2f4fd2f4d775dd9a5fe",
+  "environment": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "7cfa9e7034e390f178d110712ae156fe1e3a7879",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": false,
+    "source_sha256": "95fc28a1773aa2273cf8094d01b1fed1bf264c0683d06fa592012c4ca13d9aa6",
+    "source_files": 480
+  },
+  "selected_suites": [
+    "contracts",
+    "python-all"
+  ],
+  "suites": [
+    {
+      "id": "contracts",
+      "title": "协议与业务测试计划一致性",
+      "risks": [
+        "contract-drift"
+      ],
+      "started_at": "2026-10-01T16:03:10.173841+00:00",
+      "returncodes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "logs": [
+        "contracts/command-1.log",
+        "contracts/command-2.log",
+        "contracts/command-3.log",
+        "contracts/command-4.log",
+        "contracts/command-5.log",
+        "contracts/command-6.log",
+        "contracts/command-7.log",
+        "contracts/command-8.log",
+        "contracts/command-9.log"
+      ],
+      "counts": null,
+      "duration_seconds": 1.58,
+      "status": "PASSED",
+      "artifacts": {
+        "contracts/command-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-7.log": "723c84cfb22ca14b54a1ffb51fef36c9733239258c6f584131c760f44310b27b",
+        "contracts/command-6.log": "a9b2131e3ebab4cb60406574fffa95111408a9177afb1e66662a505160ee4ee9",
+        "contracts/command-9.log": "7acfa9de1ce8de0d06a18bd6aae45124d84ac038676a7b4008a50e4fc1d6a134",
+        "contracts/command-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-8.log": "03ca5b60889c7297bd777d757c300cfe78d0ee1d15201969e70df827e594c87b",
+        "contracts/command-5.log": "6103778d8a4262c5205dac2379a16b7f02131dfa8671c33749846366f3c40915"
+      }
+    },
+    {
+      "id": "python-all",
+      "title": "Python 全量回归与覆盖率观测",
+      "risks": [
+        "task-lifecycle",
+        "false-conclusion",
+        "business-regression",
+        "test-harness"
+      ],
+      "started_at": "2026-10-01T16:03:11.754816+00:00",
+      "returncodes": [
+        0
+      ],
+      "logs": [
+        "python-all/command-1.log"
+      ],
+      "counts": {
+        "total": 1467,
+        "passed": 1451,
+        "failed": 0,
+        "skipped": 16,
+        "unexpected_skips": [],
+        "failures": [],
+        "skips": [
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_competing_cancellations_fence_late_planner",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_cancellation_fences_late_analyzer_commit",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_skill_activation_serializes_competing_planners",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_claim_lease_takeover_and_fencing",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_session_lock_serializes_event_effect_identity",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_concurrent_completion_waits_for_parent_lock_and_commits_once",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_exception_rolls_back_event_terminal_status_and_call_phase",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_process_death_and_fresh_process_retry_preserve_atomic_completion[before]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_process_death_and_fresh_process_retry_preserve_atomic_completion[after]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_cancellation_wins_against_a_waiting_completion",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_health_check_postgres::test_running_sample_cannot_finish_and_import_requires_durable_phase",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+            "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+          },
+          {
+            "test": "tests.test_sre_agent_upgrade::test_real_chroma_snapshot_and_retrieval",
+            "reason": "could not import 'chromadb': No module named 'chromadb'"
+          },
+          {
+            "test": "tests.test_sre_agent_upgrade::test_chroma_http_requests_are_bounded_from_startup",
+            "reason": "could not import 'chromadb': No module named 'chromadb'"
+          }
+        ]
+      },
+      "coverage": {
+        "mode": "OBSERVATION_ONLY",
+        "covered_lines": 11266,
+        "num_statements": 15128,
+        "percent_covered": 71.23967754620527,
+        "percent_covered_display": "71",
+        "missing_lines": 3862,
+        "excluded_lines": 17,
+        "percent_statements_covered": 74.4711792702274,
+        "percent_statements_covered_display": "74",
+        "num_branches": 5216,
+        "num_partial_branches": 1001,
+        "covered_branches": 3227,
+        "missing_branches": 1989,
+        "percent_branches_covered": 61.86733128834356,
+        "percent_branches_covered_display": "62"
+      },
+      "critical_coverage": {
+        "mode": "GATED",
+        "minimum": 88.4,
+        "modules": {
+          "server/app/drop_insight/business_acceptance.py": {
+            "percent_covered": 94.69,
+            "floor": 94,
+            "observed": true
+          },
+          "server/app/drop_insight/event_store.py": {
+            "percent_covered": 95.7,
+            "floor": 95,
+            "observed": true
+          },
+          "server/app/drop_insight/hypothesis_predicate.py": {
+            "percent_covered": 88.4,
+            "floor": 85,
+            "observed": true
+          },
+          "server/app/drop_insight/report_conclusion.py": {
+            "percent_covered": 100.0,
+            "floor": 100,
+            "observed": true
+          },
+          "server/app/drop_insight/fix_verification.py": {
+            "percent_covered": 100.0,
+            "floor": 100,
+            "observed": true
+          }
+        },
+        "breaches": []
+      },
+      "duration_seconds": 106.689,
+      "status": "PASSED_WITH_SKIPS",
+      "artifacts": {
+        "python-all/coverage.json": "3148fbfa60c3eb1122e0fb57589ee75cc9cb12a5072ba3d8ecc955737863dc15",
+        "python-all/junit.xml": "9ebb0dbeb7e7b4390090f77ee64ec89f35914152d93b542b107a5f7f19f4057a",
+        "python-all/command-1.log": "d83a23af96baa6a510ab137cc3635b80e977f85288506f3293b040918c7226d6",
+        "python-all/.coverage": "8ebe414821d21f334d1628cc5795e888375cd732d057eea3c5caaacf23eb60fb"
+      }
+    }
+  ],
+  "status": "PASSED_WITH_SKIPS",
+  "risk_results": {
+    "contract-drift": {
+      "description": "跨语言协议或生成物漂移",
+      "suites": [
+        "contracts"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "task-lifecycle": {
+      "description": "非法状态迁移、重复效果与预算泄漏",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "false-conclusion": {
+      "description": "无效证据或缺失观测被误判为已验证",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "business-regression": {
+      "description": "降低负载或牺牲回答质量换取更快延迟",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    },
+    "ui-regression": {
+      "description": "页面状态、异步竞争与报告展示错误",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "api-regression": {
+      "description": "接口鉴权、调度与并发行为回归",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "test-harness": {
+      "description": "测试未执行、跳过或报告损坏却被判通过",
+      "suites": [
+        "python-all"
+      ],
+      "statuses": [
+        "PASSED_WITH_SKIPS"
+      ]
+    }
+  },
+  "finished_at": "2026-10-01T16:04:58.449103+00:00",
+  "environment_after": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "7cfa9e7034e390f178d110712ae156fe1e3a7879",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": true,
+    "source_sha256": "95fc28a1773aa2273cf8094d01b1fed1bf264c0683d06fa592012c4ca13d9aa6",
+    "source_files": 480
+  }
+}

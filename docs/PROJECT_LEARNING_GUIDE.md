@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2660 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **2819 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 390 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 488 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2149,14 +2149,111 @@ python scripts/render_learning_guide.py
 | `reports/quality/health-check-flow-20261001/web-source/web/src/pages/` | pages 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/instance-scope-20260930/` | instance-scope-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/` | interview-completion-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/business-fix/` | business-fix 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/business-fix-r2/` | business-fix-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/business-fix-r3/` | business-fix-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/business-fix-r3/artifacts/` | artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/business-fix-r3/source/` | source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/` | ci-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/` | hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/postgres-concurrency-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/` | postgres-concurrency-7cfa9e7034e390f178d110712ae156fe1e3a7879-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/` | python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/` | tmp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_0/` | test_after_skips_and_failures_0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_1/` | test_after_skips_and_failures_1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_2/` | test_after_skips_and_failures_2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_current/` | test_after_skips_and_failures_current 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_all_skipped_is_failed_eve0/` | test_all_skipped_is_failed_eve0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_all_skipped_is_failed_evecurrent/` | test_all_skipped_is_failed_evecurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_artifact_path_cannot_esca0/` | test_artifact_path_cannot_esca0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_artifact_path_cannot_escacurrent/` | test_artifact_path_cannot_escacurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_0/` | test_campaign_error_preserves_0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_0/failed/` | failed 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_current/` | test_campaign_error_preserves_current 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_current/failed/` | failed 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_complete_raw_evidence_is_0/` | test_complete_raw_evidence_is_0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_complete_raw_evidence_is_current/` | test_complete_raw_evidence_is_current 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_a0/` | test_critical_coverage_at_or_a0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_a0/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_acurrent/` | test_critical_coverage_at_or_acurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_acurrent/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_f0/` | test_critical_coverage_below_f0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_f0/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_fcurrent/` | test_critical_coverage_below_fcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_fcurrent/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_o0/` | test_critical_coverage_names_o0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_o0/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_ocurrent/` | test_critical_coverage_names_ocurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_ocurrent/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_f0/` | test_critical_module_missing_f0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_f0/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_fcurrent/` | test_critical_module_missing_fcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_fcurrent/critical/` | critical 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_distributed_render_requir0/` | test_distributed_render_requir0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_distributed_render_requircurrent/` | test_distributed_render_requircurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_error0/` | test_empty_or_collection_error0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_error1/` | test_empty_or_collection_error1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_errorcurrent/` | test_empty_or_collection_errorcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_existing_evidence_directo0/` | test_existing_evidence_directo0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_existing_evidence_directocurrent/` | test_existing_evidence_directocurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/` | test_generated_index_and_downl0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/empty-query-cache/` | empty-query-cache 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/notification-lifecycle/` | notification-lifecycle 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/skill-first-insert-race/` | skill-first-insert-race 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/` | test_generated_index_and_downlcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/empty-query-cache/` | empty-query-cache 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/notification-lifecycle/` | notification-lifecycle 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/skill-first-insert-race/` | skill-first-insert-race 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejecte0/` | test_hash_tampering_is_rejecte0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejectecurrent/` | test_hash_tampering_is_rejectecurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_html_escapes_logs_and_tes0/` | test_html_escapes_logs_and_tes0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_html_escapes_logs_and_tescurrent/` | test_html_escapes_logs_and_tescurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_junit_uses_executed_cases0/` | test_junit_uses_executed_cases0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_junit_uses_executed_casescurrent/` | test_junit_uses_executed_casescurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_manifest_hash_and_running0/` | test_manifest_hash_and_running0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_manifest_hash_and_runningcurrent/` | test_manifest_hash_and_runningcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_raw_corruption_is_rejecte0/` | test_raw_corruption_is_rejecte0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_raw_corruption_is_rejectecurrent/` | test_raw_corruption_is_rejectecurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_0/` | test_rehashed_manifest_cannot_0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_1/` | test_rehashed_manifest_cannot_1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_2/` | test_rehashed_manifest_cannot_2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_3/` | test_rehashed_manifest_cannot_3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_4/` | test_rehashed_manifest_cannot_4 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_5/` | test_rehashed_manifest_cannot_5 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_current/` | test_rehashed_manifest_cannot_current 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil0/` | test_rehashed_raw_records_stil0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil1/` | test_rehashed_raw_records_stil1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil2/` | test_rehashed_raw_records_stil2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil3/` | test_rehashed_raw_records_stil3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil4/` | test_rehashed_raw_records_stil4 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil5/` | test_rehashed_raw_records_stil5 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stilcurrent/` | test_rehashed_raw_records_stilcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong0/` | test_resource_data_must_belong0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong1/` | test_resource_data_must_belong1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong2/` | test_resource_data_must_belong2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong3/` | test_resource_data_must_belong3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belongcurrent/` | test_resource_data_must_belongcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_summary_is_recom0/` | test_resource_summary_is_recom0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_summary_is_recomcurrent/` | test_resource_summary_is_recomcurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_skip_allowlist_requires_c0/` | test_skip_allowlist_requires_c0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_skip_allowlist_requires_ccurrent/` | test_skip_allowlist_requires_ccurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_in0/` | test_source_edit_during_run_in0 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_in0/run/` | run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_incurrent/` | test_source_edit_during_run_incurrent 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_incurrent/run/` | run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/ci/dabed840dc58936bb4204582e74e137ce6e54b25/` | dabed840dc58936bb4204582e74e137ce6e54b25 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/go-anomaly/` | go-anomaly 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/go-interrupted/` | go-interrupted 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/go-normal/` | go-normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/` | go-postrelease-trace 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/go-recovery/` | go-recovery 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/go-resampled/` | go-resampled 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/performance-18-cases/` | performance-18-cases 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2178,6 +2275,7 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/performance-18-cases/noisy-neighbor-artifacts/` | noisy-neighbor-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog-artifacts/` | queue-backlog-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/` | source-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-completion-20261001/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/` | performance-diagnosis-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/before-source/` | before-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/` | coverage-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3995,6 +4093,34 @@ python scripts/render_learning_guide.py
 | `reports/quality/instance-scope-20260930/web-browser.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/instance-scope-20260930/worker-rpc-errors.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/browser/business-similarity-path.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/current-engineering-acceptance.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/engineering-cpu-button.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/engineering.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/failure-audit.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/go-cpu-hotspot.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/go-file-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/go-network-latency.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-anomaly-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-anomaly-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-anomaly.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-normal.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-recovery.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-resampled.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-unknown-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-unknown-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/health-unknown.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/history-back-network.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/history-forward-io.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/browser/performance-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/performance-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/performance-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/performance-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/interview-completion-20261001/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/browser_engineering.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-all-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/business-fix-r2/baseline-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/business-fix-r2/baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/business-fix-r2/before-started.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4043,7 +4169,116 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/business-fix/fixture-exit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/business-fix/ready.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/business-fix/source-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/business-grade-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/campaign-runner-frozen.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `download_artifacts`、`run_case`、`run_campaign` |
+| `reports/quality/interview-completion-20261001/checkout-line-ending-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/browser-fixture-result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/download-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/hotspot-controls-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/postgres-concurrency-7cfa9e7034e390f178d110712ae156fe1e3a7879-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/postgres-concurrency-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/postgres-concurrency-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_0/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_0/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_1/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_1/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_2/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_2/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_current/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_after_skips_and_failures_current/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_all_skipped_is_failed_eve0/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_all_skipped_is_failed_evecurrent/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_artifact_path_cannot_esca0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_artifact_path_cannot_escacurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_0/failed/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_campaign_error_preserves_current/failed/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_complete_raw_evidence_is_0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_complete_raw_evidence_is_current/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_a0/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_at_or_acurrent/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_f0/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_below_fcurrent/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_o0/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_coverage_names_ocurrent/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_f0/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_critical_module_missing_fcurrent/critical/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_distributed_render_requir0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_distributed_render_requircurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_error0/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_error1/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_empty_or_collection_errorcurrent/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_existing_evidence_directo0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_existing_evidence_directocurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/empty-query-cache/cache-empty-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/empty-query-cache/cache-empty-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/notification-lifecycle/notification-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/skill-first-insert-race/postgres-race-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downl0/skill-first-insert-race/postgres-race-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/empty-query-cache/cache-empty-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/empty-query-cache/cache-empty-targeted.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/notification-lifecycle/notification-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/skill-first-insert-race/postgres-race-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_generated_index_and_downlcurrent/skill-first-insert-race/postgres-race-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejecte0/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejecte0/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejectecurrent/after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_hash_tampering_is_rejectecurrent/before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_html_escapes_logs_and_tes0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_html_escapes_logs_and_tescurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_junit_uses_executed_cases0/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_junit_uses_executed_casescurrent/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_manifest_hash_and_running0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_manifest_hash_and_runningcurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_raw_corruption_is_rejecte0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_raw_corruption_is_rejectecurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_2/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_3/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_4/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_5/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_manifest_cannot_current/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil2/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil3/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil4/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stil5/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_rehashed_raw_records_stilcurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong2/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belong3/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_data_must_belongcurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_summary_is_recom0/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_resource_summary_is_recomcurrent/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_skip_allowlist_requires_c0/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_skip_allowlist_requires_ccurrent/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_in0/run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/python-all/tmp/test_source_edit_during_run_incurrent/run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/python-quality-7cfa9e7034e390f178d110712ae156fe1e3a7879-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-artifacts/web-browser-7cfa9e7034e390f178d110712ae156fe1e3a7879-1.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci-source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci/dabed840dc58936bb4204582e74e137ce6e54b25/jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci/dabed840dc58936bb4204582e74e137ce6e54b25/run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/ci/job-110438703628.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/collect_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/exact-head-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/final-domain-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-runtime-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-web-0.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-web-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-web-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/final-web.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-anomaly/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-anomaly/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-anomaly/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4061,6 +4296,12 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/go-normal/task_20261001_145919_fa1f47-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-normal/task_20261001_145919_fa1f47-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-normal/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/task_20261001_161348_537a51-manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/task_20261001_161348_537a51-sys_metrics.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/go-postrelease-trace/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-recovery/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-recovery/downloads.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/go-recovery/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4075,6 +4316,7 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/go-resampled/verified.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/grade_business_fix_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `p95` |
 | `reports/quality/interview-completion-20261001/health-business-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-callgraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-flamegraph_json.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/performance-18-cases/cpp-cpu-hotspot-artifacts/task_20261001_153006_86606f-flamegraph_svg.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4174,11 +4416,24 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/performance-18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/performance-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/postrelease-correlation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/postrelease_trace_check.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/profile-cpu-tests-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/profile-cpu-tests-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/profile-cpu-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/profile-tests-fixed.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/profile-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/interview-completion-20261001/release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/release/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/run_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/run_business_fix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `reader` |
 | `reports/quality/interview-completion-20261001/run_business_fix_r2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/run_business_fix_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4187,8 +4442,10 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/runner-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/runtime-after-trials.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/runtime-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/trace-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/trace-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-completion-20261001/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/after-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

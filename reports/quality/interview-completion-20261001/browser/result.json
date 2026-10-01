@@ -1,0 +1,787 @@
+{
+  "passed": true,
+  "history_navigation_checked": true,
+  "engineering_diagnosis": {
+    "schema": "mini-drop.engineering-diagnosis-index.v1",
+    "profile": "engineering-diagnosis.v1",
+    "evaluation_mode": "MIXED_LIVE_CAMPAIGNS",
+    "fresh_live_run": false,
+    "fresh_live_scenarios": 18,
+    "regraded_prior_scenarios": 3,
+    "registered_scenarios": 21,
+    "evaluated_scenarios": 21,
+    "diagnosis_accepted": 14,
+    "localization_accepted": 4,
+    "refuted": 5,
+    "not_evaluated": [],
+    "cases": [
+      {
+        "scenario_id": "cpu-hotspot",
+        "diagnosis_id": "insight_4e2cac8347544786a09d9352c3237495",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_78c41bd87964529af575ff1f5de0bfa5",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "CPU 计算热点",
+        "case_sha256": "dac45a784c0b828be5f5e8deb739349a953d8d8ccadd01c2df6cca059c6adcba",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "source-hotspot",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Python 源码热点",
+        "case_sha256": "205e8f48cd99e45566ca50db3c51033c7d698a8b427c15438038d00c025265ae",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "memory-pressure",
+        "diagnosis_id": "insight_480fec9591864e36bc3dd8a8ae6d7a10",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_4195815ae9bd12c4dfeb024f8a21488e",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_02e3a809191acf9bd3785fa56e2fbe40",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "进程内存增长",
+        "case_sha256": "220c7e1873257336d18118ee10f3a274d8c7454a61de4eac8c47c4fe15568c4d",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "io-write-latency",
+        "diagnosis_id": "insight_27352930329e4a2489c8cebc446d6a83",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_155c71ce1ad9c0285641babd1d9eac84",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_869abc3ad8a6cf15a625fe9a55996c38",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "同步写入压力",
+        "case_sha256": "30f7524f041840a4af432bb0ca3560831a4c322f4a25f1da0a715da3128c067d",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "noisy-neighbor",
+        "diagnosis_id": "insight_c806274673034a82a704327e63b3877b",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_657338512b283d1588dc9a052399743a",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_7dd706138b4e7cd5b23f5015bce820a2",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "同机噪声邻居",
+        "case_sha256": "03bbdf4352fb529929b3a951d64d1b81bd89ed9aa5a83e8999c85043a6dea694",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "load-saturation",
+        "diagnosis_id": "insight_ba83f061fe8848a5ba95409f4525eadd",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_f4faa762ecc041f9a973fbc6419d18ce",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "入口负载饱和",
+        "case_sha256": "5c2e0afc0fefe832c881e8edfb98a36972c59d734ab46852653d0a3bb97fcdc5",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "queue-backlog",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "生产消费队列堆积",
+        "case_sha256": "b47c3c925d96046983c0519de4bf19a9d87e044447d3ff2b27b2874d30e789d6",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "go-cpu-hotspot",
+        "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "main.runCPUFault；main.goCPUHotFunction",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_c45097843ac98795520072c62416514c",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "main.runCPUFault；main.goCPUHotFunction",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 服务 CPU 热点",
+        "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+        "fresh_live_run": false
+      },
+      {
+        "scenario_id": "go-network-latency",
+        "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_edde7124ef71a1cafad121c60943c593",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 网络等待与下游慢响应",
+        "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a",
+        "fresh_live_run": false
+      },
+      {
+        "scenario_id": "go-memory-growth",
+        "diagnosis_id": "insight_c8fd60186dc34bcbab99b102879cdddd",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_5c7d4acaa6c560e0547d3d9371bbbaaa",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 堆内存持续增长",
+        "case_sha256": "3251e2ba16d079dc83b57086734a3a7ca1d6a9ca288e6e0de87ef5c7871fb517",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "go-file-io",
+        "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 同步文件写入",
+        "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b",
+        "fresh_live_run": false
+      },
+      {
+        "scenario_id": "java-gc-pressure",
+        "diagnosis_id": "insight_d828a33b55b74fb3965f0ce3c5a7f249",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_7b52c7ede1771ac21e828336cebc56a6",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_6df1d173790675f7c9e41f1f0f452672",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 分配风暴与 GC 压力",
+        "case_sha256": "2ef939e648d799f6d5f12fc80ec4c1affdcb9e94fc6f12687106b9bb4a7367cf",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "java-lock-contention",
+        "diagnosis_id": "insight_c5d19923c6524f1589dd2bcac90920f1",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_537b9fad241d839fbc358abe981bd341",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_d3914a7684abe5f139738684f0cb7031",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 锁竞争",
+        "case_sha256": "fecc28a2b6b68014521f83d11b40ff36ac6354ea3d904340937ff4c5ce3bedba",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "java-downstream-latency",
+        "diagnosis_id": "insight_7faa74ba878d4555b2b72185ce81888f",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "下游调用耗时路径",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_1529588fbc2fdd9e9cda5bde8281c089",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "下游调用耗时路径",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 下游依赖慢响应",
+        "case_sha256": "69152f1971290e1a4a9a5b16163ee240abdf4352dc6e0f8ee5f9dff9479e6d17",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "java-offheap-growth",
+        "diagnosis_id": "insight_4423bd58c97b46ff96d5db95506b0242",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_88cc7ad1db0132857aaad3bd69aeb27f",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 堆外内存持续增长",
+        "case_sha256": "3dd011f0f05cf7c9ff2306da411c6f2b5f6e557362b92b60a53ac821ff25ffd7",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "java-file-io",
+        "diagnosis_id": "insight_fe5f702edfda481fa918e076fd0c5c24",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_e10df17d60fec338443262eb8202e045",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_e1816c6beb1874800d84f3fea2eeb12e",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 同步文件写入",
+        "case_sha256": "f14a425e95152879abcba8e50c7de149f5d83162a782d1b2a2762482bb463731",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "cpp-cpu-hotspot",
+        "diagnosis_id": "insight_cbd3799d47ae45f5ab5639c8af06d2c3",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_cf31297c242b64fded875dce0d006b26",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_21a18fe05e40314c225ca3770943725b",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 计算热点",
+        "case_sha256": "d3dfc840dcb276a0a989dbeedd3e273a6e2c8df3dacf5e5b48f519ab283212a5",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "cpp-lock-contention",
+        "diagnosis_id": "insight_a6928a04163347c5b44e3027962d23d0",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_28672130624b97ad44b67bbe355cfab8",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_bd0a47d6e08e3fdc6bf49e0d32fd05d4",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 互斥锁竞争",
+        "case_sha256": "3cf1451c1c3bb69d022c9e3299ac5a650584eed0acb7fceee4c3370cf2efa8d3",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "cpp-memory-growth",
+        "diagnosis_id": "insight_83256cf18789478cb7a8caa29be362cb",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_e02eb7855e0f8ab8f6f0d1506e86acdf",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 有界内存保留",
+        "case_sha256": "c33e0842c025cf3b0384886f134c373d76fb3aa20a66873f376fcb375d8128bf",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "cpp-file-io",
+        "diagnosis_id": "insight_649be7e3f24b4b7eb91350913897a28e",
+        "diagnosis_accepted": false,
+        "localization_accepted": false,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_b0670dfc4d1996249da7e1de1516a8ab",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_c95c92270513315f8643a0cb8f28eac2",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 同步文件写入",
+        "case_sha256": "f792715cb9cda5cb76c879e34676d7f855d7ddeb5070b419d1cd532b23cfccc1",
+        "fresh_live_run": true
+      },
+      {
+        "scenario_id": "cpp-downstream-latency",
+        "diagnosis_id": "insight_571b7eaa82e54958a06cd1925e59a87b",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "下游调用耗时路径",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_deea32391be1037219f934403142fcf3",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "下游调用耗时路径",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 下游响应变慢",
+        "case_sha256": "d8b9888911f2d3510e93d930da537b7e3d33c0d47048f006fa2384752d56476b",
+        "fresh_live_run": true
+      }
+    ],
+    "download_url": "/report-assets/engineering-diagnosis/index.json",
+    "causal_and_fix_acceptance": "NOT_EVALUATED_BY_THIS_PROFILE",
+    "boundary": "Engineering diagnosis response, not causal proof or whole-business health; historical results unchanged."
+  },
+  "current_card_grades": [
+    "进程内存增长\n内存\n判断通过 · 异常假设被反驳\n目标进程持续保留内存，RSS 在短时间内明显增长\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Go 服务 CPU 热点\nGo 运行时\n工程定位通过\nGo 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Go 网络等待与下游慢响应\n网络\n工程定位通过\n请求处理时间升高但 CPU 不一定饱和，需要区分本地热点、网络等待和下游变慢\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Go 堆内存持续增长\n内存\n判断通过 · 异常假设被反驳\nGo 服务分阶段保留堆对象，RSS 与堆内存同步增长，但总量被安全上限约束\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Go 同步文件写入\nI/O\n判断通过 · 异常假设被反驳\nGo 服务反复执行固定临时文件写入与同步落盘，制造可恢复的块设备等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Java 下游依赖慢响应\n下游依赖\n工程定位通过\nJava 请求线程等待受控下游响应，端到端延迟升高但本地 CPU 保持中低水平\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "Java 堆外内存持续增长\n内存\n判断通过 · 异常假设被反驳\nJava 服务分阶段保留 DirectByteBuffer，进程 RSS 上升但 Java 堆指标不能完整解释\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "C++ 有界内存保留\n内存\n判断通过 · 异常假设被反驳\nC++ 进程分阶段保留匿名内存，RSS 上升但不会耗尽宿主机\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作",
+    "C++ 下游响应变慢\n下游依赖\n工程定位通过\nC++ 请求线程等待固定回环下游，端到端延迟上升但本地 CPU 不一定饱和\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作"
+  ],
+  "current_overview_body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 服务体检\n从异常现象，找到性能瓶颈\n选择已接入的服务，检查当前状态；有异常时再沿证据逐步排查。\n轮询兜底中\n诊断说明\n选择服务\n体检报告\n案例验证\n诊断案例 432\n工程验证\n工程验证中心\n从真实缺陷的失败复现、原因定位到修复回归，查看可复核的工程证据。\n测试与修复闭环\n性能诊断 · 工程回归 · 业务验收\n性能故障实验\n工程修复回归\n评测总览\n业务案例\nSkill A/B\nSkill 示例与沉淀\n默认按工程诊断验收，严格因果实验单独统计\n要求目标正确、证据可信、判断有测量依据、实验撤销与清理完成；独立因果对照、固定调查轮次和同负载代码修复不再是默认必选项。\n工程诊断判断通过 14/21\n异常路径定位 4/21\n有效反证 5\n已注册 21 类 · 待验收 0 类\n\n当前包含 18 类新真机实验、3 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。\n\n案例\t工程验收\t已定位路径\t原始诊断\n\n案例\n\t\n工程验收\n\t\n已定位路径\n\t\n原始诊断\n\nCPU 计算热点\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nPython 源码热点\t证据不足\t未宣称异常路径\t\n查看判断\n\n进程内存增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\n同步写入压力\t证据不足\t未宣称异常路径\t\n查看判断\n\n同机噪声邻居\t证据不足\t未宣称异常路径\t\n查看判断\n\n入口负载饱和\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\n生产消费队列堆积\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nGo 服务 CPU 热点\t工程定位通过\tmain.runCPUFault；main.goCPUHotFunction\t\n查看判断\n\nGo 网络等待与下游慢响应\t工程定位通过\tHTTP 调用耗时路径（未区分服务处理与传输）\t\n查看判断\n\nGo 堆内存持续增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nGo 同步文件写入\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nJava 分配风暴与 GC 压力\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nJava 锁竞争\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nJava 下游依赖慢响应\t工程定位通过\t下游调用耗时路径\t\n查看判断\n\nJava 堆外内存持续增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nJava 同步文件写入\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 计算热点\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 互斥锁竞争\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 有界内存保留\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nC++ 同步文件写入\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 下游响应变慢\t工程定位通过\t下游调用耗时路径\t\n查看判断\n下载工程验收规则版本与成绩\nCPU、内存、I/O、网络、锁、GC、队列：继续保留 21 类性能实验\n检查结果分为：本次检查正常（已检查范围）、证据不足、发现异常但原因未明、已验证性能观测、因果根因已验证。工程缺陷回归单独统计。\n为什么旧 21 类根因为 0：查看逐项复盘\n故障广场\n选择一个受控故障，查看诊断，再停止并核对恢复。所有场景都有自动停止保护。\n实验室就绪\n刷新状态\n仅对 demo-target 实验环境注入故障\n仅作用于独立实验进程；停止注入后，还需在相同负载下核对指标。\n按运行时筛选\n当前显示 21 / 21 个场景\n推荐 4\n全部 21\nGo 4\nJava 5\nC++ 5\nPython 7\nCPU 计算热点\nCPU\n有证据支持的诊断候选\n单进程 CPU 持续升高，并出现稳定的用户态热点函数\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nPython 源码热点\n运行时\n历史严格复验未通过\nPython 业务函数占用 CPU，可定位到稳定的文件、函数和行号\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n进程内存增长\n内存\n判断通过 · 异常假设被反驳\n目标进程持续保留内存，RSS 在短时间内明显增长\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n同步写入压力\nI/O\n历史严格复验未通过\n目标进程持续同步写文件，写入字节和 I/O 等待升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n同机噪声邻居\n资源竞争\n历史严格复验未通过\n另一个同宿主机进程争抢 CPU，目标进程自身并无主导热点\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n入口负载饱和\n负载\n有证据支持的诊断候选\n请求到达速度超过处理速度，拒绝数和延迟同时升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n生产消费队列堆积\n队列\n有证据支持的诊断候选\n生产速率高于消费速率，队列深度和排队延迟持续增长\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 服务 CPU 热点\nGo 运行时\n工程定位通过\nGo 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 网络等待与下游慢响应\n网络\n工程定位通过\n请求处理时间升高但 CPU 不一定饱和，需要区分本地热点、网络等待和下游变慢\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 堆内存持续增长\n内存\n判断通过 · 异常假设被反驳\nGo 服务分阶段保留堆对象，RSS 与堆内存同步增长，但总量被安全上限约束\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 同步文件写入\nI/O\n判断通过 · 异常假设被反驳\nGo 服务反复执行固定临时文件写入与同步落盘，制造可恢复的块设备等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 分配风暴与 GC 压力\nJava 运行时\n有证据支持的诊断候选\nJava 服务持续制造短命对象，堆呈锯齿并可能出现 GC 与延迟抖动\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 锁竞争\n锁竞争\n有证据支持的诊断候选\n多个 Java 线程竞争同一临界区，吞吐下降且阻塞/上下文切换增加\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 下游依赖慢响应\n下游依赖\n工程定位通过\nJava 请求线程等待受控下游响应，端到端延迟升高但本地 CPU 保持中低水平\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 堆外内存持续增长\n内存\n判断通过 · 异常假设被反驳\nJava 服务分阶段保留 DirectByteBuffer，进程 RSS 上升但 Java 堆指标不能完整解释\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 同步文件写入\nI/O\n历史严格复验未通过\nJava 服务使用 FileChannel 强制同步固定临时文件，写入延迟和 I/O 等待升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 计算热点\nC++\n历史严格复验未通过\nC++ 进程出现稳定计算热点，需要区分业务循环、锁自旋和系统调用开销\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 互斥锁竞争\n锁竞争\n历史严格复验未通过\n多个 C++ 线程争抢同一互斥锁，等待时间和上下文切换上升\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 有界内存保留\n内存\n判断通过 · 异常假设被反驳\nC++ 进程分阶段保留匿名内存，RSS 上升但不会耗尽宿主机\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 同步文件写入\nI/O\n历史严格复验未通过\nC++ 服务对固定临时文件执行有界 write 与 fdatasync，制造可停止的磁盘等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 下游响应变慢\n下游依赖\n工程定位通过\nC++ 请求线程等待固定回环下游，端到端延迟上升但本地 CPU 不一定饱和\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n完整 LATS 冻结回放\nFULL_LATS\nFROZEN_REPLAY\n在同一个不可变观察快照上重置并比较兄弟分支试探（rollout），查看选择、反思与价值回传。\n刷新场景\n冻结算法回放，不是实时故障证据\n回放不会启动故障、不会连接目标采集节点，也不会调用实时采集器。结论只在固定观察快照（snapshot）的真值边界内成立；故障实验室未启用时仍可独立运行。\nPython CPU 热点：从系统基线回溯到源码函数\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\nUCT\n执行语义\nFULL_LATS · FROZEN_REPLAY\n真值边界\n受控冻结观测，不是本次现场采集证据\n新建回放会话",
+  "engineering_button_checked": true,
+  "stream_requests_without_cdp_completion": 25,
+  "default_performance_cases": 21,
+  "engineering_cases": 4,
+  "artifact_downloads_verified": [
+    {
+      "filename": "parallel-timing/parallel-timing.json",
+      "sha256": "036ba1878a339946550f510ba1036ebedab6d0a9fd021b10fd37818797df58e9"
+    },
+    {
+      "filename": "parallel-timing/timing-before.py",
+      "sha256": "f89afa3c24e80e89009e993155c920ce4f538248144b569e06dde9158e5c1669"
+    },
+    {
+      "filename": "parallel-timing/timing-after.py",
+      "sha256": "5c26f368fafd6bc2a802df8ed30c95f0866950dd15c6710ec3577cb9ebaad64d"
+    },
+    {
+      "filename": "empty-query-cache/cache-empty-before.xml",
+      "sha256": "bb827b7c1b37bbe0b15efc0ee1fa18add70c380d254eb40be5d591f0e27f02f1"
+    },
+    {
+      "filename": "empty-query-cache/cache-empty-targeted.xml",
+      "sha256": "7e73352f10e45ab5d8cabffeb900e7a3b120fd1ded304adc5dbead960c71d7d4"
+    },
+    {
+      "filename": "skill-first-insert-race/postgres-race-before.xml",
+      "sha256": "9c06a5a2775d0be571042f7ec967f9ef24ca0811764f010c6674f31ec1797684"
+    },
+    {
+      "filename": "skill-first-insert-race/postgres-race-after.xml",
+      "sha256": "1c2027cf078a5d942a871576e1faf7efc784ac5e49571b36a9d2a8d177b87272"
+    },
+    {
+      "filename": "notification-lifecycle/toast-before.log",
+      "sha256": "e98527aa0c0d686462b9c9347fa72a400bff6abd346345f9c4d9cc53f0ed367b"
+    },
+    {
+      "filename": "notification-lifecycle/notification-after.xml",
+      "sha256": "51468530cc7f570d3779344ea51354b1ee4ea10f914149c73420aafb90f77aee"
+    }
+  ],
+  "audit_root_passes": 0,
+  "recorded_chain_consistent": 18,
+  "layouts": [
+    {
+      "width": 1440,
+      "body_width": 1425,
+      "body_scroll": 1425,
+      "cards": 21
+    },
+    {
+      "width": 1024,
+      "body_width": 1009,
+      "body_scroll": 1009,
+      "cards": 21
+    },
+    {
+      "width": 768,
+      "body_width": 753,
+      "body_scroll": 753,
+      "cards": 21
+    },
+    {
+      "width": 375,
+      "body_width": 375,
+      "body_scroll": 375,
+      "cards": 21
+    }
+  ],
+  "healthLayouts": [
+    {
+      "width": 1440,
+      "body_width": 1425,
+      "body_scroll": 1425
+    },
+    {
+      "width": 375,
+      "body_width": 375,
+      "body_scroll": 375
+    },
+    {
+      "width": 1440,
+      "body_width": 1425,
+      "body_scroll": 1425
+    },
+    {
+      "width": 375,
+      "body_width": 375,
+      "body_scroll": 375
+    }
+  ],
+  "healthStates": [
+    {
+      "name": "normal",
+      "diagnosis_id": "insight_8d7d9d15496e42f18be26711329658b3",
+      "label": "检查结果：正常",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 2 条证据\n3\n给出判断\n检查结果与下一步已生成\n本次检查正常（已检查范围）\n\n本窗口内已检查指标未超出观测阈值，无需继续寻找这些指标的异常根因。 已检查：进程 CPU < 50%（单核口径）；窗口 RSS 增量 < 8 MiB。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：正常\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n0.6%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n9.6 MiB\n窗口峰值 9.6 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n体检已完成，无需继续寻找已检查项的异常根因\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n再次检查\n实时探索树\n版本 17\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n已调查\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n已调查\n刚刚更新\n已完成\n系统基线\n查看记录与依据\n证据结果\n证据\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n查看完整报告与证据限制\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    },
+    {
+      "name": "anomaly",
+      "diagnosis_id": "insight_7785e3d08c3942e7b82f654c7eaf5e83",
+      "label": "检查结果：异常",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 2 条证据\n3\n给出判断\n检查结果与下一步已生成\n已发现性能异常，原因待确认\n\n已观测：进程 CPU 64.8%。可继续调查具体原因。 已检查：进程 CPU < 50%（单核口径）；窗口 RSS 增量 < 8 MiB。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：异常\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n64.8%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n12 MiB\n窗口峰值 12.5 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n体检已完成，可以继续调查异常原因\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n深入诊断\n实时探索树\n版本 17\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n已调查\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n已调查\n刚刚更新\n已完成\n系统基线\n查看记录与依据\n证据结果\n证据\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    },
+    {
+      "name": "recovery",
+      "diagnosis_id": "insight_fac8d0be92314de48b11526115a024f2",
+      "label": "检查结果：正常",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 2 条证据\n3\n给出判断\n检查结果与下一步已生成\n本次检查正常（已检查范围）\n\n本窗口内已检查指标未超出观测阈值，无需继续寻找这些指标的异常根因。 已检查：进程 CPU < 50%（单核口径）；窗口 RSS 增量 < 8 MiB。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：正常\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n0.4%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n11 MiB\n窗口峰值 11 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n体检已完成，无需继续寻找已检查项的异常根因\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n再次检查\n实时探索树\n版本 17\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n已调查\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n已调查\n刚刚更新\n已完成\n系统基线\n查看记录与依据\n证据结果\n证据\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n查看完整报告与证据限制\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    },
+    {
+      "name": "unknown",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "label": "检查结果：无法判断",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n证据不足\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n本次没有可用证据\n3\n给出判断\n检查结果与下一步已生成\n无法判断，请补充采集数据\n\n系统采集未完成，请检查采集失败原因后重新采集。 已检查：尚无完整检查项。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：无法判断\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n未采集\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n未采集\n窗口峰值 未采集\n线程\n未采集\n窗口峰值 未采集\n文件描述符\n未采集\n窗口峰值 未采集\n查看采集过程、完整指标和业务接入情况\n本次无法判断，需要补充采集数据\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n重新采集\n实时探索树\n版本 15\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n未获得有效证据\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n未获得有效证据\n采集动作\n第 1 轮\n采集系统指标\n未获得有效证据\n刚刚更新\n已取消\n系统基线\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n发送并继续诊断"
+    },
+    {
+      "name": "resampled",
+      "diagnosis_id": "insight_3404155bb9404de5aaafc3f4d30efef0",
+      "label": "检查结果：正常",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 2 条证据\n3\n给出判断\n检查结果与下一步已生成\n本次检查正常（已检查范围）\n\n本窗口内已检查指标未超出观测阈值，无需继续寻找这些指标的异常根因。 已检查：进程 CPU < 50%（单核口径）；窗口 RSS 增量 < 8 MiB。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：正常\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n0.4%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n10.5 MiB\n窗口峰值 10.5 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n体检已完成，无需继续寻找已检查项的异常根因\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n再次检查\n实时探索树\n版本 17\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n已调查\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n已调查\n刚刚更新\n已完成\n系统基线\n查看记录与依据\n证据结果\n证据\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n查看完整报告与证据限制\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    }
+  ],
+  "businessBody": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\nPython rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=70700e8ca531430c97fc94e4a40c03a2\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 6 条证据\n3\n给出判断\n报告与下一步已生成\n已验证性能观测，根因仍待确认\n\n已采集数据满足本报告声明的观测规则；仍需独立实验确认它们对业务异常的因果贡献。\n\n已完成\nrag-fix-case\npython3.12\nPID 701154\n进程身份已校验\n进程 CPU\n23.9%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n30.8 MiB\n窗口峰值 30.8 MiB\n线程\n5\n窗口峰值 5\n文件描述符\n4\n窗口峰值 4\n查看采集过程、完整指标和业务接入情况\n已验证观测\n本会话报告摘要\n\n阶段性观测：在 527 个有效样本中，在 Profile 采集窗口观察到可归属路径 find_longest_match，按函数归并的采样占比 69.8%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。本次诊断另有反证，完整观察合同尚未成立。\n\n引用支持证据 2 条\n引用反证 1 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n下一步：针对冲突证据执行独立的证伪采集，并比较同窗口结果\n\n实时探索树\n版本 15\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 4 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n51%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\nPython rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=70700e8ca531430c97fc94e4a40c03a2\n报告采用路径\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n本次诊断中，Python 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\n报告采用路径\n第 1 轮假设\n查看记录与依据\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集 Python 调用栈\n报告采用路径\n已完成\nPython\n查看记录与依据\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n报告采用路径\n已完成\n系统基线\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n支持证据\n证据\n第 1 轮\n支持证据\n报告采用路径\n证据裁决\n查看记录与依据\n支持证据\n证据\n第 1 轮\n支持证据\n报告采用路径\n证据裁决\n查看记录与依据\n反证\n证据\n第 1 轮\n反证或低质量证据\n已被反证\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n形成结论\n检查结论\n第 1 轮\n已验证观测\n报告采用路径\n刚刚更新\n结论\n查看记录与依据\n查看每轮路线、转向和 Skill\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮",
+  "business_diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "browser_created_check": null,
+  "health_diagnosis_id": "insight_8d7d9d15496e42f18be26711329658b3",
+  "health_class": "observation-assessment is-normal_observed",
+  "healthBody": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\n当前诊断 · 第 1 轮\n实时事件已连接\n第 1 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n检查 Go go-hotspot 当前状态\n诊断完成\n排查树\n调查记录\n分屏\n全屏树\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 2 条证据\n3\n给出判断\n检查结果与下一步已生成\n本次检查正常（已检查范围）\n\n本窗口内已检查指标未超出观测阈值，无需继续寻找这些指标的异常根因。 已检查：进程 CPU < 50%（单核口径）；窗口 RSS 增量 < 8 MiB。未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。\n\n检查结果：正常\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n0.6%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n9.6 MiB\n窗口峰值 9.6 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n体检已完成，无需继续寻找已检查项的异常根因\n未检查：磁盘操作延迟、丢包/重传、内存限额、全部业务接口和业务正确性。后续检查会重新确认当前进程并保存独立记录。\n再次检查\n实时探索树\n版本 17\n树状结构\n轮次路径\n沿分支查看：判断 → 采集 → 证据 → 结论\n1 轮排查\n已排除 1 条方向\n查看排查统计与调查路线\n实时调查 · 现场随时间变化，不可回滚 查看搜索预算与评分\n如何阅读排查树\n已检查\n已排除\n尚不能判断\n报告采用（不代表已修复）\n100%\n滚轮缩放 · 按住拖动 · 方向键平移 · 双击复位 · Esc 退出全屏\n本次问题\n检查 Go go-hotspot 当前状态\n已调查\n诊断入口\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线\n已调查\n第 1 轮假设\n查看记录与依据\n当前选择\n搜索详情\n优先调查\n寻找反证\n发起取证\n采集动作\n第 1 轮\n采集系统指标\n已调查\n刚刚更新\n已完成\n系统基线\n查看记录与依据\n证据结果\n证据\n第 1 轮\n反证或低质量证据\n已调查\n证据裁决\n查看记录与依据\n未获得有效证据\n证据\n第 1 轮\n反证或低质量证据\n未获得有效证据\n证据裁决\n查看记录与依据\n假设分支\n排查方向\n第 1 轮\n其他未知原因（其他尚未识别的原因）\n尚未调查\n第 1 轮假设\n查看记录与依据\n搜索详情\n优先调查\n寻找反证\n查看每轮路线、转向和 Skill\n查看完整报告与证据限制\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮",
+  "auditBody": "跳到主要内容\nAI 诊断\n采集与任务\n系统治理\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 服务体检\n从异常现象，找到性能瓶颈\n选择已接入的服务，检查当前状态；有异常时再沿证据逐步排查。\n轮询兜底中\n诊断说明\n选择服务\n体检报告\n案例验证\n诊断案例 432\n工程验证\n工程验证中心\n从真实缺陷的失败复现、原因定位到修复回归，查看可复核的工程证据。\n测试与修复闭环\n性能诊断 · 工程回归 · 业务验收\n性能故障实验\n工程修复回归\n评测总览\n业务案例\nSkill A/B\nSkill 示例与沉淀\n默认按工程诊断验收，严格因果实验单独统计\n要求目标正确、证据可信、判断有测量依据、实验撤销与清理完成；独立因果对照、固定调查轮次和同负载代码修复不再是默认必选项。\n工程诊断判断通过 14/21\n异常路径定位 4/21\n有效反证 5\n已注册 21 类 · 待验收 0 类\n\n当前包含 18 类新真机实验、3 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。\n\n案例\t工程验收\t已定位路径\t原始诊断\n\n案例\n\t\n工程验收\n\t\n已定位路径\n\t\n原始诊断\n\nCPU 计算热点\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nPython 源码热点\t证据不足\t未宣称异常路径\t\n查看判断\n\n进程内存增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\n同步写入压力\t证据不足\t未宣称异常路径\t\n查看判断\n\n同机噪声邻居\t证据不足\t未宣称异常路径\t\n查看判断\n\n入口负载饱和\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\n生产消费队列堆积\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nGo 服务 CPU 热点\t工程定位通过\tmain.runCPUFault；main.goCPUHotFunction\t\n查看判断\n\nGo 网络等待与下游慢响应\t工程定位通过\tHTTP 调用耗时路径（未区分服务处理与传输）\t\n查看判断\n\nGo 堆内存持续增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nGo 同步文件写入\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nJava 分配风暴与 GC 压力\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nJava 锁竞争\t有证据支持的诊断候选\t未宣称异常路径\t\n查看判断\n\nJava 下游依赖慢响应\t工程定位通过\t下游调用耗时路径\t\n查看判断\n\nJava 堆外内存持续增长\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nJava 同步文件写入\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 计算热点\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 互斥锁竞争\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 有界内存保留\t判断通过 · 异常假设被反驳\t未宣称异常路径\t\n查看判断\n\nC++ 同步文件写入\t证据不足\t未宣称异常路径\t\n查看判断\n\nC++ 下游响应变慢\t工程定位通过\t下游调用耗时路径\t\n查看判断\n下载工程验收规则版本与成绩\nCPU、内存、I/O、网络、锁、GC、队列：继续保留 21 类性能实验\n检查结果分为：本次检查正常（已检查范围）、证据不足、发现异常但原因未明、已验证性能观测、因果根因已验证。工程缺陷回归单独统计。\n为什么旧 21 类根因为 0：查看逐项复盘\n原始因果根因 0/21\n归档记录证据链一致 18/21\n新版本云端根因：尚未验收\n\n证据链一致只表示归档记录中的任务、尝试、产物 SHA 与证据来源能够对应，不是重新下载校验，也不表示根因成立。旧实验撤销了注入负载，没有同负载代码修复验证；原成绩保持不变。\n\n性能场景\t旧验收的阻塞点\t归档证据链\t因果根因\n\n性能场景\n\t\n旧验收的阻塞点\n\t\n归档证据链\n\t\n因果根因\n\ncpp-cpu-hotspot\t通过旧链路检查\t记录一致\t未验证\ncpp-downstream-latency\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\ncpp-file-io\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\ncpp-lock-contention\t通过旧链路检查\t记录一致\t未验证\ncpp-memory-growth\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\ncpu-hotspot\t通过旧链路检查\t记录一致\t未验证\ngo-cpu-hotspot\t通过旧链路检查\t记录一致\t未验证\ngo-file-io\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\ngo-memory-growth\t通过旧链路检查\t记录一致\t未验证\ngo-network-latency\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\nio-write-latency\t支持结论不足被算作链路失败\t记录一致\t未验证\njava-downstream-latency\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\njava-file-io\t选错 Agent / 进程\t未通过\t未验证\njava-gc-pressure\t选错 Agent / 进程\t未通过\t未验证\njava-lock-contention\t选错 Agent / 进程\t未通过\t未验证\njava-offheap-growth\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\nload-saturation\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\nmemory-pressure\t通过旧链路检查\t记录一致\t未验证\nnoisy-neighbor\t支持结论不足被算作链路失败\t记录一致\t未验证\nqueue-backlog\t通过旧链路检查\t记录一致\t未验证\nsource-hotspot\t证据不足被旧包装器算作链路失败\t记录一致\t未验证\n下载逐项复盘与原始文件 SHA\n故障广场\n选择一个受控故障，查看诊断，再停止并核对恢复。所有场景都有自动停止保护。\n实验室就绪\n刷新状态\n仅对 demo-target 实验环境注入故障\n仅作用于独立实验进程；停止注入后，还需在相同负载下核对指标。\n按运行时筛选\n当前显示 21 / 21 个场景\n推荐 4\n全部 21\nGo 4\nJava 5\nC++ 5\nPython 7\nCPU 计算热点\nCPU\n有证据支持的诊断候选\n单进程 CPU 持续升高，并出现稳定的用户态热点函数\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nPython 源码热点\n运行时\n历史严格复验未通过\nPython 业务函数占用 CPU，可定位到稳定的文件、函数和行号\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n进程内存增长\n内存\n判断通过 · 异常假设被反驳\n目标进程持续保留内存，RSS 在短时间内明显增长\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n同步写入压力\nI/O\n历史严格复验未通过\n目标进程持续同步写文件，写入字节和 I/O 等待升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n同机噪声邻居\n资源竞争\n历史严格复验未通过\n另一个同宿主机进程争抢 CPU，目标进程自身并无主导热点\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n入口负载饱和\n负载\n有证据支持的诊断候选\n请求到达速度超过处理速度，拒绝数和延迟同时升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n生产消费队列堆积\n队列\n有证据支持的诊断候选\n生产速率高于消费速率，队列深度和排队延迟持续增长\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 服务 CPU 热点\nGo 运行时\n工程定位通过\nGo 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 网络等待与下游慢响应\n网络\n工程定位通过\n请求处理时间升高但 CPU 不一定饱和，需要区分本地热点、网络等待和下游变慢\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 堆内存持续增长\n内存\n判断通过 · 异常假设被反驳\nGo 服务分阶段保留堆对象，RSS 与堆内存同步增长，但总量被安全上限约束\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nGo 同步文件写入\nI/O\n判断通过 · 异常假设被反驳\nGo 服务反复执行固定临时文件写入与同步落盘，制造可恢复的块设备等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 分配风暴与 GC 压力\nJava 运行时\n有证据支持的诊断候选\nJava 服务持续制造短命对象，堆呈锯齿并可能出现 GC 与延迟抖动\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 锁竞争\n锁竞争\n有证据支持的诊断候选\n多个 Java 线程竞争同一临界区，吞吐下降且阻塞/上下文切换增加\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 下游依赖慢响应\n下游依赖\n工程定位通过\nJava 请求线程等待受控下游响应，端到端延迟升高但本地 CPU 保持中低水平\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 堆外内存持续增长\n内存\n判断通过 · 异常假设被反驳\nJava 服务分阶段保留 DirectByteBuffer，进程 RSS 上升但 Java 堆指标不能完整解释\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nJava 同步文件写入\nI/O\n历史严格复验未通过\nJava 服务使用 FileChannel 强制同步固定临时文件，写入延迟和 I/O 等待升高\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 计算热点\nC++\n历史严格复验未通过\nC++ 进程出现稳定计算热点，需要区分业务循环、锁自旋和系统调用开销\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 互斥锁竞争\n锁竞争\n历史严格复验未通过\n多个 C++ 线程争抢同一互斥锁，等待时间和上下文切换上升\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 有界内存保留\n内存\n判断通过 · 异常假设被反驳\nC++ 进程分阶段保留匿名内存，RSS 上升但不会耗尽宿主机\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 同步文件写入\nI/O\n历史严格复验未通过\nC++ 服务对固定临时文件执行有界 write 与 fdatasync，制造可停止的磁盘等待\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\nC++ 下游响应变慢\n下游依赖\n工程定位通过\nC++ 请求线程等待固定回环下游，端到端延迟上升但本地 CPU 不一定饱和\n启动并诊断\n停止并恢复\n查看采集方式、历史验收和其他操作\n完整 LATS 冻结回放\nFULL_LATS\nFROZEN_REPLAY\n在同一个不可变观察快照上重置并比较兄弟分支试探（rollout），查看选择、反思与价值回传。\n刷新场景\n冻结算法回放，不是实时故障证据\n回放不会启动故障、不会连接目标采集节点，也不会调用实时采集器。结论只在固定观察快照（snapshot）的真值边界内成立；故障实验室未启用时仍可独立运行。\nPython CPU 热点：从系统基线回溯到源码函数\n对冻结的 python-hotspot 演示快照执行完整 LATS：排除 I/O 等待和噪声邻居，定位到 Python 源码级 CPU 热点。\nUCT\n执行语义\nFULL_LATS · FROZEN_REPLAY\n真值边界\n受控冻结观测，不是本次现场采集证据\n新建回放会话",
+  "paths": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+      "localized": true,
+      "refutation_displayed": null,
+      "summary": "性能路径已定位，根因仍待确认\n本会话报告摘要\n\n已验证观测：在 945 个有效样本中，在 Profile 采集窗口观察到可归属路径 main.runCPUFault，累计采样占比 94.9%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。\n\n引用支持证据 2 条\n引用反证 0 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n下一步：在相同负载下执行修复前后复测，确认热点和副作用变化",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 服务体检\n当前诊断 · 第 3 轮\n先看本次状态，再沿排查树查看证据与下一步。\n实时事件已连接\n第 3 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\n诊断完成\n排查树\n调查记录\n分屏\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 16 条证据\n3\n给出判断\n报告与下一步已生成\n性能路径已定位，根因仍待确认\n\nmain.runCPUFault；main.goCPUHotFunction。当前证据确认了这条路径的性能观测；因果贡献与修复效果仍需验证。\n\n路径已定位\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n64.6%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n13.3 MiB\n窗口峰值 13.6 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 7\n查看采集过程、完整指标和业务接入情况\n性能路径已定位，根因仍待确认\n本会话报告摘要\n\n已验证观测：在 945 个有效样本中，在 Profile 采集窗口观察到可归属路径 main.runCPUFault，累计采样占比 94.9%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。\n\n引用支持证据 2 条\n引用反证 0 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n下一步：在相同负载下执行修复前后复测，确认热点和副作用变化\n\n我\n诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。\nAI 诊断助手\n第 1 轮\n已理解问题并建立首轮计划\n本轮已裁决\n本轮主假设\n本次诊断中，Go 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\n采集 Go pprof 性能剖析\n采集系统指标\n6 条准入证据\n1 个报告版本\nAI 诊断助手\n第 2 轮\n已根据新输入修订调查计划\n本轮已裁决\n本轮主假设\n第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销\n采集 CPU 火焰图\n采集 eBPF I/O 延迟\n10 条准入证据\n2 个报告版本\nAI 诊断助手\n第 3 轮\n已根据新输入修订调查计划\n正在规划\n本轮主假设\n第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖\nAI 诊断助手\n6\n个去重后假设\n4\n次工具调用\n16\n条证据\n3\n个报告版本\n00\n结论先行\n先回答根因、可信度和下一步；完整探索过程保留在下方\n性能路径已定位，根因仍待确认\n证据评分 85 / 100\n观测门禁：观测已验证\n\n已验证观测：在 945 个有效样本中，在 Profile 采集窗口观察到可归属路径 main.runCPUFault，累计采样占比 94.9%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。\n\n已定位路径：main.runCPUFault；main.goCPUHotFunction\nGo 累计采样会覆盖同一调用栈的多个函数，各函数占比不能相加。\n证据评分是内部规则分，不是诊断正确概率。报告生成与故障修复是两个独立状态；本报告本身不证明故障已解决。\nSRE 处置预案与治理建议\n取证与处置计划\nP2 观测调优\n制定受控变更计划\n依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。\n建议下一步\n在相同负载下执行修复前后复测，确认热点和副作用变化\n引用支持证据：ev_task_task_20261001_100006_6fff8c_4481、ev_task_task_20261001_100006_6fff8c_4482\n评价本轮诊断\n你的反馈不会覆盖旧结论。系统会保留本轮证据；部分正确或错误时，新建下一轮假设继续取证。\n结论正确\n部分正确\n结论错误\n修复前后验证\n正在核对修复记录\n诊断工具负责取证，不会自动修改业务代码。只有明确实施修复并完成可比复测，才能评价修复效果。当前自动对比支持 TopN 热点变化，不能替代全部业务指标验收。\n结论\t修复前\t修复后\t说明\n\nNo data\n完整调查过程\n展开查看假设、Skill 路线、工具调用与证据\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+      "localized": true,
+      "refutation_displayed": null,
+      "summary": "性能路径已定位，根因仍待确认\n本会话报告摘要\n\n已验证观测：HTTP 网络路径耗时（尚未区分服务处理与传输等待）已满足声明的数值判据：average_latency_ms=240.713。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。\n\n引用支持证据 1 条\n引用反证 0 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n尚未确认：缺少独立反证或对照证据；当前只是阶段性发现，尚不能确认因果关系或故障已修复。\n\n下一步：在相同负载下执行修复前后复测，确认热点和副作用变化",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 服务体检\n当前诊断 · 第 4 轮\n先看本次状态，再沿排查树查看证据与下一步。\n实时事件已连接\n第 4 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\n诊断完成\n排查树\n调查记录\n分屏\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 16 条证据\n3\n给出判断\n报告与下一步已生成\n性能路径已定位，根因仍待确认\n\nHTTP 调用耗时路径（未区分服务处理与传输）。当前证据确认了这条路径的性能观测；因果贡献与修复效果仍需验证。\n\n路径已定位\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n0.8%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n12.4 MiB\n窗口峰值 12.4 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n15\n窗口峰值 15\n查看采集过程、完整指标和业务接入情况\n性能路径已定位，根因仍待确认\n本会话报告摘要\n\n已验证观测：HTTP 网络路径耗时（尚未区分服务处理与传输等待）已满足声明的数值判据：average_latency_ms=240.713。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。\n\n引用支持证据 1 条\n引用反证 0 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n尚未确认：缺少独立反证或对照证据；当前只是阶段性发现，尚不能确认因果关系或故障已修复。\n\n下一步：在相同负载下执行修复前后复测，确认热点和副作用变化\n\n我\n诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。\nAI 诊断助手\n第 1 轮\n已理解问题并建立首轮计划\n本轮已裁决\n本轮主假设\nHTTP 网络路径耗时的有界观测，尚未确定服务处理或传输原因\n采集系统指标\n2 条准入证据\n1 个报告版本\nAI 诊断助手\n第 2 轮\n已根据新输入修订调查计划\n本轮已裁决\n本轮主假设\n第 2 轮：Go 运行时可能存在热点函数、goroutine 阻塞或调度开销\n采集 Go pprof 性能剖析\n采集 CPU 火焰图\n采集 eBPF I/O 延迟\n14 条准入证据\n3 个报告版本\nAI 诊断助手\n第 3 轮\n已根据新输入修订调查计划\n正在规划\n本轮主假设\n目标进程存在网络等待或系统调用开销，表现为网络相关系统调用热点\nAI 诊断助手\n9\n个去重后假设\n4\n次工具调用\n16\n条证据\n4\n个报告版本\n00\n结论先行\n先回答根因、可信度和下一步；完整探索过程保留在下方\n性能路径已定位，根因仍待确认\n证据评分 60 / 100\n观测门禁：观测已验证\n\n已验证观测：HTTP 网络路径耗时（尚未区分服务处理与传输等待）已满足声明的数值判据：average_latency_ms=240.713。这是当前窗口的观测，仍需独立采集与同负载干预验证原因。\n\n已定位路径：HTTP 调用耗时路径（未区分服务处理与传输）\n数值判据已检查 2/2 项。 判据已检查与条件成立分别统计；同一产物的多个数值不算独立对照，因果与修复仍待验证。\n证据评分是内部规则分，不是诊断正确概率。报告生成与故障修复是两个独立状态；本报告本身不证明故障已解决。\nSRE 处置预案与治理建议\n取证与处置计划\nP2 观测调优\n制定受控变更计划\n依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。\n建议下一步\n在相同负载下执行修复前后复测，确认热点和副作用变化\n结论边界：缺少独立反证或对照证据；当前只是阶段性发现，尚不能确认因果关系或故障已修复。\n引用支持证据：ev_task_task_20261001_100329_fc5b72_4495\n评价本轮诊断\n你的反馈不会覆盖旧结论。系统会保留本轮证据；部分正确或错误时，新建下一轮假设继续取证。\n结论正确\n部分正确\n结论错误\n修复前后验证\n正在核对修复记录\n诊断工具负责取证，不会自动修改业务代码。只有明确实施修复并完成可比复测，才能评价修复效果。当前自动对比支持 TopN 热点变化，不能替代全部业务指标验收。\n结论\t修复前\t修复后\t说明\n\nNo data\n完整调查过程\n展开查看假设、Skill 路线、工具调用与证据\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n基于结论继续一轮"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+      "localized": false,
+      "refutation_displayed": true,
+      "summary": "已测量，异常假设被反驳\n本会话报告摘要\n\n现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程存在同步写操作延迟异常，平均延迟≥10ms且操作数≥5”。\n\n引用支持证据 0 条\n引用反证 1 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n尚未确认：没有通过证据门禁的支持证据，当前不能建立根因结论。\n\n下一步：先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。",
+      "body": "跳到主要内容\nMini-Drop\n证据优先的智能诊断\n工作区\nAI 诊断\n采集与任务\n系统治理\n事件流已连接\n状态更新同步中\nAI 诊断\n多轮取证与 Skill 演进\n实时\n访问凭据\nMINI-DROP · 服务体检\n当前诊断 · 第 3 轮\n先看本次状态，再沿排查树查看证据与下一步。\n实时事件已连接\n第 3 轮排查\n诊断说明\n选择服务\n体检报告\n案例验证\n新建诊断\n诊断案例 432\n本次体检\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\n证据不足\n排查树\n调查记录\n分屏\n更多选项\n1\n确认对象\n已找到目标进程\n2\n采集证据\n已记录 5 条证据\n3\n给出判断\n报告与下一步已生成\n本次观测未发现该性能异常\n\n平均耗时(ms)=0.081；新增成功操作(次)=684。完整数值计划已检查，测量反驳了该异常假设；仅限本报告目标与窗口，不代表全部业务正常。\n\n异常假设已反驳\ngo-hotspot\ngo-hotspot\nPID 1862439\n进程身份已校验\n进程 CPU\n1.1%\n目标进程在采样窗口中的 CPU 使用\n进程 RSS\n12.8 MiB\n窗口峰值 12.8 MiB\n线程\n6\n窗口峰值 6\n文件描述符\n7\n窗口峰值 12\n查看采集过程、完整指标和业务接入情况\n已测量，异常假设被反驳\n本会话报告摘要\n\n现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程存在同步写操作延迟异常，平均延迟≥10ms且操作数≥5”。\n\n引用支持证据 0 条\n引用反证 1 条\n完整报告与证据可在下方调查记录中查看\n\n修复状态：报告本身不证明故障已解决，请查看下方修复复测记录。\n\n尚未确认：没有通过证据门禁的支持证据，当前不能建立根因结论。\n\n下一步：先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。\n\n我\n诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。\nAI 诊断助手\n第 1 轮\n已理解问题并建立首轮计划\n本轮已裁决\n本轮主假设\n目标进程存在同步写操作延迟异常，平均延迟≥10ms且操作数≥5\n采集系统指标\n2 条准入证据\n1 个报告版本\nAI 诊断助手\n第 2 轮\n已根据新输入修订调查计划\n本轮已裁决\n本轮主假设\n第 2 轮：Go 运行时可能存在热点函数、goroutine 阻塞或调度开销\n采集 eBPF I/O 延迟\n采集 CPU 火焰图\n3 条准入证据\n1 个报告版本\nAI 诊断助手\n第 3 轮\n已根据新输入修订调查计划\n正在规划\n本轮主假设\n第 3 轮：异常可能是短时漂移热点，单次采样窗口没有覆盖\nAI 诊断助手\n7\n个去重后假设\n3\n次工具调用\n5\n条证据\n2\n个报告版本\n00\n结论先行\n先回答根因、可信度和下一步；完整探索过程保留在下方\n已测量，异常假设被反驳\n证据评分 0 / 100\n观测门禁：证据不足\n\n现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程存在同步写操作延迟异常，平均延迟≥10ms且操作数≥5”。\n\n本次测量：平均耗时(ms)=0.081；新增成功操作(次)=684。该异常假设被反证，不代表全部业务正常。\n数值判据已检查 3/3 项。 判据已检查与条件成立分别统计；同一产物的多个数值不算独立对照，因果与修复仍待验证。\n证据评分是内部规则分，不是诊断正确概率。报告生成与故障修复是两个独立状态；本报告本身不证明故障已解决。\nSRE 处置预案与治理建议\n取证与处置计划\nP2 观测调优\n补齐证据与同负载对照\n当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。\n建议下一步\n先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。\n结论边界：没有通过证据门禁的支持证据，当前不能建立根因结论。\n引用支持证据：无；反证：ev_task_task_20261001_100754_6e0d9c_4511\n评价本轮诊断\n本轮没有确认根因，而是因证据不足主动停止。请选择系统为什么没有得到根因；后两项会开启下一轮取证。\n这不是根因结论\n“证据不足”表示当前数据不足以证明 CPU 热点假设。若你也无法从现有证据确认根因，选择“确实证据不足”；若页面已有能证明根因的数据，选择“已有证据被遗漏”；若采集方向本身不对，选择“诊断方向错误”。\n确实证据不足\n已有证据被遗漏\n诊断方向错误\n修复前后验证\n正在核对修复记录\n诊断工具负责取证，不会自动修改业务代码。只有明确实施修复并完成可比复测，才能评价修复效果。当前自动对比支持 TopN 热点变化，不能替代全部业务指标验收。\n结论\t修复前\t修复后\t说明\n\nNo data\n完整调查过程\n展开查看假设、Skill 路线、工具调用与证据\n本轮证据不足，不等于没有故障\n系统目前展示 7 个去重后假设、3 次工具调用、5 条准入证据。请在页面底部补充现象，或在右侧探索树选择“优先调查 / 寻找反证”开启下一轮。\n技术数据与采集状态 需要排查工具、证据或模型过程时展开\n继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖\n补充 / 追问\n继续取证\n调整方向\n寻找反证\n发送并继续诊断"
+    }
+  ],
+  "errors": []
+}
