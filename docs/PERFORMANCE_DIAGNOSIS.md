@@ -71,4 +71,6 @@ v3验收独立记录`lineage_evaluation`，原包装器要求保留为`diagnosis
 
 Go 应用增加 `io_operation_duration_ms_total`，与成功操作计数在同一锁内快照，测量open/write/sync/close，不计循环休眠和获取I/O工作锁的等待。Analyzer用累计耗时差/成功操作数差求窗口均值，计数重置、缺测、无新操作保持未知。计划在验收前钉住平均至少10ms且至少5次操作；实际快磁盘未达阈值应报告未发现该异常，不能加sleep或降低阈值凑通过。其范围不是单独fsync延迟或块设备延迟。
 
+当前云端Go容器只读根文件系统，`/tmp`为64MiB tmpfs；I/O实验文件位于`/tmp/mini-drop-go-io-fault.bin`。因此实际是内存文件系统的同步操作，不构成真实块设备压测。应用耗时链可验收，但磁盘瓶颈场景后续应使用单独受限的磁盘工作目录，保持原数据卷不受影响。Go demo构建工具链对齐go.mod的1.26.8，CI增加真实Docker镜像构建，避免本地Go测试通过却镜像构建失败。
+
 源码10002e94、发布20261001T075239Z已完成精确CI13/13及真实Chrome验证。真实健康窗口显示正常：15样本、CPU0.428%、RSS增量0，两份原始下载SHA一致。首次真实页面漏判ACCEPT_NEUTRAL的失败已保留，修正后的同输入源码回放与实际页面均通过。Python1299通过/10登记跳过、真实PG8通过零跳过、Web264通过。默认21性能案例、4工程案例、9下载SHA及四种宽度通过；21注入inactive、旧因果0/21保持。详见[交付与证据](../reports/architecture/performance-diagnosis-20261001.md)。

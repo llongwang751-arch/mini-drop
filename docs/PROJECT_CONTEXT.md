@@ -6,6 +6,8 @@
 
 新增 bottleneck-localization.v1，单独展示 CPU 热函数、HTTP/下游调用耗时路径与目标应用同步写路径。Go 同步 I/O 增加成功操作累计耗时，原生采集器现有应用指标通道传输，Analyzer按窗口差值计算平均值；不包含锁等待和循环休眠，不宣称块设备归因。预声明阈值为平均10ms且至少5次新操作。API和Office无需变更；候选发布涉及 Worker/Analyzer/Web/Go demo。详见[性能诊断](PERFORMANCE_DIAGNOSIS.md)。
 
+部署前发现Go旧Compose环境文件标签已失效，实际运行配置可只读恢复；Go Dockerfile也滞后于go.mod要求的1.26.8，已对齐并将真实镜像构建加入CI。当前Go的/tmp为64MiB tmpfs，写操作不能宣称真实磁盘瓶颈；若实测耗时未达阈值应保留反证，不修改门槛。
+
 ## 2026-10-01 性能诊断判定与入口已部署
 
 Worker/Analyzer/Web发布`20261001T075239Z`，源码`10002e94cf8aa46a7e4778385138c35ddfc20d7d`；Worker/Analyzer各189份文件、Web56份文件SHA一致，其余10容器保持。13容器运行及健康检查通过，API3依赖健康；Office保持observer-20260930T145902Z/f37f44e、PID484342且NRestarts=0，API保持f9b143a及原二进制SHA。21故障inactive、历史因果根因0/21。

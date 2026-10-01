@@ -24,6 +24,8 @@ jobs:
       - name: Go application I/O counters under concurrent readers and writers
         working-directory: demo/go-hotspot
         run: go test -race -count=1 ./...
+      - name: Build the actual Go demo deployment image
+        run: docker build -t mini-drop-go-hotspot:ci demo/go-hotspot
       - uses: actions/upload-artifact@v4
         if: always()
         with:
