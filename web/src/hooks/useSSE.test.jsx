@@ -187,4 +187,45 @@ describe("useSSE", () => {
 
     expect(streams).toHaveLength(1);
   });
+
+  it("releases a cached page's connection and resumes from its last diagnosis cursor", () => {
+    const streams = [];
+    createDiagnosisEventSource.mockImplementation(() => {
+      const es = makeFakeES(); streams.push(es); return es;
+    });
+    const { result, unmount } = renderHook(() => useSSE({ channel: "diagnosis", resourceId: "diag-1" }));
+    act(() => window.dispatchEvent(new Event("pageshow")));
+    expect(streams).toHaveLength(1);
+    act(() => { streams[0].onopen(); streams[0]._emit("diagnosis_progress", { sequence: 7 }); });
+    act(() => window.dispatchEvent(new Event("pagehide")));
+    expect(streams[0].close).toHaveBeenCalled();
+    expect(result.current.connected).toBe(false);
+    act(() => { window.dispatchEvent(new Event("mini-drop:credentials-changed")); result.current.reconnect(); });
+    expect(streams).toHaveLength(1);
+    act(() => window.dispatchEvent(new Event("pageshow")));
+    expect(streams).toHaveLength(2);
+    expect(createDiagnosisEventSource).toHaveBeenLastCalledWith("diag-1", 7);
+    unmount();
+  });
+
+  it("cancels retries while the document is away and ignores late stream errors", () => {
+    const streams = [];
+    createEventSource.mockImplementation(() => { const es = makeFakeES(); streams.push(es); return es; });
+    const { unmount } = renderHook(() => useSSE());
+    act(() => streams[0].onerror());
+    act(() => window.dispatchEvent(new Event("pagehide")));
+    act(() => { streams[0].onerror(); vi.advanceTimersByTime(30000); });
+    expect(streams).toHaveLength(1);
+    act(() => window.dispatchEvent(new Event("pageshow")));
+    expect(streams).toHaveLength(2);
+    unmount();
+  });
+
+  it("removes page lifecycle listeners when the hook unmounts", () => {
+    const es = makeFakeES(); createEventSource.mockReturnValue(es);
+    const { unmount } = renderHook(() => useSSE());
+    unmount();
+    act(() => { window.dispatchEvent(new Event("pagehide")); window.dispatchEvent(new Event("pageshow")); });
+    expect(createEventSource).toHaveBeenCalledTimes(1);
+  });
 });

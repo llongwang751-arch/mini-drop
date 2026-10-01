@@ -70,6 +70,9 @@ Worker/Analyzer/Web/Go demo发布`20261001T094553Z` / `c59aac566cedef6a239eb1d64
 
 实浏览器暴露反证展示缺陷：后续主机报告盖住完整I/O反证，初筛遗漏可信ACCEPT_COUNTER，并选用了最后的无效窗口。Web修正已发布20261001T104413Z / ea24bb51，精确CI36850205619成功13/13、Web289通过；优先保留完整反证、使用最新合格窗口；“本次观测未发现该性能异常”只针对该目标与窗口，其他资源异常仍优先展示，不能外推全部业务正常。真实会话回归旧版5项失败，修复后相关回归通过，真实浏览器进一步发现案例链接在React状态更新重放时丢失；函数更新内部清空ref产生副作用。修正为纯状态更新，并保留首次列表读取失败后的链接以便重试。旧源码2项失败，修复后全量Web291项通过，链接修正待精确CI与Web单独发布。
 
+
+真实浏览器连续导航后列表超时：默认浏览器记录前序页面6条未结束SSE连接，新列表请求无响应；关闭前进后退缓存的同输入对照完成全部检查。React组件卸载关闭连接不足以覆盖缓存页面生命周期。新增pagehide关闭连接/清除退避计时器、pageshow按原游标恢复，暂停时不因凭据事件或旧连接错误重连；不改变普通后台标签页行为。旧源码13项生命周期测试中2失败，修复候选完整Web294项通过；待精确CI、Web发布与默认缓存浏览器最终复核。对照实验不冒充默认浏览器验收通过。
+
 `observation_verifier.py` 输出 `performance-observation-verification.v1`：`checked_ratio` 表示已测量判据占比，`matches` 表示各条件是否成立。异常窗口中 `x >= 100` 成立、`x < 100` 不成立，两者均可已检查；不把“不成立”改成独立CONTROL。完整期望成立且无反证成立才验证观测；有效反证为REFUTED，冲突窗口为CONFLICTING_OBSERVATIONS，缺测为INSUFFICIENT_OBSERVABILITY，不支持语法为UNSUPPORTED_PLAN。不可跨产物拼接完整覆盖。内存收缩的负增量保留为真实测量，缺失不当作0。
 
 报告持久化保留原匹配覆盖率与独立对照标记，以 `matched_verification_status` 留存原匹配状态；观测验证独立于因果验收。`bottleneck-localization.v1` 仅在新有界验证通过时定位性能路径。CPU须有已注册的Profile+独立系统CPU合同；HTTP耗时不能说明丢包或传输原因；I/O须明确TARGET_APPLICATION_SYNC_IO。`scripts/evaluate_performance_localization.py` 独立统计3类路径，旧21成绩不覆盖。

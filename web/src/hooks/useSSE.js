@@ -40,13 +40,14 @@ export default function useSSE({
   const sourceRef = useRef(null);
   const cursorRef = useRef(0);
   const mountedRef = useRef(false);
+  const pageSuspendedRef = useRef(false);
   const maxRetryDelay = 30000;
 
   const handlersRef = useRef({ onTaskChanged, onAgentStatus, onDiagnosisComplete, onDiagnosisProgress, onConnectionChange });
   handlersRef.current = { onTaskChanged, onAgentStatus, onDiagnosisComplete, onDiagnosisProgress, onConnectionChange };
 
   const connect = useCallback(() => {
-    if (!mountedRef.current) return null;
+    if (!mountedRef.current || pageSuspendedRef.current) return null;
     if (reconnectTimer.current) {
       clearTimeout(reconnectTimer.current);
       reconnectTimer.current = null;
@@ -128,6 +129,7 @@ export default function useSSE({
     };
 
     es.onerror = () => {
+      if (pageSuspendedRef.current || sourceRef.current !== es) return;
       if (sourceRef.current !== es || !mountedRef.current) return;
       setConnected(false);
       handlersRef.current.onConnectionChange?.(false);
@@ -149,9 +151,30 @@ export default function useSSE({
     mountedRef.current = true;
     cursorRef.current = 0;
     connect();
+    const suspend = () => {
+      pageSuspendedRef.current = true;
+      sourceRef.current?.close();
+      sourceRef.current = null;
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = null;
+      }
+      setConnected(false);
+      handlersRef.current.onConnectionChange?.(false);
+    };
+    const resume = () => {
+      if (!pageSuspendedRef.current) return;
+      pageSuspendedRef.current = false;
+      retryCount.current = 0;
+      connect();
+    };
+    window.addEventListener("pagehide", suspend);
+    window.addEventListener("pageshow", resume);
     window.addEventListener("mini-drop:credentials-changed", connect);
     return () => {
       mountedRef.current = false;
+      window.removeEventListener("pagehide", suspend);
+      window.removeEventListener("pageshow", resume);
       window.removeEventListener("mini-drop:credentials-changed", connect);
       sourceRef.current?.close();
       sourceRef.current = null;
