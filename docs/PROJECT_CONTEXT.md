@@ -1,5 +1,7 @@
 # Mini-Drop 当前项目上下文
 
+单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。
+
 ## 2026-10-02 面试交付收尾（执行中）
 
 本轮统一现有文档、简历和讲稿，补精确 Git 源码的干净 Linux 核心平台复刻，执行开发集之外的冻结新题规划与检索评估，再整理正式版本与演示步骤。当前交付事实由 [CURRENT_DELIVERY](CURRENT_DELIVERY.md) 从源合同和固定 SHA 的发布/CI/浏览器证据生成，生成物漂移纳入质量门禁。

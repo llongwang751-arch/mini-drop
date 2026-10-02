@@ -199,6 +199,14 @@ def validate_runtime_config(config: dict, project: str, private: Path) -> None:
     require(config["services"]["native-agent"]["environment"].get("AGENT_GRPC_SECURE") == "1", "Agent TLS disabled")
     env = config["services"]["diagnosis-worker"]["environment"]
     require(env.get("MINI_DROP_AI_ENABLED") == "none" and not env.get("MINI_DROP_AI_API_KEY"), "external model credentials forbidden")
+    # A shared env_file must not make non-RPC roles execute the TLS-copy
+    # branch of python-worker-entrypoint without their own certificate mount.
+    for name in ("migrate", "analyzer"):
+        spec = config["services"][name]
+        require(spec.get("environment", {}).get("MINI_DROP_GRPC_SECURE") == "0",
+                f"non-RPC {name} must explicitly disable the gRPC TLS entrypoint")
+        require(not any(mount.get("target") == "/certs" for mount in spec.get("volumes", [])),
+                f"non-RPC {name} must not require private RPC certificates")
     control = config["services"]["control-plane"]["environment"]
     require(control.get("MINI_DROP_GRPC_CLIENT_CERT_FILE") == "/certs/client.crt"
             and control.get("MINI_DROP_GRPC_CLIENT_KEY_FILE") == "/certs/client.key", "Control mTLS healthcheck client identity missing")

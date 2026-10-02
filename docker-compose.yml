@@ -42,6 +42,7 @@ services:
     command:
       ["sh", "-c", "python -m alembic upgrade head && python scripts/bootstrap_object_store.py"]
     environment:
+      MINI_DROP_GRPC_SECURE: "0"
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
@@ -138,6 +139,7 @@ services:
     env_file: [.env]
     command: ["python", "-m", "server.app.analysis_jobs"]
     environment:
+      MINI_DROP_GRPC_SECURE: "0"
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}

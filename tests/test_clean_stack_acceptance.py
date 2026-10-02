@@ -35,6 +35,8 @@ def runtime_config(tmp_path: Path) -> dict:
             spec.update({"pid": "host", "cap_drop": ["ALL"], "environment": {"AGENT_GRPC_SECURE": "1"}})
         elif name == "python-hotspot":
             spec.update({"pid": "host", "cap_drop": ["ALL"]})
+        elif name in {"migrate", "analyzer"}:
+            spec["environment"] = {"MINI_DROP_GRPC_SECURE": "0"}
         elif name == "apiserver":
             spec["environment"] = {"MINI_DROP_API_AUTH_ENABLED": "1", "MINI_DROP_CONTROL_GRPC_TLS": "1"}
         elif name in {"control-plane", "diagnosis-worker"}:
@@ -192,3 +194,33 @@ def test_private_key_ownership_and_permissions_cannot_be_silently_weakened(mode,
 @pytest.mark.parametrize("uid", [0, 65532])
 def test_private_key_exact_runtime_uid_and_0600_are_accepted(uid):
     validate_key_stat(os.stat_result((stat.S_IFREG | 0o600, 1, 1, 1, uid, uid, 1, 0, 0, 0)), uid)
+
+
+@pytest.mark.parametrize("role", ["migrate", "analyzer"])
+@pytest.mark.parametrize("flag", ["1", None])
+def test_shared_rpc_tls_flag_cannot_make_non_rpc_worker_need_unmounted_keys(tmp_path, role, flag):
+    config = runtime_config(tmp_path)
+    if flag is None:
+        config["services"][role]["environment"].pop("MINI_DROP_GRPC_SECURE")
+    else:
+        config["services"][role]["environment"]["MINI_DROP_GRPC_SECURE"] = flag
+    with pytest.raises(AcceptanceError, match=f"non-RPC {role}"):
+        validate_runtime_config(config, PROJECT, tmp_path)
+
+
+@pytest.mark.parametrize("role", ["migrate", "analyzer"])
+def test_non_rpc_roles_have_no_private_rpc_key_mount(tmp_path, role):
+    config = runtime_config(tmp_path)
+    config["services"][role]["volumes"] = [{"type": "bind", "source": str(tmp_path / "certs"),
+                                             "target": "/certs", "read_only": True}]
+    with pytest.raises(AcceptanceError, match="must not require private RPC certificates"):
+        validate_runtime_config(config, PROJECT, tmp_path)
+
+
+def test_disabling_non_rpc_tls_does_not_disable_authenticated_rpc_roles(tmp_path):
+    config = runtime_config(tmp_path)
+    validate_runtime_config(config, PROJECT, tmp_path)
+    assert config["services"]["migrate"]["environment"]["MINI_DROP_GRPC_SECURE"] == "0"
+    assert config["services"]["analyzer"]["environment"]["MINI_DROP_GRPC_SECURE"] == "0"
+    assert config["services"]["control-plane"]["environment"]["MINI_DROP_GRPC_REQUIRE_CLIENT_CERT"] == "1"
+    assert config["services"]["diagnosis-worker"]["environment"]["MINI_DROP_GRPC_SECURE"] == "1"

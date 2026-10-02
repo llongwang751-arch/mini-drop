@@ -1,5 +1,7 @@
 # 基础复刻
 
+单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。
+
 ## 2026-10-02 当前版本复刻入口
 
 当前线上版本及成绩先看 [CURRENT_DELIVERY](CURRENT_DELIVERY.md)。本轮新增干净 Linux 核心平台复刻协议和独立 CI，按精确 Git 源码构建、迁移及真实系统采集/产物分析链路验证，完整结果以 [CLEAN_STACK_ACCEPTANCE](CLEAN_STACK_ACCEPTANCE.md) 的实际运行记录为准。该复刻不包含外部 Office 业务、全部性能采集器或实时模型质量评估；下面带日期的部署和本机镜像复用段落属于历史环境记录。
