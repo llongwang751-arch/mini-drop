@@ -43,6 +43,9 @@ GROUP_TITLES = {
 }
 
 EXACT = {
+    "scripts/build_performance_audit.py": "按退役合同生成旧公开地址的四字段无分数替代标记，检查归档哈希和产物漂移。",
+    "contracts/performance_audit.json": "旧公开成绩的退役策略与冻结证据哈希源合同；限定工程索引替代地址。",
+    "web/src/components/PerformanceDiagnosisSummary.jsx": "保留为空的兼容组件，不渲染或请求旧成绩；当前工作台不调用。",
     "scripts/render_load_report.py": "复核原始负载证据后生成带延迟/资源图表的自包含 HTML，保留无效结果和缺失值。",
     "scripts/verify_load_report.py": "校验原始负载/资源证据、槽位完整性并重算摘要，防止被篡改的报告通过门禁。",
     "scripts/process_resource_monitor.py": "独立目标进程资源采样、PID 身份、缺样拒绝和持续窗口增长预算。",
@@ -69,8 +72,8 @@ EXACT = {
     "scripts/render_business_acceptance.py": "从业务原始报告生成 Markdown 对比结果。",
     "scripts/run_fault_plaza_strict_acceptance.py": "21 场景真机严格验收：独立记录采集链路、根因门禁、注入指标、撤销恢复与清理，逐场保存原始证据。",
     "scripts/render_fault_plaza_acceptance.py": "从严格验收原始 JSON 生成逐场 Markdown 报告，保留失败与根因缺口。",
-    "scripts/build_fault_plaza_acceptance_index.py": "校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。",
-    "server/app/drop_insight/fault_acceptance.py": "读取并校验只读挂载的验收索引，为故障广场提供真实最近验收结果。",
+    "scripts/build_fault_plaza_acceptance_index.py": "离线校验历史 Campaign 与逐场证据哈希；当前页面和默认 API 不使用旧成绩索引。",
+    "server/app/drop_insight/fault_acceptance.py": "保留历史验收索引的离线哈希校验读取器；默认故障广场 API 不再调用。",
     "docs/FAULT_PLAZA_ACCEPTANCE.md": "严格验收协议、通过标准、历史链路边界、发布修复与页面截图。",
     "native/agent/include/self_metrics.h": "读取 Agent 自身 /proc 计数，按相邻时间窗计算 CPU、RSS 与磁盘读写速率；无有效窗口不填零。",
     "native/agent/tests/self_metrics_test.cpp": "验证自身指标的有效窗口、计数回退、缺失来源和真实 RSS。",

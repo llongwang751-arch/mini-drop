@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3863 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3938 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 1091 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 1117 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2120,6 +2120,32 @@ python scripts/render_learning_guide.py
 | `reports/quality/engineering-diagnosis-20261001/local/` | local 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/engineering-diagnosis-20261001/local/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/engineering-diagnosis-20261001/local/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/` | engineering-score-only-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/browser-initial/` | browser-initial 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/native-agent-binary-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | native-agent-binary-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/python-quality-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | python-quality-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/python-quality-4106ef148573cc39036eb099b4ac1f7757f9f645-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/ci/reports/web-browser-4106ef148573cc39036eb099b4ac1f7757f9f645-1/` | web-browser-4106ef148573cc39036eb099b4ac1f7757f9f645-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/local/` | local 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/publication/` | publication 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/engineering-score-only-20261002/tools/` | tools 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/focused-delivery-20260929/` | focused-delivery-20260929 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/health-check-flow-20261001/` | health-check-flow-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/health-check-flow-20261001/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3183,7 +3209,7 @@ python scripts/render_learning_guide.py
 | `web/src/components/MentorComplexShowcase.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/ObservabilityOverview.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `rows`、`number`、`compact`、`evidenceMetadata`、`evidenceSource` 等 9 个声明 |
 | `web/src/components/ObservabilityOverview.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
-| `web/src/components/PerformanceDiagnosisSummary.jsx` | React 前端模块，负责AI 诊断状态与流程的展示或交互。 | `PerformanceDiagnosisSummary` |
+| `web/src/components/PerformanceDiagnosisSummary.jsx` | 保留为空的兼容组件，不渲染或请求旧成绩；当前工作台不调用。 | `PerformanceDiagnosisSummary` |
 | `web/src/components/PerformanceDiagnosisSummary.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | `report` |
 | `web/src/components/PlannerBlock.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `PlannerBlock` |
 | `web/src/components/PlannerBlock.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
@@ -3358,7 +3384,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/event_store.py` | Python 服务模块，负责对应模块行为。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
 | `server/app/drop_insight/evidence.py` | Python 服务模块，负责Evidence 分类与门禁。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
 | `server/app/drop_insight/exploration_tree.py` | 从领域记录重建可恢复的探索树快照。 | `get_live_exploration_tree` 等 11 个声明 |
-| `server/app/drop_insight/fault_acceptance.py` | 读取并校验只读挂载的验收索引，为故障广场提供真实最近验收结果。 | `latest_acceptance` |
+| `server/app/drop_insight/fault_acceptance.py` | 保留历史验收索引的离线哈希校验读取器；默认故障广场 API 不再调用。 | `latest_acceptance` |
 | `server/app/drop_insight/fault_plaza.py` | 四运行时 21 个故障场景的服务端白名单。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
 | `server/app/drop_insight/fix_verification.py` | Python 服务模块，负责对应模块行为。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
 | `server/app/drop_insight/frozen_replay_showcase.py` | 冻结 fixture 到持久化 FULL_LATS 会话的桥。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
@@ -3508,7 +3534,7 @@ python scripts/render_learning_guide.py
 | `contracts/engineering_cases.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/engineering_diagnosis.json` | AI 诊断状态与流程的机器可读或人类可读稳定合同。 | — |
 | `contracts/error-codes.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
-| `contracts/performance_audit.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `contracts/performance_audit.json` | 旧公开成绩的退役策略与冻结证据哈希源合同；限定工程索引替代地址。 | — |
 | `contracts/quality_plan.json` | 版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。 | — |
 | `contracts/task-statuses.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/taskkinds.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
@@ -3763,9 +3789,9 @@ python scripts/render_learning_guide.py
 | `scripts/build_business_acceptance_view.py` | 从完成且哈希一致的业务报告生成页面投影。 | `verified`、`build` |
 | `scripts/build_engineering_case_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
 | `scripts/build_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `generate`、`main` |
-| `scripts/build_fault_plaza_acceptance_index.py` | 校验完成的 Campaign 和逐场证据哈希，生成页面最近验收结果索引。 | `verified_json`、`build` |
+| `scripts/build_fault_plaza_acceptance_index.py` | 离线校验历史 Campaign 与逐场证据哈希；当前页面和默认 API 不使用旧成绩索引。 | `verified_json`、`build` |
 | `scripts/build_knowledge_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
-| `scripts/build_performance_audit.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `generate`、`main` |
+| `scripts/build_performance_audit.py` | 按退役合同生成旧公开地址的四字段无分数替代标记，检查归档哈希和产物漂移。 | `generate`、`main` |
 | `scripts/capture_learning_guide_screenshots.py` | 通过临时无头浏览器抓取当前云端只读页面，生成总教材使用的可复现截图。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
 | `scripts/check_business_test_plan.py` | 校验需求与执行案例一致、引用有效，并生成保守的变更影响清单。 | `validate`、`affected` |
 | `scripts/check_openapi_routes.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` 等 8 个声明 |
@@ -4524,6 +4550,81 @@ python scripts/render_learning_guide.py
 | `reports/quality/engineering-diagnosis-20261001/local/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-diagnosis-20261001/local/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/engineering-diagnosis-20261001/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser-initial/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser-initial/expected-public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser-initial/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser-initial/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser/browser.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser/expected-public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser/network.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/browser/retired-score-current-overview.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710210891.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710210934.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710210948.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710210964.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710210993.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211014.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211035.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211037.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211041.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211077.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211113.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/logs/job-110710211123.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/hotspot-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/native-agent-binary-4106ef148573cc39036eb099b4ac1f7757f9f645-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/observation-controls-4106ef148573cc39036eb099b4ac1f7757f9f645-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/postgres-concurrency-4106ef148573cc39036eb099b4ac1f7757f9f645-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/python-quality-4106ef148573cc39036eb099b4ac1f7757f9f645-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/python-quality-4106ef148573cc39036eb099b4ac1f7757f9f645-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/reports/web-browser-4106ef148573cc39036eb099b4ac1f7757f9f645-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/ci/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/local/backend-regression.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/local/browser-result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/local/web-tests-full.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/publication/backend-review.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/publication/browser-lineage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/publication/documentation-generator-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/publication/final-publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/publication/final-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/release/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/tools/activate_platform.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/tools/archive_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `copy`、`stage`、`update`、`main` |
+| `reports/quality/engineering-score-only-20261002/tools/browser_verify.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/tools/browser_verify.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `read_json`、`public_expectations`、`main` |
+| `reports/quality/engineering-score-only-20261002/tools/ci_status.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/engineering-score-only-20261002/tools/collect_ci_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `persist`、`persist_json`、`json_get`、`artifact`、`job_log` 等 8 个声明 |
+| `reports/quality/engineering-score-only-20261002/tools/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/engineering-score-only-20261002/tools/final_preflight.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_helper`、`provider`、`tls_client`、`runtime_baseline`、`verify_public_baseline` 等 6 个声明 |
+| `reports/quality/engineering-score-only-20261002/tools/prepare_final_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`git`、`git_files`、`owned_target`、`write_blob` 等 9 个声明 |
+| `reports/quality/engineering-score-only-20261002/tools/verify_final_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
 | `reports/quality/focused-delivery-20260929/ci-business-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/ci-hotspot-failure.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/ci-hotspot-fixed.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

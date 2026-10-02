@@ -6,6 +6,8 @@
 
 当前展示工程判断21/21、异常路径6/21、有效反证8条，来源为最新7个窗口及此前14条记录；21类实验启停、新案例和证据合同继续使用。报告的因果/同负载修复标志仍由证据决定，工程判断不改称因果验证。本次不重新注入故障或重跑小时压测。实现、测试及最终发布见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)。
 
+本次移除已发布`20261002T045234Z`，应用源码`de094fff754f2d8cb7139dd99e31c7a30d5fb754`，[精确CI36966142203](https://github.com/llongwang751-arch/mini-drop/actions/runs/36966142203)完成14/14作业。Python1682项通过/16项登记跳过，前端317项、Chromium固定数据8项及真实PostgreSQL14项零跳过通过；后端相关127项本地回归通过。Worker/Analyzer各211份源码、Web容器及公网58份资源SHA一致；13容器健康、21场景inactive，环境/挂载及另外10容器、紧邻部署前Office/API/Native基线核对通过。线上API的21场景均不含旧成绩字段，旧公开地址仅返回无分数替代地址；真实浏览器确认旧成绩及入口消失，新工程21/21、具体路径6/21、反证8条、四种宽度和既有体检/业务路径通过，41份证据重新下载SHA一致。没有新建诊断或重跑故障/压测。发布回执和测试见[本次归档](../reports/quality/engineering-score-only-20261002/manifest.json)。
+
 ## 2026-10-01 性能路径、反证与案例链接最终交付
 
 最新Web发布`20261001T112302Z` / `ebb1a0e6a3a7396db789bb8a0a47c734d1219aff`；[精确CI36854620615](https://github.com/llongwang751-arch/mini-drop/actions/runs/36854620615)成功13/13，Python1358通过/10登记跳过、Web294通过、真实PostgreSQL8通过零跳过，Chroma与Go race/真实镜像/连续I/O专项通过。仅Web更换，其余12容器保持；Worker/Analyzer/Go demo仍为20261001T094553Z / c59aac566cedef6a239eb1d640ee8fb796524ae3。Worker/Analyzer各193文件、Web56文件SHA复核，13容器健康，API3依赖健康，21故障inactive；Office PID1650962、NRestarts=0，API与Office源码及数据保持。
