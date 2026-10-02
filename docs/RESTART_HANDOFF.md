@@ -1,5 +1,7 @@
 # Mini-Drop 重启交接点
 
+单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。此时只是源码与入口修复，干净 CI 未通过前仍为执行中。线上既有容器、镜像和数据不因此替换。
+
 单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。
 
 ## 2026-10-02 面试交付收尾（执行中）

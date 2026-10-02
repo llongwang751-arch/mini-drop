@@ -4,7 +4,7 @@ Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验�
 
 项目包含两条入口：**基础采集**由用户选择目标与采集器；**AI 诊断**由受约束的 Agent 在预算内提出假设、调用工具、寻找反证并继续调查。二者共用任务、采集、分析和存储链路。
 
-[项目教程](docs/PROJECT_LEARNING_GUIDE.md) · [演示指南](docs/INTERVIEW_DEMO_GUIDE.md) · [业务接入](docs/SERVICE_INTEGRATION.md) · [部署文档](docs/REPLICATION.md) · [面试深挖](docs/INTERVIEW_DEEP_DIVE.md) · [全部文档](docs/README.md)
+[当前交付事实](docs/CURRENT_DELIVERY.md) · [项目教程](docs/PROJECT_LEARNING_GUIDE.md) · [演示指南](docs/INTERVIEW_DEMO_GUIDE.md) · [业务接入](docs/SERVICE_INTEGRATION.md) · [部署文档](docs/REPLICATION.md) · [面试深挖](docs/INTERVIEW_DEEP_DIVE.md) · [全部文档](docs/README.md)
 
 **测试开发入口：** 本项目也用于多语言服务的性能与可靠性测试：从风险和测试计划出发，执行自动化回归、受控故障与同负载对照，再用采集证据辅助定位失败。运行 `python scripts/run_quality_gate.py` 可生成本机质量报告；分层测试、真实缺陷复盘、开源对照及测开演示见 [测试开发与质量工程](docs/TEST_ENGINEERING.md)。
 

@@ -19,7 +19,11 @@ services:
     restart: unless-stopped
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/minio-source.Dockerfile
+    image: mini-drop-minio:source-20250408
+    pull_policy: never
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-mini_drop}
@@ -27,7 +31,7 @@ services:
     expose: ["9000", "9001"]
     volumes: ["miniodata:/data"]
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 10

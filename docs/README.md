@@ -1,5 +1,9 @@
 # 文档入口
 
+- [当前面试交付事实](CURRENT_DELIVERY.md)：由冻结证据合同生成，区分当前线上来源、工程判断与本轮专项状态。
+- [干净 Linux 核心平台复刻](CLEAN_STACK_ACCEPTANCE.md)：精确 Git 构建、mTLS、真实 Agent 采集、原始下载和 Analyzer 归属链。
+- [Agent/RAG 新题冻结评估](HELDOUT_EVALUATION.md)：真实模型首轮输出、冻结真值、失败保留与独立重算；不计为云端因果准确率。
+
 - [当前成绩统一为工程诊断](../reports/architecture/engineering-score-only-20261002.md)：当前21/21、路径6/21、反证8条，旧成绩默认入口已移除。
 
 - [七类观测与规划缺口补齐](../reports/architecture/seven-gaps-20261002.md)：最新21/21工程判断、7新+14历史、源码路径/锁/配额与I/O反证，保留两次失败。

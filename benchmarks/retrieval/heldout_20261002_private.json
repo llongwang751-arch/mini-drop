@@ -1,0 +1,406 @@
+{
+  "schema": "mini-drop.heldout-oracles.v1",
+  "suite_id": "heldout-planning-retrieval-20261002",
+  "evaluator_only": true,
+  "oracle_only_sentinel": "EVALUATOR_ONLY_HELDOUT_20261002_6f7599b598",
+  "cases": [
+    {
+      "case_id": "h01",
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "python.sampling.attribution"
+      ],
+      "acceptable_categories": [
+        "CPU"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "start_pyspy_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h02",
+      "relevant_ids": [
+        "python.sampling.attribution"
+      ],
+      "acceptable_categories": [
+        "CPU"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_REFUTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "start_pyspy_profile",
+        "NO_TOOL"
+      ]
+    },
+    {
+      "case_id": "h03",
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "acceptable_categories": [
+        "CPU"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "start_perf_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h04",
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "acceptable_categories": [
+        "CPU"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "start_perf_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h05",
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "acceptable_categories": [
+        "RESOURCE_CONTENTION"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h06",
+      "relevant_ids": [
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "acceptable_categories": [
+        "RESOURCE_CONTENTION",
+        "UNKNOWN"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "ASK_CLARIFICATION"
+      ]
+    },
+    {
+      "case_id": "h07",
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "acceptable_categories": [
+        "IO"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_REFUTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "NO_TOOL"
+      ]
+    },
+    {
+      "case_id": "h08",
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "acceptable_categories": [
+        "IO"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "start_ebpf_io_profile",
+        "start_jvm_profile"
+      ]
+    },
+    {
+      "case_id": "h09",
+      "relevant_ids": [
+        "distributed.downstream_pressure"
+      ],
+      "acceptable_categories": [
+        "DOWNSTREAM",
+        "NETWORK"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "collect_go_profile"
+      ]
+    },
+    {
+      "case_id": "h10",
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "acceptable_categories": [
+        "NETWORK"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_REFUTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "NO_TOOL"
+      ]
+    },
+    {
+      "case_id": "h11",
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "acceptable_categories": [
+        "MEMORY"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "collect_memory_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h12",
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "acceptable_categories": [
+        "MEMORY",
+        "UNKNOWN"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "collect_memory_profile",
+        "collect_sys_metrics",
+        "ASK_CLARIFICATION"
+      ]
+    },
+    {
+      "case_id": "h13",
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "acceptable_categories": [
+        "GC"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "start_jvm_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h14",
+      "relevant_ids": [],
+      "acceptable_categories": [
+        "LOCK"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "start_jvm_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h15",
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "acceptable_categories": [
+        "LOCK"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "collect_go_profile",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h16",
+      "relevant_ids": [],
+      "acceptable_categories": [
+        "QUEUE"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "start_pyspy_profile"
+      ]
+    },
+    {
+      "case_id": "h17",
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth",
+        "sre.latency.measurement"
+      ],
+      "acceptable_categories": [
+        "NORMAL"
+      ],
+      "acceptable_dispositions": [
+        "NORMAL_IN_CHECKED_SCOPE"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h18",
+      "relevant_ids": [],
+      "acceptable_categories": [
+        "UNKNOWN"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "ASK_CLARIFICATION",
+        "NO_TOOL",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h19",
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth",
+        "linux.iowait.shared_block_device"
+      ],
+      "acceptable_categories": [
+        "MIXED"
+      ],
+      "acceptable_dispositions": [
+        "MIXED_OBSERVATIONS"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics",
+        "collect_memory_profile",
+        "start_pyspy_profile",
+        "start_ebpf_io_profile"
+      ]
+    },
+    {
+      "case_id": "h20",
+      "relevant_ids": [
+        "agent.tool.governance"
+      ],
+      "acceptable_categories": [
+        "NOT_A_DIAGNOSIS",
+        "UNKNOWN"
+      ],
+      "acceptable_dispositions": [
+        "NOT_A_DIAGNOSIS",
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "ASK_CLARIFICATION"
+      ]
+    },
+    {
+      "case_id": "h21",
+      "relevant_ids": [
+        "mysql.lock_wait",
+        "postgres.waits"
+      ],
+      "acceptable_categories": [
+        "DATABASE",
+        "DOWNSTREAM",
+        "UNKNOWN"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "ASK_CLARIFICATION",
+        "collect_sys_metrics"
+      ]
+    },
+    {
+      "case_id": "h22",
+      "relevant_ids": [
+        "agent.tool.governance"
+      ],
+      "acceptable_categories": [
+        "AGENT_GOVERNANCE"
+      ],
+      "acceptable_dispositions": [
+        "INSUFFICIENT_DATA",
+        "NOT_A_DIAGNOSIS"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "ASK_CLARIFICATION"
+      ]
+    },
+    {
+      "case_id": "h23",
+      "relevant_ids": [
+        "rag.quality.lifecycle"
+      ],
+      "acceptable_categories": [
+        "RETRIEVAL"
+      ],
+      "acceptable_dispositions": [
+        "OBSERVATION_SUPPORTED",
+        "INSUFFICIENT_DATA"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "ASK_CLARIFICATION"
+      ]
+    },
+    {
+      "case_id": "h24",
+      "relevant_ids": [],
+      "acceptable_categories": [
+        "NOT_A_DIAGNOSIS"
+      ],
+      "acceptable_dispositions": [
+        "NOT_A_DIAGNOSIS"
+      ],
+      "acceptable_tools": [
+        "NO_TOOL",
+        "ASK_CLARIFICATION"
+      ]
+    }
+  ]
+}

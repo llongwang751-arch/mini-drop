@@ -11,9 +11,10 @@ import pytest
 import yaml
 
 from scripts.verify_clean_stack import (
-    AcceptanceError, CORE, MEMORY_MB, ROOT, owned_container_ids,
+    AcceptanceError, BUILD, CORE, MEMORY_MB, MINIO_DOCKERFILE, MINIO_RELEASE,
+    MINIO_SOURCE_COMMIT, MINIO_SOURCE_SHA256, ROOT, owned_container_ids,
     prepare_compose, public_config, redact, sha, source_migration_heads,
-    validate_artifact, validate_key_stat, validate_runtime_config,
+    validate_artifact, validate_key_stat, validate_minio_source, validate_minio_version, validate_runtime_config,
 )
 
 
@@ -30,7 +31,8 @@ def runtime_config(tmp_path: Path) -> dict:
         if name == "postgres":
             spec["image"] = "postgres:16"
         elif name == "minio":
-            spec["image"] = "quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z"
+            spec.update({"build": {"context": str(ROOT), "dockerfile": MINIO_DOCKERFILE}, "pull_policy": "never",
+                "healthcheck": {"test": ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"]}})
         elif name == "native-agent":
             spec.update({"pid": "host", "cap_drop": ["ALL"], "environment": {"AGENT_GRPC_SECURE": "1"}})
         elif name == "python-hotspot":
@@ -224,3 +226,42 @@ def test_disabling_non_rpc_tls_does_not_disable_authenticated_rpc_roles(tmp_path
     assert config["services"]["analyzer"]["environment"]["MINI_DROP_GRPC_SECURE"] == "0"
     assert config["services"]["control-plane"]["environment"]["MINI_DROP_GRPC_REQUIRE_CLIENT_CERT"] == "1"
     assert config["services"]["diagnosis-worker"]["environment"]["MINI_DROP_GRPC_SECURE"] == "1"
+
+
+@pytest.mark.parametrize("change", [
+    lambda c: c["services"]["minio"].pop("build"),
+    lambda c: c["services"]["minio"].update(image="minio/minio:latest"),
+    lambda c: c["services"]["minio"].update(pull_policy="always"),
+    lambda c: c["services"]["minio"]["healthcheck"].update(test=["CMD", "true"]),
+    lambda c: c["services"]["minio"]["healthcheck"].update(test=["CMD", "mc", "ready", "local"]),
+    lambda c: c["services"]["minio"]["build"].update(args={"MINIO_SOURCE_COMMIT": "0" * 40}),
+    lambda c: c["services"]["minio"]["build"].update(args={"MINIO_SOURCE_SHA256": MINIO_SOURCE_SHA256}),
+])
+def test_registry_failure_cannot_turn_into_prebuilt_or_unpinned_minio_success(tmp_path, change):
+    config = runtime_config(tmp_path)
+    change(config)
+    with pytest.raises(AcceptanceError):
+        validate_runtime_config(config, PROJECT, tmp_path)
+
+
+@pytest.mark.parametrize("before,after", [
+    (MINIO_SOURCE_COMMIT, "0" * 40),
+    (MINIO_SOURCE_SHA256, "0" * 64),
+    ("sha256sum --check", "true"),
+    ("FROM golang:1.23.6-bookworm", "FROM minio/minio:latest"),
+    ("COPY --from=build /out/minio", "COPY --from=minio/minio:latest /out/minio"),
+])
+def test_source_build_requires_original_official_tar_checksum_and_real_compile(before, after):
+    source = (ROOT / MINIO_DOCKERFILE).read_text(encoding="utf-8")
+    assert before in source
+    with pytest.raises(AcceptanceError):
+        validate_minio_source(source.replace(before, after), {})
+
+
+def test_minio_is_built_first_and_version_must_contain_full_original_commit():
+    assert BUILD[0] == "minio"
+    validate_minio_version(f"minio version {MINIO_RELEASE} (commit-id={MINIO_SOURCE_COMMIT})")
+    for output in ("minio version latest", f"minio version {MINIO_RELEASE} (commit-id=0)",
+                   f"minio version RELEASE.2026-01-01T00-00-00Z (commit-id={MINIO_SOURCE_COMMIT})"):
+        with pytest.raises(AcceptanceError):
+            validate_minio_version(output)

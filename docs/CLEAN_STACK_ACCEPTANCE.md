@@ -8,6 +8,10 @@
 
 从 canonical `docker-compose.yml` 选择 PostgreSQL、MinIO、一次性 migrate、C++ Control、Python Diagnosis Worker、Python Analyzer、Go API、C++ Agent、React/Nginx Web，以及默认无故障的 Python demo。9 项平台核心和 1 项采集目标各有明确角色；migrate 成功退出，8 个长驻服务健康，Agent 用连续新心跳验证。
 
+实际干净 CI 已记录首轮取消和一次失败：6 个项目镜像构建成功，但 canonical 旧 MinIO tag 无法匿名拉取。Quay 与 DockerHub 匿名 Bearer manifest 探测均拒绝访问，不能只更换 registry 便宣称修复。单机 canonical 改为 `deploy/dockerfiles/minio-source.Dockerfile`，从原 2025-04-08 版的官方 upstream commit `d0cada583fce88f60cb276ddfb06f5cb16820069` 构建；codeload tar SHA-256 为 `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。源码下载先校验再编译，既定版本保持；旧线上镜像和数据不因复刻验收被替换。
+
+MinIO 为本轮第一个源码构建项，唯一 image tag，禁止 pull 预制 MinIO 或覆盖 source pin。真实运行后核验 `minio --version` 的原 release tag 与完整 commit，使用 HTTP ready endpoint 健康检查；桶初始化和产物上传/读取仍由实际 S3 链路验证。这个源码构建修正尚不代表整条复刻已通过，须后续 fresh CI 报告确认。
+
 Office、Go/Java/C++ 业务 demo、模型调用质量、perf/BPF/其他采集器、小时压测不属于这个专项。它们已有各自证据或专项，不能由一次 sys_metrics 成功推导为全部通过。没有模型密钥时显式设置 `MINI_DROP_AI_ENABLED=none`，没有用模型 fallback 冒充模型验收。
 
 隔离配置从原 Compose 生成，保留服务命令、依赖和构建 Dockerfile。允许的覆盖包括唯一 project/image tag、私有 env/PKI 和只读源码路径、官方构建镜像源、串行 native build、内存/CPU/PID 上限、关闭重启、Web 只绑定 loopback 随机端口、仅启默认无故障 Python target。只验 sys_metrics，因此 Agent 不申请 BPF/perf capability 或 tracing/debug mount；保留 host PID 用于发现目标。禁止 privileged、host network、外部资源、固定容器名和任意 host bind。

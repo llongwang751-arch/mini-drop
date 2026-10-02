@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3938 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3953 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3534,6 +3534,7 @@ python scripts/render_learning_guide.py
 | `contracts/engineering_cases.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/engineering_diagnosis.json` | AI 诊断状态与流程的机器可读或人类可读稳定合同。 | — |
 | `contracts/error-codes.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `contracts/interview_delivery.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `contracts/performance_audit.json` | 旧公开成绩的退役策略与冻结证据哈希源合同；限定工程索引替代地址。 | — |
 | `contracts/quality_plan.json` | 版本化风险与执行套件映射，定义本地/CI 质量配置及允许跳过边界。 | — |
 | `contracts/task-statuses.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
@@ -3636,6 +3637,10 @@ python scripts/render_learning_guide.py
 | `benchmarks/diagnosis-v2/sources.json` | 评测来源或数据合同。 | — |
 | `benchmarks/evaluation-suite/dataset.json` | 评测来源或数据合同。 | — |
 | `benchmarks/evaluation-suite/dataset.xlsx` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/heldout_20261002_frozen_inputs.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/heldout_20261002_manifest.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/heldout_20261002_private.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/heldout_20261002_public.json` | 评测来源或数据合同。 | — |
 | `benchmarks/retrieval/sre_queries.json` | 评测来源或数据合同。 | — |
 | `benchmarks/root-cause-v1/manifest.json` | 数据集数量、版本、随机种子和文件 SHA-256 清单。 | — |
 | `benchmarks/root-cause-v1/private/oracles.json` | 私有根因/Skill 真值，评测时才与公开输入合并。 | — |
@@ -3670,6 +3675,7 @@ python scripts/render_learning_guide.py
 | `tests/test_business_acceptance_properties.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `workload`、`clean_window`、`sparse_windows`、`after_windows`、`test_percentiles_are_observed_latencies_in_nearest_rank_order` 等 10 个声明 |
 | `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 15 个声明 |
 | `tests/test_business_repeat.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`row`、`test_aggregate_records_every_run_and_reports_spread`、`test_stable_outcomes_aggregate_to_a_single_verdict`、`test_aggregate_refuses_to_fabricate_statistics_from_no_runs` 等 11 个声明 |
+| `tests/test_clean_stack_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `runtime_config`、`raw_fixture`、`test_valid_documented_config_and_realistic_artifact_shape`、`test_runtime_cannot_attach_production_or_silently_weaken_scope`、`test_raw_presence_is_not_analyzed_verified_evidence` 等 18 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
 | `tests/test_cpu_contract_persistence.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `payload`、`test_registry_plan_is_persisted_verbatim_with_declared_rule_source`、`test_unsupported_strong_or_mixed_claim_rejected_before_insert_for_all_sources`、`test_existing_idempotent_hypothesis_never_rewritten_or_revalidated_into_new_contract`、`test_legacy_unexecutable_mixed_hypothesis_does_not_get_partial_dispatch` 等 14 个声明 |
@@ -3720,6 +3726,7 @@ python scripts/render_learning_guide.py
 | `tests/test_go_io_window_harness.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_io_window_uses_new_operations_instead_of_the_lifetime_mean`、`test_missing_operations_resets_and_nonfinite_time_cannot_pass_fixture_verification` |
 | `tests/test_health_check_flow.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `evidence`、`test_measured_outcome_never_requires_positive_root_support`、`test_missing_or_untrusted_data_never_reports_normal`、`test_http_failure_is_detected_but_no_requests_does_not_claim_http_health`、`db` 等 12 个声明 |
 | `tests/test_health_check_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `seed`、`inspect`、`test_concurrent_completion_waits_for_parent_lock_and_commits_once`、`test_exception_rolls_back_event_terminal_status_and_call_phase`、`test_process_death_and_fresh_process_retry_preserve_atomic_completion` 等 7 个声明 |
+| `tests/test_heldout_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `frozen_copy`、`test_preimplementation_freeze_rejects_changed_suite_or_truth`、`test_freeze_rejects_corpus_source_or_development_drift`、`test_heldout_is_distinct_from_development_and_uses_frozen_corpus`、`test_clean_checkout_comments_and_crlf_do_not_replace_original_corpus_bytes` 等 22 个声明 |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -3790,6 +3797,7 @@ python scripts/render_learning_guide.py
 | `scripts/build_engineering_case_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
 | `scripts/build_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `generate`、`main` |
 | `scripts/build_fault_plaza_acceptance_index.py` | 离线校验历史 Campaign 与逐场证据哈希；当前页面和默认 API 不使用旧成绩索引。 | `verified_json`、`build` |
+| `scripts/build_interview_delivery.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `pinned`、`generate`、`main` |
 | `scripts/build_knowledge_index.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/build_performance_audit.py` | 按退役合同生成旧公开地址的四字段无分数替代标记，检查归档哈希和产物漂移。 | `generate`、`main` |
 | `scripts/capture_learning_guide_screenshots.py` | 通过临时无头浏览器抓取当前云端只读页面，生成总教材使用的可复现截图。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
@@ -3799,6 +3807,7 @@ python scripts/render_learning_guide.py
 | `scripts/check_worker_compatibility.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/engineering_profile_observation.py` | 工程脚本，负责性能 Profile的生成、检查或验收。 | `finite`、`measured_runtime_profile` 等 6 个声明 |
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
+| `scripts/evaluate_heldout_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
 | `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
@@ -3845,6 +3854,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_actual_rag_search.py` | 对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。 | `verify` |
 | `scripts/verify_backup_restore.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `run`、`main` |
 | `scripts/verify_backup_restore.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
+| `scripts/verify_clean_stack.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `AcceptanceError`、`require`、`sha`、`validate_key_stat`、`validate_minio_source` 等 15 个声明 |
 | `scripts/verify_cloud_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_cloud_sre_browser.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_external_acceptance.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
@@ -3874,6 +3884,7 @@ python scripts/render_learning_guide.py
 | `deploy/dockerfiles/apiserver.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/local-sre-api.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/local-sre-python.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `deploy/dockerfiles/minio-source.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-agent-source-overlay.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-agent.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `deploy/dockerfiles/native-control.Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
@@ -4070,6 +4081,7 @@ python scripts/render_learning_guide.py
 | `docs/assets/learning-guide/20260914-lightweight-business/ntfy-original-business.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `docs/BUSINESS_ACCEPTANCE.md` | 业务测量、同负载修复比较、知识库样例、CI 计划及本地/AI 验收边界。 | — |
 | `docs/BUSINESS_ONBOARDING_DESIGN.md` | 业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。 | — |
+| `docs/CLEAN_STACK_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/COMPETITOR_DESIGN_DECISIONS.md` | 开源/商业竞品机制到本项目设计决策的证据链。 | — |
 | `docs/COMPLETION_AUDIT_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/contracts/attempt-manifest.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
@@ -4089,6 +4101,7 @@ python scripts/render_learning_guide.py
 | `docs/contracts/task-parameters/pyspy.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/task-parameters/sys_metrics.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/taskkind.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
+| `docs/CURRENT_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/demo/generate_demo_text.py` | 项目设计、使用、部署、接口或验收说明。 | `main` |
 | `docs/demo/mini-drop-demo-20k.txt` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
@@ -4099,6 +4112,7 @@ python scripts/render_learning_guide.py
 | `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
 | `docs/FULL_CHAIN_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/HELDOUT_EVALUATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
 | `docs/PERFORMANCE_DIAGNOSIS.md` | 项目设计、使用、部署、接口或验收说明。 | — |
@@ -7134,5 +7148,6 @@ python scripts/render_learning_guide.py
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
 | `.github/workflows/ci.yml` | CI 工作流：声明触发条件、运行环境、测试和构建检查步骤。 | — |
+| `.github/workflows/clean-stack.yml` | CI 工作流：声明触发条件、运行环境、测试和构建检查步骤。 | — |
 
 <!-- FILE_INDEX:END -->

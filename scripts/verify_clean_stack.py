@@ -32,7 +32,11 @@ CORE = {
     "postgres", "minio", "migrate", "control-plane", "diagnosis-worker",
     "analyzer", "apiserver", "native-agent", "web", "python-hotspot",
 }
-BUILD = ("migrate", "control-plane", "native-agent", "apiserver", "web", "python-hotspot")
+BUILD = ("minio", "migrate", "control-plane", "native-agent", "apiserver", "web", "python-hotspot")
+MINIO_SOURCE_COMMIT = "d0cada583fce88f60cb276ddfb06f5cb16820069"
+MINIO_SOURCE_SHA256 = "989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665"
+MINIO_RELEASE = "RELEASE.2025-04-08T15-41-24Z"
+MINIO_DOCKERFILE = "deploy/dockerfiles/minio-source.Dockerfile"
 PYTHON = {"migrate", "diagnosis-worker", "analyzer"}
 MEMORY_MB = {
     "postgres": 384, "minio": 384, "migrate": 768, "control-plane": 256,
@@ -63,6 +67,27 @@ def validate_key_stat(info: os.stat_result, expected_uid: int) -> None:
     require(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600
             and info.st_uid == expected_uid and info.st_nlink == 1,
             "private key must be a nonlinked regular 0600 file owned by its runtime UID")
+
+
+def validate_minio_source(text: str, build_args: dict) -> None:
+    pins = {"MINIO_SOURCE_COMMIT": MINIO_SOURCE_COMMIT, "MINIO_SOURCE_SHA256": MINIO_SOURCE_SHA256}
+    for name, value in pins.items():
+        defaults = re.findall(rf"^ARG\s+{name}=(\S+)\s*$", text, re.M)
+        require(defaults == [value] and name not in build_args, "MinIO source pin changed/overridden")
+    bases = re.findall(r"^FROM\s+(\S+)", text, re.M | re.I)
+    require(bases == ["golang:1.23.6-bookworm", "debian:bookworm-slim"], "MinIO must compile from official language/runtime bases")
+    require("https://codeload.github.com/minio/minio/tar.gz/${MINIO_SOURCE_COMMIT}" in text
+            and re.search(r"sha256sum\s+--check\b", text) and "${MINIO_SOURCE_SHA256}" in text,
+            "MinIO official source checksum gate missing")
+    require("go build -mod=readonly" in text and "CommitID=${MINIO_SOURCE_COMMIT}" in text
+            and f"ReleaseTag={MINIO_RELEASE}" in text, "MinIO source build/version stamp missing")
+    require(all(stage == "build" for stage in re.findall(r"COPY\s+--from=(\S+)", text, re.I)),
+            "MinIO must not copy an external prebuilt server")
+
+
+def validate_minio_version(text: str) -> None:
+    require(MINIO_RELEASE in text and f"commit-id={MINIO_SOURCE_COMMIT}" in text,
+            "actual MinIO version differs from pinned upstream source")
 
 
 def redact(text: str, secret_values: list[str]) -> str:
@@ -115,7 +140,7 @@ def prepare_compose(template: dict, private: Path, project: str) -> dict:
             args.update({"NATIVE_BUILD_JOBS": "1", "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu",
                          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
                          "GOPROXY": "https://proxy.golang.org,direct"})
-        if name not in {"postgres", "minio"}:
+        if name != "postgres":
             image_name = "python-worker" if name in PYTHON else name
             spec["image"] = f"{project}/{image_name}:exact-git"
             spec["pull_policy"] = "never"
@@ -162,11 +187,19 @@ def validate_runtime_config(config: dict, project: str, private: Path) -> None:
         require(int(spec.get("mem_limit", 0)) == MEMORY_MB[name] * 1024 ** 2, "unbounded memory")
         require(float(spec.get("cpus", 0)) <= 1.0 and float(spec.get("cpus", 0)) > 0, "unbounded CPU")
         require(spec.get("pids_limit") == 256, "unbounded PID count")
-        if name not in {"postgres", "minio"}:
+        if name != "postgres":
             require(spec.get("image", "").startswith(project + "/"), "prebuilt/deployment image forbidden")
         else:
-            require(spec.get("image") == {"postgres": "postgres:16", "minio": "quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z"}[name],
+            require(spec.get("image") == "postgres:16",
                     "noncanonical infrastructure image")
+        if name == "minio":
+            build = spec.get("build", {})
+            require(Path(build.get("context", "")).resolve() == ROOT
+                    and build.get("dockerfile") == MINIO_DOCKERFILE, "MinIO canonical source Dockerfile required")
+            validate_minio_source((ROOT / MINIO_DOCKERFILE).read_text(encoding="utf-8"), build.get("args", {}))
+            require(spec.get("pull_policy") == "never", "MinIO must not pull a prebuilt server")
+            require(spec.get("healthcheck", {}).get("test") == ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"],
+                    "MinIO real ready HTTP healthcheck required")
         if name == "native-agent":
             require(spec.get("pid") == "host", "Agent PID scope changed")
             require(not spec.get("cap_add") and spec.get("cap_drop") == ["ALL"], "unexpected collector privilege")
@@ -413,11 +446,17 @@ class Runner:
             image = self.config["services"][name]["image"]
             require(not self.run(["docker", "image", "ls", "-q", image]).strip(), "image tag already exists")
             self.compose("build", "--pull", "--no-cache", name, timeout=1500)
-        self.compose("pull", "postgres", "minio", timeout=300)
+        self.compose("pull", "postgres", timeout=300)
         images = {}
         for name, spec in self.config["services"].items():
             info = json.loads(self.run(["docker", "image", "inspect", spec["image"]], record=False))[0]
             images[name] = {"tag": spec["image"], "image_id": info["Id"], "repo_digests": info.get("RepoDigests", [])}
+            if name == "minio":
+                labels = info.get("Config", {}).get("Labels", {})
+                require(labels.get("org.opencontainers.image.revision") == MINIO_SOURCE_COMMIT
+                        and labels.get("org.opencontainers.image.version") == MINIO_RELEASE,
+                        "built MinIO image source labels missing/mismatched")
+                images[name]["upstream_source"] = {"commit": MINIO_SOURCE_COMMIT, "archive_sha256": MINIO_SOURCE_SHA256, "release": MINIO_RELEASE}
         self.evidence("built-images.json", images)
         self.built_images = images
 
@@ -453,6 +492,12 @@ class Runner:
         port = self.compose("port", "web", "80").strip()
         require(re.fullmatch(r"127\.0\.0\.1:[0-9]+", port), "Web published beyond loopback")
         self.base_url = "http://" + port
+        version = self.compose("exec", "-T", "minio", "minio", "--version")
+        validate_minio_version(version)
+        self.evidence("minio-source-version.json", {"actual_version_output": version.strip(),
+            "source_commit": MINIO_SOURCE_COMMIT, "source_archive_sha256": MINIO_SOURCE_SHA256,
+            "release": MINIO_RELEASE, "built_image_id": self.built_images["minio"]["image_id"],
+            "verification_scope": "ACTUAL_RUNNING_SOURCE_BUILT_MINIO_NOT_PREBUILT_REGISTRY_FALLBACK"})
         permissions = json.loads(self.compose("exec", "-T", "native-agent", "python3", "-c",
             "import json,os,pathlib; s=dict(x.split(':',1) for x in pathlib.Path('/proc/self/status').read_text().splitlines() if ':' in x); print(json.dumps({'uid':os.geteuid(),'agent_key_readable':os.access('/certs/agent.key',os.R_OK),'cap_effective':s['CapEff'].strip(),'cap_permitted':s['CapPrm'].strip()}))"))
         require(permissions["uid"] == 0 and permissions["agent_key_readable"]
