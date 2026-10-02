@@ -1,0 +1,56 @@
+# 独立复刻验收：不扩大主 CI 的 14 项统计，不读取任何部署密钥或旧数据卷。
+name: Clean core stack acceptance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/clean-stack.yml'
+      - 'docker-compose.yml'
+      - 'deploy/dockerfiles/**'
+      - 'deploy/nginx/**'
+      - 'deploy/scripts/generate-dev-certs.sh'
+      - 'server/**'
+      - 'native/**'
+      - 'apiserver/**'
+      - 'web/**'
+      - 'proto/**'
+      - 'analyzer/**'
+      - 'pyproject.toml'
+      - 'scripts/verify_clean_stack.py'
+      - 'tests/test_clean_stack_acceptance.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clean-core-stack-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  clean-core-stack:
+    name: Exact Git core stack, mTLS and real Agent artifact
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install acceptance parser and run negative gates
+        run: |
+          python -m pip install 'PyYAML>=6,<7' 'pytest>=8,<9'
+          python -m pytest --noconftest tests/test_clean_stack_acceptance.py -q --junitxml=output/quality/clean-stack-gates.xml
+      - name: Build canonical Dockerfiles and verify isolated core stack
+        run: python scripts/verify_clean_stack.py --expected-head '${{ github.sha }}' --output output/quality/clean-stack
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-stack-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            output/quality/clean-stack/
+            output/quality/clean-stack-gates.xml
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,47 @@
+{
+  "schema": "mini-drop.interview-delivery.v1",
+  "sources": {
+    "engineering": {
+      "path": "web/public/report-assets/engineering-diagnosis/index.json",
+      "sha256": "a478557961528f01f738d7f2f15dd2f8829e59c095cadc1adf6336a3807e5205",
+      "normalization": "LF_TEXT"
+    },
+    "engineering_cases": {
+      "path": "web/public/report-assets/engineering-cases/index.json",
+      "sha256": "60abf9e0710302fb266bd2139666dd048dd5ee95e3a601b86ef6cb392fca4a43"
+    },
+    "production_release": {
+      "path": "reports/quality/engineering-score-only-20261002/release/manifest.json",
+      "sha256": "929bb4cafa1fd70402f9d6dc6b6a273b9bb3b6f354f34f3452e45c3ddcae7098"
+    },
+    "production_ci": {
+      "path": "reports/quality/engineering-score-only-20261002/ci/summary.json",
+      "sha256": "7081a79a3319b84370091fd3a3d867fb22208e3e75bc7350c6edb87111147bc9"
+    },
+    "production_verification": {
+      "path": "reports/quality/engineering-score-only-20261002/publication/final-publication-verification.json",
+      "sha256": "7311fccdb4bbc394990cd5049cf278c7a985d6cf60c15714d932d2b4e59a531d"
+    },
+    "production_browser": {
+      "path": "reports/quality/engineering-score-only-20261002/browser/result.json",
+      "sha256": "7eed817ceaff8f989fe1f2e1946a39dd057541fbd1de25b641ebdbecbe727a4c"
+    }
+  },
+  "additional_acceptances": [
+    {
+      "title": "干净 Linux 核心平台复刻",
+      "status": "IN_PROGRESS",
+      "scope": "从精确 Git 源码构建与迁移，验证隔离 Agent 的真实系统采集、产物和分析；不含外部办公业务或全部采集器"
+    },
+    {
+      "title": "新题规划与检索盲测",
+      "status": "IN_PROGRESS",
+      "scope": "24 题在评估器实现前冻结，与开发集拆分；真实模型规划及只读知识检索，不调用真实工具或计为现场诊断准确率"
+    },
+    {
+      "title": "文档与求职材料统一",
+      "status": "IN_PROGRESS",
+      "scope": "同步当前工程口径与最新发布证据，保留其他项目、真实个人经历及不可变原始记录"
+    }
+  ]
+}

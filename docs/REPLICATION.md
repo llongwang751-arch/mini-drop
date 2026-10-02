@@ -1,5 +1,9 @@
 # 基础复刻
 
+## 2026-10-02 当前版本复刻入口
+
+当前线上版本及成绩先看 [CURRENT_DELIVERY](CURRENT_DELIVERY.md)。本轮新增干净 Linux 核心平台复刻协议和独立 CI，按精确 Git 源码构建、迁移及真实系统采集/产物分析链路验证，完整结果以 [CLEAN_STACK_ACCEPTANCE](CLEAN_STACK_ACCEPTANCE.md) 的实际运行记录为准。该复刻不包含外部 Office 业务、全部性能采集器或实时模型质量评估；下面带日期的部署和本机镜像复用段落属于历史环境记录。
+
 ## 2026-09-30 安全门禁与诊断取消已部署
 
 当前线上 API 使用 Go 1.26.8，pgx 5.9.2、gRPC 1.83.2、x/crypto 0.56.0、x/net 0.58.0 等。CI 使用 go.mod 工具链，固定 govulncheck 1.8.0，源码调用图和 Linux 二进制扫描均阻断；golangci-lint 2.14.0 的 13 条存量告警清理后改为阻断。Trivy 全仓扫描仍是报告模式，不代表整个镜像与其他语言依赖无漏洞。部署二进制保留符号表，仅移除 DWARF，避免 stripped 二进制扫描退化为模块级精度。
