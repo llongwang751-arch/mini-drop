@@ -101,7 +101,8 @@ def evaluate_performance_criterion(text, signals):
 
 
 PERFORMANCE_PLANNING_REQUIREMENT = (
-    " 性能信号的覆盖只支持完整数值判据 signal.metric >= N（亦支持 >/< /<=/==）。"
+    " 以下数值假设要求仅适用于 INVESTIGATE，不要求非调查结果生成假设或取证。"
+    "性能信号的覆盖只支持完整数值判据 signal.metric >= N（亦支持 >/< /<=/==）。"
     "必须声明阈值，不能将写入量当作fsync延迟、HTTP路径耗时当作丢包/重传、"
     "保留内存绝对量当作持续增长、同宿主peer活动当作资源争抢。"
     "未采到字段不能证明为0或正常；同一Artifact的两字段不能当作独立对照。"

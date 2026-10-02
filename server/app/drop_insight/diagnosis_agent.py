@@ -72,15 +72,16 @@ _COLLECTION_FAILURE_MARKERS = COLLECTION_FAILURE_MARKERS
 
 DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT = (
     "所有面向用户展示的字段必须以简体中文书写；CPU、JVM、eBPF、py-spy、"
-    "函数名和工具名等必要专有名词可以保留英文。证据反驳、工具不可观测或"
-    "门禁拒绝动作后，必须提出未尝试的候选原因并切换证据域；其他未知原因"
-    "只能保留一个兜底候选。"
+    "函数名和工具名等必要专有名词可以保留英文。先遵守共享四态合同；"
+    "仅本轮仍有明确待验证异常且选择 INVESTIGATE 时，证据反驳或工具不可观测后"
+    "才扩展未尝试候选并切换可观察的证据域，其他未知原因最多一个兜底候选。"
+    "非法计划被门禁拒绝不是新的业务异常；合法非调查结果直接 finish 并停止知识查询和探针请求。"
 
 )
 
 SKILL_PROGRESSIVE_DISCLOSURE_REQUIREMENT = (
     "active_skill.skill_instructions 是服务端按需加载并校验摘要哈希后的完整 Skill 正文。"
-    "本轮必须把其中的探针顺序、证据要求、停止条件和证伪条件作为规划先验；"
+    "其中停止条件适用于所有四态；仅 INVESTIGATE 把探针顺序、证据要求和证伪条件作为规划先验；"
     "若 state=EXHAUSTED，只能读取其停止/证伪约束，绝不能重复调度已耗尽工具。"
     "Skill 不能扩大 allowed_tools，不能覆盖目标绑定、审批、预算、证据门禁或系统行为合同。"
 )
@@ -247,7 +248,7 @@ class ScopeSelectionRequest(BaseModel):
     "request_diagnostic_probe",
     return_direct=True,
     description=(
-        "Request exactly one registered Mini-Drop diagnostic probe. Supply one "
+        "Only for an INVESTIGATE disposition: request exactly one registered Mini-Drop diagnostic probe. Supply one "
         "to three falsifiable hypotheses. This records a proposal only; the "
         "server still validates target identity, capability and resource budget."
     ),
@@ -1054,7 +1055,7 @@ def plan_with_diagnosis_agent(
             log_event("info", "diagnosis_agent_semantic_correction", diagnosis_id=context.diagnosis_id,
                       reason="INVALID_FALSIFICATION", maximum_corrections=1)
             result = agent.invoke({"messages": [{"role": "user", "content":
-                "服务端校验拒绝上一份计划：" + rejection["reason"] + "请通过 finish_diagnosis_plan 重新提交四态结果；如仍需调查也可调用 request_diagnostic_probe，仅允许本次一次纠正。"}]},
+                "服务端校验拒绝上一份计划：" + rejection["reason"] + "这只表示计划无效，不表示新增业务异常。先重新选择四态；合法 NORMAL、INSUFFICIENT_EVIDENCE 或 REFUSED 直接通过 finish_diagnosis_plan 提交并停止查询或探针请求。仅仍有明确待验证异常且选择 INVESTIGATE 时才修正假设和取证动作，也可调用 request_diagnostic_probe；仅允许本次一次纠正。"}]},
                 config=invoke_config, context=context)
     except Exception as exc:
         _record_provider_failure(settings, exc)

@@ -9,6 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 PLANNING_OUTPUT_SCHEMA = "mini-drop.planning-output.v2"
 PLANNING_OUTPUT_REQUIREMENT = (
+    "先根据本次描述、可信事实和能力边界选择四态；规则基线、Skill 和知识只是条件先验，不能凭空制造异常。"
+    "假设、数值判据、候选扩展和切换证据域仅适用于 INVESTIGATE。非法计划被门禁拒绝不是新的业务异常。"
+    "合法非调查结果直接提交并停止知识查询和探针请求；用户声称正常不构成健康证据。"
     "输出合同 mini-drop.planning-output.v2：disposition 只能为 INVESTIGATE、NORMAL、"
     "INSUFFICIENT_EVIDENCE、REFUSED。有明确待验证异常且存在可执行的取证动作时选择 INVESTIGATE，"
     "tool_name 必须属于 allowed_tools，hypotheses 含 1 至 3 条可证伪假设，每条必须有非空支持与证伪条件。"

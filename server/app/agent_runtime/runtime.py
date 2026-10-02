@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 
 
 AGENT_FRAMEWORK = "langchain-create-agent/langgraph"
-AGENT_VERSION = "diagnosis-agent-v6-planning-output"
+AGENT_VERSION = "diagnosis-agent-v7-four-state-prompts"
 SCOPE_AGENT_VERSION = "scope-agent-v1"
 
 
