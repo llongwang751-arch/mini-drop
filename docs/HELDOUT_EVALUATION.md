@@ -69,6 +69,6 @@ python -m pytest tests/test_heldout_diagnosis.py -q
 
 首轮完成后发现工作树教学注释及 Windows CRLF 与 clean Git 字节不同。为跨平台复算，新增原输入包只保存原 manifest SHA 对应的原字节；当前 Python 源必须与冻结源完整 AST 等价，语料与开发集仅接受 CRLF/LF 等价。实际检索在全新拥有的临时目录重放原语料字节，从而保持 chunk/content SHA，不覆盖当前源码或知识库。
 
-原首轮评估器字节保留为 `first-run/evaluator-source.py`，SHA `89f1b4abeba669f564974126b5d946de6e36663e8bf019f37dae8cb757bc5d99`；首轮报告未重写，SHA `c0940e9dd2e70ceccc313c2fd6359b701c0cc710b00fc4480237d8fe0cf3a6f9`。新验证器要求原评估器 SHA 正确，且原/新 17 个评分、解析、提示、分类与 Provider 执行节点 AST 相同后才复算旧报告。58 项负向回归通过；独立审计在新临时目录使用 clean Git 的 server/knowledge/benchmarks，再叠加新评估器和冻结输入，真实重算所有指标与第一轮完全一致，50 份来源/请求/响应 pins 保持。审计记录为 `output/acceptance/interview-release-20261002/heldout-independent-review/audit.json`。顶部 schema、范围、作者独立性、适配器、实际后端、知识非 Evidence 与未知费用均另设固定门禁，不能只保持数值就把报告改称云端因果准确率。
+原首轮评估器字节保留为 `first-run/evaluator-source.py`，SHA `89f1b4abeba669f564974126b5d946de6e36663e8bf019f37dae8cb757bc5d99`；首轮报告未重写，SHA `c0940e9dd2e70ceccc313c2fd6359b701c0cc710b00fc4480237d8fe0cf3a6f9`。新验证器要求原评估器 SHA 正确，且原/新 17 个评分、解析、提示、分类与 Provider 执行节点 AST 相同后才复算旧报告。58 项门禁回归（含负向用例）通过；独立审计在新临时目录使用 clean Git 的 server/knowledge/benchmarks，再叠加新评估器和冻结输入，真实重算所有指标与第一轮完全一致，50 份来源/请求/响应 pins 保持。审计记录为 `output/acceptance/interview-release-20261002/heldout-independent-review/audit.json`。顶部 schema、范围、作者独立性、适配器、实际后端、知识非 Evidence 与未知费用均另设固定门禁，不能只保持数值就把报告改称云端因果准确率。
 
 这些结果完成了“独立于开发集、先冻结、有真实模型和原始失败”的评估流程，揭示了检索拒答与输出适配的实际不足；不能称为已达成高质量 Agent 盲测或生产准确率。

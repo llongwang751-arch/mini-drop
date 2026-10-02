@@ -1,0 +1,128 @@
+{
+  "type": "result",
+  "case_id": "h02",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2df5e0bea51077d0a84373b38d",
+    "object": "chat.completion",
+    "created": 1790920488,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"CPU\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"collect_sys_metrics\",\n  \"reasoning_summary\": \"火焰图显示轮询发布函数占83%采样，但系统指标显示进程CPU占用率仅为0.7%（单核），远未饱和。采样占比高不等于CPU打满，需要独立的操作系统CPU数值来验证CPU高占用的假设。\",\n  \"expected_observations\": [\"目标进程 CPU 占用率至少 50%（单核口径）\"],\n  \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3482,
+      "completion_tokens": 152,
+      "total_tokens": 3634,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 3482
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2df5e0bea51077d0a84373b38d\",\"object\":\"chat.completion\",\"created\":1790920488,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"CPU\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"collect_sys_metrics\\\",\\n  \\\"reasoning_summary\\\": \\\"火焰图显示轮询发布函数占83%采样，但系统指标显示进程CPU占用率仅为0.7%（单核），远未饱和。采样占比高不等于CPU打满，需要独立的操作系统CPU数值来验证CPU高占用的假设。\\\",\\n  \\\"expected_observations\\\": [\\\"目标进程 CPU 占用率至少 50%（单核口径）\\\"],\\n  \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3482,\"completion_tokens\":152,\"total_tokens\":3634,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":3482},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "90e84e407e6ae75e0ce29321a0da11e36a31055a931b4eb977b056d54aed3b03",
+  "seconds": 7.816211,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "go.profile.selection",
+      "python.sampling.attribution",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "火焰图里轮询发布函数占八成采样，能据此说解释器把CPU打满了吗？",
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "score": 16.317207,
+        "matched_terms": [
+          "cpu",
+          "火焰图",
+          "火焰",
+          "焰图",
+          "解释",
+          "采样"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Go CPU、堆与阻塞采样选型\n\n按问题选择 profile：CPU 描述执行消耗，heap 描述堆分配视角，block 与 mutex 用于阻塞及锁竞争调查。不要用 CPU 火焰图直接证明等待时间。"
+      },
+      {
+        "query": "火焰图里轮询发布函数占八成采样，能据此说解释器把CPU打满了吗？",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+        "score": 8.575463,
+        "matched_terms": [
+          "函数",
+          "发布",
+          "解释",
+          "采样"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Python 空闲线程、GIL 与非阻塞采样\n\n若多个线程样本数近似相等，且叶帧停在 sleep 或指标发布处，应怀疑空闲判定或线程身份映射。核对宿主机与容器线程 ID，保留原始 speedscope；不要按函数名删除“不喜欢”的样本。--gil 仅观察持有 GIL 的线程，会漏掉释放 GIL 的扩展；--nonblocking 存在读取非原子状态的限制。不同采样模式必须单独标注，不能直接混用分母。"
+      },
+      {
+        "query": "火焰图里轮询发布函数占八成采样，能据此说解释器把CPU打满了吗？",
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "score": 3.277507,
+        "matched_terms": [
+          "cpu",
+          "解释"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器 CPU 配额与节流\n\n容器延迟升高而宿主机仍空闲时，应检查目标进程所在 cgroup 的 CPU 限额。先校验 /proc/PID/cgroup 与进程启动身份，避免读错容器。"
+      }
+    ],
+    "seconds": 0.013448
+  }
+}

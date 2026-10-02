@@ -1,0 +1,128 @@
+{
+  "type": "result",
+  "case_id": "h11",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2f39d3aa0b5f18460a86b8ba59",
+    "object": "chat.completion",
+    "created": 1790920571,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"MEMORY\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"collect_memory_profile\",\n  \"reasoning_summary\": \"观察到进程 RSS 在三个采样间隔内持续增长 20MiB，但仅凭系统指标无法区分是缓存扩张还是对象泄漏。需要采集内存剖析数据来观察堆内对象分配与存活情况。\",\n  \"expected_observations\": [\"内存剖析显示存在持续增长的、可归属的 Python 对象类型\"],\n  \"falsification_criteria\": [\"内存剖析未发现持续增长的、可归属的 Python 对象类型\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3481,
+      "completion_tokens": 148,
+      "total_tokens": 3629,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 3481
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2f39d3aa0b5f18460a86b8ba59\",\"object\":\"chat.completion\",\"created\":1790920571,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"MEMORY\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"collect_memory_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"观察到进程 RSS 在三个采样间隔内持续增长 20MiB，但仅凭系统指标无法区分是缓存扩张还是对象泄漏。需要采集内存剖析数据来观察堆内对象分配与存活情况。\\\",\\n  \\\"expected_observations\\\": [\\\"内存剖析显示存在持续增长的、可归属的 Python 对象类型\\\"],\\n  \\\"falsification_criteria\\\": [\\\"内存剖析未发现持续增长的、可归属的 Python 对象类型\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3481,\"completion_tokens\":148,\"total_tokens\":3629,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":3481},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "53bb3d1b8a12106a7f78be74ca927d667bff7a392ae77ebe3d2ffa4fd9217225",
+  "seconds": 8.785988,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.memory.process_growth",
+      "python.sampling.attribution",
+      "go.profile.selection"
+    ],
+    "matches": [
+      {
+        "query": "Python 批处理进程没有重启，每个采样间隔RSS再涨20MiB，想区分缓存扩张和对象泄漏。",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "score": 27.059966,
+        "matched_terms": [
+          "rss",
+          "批处理",
+          "处理",
+          "批处",
+          "泄漏",
+          "缓存",
+          "进程",
+          "采样"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "Python 批处理进程没有重启，每个采样间隔RSS再涨20MiB，想区分缓存扩张和对象泄漏。",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "score": 10.577967,
+        "matched_terms": [
+          "python",
+          "进程",
+          "采样"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。"
+      },
+      {
+        "query": "Python 批处理进程没有重启，每个采样间隔RSS再涨20MiB，想区分缓存扩张和对象泄漏。",
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "score": 5.134716,
+        "matched_terms": [
+          "对象",
+          "采样"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Go 堆增长与修复复测\n\n分别阅读累计分配与仍存活对象，保持采样口径、GC 阶段和工作负载可比。修复后同时观察存活量、分配速率、CPU 与请求延迟，避免把性能转移到另一资源算作成功。\n\n来源：https://go.dev/doc/diagnostics 。核对日期 2026-09-19；本文是项目调查摘要。"
+      }
+    ],
+    "seconds": 0.013047
+  }
+}

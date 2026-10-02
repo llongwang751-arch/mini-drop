@@ -1,0 +1,136 @@
+{
+  "type": "result",
+  "case_id": "h19",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2f8b2d071b5cd2ff7d55f980b1",
+    "object": "chat.completion",
+    "created": 1790920592,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"MIXED\",\n  \"disposition\": \"MIXED_OBSERVATIONS\",\n  \"next_tool\": \"start_pyspy_profile\",\n  \"reasoning_summary\": \"合成观测显示CPU、内存增长和同步IO均偏高，需并行调查。CPU占用81%表明计算热点，内存增长30MB和同步IO耗时900ms需独立验证。\",\n  \"expected_observations\": [\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\"],\n  \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3558,
+      "completion_tokens": 144,
+      "total_tokens": 3702,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1254
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2f8b2d071b5cd2ff7d55f980b1\",\"object\":\"chat.completion\",\"created\":1790920592,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"MIXED\\\",\\n  \\\"disposition\\\": \\\"MIXED_OBSERVATIONS\\\",\\n  \\\"next_tool\\\": \\\"start_pyspy_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示CPU、内存增长和同步IO均偏高，需并行调查。CPU占用81%表明计算热点，内存增长30MB和同步IO耗时900ms需独立验证。\\\",\\n  \\\"expected_observations\\\": [\\\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\\\"],\\n  \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3558,\"completion_tokens\":144,\"total_tokens\":3702,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1254},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "f8836c15bf184262b6c405a2f5577470618748614febe0e6d1aa8d5f82441b86",
+  "seconds": 9.973952,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.memory.process_growth",
+      "container.memory.pressure",
+      "sre.recovery.acceptance"
+    ],
+    "matches": [
+      {
+        "query": "同一窗口的计算、内存增长与同步写入都偏高，应保留多种解释而不是只挑一张栈图。",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "score": 28.564264,
+        "matched_terms": [
+          "内存增",
+          "增长与",
+          "存增长",
+          "不是",
+          "内存",
+          "增长",
+          "存增",
+          "长与"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "同一窗口的计算、内存增长与同步写入都偏高，应保留多种解释而不是只挑一张栈图。",
+        "knowledge_id": "container.memory.pressure",
+        "title": "容器内存回收与 OOM",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+        "score": 14.946563,
+        "matched_terms": [
+          "应保留",
+          "不是",
+          "保留",
+          "内存",
+          "应保",
+          "解释",
+          "长与"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 内存泄漏的对照\n\n保持输入与并发，分预热、稳定负载和空闲阶段观察趋势，并结合运行时堆或分配采样。缓存预热、分配器保留和泄漏需要不同处置。不要把提高上限或重启后的短暂下降当成代码修复；报告应保留观测时长与尚不能排除的解释。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；调查和复测门槛为项目约定。"
+      },
+      {
+        "query": "同一窗口的计算、内存增长与同步写入都偏高，应保留多种解释而不是只挑一张栈图。",
+        "knowledge_id": "sre.recovery.acceptance",
+        "title": "Agent 恢复与容量验收",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+        "score": 8.671929,
+        "matched_terms": [
+          "增长与",
+          "不是",
+          "保留",
+          "增长",
+          "解释",
+          "长与"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 持久化与容量\n\n恢复到独立数据库和对象桶，核对行数、对象 hash 与引用完整性，不能只检查备份文件存在。长期测试记录并发、吞吐、延迟、RSS、磁盘增长与失败率；短期健康检查不应外推长期容量。所有演练保留原生产卷。\n\n来源：Mini-Drop 项目验收协议；结合既有 scripts/verify_backup_restore.py，2026-09-19。本文不是已通过的验收报告。"
+      }
+    ],
+    "seconds": 0.014678
+  }
+}

@@ -23,9 +23,14 @@
 
 ## 本轮交付收尾
 
-- **干净 Linux 核心平台复刻：IN_PROGRESS**。从精确 Git 源码构建与迁移，验证隔离 Agent 的真实系统采集、产物和分析；不含外部办公业务或全部采集器
-- **新题规划与检索盲测：IN_PROGRESS**。24 题在评估器实现前冻结，与开发集拆分；真实模型规划及只读知识检索，不调用真实工具或计为现场诊断准确率
-- **文档与求职材料统一：IN_PROGRESS**。同步当前工程口径与最新发布证据，保留其他项目、真实个人经历及不可变原始记录
+- **干净 Linux 核心平台复刻：PASSED**。从全新 Ubuntu 22.04 Runner、精确源码 34b74e7b 构建七个镜像；10 个阶段全部通过，真实 Agent→Task→S3 Artifact→Analyzer 与 SQL 身份绑定、HTTP 401、清理均验证。87 项门禁测试（含负向用例）零跳过；范围限核心平台及 sys_metrics。
+  [原始记录](../reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/report.json)。
+- **新题规划与检索盲测：COMPLETED**。24 题预先冻结，真实模型零重试，22 响应/2 超时；结构与分类 15/24、判断 11/24、下一工具 13/24。BM25 Recall@3 75.83%、MRR 0.80、无答案误召回 3/4。部分指标命中，效果仍有缺口；干净 Git 独立复算一致，不计为现场因果准确率。
+  [原始记录](../reports/quality/interview-release-20261002/heldout/independent-review-r2/audit.json)。
+- **文档与求职材料统一：COMPLETED**。六份当前设计与求职文档、既有本地简历段落和五分钟讲稿已统一，保留真实参与边界；个人简历未提交，用户本人学习和彩排仍须完成。
+  [原始记录](../reports/quality/interview-release-20261002/materials/doc-final-review-public.json)。
+- **本轮源码主 CI：PASSED**。源码 34b74e7b 的官方 CI 36975451853 实际 14/14；Python 1827 通过/16 登记跳过、Web 317、真实 PostgreSQL 14 零跳过、Native CTest 5、Chromium 8 固定数据。与上方现有线上 de094fff 发布 CI 分开。
+  [原始记录](../reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json)。
 
 ## 面试材料与能力边界
 

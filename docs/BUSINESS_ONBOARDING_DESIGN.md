@@ -10,7 +10,13 @@
 
 正常体检仅表示已检查范围正常；无法采到必要观测时为无法判断；REFUTED 是测量反驳指定异常假设，不等于整个业务正常。三种同步 I/O 在 tmpfs 中测得低延迟，不叫磁盘瓶颈；CPP I/O 后续 perf 预算拒绝仍保留，不能说七类完整预期工具链均通过。旧专项当前成绩和入口已移除，历史原始报告与 SHA 保持；工程判断、因果验证与同负载修复分别陈述。
 
-本次干净 Linux 核心平台复刻与 24 题规划/检索盲测仍为 **IN_PROGRESS**：前者不含外部办公业务或全部采集器，后者冻结新题并使用真实模型规划与只读知识检索，不调用真实工具或计作现场诊断准确率。收尾状态和已发布事实优先查[当前交付事实](CURRENT_DELIVERY.md)的源合同生成页；文档与讲稿准备不表示用户已掌握或完成彩排。原始回执见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)、[归档清单](../reports/quality/engineering-score-only-20261002/manifest.json)与[项目上下文](PROJECT_CONTEXT.md)。下文带旧日期、版本和测试数的过程段落保留其当时状态，不能当作当前待办或当前成绩。
+干净 Linux 核心平台复刻已按 [独立 CI 36975451670](https://github.com/llongwang751-arch/mini-drop/actions/runs/36975451670) 的真实回执完成：从精确 Git 源码构建七个独立镜像，以全新项目、私有 PKI、数据库和对象卷验证迁移、8 项服务健康、Agent 新心跳、真实系统采集、S3 上传/下载 SHA、独立 Analyzer 与持久化身份绑定，最后只清理本次容器和网络。私有目录已删除，卷保留给临时 Runner 回收；未执行全局 prune。它验证核心平台与一个空闲 Python 目标，不包含 Office、Go/Java/C++ 工作负载部署、perf/BPF、外部模型、操作系统安装、离线安装或小时压测。首次失败及修复回执保留，详见[干净平台原始报告](../reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/report.json)与[复刻范围](REPLICATION.md)。
+
+24 题冻结新题的模型规划/检索评估流程已 **COMPLETED，效果存在缺口**：22/24 次响应成功、2 次超时且零重试；完整结构 15/24、分类 15/24、合成窗口判断 11/24、下一工具符合冻结预期 13/24。BM25 recall@3 为 75.83%、MRR@3 为 0.80；无答案题仍召回 3/4。只有 22 次 usage 已知，成本未知。题目由项目维护者预先冻结，不是第三方出题；评估不执行真实工具、故障或平台 Agent 闭环，不能计为现场诊断/因果准确率。原失败、评分规则及 50 份来源/请求/响应 SHA 保持，clean Git 独立复算相同，见[新题评估与失败解释](HELDOUT_EVALUATION.md)。
+
+本轮已验证的源码候选为 `34b74e7b15c81a883e8a7dc2698d8ba7a356dcbf`，[主 CI 36975451853](https://github.com/llongwang751-arch/mini-drop/actions/runs/36975451853) 实际 14/14 作业成功：Python 1827 通过/16 登记跳过、Web 317、真实 PostgreSQL 14 零跳过、Chromium 固定数据 8；跳过和专项仍分别统计，见[精确 CI 主报告](../reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json)。这些是候选源码与新环境证据，线上演示应用仍为 `de094fff` / `20261002T045234Z`，没有把候选提交冒称新生产部署。
+
+剩余优先事项是本人彩排、理解源码并说明真实参与边界，以及在新的冻结版本中改进正常/缺测/拒绝结果的结构合同、无答案检索与保守返回策略；不能修改本轮题目、规则或原成绩来追求通过。收尾状态和已发布事实优先查[当前交付事实](CURRENT_DELIVERY.md)的源合同生成页；文档与讲稿准备不表示用户已掌握或完成彩排。原始回执见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)、[归档清单](../reports/quality/engineering-score-only-20261002/manifest.json)与[项目上下文](PROJECT_CONTEXT.md)。下文带旧日期、版本和测试数的过程段落保留其当时状态，不能当作当前待办或当前成绩。
 
 ### 现在怎样诊断一个没有已知故障的业务
 
@@ -20,7 +26,7 @@
 
 现有可演示修复为隔离真实 HTTP/SQLite FTS5 样例，模式 EXTRACTIVE_LOCAL：固定输入、同一进程、96 候选、4 RPS、每窗 360 请求、并发上限 8，人工修复缓存及连接处理后三窗质量均 100%，P95 68.377ms→2.696ms。平台采到 find_longest_match 路径，6 份原始下载 SHA 一致。此案可说明人工假设→平台取证→代码修复→同负载复测；不能换称 Office 或在线 LLM 的自动修复效果，也不能将所有 HTTP 收益只归于缓存。[独立比较记录](../reports/quality/interview-completion-20261001/business-fix-r3/validated-comparison.json)保持原字节。
 
-下面的原助手通用接入计划按 2026-09-13 设计理解；上述专用接入和隔离样例已完成，不能继续统称“业务关联与修复均未做”。新环境复制与新保留集验证还在进行中。
+下面的原助手通用接入计划按 2026-09-13 设计理解；上述专用接入和隔离样例已完成，不能继续统称“业务关联与修复均未做”。核心平台新环境复制已通过，新保留集流程已完成；它们不扩大办公助手的实际接入、因果关联或修复范围。
 
 ## 历史记录：2026-10-02 当前演示补齐（已部署）
 

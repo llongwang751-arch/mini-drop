@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3953 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4352 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 1117 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 1193 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2060,6 +2060,10 @@ python scripts/render_learning_guide.py
 | `native/gperftools_bridge/` | gperftools 兼容桥与原生产物接入。 |
 | `native/gperftools_bridge/src/` | src 子目录；gperftools 兼容桥与原生产物接入。 |
 | `output/` | 交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/acceptance/` | acceptance 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/acceptance/20260907T180810Z/` | 20260907T180810Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/acceptance/20260907T181512Z/` | 20260907T181512Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
+| `output/acceptance/20260908T033851Z/` | 20260908T033851Z 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `output/pdf/` | pdf 子目录；交付或审阅材料；不作为业务源码和数据库事实。 |
 | `proto/` | 跨语言消息和 gRPC 协议源头及生成物。 |
 | `reports/` | 已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -2302,6 +2306,78 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/performance-18-cases/queue-backlog-artifacts/` | queue-backlog-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/performance-18-cases/source-hotspot-artifacts/` | source-hotspot-artifacts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/interview-completion-20261001/release/` | release 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/` | interview-release-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/` | clean-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/` | 36971688615 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/` | 36971943853 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/` | 36973371776 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/` | 36973829122 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/` | 36975451670 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/heldout/` | heldout 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/heldout/first-run/` | first-run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/` | requests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/` | independent-review-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/` | main-ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/` | main-ci-34b74e7b 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/native-agent-binary-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | native-agent-binary-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/python-quality-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | python-quality-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/python-quality-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/web-browser-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/` | web-browser-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci-first-failure/` | main-ci-first-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/native-agent-binary-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | native-agent-binary-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/python-quality-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | python-quality-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/python-quality-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/main-ci/reports/web-browser-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/` | web-browser-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/materials/` | materials 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/interview-release-20261002/minio/` | minio 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/` | performance-diagnosis-20261001 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/before-source/` | before-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-diagnosis-20261001/coverage-failure/` | coverage-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -3675,7 +3751,7 @@ python scripts/render_learning_guide.py
 | `tests/test_business_acceptance_properties.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `workload`、`clean_window`、`sparse_windows`、`after_windows`、`test_percentiles_are_observed_latencies_in_nearest_rank_order` 等 10 个声明 |
 | `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 15 个声明 |
 | `tests/test_business_repeat.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`row`、`test_aggregate_records_every_run_and_reports_spread`、`test_stable_outcomes_aggregate_to_a_single_verdict`、`test_aggregate_refuses_to_fabricate_statistics_from_no_runs` 等 11 个声明 |
-| `tests/test_clean_stack_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `runtime_config`、`raw_fixture`、`test_valid_documented_config_and_realistic_artifact_shape`、`test_runtime_cannot_attach_production_or_silently_weaken_scope`、`test_raw_presence_is_not_analyzed_verified_evidence` 等 18 个声明 |
+| `tests/test_clean_stack_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `runtime_config`、`raw_fixture`、`test_valid_documented_config_and_realistic_artifact_shape`、`test_runtime_cannot_attach_production_or_silently_weaken_scope`、`test_raw_presence_is_not_analyzed_verified_evidence` 等 24 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
 | `tests/test_cpu_contract_persistence.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `payload`、`test_registry_plan_is_persisted_verbatim_with_declared_rule_source`、`test_unsupported_strong_or_mixed_claim_rejected_before_insert_for_all_sources`、`test_existing_idempotent_hypothesis_never_rewritten_or_revalidated_into_new_contract`、`test_legacy_unexecutable_mixed_hypothesis_does_not_get_partial_dispatch` 等 14 个声明 |
@@ -3854,7 +3930,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_actual_rag_search.py` | 对冻结外部检索源码执行独立排序、租户隔离、增删改回归并保存性能剖析。 | `verify` |
 | `scripts/verify_backup_restore.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `run`、`main` |
 | `scripts/verify_backup_restore.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
-| `scripts/verify_clean_stack.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `AcceptanceError`、`require`、`sha`、`validate_key_stat`、`validate_minio_source` 等 15 个声明 |
+| `scripts/verify_clean_stack.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `AcceptanceError`、`require`、`sha`、`validate_key_stat`、`validate_minio_source` 等 17 个声明 |
 | `scripts/verify_cloud_sre.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_cloud_sre_browser.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
 | `scripts/verify_external_acceptance.sh` | 工程脚本，负责对应模块行为的生成、检查或验收。 | — |
@@ -4262,6 +4338,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/health-check-flow-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/instance-scope-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/interview-completion-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/interview-release-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/load-endurance-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/local-sre-run-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/observability-release-20260922.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -5180,6 +5257,396 @@ python scripts/render_learning_guide.py
 | `reports/quality/interview-completion-20261001/trace-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/trace-before.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/interview-completion-20261001/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/artifact-11211229732.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/logs/job-110726795925.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971688615/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/artifact-11212057929.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/logs/job-110727546387.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/minio-registry-public-probe.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/snapshots/000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/snapshots/001.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36971943853/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/artifact-11211639618.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/logs/job-110731883622.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/snapshots/20261002T062924Z-000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973371776/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/artifact-11212852466.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/logs/job-110733269470.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-056.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-057.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-060.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-061.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063202Z-000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063249Z-001.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063335Z-002.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063422Z-003.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063509Z-004.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063555Z-005.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063642Z-006.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063729Z-007.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063815Z-008.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063901Z-009.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/snapshots/20261002T063948Z-010.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36973829122/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/artifact-11213283014.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/logs/job-110738183575.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065138Z-000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065224Z-001.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065311Z-002.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065357Z-003.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065444Z-004.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065531Z-005.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065617Z-006.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065703Z-007.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065750Z-008.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065836Z-009.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T065922Z-010.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/snapshots/20261002T070009Z-011.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/clean-ci/36975451670/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/evaluator-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`validate_freeze` 等 17 个声明 |
+| `reports/quality/interview-release-20261002/heldout/first-run/freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/provider.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/records/h24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/first-run/requests/h24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/clean-git.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-adapter.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-author.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-backend.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-bool_wrong_type.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-cost.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-extra_causal_accuracy.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-parallel_budget.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-same_three_fields.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-scope.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-truth.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/negative-tuned.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/independent-review-r2/worktree.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/initial-header-negative.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/heldout/pre-implementation-freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184211.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184213.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184216.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184220.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184234.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184259.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184271.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184273.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184294.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184303.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184312.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184345.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/logs/job-110738184354.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/hotspot-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/native-agent-binary-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/observation-controls-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/postgres-concurrency-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/python-quality-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/python-quality-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/reports/web-browser-72d452542007e1a01cfb2f923c6fa72471b6fb39-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci-first-failure/job-110731884000.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269175.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269293.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269306.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269308.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269348.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269352.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269370.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269383.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269390.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269417.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269421.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269432.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269466.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/logs/job-110733269540.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/hotspot-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/native-agent-binary-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/observation-controls-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/postgres-concurrency-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/python-quality-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/python-quality-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/reports/web-browser-de94beda6b03fbbdf0f5d2f619b9efe49ed3a687-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/main-ci/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/materials/doc-final-review-public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/materials/doc-review-public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/materials/evidence-independent-review.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/materials/worktree-preservation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/interview-release-20261002/minio/source-availability.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/after-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-negative.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-diagnosis-20261001/before-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -7137,6 +7604,14 @@ python scripts/render_learning_guide.py
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `output/acceptance/20260907T180810Z/qualified-java-root-cause.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260907T180810Z/sys-metrics-v1-compatible.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260907T181512Z/qualified-java-root-cause.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260907T181512Z/sys-metrics-v1-compatible.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260908T033851Z/diagnosis-memory.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260908T033851Z/fault-plaza-and-lats.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260908T033851Z/skill-experiment.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `output/acceptance/20260908T033851Z/validation-center.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/Agent开发一面问题逐题回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/Agent开发一面问题通用回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

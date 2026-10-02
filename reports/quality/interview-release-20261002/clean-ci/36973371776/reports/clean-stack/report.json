@@ -1,0 +1,133 @@
+{
+  "schema_version": "mini-drop.clean-stack-acceptance.v1",
+  "status": "FAILED",
+  "source_head": "e3b630716eb6f18f16c521b91e11f133b67da88f",
+  "project": "mini-drop-clean-79bcef39a6444cc1",
+  "started_at": "2026-10-02T06:24:30.385441+00:00",
+  "scope": "FRESH_CHECKOUT_CORE_PLATFORM_REAL_SYS_METRICS",
+  "stages": [
+    {
+      "name": "preflight",
+      "status": "PASSED",
+      "elapsed_seconds": 0.77
+    },
+    {
+      "name": "configuration",
+      "status": "FAILED",
+      "elapsed_seconds": 2.308
+    },
+    {
+      "name": "cleanup",
+      "status": "PASSED",
+      "elapsed_seconds": 0.074
+    }
+  ],
+  "excluded": [
+    "Office",
+    "Go/Java/C++ workload deployment",
+    "perf/BPF/other collectors",
+    "external model quality",
+    "OS installation",
+    "airgap",
+    "hour endurance"
+  ],
+  "security": {
+    "private_grpc_mtls": true,
+    "grpc_token_auth": true,
+    "api_key_auth": true,
+    "public_http": "loopback ephemeral port only",
+    "model_mode": "none",
+    "production_credentials": false
+  },
+  "cleanup": {
+    "status": "PASSED",
+    "removed_container_ids": [],
+    "removed_network_ids": [],
+    "retained_own_volumes_for_runner_teardown": [],
+    "volumes_deleted": false,
+    "global_prune": false
+  },
+  "source_tree": "70cec5c3fff14f30caf74558772fea39a58ac85a",
+  "runner": {
+    "docker_version": "28.0.4",
+    "cpus": 4,
+    "memory_bytes": 16765411328,
+    "disk_free_bytes": 92092850176,
+    "runtime_memory_ceiling_mb": 4416,
+    "native_build_jobs": 1,
+    "build_mode": "sequential_no_cache_official_base_pull"
+  },
+  "canonical_sources": {
+    "docker-compose.yml": "5be18fd9a2a41b502761f0e98a1a9a4e803a65c595bd010916dc53cfe32eba80",
+    "deploy/dockerfiles/apiserver.Dockerfile": "a6bf0406516c99afd7ab5d50759077c9bf86640177424c034cd06ddb37776a6b",
+    "deploy/dockerfiles/local-sre-api.Dockerfile": "ef6febb4ff89dd166e1b38f9448044dd695b927147587b761cb159f57859fa50",
+    "deploy/dockerfiles/local-sre-python.Dockerfile": "3a6dfb309fc4a0e7a14c71d26bec1ef3cfbf4baaa0f8635c1306d20a0d537fbd",
+    "deploy/dockerfiles/minio-source.Dockerfile": "0c515872b500551058a91d544aad0357c7b29c64e9fd29e3d328acbc8e29928b",
+    "deploy/dockerfiles/native-agent-source-overlay.Dockerfile": "2171abab89e7b82bc5dc2f1a6b2b65ac961b4bbf64607daee6ddf1a6ecc6bc8e",
+    "deploy/dockerfiles/native-agent.Dockerfile": "468bf0f263b35c15450a4a378d195e42eec8a7bb375f62b8b8b7979ceed482d0",
+    "deploy/dockerfiles/native-control.Dockerfile": "92511eff5025d0e9c1406ef75297219c60c850769adf447cdd30feffbd731cbb",
+    "deploy/dockerfiles/python-worker-source-overlay.Dockerfile": "4009b85a615b687adc8031c20e503a2ff4eece9d7b48efe5748f87d4852b3ddf",
+    "deploy/dockerfiles/python-worker.Dockerfile": "5966fcd2effc796736ac3626ccc89dda4c2027756877dc74f65caa0df7bf5c40",
+    "deploy/dockerfiles/sre-release-python.Dockerfile": "ca5ba837643a48908491af791ff5b2905f27bd8b2a73b347c94010a384d4698f",
+    "deploy/dockerfiles/web-prebuilt.Dockerfile": "6a62d4ae730ae9f123bd19f9a0b002b7a9d5d01cdc78e72a1fc5c35ea80e85ab",
+    "deploy/dockerfiles/web.Dockerfile": "6b756e2a003681c90942f5b74c6f46c8dad48178425ecf210259ea1000f3a7ab",
+    "demo/python-hotspot/Dockerfile": "fda4626a61bea4ed93e738875a086d396b324704d9b6c59a7d55fc62a6dafc51",
+    "deploy/scripts/generate-dev-certs.sh": "3e4357fcc2c0b9bf6ad8081c92b1df483f9e6adf0a8c0753e6cccf75df94df93"
+  },
+  "failure": "AcceptanceError: MinIO real ready HTTP healthcheck required",
+  "finished_at": "2026-10-02T06:24:33.651036+00:00",
+  "evidence_files": {
+    "command-001.log": {
+      "sha256": "ccd5d74dcbe94900f9b85a0d22affa385557f265c9d4dc240ad4e226555cdccf",
+      "size_bytes": 42
+    },
+    "command-002.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-003.log": {
+      "sha256": "5ea848209bd26507d7ad5f75327b714a40ebc0a898ae56fdf53aabe4e3ae6ef4",
+      "size_bytes": 42
+    },
+    "command-005.log": {
+      "sha256": "5a3af0cf1fa88a89bef2e8386bd4bc37c1306c4de8de182a6c5d00f66de03809",
+      "size_bytes": 32
+    },
+    "command-006.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-007.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-008.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-009.log": {
+      "sha256": "e16f2948293dc3cb8ff8cba08c0bb65086e21fd547f9f488b648c4a32ba9d391",
+      "size_bytes": 461
+    },
+    "command-010.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-011.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-012.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-013.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-015.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    }
+  }
+}

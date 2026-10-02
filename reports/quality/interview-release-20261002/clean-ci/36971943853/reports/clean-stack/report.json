@@ -1,0 +1,229 @@
+{
+  "schema_version": "mini-drop.clean-stack-acceptance.v1",
+  "status": "FAILED",
+  "source_head": "281905d009d6cf3e399ad27c23657a8cc8d974be",
+  "project": "mini-drop-clean-014a1b13822fc869",
+  "started_at": "2026-10-02T06:06:24.788062+00:00",
+  "scope": "FRESH_CHECKOUT_CORE_PLATFORM_REAL_SYS_METRICS",
+  "stages": [
+    {
+      "name": "preflight",
+      "status": "PASSED",
+      "elapsed_seconds": 0.556
+    },
+    {
+      "name": "configuration",
+      "status": "PASSED",
+      "elapsed_seconds": 2.961
+    },
+    {
+      "name": "build",
+      "status": "FAILED",
+      "elapsed_seconds": 269.887
+    },
+    {
+      "name": "cleanup",
+      "status": "PASSED",
+      "elapsed_seconds": 0.074
+    }
+  ],
+  "excluded": [
+    "Office",
+    "Go/Java/C++ workload deployment",
+    "perf/BPF/other collectors",
+    "external model quality",
+    "OS installation",
+    "airgap",
+    "hour endurance"
+  ],
+  "security": {
+    "private_grpc_mtls": true,
+    "grpc_token_auth": true,
+    "api_key_auth": true,
+    "public_http": "loopback ephemeral port only",
+    "model_mode": "none",
+    "production_credentials": false
+  },
+  "cleanup": {
+    "status": "PASSED",
+    "removed_container_ids": [],
+    "removed_network_ids": [],
+    "retained_own_volumes_for_runner_teardown": [],
+    "volumes_deleted": false,
+    "global_prune": false
+  },
+  "source_tree": "fe2c04982e30c1d9ecbdb35b9a9502d2e271b4c4",
+  "runner": {
+    "docker_version": "28.0.4",
+    "cpus": 4,
+    "memory_bytes": 16765411328,
+    "disk_free_bytes": 92093231104,
+    "runtime_memory_ceiling_mb": 4416,
+    "native_build_jobs": 1,
+    "build_mode": "sequential_no_cache_official_base_pull"
+  },
+  "canonical_sources": {
+    "docker-compose.yml": "3737b4d1f267138e43e10d7adb11a8333a9fa5bb984e4858cbc145b14eb7fc44",
+    "deploy/dockerfiles/apiserver.Dockerfile": "a6bf0406516c99afd7ab5d50759077c9bf86640177424c034cd06ddb37776a6b",
+    "deploy/dockerfiles/local-sre-api.Dockerfile": "ef6febb4ff89dd166e1b38f9448044dd695b927147587b761cb159f57859fa50",
+    "deploy/dockerfiles/local-sre-python.Dockerfile": "3a6dfb309fc4a0e7a14c71d26bec1ef3cfbf4baaa0f8635c1306d20a0d537fbd",
+    "deploy/dockerfiles/native-agent-source-overlay.Dockerfile": "2171abab89e7b82bc5dc2f1a6b2b65ac961b4bbf64607daee6ddf1a6ecc6bc8e",
+    "deploy/dockerfiles/native-agent.Dockerfile": "468bf0f263b35c15450a4a378d195e42eec8a7bb375f62b8b8b7979ceed482d0",
+    "deploy/dockerfiles/native-control.Dockerfile": "92511eff5025d0e9c1406ef75297219c60c850769adf447cdd30feffbd731cbb",
+    "deploy/dockerfiles/python-worker-source-overlay.Dockerfile": "4009b85a615b687adc8031c20e503a2ff4eece9d7b48efe5748f87d4852b3ddf",
+    "deploy/dockerfiles/python-worker.Dockerfile": "5966fcd2effc796736ac3626ccc89dda4c2027756877dc74f65caa0df7bf5c40",
+    "deploy/dockerfiles/sre-release-python.Dockerfile": "ca5ba837643a48908491af791ff5b2905f27bd8b2a73b347c94010a384d4698f",
+    "deploy/dockerfiles/web-prebuilt.Dockerfile": "6a62d4ae730ae9f123bd19f9a0b002b7a9d5d01cdc78e72a1fc5c35ea80e85ab",
+    "deploy/dockerfiles/web.Dockerfile": "6b756e2a003681c90942f5b74c6f46c8dad48178425ecf210259ea1000f3a7ab",
+    "demo/python-hotspot/Dockerfile": "fda4626a61bea4ed93e738875a086d396b324704d9b6c59a7d55fc62a6dafc51",
+    "deploy/scripts/generate-dev-certs.sh": "3e4357fcc2c0b9bf6ad8081c92b1df483f9e6adf0a8c0753e6cccf75df94df93"
+  },
+  "configuration": {
+    "sanitized_sha256": "236438b0763bafccbbd1c755c824a74e980418786359428d4816517df1d9f55a",
+    "template": "docker-compose.yml",
+    "services": [
+      "analyzer",
+      "apiserver",
+      "control-plane",
+      "diagnosis-worker",
+      "migrate",
+      "minio",
+      "native-agent",
+      "postgres",
+      "python-hotspot",
+      "web"
+    ],
+    "image_tags_unique": true,
+    "private_key_permissions": {
+      "client.key": {
+        "uid": 65532,
+        "mode": "0600"
+      },
+      "agent.key": {
+        "uid": 0,
+        "mode": "0600"
+      }
+    },
+    "permitted_overrides": [
+      "unique project/images",
+      "private PKI/env/source absolute paths",
+      "official build mirrors and serial native build",
+      "bounded runtime resources and no restart",
+      "loopback ephemeral Web port",
+      "single idle Python target",
+      "sys_metrics-only Agent capabilities/mounts"
+    ]
+  },
+  "failure": "AcceptanceError: command failed (1): ['docker', 'compose', '--project-name']",
+  "finished_at": "2026-10-02T06:10:58.365561+00:00",
+  "evidence_files": {
+    "command-001.log": {
+      "sha256": "e705a0180ddb82ae7a3c444c4224aaa91d111a8146f57f4c92b2d92dae007325",
+      "size_bytes": 42
+    },
+    "command-002.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-003.log": {
+      "sha256": "44e2cb8a159d1bb82a7bd4d0576fde9253350a07366b0809a74578513ce0ace9",
+      "size_bytes": 42
+    },
+    "command-005.log": {
+      "sha256": "5a3af0cf1fa88a89bef2e8386bd4bc37c1306c4de8de182a6c5d00f66de03809",
+      "size_bytes": 32
+    },
+    "command-006.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-007.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-008.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-009.log": {
+      "sha256": "ccd5f32bf62ee21add5abd6616a6481b4a2931a6f5f04212d57e2f6ff392c070",
+      "size_bytes": 461
+    },
+    "command-010.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-011.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-012.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-013.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-015.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-016.log": {
+      "sha256": "07688e9ef85eac9c6dc4990f0c146771d672f816514d8bf3f88ecc7aee0baf6e",
+      "size_bytes": 66571
+    },
+    "command-017.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-018.log": {
+      "sha256": "68804795ee79d923aea35e46b5b7ecf8b349f4b33cbbf67fcbb2eaea589e9c60",
+      "size_bytes": 78422
+    },
+    "command-019.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-020.log": {
+      "sha256": "17dec00b8781db3e2fa4082542731042654673cbd8ddd7a920937f54ed7531db",
+      "size_bytes": 105239
+    },
+    "command-021.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-022.log": {
+      "sha256": "294fb1a2e06c9e75aca5723bd01d0690feb4a2dcedf193bad7e1471d08cbf433",
+      "size_bytes": 7043
+    },
+    "command-023.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-024.log": {
+      "sha256": "34357eb1e13ba521b5079fcce7981d96a3b76763bdef6443e6498ef4265d1ff6",
+      "size_bytes": 9886
+    },
+    "command-025.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-026.log": {
+      "sha256": "96f869f83e2ea8d6a592c877f1a5389b11d372fc10a51d845395befa01118b1f",
+      "size_bytes": 2367
+    },
+    "command-027.log": {
+      "sha256": "88bbd348dc8fe7560bbcf9331d57c426bb71846975c3d689326ee9e0cd4d8472",
+      "size_bytes": 207
+    },
+    "command-028.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "compose-sanitized.json": {
+      "sha256": "236438b0763bafccbbd1c755c824a74e980418786359428d4816517df1d9f55a",
+      "size_bytes": 21981
+    }
+  }
+}

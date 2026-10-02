@@ -1,0 +1,118 @@
+{
+  "type": "result",
+  "case_id": "h18",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2fb6866af2ed6e99e43b9ae126",
+    "object": "chat.completion",
+    "created": 1790920603,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"UNKNOWN\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"ASK_CLARIFICATION\",\n  \"reasoning_summary\": \"问题描述中未指定目标程序，且没有任何可信观测记录。无法基于当前信息提出可验证的假设或进行诊断。需要用户澄清目标进程标识和具体性能现象。\",\n  \"expected_observations\": [],\n  \"falsification_criteria\": [],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3357,
+      "completion_tokens": 111,
+      "total_tokens": 3468,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1053
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2fb6866af2ed6e99e43b9ae126\",\"object\":\"chat.completion\",\"created\":1790920603,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"UNKNOWN\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"ASK_CLARIFICATION\\\",\\n  \\\"reasoning_summary\\\": \\\"问题描述中未指定目标程序，且没有任何可信观测记录。无法基于当前信息提出可验证的假设或进行诊断。需要用户澄清目标进程标识和具体性能现象。\\\",\\n  \\\"expected_observations\\\": [],\\n  \\\"falsification_criteria\\\": [],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3357,\"completion_tokens\":111,\"total_tokens\":3468,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1053},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "ab3b3eb7855f89dd07943e76edb30d43af16c8e3e250cc7cf07db91e88472716",
+  "seconds": 15.915463,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.gc.pressure",
+      "linux.memory.process_growth",
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "页面没说明是哪个程序，也没有任何可信观测记录，请判断真正原因。",
+        "knowledge_id": "jvm.gc.pressure",
+        "title": "JVM GC 暂停与分配压力",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "score": 7.275443,
+        "matched_terms": [
+          "判断",
+          "原因"
+        ],
+        "required_evidence": [
+          "GC pause P95",
+          "GC 时间占比",
+          "堆分代占用"
+        ],
+        "caveats": [
+          "CPU 高可能是 GC 的原因，也可能是结果"
+        ],
+        "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+      },
+      {
+        "query": "页面没说明是哪个程序，也没有任何可信观测记录，请判断真正原因。",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "score": 3.198254,
+        "matched_terms": [
+          "判断"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "页面没说明是哪个程序，也没有任何可信观测记录，请判断真正原因。",
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "score": 3.055268,
+        "matched_terms": [
+          "说明"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "seconds": 0.014719
+  }
+}

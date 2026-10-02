@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "h08",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2e320018f37dfc02b9edc82d59",
+    "object": "chat.completion",
+    "created": 1790920504,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"IO\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"start_ebpf_io_profile\",\n  \"reasoning_summary\": \"观察到目标应用同步IO操作延迟显著超过阈值，需要进一步定位是文件系统、块设备还是其他IO栈原因。\",\n  \"expected_observations\": [\"io_latency.average_latency_ms >= 10\", \"io_latency.operation_count_delta >= 5\"],\n  \"falsification_criteria\": [\"io_latency.average_latency_ms < 10\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2593,
+      "completion_tokens": 144,
+      "total_tokens": 2737,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 289
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2e320018f37dfc02b9edc82d59\",\"object\":\"chat.completion\",\"created\":1790920504,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"IO\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"start_ebpf_io_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"观察到目标应用同步IO操作延迟显著超过阈值，需要进一步定位是文件系统、块设备还是其他IO栈原因。\\\",\\n  \\\"expected_observations\\\": [\\\"io_latency.average_latency_ms \\u003e= 10\\\", \\\"io_latency.operation_count_delta \\u003e= 5\\\"],\\n  \\\"falsification_criteria\\\": [\\\"io_latency.average_latency_ms \\u003c 10\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":2593,\"completion_tokens\":144,\"total_tokens\":2737,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":289},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "0b40230d0e21f59160639811f584994167e04e0293aa51636d05fa97f5e56b40",
+  "seconds": 10.237634,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "seconds": 0.013959
+  }
+}

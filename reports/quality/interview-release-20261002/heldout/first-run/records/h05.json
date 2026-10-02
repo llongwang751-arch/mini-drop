@@ -1,0 +1,127 @@
+{
+  "type": "result",
+  "case_id": "h05",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2e43d602752546ec3cc30fce42",
+    "object": "chat.completion",
+    "created": 1790920508,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"RESOURCE_CONTENTION\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"NO_TOOL\",\n  \"reasoning_summary\": \"合成观测显示，在同一cgroup内，目标进程与邻居进程的CPU时间片均显著增长，且节流周期数与节流时间持续增加。这符合CPU配额受限下，两个进程竞争同一有限计算资源（1核）的典型特征。主机整体空闲不能排除cgroup内部的资源竞争。\",\n  \"expected_observations\": [\"noisy_neighbor.peer_cpu_ticks_delta > 0\", \"noisy_neighbor.target_cpu_ticks_delta > 0\", \"noisy_neighbor.throttled_usec_delta > 0\", \"noisy_neighbor.throttled_periods_delta > 0\"],\n  \"falsification_criteria\": [\"noisy_neighbor.throttled_usec_delta == 0\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3538,
+      "completion_tokens": 224,
+      "total_tokens": 3762,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1234
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2e43d602752546ec3cc30fce42\",\"object\":\"chat.completion\",\"created\":1790920508,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"RESOURCE_CONTENTION\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"NO_TOOL\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示，在同一cgroup内，目标进程与邻居进程的CPU时间片均显著增长，且节流周期数与节流时间持续增加。这符合CPU配额受限下，两个进程竞争同一有限计算资源（1核）的典型特征。主机整体空闲不能排除cgroup内部的资源竞争。\\\",\\n  \\\"expected_observations\\\": [\\\"noisy_neighbor.peer_cpu_ticks_delta \\u003e 0\\\", \\\"noisy_neighbor.target_cpu_ticks_delta \\u003e 0\\\", \\\"noisy_neighbor.throttled_usec_delta \\u003e 0\\\", \\\"noisy_neighbor.throttled_periods_delta \\u003e 0\\\"],\\n  \\\"falsification_criteria\\\": [\\\"noisy_neighbor.throttled_usec_delta == 0\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3538,\"completion_tokens\":224,\"total_tokens\":3762,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1234},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "12d6b7efe766ad6ffc9c32ae1e7d144af9cb3e5755b795db08f8cae801530e64",
+  "seconds": 11.235099,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "distributed.same_host_noisy_neighbor",
+      "linux.network.retransmit",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "两份批任务在同一受限资源组内同时推进，quota仍是一核且节流累计持续增长，主机空闲还能说没有资源竞争吗？",
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "title": "同宿主噪声邻居",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "chunk_id": "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+        "score": 12.999397,
+        "matched_terms": [
+          "同时推",
+          "主机",
+          "同时",
+          "时推",
+          "资源"
+        ],
+        "required_evidence": [
+          "目标压力",
+          "邻居压力",
+          "共享资源饱和度"
+        ],
+        "caveats": [
+          "共同流量上涨可能同时推高多个实例"
+        ],
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。"
+      },
+      {
+        "query": "两份批任务在同一受限资源组内同时推进，quota仍是一核且节流累计持续增长，主机空闲还能说没有资源竞争吗？",
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 11.562527,
+        "matched_terms": [
+          "在同一",
+          "同一",
+          "同时",
+          "在同"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      },
+      {
+        "query": "两份批任务在同一受限资源组内同时推进，quota仍是一核且节流累计持续增长，主机空闲还能说没有资源竞争吗？",
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "score": 10.228042,
+        "matched_terms": [
+          "主机",
+          "增长",
+          "空闲",
+          "节流"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU 配额对照与处置边界\n\n区分代码消耗增长、负载增长和配额变小。只有在容量允许且处置授权明确时才试验调整配额，并保存原值；复测仍使用原请求负载。缺少 cgroup 数据时应报告观测缺口，不用宿主机 CPU 空闲排除配额限制。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；字段语义参考上游，调查步骤为项目约定。"
+      }
+    ],
+    "seconds": 0.014362
+  }
+}

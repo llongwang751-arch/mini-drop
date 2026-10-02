@@ -1,0 +1,136 @@
+minio-1  | INFO: Formatting 1st pool, 1 set(s), 1 drives per set.
+minio-1  | INFO: WARNING: Host local has more than 0 drives of set. A host failure will result in data becoming unavailable.
+minio-1  | MinIO Object Storage Server
+minio-1  | Copyright: 2015-2026 MinIO, Inc.
+minio-1  | License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html
+minio-1  | Version: RELEASE.2025-04-08T15-41-24Z (go1.23.6 linux/amd64)
+minio-1  | 
+minio-1  | API: http://172.18.0.4:9000  http://127.0.0.1:9000 
+minio-1  | WebUI: http://172.18.0.4:9001 http://127.0.0.1:9001  
+minio-1  | 
+minio-1  | Docs: https://docs.min.io
+web-1    | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1    | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1    | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1    | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1    | 10-listen-on-ipv6-by-default.sh: info: /etc/nginx/conf.d/default.conf differs from the packaged version
+web-1    | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1    | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1    | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1    | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: using the "epoll" event method
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: nginx/1.27.5
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: OS: Linux 6.8.0-1064-azure
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 65536:65536
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: start worker processes
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: start worker process 29
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: start worker process 30
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: start worker process 31
+web-1    | 2026/10/02 06:39:05 [notice] 1#1: start worker process 32
+web-1    | 127.0.0.1 - - [02/Oct/2026:06:39:15 +0000] "GET / HTTP/1.1" 200 799 "-" "Wget"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:18 +0000] "GET /api/agents?limit=100 HTTP/1.1" 200 912 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:21 +0000] "GET /api/agents?limit=100 HTTP/1.1" 200 912 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:24 +0000] "GET /api/agents?limit=100 HTTP/1.1" 200 913 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:24 +0000] "GET /api/top-processes?agent_id=clean_agent_400db9c9fe1953d1&limit=100 HTTP/1.1" 200 557 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:24 +0000] "POST /api/tasks HTTP/1.1" 200 140 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:24 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 931 "-" "Python-urllib/3.11"
+web-1    | 127.0.0.1 - - [02/Oct/2026:06:39:25 +0000] "GET / HTTP/1.1" 200 799 "-" "Wget"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:27 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 931 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:30 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 946 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:33 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 946 "-" "Python-urllib/3.11"
+web-1    | 127.0.0.1 - - [02/Oct/2026:06:39:35 +0000] "GET / HTTP/1.1" 200 799 "-" "Wget"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:36 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 944 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:39 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 963 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:42 +0000] "GET /api/tasks/task_20261002_063924_7ff54054 HTTP/1.1" 200 988 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:42 +0000] "GET /api/tasks/task_20261002_063924_7ff54054/artifacts HTTP/1.1" 200 6294 "-" "Python-urllib/3.11"
+web-1    | 172.18.0.1 - - [02/Oct/2026:06:39:42 +0000] "GET /api/tasks/task_20261002_063924_7ff54054/artifacts/sys_metrics/download HTTP/1.1" 200 12680 "-" "Python-urllib/3.11"
+apiserver-1  | {"time":"2026-10-02T06:38:54.777714166Z","level":"INFO","msg":"go api server started","addr":":8080","diagnostic_ai_grpc":"diagnosis-worker:50061"}
+apiserver-1  | {"time":"2026-10-02T06:39:04.989414044Z","level":"INFO","msg":"http request","request_id":"20261002T063904.811941985-1","trace_id":"f3bcc48b96ac2843d0fa19ecc97a1d07","method":"GET","path":"/readyz","status":200,"duration_ms":177}
+apiserver-1  | {"time":"2026-10-02T06:39:15.034414951Z","level":"INFO","msg":"http request","request_id":"20261002T063915.032765703-2","trace_id":"6ff31e81348cfc057fe645210624487e","method":"GET","path":"/readyz","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:18.562003724Z","level":"INFO","msg":"http request","request_id":"20261002T063918.560609972-3","trace_id":"9ed2153dba6cf0d73780a0a441461191","method":"GET","path":"/api/agents","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:21.56509355Z","level":"INFO","msg":"http request","request_id":"20261002T063921.564384074-4","trace_id":"a66a1806be0e4bba30842fc059cdee40","method":"GET","path":"/api/agents","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:24.568189586Z","level":"INFO","msg":"http request","request_id":"20261002T063924.567590689-5","trace_id":"805f85e1d67c5278fb0525701dae8020","method":"GET","path":"/api/agents","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:24.571845025Z","level":"INFO","msg":"http request","request_id":"20261002T063924.569916315-6","trace_id":"27573e82e928b84bd2cb04ea5469366e","method":"GET","path":"/api/top-processes","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:24.609870713Z","level":"INFO","msg":"http request","request_id":"20261002T063924.592106478-7","trace_id":"84d1d79d4fb66d06ddce3c5afbd40a11","method":"POST","path":"/api/tasks","status":200,"duration_ms":17}
+apiserver-1  | {"time":"2026-10-02T06:39:24.612628691Z","level":"INFO","msg":"http request","request_id":"20261002T063924.612127460-8","trace_id":"84377fcd79611bde8a6de958fc5230e5","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:25.080121185Z","level":"INFO","msg":"http request","request_id":"20261002T063925.078122484-9","trace_id":"67077a9ccdef8573dffcb46076840d67","method":"GET","path":"/readyz","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:27.61527465Z","level":"INFO","msg":"http request","request_id":"20261002T063927.614717613-10","trace_id":"8cd7f1c05ba7b06ef038d1df5ecdef8f","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:30.617894032Z","level":"INFO","msg":"http request","request_id":"20261002T063930.617430778-11","trace_id":"154fc1c5969fa601eb28cbc4246095b1","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:33.620724372Z","level":"INFO","msg":"http request","request_id":"20261002T063933.620146168-12","trace_id":"dfa6fb78d02053066dd93c99818bac15","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:35.122766188Z","level":"INFO","msg":"http request","request_id":"20261002T063935.121170209-13","trace_id":"2f72a44e0e42add684dda42a5f0a765e","method":"GET","path":"/readyz","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:36.624666354Z","level":"INFO","msg":"http request","request_id":"20261002T063936.624026869-14","trace_id":"84778e0153ae80113049506137ccf24f","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:39.627286376Z","level":"INFO","msg":"http request","request_id":"20261002T063939.626676346-15","trace_id":"f320963d71ec9ecf50d4899e2fd10cd1","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":0}
+apiserver-1  | {"time":"2026-10-02T06:39:42.630993288Z","level":"INFO","msg":"http request","request_id":"20261002T063942.629613612-16","trace_id":"a60557240414b71213e23492312fbaa7","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:42.635468814Z","level":"INFO","msg":"http request","request_id":"20261002T063942.633676235-17","trace_id":"f77f0ad255e0e429dbd75557a65be7bd","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054/artifacts","status":200,"duration_ms":1}
+apiserver-1  | {"time":"2026-10-02T06:39:42.640852478Z","level":"INFO","msg":"http request","request_id":"20261002T063942.637331388-18","trace_id":"fc267b65e3fe4bfd908ce7cc6f32f312","method":"GET","path":"/api/tasks/task_20261002_063924_7ff54054/artifacts/sys_metrics/download","status":200,"duration_ms":3}
+migrate-1    | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+migrate-1    | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade  -> 20260813_0012, Adopt databases created by the legacy Mini-Drop migration chain.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260813_0012 -> 20260901_0001, Current Mini-Drop baseline: Go API, C++ control/agent, Python workers.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0001 -> 20260901_0002, Adopt runtime lineage and effect columns missing from legacy databases.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0002 -> 20260901_0003, Add the durable terminal-processing timestamp to legacy tool calls.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0003 -> 20260901_0004, Add runtime identities and query indexes missing from legacy databases.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0004 -> 20260901_0005, Add the task timestamp required by the native control plane.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0005 -> 20260901_0006, Persist the per-diagnosis Skill policy used by live A/B runs.
+migrate-1    | INFO  [alembic.runtime.migration] Running upgrade 20260901_0006 -> 20260908_0007, Add persisted Skill experiments and explicit operator preferences.
+control-plane-1  | {"level":"info","event":"cpp_control_started","addr":"0.0.0.0:50051"}
+migrate-1        | INFO  [alembic.runtime.migration] Running upgrade 20260908_0007 -> 20260910_0008, Persist the latest native Agent heartbeat metrics without fabricating zero.
+migrate-1        | {"event": "object_store_bucket_ready", "bucket": "clean-stack"}
+postgres-1       | The files belonging to this database system will be owned by user "postgres".
+postgres-1       | This user must also own the server process.
+postgres-1       | 
+postgres-1       | The database cluster will be initialized with locale "en_US.utf8".
+postgres-1       | The default database encoding has accordingly been set to "UTF8".
+postgres-1       | The default text search configuration will be set to "english".
+postgres-1       | 
+postgres-1       | Data page checksums are disabled.
+postgres-1       | 
+postgres-1       | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+postgres-1       | creating subdirectories ... ok
+postgres-1       | selecting dynamic shared memory implementation ... posix
+postgres-1       | selecting default max_connections ... 100
+postgres-1       | selecting default shared_buffers ... 128MB
+postgres-1       | selecting default time zone ... Etc/UTC
+postgres-1       | creating configuration files ... ok
+postgres-1       | running bootstrap script ... ok
+postgres-1       | performing post-bootstrap initialization ... ok
+postgres-1       | syncing data to disk ... ok
+postgres-1       | 
+postgres-1       | 
+postgres-1       | Success. You can now start the database server using:
+postgres-1       | 
+postgres-1       |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1       | 
+postgres-1       | initdb: warning: enabling "trust" authentication for local connections
+postgres-1       | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1       | waiting for server to start....2026-10-02 06:38:31.147 UTC [49] LOG:  starting PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+postgres-1       | 2026-10-02 06:38:31.149 UTC [49] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1       | 2026-10-02 06:38:31.152 UTC [52] LOG:  database system was shut down at 2026-10-02 06:38:31 UTC
+postgres-1       | 2026-10-02 06:38:31.156 UTC [49] LOG:  database system is ready to accept connections
+postgres-1       |  done
+postgres-1       | server started
+postgres-1       | CREATE DATABASE
+postgres-1       | 
+postgres-1       | 
+postgres-1       | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+postgres-1       | 
+postgres-1       | 2026-10-02 06:38:31.338 UTC [49] LOG:  received fast shutdown request
+postgres-1       | waiting for server to shut down....2026-10-02 06:38:31.339 UTC [49] LOG:  aborting any active transactions
+postgres-1       | 2026-10-02 06:38:31.341 UTC [49] LOG:  background worker "logical replication launcher" (PID 55) exited with exit code 1
+postgres-1       | 2026-10-02 06:38:31.342 UTC [50] LOG:  shutting down
+postgres-1       | 2026-10-02 06:38:31.342 UTC [50] LOG:  checkpoint starting: shutdown immediate
+postgres-1       | 2026-10-02 06:38:31.361 UTC [50] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.016 s, sync=0.002 s, total=0.020 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4273 kB, estimate=4273 kB; lsn=0/191F0F0, redo lsn=0/191F0F0
+postgres-1       | 2026-10-02 06:38:31.370 UTC [49] LOG:  database system is shut down
+postgres-1       |  done
+postgres-1       | server stopped
+postgres-1       | 
+postgres-1       | PostgreSQL init process complete; ready for start up.
+postgres-1       | 
+postgres-1       | 2026-10-02 06:38:31.461 UTC [1] LOG:  starting PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+postgres-1       | 2026-10-02 06:38:31.461 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1       | 2026-10-02 06:38:31.461 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1       | 2026-10-02 06:38:31.463 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1       | 2026-10-02 06:38:31.465 UTC [65] LOG:  database system was shut down at 2026-10-02 06:38:31 UTC
+postgres-1       | 2026-10-02 06:38:31.471 UTC [1] LOG:  database system is ready to accept connections
+

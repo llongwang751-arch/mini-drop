@@ -1,0 +1,129 @@
+{
+  "type": "result",
+  "case_id": "h13",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2f7ac6644c521695448f4413ce",
+    "object": "chat.completion",
+    "created": 1790920588,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"GC\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"collect_memory_profile\",\n  \"reasoning_summary\": \"合成观测显示 GC 暂停 P95 为 160ms，分配速率翻倍，GC 时间占比 24%。这提示可能存在 GC 压力，但缺乏堆分代占用和 Full GC 计数等关键证据来确认原因。\",\n  \"expected_observations\": [\"堆内存分代占用率（如老年代）超过 80%\", \"GC 原因显示为分配失败或晋升失败\"],\n  \"falsification_criteria\": [\"堆内存分代占用率均低于 70%\", \"GC 原因主要为常规回收\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3499,
+      "completion_tokens": 171,
+      "total_tokens": 3670,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1195
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2f7ac6644c521695448f4413ce\",\"object\":\"chat.completion\",\"created\":1790920588,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"GC\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"collect_memory_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示 GC 暂停 P95 为 160ms，分配速率翻倍，GC 时间占比 24%。这提示可能存在 GC 压力，但缺乏堆分代占用和 Full GC 计数等关键证据来确认原因。\\\",\\n  \\\"expected_observations\\\": [\\\"堆内存分代占用率（如老年代）超过 80%\\\", \\\"GC 原因显示为分配失败或晋升失败\\\"],\\n  \\\"falsification_criteria\\\": [\\\"堆内存分代占用率均低于 70%\\\", \\\"GC 原因主要为常规回收\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3499,\"completion_tokens\":171,\"total_tokens\":3670,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1195},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "2a8a81c732048ef04b5c377e2f0c3ffebddd45706ecd2b8c52aed0f27cd664a9",
+  "seconds": 8.796037,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.gc.pressure",
+      "go.profile.selection",
+      "sre.latency.measurement"
+    ],
+    "matches": [
+      {
+        "query": "JVM 停顿的P95上到160ms，分配速度也翻倍，Full GC计数并没有单独采，应该怎么解释？",
+        "knowledge_id": "jvm.gc.pressure",
+        "title": "JVM GC 暂停与分配压力",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "score": 28.52854,
+        "matched_terms": [
+          "jvm",
+          "p95",
+          "分配速",
+          "gc",
+          "分配",
+          "配速"
+        ],
+        "required_evidence": [
+          "GC pause P95",
+          "GC 时间占比",
+          "堆分代占用"
+        ],
+        "caveats": [
+          "CPU 高可能是 GC 的原因，也可能是结果"
+        ],
+        "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+      },
+      {
+        "query": "JVM 停顿的P95上到160ms，分配速度也翻倍，Full GC计数并没有单独采，应该怎么解释？",
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "score": 11.038948,
+        "matched_terms": [
+          "分配速",
+          "gc",
+          "分配",
+          "解释",
+          "配速"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Go 堆增长与修复复测\n\n分别阅读累计分配与仍存活对象，保持采样口径、GC 阶段和工作负载可比。修复后同时观察存活量、分配速率、CPU 与请求延迟，避免把性能转移到另一资源算作成功。\n\n来源：https://go.dev/doc/diagnostics 。核对日期 2026-09-19；本文是项目调查摘要。"
+      },
+      {
+        "query": "JVM 停顿的P95上到160ms，分配速度也翻倍，Full GC计数并没有单独采，应该怎么解释？",
+        "knowledge_id": "sre.latency.measurement",
+        "title": "延迟分位数与同负载复测",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "score": 6.368949,
+        "matched_terms": [
+          "p95",
+          "解释",
+          "计数"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 延迟分位数与同负载测量\n\n记录请求到达率、并发、输入分布、超时策略、预热期和测量时长。修复前后改变请求量会破坏比较；失败及超时请求也必须计数。"
+      }
+    ],
+    "seconds": 0.012927
+  }
+}

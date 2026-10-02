@@ -1,0 +1,80 @@
+{
+  "type": "result",
+  "case_id": "h23",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb301c39363da7a0c323a27185f9",
+    "object": "chat.completion",
+    "created": 1790920632,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"NOT_A_DIAGNOSIS\",\n  \"disposition\": \"NOT_A_DIAGNOSIS\",\n  \"next_tool\": \"ASK_CLARIFICATION\",\n  \"reasoning_summary\": \"用户询问的是RAG知识库版本一致性的策略问题，而非性能异常诊断。当前合成观测仅显示向量集合与当前语料库的哈希不匹配，但未提供任何性能指标或资源异常证据。\",\n  \"expected_observations\": [],\n  \"falsification_criteria\": [],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2855,
+      "completion_tokens": 125,
+      "total_tokens": 2980,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 551
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb301c39363da7a0c323a27185f9\",\"object\":\"chat.completion\",\"created\":1790920632,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"NOT_A_DIAGNOSIS\\\",\\n  \\\"disposition\\\": \\\"NOT_A_DIAGNOSIS\\\",\\n  \\\"next_tool\\\": \\\"ASK_CLARIFICATION\\\",\\n  \\\"reasoning_summary\\\": \\\"用户询问的是RAG知识库版本一致性的策略问题，而非性能异常诊断。当前合成观测仅显示向量集合与当前语料库的哈希不匹配，但未提供任何性能指标或资源异常证据。\\\",\\n  \\\"expected_observations\\\": [],\\n  \\\"falsification_criteria\\\": [],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":2855,\"completion_tokens\":125,\"total_tokens\":2980,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":551},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "3a3bd556c2d4ac37c242402b5b439cfc96fb7db8f03231c7742186e066a97a79",
+  "seconds": 12.773555,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "rag.quality.lifecycle"
+    ],
+    "matches": [
+      {
+        "query": "公共知识原文更新了，向量集合仍标着旧文档hash，检索也返回旧摘录；应该把这些命中当当前事实吗？",
+        "knowledge_id": "rag.quality.lifecycle",
+        "title": "RAG 质量与索引生命周期",
+        "document": "knowledge/rag_quality.md",
+        "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+        "chunk_id": "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+        "score": 16.87216,
+        "matched_terms": [
+          "当前事",
+          "公共",
+          "前事",
+          "向量",
+          "文档",
+          "更新",
+          "检索",
+          "知识"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# RAG 检索质量与知识生命周期\n\n先明确知识的适用版本、来源、更新时间和所需现场证据。文档数量与块数量不能代替召回质量；不要将事故真值、私有日志或密钥放入公共索引。"
+      }
+    ],
+    "seconds": 0.015133
+  }
+}

@@ -1,0 +1,1217 @@
+{
+  "schema": "mini-drop.heldout-evaluation.v1",
+  "suite_id": "heldout-planning-retrieval-20261002",
+  "scope": "OFFLINE_MODEL_PLANNING_AND_REAL_PUBLIC_KNOWLEDGE_RETRIEVAL; NO_TASKS_OR_FAULTS; NOT_CLOUD_RCA_ACCURACY",
+  "evaluation_adapter": "Fixed JSON output projection atop existing production SYSTEM_PROMPT and performance planning requirements; not platform Agent end-to-end.",
+  "third_party_independent_author": false,
+  "truth_frozen_before_implementation": true,
+  "question_or_oracle_tuned_after_first_run": false,
+  "run_at_utc": "2026-10-02T05:57:29.405599+00:00",
+  "manifest_sha256": "d6fde80a176a268ef9c13cd6ca5ddce2a8d33755769b0dc2a00ab6f6ce15e0c2",
+  "evaluator_source_sha256": "89f1b4abeba669f564974126b5d946de6e36663e8bf019f37dae8cb757bc5d99",
+  "production_prompt_sha256": "59d13461f902ec0eed1de67c2f9955a074c2c50c11a112cf022c26209e35d1f6",
+  "adapter_sha256": "caa8ef8a26052b65499c4b800c39d17c6e5ec3e25a7698c413a06473637f9383",
+  "provider": {
+    "provider": "siliconflow",
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "key_present": true,
+    "https_verified_by_default_requests_client": true,
+    "provider_source_sha256": "2168786cbe68924eb0b9199b4899f03804739d1a7e5da4e9047a281e127feca7",
+    "production_prompt_sha256": "59d13461f902ec0eed1de67c2f9955a074c2c50c11a112cf022c26209e35d1f6",
+    "published_source_head": null,
+    "runtime_source_sha256": {
+      "server/app/ai_provider.py": "2168786cbe68924eb0b9199b4899f03804739d1a7e5da4e9047a281e127feca7",
+      "server/app/drop_insight/adaptive_planner.py": "63f5526ddb2dca65adcc427b1fa5626243b7ce9bb2b0a505838f142f62f8a75a",
+      "server/app/drop_insight/cpu_criteria.py": "200bd12155d0a964b92f98f27fdf5809ec23d23ba37ecf0b04790d5274e4e961",
+      "server/app/drop_insight/performance_criteria.py": "7290c91ea9a32e21b739e304687a1ebf05f22e4ded812c0c7c0233cc5c115e24",
+      "server/app/agent_runtime/retrieval.py": "ba9bbdfabc8feff916831fac71c63434f2d60cf5dc2add9c8ec159aba5beadb4",
+      "server/app/agent_runtime/semantic_retrieval.py": "8b6e6c43b1a58ad30c6c77aa86b6462dcb6f6b856b5603af6748b2360462a55a",
+      "server/app/drop_insight/tools.py": "4c6b245c6c54d4bb3096421641082bf69eec5ea21026d0f16bfbb7c98b822d7d"
+    },
+    "transport_options": {
+      "enable_thinking": false
+    },
+    "ssh_helper_sha256": "a812348c6e87852c97c1567fa7508a92b588e3ec8c5407bc61405b74e17f837f",
+    "runtime_source_equivalent_application_head": "de094fff754f2d8cb7139dd99e31c7a30d5fb754"
+  },
+  "actual_retrieval_backend": "BM25",
+  "retrieval_is_evidence": false,
+  "chat_calls_attempted": 24,
+  "max_parallel_chat_calls": 2,
+  "retries": 0,
+  "actual_tasks_dispatched": 0,
+  "actual_faults_injected": 0,
+  "cost_usd": null,
+  "metrics": {
+    "case_count": 24,
+    "retrieval_positive_cases": 20,
+    "retrieval_no_answer_cases": 4,
+    "recall_at_3": 0.7583333333333333,
+    "mrr_at_3": 0.8,
+    "no_answer_false_positive_rate": 0.75,
+    "cost_usd": null,
+    "cost_reason": "NO_PINNED_PROVIDER_PRICE_EVIDENCE",
+    "usage_case_count": 22,
+    "tokens_from_available_usage": {
+      "prompt_tokens": 72728,
+      "completion_tokens": 3303,
+      "total_tokens": 76031
+    },
+    "all_cases_token_usage_known": false,
+    "timeouts": 2,
+    "api_errors": 0,
+    "other_request_errors": 0,
+    "structure_valid_count": 15,
+    "structure_valid_rate": 0.625,
+    "tool_choice_allowlisted_count": 15,
+    "tool_choice_allowlisted_rate": 0.625,
+    "tool_choice_expected_count": 13,
+    "tool_choice_expected_rate": 0.5416666666666666,
+    "category_correct_count": 15,
+    "category_correct_rate": 0.625,
+    "disposition_correct_count": 11,
+    "disposition_correct_rate": 0.4583333333333333
+  },
+  "cases": [
+    {
+      "case_id": "h01",
+      "status": "OK",
+      "matched_ids": [
+        "python.sampling.attribution"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "python.sampling.attribution"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "CPU",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "start_pyspy_profile",
+        "reasoning_summary": "合成观测显示目标 Python 进程 CPU 占用率约为 76%（单核），符合问题描述。为定位具体热点函数，需进行源码级采样。",
+        "expected_observations": [
+          "Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 2922,
+        "completion_tokens": 137,
+        "total_tokens": 3059
+      },
+      "expected": {
+        "acceptable_categories": [
+          "CPU"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "start_pyspy_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h02",
+      "status": "OK",
+      "matched_ids": [
+        "go.profile.selection",
+        "python.sampling.attribution",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "python.sampling.attribution"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": false,
+      "output": {
+        "category": "CPU",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_sys_metrics",
+        "reasoning_summary": "火焰图显示轮询发布函数占83%采样，但系统指标显示进程CPU占用率仅为0.7%（单核），远未饱和。采样占比高不等于CPU打满，需要独立的操作系统CPU数值来验证CPU高占用的假设。",
+        "expected_observations": [
+          "目标进程 CPU 占用率至少 50%（单核口径）"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3482,
+        "completion_tokens": 152,
+        "total_tokens": 3634
+      },
+      "expected": {
+        "acceptable_categories": [
+          "CPU"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_REFUTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "start_pyspy_profile",
+          "NO_TOOL"
+        ]
+      }
+    },
+    {
+      "case_id": "h03",
+      "status": "OK",
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "mysql.lock_wait"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "CPU",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "start_perf_profile",
+        "reasoning_summary": "合成数据表明目标 C++ 进程 CPU 占用率高达 93%（单核口径），且主要为用户态计算（用户态 89%）。这支持了“一个核心长期接近满载”的现象。根据知识库要求，用户态 CPU 高需要 Profile 来定位热点代码位置。",
+        "expected_observations": [
+          "C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3140,
+        "completion_tokens": 166,
+        "total_tokens": 3306
+      },
+      "expected": {
+        "acceptable_categories": [
+          "CPU"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "start_perf_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h04",
+      "status": "OK",
+      "matched_ids": [
+        "linux.cpu.kernel_overhead",
+        "linux.cpu.process_pressure",
+        "linux.network.retransmit"
+      ],
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "CPU",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "start_perf_profile",
+        "reasoning_summary": "合成观测显示系统态CPU占比异常高（67%），用户态很低（4%），符合内核开销特征。根据知识库，需要内核栈或系统调用分布证据。",
+        "expected_observations": [
+          "C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3471,
+        "completion_tokens": 141,
+        "total_tokens": 3612
+      },
+      "expected": {
+        "acceptable_categories": [
+          "CPU"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "start_perf_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h05",
+      "status": "OK",
+      "matched_ids": [
+        "distributed.same_host_noisy_neighbor",
+        "linux.network.retransmit",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": false,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "RESOURCE_CONTENTION",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "NO_TOOL",
+        "reasoning_summary": "合成观测显示，在同一cgroup内，目标进程与邻居进程的CPU时间片均显著增长，且节流周期数与节流时间持续增加。这符合CPU配额受限下，两个进程竞争同一有限计算资源（1核）的典型特征。主机整体空闲不能排除cgroup内部的资源竞争。",
+        "expected_observations": [
+          "noisy_neighbor.peer_cpu_ticks_delta > 0",
+          "noisy_neighbor.target_cpu_ticks_delta > 0",
+          "noisy_neighbor.throttled_usec_delta > 0",
+          "noisy_neighbor.throttled_periods_delta > 0"
+        ],
+        "falsification_criteria": [
+          "noisy_neighbor.throttled_usec_delta == 0"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3538,
+        "completion_tokens": 224,
+        "total_tokens": 3762
+      },
+      "expected": {
+        "acceptable_categories": [
+          "RESOURCE_CONTENTION"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h06",
+      "status": "TIMEOUT",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "recall_at_3": 0.0,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": null,
+      "expected": {
+        "acceptable_categories": [
+          "RESOURCE_CONTENTION",
+          "UNKNOWN"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    },
+    {
+      "case_id": "h07",
+      "status": "TIMEOUT",
+      "matched_ids": [],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 0.0,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": null,
+      "expected": {
+        "acceptable_categories": [
+          "IO"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_REFUTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "NO_TOOL"
+        ]
+      }
+    },
+    {
+      "case_id": "h08",
+      "status": "OK",
+      "matched_ids": [],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 0.0,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "IO",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "start_ebpf_io_profile",
+        "reasoning_summary": "观察到目标应用同步IO操作延迟显著超过阈值，需要进一步定位是文件系统、块设备还是其他IO栈原因。",
+        "expected_observations": [
+          "io_latency.average_latency_ms >= 10",
+          "io_latency.operation_count_delta >= 5"
+        ],
+        "falsification_criteria": [
+          "io_latency.average_latency_ms < 10"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 2593,
+        "completion_tokens": 144,
+        "total_tokens": 2737
+      },
+      "expected": {
+        "acceptable_categories": [
+          "IO"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "start_ebpf_io_profile",
+          "start_jvm_profile"
+        ]
+      }
+    },
+    {
+      "case_id": "h09",
+      "status": "OK",
+      "matched_ids": [
+        "distributed.downstream_pressure",
+        "go.profile.selection",
+        "linux.network.retransmit"
+      ],
+      "relevant_ids": [
+        "distributed.downstream_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": false,
+      "output": {
+        "category": "DOWNSTREAM",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_go_profile",
+        "reasoning_summary": "下游调用平均延迟820ms，其中依赖处理记录为800ms，表明延迟主要集中在下游依赖处理环节。但当前仅有聚合指标，缺乏进程内部执行路径和系统资源消耗的独立证据，无法区分是下游服务自身处理慢，还是本进程在等待期间存在CPU热点或阻塞。",
+        "expected_observations": [
+          "Go pprof 中一个具备源码位置的业务函数累计占比至少 20%"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3381,
+        "completion_tokens": 168,
+        "total_tokens": 3549
+      },
+      "expected": {
+        "acceptable_categories": [
+          "DOWNSTREAM",
+          "NETWORK"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "collect_go_profile"
+        ]
+      }
+    },
+    {
+      "case_id": "h10",
+      "status": "OK",
+      "matched_ids": [
+        "linux.network.retransmit",
+        "linux.iowait.shared_block_device"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "NETWORK",
+        "disposition": "OBSERVATION_REFUTED",
+        "next_tool": "NO_TOOL",
+        "reasoning_summary": "合成观测显示，在完整的连接窗口内，TCP重传数为0，RTT稳定在2ms。这反驳了‘TCP重传导致问题’的主张。",
+        "expected_observations": [
+          "network_latency.average_latency_ms >= 2"
+        ],
+        "falsification_criteria": [
+          "network_latency.average_latency_ms < 2"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3190,
+        "completion_tokens": 137,
+        "total_tokens": 3327
+      },
+      "expected": {
+        "acceptable_categories": [
+          "NETWORK"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_REFUTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "NO_TOOL"
+        ]
+      }
+    },
+    {
+      "case_id": "h11",
+      "status": "OK",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "python.sampling.attribution",
+        "go.profile.selection"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": false,
+      "output": {
+        "category": "MEMORY",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_memory_profile",
+        "reasoning_summary": "观察到进程 RSS 在三个采样间隔内持续增长 20MiB，但仅凭系统指标无法区分是缓存扩张还是对象泄漏。需要采集内存剖析数据来观察堆内对象分配与存活情况。",
+        "expected_observations": [
+          "内存剖析显示存在持续增长的、可归属的 Python 对象类型"
+        ],
+        "falsification_criteria": [
+          "内存剖析未发现持续增长的、可归属的 Python 对象类型"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3481,
+        "completion_tokens": 148,
+        "total_tokens": 3629
+      },
+      "expected": {
+        "acceptable_categories": [
+          "MEMORY"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "collect_memory_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h12",
+      "status": "OK",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "distributed.downstream_pressure",
+        "jvm.gc.pressure"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "MEMORY",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_memory_profile",
+        "reasoning_summary": "当前仅有一个时间点的 RSS 绝对值（800 MiB），缺乏时间序列变化、内存限制和分配热点信息，无法确认内存泄漏。需要采集内存分配剖面以观察是否存在持续增长或大量未释放对象。",
+        "expected_observations": [
+          "内存剖面显示存在大量未释放的 Go 堆对象"
+        ],
+        "falsification_criteria": [
+          "内存剖面未显示显著的堆内存分配或保留"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3371,
+        "completion_tokens": 143,
+        "total_tokens": 3514
+      },
+      "expected": {
+        "acceptable_categories": [
+          "MEMORY",
+          "UNKNOWN"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "collect_memory_profile",
+          "collect_sys_metrics",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    },
+    {
+      "case_id": "h13",
+      "status": "OK",
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "go.profile.selection",
+        "sre.latency.measurement"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": false,
+      "category_correct": true,
+      "disposition_correct": false,
+      "output": {
+        "category": "GC",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_memory_profile",
+        "reasoning_summary": "合成观测显示 GC 暂停 P95 为 160ms，分配速率翻倍，GC 时间占比 24%。这提示可能存在 GC 压力，但缺乏堆分代占用和 Full GC 计数等关键证据来确认原因。",
+        "expected_observations": [
+          "堆内存分代占用率（如老年代）超过 80%",
+          "GC 原因显示为分配失败或晋升失败"
+        ],
+        "falsification_criteria": [
+          "堆内存分代占用率均低于 70%",
+          "GC 原因主要为常规回收"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3499,
+        "completion_tokens": 171,
+        "total_tokens": 3670
+      },
+      "expected": {
+        "acceptable_categories": [
+          "GC"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "start_jvm_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h14",
+      "status": "OK",
+      "matched_ids": [
+        "linux.network.retransmit",
+        "python.sampling.attribution",
+        "postgres.waits"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "LOCK",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "start_jvm_profile",
+        "reasoning_summary": "合成观测显示锁等待显著：窗口内总等待时长20秒，获取500次，有8个线程被阻塞。这支持了锁竞争异常。需要启动JVM性能剖析来识别具体的持锁或等待路径。",
+        "expected_observations": [
+          "JVM剖析中识别出导致高等待的特定监视器（monitor）或锁对象",
+          "剖析中一个或多个业务线程在锁相关方法（如 wait, notify, synchronized 块）上花费了显著的CPU时间或样本"
+        ],
+        "falsification_criteria": [
+          "JVM剖析中未发现与高锁等待观测（20秒，500次获取）相关的显著热点或阻塞栈"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3509,
+        "completion_tokens": 198,
+        "total_tokens": 3707
+      },
+      "expected": {
+        "acceptable_categories": [
+          "LOCK"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "start_jvm_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h15",
+      "status": "OK",
+      "matched_ids": [
+        "go.profile.selection",
+        "python.sampling.attribution",
+        "postgres.waits"
+      ],
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "LOCK",
+        "disposition": "INSUFFICIENT_DATA",
+        "next_tool": "collect_go_profile",
+        "reasoning_summary": "用户报告 Go 进程有大量 goroutine 在通道和互斥锁上等待，CPU 接近空闲。合成观测显示进程 CPU 使用率仅为 1%，等待中的 goroutine 数量为 300，但阻塞或互斥锁 profile 不存在。根据知识库指导，CPU 火焰图（CPU profile）用于描述执行消耗，不能直接证明等待时间。当前缺少用于调查阻塞和锁竞争的 block 或 mutex profile 证据。",
+        "expected_observations": [
+          "Go block profile 显示至少一个阻塞操作（如通道接收/发送、互斥锁）的累计等待时间占比显著",
+          "Go mutex profile 显示至少一个互斥锁的累计等待时间占比显著"
+        ],
+        "falsification_criteria": [
+          "Go block profile 中所有阻塞操作的累计等待时间占比可忽略不计",
+          "Go mutex profile 中所有互斥锁的累计等待时间占比可忽略不计"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3439,
+        "completion_tokens": 251,
+        "total_tokens": 3690
+      },
+      "expected": {
+        "acceptable_categories": [
+          "LOCK"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "collect_go_profile",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h16",
+      "status": "OK",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "QUEUE",
+        "disposition": "OBSERVATION_SUPPORTED",
+        "next_tool": "collect_sys_metrics",
+        "reasoning_summary": "观测到队列积压增长，消费速率低于到达速率，符合队列异常。",
+        "expected_observations": [
+          "queue_backlog.queue_lag >= 1"
+        ],
+        "falsification_criteria": [
+          "queue_backlog.queue_lag < 1"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 2579,
+        "completion_tokens": 112,
+        "total_tokens": 2691
+      },
+      "expected": {
+        "acceptable_categories": [
+          "QUEUE"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "start_pyspy_profile"
+        ]
+      }
+    },
+    {
+      "case_id": "h17",
+      "status": "OK",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "container.cpu.throttling",
+        "distributed.downstream_pressure"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth",
+        "sre.latency.measurement"
+      ],
+      "recall_at_3": 0.3333333333333333,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3521,
+        "completion_tokens": 122,
+        "total_tokens": 3643
+      },
+      "expected": {
+        "acceptable_categories": [
+          "NORMAL"
+        ],
+        "acceptable_dispositions": [
+          "NORMAL_IN_CHECKED_SCOPE"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h18",
+      "status": "OK",
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3357,
+        "completion_tokens": 111,
+        "total_tokens": 3468
+      },
+      "expected": {
+        "acceptable_categories": [
+          "UNKNOWN"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "ASK_CLARIFICATION",
+          "NO_TOOL",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h19",
+      "status": "OK",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "container.memory.pressure",
+        "sre.recovery.acceptance"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth",
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 0.3333333333333333,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": true,
+      "tool_choice_allowlisted": true,
+      "tool_choice_expected": true,
+      "category_correct": true,
+      "disposition_correct": true,
+      "output": {
+        "category": "MIXED",
+        "disposition": "MIXED_OBSERVATIONS",
+        "next_tool": "start_pyspy_profile",
+        "reasoning_summary": "合成观测显示CPU、内存增长和同步IO均偏高，需并行调查。CPU占用81%表明计算热点，内存增长30MB和同步IO耗时900ms需独立验证。",
+        "expected_observations": [
+          "Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%"
+        ],
+        "falsification_criteria": [
+          "目标进程 CPU 占用率低于 50%"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "usage": {
+        "prompt_tokens": 3558,
+        "completion_tokens": 144,
+        "total_tokens": 3702
+      },
+      "expected": {
+        "acceptable_categories": [
+          "MIXED"
+        ],
+        "acceptable_dispositions": [
+          "MIXED_OBSERVATIONS"
+        ],
+        "acceptable_tools": [
+          "collect_sys_metrics",
+          "collect_memory_profile",
+          "start_pyspy_profile",
+          "start_ebpf_io_profile"
+        ]
+      }
+    },
+    {
+      "case_id": "h20",
+      "status": "OK",
+      "matched_ids": [
+        "linux.cpu.kernel_overhead",
+        "agent.tool.governance",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "relevant_ids": [
+        "agent.tool.governance"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3383,
+        "completion_tokens": 91,
+        "total_tokens": 3474
+      },
+      "expected": {
+        "acceptable_categories": [
+          "NOT_A_DIAGNOSIS",
+          "UNKNOWN"
+        ],
+        "acceptable_dispositions": [
+          "NOT_A_DIAGNOSIS",
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    },
+    {
+      "case_id": "h21",
+      "status": "OK",
+      "matched_ids": [
+        "mysql.lock_wait",
+        "postgres.waits",
+        "rag.quality.lifecycle"
+      ],
+      "relevant_ids": [
+        "mysql.lock_wait",
+        "postgres.waits"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3566,
+        "completion_tokens": 165,
+        "total_tokens": 3731
+      },
+      "expected": {
+        "acceptable_categories": [
+          "DATABASE",
+          "DOWNSTREAM",
+          "UNKNOWN"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "ASK_CLARIFICATION",
+          "collect_sys_metrics"
+        ]
+      }
+    },
+    {
+      "case_id": "h22",
+      "status": "OK",
+      "matched_ids": [
+        "agent.tool.governance",
+        "python.sampling.attribution",
+        "go.profile.selection"
+      ],
+      "relevant_ids": [
+        "agent.tool.governance"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3493,
+        "completion_tokens": 140,
+        "total_tokens": 3633
+      },
+      "expected": {
+        "acceptable_categories": [
+          "AGENT_GOVERNANCE"
+        ],
+        "acceptable_dispositions": [
+          "INSUFFICIENT_DATA",
+          "NOT_A_DIAGNOSIS"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    },
+    {
+      "case_id": "h23",
+      "status": "OK",
+      "matched_ids": [
+        "rag.quality.lifecycle"
+      ],
+      "relevant_ids": [
+        "rag.quality.lifecycle"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 2855,
+        "completion_tokens": 125,
+        "total_tokens": 2980
+      },
+      "expected": {
+        "acceptable_categories": [
+          "RETRIEVAL"
+        ],
+        "acceptable_dispositions": [
+          "OBSERVATION_SUPPORTED",
+          "INSUFFICIENT_DATA"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    },
+    {
+      "case_id": "h24",
+      "status": "OK",
+      "matched_ids": [
+        "agent.tool.governance",
+        "container.memory.pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "structure_valid": false,
+      "tool_choice_allowlisted": false,
+      "tool_choice_expected": false,
+      "category_correct": false,
+      "disposition_correct": false,
+      "output": null,
+      "usage": {
+        "prompt_tokens": 3400,
+        "completion_tokens": 113,
+        "total_tokens": 3513
+      },
+      "expected": {
+        "acceptable_categories": [
+          "NOT_A_DIAGNOSIS"
+        ],
+        "acceptable_dispositions": [
+          "NOT_A_DIAGNOSIS"
+        ],
+        "acceptable_tools": [
+          "NO_TOOL",
+          "ASK_CLARIFICATION"
+        ]
+      }
+    }
+  ],
+  "evidence_sha256": {
+    "requests/h01.json": "e0943518c55fad673a9dbb432652e503037b90184ad83f7684e3948408fb1f0d",
+    "requests/h02.json": "f1610e5f6be49edd91bb65a0480453be3d1cae4535971ce132cf3cf71cab33f9",
+    "requests/h03.json": "93dc0edc6921ef32e0e2f36eb9ba617634b365a0aa353c1ed33de770dbc08b5d",
+    "requests/h04.json": "c62d148a77a660a1de8ec8f0fdb8fcce38b099715ab1db15d473ec7172868e21",
+    "requests/h05.json": "1a9ac7b709a79ce1703f57c8fb89a6b68a8f1f527b3bc421789bf8ae1b3bfc66",
+    "requests/h06.json": "da1e948858819a99c16173f5d7a84a2ec87d6a96e6612a9562ca0348a574c62e",
+    "requests/h07.json": "2d2d1977fee3ece57fe422e96a856e366aa0b0e0a38f569c3e349693f43c8431",
+    "requests/h08.json": "f5a6aa36efe11f34df1e1b4c8d73edb52e1e4a3eaf6c95dfe4e1f26eaedcc7e6",
+    "requests/h09.json": "cf02ac0103c4eeb7a2a3430a5d30983dbbe5ae9fe6cc3948a72388f640773af2",
+    "requests/h10.json": "a7629e5ae752583248eeeaf70d3c80d48f6a0842967c7916c3b94f28fa665396",
+    "requests/h11.json": "5c9549b6889f2037b088bf00db5dc4447f0b88d902bf0a7287a5a558bc447718",
+    "requests/h12.json": "e8eb54d56d7f9a00fb18faf4cd84b997d6200300f8dc1754b051c7eec5cc15d8",
+    "requests/h13.json": "5331dfe2ff56ef84ac9fec69b7e07c87aa7a6aafa60e99f1ac70aedb77f47f16",
+    "requests/h14.json": "23b0d91689c6f649250c61d5ed0f06273b9115432f53b643da7b34a21ad87833",
+    "requests/h15.json": "46e6e1126dd1416c3659ff44b86d69ff0e6058cd8fe2c7334880ac26093d5ffe",
+    "requests/h16.json": "a40353d8b1978953882757a616395951b8553f128adbfa70af7144b080ab47e3",
+    "requests/h17.json": "2dc2d3c8340fc64119714ade00018e9468725d15bafadff9e5145394f4c13d68",
+    "requests/h18.json": "b7c14089d3d4593d93db05494020814b40711faae943db49f8806f870a6a76d0",
+    "requests/h19.json": "c7f51f636f78f665580cd566006cef5f5e4b00795db9ef6c1439e9ae19f05112",
+    "requests/h20.json": "c48eb0d8e2b981b300d5664a1b435c97c7745f736fc31457c0c765911a227e73",
+    "requests/h21.json": "e47f2042da9e616b5b55a18a4058d2f13658e57214f3e78b04e7cc7749ae4068",
+    "requests/h22.json": "286795925e85a0fdecbdfbe15e5fff6ed927a82fac9650434dbb8b41ef3de394",
+    "requests/h23.json": "7e4df70d04b46de3157cd06c19684d4f1d5e4e7b8b72f7dd2005660ea8ae1a7c",
+    "requests/h24.json": "8919223a22edd7769f616a9546175a70a9760bb699c5e82d699e9001837487bf",
+    "records/h01.json": "1c88c37bde15f290aa35cf30c1a0161c93eedc78eb50d4e776edff7796f7a16e",
+    "records/h02.json": "c377381ab742c2f9c5e4ae54cd1c595465c056a87d747c6ebd9e87d758e17eaf",
+    "records/h03.json": "d79d7f3432d08d4aa60c25f52432a30f2c2290fd3c4dbc5392e9017d00592b50",
+    "records/h04.json": "389ad795b6cd54ed63dbce1230368c51142187e17da43a1746144111c6faa4c2",
+    "records/h05.json": "c5a7512b2a7be8e5550082b79f5b16697cb55823f9b3cdedc42622f24203ad61",
+    "records/h06.json": "232b8cd1b450d36b900e5b94482732d6fbd31c4b06fcd1b5e6f65a8c6f0c1f54",
+    "records/h07.json": "3fc91d45f445b949cac49f2b19eecac2e37add9e73a6775350af22411487f8a6",
+    "records/h08.json": "c765419e14e5135dcb4df90874944a8230ca6a405c5b842cf29c7f02095c292d",
+    "records/h09.json": "db0276b6dfd8a1a0c40750ee04bb6eed52b4a42fd388655becbbf56f37fbe9b2",
+    "records/h10.json": "9857d49b0caa1e1560cb1d81e2653350ffe5aab34dae5db13df700c05693bdfd",
+    "records/h11.json": "d768994ec65492a22393e946922b2ceb3a961ba1768998677c2f8f3186d612b0",
+    "records/h12.json": "2d028efdf93befd9f66073afef55a48e488538c7804066e51c84706eeda87f23",
+    "records/h13.json": "c42b33dce847e89741b38afd6c5ec24736d21528cb279f68107a5339ceaf9ace",
+    "records/h14.json": "b1f93e55b75954d1513bd523778436d5508fa4248d7ad818a9576ce93b1072bf",
+    "records/h15.json": "cc44e8899e7d73b8ced47ce37c86aa3c784b199d7e05eb2ab369cd882b645b45",
+    "records/h16.json": "9e4a4894514baae72b7d3b434d61242386c61ee1a6ee22fa3f63a24c0e657afd",
+    "records/h17.json": "b21986977ef6de3504d7fdabdad4e04bf221058bd0c4db623773bba968fce056",
+    "records/h18.json": "f76fa23c9125e6bafc058cc5a3564bb40081eef8be3534287486131de2abb442",
+    "records/h19.json": "a9c8d9a5953c38176cd896baaa0a95ee3aae720bf2fcbf99b8810923ebd4575a",
+    "records/h20.json": "1c87fd8782401ca054c72a12e91af8b21c91e07ebde4e07a557432efaf9cd00d",
+    "records/h21.json": "6fbf8b7125e69e4bf1c79aa1cc0c2276411381e730191a99cda3ad7934bc73c4",
+    "records/h22.json": "0a21b2460c455680063de720e51ed92d2477ee2ff41a5a2a680ccc6192f897e7",
+    "records/h23.json": "5cbec9e6c9b922c2f47da089b172e736ba7c28fed2bd2df7b01db2fd657e6ce1",
+    "records/h24.json": "a29b6f3ff385dc8eef5e324d365666574e47625bd900883d2e75e3c2cf5b8fa5",
+    "provider.json": "1990075db5423e55b7f40af491504a24e816a9d9e84e15c2b7903f8057f0e844",
+    "freeze.json": "dc4062c7245288829d3de49c2c0761bf79929e5a4483e01e7e8d892cad505cb9"
+  }
+}

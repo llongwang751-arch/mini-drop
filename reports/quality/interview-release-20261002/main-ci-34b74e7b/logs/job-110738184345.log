@@ -1,0 +1,365 @@
+﻿2026-10-02T06:49:57.8277753Z Current runner version: '2.337.0'
+2026-10-02T06:49:57.8293657Z ##[group]Runner Image Provisioner
+2026-10-02T06:49:57.8294209Z Hosted Compute Agent
+2026-10-02T06:49:57.8294538Z Version: 20260901.588
+2026-10-02T06:49:57.8294892Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T06:49:57.8295309Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T06:49:57.8295695Z Worker ID: {dc8cc478-6fa9-4f1c-a2c7-e61d3842604c}
+2026-10-02T06:49:57.8296078Z Azure Region: westus3
+2026-10-02T06:49:57.8296432Z ##[endgroup]
+2026-10-02T06:49:57.8297129Z ##[group]Operating System
+2026-10-02T06:49:57.8297477Z Ubuntu
+2026-10-02T06:49:57.8297769Z 22.04.5
+2026-10-02T06:49:57.8298161Z LTS
+2026-10-02T06:49:57.8298466Z ##[endgroup]
+2026-10-02T06:49:57.8298770Z ##[group]Runner Image
+2026-10-02T06:49:57.8299108Z Image: ubuntu-22.04
+2026-10-02T06:49:57.8299430Z Version: 20260927.309.1
+2026-10-02T06:49:57.8300133Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-02T06:49:57.8300955Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-02T06:49:57.8301489Z ##[endgroup]
+2026-10-02T06:49:57.8302157Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T06:49:57.8303303Z Contents: read
+2026-10-02T06:49:57.8303651Z Metadata: read
+2026-10-02T06:49:57.8303949Z Packages: read
+2026-10-02T06:49:57.8304293Z ##[endgroup]
+2026-10-02T06:49:57.8305500Z Secret source: Actions
+2026-10-02T06:49:57.8306040Z Cache mode: write
+2026-10-02T06:49:57.8306430Z Prepare workflow directory
+2026-10-02T06:49:57.8533666Z Prepare all required actions
+2026-10-02T06:49:57.8563617Z Getting action download info
+2026-10-02T06:49:58.1570708Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-02T06:49:58.2690057Z Download action repository 'actions/setup-go@v5' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-10-02T06:49:59.0213462Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T06:49:59.1801926Z Download action repository 'golangci/golangci-lint-action@v9' (SHA:ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a)
+2026-10-02T06:49:59.8710566Z Complete job name: Go (apiserver)
+2026-10-02T06:49:59.9180823Z ##[group]Run actions/checkout@v4
+2026-10-02T06:49:59.9181556Z with:
+2026-10-02T06:49:59.9182094Z   repository: llongwang751-arch/mini-drop
+2026-10-02T06:49:59.9186749Z   token: ***
+2026-10-02T06:49:59.9187250Z   ssh-strict: true
+2026-10-02T06:49:59.9187767Z   ssh-user: git
+2026-10-02T06:49:59.9188404Z   persist-credentials: true
+2026-10-02T06:49:59.9188975Z   clean: true
+2026-10-02T06:49:59.9189506Z   sparse-checkout-cone-mode: true
+2026-10-02T06:49:59.9190123Z   fetch-depth: 1
+2026-10-02T06:49:59.9190636Z   fetch-tags: false
+2026-10-02T06:49:59.9191161Z   show-progress: true
+2026-10-02T06:49:59.9191690Z   lfs: false
+2026-10-02T06:49:59.9192185Z   submodules: false
+2026-10-02T06:49:59.9192718Z   set-safe-directory: true
+2026-10-02T06:49:59.9193327Z   allow-unsafe-pr-checkout: false
+2026-10-02T06:49:59.9194036Z ##[endgroup]
+2026-10-02T06:49:59.9783978Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-02T06:49:59.9785666Z ##[group]Getting Git version info
+2026-10-02T06:49:59.9786577Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T06:49:59.9803609Z [command]/usr/bin/git version
+2026-10-02T06:49:59.9862344Z git version 2.55.0
+2026-10-02T06:49:59.9874661Z ##[endgroup]
+2026-10-02T06:49:59.9884536Z Temporarily overriding HOME='/home/runner/work/_temp/4860546c-a328-452a-9141-db08220b2048' before making global git config changes
+2026-10-02T06:49:59.9887028Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T06:49:59.9889228Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T06:49:59.9910517Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T06:49:59.9913198Z ##[group]Initializing the repository
+2026-10-02T06:49:59.9915371Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-02T06:50:00.0037713Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-02T06:50:00.0039822Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-02T06:50:00.0041459Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-02T06:50:00.0043057Z hint: call:
+2026-10-02T06:50:00.0043726Z hint:
+2026-10-02T06:50:00.0044607Z hint: 	git config --global init.defaultBranch <name>
+2026-10-02T06:50:00.0045655Z hint:
+2026-10-02T06:50:00.0046659Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-02T06:50:00.0048398Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-02T06:50:00.0049658Z hint:
+2026-10-02T06:50:00.0050333Z hint: 	git branch -m <name>
+2026-10-02T06:50:00.0051110Z hint:
+2026-10-02T06:50:00.0052174Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-02T06:50:00.0053689Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-02T06:50:00.0055850Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-02T06:50:00.0073552Z ##[endgroup]
+2026-10-02T06:50:00.0074842Z ##[group]Disabling automatic garbage collection
+2026-10-02T06:50:00.0076855Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-02T06:50:00.0098323Z ##[endgroup]
+2026-10-02T06:50:00.0099524Z ##[group]Setting up auth
+2026-10-02T06:50:00.0103238Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T06:50:00.0122440Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T06:50:00.0323365Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T06:50:00.0345479Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T06:50:00.0447193Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T06:50:00.0465148Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T06:50:00.0569467Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-02T06:50:00.0592646Z ##[endgroup]
+2026-10-02T06:50:00.0593951Z ##[group]Fetching the repository
+2026-10-02T06:50:00.0599637Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +72d452542007e1a01cfb2f923c6fa72471b6fb39:refs/remotes/pull/1/merge
+2026-10-02T06:50:09.2797416Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-02T06:50:09.2808385Z  * [new ref]         72d452542007e1a01cfb2f923c6fa72471b6fb39 -> pull/1/merge
+2026-10-02T06:50:09.2810149Z ##[endgroup]
+2026-10-02T06:50:09.2810553Z ##[group]Determining the checkout info
+2026-10-02T06:50:09.2810927Z ##[endgroup]
+2026-10-02T06:50:09.2811647Z [command]/usr/bin/git sparse-checkout disable
+2026-10-02T06:50:09.2843817Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-02T06:50:09.2860987Z ##[group]Checking out the ref
+2026-10-02T06:50:09.2862976Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-02T06:50:09.9217203Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-02T06:50:09.9217445Z 
+2026-10-02T06:50:09.9217569Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T06:50:09.9218002Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T06:50:09.9218413Z state without impacting any branches by switching back to a branch.
+2026-10-02T06:50:09.9218714Z 
+2026-10-02T06:50:09.9219287Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T06:50:09.9219690Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T06:50:09.9219915Z 
+2026-10-02T06:50:09.9219996Z   git switch -c <new-branch-name>
+2026-10-02T06:50:09.9220095Z 
+2026-10-02T06:50:09.9220174Z Or undo this operation with:
+2026-10-02T06:50:09.9220281Z 
+2026-10-02T06:50:09.9220334Z   git switch -
+2026-10-02T06:50:09.9220441Z 
+2026-10-02T06:50:09.9220558Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T06:50:09.9220732Z 
+2026-10-02T06:50:09.9220920Z HEAD is now at 72d4525 Merge 34b74e7b15c81a883e8a7dc2698d8ba7a356dcbf into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-02T06:50:09.9253211Z ##[endgroup]
+2026-10-02T06:50:09.9286002Z [command]/usr/bin/git log -1 --format=%H
+2026-10-02T06:50:09.9298612Z 72d452542007e1a01cfb2f923c6fa72471b6fb39
+2026-10-02T06:50:09.9454996Z ##[group]Run actions/setup-go@v5
+2026-10-02T06:50:09.9455166Z with:
+2026-10-02T06:50:09.9455297Z   go-version-file: apiserver/go.mod
+2026-10-02T06:50:09.9455463Z   cache-dependency-path: apiserver/go.sum
+2026-10-02T06:50:09.9455620Z   cache: true
+2026-10-02T06:50:09.9455743Z   check-latest: false
+2026-10-02T06:50:09.9456956Z   token: ***
+2026-10-02T06:50:09.9457110Z ##[endgroup]
+2026-10-02T06:50:10.0233203Z Setup go version spec 1.26.8
+2026-10-02T06:50:10.0253335Z Found in cache @ /opt/hostedtoolcache/go/1.26.8/x64
+2026-10-02T06:50:10.0254908Z (node:1860) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T06:50:10.0255309Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T06:50:10.0256682Z Added go to the path
+2026-10-02T06:50:10.0259569Z Successfully set up Go version 1.26.8
+2026-10-02T06:50:10.2107663Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-02T06:50:10.2131926Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-02T06:50:10.2170037Z /home/runner/go/pkg/mod
+2026-10-02T06:50:10.2179339Z /home/runner/.cache/go-build
+2026-10-02T06:50:10.4320366Z Cache hit for: setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9
+2026-10-02T06:50:10.4386722Z (node:1860) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T06:50:11.5144527Z Received 44800051 of 44800051 (100.0%), 51.2 MBs/sec
+2026-10-02T06:50:11.5144881Z Cache Size: ~43 MB (44800051 B)
+2026-10-02T06:50:11.5230586Z [command]/usr/bin/tar -xf /home/runner/work/_temp/07aac8c3-352c-49ff-82ff-b8a562ef73d2/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-02T06:50:11.6755945Z Cache restored successfully
+2026-10-02T06:50:11.6797326Z Cache restored from key: setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9
+2026-10-02T06:50:11.6819509Z go version go1.26.8 linux/amd64
+2026-10-02T06:50:11.6819644Z 
+2026-10-02T06:50:11.6819934Z ##[group]go env
+2026-10-02T06:50:11.6871289Z AR='ar'
+2026-10-02T06:50:11.6871483Z CC='gcc'
+2026-10-02T06:50:11.6871691Z CGO_CFLAGS='-O2 -g'
+2026-10-02T06:50:11.6871888Z CGO_CPPFLAGS=''
+2026-10-02T06:50:11.6872067Z CGO_CXXFLAGS='-O2 -g'
+2026-10-02T06:50:11.6872244Z CGO_ENABLED='1'
+2026-10-02T06:50:11.6872413Z CGO_FFLAGS='-O2 -g'
+2026-10-02T06:50:11.6872603Z CGO_LDFLAGS='-O2 -g'
+2026-10-02T06:50:11.6872840Z CXX='g++'
+2026-10-02T06:50:11.6873026Z GCCGO='gccgo'
+2026-10-02T06:50:11.6873194Z GO111MODULE=''
+2026-10-02T06:50:11.6873363Z GOAMD64='v1'
+2026-10-02T06:50:11.6873533Z GOARCH='amd64'
+2026-10-02T06:50:11.6873698Z GOAUTH='netrc'
+2026-10-02T06:50:11.6873857Z GOBIN=''
+2026-10-02T06:50:11.6874062Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-02T06:50:11.6874316Z GOCACHEPROG=''
+2026-10-02T06:50:11.6874485Z GODEBUG=''
+2026-10-02T06:50:11.6874663Z GOENV='/home/runner/.config/go/env'
+2026-10-02T06:50:11.6875069Z GOEXE=''
+2026-10-02T06:50:11.6875232Z GOEXPERIMENT=''
+2026-10-02T06:50:11.6875409Z GOFIPS140='off'
+2026-10-02T06:50:11.6875573Z GOFLAGS=''
+2026-10-02T06:50:11.6876129Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build3490979974=/tmp/go-build -gno-record-gcc-switches'
+2026-10-02T06:50:11.6876694Z GOHOSTARCH='amd64'
+2026-10-02T06:50:11.6876876Z GOHOSTOS='linux'
+2026-10-02T06:50:11.6877050Z GOINSECURE=''
+2026-10-02T06:50:11.6877259Z GOMOD='/dev/null'
+2026-10-02T06:50:11.6877460Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-02T06:50:11.6877687Z GONOPROXY=''
+2026-10-02T06:50:11.6877997Z GONOSUMDB=''
+2026-10-02T06:50:11.6878159Z GOOS='linux'
+2026-10-02T06:50:11.6878346Z GOPATH='/home/runner/go'
+2026-10-02T06:50:11.6878544Z GOPRIVATE=''
+2026-10-02T06:50:11.6878773Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-02T06:50:11.6879202Z GOROOT='/opt/hostedtoolcache/go/1.26.8/x64'
+2026-10-02T06:50:11.6879462Z GOSUMDB='sum.golang.org'
+2026-10-02T06:50:11.6879665Z GOTELEMETRY='local'
+2026-10-02T06:50:11.6879899Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-02T06:50:11.6880157Z GOTMPDIR=''
+2026-10-02T06:50:11.6880324Z GOTOOLCHAIN='auto'
+2026-10-02T06:50:11.6880605Z GOTOOLDIR='/opt/hostedtoolcache/go/1.26.8/x64/pkg/tool/linux_amd64'
+2026-10-02T06:50:11.6880908Z GOVCS=''
+2026-10-02T06:50:11.6881070Z GOVERSION='go1.26.8'
+2026-10-02T06:50:11.6881257Z GOWORK=''
+2026-10-02T06:50:11.6881433Z PKG_CONFIG='pkg-config'
+2026-10-02T06:50:11.6881558Z 
+2026-10-02T06:50:11.6881842Z ##[endgroup]
+2026-10-02T06:50:11.6961293Z ##[group]Run go vet ./...
+2026-10-02T06:50:11.6961509Z [36;1mgo vet ./...[0m
+2026-10-02T06:50:11.7168882Z shell: /usr/bin/bash -e {0}
+2026-10-02T06:50:11.7169055Z ##[endgroup]
+2026-10-02T06:50:11.9147646Z go: downloading google.golang.org/grpc v1.83.2
+2026-10-02T06:50:11.9211324Z go: downloading github.com/minio/minio-go/v7 v7.0.95
+2026-10-02T06:50:12.2116786Z go: downloading google.golang.org/protobuf v1.36.11
+2026-10-02T06:50:12.3826530Z go: downloading github.com/dustin/go-humanize v1.0.1
+2026-10-02T06:50:12.3828102Z go: downloading github.com/google/uuid v1.6.0
+2026-10-02T06:50:12.3866043Z go: downloading github.com/klauspost/compress v1.18.7
+2026-10-02T06:50:12.4063547Z go: downloading github.com/minio/crc64nvme v1.0.2
+2026-10-02T06:50:12.4069289Z go: downloading github.com/minio/md5-simd v1.1.2
+2026-10-02T06:50:12.4288676Z go: downloading golang.org/x/net v0.58.0
+2026-10-02T06:50:12.5389917Z go: downloading github.com/go-ini/ini v1.67.0
+2026-10-02T06:50:12.5619747Z go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa
+2026-10-02T06:50:12.6758685Z go: downloading github.com/klauspost/cpuid/v2 v2.2.11
+2026-10-02T06:50:12.6817567Z go: downloading github.com/goccy/go-json v0.10.5
+2026-10-02T06:50:12.7013769Z go: downloading golang.org/x/crypto v0.56.0
+2026-10-02T06:50:12.7229052Z go: downloading github.com/rs/xid v1.6.0
+2026-10-02T06:50:12.8207689Z go: downloading golang.org/x/sys v0.47.0
+2026-10-02T06:50:12.9012528Z go: downloading github.com/tinylib/msgp v1.3.0
+2026-10-02T06:50:13.0275008Z go: downloading github.com/philhofer/fwd v1.2.0
+2026-10-02T06:50:38.1505502Z ##[group]Run go test -race -count=1 ./...
+2026-10-02T06:50:38.1505743Z [36;1mgo test -race -count=1 ./...[0m
+2026-10-02T06:50:38.1537446Z shell: /usr/bin/bash -e {0}
+2026-10-02T06:50:38.1537598Z ##[endgroup]
+2026-10-02T06:50:54.4830357Z ?   	mini-drop/apiserver/cmd/apiserver	[no test files]
+2026-10-02T06:50:55.4907333Z ok  	mini-drop/apiserver/internal/config	1.006s
+2026-10-02T06:50:55.7077130Z ok  	mini-drop/apiserver/internal/cron	1.222s
+2026-10-02T06:50:55.7077548Z ?   	mini-drop/apiserver/internal/errorcode	[no test files]
+2026-10-02T06:50:55.7077916Z ?   	mini-drop/apiserver/internal/gen/mini_drop	[no test files]
+2026-10-02T06:50:56.3949131Z ok  	mini-drop/apiserver/internal/httpapi	1.027s
+2026-10-02T06:50:56.3949520Z ok  	mini-drop/apiserver/internal/objectstore	1.011s
+2026-10-02T06:50:56.4993732Z ok  	mini-drop/apiserver/internal/repository	1.007s
+2026-10-02T06:50:56.7170540Z ok  	mini-drop/apiserver/internal/scheduler	1.008s
+2026-10-02T06:50:57.3863123Z ok  	mini-drop/apiserver/internal/taskkind	1.010s
+2026-10-02T06:50:57.3863479Z ?   	mini-drop/apiserver/internal/taskstatus	[no test files]
+2026-10-02T06:50:57.4137039Z ##[group]Run go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+2026-10-02T06:50:57.4137333Z [36;1mgo install golang.org/x/vuln/cmd/govulncheck@v1.8.0[0m
+2026-10-02T06:50:57.4166468Z shell: /usr/bin/bash -e {0}
+2026-10-02T06:50:57.4166613Z ##[endgroup]
+2026-10-02T06:50:57.4719841Z go: downloading golang.org/x/vuln v1.8.0
+2026-10-02T06:50:57.6906976Z go: downloading golang.org/x/telemetry v0.0.0-20260908163034-4bcc4b2ee518
+2026-10-02T06:50:57.6938854Z go: downloading golang.org/x/mod v0.41.0
+2026-10-02T06:50:57.6940254Z go: downloading golang.org/x/tools v0.50.0
+2026-10-02T06:50:57.8208108Z go: downloading golang.org/x/sync v0.23.0
+2026-10-02T06:51:01.5534465Z ##[group]Run set -euo pipefail
+2026-10-02T06:51:01.5534677Z [36;1mset -euo pipefail[0m
+2026-10-02T06:51:01.5534831Z [36;1mmkdir -p ../output/go-security[0m
+2026-10-02T06:51:01.5535045Z [36;1mgovulncheck -json ./... > ../output/go-security/source.json[0m
+2026-10-02T06:51:01.5535295Z [36;1mgovulncheck ./... | tee ../output/go-security/source.txt[0m
+2026-10-02T06:51:01.5535588Z [36;1mCGO_ENABLED=0 go build -trimpath -o ../output/go-security/apiserver ./cmd/apiserver[0m
+2026-10-02T06:51:01.5535926Z [36;1mgo version -m ../output/go-security/apiserver > ../output/go-security/binary-build.txt[0m
+2026-10-02T06:51:01.5536278Z [36;1mgovulncheck -mode=binary ../output/go-security/apiserver | tee ../output/go-security/binary.txt[0m
+2026-10-02T06:51:01.5536623Z [36;1msha256sum ../output/go-security/apiserver > ../output/go-security/binary.sha256[0m
+2026-10-02T06:51:01.5568567Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-02T06:51:01.5568766Z ##[endgroup]
+2026-10-02T06:51:05.1104084Z === Symbol Results ===
+2026-10-02T06:51:05.1104461Z 
+2026-10-02T06:51:05.1104623Z No vulnerabilities found.
+2026-10-02T06:51:05.1104844Z 
+2026-10-02T06:51:05.1105053Z Your code is affected by 0 vulnerabilities.
+2026-10-02T06:51:05.1105444Z This scan also found 0 vulnerabilities in packages you import and 1
+2026-10-02T06:51:05.1105893Z vulnerability in modules you require, but your code doesn't appear to call these
+2026-10-02T06:51:05.1106252Z vulnerabilities.
+2026-10-02T06:51:05.1106453Z Use '-show verbose' for more details.
+2026-10-02T06:51:26.2242643Z === Symbol Results ===
+2026-10-02T06:51:26.2244797Z 
+2026-10-02T06:51:26.2245012Z No vulnerabilities found.
+2026-10-02T06:51:26.2245191Z 
+2026-10-02T06:51:26.2245319Z Your code is affected by 0 vulnerabilities.
+2026-10-02T06:51:26.2245712Z This scan also found 0 vulnerabilities in packages you import and 1
+2026-10-02T06:51:26.2246214Z vulnerability in modules you require, but your code doesn't appear to call these
+2026-10-02T06:51:26.2246643Z vulnerabilities.
+2026-10-02T06:51:26.2246881Z Use '-show verbose' for more details.
+2026-10-02T06:51:26.2954864Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T06:51:26.2955052Z with:
+2026-10-02T06:51:26.2955215Z   name: go-security-72d452542007e1a01cfb2f923c6fa72471b6fb39-1
+2026-10-02T06:51:26.2955416Z   path: output/go-security/
+2026-10-02T06:51:26.2955559Z   if-no-files-found: error
+2026-10-02T06:51:26.2955696Z   compression-level: 6
+2026-10-02T06:51:26.2955825Z   overwrite: false
+2026-10-02T06:51:26.2955954Z   include-hidden-files: false
+2026-10-02T06:51:26.2956094Z ##[endgroup]
+2026-10-02T06:51:26.3978187Z (node:12617) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T06:51:26.3978631Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T06:51:26.4020911Z With the provided path, there will be 6 files uploaded
+2026-10-02T06:51:26.4024035Z Artifact name is valid!
+2026-10-02T06:51:26.4024434Z Root directory input is valid!
+2026-10-02T06:51:26.7604457Z Beginning upload of artifact content to blob storage
+2026-10-02T06:51:27.2143171Z (node:12617) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T06:51:28.0510044Z Uploaded bytes 8388608
+2026-10-02T06:51:28.4011836Z Uploaded bytes 14650295
+2026-10-02T06:51:28.4562683Z Finished uploading artifact content to blob storage!
+2026-10-02T06:51:28.4563931Z SHA256 digest of uploaded artifact zip is 404475ce5253ad7972e30e3eb2e071d1f2351dfda8f01e3fc8faec4dccd7ce67
+2026-10-02T06:51:28.4565472Z Finalizing artifact upload
+2026-10-02T06:51:28.7127281Z Artifact go-security-72d452542007e1a01cfb2f923c6fa72471b6fb39-1.zip successfully finalized. Artifact ID 11213308223
+2026-10-02T06:51:28.7128160Z Artifact go-security-72d452542007e1a01cfb2f923c6fa72471b6fb39-1 has been successfully uploaded! Final size is 14650295 bytes. Artifact ID is 11213308223
+2026-10-02T06:51:28.7131786Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/36975451853/artifacts/11213308223
+2026-10-02T06:51:28.7250557Z ##[group]Run golangci/golangci-lint-action@v9
+2026-10-02T06:51:28.7250746Z with:
+2026-10-02T06:51:28.7250862Z   version: v2.14.0
+2026-10-02T06:51:28.7250998Z   working-directory: apiserver
+2026-10-02T06:51:28.7251178Z   args: --issues-exit-code=1
+2026-10-02T06:51:28.7251320Z   install-mode: binary
+2026-10-02T06:51:28.7251451Z   install-only: false
+2026-10-02T06:51:28.7252756Z   github-token: ***
+2026-10-02T06:51:28.7252880Z   verify: true
+2026-10-02T06:51:28.7253000Z   only-new-issues: false
+2026-10-02T06:51:28.7253135Z   skip-cache: false
+2026-10-02T06:51:28.7253261Z   skip-save-cache: false
+2026-10-02T06:51:28.7253402Z   cache-invalidation-interval: 7
+2026-10-02T06:51:28.7253556Z   problem-matchers: false
+2026-10-02T06:51:28.7253692Z ##[endgroup]
+2026-10-02T06:51:28.8065175Z ##[group]Restore cache
+2026-10-02T06:51:28.8066597Z Checking for go.mod: apiserver/go.mod
+2026-10-02T06:51:29.0032821Z Cache hit for: golangci-lint.cache-Linux-apiserver-2961-ad8c36800235b485851ccc9662e431fc2cd54984
+2026-10-02T06:51:29.6748903Z Received 412620 of 412620 (100.0%), 0.9 MBs/sec
+2026-10-02T06:51:29.6749332Z Cache Size: ~0 MB (412620 B)
+2026-10-02T06:51:29.6776531Z [command]/usr/bin/tar -xf /home/runner/work/_temp/fc77353b-2bf0-4454-9324-6ccd1cf4b5dc/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-02T06:51:29.7098506Z Cache restored successfully
+2026-10-02T06:51:29.7101931Z Restored cache for golangci-lint from key 'golangci-lint.cache-Linux-apiserver-2961-ad8c36800235b485851ccc9662e431fc2cd54984' in 904ms
+2026-10-02T06:51:29.7102766Z ##[endgroup]
+2026-10-02T06:51:29.7103003Z ##[group]Install
+2026-10-02T06:51:29.7104108Z Finding needed golangci-lint version...
+2026-10-02T06:51:29.7106293Z Installation mode: binary
+2026-10-02T06:51:29.7106953Z Installing golangci-lint binary v2.14.0...
+2026-10-02T06:51:29.7107553Z Downloading binary https://github.com/golangci/golangci-lint/releases/download/v2.14.0/golangci-lint-2.14.0-linux-amd64.tar.gz ...
+2026-10-02T06:51:30.1115067Z [command]/usr/bin/tar xz --overwrite --warning=no-unknown-keyword --overwrite -C /home/runner -f /home/runner/work/_temp/e9b48092-6e77-4b33-b03a-90d2471b0e9e
+2026-10-02T06:51:30.3077718Z Installed golangci-lint into /home/runner/golangci-lint-2.14.0-linux-amd64/golangci-lint in 597ms
+2026-10-02T06:51:30.3081431Z ##[endgroup]
+2026-10-02T06:51:30.3084528Z ##[group]run golangci-lint
+2026-10-02T06:51:30.3087994Z Running [/home/runner/golangci-lint-2.14.0-linux-amd64/golangci-lint config path] in [/home/runner/work/mini-drop/mini-drop/apiserver] ...
+2026-10-02T06:51:30.3560969Z Running [/home/runner/golangci-lint-2.14.0-linux-amd64/golangci-lint run --path-mode=abs --issues-exit-code=1] in [/home/runner/work/mini-drop/mini-drop/apiserver] ...
+2026-10-02T06:51:33.4577588Z 0 issues.
+2026-10-02T06:51:33.4577729Z 
+2026-10-02T06:51:33.4577919Z golangci-lint found no issues
+2026-10-02T06:51:33.4578447Z Ran golangci-lint in 3102ms
+2026-10-02T06:51:33.4578866Z ##[endgroup]
+2026-10-02T06:51:33.4771328Z Post job cleanup.
+2026-10-02T06:51:33.5660476Z Cache hit occurred on the primary key golangci-lint.cache-Linux-apiserver-2961-ad8c36800235b485851ccc9662e431fc2cd54984, not saving cache.
+2026-10-02T06:51:33.5772651Z Post job cleanup.
+2026-10-02T06:51:33.6484820Z (node:12833) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T06:51:33.6485407Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T06:51:33.6543199Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-02T06:51:33.6573025Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-02T06:51:33.6592419Z /home/runner/go/pkg/mod
+2026-10-02T06:51:33.6602596Z /home/runner/.cache/go-build
+2026-10-02T06:51:33.6605424Z Cache hit occurred on the primary key setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9, not saving cache.
+2026-10-02T06:51:33.6687145Z Post job cleanup.
+2026-10-02T06:51:33.7255850Z [command]/usr/bin/git version
+2026-10-02T06:51:33.7284288Z git version 2.55.0
+2026-10-02T06:51:33.7309774Z Temporarily overriding HOME='/home/runner/work/_temp/8968742e-38e9-4f6b-8197-5206febbe013' before making global git config changes
+2026-10-02T06:51:33.7310312Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T06:51:33.7313554Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T06:51:33.7335086Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T06:51:33.7352893Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T06:51:33.7476400Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T06:51:33.7489647Z http.https://github.com/.extraheader
+2026-10-02T06:51:33.7496712Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-02T06:51:33.7518969Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T06:51:33.7641796Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T06:51:33.7659460Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T06:51:33.7880237Z Cleaning up orphan processes
+2026-10-02T06:51:33.8020183Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-go@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

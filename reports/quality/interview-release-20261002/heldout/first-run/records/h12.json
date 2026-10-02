@@ -1,0 +1,120 @@
+{
+  "type": "result",
+  "case_id": "h12",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2f5be89fd739a19cf7a0e29b2e",
+    "object": "chat.completion",
+    "created": 1790920580,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"MEMORY\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"collect_memory_profile\",\n  \"reasoning_summary\": \"当前仅有一个时间点的 RSS 绝对值（800 MiB），缺乏时间序列变化、内存限制和分配热点信息，无法确认内存泄漏。需要采集内存分配剖面以观察是否存在持续增长或大量未释放对象。\",\n  \"expected_observations\": [\"内存剖面显示存在大量未释放的 Go 堆对象\"],\n  \"falsification_criteria\": [\"内存剖面未显示显著的堆内存分配或保留\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3371,
+      "completion_tokens": 143,
+      "total_tokens": 3514,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1067
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2f5be89fd739a19cf7a0e29b2e\",\"object\":\"chat.completion\",\"created\":1790920580,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"MEMORY\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"collect_memory_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"当前仅有一个时间点的 RSS 绝对值（800 MiB），缺乏时间序列变化、内存限制和分配热点信息，无法确认内存泄漏。需要采集内存分配剖面以观察是否存在持续增长或大量未释放对象。\\\",\\n  \\\"expected_observations\\\": [\\\"内存剖面显示存在大量未释放的 Go 堆对象\\\"],\\n  \\\"falsification_criteria\\\": [\\\"内存剖面未显示显著的堆内存分配或保留\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3371,\"completion_tokens\":143,\"total_tokens\":3514,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1067},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "9591e2c732407b74f7afcf3646af5a76eb55bb0b34ca0ae8e5542138b2e05c59",
+  "seconds": 7.910814,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.memory.process_growth",
+      "distributed.downstream_pressure",
+      "jvm.gc.pressure"
+    ],
+    "matches": [
+      {
+        "query": "机器上这个服务的RSS现在有800MiB，除此之外没有历史、限额或分配记录，是否能确认泄漏？",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "score": 21.314616,
+        "matched_terms": [
+          "rss",
+          "或分配",
+          "分配",
+          "或分",
+          "泄漏"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "机器上这个服务的RSS现在有800MiB，除此之外没有历史、限额或分配记录，是否能确认泄漏？",
+        "knowledge_id": "distributed.downstream_pressure",
+        "title": "下游依赖压力与症状传播",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "chunk_id": "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+        "score": 4.292305,
+        "matched_terms": [
+          "历史"
+        ],
+        "required_evidence": [
+          "历史拓扑",
+          "上下游时间窗",
+          "Trace 或下游指标"
+        ],
+        "caveats": [
+          "当前拓扑不能直接解释历史故障"
+        ],
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。"
+      },
+      {
+        "query": "机器上这个服务的RSS现在有800MiB，除此之外没有历史、限额或分配记录，是否能确认泄漏？",
+        "knowledge_id": "jvm.gc.pressure",
+        "title": "JVM GC 暂停与分配压力",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "score": 3.785554,
+        "matched_terms": [
+          "分配"
+        ],
+        "required_evidence": [
+          "GC pause P95",
+          "GC 时间占比",
+          "堆分代占用"
+        ],
+        "caveats": [
+          "CPU 高可能是 GC 的原因，也可能是结果"
+        ],
+        "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+      }
+    ],
+    "seconds": 0.013228
+  }
+}

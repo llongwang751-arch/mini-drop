@@ -1,0 +1,127 @@
+{
+  "type": "result",
+  "case_id": "h22",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb30523c1efc2208c08821c6dee4",
+    "object": "chat.completion",
+    "created": 1790920643,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"AGENT_GOVERNANCE\",\n  \"disposition\": \"NOT_A_DIAGNOSIS\",\n  \"next_tool\": \"NO_TOOL\",\n  \"reasoning_summary\": \"用户询问在预算和工具次数耗尽的情况下是否应重复启动一个60秒采样。这是一个关于诊断代理治理和资源使用的问题，而非一个需要性能诊断的实际问题。根据知识检索，重复调用相同参数需要新的观察窗口或信息需求，而当前预算和工具次数均不支持新的采集。\",\n  \"expected_observations\": [],\n  \"falsification_criteria\": [],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3493,
+      "completion_tokens": 140,
+      "total_tokens": 3633,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1189
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb30523c1efc2208c08821c6dee4\",\"object\":\"chat.completion\",\"created\":1790920643,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"AGENT_GOVERNANCE\\\",\\n  \\\"disposition\\\": \\\"NOT_A_DIAGNOSIS\\\",\\n  \\\"next_tool\\\": \\\"NO_TOOL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户询问在预算和工具次数耗尽的情况下是否应重复启动一个60秒采样。这是一个关于诊断代理治理和资源使用的问题，而非一个需要性能诊断的实际问题。根据知识检索，重复调用相同参数需要新的观察窗口或信息需求，而当前预算和工具次数均不支持新的采集。\\\",\\n  \\\"expected_observations\\\": [],\\n  \\\"falsification_criteria\\\": [],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3493,\"completion_tokens\":140,\"total_tokens\":3633,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1189},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "92fd8bea9fbb03eb61c179e0d62828441a3ca46201eacc95a46e56e6accb7629",
+  "seconds": 7.315791,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "agent.tool.governance",
+      "python.sampling.attribution",
+      "go.profile.selection"
+    ],
+    "matches": [
+      {
+        "query": "调查重复请求同一个60秒采样，预算只剩25秒且可用工具次数为0，此刻还应该再启动采集吗？",
+        "knowledge_id": "agent.tool.governance",
+        "title": "Agent 工具预算与治理",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "chunk_id": "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+        "score": 10.995034,
+        "matched_terms": [
+          "工具",
+          "调查",
+          "重复",
+          "预算"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 重复调用与大结果\n\n相同参数重复调用需说明新观察窗口或新信息需求；对静态知识读取可以去重。大结果保存为可追溯产物，模型按需读取摘录，不能默默截断后声称覆盖全部证据。工具超时、权限拒绝和空结果使用不同状态。"
+      },
+      {
+        "query": "调查重复请求同一个60秒采样，预算只剩25秒且可用工具次数为0，此刻还应该再启动采集吗？",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "score": 8.682665,
+        "matched_terms": [
+          "启动",
+          "调查",
+          "采样",
+          "采集"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。"
+      },
+      {
+        "query": "调查重复请求同一个60秒采样，预算只剩25秒且可用工具次数为0，此刻还应该再启动采集吗？",
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "score": 4.993717,
+        "matched_terms": [
+          "请求",
+          "调查",
+          "采样"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Go goroutine 与锁竞争\n\n先核对 goroutine 栈、阻塞位置与请求延迟的时间窗；大量 goroutine 本身不是泄漏结论。确认目标启用了相应采样，缺少 block 或 mutex 样本可能是未配置。仅通过已授权的目标端点取数，不将 pprof 暴露公网。"
+      }
+    ],
+    "seconds": 0.013755
+  }
+}
