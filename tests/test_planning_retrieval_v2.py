@@ -121,6 +121,7 @@ def synthetic_report(tmp_path):
               "question_or_truth_tuned_after_run": False, "run_at_utc": "UNIT_TEST_NOT_LIVE",
               "manifest_sha256": evaluation.MANIFEST_SHA, "actual_retrieval_backend": "BM25",
               "retrieval_is_evidence": False, "chat_calls_attempted": 24, "max_parallel_chat_calls": 2,
+              "metric_arithmetic": evaluation.METRIC_ARITHMETIC,
               "retries": 0, "actual_tasks_dispatched": 0, "actual_faults_injected": 0, "cost_usd": None,
               "provider": provider, "metrics": metrics, "cases": scored, "evidence_sha256": pins}
     evaluation.write_json(tmp_path / "report.json", report)
@@ -168,3 +169,21 @@ def test_repinned_evidence_still_cannot_forge_runtime_projection(synthetic_repor
     report_path.write_text(json.dumps(report), encoding="utf8")
     with pytest.raises(ValueError, match="differs|different|requires HTTP"):
         evaluation.verify_report(report_path)
+
+
+def test_retrieval_rank_mean_uses_explicit_portable_float_arithmetic():
+    _, questions = evaluation.validate_freeze()
+    private = json.loads((evaluation.ROOT / (evaluation.PREFIX + "private.json")).read_bytes())
+    by_id = {c["case_id"]: c for c in private["cases"]}
+    records = []
+    for case in questions["cases"]:
+        relevant = by_id[case["case_id"]]["relevant_ids"]
+        matched = ["fixture-unrelated-a", "fixture-unrelated-b", relevant[0]] if relevant else []
+        records.append({"case_id": case["case_id"], "matched_ids": matched})
+    metrics, _ = evaluation.retrieval_metrics(questions, private, records)
+    naive = 0.0
+    for _ in range(16):
+        naive += 1 / 3
+    assert naive / 16 == 0.33333333333333326
+    assert metrics["mrr_at_3"] == 1 / 3
+    assert type(metrics["no_answer_false_positive_count"]) is int

@@ -8,10 +8,12 @@ from __future__ import annotations
 import argparse
 import ast
 import base64
+import builtins
 from contextlib import contextmanager
 import hashlib
 import importlib.util
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -28,6 +30,20 @@ VERIFIER_PATH = "scripts/evaluate_heldout_diagnosis.py"
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
+
+
+def historical_numeric_sum(iterable, start=0):
+    """Replay the first report's accurate float aggregation across Python 3.11.
+
+    Python 3.12 changed builtin float sum. The original frozen report was
+    produced on 3.14. For its bounded recall/rank terms, fsum exactly reproduces
+    that result; integer and boolean counters retain builtin integer arithmetic.
+    No tolerance, rounding, score override or report rewrite is permitted.
+    """
+    values = tuple(iterable)
+    if isinstance(start, float) or any(isinstance(value, float) for value in values):
+        return math.fsum((start, *values))
+    return builtins.sum(values, start)
 
 
 def restored_inputs(root=ROOT):
@@ -112,11 +128,16 @@ def historical_test_scope(evaluator, root=ROOT):
         replacements = {"ROOT": owned, "retrieve_knowledge": modules["retrieval"].retrieve_knowledge,
                         "corpus": modules["semantic_retrieval"].corpus, **constants}
         previous = {name: getattr(evaluator, name) for name in replacements}
+        missing = object()
+        previous_sum = evaluator.__dict__.get("sum", missing)
         default_functions = ("frozen_inputs", "frozen_knowledge", "frozen_retrieve_knowledge", "validate_freeze")
         previous_defaults = {}
         try:
             for name, value in replacements.items():
                 setattr(evaluator, name, value)
+            # Bind arithmetic only in the historical evaluator namespace. Its
+            # protected scoring AST and strict report equality stay untouched.
+            evaluator.sum = historical_numeric_sum
             for name in default_functions:
                 function = getattr(evaluator, name)
                 # contextmanager wraps frozen_knowledge; bind its wrapped
@@ -131,6 +152,10 @@ def historical_test_scope(evaluator, root=ROOT):
                 getattr(function, "__wrapped__", function).__defaults__ = defaults
             for name, value in previous.items():
                 setattr(evaluator, name, value)
+            if previous_sum is missing:
+                evaluator.__dict__.pop("sum", None)
+            else:
+                evaluator.sum = previous_sum
             for name in list(sys.modules):
                 if name == package_name or name.startswith(package_name + "."):
                     del sys.modules[name]
@@ -154,7 +179,9 @@ def verify_historical_report(report_path, root=ROOT):
             "original_manifest_sha256": MANIFEST_SHA,
             "original_report_sha256": ORIGINAL_REPORT_SHA,
             "restored_input_count": len(restored_inputs(root)), "provider_calls": 0,
-            "actual_tasks_dispatched": 0, "metrics": metrics}
+            "actual_tasks_dispatched": 0,
+            "historical_arithmetic": "ACCURATE_FLOAT_SUM_ORIGINAL_BOUNDED_TERMS_INTEGER_COUNTERS_UNCHANGED",
+            "score_comparison": "EXACT_NO_TOLERANCE", "metrics": metrics}
 
 
 def main():

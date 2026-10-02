@@ -1,5 +1,7 @@
 # Agent/RAG 新题冻结评估
 
+> 本文对应首次历史实验。当前生产四态输出与统一相关性门禁另见 [v2 合同](PLANNING_RETRIEVAL_V2.md)。原报告使用 `python -B scripts/verify_historical_heldout.py reports/quality/interview-release-20261002/heldout/first-run/report.json` 隔离复算，不重新调用模型。当前生产已变，原 CLI 直接验证当前源码会拒绝漂移；下文旧执行命令保留作当时记录。
+
 这是离线模型规划与公共知识检索评估。模型调用真实供应商，检索实际调用现有 BM25；不创建 Diagnosis/Task、不注入故障、不修改线上业务或索引，也不评价云端根因准确率。
 
 ## 冻结范围

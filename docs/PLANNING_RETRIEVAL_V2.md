@@ -65,3 +65,5 @@ python -m pytest tests/test_heldout_diagnosis.py tests/test_historical_heldout.p
 ```
 
 58 个原门禁继续执行全部原断言，只把测试 fixture 的来源显式限定为历史沙箱；新生产行为由 v2 门禁和实际部署验收另证。
+
+首个 CI 在 Python 3.11 发现历史 Recall 均值末位为 `0.7583333333333334`，原 Python 3.14 报告为 `0.7583333333333333`；所有 24 个逐题判断、请求与排名完全相同。Python 3.12 改进了浮点 `sum` 算法，见[官方说明](https://docs.python.org/3.12/library/functions.html#sum)。历史沙箱显式重放该原报告有界浮点项的高精度求和，整数/布尔计数保持整数运算；原 17 个评分节点和原报告字节保持，仍严格相等比较，连一 ULP 篡改也拒绝。新 v2 在任何真实调用前固定 `math.fsum` 求浮点均值，避免解释器版本改变末位；不修改问题、真值、分母或评分规则。

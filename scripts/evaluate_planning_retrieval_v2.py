@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -32,6 +33,7 @@ PREFIX = "benchmarks/retrieval/planning_retrieval_v2_"
 MANIFEST_SHA = "ae57be9a369db8df7c10131810f4deaa68bf2ea91104911233a6ad67c8f58d4e"
 SCOPE = "AUTHOR_FROZEN_SYNTHETIC_OFFLINE_PLANNING"
 PROJECTION = "JSON_PROJECTION_OF_CURRENT_PUBLIC_PRODUCTION_SCHEMA_NO_AGENT_EXECUTION"
+METRIC_ARITHMETIC = "FSUM_FLOAT_MEANS_EXACT_INTEGER_COUNTERS"
 ORACLE_KEYS = frozenset({"acceptable_dispositions", "acceptable_tools", "relevant_ids",
                         "ground_truth", "expected_answer", "evaluator_only_sentinel", "oracle"})
 SOURCE_PATHS = ("server/app/agent_runtime/planning_output.py",
@@ -191,8 +193,8 @@ def score_records(questions, private, records, manifest):
         raise ValueError("frozen relevance denominators differ")
     usage = [row["usage"] for row in scored if row["usage"] is not None]
     metrics = {"case_count": 24, "retrieval_positive_cases": 16, "retrieval_no_answer_cases": 8,
-               "recall_at_3": sum(row["recall_at_3"] for row in positives) / 16,
-               "mrr_at_3": sum(row["reciprocal_rank_at_3"] for row in positives) / 16,
+               "recall_at_3": math.fsum(row["recall_at_3"] for row in positives) / 16,
+               "mrr_at_3": math.fsum(row["reciprocal_rank_at_3"] for row in positives) / 16,
                "no_answer_false_positive_count": sum(row["no_answer_false_positive"] for row in negatives),
                "no_answer_false_positive_rate": sum(row["no_answer_false_positive"] for row in negatives) / 8,
                "timeouts": sum(row["status"] == "TIMEOUT" for row in scored),
@@ -287,6 +289,7 @@ def evaluate(output, provider, helper_path):
               "truth_frozen_before_evaluator_and_provider_calls": True, "question_or_truth_tuned_after_run": False,
               "run_at_utc": datetime.now(timezone.utc).isoformat(), "manifest_sha256": MANIFEST_SHA,
               "actual_retrieval_backend": "BM25", "retrieval_is_evidence": False,
+              "metric_arithmetic": METRIC_ARITHMETIC,
               "provider": metadata, "chat_calls_attempted": 24, "max_parallel_chat_calls": 2,
               "retries": 0, "actual_tasks_dispatched": 0, "actual_faults_injected": 0,
               "cost_usd": None, "metrics": metrics, "cases": scored, "evidence_sha256": pins}
@@ -302,6 +305,7 @@ def verify_report(path):
               "scope": SCOPE, "evaluation_adapter": PROJECTION, "third_party_independent_author": False,
               "truth_frozen_before_evaluator_and_provider_calls": True, "question_or_truth_tuned_after_run": False,
               "manifest_sha256": MANIFEST_SHA, "actual_retrieval_backend": "BM25", "retrieval_is_evidence": False,
+              "metric_arithmetic": METRIC_ARITHMETIC,
               "chat_calls_attempted": 24, "max_parallel_chat_calls": 2, "retries": 0,
               "actual_tasks_dispatched": 0, "actual_faults_injected": 0, "cost_usd": None}
     if set(report) != set(labels) | {"run_at_utc", "provider", "metrics", "cases", "evidence_sha256"}:
@@ -437,8 +441,8 @@ def retrieval_metrics(questions, private, records):
     if (len(positive), len(negative)) != (16, 8):
         raise ValueError("retrieval frozen denominators differ")
     return {"case_count": 24, "positive_cases": 16, "no_answer_cases": 8,
-            "recall_at_3": sum(r["recall_at_3"] for r in positive) / 16,
-            "mrr_at_3": sum(r["reciprocal_rank_at_3"] for r in positive) / 16,
+            "recall_at_3": math.fsum(r["recall_at_3"] for r in positive) / 16,
+            "mrr_at_3": math.fsum(r["reciprocal_rank_at_3"] for r in positive) / 16,
             "no_answer_false_positive_count": sum(r["no_answer_false_positive"] for r in negative),
             "no_answer_false_positive_rate": sum(r["no_answer_false_positive"] for r in negative) / 8}, rows
 
@@ -488,6 +492,7 @@ def evaluate_retrieval(output, backend, helper_path):
     pins = {p.relative_to(output).as_posix(): sha(p.read_bytes()) for p in output.rglob("*") if p.is_file()}
     report = {"schema": "mini-drop.readonly-retrieval-evaluation.v2", "scope": "FROZEN_PUBLIC_KNOWLEDGE_RETRIEVAL_ONLY",
               "manifest_sha256": MANIFEST_SHA, "requested_backend": backend,
+              "metric_arithmetic": METRIC_ARITHMETIC,
               "actual_backend_counts": {name: sum(r.get("trace", r).get("actual_backend") == name for r in records)
                                         for name in sorted({r.get("trace", r).get("actual_backend") for r in records})},
               "chat_calls_attempted": 0, "actual_tasks_dispatched": 0, "actual_faults_injected": 0,
