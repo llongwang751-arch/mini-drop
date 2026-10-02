@@ -1,6 +1,6 @@
 # 文档入口
 
-- [分类边界与知识覆盖 v3](PLANNING_BOUNDARY_V3.md)：服务器纯信息描述合同、模型0审计、新知识快照与独立32题评估。
+- [分类边界与知识覆盖 v3](PLANNING_BOUNDARY_V3.md)：服务器纯信息描述合同、诊断chat0审计、新知识快照与独立32题评估。
 
 - [四态规划与无答案检索已部署](../reports/architecture/planning-retrieval-v2-20261002.md)：最终源码、实际停止分支、无答案回归与保留的覆盖/分类缺口。
 

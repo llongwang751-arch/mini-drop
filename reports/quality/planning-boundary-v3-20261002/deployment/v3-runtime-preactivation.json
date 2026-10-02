@@ -1,0 +1,441 @@
+{
+  "release": "/opt/mini-drop-releases/20261002T103825Z",
+  "containers": {
+    "/mini-drop-control-diagnosis-worker-1": {
+      "id": "d23e22253be000332835e65bcdcd9d08cc8953705d59a65d7f2327ec7fa8d242",
+      "pid": 853528,
+      "image": "sha256:3d12655bc8fb6f5821e6d42d496d1bd7deefac3b2b728a972534cec343ea4404",
+      "env_sha256": "f2a049898d92e5c3cbe9074e7280e5b1e9d4199099e517ca950dd9218a168a74",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20261002T103825Z",
+          "Destination": "/workspace-source",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/agi-office",
+          "Destination": "/opt/agi-office",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/var/log/mini-drop-business",
+          "Destination": "/var/log/mini-drop-business",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260914T073540Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/var/lib/agi-office/mini-drop-observations",
+          "Destination": "/var/lib/agi-office/mini-drop-observations",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-02T10:51:10.781188575Z"
+    },
+    "/mini-drop-control-analyzer-1": {
+      "id": "9ca2eca9d608d0c5f1a1db1be65caff826a7f32d8ab950783f42791fb6b770e9",
+      "pid": 852559,
+      "image": "sha256:e63d649924759d695ac43ac04f4ba65329821ada1b5a8c05dc1587fc9f1574be",
+      "env_sha256": "0234da4e3be103dda39d72b1b54a33030f488d28b637c9a4e76df42549863bbf",
+      "mounts": [],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-02T10:50:47.126685033Z"
+    },
+    "/mini-drop-control-web-1": {
+      "id": "d81704fd6eb33f6d591e632da523bef3aaa9af29bd4852a251e46fd47727523b",
+      "pid": 750109,
+      "image": "sha256:75ccd20ed733035bb62064a08c9cccc70ad6d03c863e425a774268e4db261cd2",
+      "env_sha256": "02dd7c454f05defcbf1155c74ffea0c21db7ea4038f0699ff0e4d110e3918288",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260923T163300Z/deploy/nginx/control-tls.conf",
+          "Destination": "/etc/nginx/conf.d/default.conf",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260914T073540Z/deploy/nginx/business-apps.conf",
+          "Destination": "/etc/nginx/business-apps.conf",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/var/log/mini-drop-business",
+          "Destination": "/var/log/mini-drop-business",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260914T073540Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-02T10:03:45.20556248Z"
+    },
+    "/mini-drop-control-demo-agent-1": {
+      "id": "028db75dcb5ee63ddb646347284a41edad0798e1371ceb01114694f54597dcb2",
+      "pid": 2851178,
+      "image": "sha256:0f8a67983b0bebbd2f43a61b56f01e50ec26e0831ffa8d46ebb63e5a45d3b53b",
+      "env_sha256": "819e04f2defd4e92c4cee4ec3bd619ab9e2c778707d6751b8ee29a0d6cea00e6",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_interviewdemoagentoutbox",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_interviewdemoagentoutbox/_data",
+          "Destination": "/var/lib/mini-drop-interview-agent/outbox",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260913T163243Z/deploy/certs/control/agents/control-interview-demo-agent",
+          "Destination": "/certs",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/tracing",
+          "Destination": "/sys/kernel/tracing",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/sys/kernel/debug",
+          "Destination": "/sys/kernel/debug",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "health": "not_configured",
+      "running": true,
+      "started_at": "2026-10-01T17:30:51.036991467Z"
+    },
+    "/mini-drop-control-python-hotspot-1": {
+      "id": "2531d91aa719162a54e64a9d1cc7d879b1269d5991ee1ac5daec177b48a8ee6e",
+      "pid": 2850799,
+      "image": "sha256:533128cb7ef3e2176a484f405d20f5edaf7944b7f9f8fdd8fa2f4483b6805be1",
+      "env_sha256": "cf1318aae1732b0515c57c19dcccfe2d85cb07ec6edff5ca78364e3af6b0f64c",
+      "mounts": [],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-01T17:30:44.242050691Z"
+    },
+    "/mini-drop-control-java-hotspot-1": {
+      "id": "8bf6c28198b99d49acc830caf089888bc1e4328e85d31dede3765ff944c009f4",
+      "pid": 2850011,
+      "image": "sha256:5fb51e7272f2f01f78f52de94cc35f8bbdf2a87248654d406fa19337bbd1630e",
+      "env_sha256": "5c4d1c3287dcc094a06c3301d9fda0ae7d0237bc28225172ddf0290235d4f089",
+      "mounts": [],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-01T17:30:27.601618859Z"
+    },
+    "/mini-drop-control-cpp-hotspot-1": {
+      "id": "258f3d9c8494f67dc599c6597bac2b4a2a513ae644ae46a4bbc7c2fbcba411f0",
+      "pid": 2849549,
+      "image": "sha256:5990620f7a41cd3071135c1106d3f2ec76ebf7754012744ea716ac4c97435891",
+      "env_sha256": "1efe0ce384d32f42a209c8ab4a34cd55f167c8a723a9d67d6339ef1782f3a8bc",
+      "mounts": [],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-01T17:30:20.594323508Z"
+    },
+    "/mini-drop-control-go-hotspot-1": {
+      "id": "45d5575cc79a32961a6fd732f6f77e7b4bbef0d64dcfcb2a3464419d9f1cfbf4",
+      "pid": 1862439,
+      "image": "sha256:7ac9f8a12f561f841acb621ce0c531653fc5545cdce005454be843e191cfd1e5",
+      "env_sha256": "1efe0ce384d32f42a209c8ab4a34cd55f167c8a723a9d67d6339ef1782f3a8bc",
+      "mounts": [],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-10-01T09:52:40.244544884Z"
+    },
+    "/mini-drop-control-apiserver-1": {
+      "id": "b60e8754931ec2ebfc0d22791a3bb55c079081e061e95fe800ee32067861ab1f",
+      "pid": 3291302,
+      "image": "sha256:410e7439a0c95d3b2c562350091aca1df3f791fe25252705bdb6d8918efe9321",
+      "env_sha256": "75defe170e94b83296c8dd1709d582c79e192f400bb0a614a5dfad9e6c7b6596",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260910T073914Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-09-30T11:58:09.31403586Z"
+    },
+    "/mini-drop-control-chroma-1": {
+      "id": "0fef3ff9e8f69200eb228944e3b667a81d0266a2445819909902fa6dfaff050c",
+      "pid": 3014094,
+      "image": "sha256:8aaaa1d8966a921f8929fb809d518e60560b73f1249d5ab7de092b80466f59dd",
+      "env_sha256": "4a8f58cb0e2dad35a821062fa286e7eb909ff2e4afea55acdf614cce94a2766c",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_knowledge_chroma",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_knowledge_chroma/_data",
+          "Destination": "/var/lib/mini-drop-runtime",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-09-23T10:18:51.469686576Z"
+    },
+    "/mini-drop-control-control-plane-1": {
+      "id": "89027b418da587a3da1dbf97f0c12d9fc087bc610c4775df2c9b559d7b82a73e",
+      "pid": 1170771,
+      "image": "sha256:2547954372f8d3372a6971c170f84c9db6377fea665dc6f8381637e610091d37",
+      "env_sha256": "1e5206f2c2f29273315c147c7c19b4c2e0ac146ee6d60f34a8b1bb3542bd00e9",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/opt/mini-drop-releases/20260909T165645Z/deploy/certs/control",
+          "Destination": "/certs",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-09-09T16:59:04.235619696Z"
+    },
+    "/mini-drop-control-minio-1": {
+      "id": "55b1dc6780ae767d499a2b9a106ceaf292f293d3c229c2d2714a2a2c4170d252",
+      "pid": 2011,
+      "image": "sha256:8834ae47a2de3509b83e0e70da9369c24bbbc22de42f2a2eddc530eee88acd1b",
+      "env_sha256": "f17846148d7e0b3ab9802aecc77537a86c9c05f1c573e3564fe663dee10b1eac",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_miniodata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_miniodata/_data",
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-09-06T13:27:16.461862652Z"
+    },
+    "/mini-drop-control-postgres-1": {
+      "id": "7585385a91229b7ef9f3bf3a86b9351c956e78bc956406887b5768a9aa36833a",
+      "pid": 2054,
+      "image": "sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94",
+      "env_sha256": "b8a475e6829dae30243640dfe7d61514d682c0ba04c2ef17df7ffc5a17379ce4",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "mini-drop-control_pgdata",
+          "Source": "/var/lib/docker/volumes/mini-drop-control_pgdata/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "health": "healthy",
+      "running": true,
+      "started_at": "2026-09-06T13:27:16.46089346Z"
+    }
+  },
+  "office_state": "MainPID=557500\nNRestarts=0\nActiveState=active",
+  "office_release": "/opt/agi-office/releases/jev-integration-20261002T083253Z",
+  "free_bytes": 1436348416,
+  "native_binary_sha256": "f8e693362a86556013eae52b60d776869c3dbdb07b80fe48c609dd1240efd0ce",
+  "cpp_binary_sha256": {
+    "cpp-hotspot": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+    "diagnosis-worker": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+    "analyzer": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba"
+  },
+  "api_binary_sha256": "ffb7bc11e5c7dbaa7165c717af90ecd726cd4cad6ebf1794f75602630128d2b3",
+  "toolchain": {
+    "diagnosis-worker": "/usr/bin/addr2line",
+    "analyzer": "/usr/bin/addr2line"
+  },
+  "agent_receipt": {
+    "agent_id": "control-interview-demo-agent",
+    "heartbeat": "2026-10-02T12:09:12.941067+00:00",
+    "snapshot": "2026-10-02T12:09:12.941067+00:00",
+    "complete": true,
+    "pids": [
+      1,
+      847,
+      851,
+      858,
+      868,
+      893,
+      914,
+      922,
+      965,
+      1198,
+      1302,
+      1822,
+      1842,
+      2011,
+      2054,
+      2549,
+      2608,
+      3121,
+      3122,
+      3173,
+      3174,
+      3175,
+      3407,
+      484113,
+      484125,
+      484126,
+      484133,
+      484134,
+      484136,
+      484139,
+      484143,
+      484153,
+      484181,
+      540450,
+      557500,
+      750084,
+      750109,
+      750149,
+      750161,
+      750174,
+      750187,
+      750199,
+      750213,
+      750247,
+      750248,
+      852515,
+      852559,
+      852615,
+      853498,
+      853528,
+      853666,
+      857134,
+      861714,
+      861716,
+      861718,
+      861759,
+      964916,
+      1018056,
+      1018057,
+      1170705,
+      1170771,
+      1170870,
+      1534891,
+      1862408,
+      1862439,
+      1862479,
+      2165914,
+      2165987,
+      2727901,
+      2728652,
+      2849524,
+      2849549,
+      2849987,
+      2850011,
+      2850775,
+      2850799,
+      2851147,
+      2988679,
+      2988683,
+      2988685,
+      2988793,
+      2992082,
+      2992185,
+      3014070,
+      3014094,
+      3291278,
+      3291302,
+      3292937,
+      3292949,
+      3292953,
+      3292978,
+      3292980
+    ]
+  },
+  "current_demo_pids": [
+    2850799,
+    2850011,
+    2849549
+  ],
+  "observed_at": "2026-10-02T12:09:17.799705+00:00",
+  "public": {
+    "health": {
+      "dependencies": {
+        "control_plane": "healthy",
+        "database": "healthy",
+        "diagnostic_ai": "healthy"
+      },
+      "language": "go",
+      "service": "mini-drop-apiserver"
+    },
+    "inactive_faults": 21,
+    "retired_score_fields_checked": true,
+    "invalid_business_records": 0,
+    "tls_ca_verified": true,
+    "tls_hostname_verified": true
+  },
+  "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+  "release_tag": "20261002T120042Z",
+  "ci_run": 37004140437,
+  "ci_jobs_succeeded": 14,
+  "changed_services": [
+    "diagnosis-worker",
+    "analyzer"
+  ],
+  "bundle_sha256": "a7fc11d5f2a6d0312751ff923fd168196368dd37037de4ee787fb856bc65c4bb",
+  "recorded_at": "2026-10-02T12:09:01.621119+00:00"
+}

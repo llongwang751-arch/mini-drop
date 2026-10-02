@@ -1,0 +1,129 @@
+{
+  "type": "result",
+  "case_id": "b10",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc95e04c8af97258475e995c4a5b",
+    "object": "chat.completion",
+    "created": 1790944076,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户询问Java工作线程CPU是否健康，但提供的ThreadMXBean值为-1且测量未启用，属于无效观测。同时，用户明确禁止进一步测量，导致无法获取必要的有效CPU时间差和墙钟时间间隔来评估线程CPU使用率。因此，证据不足，无法做出健康判断。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"同一JVM/PID下，同一存活线程在有效时间窗口两端的ThreadMXBean CPU时间（非-1）\",\n    \"计算线程CPU使用率所需的墙钟时间间隔\",\n    \"ThreadMXBean.isThreadCpuTimeEnabled()为true的确认\"\n  ],\n  \"limitations\": [\n    \"本次规划仅基于提供的描述和已知限制，未对当前系统状态进行实际检查。\",\n    \"ThreadMXBean返回-1、测量未启用或实现不支持均表示无有效观测，不能解释为零CPU或健康。\",\n    \"用户禁止进一步测量，因此无法弥补缺失的证据。\",\n    \"即使获得有效观测，低CPU使用率也不能反驳锁、I/O、GC或下游依赖等待等其他潜在性能问题。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4503,
+      "completion_tokens": 301,
+      "total_tokens": 4804,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1559
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc95e04c8af97258475e995c4a5b\",\"object\":\"chat.completion\",\"created\":1790944076,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户询问Java工作线程CPU是否健康，但提供的ThreadMXBean值为-1且测量未启用，属于无效观测。同时，用户明确禁止进一步测量，导致无法获取必要的有效CPU时间差和墙钟时间间隔来评估线程CPU使用率。因此，证据不足，无法做出健康判断。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"同一JVM/PID下，同一存活线程在有效时间窗口两端的ThreadMXBean CPU时间（非-1）\\\",\\n    \\\"计算线程CPU使用率所需的墙钟时间间隔\\\",\\n    \\\"ThreadMXBean.isThreadCpuTimeEnabled()为true的确认\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于提供的描述和已知限制，未对当前系统状态进行实际检查。\\\",\\n    \\\"ThreadMXBean返回-1、测量未启用或实现不支持均表示无有效观测，不能解释为零CPU或健康。\\\",\\n    \\\"用户禁止进一步测量，因此无法弥补缺失的证据。\\\",\\n    \\\"即使获得有效观测，低CPU使用率也不能反驳锁、I/O、GC或下游依赖等待等其他潜在性能问题。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4503,\"completion_tokens\":301,\"total_tokens\":4804,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1559},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "892f424b5e86d8bc8d8e6008b45b55ce08ef1f3901ffdd7f8851fe6aa4f020ca",
+  "seconds": 14.828175,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.cpu.thread_observation"
+    ],
+    "matches": [
+      {
+        "query": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1? Timing is unavailable, no sampled interval exists and further measurement is prohibited.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [],
+          "matched_anchors": [
+            "ThreadMXBean"
+          ],
+          "unsupported_subjects": [],
+          "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [],
+              "matched_anchors": [
+                "ThreadMXBean"
+              ],
+              "unsupported_subjects": [],
+              "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Timing is unavailable"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "no sampled interval exists and further measurement is prohibited"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "title": "Java JVM 线程 CPU 时间与有界正常观测",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "score": 20.721381,
+        "matched_terms": [
+          "threadmxbean",
+          "measurement",
+          "thread",
+          "worker",
+          "java",
+          "cpu"
+        ],
+        "required_evidence": [
+          "JVM/PID 与线程生命周期",
+          "ThreadMXBean CPU 测量支持和启用状态",
+          "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+        ],
+        "caveats": [
+          "知识不是当前事故证据，也不增加采集权限",
+          "-1、未启用及不支持不能等同零 CPU",
+          "平台线程统计不能直接归于虚拟线程",
+          "低 CPU 不反驳锁、I/O 或依赖等待"
+        ],
+        "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

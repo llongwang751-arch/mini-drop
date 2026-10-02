@@ -1,0 +1,119 @@
+{
+  "case_id": "b22",
+  "query": "Explain social networking etiquette for a school reunion, including reconnecting with old friends. There is no computer network or application incident.",
+  "trace": {
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "Explain social networking etiquette for a school reunion, including reconnecting with old friends. There is no computer network or application incident.",
+    "query_profile": {
+      "concepts": [],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [],
+      "active_clauses": [
+        "Explain social networking etiquette for a school reunion",
+        "including reconnecting with old friends",
+        "There is no computer network or application incident"
+      ],
+      "excluded_mentions": []
+    },
+    "accepted": [],
+    "rejected": [
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+        "score": 0.032787,
+        "recall_channels": [
+          "BM25",
+          "ENTITY"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Explain social networking etiquette for a school reunion"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "including reconnecting with old friends"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "There is no computer network or application incident"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "NO_RELEVANT_KNOWLEDGE",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 1,
+        "chunk_ids": [
+          "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 1,
+        "chunk_ids": [
+          "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 0,
+        "chunk_ids": []
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "Explain social networking etiquette for a school reunion, including reconnecting with old friends. There is no computer network or application incident.",
+    "query_hash": "cdc7fb3fbd373a9c508d197597971d1ec8b161bfcd0beb1b22e9a5486b61bd44",
+    "relevance_query_hash": "cdc7fb3fbd373a9c508d197597971d1ec8b161bfcd0beb1b22e9a5486b61bd44",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 0,
+    "matches": [],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": []
+}

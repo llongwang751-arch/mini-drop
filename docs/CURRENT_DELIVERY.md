@@ -11,12 +11,12 @@
 | 有证据支持的观测 | 7 类，尚未认定具体异常路径 |
 | 实验来源 | 最新 7 个窗口及此前 14 条真实记录 |
 | 工程缺陷修复回归 | 4 个独立案例 |
-| 发布版 CI | [14/14 作业](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499159) |
-| 发布版 Python | 2019 通过、16 登记跳过；真实 PG 与 Chroma 由独立作业执行 |
+| 发布版 CI | [14/14 作业](https://github.com/llongwang751-arch/mini-drop/actions/runs/37004140437) |
+| 发布版 Python | 2163 通过、16 登记跳过；真实 PG 与 Chroma 由独立作业执行 |
 | 发布版 Web / Chromium | 330 项 / 8 项；Chromium 为固定数据回归 |
 | 真实 PostgreSQL | 14 项、0 跳过 |
 | 线上浏览器 | 本次未执行证据下载；24 次布局检查通过 |
-| 线上版本 | `20261002T103825Z`，源码 `73b4b18ad83553a5012a0025dfb78bb21ff8dc7f` |
+| 线上版本 | `20261002T120042Z`，源码 `cfea6744fc2395d5392440b2404ee275ada0a69f` |
 
 性能实验中的工程判断包含支持观测和有效反证，不表示每类都定位了根因。
 真实业务同负载修复案例是独立 HTTP/SQLite 样例；模型规划、知识检索与真实采集分别验收。
@@ -31,14 +31,22 @@
   [原始记录](../reports/quality/interview-release-20261002/materials/doc-final-review-public.json)。
 - **历史 RC1：本轮源码主 CI：PASSED**。源码 34b74e7b 的官方 CI 36975451853 实际 14/14；Python 1827 通过/16 登记跳过、Web 317、真实 PostgreSQL 14 零跳过、Native CTest 5、Chromium 8 固定数据。此记录属于历史 RC1，不是当前线上应用源码的 CI。
   [原始记录](../reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json)。
-- **当前源码干净 Linux 核心复刻：PASSED**。最终源码73b4b18a；87门禁/0跳过及10阶段通过，真实 Agent→Task→S3→Analyzer 与身份、mTLS和清理验证；范围限核心平台/sys_metrics，不含外部模型或Office。
+- **历史v2源码干净 Linux 核心复刻：PASSED**。最终源码73b4b18a；87门禁/0跳过及10阶段通过，真实 Agent→Task→S3→Analyzer 与身份、mTLS和清理验证；范围限核心平台/sys_metrics，不含外部模型或Office。
   [原始记录](../reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/report.json)。
 - **v2新冻结24题首轮模型与检索：COMPLETED**。首轮源码df0d3ef0；21响应/3超时，结构/判断/下一工具均21/24，零重试；BM25 Recall0.96875/无答案5/8，HYBRID Recall0.90625/无答案1/8。仅规划DTO与检索，不是完整Agent或因果准确率。
   [原始记录](../reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-independent-review-r3.json)。
 - **已曝光v2问题无答案检索回归：COMPLETED**。新冻结 24 题首轮仍为 df0d3ef0 上的 21 响应/3 超时，结构、判断和下一工具均 21/24，零重试；首轮 BM25 Recall@3 0.96875、无答案误召回 5/8；HYBRID Recall@3 0.90625、误召回 1/8。a6a36260 的同题已曝光检索回归中，两路无答案误召回均 0/8，两路 Recall@3 均 0.875，BM25 MRR@3 0.90625、HYBRID MRR@3 0.875；主体准入减少误召回也损失相关内容覆盖。这不是新的盲测。最终 73b4b18a 的知识语料与三个检索实现文件与 a6a36260 Git tree 相同，由发布 manifest 证明来源等价，没有重复消耗 chat 或检索实评预算。
   [原始记录](../reports/quality/planning-retrieval-v2-20261002/retrieval-regression/independent-audit.json)。
-- **最终提示后的真实NORMAL补验：FAILED**。v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。 单列新会话，原两次NORMAL失败保持，无新采集/Evidence，不执行健康检查。
+- **历史v2最终提示后的真实NORMAL补验（原失败保留）：FAILED**。v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。 单列新会话，原两次NORMAL失败保持，无新采集/Evidence，不执行健康检查。
   [原始记录](../reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/summary.json)。
+- **当前v3源码干净Linux核心栈：PASSED**。精确源码主CI14/14：Python 2163通过/16登记跳过，Web 330、真实PostgreSQL 14零跳过、Chromium固定数据8；Chroma专项通过。干净Linux核心栈87/87和10个实际阶段通过。
+  [原始记录](../reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/report.json)。
+- **明确纯描述服务器收束及实际输出只读核验：COMPLETED**。原明确纯描述问题的新真实会话返回NORMAL，来源SERVER_REQUEST_INTENT、诊断chat model_invocations=0；信息分支不创建PG检查点，不生成Task/Tool/Evidence/Report或健康事实。上游服务仍进行HYBRID查询embedding，不能宣称全链路AI调用为0。拒绝会话实际返回REFUSED，但原smoke因读取旧模型事件没有承诺的planner_kind字段报KeyError；独立只读核验确认输出和来源，原FAILED不改。缺测会话一次OpenAITimeoutError未产生输出，0重试且无新增采集任务。浏览器实际呈现2/3张规划卡、24次布局检查通过；这三次现场尝试独立于32题实评。NORMAL只描述当前请求范围，真实体检仍需观测。
+  [原始记录](../reports/quality/planning-boundary-v3-20261002/live/live-contract-readback.json)。
+- **v3新冻结32题模型与检索实评：COMPLETED**。32新题通过当前公共生产schema的JSON DTO适配器执行离线规划实评，未运行LangGraph Agent、未派发采集任务或注入故障；维护者出题、独立代码复算，非第三方盲测。32新题零重试真实chat：HTTP成功30/32、超时2，结构29/32，四态分类28/32，下一工具29/32。NORMAL与INSUFFICIENT_EVIDENCE各8/8、REFUSED7/8、INVESTIGATE5/8；四个未通过项为2超时、1拒绝误判NORMAL、1调查计划含不可执行判据，被DTO门禁拒绝。BM25 Recall@3 0.90625/MRR 0.93750，无答案误召回2/16；HYBRID Recall@3 0.84375/MRR 0.78125，无答案误召回1/16，实际后端{'BM25_ENTITY_CHROMA_RRF': 15, 'BM25_ENTITY_CHROMA_RRF_RERANK': 17}。原始错误/超时保留分母，服务器0诊断chat不计模型准确率；合成规划不是实际因果根因成绩。 独立代码复算一致；题目作者为维护者，不能声称第三方盲测。
+  [原始记录](../reports/quality/planning-boundary-v3-20261002/evaluation/independent-audit.json)。
+- **新知识快照发布与旧快照保留：PASSED**。线上已发布 `20261002T120042Z`，应用源码 `cfea6744fc2395d5392440b2404ee275ada0a69f`；Worker/Analyzer各222个源码SHA和19篇公共知识对应的文件SHA通过，13个容器健康、11个容器未替换，Web/native/API/办公服务状态及数据保留。新Chroma快照44个chunk READY，旧39个chunk仍READY且未改。
+  [原始记录](../reports/quality/planning-boundary-v3-20261002/deployment/v3-knowledge-verification.json)。
 
 ## 面试材料与能力边界
 

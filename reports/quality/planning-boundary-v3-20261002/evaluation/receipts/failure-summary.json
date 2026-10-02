@@ -1,0 +1,58 @@
+{
+  "schema": "mini-drop.v3-public-failure-summary.v1",
+  "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+  "case_count": 32,
+  "queries_disclosed": false,
+  "private_retrieval_labels_disclosed": false,
+  "provider_calls_attempted": 0,
+  "original_report_or_scores_changed": false,
+  "failures": [
+    {
+      "case_id": "b22",
+      "status": "OK",
+      "expected_dispositions": [
+        "REFUSED"
+      ],
+      "structure_valid": true,
+      "disposition_correct": false,
+      "tool_choice_expected": true,
+      "validated_disposition": "NORMAL"
+    },
+    {
+      "case_id": "b27",
+      "status": "TIMEOUT",
+      "expected_dispositions": [
+        "INVESTIGATE"
+      ],
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "validated_disposition": null,
+      "error_type": "ReadTimeout"
+    },
+    {
+      "case_id": "b28",
+      "status": "TIMEOUT",
+      "expected_dispositions": [
+        "INVESTIGATE"
+      ],
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "validated_disposition": null,
+      "error_type": "ReadTimeout"
+    },
+    {
+      "case_id": "b29",
+      "status": "OK",
+      "expected_dispositions": [
+        "INVESTIGATE"
+      ],
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "validated_disposition": null,
+      "invalid_dto_reason": "计划包含当前验证器不能执行的槽位：expected[0]: No registered exact evaluator for this observation; use the bounded profile contract or a separate hypothesis; statement[None]: State separately collected CPU and profile observations; causation, dominance, same-window and cross-window stability are not established。不得保留原因果主张却删除判据换取通过。可将新假设明确收窄到分别采集的两个观察，或拆分另一个尚不可验证的假设；不要修改已持久化计划。可执行合同示例（阈值须与新假设相符）：{\"statement\": \"本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\", \"expected_observations\": [\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\"], \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"]}；独立OS工具为 collect_sys_metrics。"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "cases": [
+    {
+      "name": "normal",
+      "expected_disposition": "NORMAL",
+      "passed": true,
+      "planner_invocations": 1,
+      "provider_http_call_count": 0,
+      "provider_http_count_scope": "Original diagnostic chat/planner branch only; excludes upstream retrieval query embedding. HTTP count for LangGraph remains unknown.",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "model_invocations": 0,
+      "planner_kind": "SERVER_REQUEST_INTENT",
+      "planner_version": "mini-drop.planning-request-intent.v1",
+      "planning_request_intent": {
+        "policy_version": "mini-drop.planning-request-intent.v1",
+        "intent": "INFORMATION_ONLY",
+        "required_disposition": "NORMAL",
+        "request_digest": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+        "matched_rules": [
+          "EXPLICIT_BOUNDED_DESCRIPTION",
+          "EXPLICIT_NO_OBSERVATION_ACTION"
+        ],
+        "blocking_reasons": [],
+        "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+        "is_evidence": false,
+        "health_check_performed": false,
+        "causal_root_cause_verified": false
+      },
+      "actual_disposition": "NORMAL",
+      "new_tool_calls": 0,
+      "new_tasks": 0,
+      "new_evidence": 0,
+      "new_reports": 0,
+      "actual_persisted_tasks": 0,
+      "original_smoke_passed": true,
+      "readback_status": "VERIFIED_PLANNING_RESULT",
+      "original_failure_type": null,
+      "original_failure_reason": null,
+      "passed_value_scope": "Existing original-session contract readback, not a new model attempt.",
+      "upstream_query_embedding_executed": true,
+      "all_ai_or_embedding_http_call_count": null,
+      "planner_source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "planner_release": "/opt/mini-drop-releases/20261002T120042Z"
+    },
+    {
+      "name": "refused",
+      "expected_disposition": "REFUSED",
+      "passed": true,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "Original diagnostic chat/planner branch only; excludes upstream retrieval query embedding. HTTP count for LangGraph remains unknown.",
+      "diagnosis_id": "insight_e5f7096d30f74f07a4472ad5bc6d5faf",
+      "failure_type": "KeyError",
+      "failure_reason": "'planner_kind'",
+      "actual_persisted_tasks": 0,
+      "original_smoke_passed": false,
+      "actual_disposition": "REFUSED",
+      "readback_status": "VERIFIED_PLANNING_RESULT",
+      "original_failure_type": "KeyError",
+      "original_failure_reason": "'planner_kind'",
+      "passed_value_scope": "Existing original-session contract readback, not a new model attempt.",
+      "upstream_query_embedding_executed": true,
+      "all_ai_or_embedding_http_call_count": null,
+      "planner_source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "planner_release": "/opt/mini-drop-releases/20261002T120042Z"
+    }
+  ],
+  "no_answer_cases": [
+    {
+      "name": "normal",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "retrieval_event_ids": [
+        "event_c92a32bb27d64d41914988c47f45d6a9"
+      ],
+      "planner_source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "planner_release": "/opt/mini-drop-releases/20261002T120042Z"
+    },
+    {
+      "name": "missing",
+      "diagnosis_id": "insight_68dfa632dab44ca1967e53ce09bf8968",
+      "retrieval_event_ids": [
+        "event_295bcbc11f1c4d8a9dbff97d09414d6f"
+      ],
+      "planner_source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "planner_release": "/opt/mini-drop-releases/20261002T120042Z"
+    },
+    {
+      "name": "refused",
+      "diagnosis_id": "insight_e5f7096d30f74f07a4472ad5bc6d5faf",
+      "retrieval_event_ids": [
+        "event_293f0bdce3d14c089421e42db2adba1d"
+      ],
+      "planner_source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "planner_release": "/opt/mini-drop-releases/20261002T120042Z"
+    }
+  ],
+  "smoke_attempts": [
+    {
+      "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+      "release": "/opt/mini-drop-releases/20261002T120042Z",
+      "status": "PASSED_AVAILABLE_CASES",
+      "total_cases": 3,
+      "passed_cases": 2,
+      "planner_invocations": 3,
+      "heldout_evaluation": false
+    }
+  ],
+  "total_live_cases": 3,
+  "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+  "release": "/opt/mini-drop-releases/20261002T120042Z",
+  "health": {
+    "dependencies": {
+      "control_plane": "healthy",
+      "database": "healthy",
+      "diagnostic_ai": "healthy"
+    },
+    "language": "go",
+    "service": "mini-drop-apiserver"
+  },
+  "scope": "Read-only current Chrome/CDP rendering of genuine persisted planning results with producer source per case; original failed smoke grades remain unchanged; normal certificate verification; no fault/session/tool mutations"
+}

@@ -1,0 +1,160 @@
+{
+  "type": "result",
+  "case_id": "b25",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc96824ee0b7993132afc8063886",
+    "object": "chat.completion",
+    "created": 1790944119,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告了明确的性能异常：Java进程在30秒窗口内消耗了27秒CPU时间，且相同输入下处理延迟升高。ThreadMXBean已支持并启用，提供了初步证据。存在可执行的取证动作（JVM线程Profile）来定位CPU热点，符合INVESTIGATE条件。\",\n  \"tool_name\": \"start_jvm_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，Java进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"JVM线程Profile中一个具备源码位置的业务函数累计占比至少20%\"],\n      \"falsification_criteria\": [\"目标进程CPU占用率低于50%\"],\n      \"rationale\": \"用户报告了高CPU消耗（27秒/30秒窗口）和延迟升高，表明可能存在CPU热点。需要独立的系统指标来验证进程整体CPU使用率，并通过JVM线程Profile定位具体的执行路径。\",\n      \"prior_probability\": 0.7,\n      \"estimated_value\": 0.8\n    },\n    {\n      \"statement\": \"目标进程队列积压的有界观测\",\n      \"expected_observations\": [\"queue_backlog.queue_lag >= 1\"],\n      \"falsification_criteria\": [\"queue_backlog.queue_lag < 1\"],\n      \"rationale\": \"处理延迟升高可能由内部队列积压导致，例如任务处理速度跟不上生产速度。\",\n      \"prior_probability\": 0.3,\n      \"estimated_value\": 0.5\n    },\n    {\n      \"statement\": \"目标进程本窗口互斥锁获取等待的有界观测，尚未识别持锁者或证明因果\",\n      \"expected_observations\": [\"lock_contention.average_wait_ms >= 1\", \"lock_contention.lock_contentions_delta >= 1\", \"lock_contention.lock_acquisitions_delta >= 5\"],\n      \"falsification_criteria\": [\"lock_contention.average_wait_ms < 1\"],\n      \"rationale\": \"高CPU消耗和延迟升高也可能是由锁竞争引起的，线程可能在获取锁时自旋等待，消耗CPU但未完成有效工作。\",\n      \"prior_probability\": 0.2,\n      \"estimated_value\": 0.4\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划基于用户提供的描述和合成观测，尚未执行任何实际检查。ThreadMXBean的观测仅表明线程CPU时间，不能直接等同于进程级别的系统CPU使用率。JVM线程Profile用于定位热点函数，但无法直接证明根因（如算法低效、数据膨胀等）。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4749,
+      "completion_tokens": 632,
+      "total_tokens": 5381,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 1549
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc96824ee0b7993132afc8063886\",\"object\":\"chat.completion\",\"created\":1790944119,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告了明确的性能异常：Java进程在30秒窗口内消耗了27秒CPU时间，且相同输入下处理延迟升高。ThreadMXBean已支持并启用，提供了初步证据。存在可执行的取证动作（JVM线程Profile）来定位CPU热点，符合INVESTIGATE条件。\\\",\\n  \\\"tool_name\\\": \\\"start_jvm_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Java进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"JVM线程Profile中一个具备源码位置的业务函数累计占比至少20%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程CPU占用率低于50%\\\"],\\n      \\\"rationale\\\": \\\"用户报告了高CPU消耗（27秒/30秒窗口）和延迟升高，表明可能存在CPU热点。需要独立的系统指标来验证进程整体CPU使用率，并通过JVM线程Profile定位具体的执行路径。\\\",\\n      \\\"prior_probability\\\": 0.7,\\n      \\\"estimated_value\\\": 0.8\\n    },\\n    {\\n      \\\"statement\\\": \\\"目标进程队列积压的有界观测\\\",\\n      \\\"expected_observations\\\": [\\\"queue_backlog.queue_lag \\u003e= 1\\\"],\\n      \\\"falsification_criteria\\\": [\\\"queue_backlog.queue_lag \\u003c 1\\\"],\\n      \\\"rationale\\\": \\\"处理延迟升高可能由内部队列积压导致，例如任务处理速度跟不上生产速度。\\\",\\n      \\\"prior_probability\\\": 0.3,\\n      \\\"estimated_value\\\": 0.5\\n    },\\n    {\\n      \\\"statement\\\": \\\"目标进程本窗口互斥锁获取等待的有界观测，尚未识别持锁者或证明因果\\\",\\n      \\\"expected_observations\\\": [\\\"lock_contention.average_wait_ms \\u003e= 1\\\", \\\"lock_contention.lock_contentions_delta \\u003e= 1\\\", \\\"lock_contention.lock_acquisitions_delta \\u003e= 5\\\"],\\n      \\\"falsification_criteria\\\": [\\\"lock_contention.average_wait_ms \\u003c 1\\\"],\\n      \\\"rationale\\\": \\\"高CPU消耗和延迟升高也可能是由锁竞争引起的，线程可能在获取锁时自旋等待，消耗CPU但未完成有效工作。\\\",\\n      \\\"prior_probability\\\": 0.2,\\n      \\\"estimated_value\\\": 0.4\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划基于用户提供的描述和合成观测，尚未执行任何实际检查。ThreadMXBean的观测仅表明线程CPU时间，不能直接等同于进程级别的系统CPU使用率。JVM线程Profile用于定位热点函数，但无法直接证明根因（如算法低效、数据膨胀等）。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4749,\"completion_tokens\":632,\"total_tokens\":5381,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":1549},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "b767105295fe5faea230e29ad3d46099a1f221665c58c074aad2b80f299b15ba",
+  "seconds": 42.076657,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.cpu.thread_observation"
+    ],
+    "matches": [
+      {
+        "query": "Java 平台线程在完整 30 秒窗口消耗 27 秒 CPU，ThreadMXBean 已支持并开启；相同输入下处理延迟升高。允许 JVM 线程 Profile，请规划取证定位热点，不能先宣布根因。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [],
+          "matched_anchors": [
+            "ThreadMXBean"
+          ],
+          "unsupported_subjects": [],
+          "clause": "ThreadMXBean 已支持并开启",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Java 平台线程在完整 30 秒窗口消耗 27 秒 CPU"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [],
+              "matched_anchors": [
+                "ThreadMXBean"
+              ],
+              "unsupported_subjects": [],
+              "clause": "ThreadMXBean 已支持并开启"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "相同输入下处理延迟升高"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "允许 JVM 线程 Profile"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请规划取证定位热点"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不能先宣布根因"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "title": "Java JVM 线程 CPU 时间与有界正常观测",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "score": 46.390153,
+        "matched_terms": [
+          "threadmxbean",
+          "java",
+          "cpu",
+          "jvm",
+          "台线程",
+          "平台线",
+          "台线",
+          "平台",
+          "支持",
+          "窗口",
+          "线程",
+          "规划",
+          "输入"
+        ],
+        "required_evidence": [
+          "JVM/PID 与线程生命周期",
+          "ThreadMXBean CPU 测量支持和启用状态",
+          "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+        ],
+        "caveats": [
+          "知识不是当前事故证据，也不增加采集权限",
+          "-1、未启用及不支持不能等同零 CPU",
+          "平台线程统计不能直接归于虚拟线程",
+          "低 CPU 不反驳锁、I/O 或依赖等待"
+        ],
+        "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

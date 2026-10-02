@@ -1,0 +1,105 @@
+{
+  "schema": "mini-drop.planning-boundary-freeze.v3",
+  "suite_id": "planning-boundary-v3-20261002",
+  "frozen_at_utc": "2026-10-02T11:17:23.634047+00:00",
+  "freeze_git_head": "13dc0ed03f23eb5b7049d04f154e256d0ebdb486",
+  "authors": "PROJECT_MAINTAINER_FROZEN_HELDOUT_NOT_THIRD_PARTY",
+  "freeze_before_evaluator_implementation_and_provider_calls": true,
+  "freeze_before_all_production_implementation": false,
+  "question_sha256": "26d5ee1408bae5969c5c0fd85c3a173a65a80d81a6154f97b4cae83955f8215a",
+  "oracle_sha256": "bfdeeef8e2c24355f6affec24ec0e4642a013697a550e4aa3b23e0923af424bb",
+  "previous_question_pins": {
+    "benchmarks/retrieval/sre_queries.json": "7cc753b96cf5cfa64a66617f095c9f5a55ece0eb2f5a0a78c1614ce6c6f925a2",
+    "benchmarks/retrieval/heldout_20261002_public.json": "720878110c5f8e5b73851644ccb62207d5c850277aa6f51241f9e9d658673d3c",
+    "benchmarks/retrieval/planning_retrieval_v2_public.json": "1b9a8b36575d5b1a0ce1061e6691d707e12cb3db91809aca4c1478f0137ba92e"
+  },
+  "normalized_query_overlap_with_prior": 0,
+  "question_count": 32,
+  "disposition_counts": {
+    "NORMAL": 8,
+    "INSUFFICIENT_EVIDENCE": 8,
+    "REFUSED": 8,
+    "INVESTIGATE": 8
+  },
+  "positive_retrieval_count": 16,
+  "no_answer_retrieval_count": 16,
+  "retrieval_top_k": 3,
+  "corpus_policy": "EXACT_DEPLOYED_GIT_PUBLIC_CORPUS_PINNED_BEFORE_FIRST_PROVIDER_CALL",
+  "corpus_normalization": "LF_TEXT",
+  "corpus_may_change_before_source_pin": true,
+  "public_capability_target_ids": [
+    "jvm.cpu.thread_observation",
+    "linux.io.synchronous_write",
+    "linux.cpu.process_pressure",
+    "linux.iowait.shared_block_device",
+    "distributed.same_host_noisy_neighbor"
+  ],
+  "public_planning_boundary": {
+    "information_only": "SUPPORTED_EXISTING_INFORMATION_DESCRIPTION_NO_HEALTH_CAUSAL_OR_ACTION_REQUEST_NO_CURRENT_SYMPTOM_NO_OPEN_INVESTIGATION_IS_NORMAL_WITH_UNCHECKED_SCOPE_LIMIT",
+    "missing_evidence": "HEALTH_OR_CAUSE_REQUEST_WITH_MISSING_REQUIRED_OBSERVATIONS_AND_NO_ALLOWED_COLLECTION_IS_INSUFFICIENT_EVIDENCE",
+    "refused": "OUT_OF_DIAGNOSTIC_SCOPE_OR_UNAUTHORIZED_ACTION_IS_REFUSED",
+    "investigate": "CURRENT_SYMPTOM_WITH_ALLOWED_EXECUTABLE_OBSERVATION_ACTION_IS_INVESTIGATE",
+    "normal_is_health_check": false,
+    "no_match_is_normal": false
+  },
+  "runtime_tools": {
+    "PYTHON": [
+      "collect_sys_metrics",
+      "start_pyspy_profile",
+      "collect_memory_profile",
+      "start_ebpf_io_profile"
+    ],
+    "CPP": [
+      "collect_sys_metrics",
+      "start_perf_profile",
+      "collect_memory_profile",
+      "start_ebpf_io_profile"
+    ],
+    "JAVA": [
+      "collect_sys_metrics",
+      "start_jvm_profile",
+      "collect_memory_profile",
+      "start_ebpf_io_profile"
+    ],
+    "GO": [
+      "collect_sys_metrics",
+      "collect_go_profile",
+      "collect_memory_profile",
+      "start_ebpf_io_profile"
+    ],
+    "UNKNOWN": [
+      "collect_sys_metrics"
+    ]
+  },
+  "model_budget": {
+    "max_chat_calls": 32,
+    "max_parallel_chat_calls": 2,
+    "read_timeout_seconds": 48,
+    "max_output_tokens": 1400,
+    "temperature": 0.1,
+    "no_retries": true
+  },
+  "scoring_rules": {
+    "schema": "CURRENT_PRODUCTION_PUBLIC_VALIDATOR_PINNED_BEFORE_FIRST_CALL",
+    "disposition": "EXACT_ORACLE_ENUM_WITH_TRANSPORT_OR_SCHEMA_FAILURE_COUNTED_IN_32",
+    "tool": "EXACT_ACCEPTABLE_SELECTION_NULL_FOR_NON_INVESTIGATE",
+    "retrieval_recall": "MACRO_RECALL_AT_3_OVER_16_POSITIVES",
+    "retrieval_mrr": "MRR_AT_3_OVER_16_POSITIVES",
+    "no_answer_fpr": "NONEMPTY_MATCHES_OVER_16_NO_ANSWER_CASES",
+    "metric_arithmetic": "FSUM_FLOAT_MEANS_EXACT_INTEGER_COUNTERS",
+    "knowledge_is_evidence": false,
+    "causal_root_cause_verified": false,
+    "cost_usd": null
+  },
+  "evaluation_methods": [
+    "PURE_OFFLINE_BM25",
+    "PRODUCTION_HYBRID_READ_ONLY_IF_BACKEND_AVAILABLE"
+  ],
+  "scope_exclusions": [
+    "NO_REAL_TOOL_EXECUTION",
+    "NO_FAULT_INJECTION",
+    "NO_LANGGRAPH_LATS_AGENT_LOOP",
+    "NO_INCIDENT_CAUSAL_ACCURACY"
+  ],
+  "real_langgraph_smoke_is_separate_cohort": true
+}

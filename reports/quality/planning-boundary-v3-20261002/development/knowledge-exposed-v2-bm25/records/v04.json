@@ -1,0 +1,277 @@
+{
+  "case_id": "v04",
+  "query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+  "trace": {
+    "actual_backend": "BM25",
+    "requested_backend": "BM25",
+    "degraded_reasons": [],
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+    "query_profile": {
+      "concepts": [
+        "network"
+      ],
+      "runtime_scopes": [
+        "GO"
+      ],
+      "database_scopes": [],
+      "technical_subjects": [
+        "rtt",
+        "tcp"
+      ],
+      "active_clauses": [
+        "The Go service has no retransmissions or packet losses in this 20-second TCP measurement",
+        "and its RTT stayed below 2ms",
+        "Report only the measured network scope"
+      ],
+      "excluded_mentions": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "score": 22.625251,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "network"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "network"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "network"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "and its RTT stayed below 2ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Report only the measured network scope"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "go.profile.selection",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 5.239313,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "and its RTT stayed below 2ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Report only the measured network scope"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "score": 2.61672,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "and its RTT stayed below 2ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Report only the measured network scope"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+    "query_hash": "fd8351dfd62f1d0c09a299511a843fe9b68c91d02e7054a2ce12781a606575f0",
+    "relevance_query_hash": "fd8351dfd62f1d0c09a299511a843fe9b68c91d02e7054a2ce12781a606575f0",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 1,
+    "matches": [
+      {
+        "query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement",
+          "source_profile": {
+            "concepts": [
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "network"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "network"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "and its RTT stayed below 2ms"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Report only the measured network scope"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 22.625251,
+        "matched_terms": [
+          "network",
+          "packet",
+          "rtt",
+          "tcp"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.network.retransmit"
+  ]
+}

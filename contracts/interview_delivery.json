@@ -11,20 +11,20 @@
       "sha256": "60abf9e0710302fb266bd2139666dd048dd5ee95e3a601b86ef6cb392fca4a43"
     },
     "production_release": {
-      "path": "reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/manifest.json",
-      "sha256": "94521d4b8e618bc5f6f71bf9f51fbc3cb98a39a6ce6b21edfe0d181749caf99c"
+      "path": "reports/quality/planning-boundary-v3-20261002/deployment/final/manifest.json",
+      "sha256": "920fc3526117dfdc6f14bc91cc9ab9b6656653b3cd8f45370d0ab7b0993265a1"
     },
     "production_ci": {
-      "path": "reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/summary.json",
-      "sha256": "dac489198e44b6de0495e5d6ef7bd1a5c8f70b0402b56994ceee945020b9d34e"
+      "path": "reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/summary.json",
+      "sha256": "7dd25c4db6fdcace74ad5a2017db02b71ef4c4f7fd5243b4a56cf56a59cde0bc"
     },
     "production_verification": {
-      "path": "reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/r7-publication-verification.json",
-      "sha256": "9d61524a9656c5707b274c937fa14696a53baf29897c05912eb8eea01709073b"
+      "path": "reports/quality/planning-boundary-v3-20261002/deployment/v3-publication-verification.json",
+      "sha256": "be485e6bd1480b9b93d2bdcfec1d06984a09927f0cbb26563136a622f97089ac"
     },
     "production_browser": {
-      "path": "reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/result.json",
-      "sha256": "0b51852fca0cf38f3fc74e6f99297f7b6152976887910e13beeb606ef3e73b27"
+      "path": "reports/quality/planning-boundary-v3-20261002/live/browser/result.json",
+      "sha256": "9afa9280436ef3ee54108591b1c770ea5421557536888d4c630db41d8ffdf105"
     }
   },
   "additional_acceptances": [
@@ -81,7 +81,7 @@
       }
     },
     {
-      "title": "当前源码干净 Linux 核心复刻",
+      "title": "历史v2源码干净 Linux 核心复刻",
       "status": "PASSED",
       "scope": "最终源码73b4b18a；87门禁/0跳过及10阶段通过，真实 Agent→Task→S3→Analyzer 与身份、mTLS和清理验证；范围限核心平台/sys_metrics，不含外部模型或Office。",
       "report": {
@@ -120,7 +120,7 @@
       }
     },
     {
-      "title": "最终提示后的真实NORMAL补验",
+      "title": "历史v2最终提示后的真实NORMAL补验（原失败保留）",
       "status": "FAILED",
       "scope": "v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。 单列新会话，原两次NORMAL失败保持，无新采集/Evidence，不执行健康检查。",
       "report": {
@@ -130,6 +130,58 @@
       "required_result": {
         "field": "status",
         "value": "PASSED"
+      }
+    },
+    {
+      "title": "当前v3源码干净Linux核心栈",
+      "status": "PASSED",
+      "scope": "精确源码主CI14/14：Python 2163通过/16登记跳过，Web 330、真实PostgreSQL 14零跳过、Chromium固定数据8；Chroma专项通过。干净Linux核心栈87/87和10个实际阶段通过。",
+      "report": {
+        "path": "reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/report.json",
+        "sha256": "712cf9e3f05b2ad645d441183a453c5e0cba770683b916f59aa84a6313bb1583"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "PASSED"
+      }
+    },
+    {
+      "title": "明确纯描述服务器收束及实际输出只读核验",
+      "status": "COMPLETED",
+      "scope": "原明确纯描述问题的新真实会话返回NORMAL，来源SERVER_REQUEST_INTENT、诊断chat model_invocations=0；信息分支不创建PG检查点，不生成Task/Tool/Evidence/Report或健康事实。上游服务仍进行HYBRID查询embedding，不能宣称全链路AI调用为0。拒绝会话实际返回REFUSED，但原smoke因读取旧模型事件没有承诺的planner_kind字段报KeyError；独立只读核验确认输出和来源，原FAILED不改。缺测会话一次OpenAITimeoutError未产生输出，0重试且无新增采集任务。浏览器实际呈现2/3张规划卡、24次布局检查通过；这三次现场尝试独立于32题实评。NORMAL只描述当前请求范围，真实体检仍需观测。",
+      "report": {
+        "path": "reports/quality/planning-boundary-v3-20261002/live/live-contract-readback.json",
+        "sha256": "9c7b6187410e2892435394afa92cda657bf2d0952a801134ac3540cb6037cd6c"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "VERIFIED"
+      }
+    },
+    {
+      "title": "v3新冻结32题模型与检索实评",
+      "status": "COMPLETED",
+      "scope": "32新题通过当前公共生产schema的JSON DTO适配器执行离线规划实评，未运行LangGraph Agent、未派发采集任务或注入故障；维护者出题、独立代码复算，非第三方盲测。32新题零重试真实chat：HTTP成功30/32、超时2，结构29/32，四态分类28/32，下一工具29/32。NORMAL与INSUFFICIENT_EVIDENCE各8/8、REFUSED7/8、INVESTIGATE5/8；四个未通过项为2超时、1拒绝误判NORMAL、1调查计划含不可执行判据，被DTO门禁拒绝。BM25 Recall@3 0.90625/MRR 0.93750，无答案误召回2/16；HYBRID Recall@3 0.84375/MRR 0.78125，无答案误召回1/16，实际后端{'BM25_ENTITY_CHROMA_RRF': 15, 'BM25_ENTITY_CHROMA_RRF_RERANK': 17}。原始错误/超时保留分母，服务器0诊断chat不计模型准确率；合成规划不是实际因果根因成绩。 独立代码复算一致；题目作者为维护者，不能声称第三方盲测。",
+      "report": {
+        "path": "reports/quality/planning-boundary-v3-20261002/evaluation/independent-audit.json",
+        "sha256": "22c3f82e6309c486bfd9928ecf23508c7cda83a2a88e9bd90445f7163b9d10e6"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "VERIFIED"
+      }
+    },
+    {
+      "title": "新知识快照发布与旧快照保留",
+      "status": "PASSED",
+      "scope": "线上已发布 `20261002T120042Z`，应用源码 `cfea6744fc2395d5392440b2404ee275ada0a69f`；Worker/Analyzer各222个源码SHA和19篇公共知识对应的文件SHA通过，13个容器健康、11个容器未替换，Web/native/API/办公服务状态及数据保留。新Chroma快照44个chunk READY，旧39个chunk仍READY且未改。",
+      "report": {
+        "path": "reports/quality/planning-boundary-v3-20261002/deployment/v3-knowledge-verification.json",
+        "sha256": "65d4d637f1031ba27a2c11e4d9b4d950a6dfd1d6a94b573da4aadf754d2e1c7a"
+      },
+      "required_result": {
+        "field": "knowledge_sha256_verified",
+        "value": true
       }
     }
   ]

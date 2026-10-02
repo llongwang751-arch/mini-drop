@@ -1,0 +1,69 @@
+{
+  "schema": "mini-drop.runtime-evidence-archive.v1",
+  "status": "VERIFIED_BYTE_IDENTICAL",
+  "created_at_utc": "2026-10-02T12:38:59.250156+00:00",
+  "revision": 1,
+  "previous_manifest": null,
+  "previous_manifest_sha256": null,
+  "inventory_sha256": "b73ed63cbfa10c7d6da55b2d105e0ec84c14b8b448b374e756b72ff868a3afbb",
+  "file_count": 1,
+  "total_bytes": 15126,
+  "files": [
+    {
+      "path": "archive_runtime_evidence.py",
+      "source": "output/acceptance/planning-boundary-v3-20261002/archive_runtime_evidence.py",
+      "bytes": 15126,
+      "source_sha256": "6d1492f3d1fe29ee361d216a3e3716d6c1dc199e2ce23592015f722a4b041445",
+      "archived_sha256": "6d1492f3d1fe29ee361d216a3e3716d6c1dc199e2ce23592015f722a4b041445",
+      "copied_byte_for_byte": true
+    }
+  ],
+  "added_files_this_revision": [
+    "archive_runtime_evidence.py"
+  ],
+  "scope": "deployment/publication-tools",
+  "producer": {
+    "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+    "release_tag": "20261002T120042Z",
+    "publication_status": "DEPLOYED_AND_RUNTIME_VERIFIED",
+    "manifest_sha256": "a6a02d2adfff8acaccd8e31deb897a715af252cc4dcc48f3b759aa940fde093f",
+    "manifest_digest_kind": "CANONICAL_JSON_FOR_PRODUCER_TAG_ONLY_RAW_FILE_SHA_IN_INVENTORY"
+  },
+  "boundary": "Append-only evidence generator; no deployment or provider action.",
+  "credential_audit": {
+    "status": "PASSED_FOR_DECLARED_LOCAL_SCOPE",
+    "files_scanned": 55,
+    "actual_sensitive_value_matches": 0,
+    "high_confidence_pattern_matches": 0,
+    "sensitive_nonempty_json_fields": 0,
+    "json_environment_is_hash_only": true,
+    "actual_sensitive_values_checked": 9,
+    "actual_values_not_written": true,
+    "sources": [
+      "current process sensitive environment values",
+      "local non-example env sensitive values",
+      "local Git credential helper"
+    ],
+    "env_files_examined": 3,
+    "remote_production_environment_values_examined": false,
+    "public_git_username_excluded_from_secret_values": true,
+    "production_environment_followup": "Root's aggregate publication audit checks actual production-specific secrets in memory."
+  },
+  "excluded": [
+    "tgz/zip/source bundles",
+    "private env/key files",
+    "database/cache/temp",
+    "vector index data"
+  ],
+  "preservation": {
+    "existing_archive_bytes_unchanged": true,
+    "old_manifest_revisions_unchanged": true,
+    "raw_failures_never_relabelled": true,
+    "stage_originals_unchanged": true
+  },
+  "scope_limits": [
+    "No source/Git/provider/model/deployment action is performed by this generator.",
+    "Prepared source metadata is not proof of deployment.",
+    "Original failed smoke cases and later durable-event readback are separate observations."
+  ]
+}

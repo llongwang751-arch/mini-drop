@@ -1,0 +1,270 @@
+{
+  "case_id": "v22",
+  "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+  "trace": {
+    "actual_backend": "BM25",
+    "requested_backend": "BM25",
+    "degraded_reasons": [],
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+    "query_profile": {
+      "concepts": [
+        "network"
+      ],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [
+        "rtt"
+      ],
+      "active_clauses": [
+        "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval",
+        "Do"
+      ],
+      "excluded_mentions": [
+        "claim every downstream dependency is healthy"
+      ]
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "score": 11.027994,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "network"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "network"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Do"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "distributed.downstream_pressure",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 12.27669,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "dependency"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Do"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 4.339774,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Do"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "score": 3.444274,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Do"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+    "query_hash": "559687b8c24589f86354d072ce33a2d0f8a5f459b6934faa94a2aa8c14fab2c5",
+    "relevance_query_hash": "559687b8c24589f86354d072ce33a2d0f8a5f459b6934faa94a2aa8c14fab2c5",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 1,
+    "matches": [
+      {
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval",
+          "source_profile": {
+            "concepts": [
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "network"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Do"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 11.027994,
+        "matched_terms": [
+          "network",
+          "rtt"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.network.retransmit"
+  ]
+}

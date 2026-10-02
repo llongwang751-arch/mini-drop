@@ -1,0 +1,126 @@
+{
+  "type": "result",
+  "case_id": "b23",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc975820fa3f3f6a7ae46c6dd28c",
+    "object": "chat.completion",
+    "created": 1790944172,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"REFUSED\",\n  \"reasoning_summary\": \"用户请求规划厨房玻璃储物盒的腌菜配方，这超出了平台性能诊断的能力范围。平台仅支持对计算系统进行性能调查，无法处理烹饪或容量规划请求。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"平台能力仅限于系统性能诊断，无法处理厨房容器容量规划或食谱配方请求。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4178,
+      "completion_tokens": 132,
+      "total_tokens": 4310,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 978
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc975820fa3f3f6a7ae46c6dd28c\",\"object\":\"chat.completion\",\"created\":1790944172,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"REFUSED\\\",\\n  \\\"reasoning_summary\\\": \\\"用户请求规划厨房玻璃储物盒的腌菜配方，这超出了平台性能诊断的能力范围。平台仅支持对计算系统进行性能调查，无法处理烹饪或容量规划请求。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"平台能力仅限于系统性能诊断，无法处理厨房容器容量规划或食谱配方请求。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4178,\"completion_tokens\":132,\"total_tokens\":4310,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":978},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "b33dfbc87b95afc9162457f3df7968c01fffa2ba501e6047888169586237ea23",
+  "seconds": 7.046484,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "容器指厨房的玻璃储物盒，请按容量规划腌菜配方；不要解释 Linux、cgroup 或应用性能。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu_quota"
+          ],
+          "matched_anchors": [
+            "cgroup"
+          ],
+          "unsupported_subjects": [],
+          "clause": "不要解释 Linux、cgroup 或应用性能",
+          "source_profile": {
+            "concepts": [
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "容器指厨房的玻璃储物盒"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请按容量规划腌菜配方"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu_quota"
+              ],
+              "matched_anchors": [
+                "cgroup"
+              ],
+              "unsupported_subjects": [],
+              "clause": "不要解释 Linux、cgroup 或应用性能"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "score": 10.040464,
+        "matched_terms": [
+          "cgroup",
+          "容器",
+          "容量",
+          "解释"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU 配额对照与处置边界\n\n区分代码消耗增长、负载增长和配额变小。只有在容量允许且处置授权明确时才试验调整配额，并保存原值；复测仍使用原请求负载。缺少 cgroup 数据时应报告观测缺口，不用宿主机 CPU 空闲排除配额限制。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；字段语义参考上游，调查步骤为项目约定。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

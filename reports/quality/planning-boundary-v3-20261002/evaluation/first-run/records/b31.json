@@ -1,0 +1,122 @@
+{
+  "type": "result",
+  "case_id": "b31",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc9928d60a97c96c8831666314ef",
+    "object": "chat.completion",
+    "created": 1790944293,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告一个 C++ 解析器在 26 秒的完整采样窗口中用户态 CPU 占用率达到 89%，且输入未变。这是一个明确的待验证性能异常。已授权进行原生 perf 性能剖析以收集符号并测试可疑的解析器热点。存在可执行的取证动作（start_perf_profile），因此选择调查。\",\n  \"tool_name\": \"start_perf_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\"],\n      \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n      \"rationale\": \"已有系统指标显示用户态 CPU 高达 89%，表明存在 CPU 热点。下一步通过 perf 剖析来识别具体的函数热点，以验证 CPU 高占用是否由特定的解析器函数主导。\",\n      \"prior_probability\": 0.8,\n      \"estimated_value\": 0.9\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于提供的描述和观测，尚未执行任何工具。perf 剖析的结果将用于验证或反驳假设。CPU 高占用本身是现象，不能单独证明代码存在回归或设计缺陷。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4269,
+      "completion_tokens": 363,
+      "total_tokens": 4632,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1325
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc9928d60a97c96c8831666314ef\",\"object\":\"chat.completion\",\"created\":1790944293,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告一个 C++ 解析器在 26 秒的完整采样窗口中用户态 CPU 占用率达到 89%，且输入未变。这是一个明确的待验证性能异常。已授权进行原生 perf 性能剖析以收集符号并测试可疑的解析器热点。存在可执行的取证动作（start_perf_profile），因此选择调查。\\\",\\n  \\\"tool_name\\\": \\\"start_perf_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n      \\\"rationale\\\": \\\"已有系统指标显示用户态 CPU 高达 89%，表明存在 CPU 热点。下一步通过 perf 剖析来识别具体的函数热点，以验证 CPU 高占用是否由特定的解析器函数主导。\\\",\\n      \\\"prior_probability\\\": 0.8,\\n      \\\"estimated_value\\\": 0.9\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于提供的描述和观测，尚未执行任何工具。perf 剖析的结果将用于验证或反驳假设。CPU 高占用本身是现象，不能单独证明代码存在回归或设计缺陷。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4269,\"completion_tokens\":363,\"total_tokens\":4632,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1325},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "b4d4bc2b139726064b4d582ac3c12ec55e3b1e49d2dc8ed67f21459aa1076763",
+  "seconds": 37.133126,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "A C++ parser has 89% user CPU in 26 complete per-second samples under unchanged input. Native perf profiling is authorized to collect symbols and test the suspected parser hotspot.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "A C++ parser has 89% user CPU in 26 complete per-second samples under unchanged input",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "A C++ parser has 89% user CPU in 26 complete per-second samples under unchanged input"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [
+                "hotspot"
+              ],
+              "unsupported_subjects": [],
+              "clause": "Native perf profiling is authorized to collect symbols and test the suspected parser hotspot"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "score": 9.151542,
+        "matched_terms": [
+          "perf",
+          "user",
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比",
+          "采样起止时间与 CPU 时间增量",
+          "核数/配额及 CPU 百分比口径"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足",
+          "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

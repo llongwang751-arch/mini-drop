@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b15",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc9662d148a409e966d4f91c52a9",
+    "object": "chat.completion",
+    "created": 1790944109,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户描述了关于 MongoDB WiredTiger eviction 可能阻塞请求的怀疑，但明确表示没有相关的 eviction 统计、事务记录或时间窗口，且本次不能采样。由于缺少必要的观测数据，且当前无法提出可执行的取证计划（例如，无法采集 MongoDB 内部指标），因此无法验证或调查此异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"MongoDB WiredTiger eviction 相关的内部统计（如 eviction 速率、等待时间）\",\n    \"与怀疑阻塞时段匹配的事务记录或时间窗口\",\n    \"允许且可执行的 MongoDB 内部指标采集能力\"\n  ],\n  \"limitations\": [\n    \"本次为离线规划，不执行实际工具。\",\n    \"用户声明不能采样，因此无法获取验证假设所需的证据。\",\n    \"描述范围仅限于已有信息，未对当前系统状态进行检查。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3580,
+      "completion_tokens": 251,
+      "total_tokens": 3831,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 380
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc9662d148a409e966d4f91c52a9\",\"object\":\"chat.completion\",\"created\":1790944109,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户描述了关于 MongoDB WiredTiger eviction 可能阻塞请求的怀疑，但明确表示没有相关的 eviction 统计、事务记录或时间窗口，且本次不能采样。由于缺少必要的观测数据，且当前无法提出可执行的取证计划（例如，无法采集 MongoDB 内部指标），因此无法验证或调查此异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"MongoDB WiredTiger eviction 相关的内部统计（如 eviction 速率、等待时间）\\\",\\n    \\\"与怀疑阻塞时段匹配的事务记录或时间窗口\\\",\\n    \\\"允许且可执行的 MongoDB 内部指标采集能力\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次为离线规划，不执行实际工具。\\\",\\n    \\\"用户声明不能采样，因此无法获取验证假设所需的证据。\\\",\\n    \\\"描述范围仅限于已有信息，未对当前系统状态进行检查。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3580,\"completion_tokens\":251,\"total_tokens\":3831,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":380},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "510701fd5c3f28c7a8e5adfffa921076b524fcb51f49e8cf918d8ff116899fb1",
+  "seconds": 15.584619,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

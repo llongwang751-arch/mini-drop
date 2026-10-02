@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **6162 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **6804 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 1470 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 1549 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2518,6 +2518,85 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-localization-20261001/regression/` | regression 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/` | planning-boundary-v3-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/` | final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/` | clean-37004140452 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/` | main-37004140437 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/native-agent-binary-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | native-agent-binary-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/python-quality-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | python-quality-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/python-quality-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/web-browser-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/` | web-browser-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/` | first-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/` | clean-37002790727 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/snapshots/` | snapshots 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/` | main-37002790710 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/` | python-failure 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/` | deployment 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/` | final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/` | prepared-first-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/publication-tools/` | publication-tools 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/` | development 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/` | knowledge-exposed-v2-bm25 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/` | local-python-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/` | first-run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/` | requests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/preflight/` | preflight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/` | protocol-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/` | receipts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/` | live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/browser-source/` | browser-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/` | smoke 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/` | missing 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/` | refused 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/` | local-compatibility 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/` | original-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/` | benchmarks 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/` | retrieval 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/` | knowledge 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/scripts/` | scripts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/` | server 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/` | app 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/` | agent_runtime 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/` | drop_insight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/` | generated 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/` | repositories 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/` | migrations 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/` | versions 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/publication/` | publication 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/` | retrieval 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/` | hybrid 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/receipts/` | receipts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/planning-retrieval-v2-20261002/` | planning-retrieval-v2-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/planning-retrieval-v2-20261002/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/` | clean-36984571380 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -4131,7 +4210,7 @@ python scripts/render_learning_guide.py
 | `tests/test_performance_localization_evaluation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_localization_is_graded_separately_from_causal_and_fix_acceptance`、`test_localization_rejects_wrong_domain_or_unproven_contract`、`test_cpu_localization_requires_independent_cpu_observation_and_go_hot_path` |
 | `tests/test_performance_observation_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `measured`、`verify`、`test_abnormal_numeric_plan_is_checkable_without_requiring_its_opposite_to_be_true`、`test_observation_check_cannot_bypass_trust_quality_or_target_gates`、`test_unknown_slot_is_unchecked_and_conflicting_windows_are_not_merged` 等 12 个声明 |
 | `tests/test_performance_plan_display.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_display_normalization_preserves_the_complete_executable_contract` |
-| `tests/test_planning_boundary_v3.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_frozen_v3_question_or_truth_cannot_change`、`test_private_truth_and_nested_json_never_reach_model`、`empty_retrieval`、`test_public_request_uses_actual_intent_without_server_normal_response`、`test_all_transport_failures_stay_in_32_with_unknown_usage` 等 12 个声明 |
+| `tests/test_planning_boundary_v3.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_frozen_v3_question_or_truth_cannot_change`、`copy_frozen_inputs`、`test_single_legacy_prior_pin_accepts_only_exact_git_line_projection`、`test_legacy_prior_pin_rejects_body_tampering_for_both_line_endings`、`test_private_truth_and_nested_json_never_reach_model` 等 15 个声明 |
 | `tests/test_planning_output_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `output`、`investigate`、`test_noninvestigation_is_valid_without_probe_or_anomaly`、`test_no_probe_contract_rejects_hidden_action_or_unbounded_claim`、`test_investigation_keeps_falsification_numeric_and_authorization_gates` 等 24 个声明 |
 | `tests/test_planning_request_intent.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_explicit_information_scope_requires_no_samples_or_health_claim`、`test_judgment_symptom_failure_and_authority_requests_never_take_information_shortcut`、`test_keywords_or_double_negation_do_not_create_explicit_information_intent`、`test_server_completion_cannot_erase_existing_or_unavailable_investigation`、`test_user_numeric_performance_claims_take_existing_observation_path_without_fixed_thresholds` 等 16 个声明 |
 | `tests/test_planning_retrieval_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `historical_v2_evaluation_scope`、`proposal`、`response`、`test_noninvestigation_branches_allow_empty_conditions_and_no_tool`、`test_normal_branch_cannot_claim_cause_or_select_tool_or_drop_scope` 等 17 个声明 |
@@ -4188,7 +4267,7 @@ python scripts/render_learning_guide.py
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_heldout_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
-| `scripts/evaluate_planning_boundary_v3.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `public_only`、`validate_freeze`、`corpus_receipt`、`source_corpus`、`source_receipt` 等 22 个声明 |
+| `scripts/evaluate_planning_boundary_v3.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `public_only`、`validate_freeze`、`previous_question_pin_matches`、`corpus_receipt`、`source_corpus` 等 23 个声明 |
 | `scripts/evaluate_planning_retrieval_v2.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
 | `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
@@ -4656,6 +4735,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/performance-localization-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/planning-boundary-v3-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/planning-retrieval-v2-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/resource-controls-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/security-cancel-delivery-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -6783,6 +6863,647 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-localization-20261001/regression/observation-persistence-after-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-localization-20261001/regression/observation-persistence-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-localization-20261001/regression/web-localization.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/logs/job-110828363524.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/snapshots/20261002T120845Z-000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/clean-37004140452/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828363828.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828363929.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828363955.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828363960.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828363965.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364039.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364042.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364047.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364142.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364170.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364189.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364234.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/logs/job-110828364469.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/hotspot-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/native-agent-binary-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/observation-controls-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/postgres-concurrency-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/python-quality-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/python-quality-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/reports/web-browser-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/final/main-37004140437/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/logs/job-110824078865.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/snapshots/20261002T115415Z-000.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/clean-37002790727/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/failed-job-110824078421.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/command-log-receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/official-artifact.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/python-failure/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/ci/first-source/main-37002790710/run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/final/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/v3-measured-deployment-capacity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/prepared-first-source/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/publication-tools/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/publication-tools/archive_runtime_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`read_json`、`producer`、`input_specs`、`credential_review` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-final-measured-deployment-capacity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-knowledge-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-publication-metadata-compatibility.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-runtime-preactivation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/deployment/v3-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/archive_development_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`select`、`private_values_in_memory`、`counts`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-final-r2-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-final-r3-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-final-r4-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-final-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-independent-review.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-legacy-r2-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-legacy-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/classification-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/evaluation-v3-tests.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/evaluation-v3-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/historical-v2-final.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/historical-v2-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/historical-v2-first-failure.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/historical-v2-first-failure.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-development-lexical.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/corpus.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/records/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-exposed-v2-bm25/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-independent-source-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-local-test-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-official-sources.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-tests-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-tests-first.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/knowledge-tests-second.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-10.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-2.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-3.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-4.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-5.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-6.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-7.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-8.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/contracts/command-9.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/python-all/command-1.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/python-all/coverage.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/report.html` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/local-python-final/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/service-metadata-first.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/development/source-scoped-index-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/budget.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/evaluator-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `public_only`、`validate_freeze`、`previous_question_pin_matches`、`corpus_receipt`、`source_corpus` 等 23 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/provider.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b25.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b26.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b27.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b28.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b29.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b30.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b31.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/records/b32.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b25.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b26.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b27.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b28.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b29.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b30.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b31.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/requests/b32.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/first-run/source-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/independent-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/preflight/diagnose_model_preflight.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/preflight/model-first-run.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/preflight/model-preflight-source-diagnostic.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/preflight/v3-publication-metadata-compatibility.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/archive_v3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`copy_exact`、`copy_tree`、`manifest`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/audit_v3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`read`、`canonical`、`usage`、`pinned_report` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/capture_v3_source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/freeze_v3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`encode`、`normalize`、`add`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/protocol-source/summarize_v3_outcomes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/chat-budget-ledger.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/failure-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/independent-audit.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/model-after-provenance.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/model-replay-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/evaluation/receipts/model-replay-verification.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/archive-manifest-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser-source/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser-source/browser_planning_smoke.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser-source/browser_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/current-engineering-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/current-engineering-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/current-engineering-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/current-engineering-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/expected.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/rag-refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/live-contract-readback.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/live-runtime-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/original-smoke-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `helper`、`save`、`deployed_guard`、`collect`、`target_inventory` 等 9 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/live/readback-live-contract-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`read`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/browser-readback-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/missing/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/persisted-task-counts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/refused/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/live/smoke/target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/compatibility-doc-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/evaluation-v3-line-ending-tests.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/evaluation-v3-line-ending-tests.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/final-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/freeze-line-ending-independent-check.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/freeze-line-endings-candidates.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/line-ending-source-index-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/local-compatibility/verify_freeze_line_projection.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/heldout_20261002_frozen_inputs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/heldout_20261002_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/heldout_20261002_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/heldout_20261002_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_boundary_v3_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_boundary_v3_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_boundary_v3_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_retrieval_v2_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_retrieval_v2_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/planning_retrieval_v2_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/benchmarks/retrieval/sre_queries.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/git-source-capture.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/agent_experiments.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/agent_tool_governance.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/catalog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/cgroup_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/distributed_attribution.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/go_profiles.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/java_thread_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/jvm_gc.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/latency_measurement.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/linux_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/linux_iowait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/linux_memory.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/memory_pressure.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/mysql_lock_wait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/postgres_waits.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/python_sampling.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/rag_quality.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/sre_recovery.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/synchronous_io.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/knowledge/tcp_retransmit.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/scripts/evaluate_heldout_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/scripts/evaluate_planning_boundary_v3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `public_only`、`validate_freeze`、`previous_question_pin_matches`、`corpus_receipt`、`source_corpus` 等 23 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/scripts/evaluate_planning_retrieval_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/_env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_find_env_file`、`_is_docker`、`_load_dotenv` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/chroma_http.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BoundedClient`、`bounded_http_client` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/context.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `trusted_json_default`、`trusted_context_json`、`normalize_trusted_context`、`bounded_tail` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/deadlines.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `remaining_seconds`、`probe_deadline_check`、`planning_seconds` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/grafana_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_service_observations` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/harness.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `safe_scope_candidates`、`selected_authorized_candidate` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/incident_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `recall_incidents` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/investigation_strategy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `select_react_candidate` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/model_factory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_chat_model` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/planning_output.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/planning_request.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `planning_request_intent`、`informational_planning_output`、`validate_request_disposition`、`audited_planner_metadata` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/relevance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 15 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `retrieve_knowledge`、`build_retrieval_trace` 等 11 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `checkpoint_thread_id`、`RuntimeDescriptor` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/semantic_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/agent_runtime/themes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `diagnosis_system_prompt`、`scope_system_prompt` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/ai_provider.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/analysis_jobs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analysis_error_code`、`artifact_input_checksum`、`enqueue_artifact_analysis`、`ProcessResult`、`AnalyzerOutput` 等 16 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/analyzer_runner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalyzerQualityError`、`AnalyzerCommandError`、`analyze_raw_perf_artifacts`、`analyze_continuous_perf_bundle`、`analyze_pprof_artifacts` 等 30 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/artifact_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorArtifactContract`、`ArtifactContractError`、`ArtifactQualityError`、`get_collector_contract` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/artifact_integrity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactIntegrityError`、`hash_chunks`、`hash_file`、`normalize_sha256`、`prepare_artifact` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/artifact_lifecycle.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `classify_family`、`retention_days`、`ArtifactReconciliation`、`reconcile_artifacts`、`list_expired_artifacts` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/common_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `env_bool`、`status_value` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/database.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `init_db`、`new_session`、`reset_engine` 等 9 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/diagnosis_worker.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisWorker`、`main` 等 10 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/diagnostic_ai_rpc.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `dispatch`、`DiagnosticAIService`、`add_diagnostic_ai_service`、`start_diagnostic_ai_server` 等 11 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/adaptive_planner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `propose_hypothesis_plan` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/artifact_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactEvidenceAssessment`、`assess_artifact_evidence`、`extract_sample_count` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `canonical_sha256`、`load_json`、`evaluate_skill_reuse` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/bottleneck_localization.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `localize_verified_observation` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/builtin_skills.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_repository_skill_instructions`、`load_repository_skill_definitions`、`seed_repository_skills` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Contract`、`Workload`、`RequestOutcome`、`MeasurementWindow`、`AcceptancePolicy` 等 8 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/business_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OfficeObservation`、`GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/business_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_business_acceptance` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/campaign_matrix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_collector_reports`、`build_campaign_admission` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/claim_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/cpu_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `process_cpu_thresholds`、`cpu_utilization_hypothesis`、`cpu_observation_plan`、`compile_cpu_observation_contract`、`cpu_plan_validation_error` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/diagnosis_agent.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/event_store.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/exploration_tree.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_live_exploration_tree` 等 11 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/fault_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `latest_acceptance` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/fault_plaza.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/fix_verification.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/frozen_replay_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/health_assessment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `assess_health_window` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/hypothesis_predicate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_invalid_numeric_observation`、`_structured_signal_predicate`、`_criterion_text_indexes`、`_process_cpu_control`、`_compute_hypothesis_predicate` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/lats.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/managed_services.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/managed_services.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/observation_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify_performance_observation` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/operator_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_operator_preferences`、`put_operator_preference`、`delete_operator_preference`、`load_safe_agent_preferences` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/performance_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `performance_observation_plan`、`parse_performance_criterion`、`evaluate_performance_criterion` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/policy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PolicyContext`、`evaluate_tool_call` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/rcaeval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PrivateCase`、`TelemetrySignature`、`RouteSkill`、`Prediction`、`SkillGate` 等 28 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/report_conclusion.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_ObservationFinding`、`_derive_report_conclusion`、`_concrete_report_finding`、`_derive_next_actions` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/retrieval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_benchmark`、`run_benchmark` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_controlled_root_causes`、`report_sha256` 等 16 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/rounds.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/scaled_skill_ab.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/service.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 136 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/signal_window_validation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_signal_window` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/skill_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/skill_evolution.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/skill_experiments.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_experiment`、`list_experiments`、`get_experiment`、`assign_experiment_diagnosis`、`record_experiment_outcome` 等 13 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/source_mapper.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `configured_source_roots`、`map_hot_functions` 等 19 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/drop_insight/tools.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/.gitignore` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/diagnostic_ai_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/diagnostic_ai_pb2_grpc.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/error_code_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/status_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/generated/taskkind_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/kernel_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorSupport`、`kernel_tuple`、`evaluate_kernel_support` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/logging_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `bind_traceparent`、`reset_traceparent`、`current_traceparent`、`current_trace_id`、`log_event` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/metric_analyzers.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 27 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/models.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Base`、`AgentModel`、`ProcessCandidateSnapshotModel`、`ProcessCandidateModel`、`TaskModel` 等 35 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/outbox_dispatcher.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxDispatcher` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/process_attestation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ProcessSnapshotState`、`ProcessCandidateInput`、`ProcessCandidateSnapshotInput`、`ProcessIdentityBinding`、`ResolvedProcessCandidate` 等 16 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/agent_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AgentMixin` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/analysis_job_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalysisJobMixin` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/artifact_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactMixin` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/outbox_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxMixin` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/repositories/task_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskMixin` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `APIResponse`、`AgentRegistration`、`AgentMetrics`、`ProcessIdentityBindingRequest`、`CreateTaskRequest` 等 9 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/sql_repository.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `SqlRepository` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/state_machine.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskStatus`、`Actor`、`StatusEvent`、`now_utc`、`validate_transition` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/storage.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ensure_bucket`、`bucket_available`、`upload_file`、`read_object_bytes`、`stream_object` 等 11 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/app/task_attempt_authority.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskDispatch`、`AuthorizedTaskAttempt`、`generate_task_attempt_authority`、`task_attempt_authority_sha256`、`verify_task_attempt_authority` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_migrations_offline`、`run_migrations_online` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/script.py.mako` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260813_0012_legacy_adoption_marker.py` | Alembic 迁移：20260813 0012 legacy adoption marker。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0001_current_baseline.py` | Alembic 迁移：20260901 0001 current baseline。 | `upgrade`、`downgrade` 等 6 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0002_legacy_runtime_columns.py` | Alembic 迁移：20260901 0002 legacy runtime columns。 | `upgrade`、`downgrade` 等 7 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0003_tool_call_terminal_timestamp.py` | Alembic 迁移：20260901 0003 tool call terminal timestamp。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0004_legacy_runtime_constraints.py` | Alembic 迁移：20260901 0004 legacy runtime constraints。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0005_task_updated_at.py` | Alembic 迁移：20260901 0005 task updated at。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260901_0006_diagnosis_skill_policy.py` | Alembic 迁移：20260901 0006 diagnosis skill policy。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260908_0007_experiments_and_operator_memory.py` | Alembic 迁移：20260908 0007 experiments and operator memory。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/original-source/server/migrations/versions/20260910_0008_agent_latest_metrics.py` | Alembic 迁移：20260910 0008 agent latest metrics。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-boundary-v3-20261002/publication/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/publication/audit_publication_secrets.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/publication/build_delivery_manifest.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`pinned`、`generate`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/publication/clarify_final_evaluation_scope.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`clarify`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/publication/final-document-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/publication/prepare_final_documents.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `git`、`sha`、`read`、`pin`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/publication/publish_delivery_tools.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/publication/stage_final_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `git`、`sha`、`main` |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/budget.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/evaluator-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `public_only`、`validate_freeze`、`previous_question_pin_matches`、`corpus_receipt`、`source_corpus` 等 23 个声明 |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b25.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b26.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b27.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b28.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b29.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b30.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b31.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/records/b32.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/hybrid/source-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/receipts/hybrid-budget-ledger.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-boundary-v3-20261002/retrieval/receipts/hybrid-first-run.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/planning-retrieval-v2-20261002/ci-local-readout.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/artifact-11217022546.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/logs/job-110766544195.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |

@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b09",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc959b10f2c2f3a69d87a4f13b53",
+    "object": "chat.completion",
+    "created": 1790944058,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户要求判断当前CPU是否正常，但明确禁止任何补采，且当前CPU计数和时间窗口完全缺失。没有可用的历史测量数据。因此，无法基于任何观测来评估CPU状态，证据不足。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"目标进程在当前时间窗口内的CPU使用率测量值\",\n    \"用于评估CPU状态的任何历史或当前性能数据\"\n  ],\n  \"limitations\": [\n    \"用户禁止任何数据采集，无法获取缺失的CPU观测值\",\n    \"本次判断仅基于规划，未进行实际健康检查\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3633,
+      "completion_tokens": 186,
+      "total_tokens": 3819,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 689
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc959b10f2c2f3a69d87a4f13b53\",\"object\":\"chat.completion\",\"created\":1790944058,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户要求判断当前CPU是否正常，但明确禁止任何补采，且当前CPU计数和时间窗口完全缺失。没有可用的历史测量数据。因此，无法基于任何观测来评估CPU状态，证据不足。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"目标进程在当前时间窗口内的CPU使用率测量值\\\",\\n    \\\"用于评估CPU状态的任何历史或当前性能数据\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"用户禁止任何数据采集，无法获取缺失的CPU观测值\\\",\\n    \\\"本次判断仅基于规划，未进行实际健康检查\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3633,\"completion_tokens\":186,\"total_tokens\":3819,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":689},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "15d226b685c154b3f92e5bc5b42f2bd81053e0effefc1be5d13e193fb362e6ae",
+  "seconds": 12.103657,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

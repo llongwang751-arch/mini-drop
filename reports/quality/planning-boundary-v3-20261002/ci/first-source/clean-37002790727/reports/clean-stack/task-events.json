@@ -1,0 +1,82 @@
+[
+  {
+    "sequence": 1,
+    "task_id": "task_20261002_115307_4ee941c1",
+    "task_attempt_id": null,
+    "from_status": null,
+    "to_status": "PENDING",
+    "reason": "Go API 创建任务",
+    "actor": "web",
+    "source": "web",
+    "metadata": {
+      "served_by": "go-apiserver"
+    },
+    "created_at": "2026-10-02T11:53:07.911387Z"
+  },
+  {
+    "sequence": 2,
+    "task_id": "task_20261002_115307_4ee941c1",
+    "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+    "from_status": "PENDING",
+    "to_status": "RUNNING",
+    "reason": "C++ 控制面下发任务",
+    "actor": "server",
+    "source": "server",
+    "metadata": {
+      "served_by": "cpp-control",
+      "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+      "trace_id": "092d7d4685164856fbcf58f0f7eca8ae",
+      "traceparent": "00-092d7d4685164856fbcf58f0f7eca8ae-0327eece85763ce2-01"
+    },
+    "created_at": "2026-10-02T11:53:10.670561Z"
+  },
+  {
+    "sequence": 3,
+    "task_id": "task_20261002_115307_4ee941c1",
+    "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+    "from_status": "RUNNING",
+    "to_status": "UPLOADING",
+    "reason": "C++ 控制面接收采集产物",
+    "actor": "agent",
+    "source": "agent",
+    "metadata": {
+      "served_by": "cpp-control",
+      "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+      "trace_id": "092d7d4685164856fbcf58f0f7eca8ae",
+      "traceparent": "00-092d7d4685164856fbcf58f0f7eca8ae-0327eece85763ce2-01"
+    },
+    "created_at": "2026-10-02T11:53:20.708878Z"
+  },
+  {
+    "sequence": 4,
+    "task_id": "task_20261002_115307_4ee941c1",
+    "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+    "from_status": "UPLOADING",
+    "to_status": "ANALYZING",
+    "reason": "产物已记录，等待 Python Analyzer",
+    "actor": "server",
+    "source": "server",
+    "metadata": {
+      "served_by": "cpp-control",
+      "task_attempt_id": "attempt_6486455505c1247b915051fbbeb70350",
+      "trace_id": "092d7d4685164856fbcf58f0f7eca8ae",
+      "traceparent": "00-092d7d4685164856fbcf58f0f7eca8ae-0327eece85763ce2-01"
+    },
+    "created_at": "2026-10-02T11:53:20.708878Z"
+  },
+  {
+    "sequence": 5,
+    "task_id": "task_20261002_115307_4ee941c1",
+    "task_attempt_id": null,
+    "from_status": "ANALYZING",
+    "to_status": "DONE",
+    "reason": "系统指标产物已完成兼容契约校验",
+    "actor": "analyzer",
+    "source": "analyzer",
+    "metadata": {
+      "analysis_job_id": "analysis_a8ac33372303bc74",
+      "analyzer_version": "1.0.0"
+    },
+    "created_at": "2026-10-02T11:53:21.661205Z"
+  }
+]

@@ -1,0 +1,114 @@
+{
+  "schema": "mini-drop.runtime-evidence-archive.v1",
+  "status": "VERIFIED_BYTE_IDENTICAL",
+  "created_at_utc": "2026-10-02T12:38:59.145698+00:00",
+  "revision": 1,
+  "previous_manifest": null,
+  "previous_manifest_sha256": null,
+  "inventory_sha256": "94fca1493043b172743a97018a464c63bef3a71c355c506274a3aaf4396b8d15",
+  "file_count": 6,
+  "total_bytes": 100089,
+  "files": [
+    {
+      "path": "deploy_runtime.py",
+      "source": "output/acceptance/planning-boundary-v3-20261002/release/deploy_runtime.py",
+      "bytes": 18661,
+      "source_sha256": "9536df153544d49fae8e0a0b037e6f4901685799f3c344847f4b7760a077e397",
+      "archived_sha256": "9536df153544d49fae8e0a0b037e6f4901685799f3c344847f4b7760a077e397",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "manifest.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/release/manifest.json",
+      "bytes": 77158,
+      "source_sha256": "797621b9ee2e0d9e820206a786a99866134ff54046013ab3b1802066db4a2d91",
+      "archived_sha256": "797621b9ee2e0d9e820206a786a99866134ff54046013ab3b1802066db4a2d91",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "release-tag.txt",
+      "source": "output/acceptance/planning-boundary-v3-20261002/release/release-tag.txt",
+      "bytes": 16,
+      "source_sha256": "ab790429c25c116b400c09c509fae47a5c2767cbb331f10718fa3fbc708b3f88",
+      "archived_sha256": "ab790429c25c116b400c09c509fae47a5c2767cbb331f10718fa3fbc708b3f88",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "source-head.txt",
+      "source": "output/acceptance/planning-boundary-v3-20261002/release/source-head.txt",
+      "bytes": 40,
+      "source_sha256": "0a130661069de939b5cd0f774484380ab2015cef54ec59bc2dd3bdf26680265d",
+      "archived_sha256": "0a130661069de939b5cd0f774484380ab2015cef54ec59bc2dd3bdf26680265d",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-measured-deployment-capacity.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-measured-deployment-capacity.json",
+      "bytes": 626,
+      "source_sha256": "107fd75a56cf0e63d26f63cb5f81ad00a534ab99c200394ae5f313c53a553929",
+      "archived_sha256": "107fd75a56cf0e63d26f63cb5f81ad00a534ab99c200394ae5f313c53a553929",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "web-build.log",
+      "source": "output/acceptance/planning-boundary-v3-20261002/release/web-build.log",
+      "bytes": 3588,
+      "source_sha256": "008ef251254c7ffd21565ab5820b841af8669196473b67ee42963b98b261035a",
+      "archived_sha256": "008ef251254c7ffd21565ab5820b841af8669196473b67ee42963b98b261035a",
+      "copied_byte_for_byte": true
+    }
+  ],
+  "added_files_this_revision": [
+    "deploy_runtime.py",
+    "manifest.json",
+    "release-tag.txt",
+    "source-head.txt",
+    "v3-measured-deployment-capacity.json",
+    "web-build.log"
+  ],
+  "scope": "deployment/prepared-first-source",
+  "producer": {
+    "source_head": "e17f287ee7ab7270ffc73534c90c14af297d3228",
+    "release_tag": "20261002T114611Z",
+    "publication_status": "PREPARED_ONLY_NOT_DEPLOYED",
+    "manifest_sha256": "07ded886df791a07adf084578130ce6eb7a207322318bb662defda26b1455209",
+    "manifest_digest_kind": "CANONICAL_JSON_FOR_PRODUCER_TAG_ONLY_RAW_FILE_SHA_IN_INVENTORY"
+  },
+  "boundary": "The e17f first source was prepared only; these files never prove a running release.",
+  "credential_audit": {
+    "status": "PASSED_FOR_DECLARED_LOCAL_SCOPE",
+    "files_scanned": 55,
+    "actual_sensitive_value_matches": 0,
+    "high_confidence_pattern_matches": 0,
+    "sensitive_nonempty_json_fields": 0,
+    "json_environment_is_hash_only": true,
+    "actual_sensitive_values_checked": 9,
+    "actual_values_not_written": true,
+    "sources": [
+      "current process sensitive environment values",
+      "local non-example env sensitive values",
+      "local Git credential helper"
+    ],
+    "env_files_examined": 3,
+    "remote_production_environment_values_examined": false,
+    "public_git_username_excluded_from_secret_values": true,
+    "production_environment_followup": "Root's aggregate publication audit checks actual production-specific secrets in memory."
+  },
+  "excluded": [
+    "tgz/zip/source bundles",
+    "private env/key files",
+    "database/cache/temp",
+    "vector index data"
+  ],
+  "preservation": {
+    "existing_archive_bytes_unchanged": true,
+    "old_manifest_revisions_unchanged": true,
+    "raw_failures_never_relabelled": true,
+    "stage_originals_unchanged": true
+  },
+  "scope_limits": [
+    "No source/Git/provider/model/deployment action is performed by this generator.",
+    "Prepared source metadata is not proof of deployment.",
+    "Original failed smoke cases and later durable-event readback are separate observations."
+  ]
+}

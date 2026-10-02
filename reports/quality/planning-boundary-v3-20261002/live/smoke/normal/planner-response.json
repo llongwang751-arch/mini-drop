@@ -1,0 +1,39 @@
+{
+  "planner_kind": "SERVER_REQUEST_INTENT",
+  "planner_version": "mini-drop.planning-request-intent.v1",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "planning_disposition": "NORMAL",
+  "planning_output": {
+    "schema_version": "mini-drop.planning-output.v2",
+    "disposition": "NORMAL",
+    "reasoning_summary": "本轮仅描述已提供信息及其覆盖范围；没有进行当前状态检查，不产生健康或根因结论。",
+    "tool_name": null,
+    "hypotheses": [],
+    "missing_evidence": [],
+    "limitations": [
+      "仅限已有描述和规划范围；目标身份不等于健康测量。",
+      "没有进行采样或异常验证，不确认业务正常或因果根因。",
+      "已有身份字段：service；字段内容未经本次重新验证。"
+    ],
+    "causal_root_cause_verified": false
+  },
+  "reason": "本轮仅描述已提供信息及其覆盖范围；没有进行当前状态检查，不产生健康或根因结论。；这是描述或规划范围内未提出异常，尚未做当前状态检查，不能确认平台或业务全部正常。",
+  "hypothesis": null,
+  "tool_call": null,
+  "model_invocations": 0,
+  "planning_request_intent": {
+    "policy_version": "mini-drop.planning-request-intent.v1",
+    "intent": "INFORMATION_ONLY",
+    "required_disposition": "NORMAL",
+    "request_digest": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+    "matched_rules": [
+      "EXPLICIT_BOUNDED_DESCRIPTION",
+      "EXPLICIT_NO_OBSERVATION_ACTION"
+    ],
+    "blocking_reasons": [],
+    "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+    "is_evidence": false,
+    "health_check_performed": false,
+    "causal_root_cause_verified": false
+  }
+}

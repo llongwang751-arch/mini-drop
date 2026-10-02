@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b13",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc961b990bbb478ff7bcb928636c",
+    "object": "chat.completion",
+    "created": 1790944093,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户明确要求确认 Redis active-defrag 是否使碎片率下降，但当前既无运行指标和观测区间，也不允许访问实例采集相关证据。缺少必要的 Redis 碎片率指标和观测窗口，无法提出可执行的取证计划。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"Redis 实例的碎片率指标（如 mem_fragmentation_ratio）\",\n    \"active-defrag 运行前后的观测时间窗口\",\n    \"允许访问 Redis 实例以采集证据的权限\"\n  ],\n  \"limitations\": [\n    \"本次规划仅基于用户描述，未对 Redis 实例进行任何状态检查。\",\n    \"用户禁止访问实例，无法使用 Redis 专用工具采集碎片率数据。\",\n    \"allowed_tools 中仅提供系统指标采集，不适用于 Redis 内部指标。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3583,
+      "completion_tokens": 239,
+      "total_tokens": 3822,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 639
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc961b990bbb478ff7bcb928636c\",\"object\":\"chat.completion\",\"created\":1790944093,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户明确要求确认 Redis active-defrag 是否使碎片率下降，但当前既无运行指标和观测区间，也不允许访问实例采集相关证据。缺少必要的 Redis 碎片率指标和观测窗口，无法提出可执行的取证计划。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"Redis 实例的碎片率指标（如 mem_fragmentation_ratio）\\\",\\n    \\\"active-defrag 运行前后的观测时间窗口\\\",\\n    \\\"允许访问 Redis 实例以采集证据的权限\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于用户描述，未对 Redis 实例进行任何状态检查。\\\",\\n    \\\"用户禁止访问实例，无法使用 Redis 专用工具采集碎片率数据。\\\",\\n    \\\"allowed_tools 中仅提供系统指标采集，不适用于 Redis 内部指标。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3583,\"completion_tokens\":239,\"total_tokens\":3822,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":639},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "3ae1e592e6609fb9dbb9f87f781789b0f9bf7443a061ee91694f9d1eee2ac7b7",
+  "seconds": 21.176839,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

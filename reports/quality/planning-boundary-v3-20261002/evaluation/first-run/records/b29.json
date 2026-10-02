@@ -1,0 +1,400 @@
+{
+  "type": "result",
+  "case_id": "b29",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc98cdbf8a0315ed95e20bb024a4",
+    "object": "chat.completion",
+    "created": 1790944268,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告了C++ fdatasync操作延迟（均值38ms）与应用写入延迟上升的现象，并允许进行低预算同步I/O追踪以取证操作路径和设备归属。这是一个明确的待验证异常，且存在可执行的取证动作（start_ebpf_io_profile）。\",\n  \"tool_name\": \"start_ebpf_io_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"目标进程同步写操作耗时的有界观测，尚未归因块设备\",\n      \"expected_observations\": [\"io_latency.average_latency_ms >= 10\", \"io_latency.operation_count_delta >= 5\"],\n      \"falsification_criteria\": [\"io_latency.average_latency_ms < 10\"],\n      \"rationale\": \"用户报告了fdatasync操作平均延迟38ms，这是一个明确的延迟升高信号。需要验证在采样窗口内，目标进程的同步I/O操作（如fsync/fdatasync）平均延迟是否确实升高，并获取操作计数。\",\n      \"prior_probability\": 0.7,\n      \"estimated_value\": 0.8\n    },\n    {\n      \"statement\": \"目标进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"C++ perf中一个具备实际源码位置的业务函数累计占比至少20%\"],\n      \"falsification_criteria\": [\"目标进程CPU占用率低于50%\"],\n      \"rationale\": \"应用写入延迟上升可能与CPU饱和有关。需要验证目标进程是否因高CPU使用率（例如，在文件系统或日志处理路径上）而导致处理延迟，进而影响写入性能。\",\n      \"prior_probability\": 0.3,\n      \"estimated_value\": 0.6\n    },\n    {\n      \"statement\": \"目标进程与独立进程共享受限CPU配额时发生节流的有界观测，尚未证明邻居的因果贡献\",\n      \"expected_observations\": [\"noisy_neighbor.peer_cpu_ticks_delta > 0\", \"noisy_neighbor.target_cpu_ticks_delta > 0\", \"noisy_neighbor.throttled_usec_delta > 0\", \"noisy_neighbor.throttled_periods_delta > 0\"],\n      \"falsification_criteria\": [\"noisy_neighbor.throttled_usec_delta == 0\"],\n      \"rationale\": \"I/O延迟升高也可能是由于共享宿主上的“吵闹邻居”进程争抢CPU或I/O资源所致。需要检查目标进程是否在容器或cgroup环境中受到CPU节流。\",\n      \"prior_probability\": 0.2,\n      \"estimated_value\": 0.5\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅针对用户描述的fdatasync延迟和应用写入延迟上升现象进行调查取证，不作出任何关于平台全局健康或业务全部正常的结论。知识检索结果仅为先验指导，并非当前事故证据。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 6644,
+      "completion_tokens": 701,
+      "total_tokens": 7345,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 3444
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc98cdbf8a0315ed95e20bb024a4\",\"object\":\"chat.completion\",\"created\":1790944268,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告了C++ fdatasync操作延迟（均值38ms）与应用写入延迟上升的现象，并允许进行低预算同步I/O追踪以取证操作路径和设备归属。这是一个明确的待验证异常，且存在可执行的取证动作（start_ebpf_io_profile）。\\\",\\n  \\\"tool_name\\\": \\\"start_ebpf_io_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"目标进程同步写操作耗时的有界观测，尚未归因块设备\\\",\\n      \\\"expected_observations\\\": [\\\"io_latency.average_latency_ms \\u003e= 10\\\", \\\"io_latency.operation_count_delta \\u003e= 5\\\"],\\n      \\\"falsification_criteria\\\": [\\\"io_latency.average_latency_ms \\u003c 10\\\"],\\n      \\\"rationale\\\": \\\"用户报告了fdatasync操作平均延迟38ms，这是一个明确的延迟升高信号。需要验证在采样窗口内，目标进程的同步I/O操作（如fsync/fdatasync）平均延迟是否确实升高，并获取操作计数。\\\",\\n      \\\"prior_probability\\\": 0.7,\\n      \\\"estimated_value\\\": 0.8\\n    },\\n    {\\n      \\\"statement\\\": \\\"目标进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"C++ perf中一个具备实际源码位置的业务函数累计占比至少20%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程CPU占用率低于50%\\\"],\\n      \\\"rationale\\\": \\\"应用写入延迟上升可能与CPU饱和有关。需要验证目标进程是否因高CPU使用率（例如，在文件系统或日志处理路径上）而导致处理延迟，进而影响写入性能。\\\",\\n      \\\"prior_probability\\\": 0.3,\\n      \\\"estimated_value\\\": 0.6\\n    },\\n    {\\n      \\\"statement\\\": \\\"目标进程与独立进程共享受限CPU配额时发生节流的有界观测，尚未证明邻居的因果贡献\\\",\\n      \\\"expected_observations\\\": [\\\"noisy_neighbor.peer_cpu_ticks_delta \\u003e 0\\\", \\\"noisy_neighbor.target_cpu_ticks_delta \\u003e 0\\\", \\\"noisy_neighbor.throttled_usec_delta \\u003e 0\\\", \\\"noisy_neighbor.throttled_periods_delta \\u003e 0\\\"],\\n      \\\"falsification_criteria\\\": [\\\"noisy_neighbor.throttled_usec_delta == 0\\\"],\\n      \\\"rationale\\\": \\\"I/O延迟升高也可能是由于共享宿主上的“吵闹邻居”进程争抢CPU或I/O资源所致。需要检查目标进程是否在容器或cgroup环境中受到CPU节流。\\\",\\n      \\\"prior_probability\\\": 0.2,\\n      \\\"estimated_value\\\": 0.5\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅针对用户描述的fdatasync延迟和应用写入延迟上升现象进行调查取证，不作出任何关于平台全局健康或业务全部正常的结论。知识检索结果仅为先验指导，并非当前事故证据。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":6644,\"completion_tokens\":701,\"total_tokens\":7345,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":3444},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "a08f31b096168006eb1550a6d28c2e2365cc9252a426a1a6aca4d35a82a2b4eb",
+  "seconds": 35.737202,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.io.synchronous_write",
+      "linux.iowait.shared_block_device",
+      "sre.recovery.acceptance"
+    ],
+    "matches": [
+      {
+        "query": "C++ fdatasync 的完整窗口有 180 次成功操作，均值 38ms，应用写入延迟同时上升。允许低预算同步 I/O 追踪，请取证操作路径和设备归属，不作全局健康结论。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [
+            "fdatasync"
+          ],
+          "unsupported_subjects": [],
+          "clause": "C++ fdatasync 的完整窗口有 180 次成功操作",
+          "source_profile": {
+            "concepts": [
+              "block_io"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [
+                "fdatasync"
+              ],
+              "unsupported_subjects": [],
+              "clause": "C++ fdatasync 的完整窗口有 180 次成功操作"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "均值 38ms"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "应用写入延迟"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "上升"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "允许低预算同步 I/O 追踪"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请取证操作路径和设备归属"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不作全局健康结论"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.io.synchronous_write",
+        "title": "Linux fsync fdatasync 同步写延迟与反证",
+        "document": "knowledge/synchronous_io.md",
+        "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+        "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+        "score": 56.616985,
+        "matched_terms": [
+          "fdatasync",
+          "全局健",
+          "备归属",
+          "局健康",
+          "设备归",
+          "健康",
+          "全局",
+          "同步",
+          "备归",
+          "完整",
+          "局健",
+          "延迟",
+          "归属",
+          "成功",
+          "操作",
+          "窗口"
+        ],
+        "required_evidence": [
+          "调用类型、成功/失败数、延迟和完整采样窗口",
+          "目标 PID 与文件/挂载/块设备归属",
+          "低延迟阈值及样本覆盖"
+        ],
+        "caveats": [
+          "tmpfs 与缓存路径不证明物理磁盘低延迟",
+          "采集失败或缺测不是慢写的反证",
+          "单一窗口不证明业务全局健康",
+          "知识只能指导调查，不是当前事故证据"
+        ],
+        "excerpt": "# Linux 同步写低延迟与有界反证\n\nfsync / fdatasync 是文件同步接口；fsync 同步文件数据与所需元数据，fdatasync 可省略不影响后续数据读取的元数据。成功与失败必须分别记录，失败或缺测不能作为慢同步写的反证。syncwrite、sync_write、synchronous write 和同步落盘在此描述操作类型，不代表数据库引擎内部机制已被观测。\n\n记录当前 PID、文件与挂载/块设备归属、窗口起止、操作类型、成功/失败次数及延迟分布。若同窗有效操作低于已声明慢写阈值，可反驳“该窗口持续慢同步写”这一候选；阈值、样本覆盖和报告来源仍走证据门禁，不能只读到这篇指南就生成 REFUTED 或根因结论。\n\ntmpfs、缓存路径、虚拟磁盘映射和不同采样窗口限制结论范围。低同步写延迟不是物理磁盘全局正常，也不是业务全局健康；块设备等待与共享宿主争用另需设备队列、目标及邻居同窗证据。未知存储协议或数据库引擎的专属语义不能由通用同步写指南替代。\n\n来源：[Linux man-pages fsync/fdatasync 官方项目文档](https://man7.org/linux/man-pages/man2/fsync.2.html)；[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。"
+      },
+      {
+        "query": "C++ fdatasync 的完整窗口有 180 次成功操作，均值 38ms，应用写入延迟同时上升。允许低预算同步 I/O 追踪，请取证操作路径和设备归属，不作全局健康结论。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "C++ fdatasync 的完整窗口有 180 次成功操作",
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "host_contention"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "C++ fdatasync 的完整窗口有 180 次成功操作"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "均值 38ms"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "应用写入延迟"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "上升"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "允许低预算同步 I/O 追踪"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请取证操作路径和设备归属"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不作全局健康结论"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "chunk_id": "2256c98c65593af573a26d1fc1681338ef28950151ef4a04509e371772556e69",
+        "score": 26.248438,
+        "matched_terms": [
+          "和设备",
+          "备归属",
+          "设备归",
+          "同时",
+          "同步",
+          "和设",
+          "备归",
+          "延迟",
+          "归属",
+          "窗口",
+          "设备"
+        ],
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "excerpt": "## 同节点、同主机与共享设备\n\nsame-host、same-node、co-located / colocated 描述部署位置。只有确认目标与邻居映射到同一块设备或共享宿主资源，位置关系才是争用调查线索。设备队列、目标等待与邻居负载必须在同一窗口核对；共同流量上涨、虚拟磁盘映射和设备层限速都是替代解释。\n\n`/sys/block/<dev>/stat` 的 in_flight 计数表示已经交给驱动且未完成的请求，不包含尚未发给驱动的排队请求。请求等待累计值需对采样窗口求差，并与完成数、设备归属和请求延迟一起解释；不能仅凭一个繁忙度计数宣布具体邻居是根因。\n\n来源：[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。同步写的低延迟与反证见 [同步写指南](synchronous_io.md)。"
+      },
+      {
+        "query": "C++ fdatasync 的完整窗口有 180 次成功操作，均值 38ms，应用写入延迟同时上升。允许低预算同步 I/O 追踪，请取证操作路径和设备归属，不作全局健康结论。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "C++ fdatasync 的完整窗口有 180 次成功操作",
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "recovery"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "C++ fdatasync 的完整窗口有 180 次成功操作"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "均值 38ms"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "应用写入延迟"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "上升"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "允许低预算同步 I/O 追踪"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请取证操作路径和设备归属"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不作全局健康结论"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "sre.recovery.acceptance",
+        "title": "Agent 恢复与容量验收",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+        "score": 5.582852,
+        "matched_terms": [
+          "健康",
+          "完整",
+          "延迟"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 持久化与容量\n\n恢复到独立数据库和对象桶，核对行数、对象 hash 与引用完整性，不能只检查备份文件存在。长期测试记录并发、吞吐、延迟、RSS、磁盘增长与失败率；短期健康检查不应外推长期容量。所有演练保留原生产卷。\n\n来源：Mini-Drop 项目验收协议；结合既有 scripts/verify_backup_restore.py，2026-09-19。本文不是已通过的验收报告。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

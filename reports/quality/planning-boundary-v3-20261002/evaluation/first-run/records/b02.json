@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b02",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc93ff239812f51876fcff896538",
+    "object": "chat.completion",
+    "created": 1790943953,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户请求仅描述已注册 Java worker 的部署标签与其进程身份的关系，不要求评估健康状态、推断故障或请求任何测量。这是一个纯信息描述请求，没有提出待验证的异常，因此规划结果为 NORMAL。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于描述性请求，未对当前系统状态进行任何检查或采样。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3616,
+      "completion_tokens": 143,
+      "total_tokens": 3759,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 3616
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc93ff239812f51876fcff896538\",\"object\":\"chat.completion\",\"created\":1790943953,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户请求仅描述已注册 Java worker 的部署标签与其进程身份的关系，不要求评估健康状态、推断故障或请求任何测量。这是一个纯信息描述请求，没有提出待验证的异常，因此规划结果为 NORMAL。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于描述性请求，未对当前系统状态进行任何检查或采样。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3616,\"completion_tokens\":143,\"total_tokens\":3759,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":3616},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "89398105f3653124146281737890a10721ecbc2e1b46c4d5476998d4cdf50d68",
+  "seconds": 14.975278,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

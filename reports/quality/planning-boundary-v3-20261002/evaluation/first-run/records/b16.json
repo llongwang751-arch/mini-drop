@@ -1,0 +1,143 @@
+{
+  "type": "result",
+  "case_id": "b16",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc9692623939040d41673eab4ad0",
+    "object": "chat.completion",
+    "created": 1790944121,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户描述了ClickHouse part merges可能影响可用性的场景，但明确表示没有合并任务记录、没有经过的时间间隔，并且没有权限收集这些信息。当前缺少对ClickHouse合并操作状态、系统资源使用情况或相关错误日志的必要观测。由于无法提出在当前约束下可执行的取证计划（例如，无法访问ClickHouse系统表或日志），因此证据不足。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"ClickHouse 系统表（如 system.merges）中关于 part merges 的状态、进度或错误信息\",\n    \"与 merges 操作相关的 ClickHouse 服务器日志\",\n    \"在疑似受影响的时段内，目标 ClickHouse 进程或主机的系统资源（CPU、内存、磁盘 I/O）使用情况\",\n    \"因 merges 导致的表或分区不可用（如查询超时、写入失败）的具体错误观测\"\n  ],\n  \"limitations\": [\n    \"本次规划仅基于用户描述，未对当前 ClickHouse 状态进行检查。\",\n    \"用户声明无权限收集 ClickHouse 合并任务记录，规划受限于此证据缺口。\",\n    \"知识检索返回了不相关的 MySQL 锁等待信息，不能作为本次 ClickHouse 问题的证据或先验。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4193,
+      "completion_tokens": 328,
+      "total_tokens": 4521,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1249
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc9692623939040d41673eab4ad0\",\"object\":\"chat.completion\",\"created\":1790944121,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户描述了ClickHouse part merges可能影响可用性的场景，但明确表示没有合并任务记录、没有经过的时间间隔，并且没有权限收集这些信息。当前缺少对ClickHouse合并操作状态、系统资源使用情况或相关错误日志的必要观测。由于无法提出在当前约束下可执行的取证计划（例如，无法访问ClickHouse系统表或日志），因此证据不足。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"ClickHouse 系统表（如 system.merges）中关于 part merges 的状态、进度或错误信息\\\",\\n    \\\"与 merges 操作相关的 ClickHouse 服务器日志\\\",\\n    \\\"在疑似受影响的时段内，目标 ClickHouse 进程或主机的系统资源（CPU、内存、磁盘 I/O）使用情况\\\",\\n    \\\"因 merges 导致的表或分区不可用（如查询超时、写入失败）的具体错误观测\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于用户描述，未对当前 ClickHouse 状态进行检查。\\\",\\n    \\\"用户声明无权限收集 ClickHouse 合并任务记录，规划受限于此证据缺口。\\\",\\n    \\\"知识检索返回了不相关的 MySQL 锁等待信息，不能作为本次 ClickHouse 问题的证据或先验。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4193,\"completion_tokens\":328,\"total_tokens\":4521,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1249},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "85c10e25182afa33d0107df07b10c5bf0a1db07ace30396b520b0c8b36c6b6a4",
+  "seconds": 16.748978,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "mysql.lock_wait"
+    ],
+    "matches": [
+      {
+        "query": "ClickHouse part merges may have affected availability. There are no merge-task records, no elapsed interval and no access for gathering them. State the missing evidence rather than borrowing MySQL lock observations.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "lock_wait"
+          ],
+          "matched_anchors": [
+            "lock",
+            "mysql"
+          ],
+          "unsupported_subjects": [],
+          "clause": "State the missing evidence rather than borrowing MySQL lock observations",
+          "source_profile": {
+            "concepts": [
+              "lock_wait"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": [
+              "MYSQL"
+            ]
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "clickhouse"
+              ],
+              "clause": "ClickHouse part merges may have affected availability"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "clickhouse"
+              ],
+              "clause": "There are no merge-task records"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "clickhouse"
+              ],
+              "clause": "no elapsed interval and no access for gathering them"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "lock_wait"
+              ],
+              "matched_anchors": [
+                "lock",
+                "mysql"
+              ],
+              "unsupported_subjects": [],
+              "clause": "State the missing evidence rather than borrowing MySQL lock observations"
+            }
+          ],
+          "unregistered_subjects": [
+            "clickhouse"
+          ]
+        },
+        "knowledge_id": "mysql.lock_wait",
+        "title": "MySQL 锁等待诊断",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "b1fafaf760892951df2a34767920ae404a4627d440b9948923691bb5262308da",
+        "chunk_id": "facf811658c648a508d52c7a26421b411400b16039fb164e98c1b0ad6fa7f2f0",
+        "score": 12.645662,
+        "matched_terms": [
+          "mysql",
+          "lock"
+        ],
+        "required_evidence": [
+          "锁等待数与时长",
+          "阻塞会话",
+          "事务持续时间"
+        ],
+        "caveats": [
+          "慢查询不一定由锁等待造成"
+        ],
+        "excerpt": "# MySQL 锁等待\n\n锁等待分析需要建立阻塞事务到被阻塞事务的关系，并检查事务持续时间、访问顺序、隔离级别和慢 SQL。仅观察查询延迟不能断言锁等待。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

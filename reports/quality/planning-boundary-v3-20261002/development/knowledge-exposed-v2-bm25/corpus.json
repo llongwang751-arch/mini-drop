@@ -1,0 +1,1254 @@
+[
+  {
+    "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+    "knowledge_id": "linux.cpu.process_pressure",
+    "title": "Linux 进程用户态 CPU 热点",
+    "document": "knowledge/linux_cpu.md",
+    "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+    "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+    "metadata_text": "linux.cpu.process_pressure Linux 进程用户态 CPU 热点 进程或线程 CPU 高、低与正常都需绑定采样窗口和口径；低 CPU 只能反驳同窗持续计算饱和，热点与流量变化另需 Profile 和对照。 cpu userland hotspot 用户态 热点 self_code_or_process_pressure process thread worker CPU usage CPU utilization low CPU normal CPU 进程 线程 低CPU 正常CPU cpu self_code_or_process_pressure CPU user/system 比例 Profile TopN 同宿主资源对比 采样起止时间与 CPU 时间增量 核数/配额及 CPU 百分比口径 单次 CPU 高不能证明代码回归 缺少符号时应返回证据不足 低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测",
+    "recall_anchors": [
+      "CPU usage",
+      "CPU utilization",
+      "cpu",
+      "hotspot",
+      "linux.cpu.process_pressure",
+      "low CPU",
+      "normal CPU",
+      "process",
+      "self_code_or_process_pressure",
+      "thread",
+      "userland",
+      "worker",
+      "低CPU",
+      "正常CPU",
+      "热点",
+      "用户态",
+      "线程",
+      "进程"
+    ],
+    "required_evidence": [
+      "CPU user/system 比例",
+      "Profile TopN",
+      "同宿主资源对比",
+      "采样起止时间与 CPU 时间增量",
+      "核数/配额及 CPU 百分比口径"
+    ],
+    "caveats": [
+      "单次 CPU 高不能证明代码回归",
+      "缺少符号时应返回证据不足",
+      "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+    ]
+  },
+  {
+    "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+    "knowledge_id": "linux.cpu.process_pressure",
+    "title": "Linux 进程用户态 CPU 热点",
+    "document": "knowledge/linux_cpu.md",
+    "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+    "excerpt": "## 低 CPU、正常描述和缺测\n\n进程或线程 CPU usage / CPU utilization 要写明同一采样窗口、CPU 时间增量、墙钟时长和百分比的单核/多核口径。线程或 worker 的低 CPU 可以反驳该窗口持续计算饱和，不能反驳锁、I/O、依赖等待，也不代表业务全局健康。只有进程身份而没有有效计数时是缺测；用户只要求描述现有输入、未要求健康判定时，可说明描述范围并停止，不制造异常假设。\n\nLinux `/proc/<pid>/stat` 的 utime/stime 是进程用户态/系统态 CPU 时间计数，需按时钟 tick 单位和采样间隔求增量。进程重启、窗口不完整、采集失败不能当作零 CPU。知识本身不能授权新探针或成为当前证据。\n\n来源：[Linux /proc 官方文档](https://docs.kernel.org/filesystems/proc.html)；JVM 线程测量见 [Java 线程 CPU 指南](java_thread_cpu.md)。",
+    "metadata_text": "linux.cpu.process_pressure Linux 进程用户态 CPU 热点 进程或线程 CPU 高、低与正常都需绑定采样窗口和口径；低 CPU 只能反驳同窗持续计算饱和，热点与流量变化另需 Profile 和对照。 cpu userland hotspot 用户态 热点 self_code_or_process_pressure process thread worker CPU usage CPU utilization low CPU normal CPU 进程 线程 低CPU 正常CPU cpu self_code_or_process_pressure CPU user/system 比例 Profile TopN 同宿主资源对比 采样起止时间与 CPU 时间增量 核数/配额及 CPU 百分比口径 单次 CPU 高不能证明代码回归 缺少符号时应返回证据不足 低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测",
+    "recall_anchors": [
+      "CPU usage",
+      "CPU utilization",
+      "cpu",
+      "hotspot",
+      "linux.cpu.process_pressure",
+      "low CPU",
+      "normal CPU",
+      "process",
+      "self_code_or_process_pressure",
+      "thread",
+      "userland",
+      "worker",
+      "低CPU",
+      "正常CPU",
+      "热点",
+      "用户态",
+      "线程",
+      "进程"
+    ],
+    "required_evidence": [
+      "CPU user/system 比例",
+      "Profile TopN",
+      "同宿主资源对比",
+      "采样起止时间与 CPU 时间增量",
+      "核数/配额及 CPU 百分比口径"
+    ],
+    "caveats": [
+      "单次 CPU 高不能证明代码回归",
+      "缺少符号时应返回证据不足",
+      "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+    ]
+  },
+  {
+    "chunk_id": "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+    "knowledge_id": "linux.cpu.kernel_overhead",
+    "title": "Linux 系统态 CPU 偏高",
+    "document": "knowledge/linux_cpu.md",
+    "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+    "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+    "metadata_text": "linux.cpu.kernel_overhead Linux 系统态 CPU 偏高 系统态 CPU 偏高可能来自系统调用、网络协议栈、调度或内核路径，需要内核栈和关联指标区分。 cpu system kernel 系统态 内核 cpu kernel_overhead CPU system 比例 内核栈或系统调用分布 不能仅凭 system% 判断具体内核模块",
+    "recall_anchors": [
+      "cpu",
+      "kernel",
+      "kernel_overhead",
+      "linux.cpu.kernel_overhead",
+      "system",
+      "内核",
+      "系统态"
+    ],
+    "required_evidence": [
+      "CPU system 比例",
+      "内核栈或系统调用分布"
+    ],
+    "caveats": [
+      "不能仅凭 system% 判断具体内核模块"
+    ]
+  },
+  {
+    "chunk_id": "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+    "knowledge_id": "linux.cpu.kernel_overhead",
+    "title": "Linux 系统态 CPU 偏高",
+    "document": "knowledge/linux_cpu.md",
+    "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+    "excerpt": "## 低 CPU、正常描述和缺测\n\n进程或线程 CPU usage / CPU utilization 要写明同一采样窗口、CPU 时间增量、墙钟时长和百分比的单核/多核口径。线程或 worker 的低 CPU 可以反驳该窗口持续计算饱和，不能反驳锁、I/O、依赖等待，也不代表业务全局健康。只有进程身份而没有有效计数时是缺测；用户只要求描述现有输入、未要求健康判定时，可说明描述范围并停止，不制造异常假设。\n\nLinux `/proc/<pid>/stat` 的 utime/stime 是进程用户态/系统态 CPU 时间计数，需按时钟 tick 单位和采样间隔求增量。进程重启、窗口不完整、采集失败不能当作零 CPU。知识本身不能授权新探针或成为当前证据。\n\n来源：[Linux /proc 官方文档](https://docs.kernel.org/filesystems/proc.html)；JVM 线程测量见 [Java 线程 CPU 指南](java_thread_cpu.md)。",
+    "metadata_text": "linux.cpu.kernel_overhead Linux 系统态 CPU 偏高 系统态 CPU 偏高可能来自系统调用、网络协议栈、调度或内核路径，需要内核栈和关联指标区分。 cpu system kernel 系统态 内核 cpu kernel_overhead CPU system 比例 内核栈或系统调用分布 不能仅凭 system% 判断具体内核模块",
+    "recall_anchors": [
+      "cpu",
+      "kernel",
+      "kernel_overhead",
+      "linux.cpu.kernel_overhead",
+      "system",
+      "内核",
+      "系统态"
+    ],
+    "required_evidence": [
+      "CPU system 比例",
+      "内核栈或系统调用分布"
+    ],
+    "caveats": [
+      "不能仅凭 system% 判断具体内核模块"
+    ]
+  },
+  {
+    "chunk_id": "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+    "knowledge_id": "linux.iowait.shared_block_device",
+    "title": "共享块设备与 I/O wait 争抢",
+    "document": "knowledge/linux_iowait.md",
+    "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+    "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+    "metadata_text": "linux.iowait.shared_block_device 共享块设备与 I/O wait 争抢 目标和同宿主实例同时出现 iowait，更支持共享设备或宿主机争抢；仍需设备延迟与队列证据排除共同流量上涨。 io iowait block 磁盘 共享 host_resource_contention block device same-host same-node co-located colocated 同节点 同主机 设备队列 设备等待 io host_resource_contention 目标与邻居 iowait 块设备延迟直方图 设备队列深度 相关性不等于噪声邻居导致 虚拟磁盘可能共享宿主物理设备",
+    "recall_anchors": [
+      "block",
+      "block device",
+      "co-located",
+      "colocated",
+      "host_resource_contention",
+      "io",
+      "iowait",
+      "linux.iowait.shared_block_device",
+      "same-host",
+      "same-node",
+      "共享",
+      "同主机",
+      "同节点",
+      "磁盘",
+      "设备等待",
+      "设备队列"
+    ],
+    "required_evidence": [
+      "目标与邻居 iowait",
+      "块设备延迟直方图",
+      "设备队列深度"
+    ],
+    "caveats": [
+      "相关性不等于噪声邻居导致",
+      "虚拟磁盘可能共享宿主物理设备"
+    ]
+  },
+  {
+    "chunk_id": "2256c98c65593af573a26d1fc1681338ef28950151ef4a04509e371772556e69",
+    "knowledge_id": "linux.iowait.shared_block_device",
+    "title": "共享块设备与 I/O wait 争抢",
+    "document": "knowledge/linux_iowait.md",
+    "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+    "excerpt": "## 同节点、同主机与共享设备\n\nsame-host、same-node、co-located / colocated 描述部署位置。只有确认目标与邻居映射到同一块设备或共享宿主资源，位置关系才是争用调查线索。设备队列、目标等待与邻居负载必须在同一窗口核对；共同流量上涨、虚拟磁盘映射和设备层限速都是替代解释。\n\n`/sys/block/<dev>/stat` 的 in_flight 计数表示已经交给驱动且未完成的请求，不包含尚未发给驱动的排队请求。请求等待累计值需对采样窗口求差，并与完成数、设备归属和请求延迟一起解释；不能仅凭一个繁忙度计数宣布具体邻居是根因。\n\n来源：[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。同步写的低延迟与反证见 [同步写指南](synchronous_io.md)。",
+    "metadata_text": "linux.iowait.shared_block_device 共享块设备与 I/O wait 争抢 目标和同宿主实例同时出现 iowait，更支持共享设备或宿主机争抢；仍需设备延迟与队列证据排除共同流量上涨。 io iowait block 磁盘 共享 host_resource_contention block device same-host same-node co-located colocated 同节点 同主机 设备队列 设备等待 io host_resource_contention 目标与邻居 iowait 块设备延迟直方图 设备队列深度 相关性不等于噪声邻居导致 虚拟磁盘可能共享宿主物理设备",
+    "recall_anchors": [
+      "block",
+      "block device",
+      "co-located",
+      "colocated",
+      "host_resource_contention",
+      "io",
+      "iowait",
+      "linux.iowait.shared_block_device",
+      "same-host",
+      "same-node",
+      "共享",
+      "同主机",
+      "同节点",
+      "磁盘",
+      "设备等待",
+      "设备队列"
+    ],
+    "required_evidence": [
+      "目标与邻居 iowait",
+      "块设备延迟直方图",
+      "设备队列深度"
+    ],
+    "caveats": [
+      "相关性不等于噪声邻居导致",
+      "虚拟磁盘可能共享宿主物理设备"
+    ]
+  },
+  {
+    "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+    "knowledge_id": "linux.memory.process_growth",
+    "title": "进程内存增长与压力",
+    "document": "knowledge/linux_memory.md",
+    "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+    "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。",
+    "metadata_text": "linux.memory.process_growth 进程内存增长与压力 RSS 增长需要结合采样时长、内存限制、堆或分配热点判断，不能只以高水位认定内存泄漏。 memory rss leak 内存 增长 泄漏 memory rss_growth high_rss RSS 时间序列 内存限制 分配热点或 GC 指标 缓存增长和泄漏表现可能相似",
+    "recall_anchors": [
+      "high_rss",
+      "leak",
+      "linux.memory.process_growth",
+      "memory",
+      "rss",
+      "rss_growth",
+      "内存",
+      "增长",
+      "泄漏"
+    ],
+    "required_evidence": [
+      "RSS 时间序列",
+      "内存限制",
+      "分配热点或 GC 指标"
+    ],
+    "caveats": [
+      "缓存增长和泄漏表现可能相似"
+    ]
+  },
+  {
+    "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+    "knowledge_id": "linux.network.retransmit",
+    "title": "TCP 重传、丢包与网络延迟",
+    "document": "knowledge/tcp_retransmit.md",
+    "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+    "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。",
+    "metadata_text": "linux.network.retransmit TCP 重传、丢包与网络延迟 重传或丢包需要同时检查连接两端、路径和时间窗；高吞吐本身不能证明网络故障。 network tcp retransmit packet_loss 网络 重传 丢包 network packet_loss_or_latency 重传率 连接级 RTT 链路两端指标 应用超时和网络丢包可能互相影响",
+    "recall_anchors": [
+      "linux.network.retransmit",
+      "network",
+      "packet_loss",
+      "packet_loss_or_latency",
+      "retransmit",
+      "tcp",
+      "丢包",
+      "网络",
+      "重传"
+    ],
+    "required_evidence": [
+      "重传率",
+      "连接级 RTT",
+      "链路两端指标"
+    ],
+    "caveats": [
+      "应用超时和网络丢包可能互相影响"
+    ]
+  },
+  {
+    "chunk_id": "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+    "knowledge_id": "mysql.lock_wait",
+    "title": "MySQL 锁等待诊断",
+    "document": "knowledge/mysql_lock_wait.md",
+    "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+    "excerpt": "# MySQL 锁等待\n\n锁等待分析需要建立阻塞事务到被阻塞事务的关系，并检查事务持续时间、访问顺序、隔离级别和慢 SQL。仅观察查询延迟不能断言锁等待。",
+    "metadata_text": "mysql.lock_wait MySQL 锁等待诊断 锁等待根因通常是阻塞事务、过长事务或访问顺序冲突，需要建立 blocking→blocked 关系。 mysql database lock 数据库 锁等待 阻塞 database mysql_lock_wait 锁等待数与时长 阻塞会话 事务持续时间 慢查询不一定由锁等待造成",
+    "recall_anchors": [
+      "database",
+      "lock",
+      "mysql",
+      "mysql.lock_wait",
+      "mysql_lock_wait",
+      "数据库",
+      "锁等待",
+      "阻塞"
+    ],
+    "required_evidence": [
+      "锁等待数与时长",
+      "阻塞会话",
+      "事务持续时间"
+    ],
+    "caveats": [
+      "慢查询不一定由锁等待造成"
+    ]
+  },
+  {
+    "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+    "knowledge_id": "jvm.gc.pressure",
+    "title": "JVM GC 暂停与分配压力",
+    "document": "knowledge/jvm_gc.md",
+    "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+    "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。",
+    "metadata_text": "jvm.gc.pressure JVM GC 暂停与分配压力 GC 压力需要结合暂停分位数、GC 时间占比、堆分代占用和分配速率判断。 jvm gc pause runtime 垃圾回收 暂停 runtime jvm_gc_pressure GC pause P95 GC 时间占比 堆分代占用 CPU 高可能是 GC 的原因，也可能是结果",
+    "recall_anchors": [
+      "gc",
+      "jvm",
+      "jvm.gc.pressure",
+      "jvm_gc_pressure",
+      "pause",
+      "runtime",
+      "垃圾回收",
+      "暂停"
+    ],
+    "required_evidence": [
+      "GC pause P95",
+      "GC 时间占比",
+      "堆分代占用"
+    ],
+    "caveats": [
+      "CPU 高可能是 GC 的原因，也可能是结果"
+    ]
+  },
+  {
+    "chunk_id": "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+    "knowledge_id": "distributed.same_host_noisy_neighbor",
+    "title": "同宿主噪声邻居",
+    "document": "knowledge/distributed_attribution.md",
+    "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+    "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。\n\nsame-host / same-node、co-located / colocated、同主机 / 同节点均描述共同部署位置，不自动证明共享物理设备。先核对目标和邻居的当前身份、宿主标识、挂载/设备映射，再比较同窗资源饱和与服务延迟；独立控制或可归属反证仍是因果判断所需条件。位置和知识先验不能替代本次采集证据。",
+    "metadata_text": "distributed.same_host_noisy_neighbor 同宿主噪声邻居 需要目标、邻居和宿主机三方证据；仅发现邻居繁忙不足以证明因果关系。 noisy_neighbor same_host 噪声邻居 同宿主 same-node co-located colocated 同节点 同主机 same_host_noisy_neighbor 目标压力 邻居压力 共享资源饱和度 共同流量上涨可能同时推高多个实例",
+    "recall_anchors": [
+      "co-located",
+      "colocated",
+      "distributed.same_host_noisy_neighbor",
+      "noisy_neighbor",
+      "same-node",
+      "same_host",
+      "same_host_noisy_neighbor",
+      "同主机",
+      "同宿主",
+      "同节点",
+      "噪声邻居"
+    ],
+    "required_evidence": [
+      "目标压力",
+      "邻居压力",
+      "共享资源饱和度"
+    ],
+    "caveats": [
+      "共同流量上涨可能同时推高多个实例"
+    ]
+  },
+  {
+    "chunk_id": "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+    "knowledge_id": "distributed.downstream_pressure",
+    "title": "下游依赖压力与症状传播",
+    "document": "knowledge/distributed_attribution.md",
+    "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+    "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。\n\nsame-host / same-node、co-located / colocated、同主机 / 同节点均描述共同部署位置，不自动证明共享物理设备。先核对目标和邻居的当前身份、宿主标识、挂载/设备映射，再比较同窗资源饱和与服务延迟；独立控制或可归属反证仍是因果判断所需条件。位置和知识先验不能替代本次采集证据。",
+    "metadata_text": "distributed.downstream_pressure 下游依赖压力与症状传播 上游延迟可能只是症状，需结合历史拓扑和同一时间窗的下游资源、Trace 分段判断根因节点。 downstream dependency 下游 依赖 传播 downstream_dependency 历史拓扑 上下游时间窗 Trace 或下游指标 当前拓扑不能直接解释历史故障",
+    "recall_anchors": [
+      "dependency",
+      "distributed.downstream_pressure",
+      "downstream",
+      "downstream_dependency",
+      "下游",
+      "传播",
+      "依赖"
+    ],
+    "required_evidence": [
+      "历史拓扑",
+      "上下游时间窗",
+      "Trace 或下游指标"
+    ],
+    "caveats": [
+      "当前拓扑不能直接解释历史故障"
+    ]
+  },
+  {
+    "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+    "knowledge_id": "python.sampling.attribution",
+    "title": "Python 采样归因与空闲线程",
+    "document": "knowledge/python_sampling.md",
+    "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+    "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+    "metadata_text": "python.sampling.attribution Python 采样归因与空闲线程 Python 采样归因与空闲线程：观察、替代解释与验证边界。 python py-spy GIL speedscope 空闲线程 热点 采样 python py-spy 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "GIL",
+      "py-spy",
+      "python",
+      "python.sampling.attribution",
+      "speedscope",
+      "热点",
+      "空闲线程",
+      "采样"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+    "knowledge_id": "python.sampling.attribution",
+    "title": "Python 采样归因与空闲线程",
+    "document": "knowledge/python_sampling.md",
+    "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+    "excerpt": "## Python 空闲线程、GIL 与非阻塞采样\n\n若多个线程样本数近似相等，且叶帧停在 sleep 或指标发布处，应怀疑空闲判定或线程身份映射。核对宿主机与容器线程 ID，保留原始 speedscope；不要按函数名删除“不喜欢”的样本。--gil 仅观察持有 GIL 的线程，会漏掉释放 GIL 的扩展；--nonblocking 存在读取非原子状态的限制。不同采样模式必须单独标注，不能直接混用分母。",
+    "metadata_text": "python.sampling.attribution Python 采样归因与空闲线程 Python 采样归因与空闲线程：观察、替代解释与验证边界。 python py-spy GIL speedscope 空闲线程 热点 采样 python py-spy 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "GIL",
+      "py-spy",
+      "python",
+      "python.sampling.attribution",
+      "speedscope",
+      "热点",
+      "空闲线程",
+      "采样"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+    "knowledge_id": "python.sampling.attribution",
+    "title": "Python 采样归因与空闲线程",
+    "document": "knowledge/python_sampling.md",
+    "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+    "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。",
+    "metadata_text": "python.sampling.attribution Python 采样归因与空闲线程 Python 采样归因与空闲线程：观察、替代解释与验证边界。 python py-spy GIL speedscope 空闲线程 热点 采样 python py-spy 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "GIL",
+      "py-spy",
+      "python",
+      "python.sampling.attribution",
+      "speedscope",
+      "热点",
+      "空闲线程",
+      "采样"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+    "knowledge_id": "container.cpu.throttling",
+    "title": "容器 CPU 配额节流",
+    "document": "knowledge/cgroup_cpu.md",
+    "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+    "excerpt": "# 容器 CPU 配额与节流\n\n容器延迟升高而宿主机仍空闲时，应检查目标进程所在 cgroup 的 CPU 限额。先校验 /proc/PID/cgroup 与进程启动身份，避免读错容器。",
+    "metadata_text": "container.cpu.throttling 容器 CPU 配额节流 容器 CPU 配额节流：观察、替代解释与验证边界。 cgroup cpu.max cpu.stat throttling 配额 节流 cgroup cpu.max 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "cgroup",
+      "container.cpu.throttling",
+      "cpu.max",
+      "cpu.stat",
+      "throttling",
+      "节流",
+      "配额"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+    "knowledge_id": "container.cpu.throttling",
+    "title": "容器 CPU 配额节流",
+    "document": "knowledge/cgroup_cpu.md",
+    "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+    "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。",
+    "metadata_text": "container.cpu.throttling 容器 CPU 配额节流 容器 CPU 配额节流：观察、替代解释与验证边界。 cgroup cpu.max cpu.stat throttling 配额 节流 cgroup cpu.max 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "cgroup",
+      "container.cpu.throttling",
+      "cpu.max",
+      "cpu.stat",
+      "throttling",
+      "节流",
+      "配额"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+    "knowledge_id": "container.cpu.throttling",
+    "title": "容器 CPU 配额节流",
+    "document": "knowledge/cgroup_cpu.md",
+    "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+    "excerpt": "## CPU 配额对照与处置边界\n\n区分代码消耗增长、负载增长和配额变小。只有在容量允许且处置授权明确时才试验调整配额，并保存原值；复测仍使用原请求负载。缺少 cgroup 数据时应报告观测缺口，不用宿主机 CPU 空闲排除配额限制。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；字段语义参考上游，调查步骤为项目约定。",
+    "metadata_text": "container.cpu.throttling 容器 CPU 配额节流 容器 CPU 配额节流：观察、替代解释与验证边界。 cgroup cpu.max cpu.stat throttling 配额 节流 cgroup cpu.max 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "cgroup",
+      "container.cpu.throttling",
+      "cpu.max",
+      "cpu.stat",
+      "throttling",
+      "节流",
+      "配额"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+    "knowledge_id": "container.memory.pressure",
+    "title": "容器内存回收与 OOM",
+    "document": "knowledge/memory_pressure.md",
+    "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+    "excerpt": "# 容器内存压力、回收与 OOM\n\nRSS 高不等于泄漏。区分匿名页、文件缓存、共享页和容器限制；进程视角与 cgroup 视角的统计范围不同。",
+    "metadata_text": "container.memory.pressure 容器内存回收与 OOM 容器内存回收与 OOM：观察、替代解释与验证边界。 memory.events memory.pressure OOM 回收 内存 memory.events memory.pressure 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "OOM",
+      "container.memory.pressure",
+      "memory.events",
+      "memory.pressure",
+      "内存",
+      "回收"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+    "knowledge_id": "container.memory.pressure",
+    "title": "容器内存回收与 OOM",
+    "document": "knowledge/memory_pressure.md",
+    "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+    "excerpt": "## memory.events 与压力观察\n\n记录 memory.current、memory.max、memory.high、memory.events 的同窗增量，并观察 memory.pressure。回收压力、OOM 和进程退出应对齐时间；不可用最终一次 RSS 代替退出前观测。不同内核版本字段能力需现场核对。",
+    "metadata_text": "container.memory.pressure 容器内存回收与 OOM 容器内存回收与 OOM：观察、替代解释与验证边界。 memory.events memory.pressure OOM 回收 内存 memory.events memory.pressure 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "OOM",
+      "container.memory.pressure",
+      "memory.events",
+      "memory.pressure",
+      "内存",
+      "回收"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+    "knowledge_id": "container.memory.pressure",
+    "title": "容器内存回收与 OOM",
+    "document": "knowledge/memory_pressure.md",
+    "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+    "excerpt": "## 内存泄漏的对照\n\n保持输入与并发，分预热、稳定负载和空闲阶段观察趋势，并结合运行时堆或分配采样。缓存预热、分配器保留和泄漏需要不同处置。不要把提高上限或重启后的短暂下降当成代码修复；报告应保留观测时长与尚不能排除的解释。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；调查和复测门槛为项目约定。",
+    "metadata_text": "container.memory.pressure 容器内存回收与 OOM 容器内存回收与 OOM：观察、替代解释与验证边界。 memory.events memory.pressure OOM 回收 内存 memory.events memory.pressure 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "OOM",
+      "container.memory.pressure",
+      "memory.events",
+      "memory.pressure",
+      "内存",
+      "回收"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+    "knowledge_id": "go.profile.selection",
+    "title": "Go 堆和阻塞采样",
+    "document": "knowledge/go_profiles.md",
+    "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+    "excerpt": "# Go CPU、堆与阻塞采样选型\n\n按问题选择 profile：CPU 描述执行消耗，heap 描述堆分配视角，block 与 mutex 用于阻塞及锁竞争调查。不要用 CPU 火焰图直接证明等待时间。",
+    "metadata_text": "go.profile.selection Go 堆和阻塞采样 Go 堆和阻塞采样：观察、替代解释与验证边界。 go pprof goroutine mutex block 堆 阻塞 go pprof 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "block",
+      "go",
+      "go.profile.selection",
+      "goroutine",
+      "mutex",
+      "pprof",
+      "阻塞"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+    "knowledge_id": "go.profile.selection",
+    "title": "Go 堆和阻塞采样",
+    "document": "knowledge/go_profiles.md",
+    "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+    "excerpt": "## Go goroutine 与锁竞争\n\n先核对 goroutine 栈、阻塞位置与请求延迟的时间窗；大量 goroutine 本身不是泄漏结论。确认目标启用了相应采样，缺少 block 或 mutex 样本可能是未配置。仅通过已授权的目标端点取数，不将 pprof 暴露公网。",
+    "metadata_text": "go.profile.selection Go 堆和阻塞采样 Go 堆和阻塞采样：观察、替代解释与验证边界。 go pprof goroutine mutex block 堆 阻塞 go pprof 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "block",
+      "go",
+      "go.profile.selection",
+      "goroutine",
+      "mutex",
+      "pprof",
+      "阻塞"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+    "knowledge_id": "go.profile.selection",
+    "title": "Go 堆和阻塞采样",
+    "document": "knowledge/go_profiles.md",
+    "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+    "excerpt": "## Go 堆增长与修复复测\n\n分别阅读累计分配与仍存活对象，保持采样口径、GC 阶段和工作负载可比。修复后同时观察存活量、分配速率、CPU 与请求延迟，避免把性能转移到另一资源算作成功。\n\n来源：https://go.dev/doc/diagnostics 。核对日期 2026-09-19；本文是项目调查摘要。",
+    "metadata_text": "go.profile.selection Go 堆和阻塞采样 Go 堆和阻塞采样：观察、替代解释与验证边界。 go pprof goroutine mutex block 堆 阻塞 go pprof 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "block",
+      "go",
+      "go.profile.selection",
+      "goroutine",
+      "mutex",
+      "pprof",
+      "阻塞"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+    "knowledge_id": "postgres.waits",
+    "title": "PostgreSQL 长事务与锁等待",
+    "document": "knowledge/postgres_waits.md",
+    "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+    "excerpt": "# PostgreSQL 等待事件与阻塞关系\n\n通过 pg_stat_activity 的状态、事务开始时间、wait_event_type 和 wait_event 判断调查方向。active 状态不保证正在消耗 CPU；可能同时存在等待。",
+    "metadata_text": "postgres.waits PostgreSQL 长事务与锁等待 PostgreSQL 长事务与锁等待：观察、替代解释与验证边界。 postgresql pg_stat_activity wait_event 长事务 锁等待 postgresql pg_stat_activity 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "pg_stat_activity",
+      "postgres.waits",
+      "postgresql",
+      "wait_event",
+      "锁等待",
+      "长事务"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+    "knowledge_id": "postgres.waits",
+    "title": "PostgreSQL 长事务与锁等待",
+    "document": "knowledge/postgres_waits.md",
+    "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+    "excerpt": "## PostgreSQL 长事务与锁等待\n\n建立阻塞方与被阻塞方关系，并记录事务年龄、请求窗口和查询标识。连接数高不能单独证明锁竞争。查询文本可能含业务敏感数据，使用摘要和受限的只读查询。",
+    "metadata_text": "postgres.waits PostgreSQL 长事务与锁等待 PostgreSQL 长事务与锁等待：观察、替代解释与验证边界。 postgresql pg_stat_activity wait_event 长事务 锁等待 postgresql pg_stat_activity 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "pg_stat_activity",
+      "postgres.waits",
+      "postgresql",
+      "wait_event",
+      "锁等待",
+      "长事务"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+    "knowledge_id": "postgres.waits",
+    "title": "PostgreSQL 长事务与锁等待",
+    "document": "knowledge/postgres_waits.md",
+    "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+    "excerpt": "## PostgreSQL 处置前后比较\n\n先区分连接池排队、锁等待与查询计算消耗。取消或终止事务会影响业务，不能由知识命中自动执行。复测保持相同事务组合与到达率，并比较等待时长、错误率和吞吐。没有数据库连接器时应明确无法观测。\n\n来源：https://www.postgresql.org/docs/current/monitoring-stats.html 。核对日期 2026-09-19；以部署主版本为准。",
+    "metadata_text": "postgres.waits PostgreSQL 长事务与锁等待 PostgreSQL 长事务与锁等待：观察、替代解释与验证边界。 postgresql pg_stat_activity wait_event 长事务 锁等待 postgresql pg_stat_activity 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "pg_stat_activity",
+      "postgres.waits",
+      "postgresql",
+      "wait_event",
+      "锁等待",
+      "长事务"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+    "knowledge_id": "sre.latency.measurement",
+    "title": "延迟分位数与同负载复测",
+    "document": "knowledge/latency_measurement.md",
+    "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+    "excerpt": "# 延迟分位数与同负载测量\n\n记录请求到达率、并发、输入分布、超时策略、预热期和测量时长。修复前后改变请求量会破坏比较；失败及超时请求也必须计数。",
+    "metadata_text": "sre.latency.measurement 延迟分位数与同负载复测 延迟分位数与同负载复测：观察、替代解释与验证边界。 histogram summary P95 分位数 同负载 复测 histogram summary 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "P95",
+      "histogram",
+      "sre.latency.measurement",
+      "summary",
+      "分位数",
+      "同负载",
+      "复测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+    "knowledge_id": "sre.latency.measurement",
+    "title": "延迟分位数与同负载复测",
+    "document": "knowledge/latency_measurement.md",
+    "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+    "excerpt": "## Histogram 与 P95\n\n直方图分位数是桶内估计，桶边界会影响精度。不要平均多个实例的 P95；先按兼容桶聚合再计算。Summary 的客户端分位数不能按同样方式跨实例聚合。",
+    "metadata_text": "sre.latency.measurement 延迟分位数与同负载复测 延迟分位数与同负载复测：观察、替代解释与验证边界。 histogram summary P95 分位数 同负载 复测 histogram summary 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "P95",
+      "histogram",
+      "sre.latency.measurement",
+      "summary",
+      "分位数",
+      "同负载",
+      "复测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+    "knowledge_id": "sre.latency.measurement",
+    "title": "延迟分位数与同负载复测",
+    "document": "knowledge/latency_measurement.md",
+    "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+    "excerpt": "## 同负载复测的通过条件\n\n保存负载配置摘要及窗口原始结果，比较完成吞吐、错误率、P95 和资源消耗。负载未达到、数据缺失、窗口过短或预热未完成应判为不可比。撤销故障注入属于恢复实验，代码或配置修复应另外记录变更与回滚标识。\n\n来源：https://prometheus.io/docs/practices/histograms/ 。核对日期 2026-09-19；复测协议为 Mini-Drop 项目约定。",
+    "metadata_text": "sre.latency.measurement 延迟分位数与同负载复测 延迟分位数与同负载复测：观察、替代解释与验证边界。 histogram summary P95 分位数 同负载 复测 histogram summary 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "P95",
+      "histogram",
+      "sre.latency.measurement",
+      "summary",
+      "分位数",
+      "同负载",
+      "复测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+    "knowledge_id": "agent.tool.governance",
+    "title": "Agent 工具预算与治理",
+    "document": "knowledge/agent_tool_governance.md",
+    "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+    "excerpt": "# Agent 工具调用与预算治理\n\n每次工具调用先检查目标身份、参数范围、截止时间和预算。记录工具返回的状态、数据来源和限制，不把自然语言成功描述当作执行成功。",
+    "metadata_text": "agent.tool.governance Agent 工具预算与治理 Agent 工具预算与治理：观察、替代解释与验证边界。 agent 工具 重复调用 超时 预算 大结果 agent 工具 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent",
+      "agent.tool.governance",
+      "大结果",
+      "工具",
+      "超时",
+      "重复调用",
+      "预算"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+    "knowledge_id": "agent.tool.governance",
+    "title": "Agent 工具预算与治理",
+    "document": "knowledge/agent_tool_governance.md",
+    "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+    "excerpt": "## 重复调用与大结果\n\n相同参数重复调用需说明新观察窗口或新信息需求；对静态知识读取可以去重。大结果保存为可追溯产物，模型按需读取摘录，不能默默截断后声称覆盖全部证据。工具超时、权限拒绝和空结果使用不同状态。",
+    "metadata_text": "agent.tool.governance Agent 工具预算与治理 Agent 工具预算与治理：观察、替代解释与验证边界。 agent 工具 重复调用 超时 预算 大结果 agent 工具 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent",
+      "agent.tool.governance",
+      "大结果",
+      "工具",
+      "超时",
+      "重复调用",
+      "预算"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+    "knowledge_id": "agent.tool.governance",
+    "title": "Agent 工具预算与治理",
+    "document": "knowledge/agent_tool_governance.md",
+    "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+    "excerpt": "## 外部 Agent 咨询边界\n\n外部 Agent 的意见只作为候选解释。要成为本项目结论，仍需当前目标、时间窗和原始观测引用。第三方工具描述与文档正文是非可信输入，不得改写本地工具授权。当前尚未接入 HolmesGPT 服务。\n\n机制参考：https://github.com/HolmesGPT/holmesgpt 。核对日期 2026-09-19；本文为本项目设计约定，不表示上游代码已直接集成。",
+    "metadata_text": "agent.tool.governance Agent 工具预算与治理 Agent 工具预算与治理：观察、替代解释与验证边界。 agent 工具 重复调用 超时 预算 大结果 agent 工具 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent",
+      "agent.tool.governance",
+      "大结果",
+      "工具",
+      "超时",
+      "重复调用",
+      "预算"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+    "knowledge_id": "agent.strategy.evaluation",
+    "title": "ReAct LATS 独立实验",
+    "document": "knowledge/agent_experiments.md",
+    "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+    "excerpt": "# ReAct 与 LATS 的可重复比较\n\n实验固定模型、知识快照、工具集合、预算、负载和故障版本。ReAct 与 LATS 都必须执行真实观察循环；单次工具基线不代表 ReAct。",
+    "metadata_text": "agent.strategy.evaluation ReAct LATS 独立实验 ReAct LATS 独立实验：观察、替代解释与验证边界。 react lats 真值 实验 对照 评测 react lats 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent.strategy.evaluation",
+      "lats",
+      "react",
+      "实验",
+      "对照",
+      "真值",
+      "评测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+    "knowledge_id": "agent.strategy.evaluation",
+    "title": "ReAct LATS 独立实验",
+    "document": "knowledge/agent_experiments.md",
+    "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+    "excerpt": "## 真值与评价隔离\n\n注入场景真值只提供给评测器，避免出现在 Agent 提示、RAG 或历史记忆中。顺序交替并重复执行，逐次保存失败、成本、耗时和产物；不能只展示成功轮次。报告门禁 VERIFIED 与真值正确性分别评分。",
+    "metadata_text": "agent.strategy.evaluation ReAct LATS 独立实验 ReAct LATS 独立实验：观察、替代解释与验证边界。 react lats 真值 实验 对照 评测 react lats 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent.strategy.evaluation",
+      "lats",
+      "react",
+      "实验",
+      "对照",
+      "真值",
+      "评测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+    "knowledge_id": "agent.strategy.evaluation",
+    "title": "ReAct LATS 独立实验",
+    "document": "knowledge/agent_experiments.md",
+    "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+    "excerpt": "## 搜索策略与现场时间\n\n线上现场随时间变化，不能像可复位模拟器一样回滚到旧树节点的物理状态。LATS 候选选择应记录观察时间及证据过期；不要用模型自评分代替独立根因判定。先完成无故障负例与几种可稳定复现的故障，再扩大场景。\n\n参考：https://github.com/microsoft/AIOpsLab 与 https://github.com/andyz245/LanguageAgentTreeSearch 。核对日期 2026-09-19；本文为项目实验协议，未声称完成上游基准测试。",
+    "metadata_text": "agent.strategy.evaluation ReAct LATS 独立实验 ReAct LATS 独立实验：观察、替代解释与验证边界。 react lats 真值 实验 对照 评测 react lats 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "agent.strategy.evaluation",
+      "lats",
+      "react",
+      "实验",
+      "对照",
+      "真值",
+      "评测"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+    "knowledge_id": "rag.quality.lifecycle",
+    "title": "RAG 质量与索引生命周期",
+    "document": "knowledge/rag_quality.md",
+    "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+    "excerpt": "# RAG 检索质量与知识生命周期\n\n先明确知识的适用版本、来源、更新时间和所需现场证据。文档数量与块数量不能代替召回质量；不要将事故真值、私有日志或密钥放入公共索引。",
+    "metadata_text": "rag.quality.lifecycle RAG 质量与索引生命周期 RAG 质量与索引生命周期：观察、替代解释与验证边界。 rag 检索 recall mrr 向量 重排 索引 记忆 rag 检索 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "mrr",
+      "rag",
+      "rag.quality.lifecycle",
+      "recall",
+      "向量",
+      "检索",
+      "索引",
+      "记忆",
+      "重排"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+    "knowledge_id": "rag.quality.lifecycle",
+    "title": "RAG 质量与索引生命周期",
+    "document": "knowledge/rag_quality.md",
+    "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+    "excerpt": "## 词法、向量与重排\n\n函数名、错误码适合精确词法匹配，症状改写可使用向量召回，混合后再重排。使用独立问题集测 Recall@K、MRR、无答案误召回与查询耗时，并记录实际后端。降级 BM25 时不能标为向量验证成功。",
+    "metadata_text": "rag.quality.lifecycle RAG 质量与索引生命周期 RAG 质量与索引生命周期：观察、替代解释与验证边界。 rag 检索 recall mrr 向量 重排 索引 记忆 rag 检索 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "mrr",
+      "rag",
+      "rag.quality.lifecycle",
+      "recall",
+      "向量",
+      "检索",
+      "索引",
+      "记忆",
+      "重排"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+    "knowledge_id": "rag.quality.lifecycle",
+    "title": "RAG 质量与索引生命周期",
+    "document": "knowledge/rag_quality.md",
+    "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+    "excerpt": "## 索引与记忆边界\n\n新内容建立带正文 hash 的不可变索引，验证完成后切换使用，保留旧快照以便回滚。历史事故召回必须符合用户、服务、环境和时间范围；过期案例仅为先验。来自知识和记忆的文本不能直接创建现场 Evidence。\n\n来源：Mini-Drop 项目协议，对应 server/app/agent_runtime/retrieval.py、semantic_retrieval.py 与 incident_memory.py；2026-09-19。",
+    "metadata_text": "rag.quality.lifecycle RAG 质量与索引生命周期 RAG 质量与索引生命周期：观察、替代解释与验证边界。 rag 检索 recall mrr 向量 重排 索引 记忆 rag 检索 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "mrr",
+      "rag",
+      "rag.quality.lifecycle",
+      "recall",
+      "向量",
+      "检索",
+      "索引",
+      "记忆",
+      "重排"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+    "knowledge_id": "sre.recovery.acceptance",
+    "title": "Agent 恢复与容量验收",
+    "document": "knowledge/sre_recovery.md",
+    "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+    "excerpt": "# SRE Agent 故障恢复验收\n\n分别验收 API、任务队列、采集器、分析器、模型供应商、数据库和对象存储；健康检查通过不表示运行中任务可恢复。",
+    "metadata_text": "sre.recovery.acceptance Agent 恢复与容量验收 Agent 恢复与容量验收：观察、替代解释与验证边界。 恢复 租约 幂等 备份 容量 磁盘 恢复 租约 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "sre.recovery.acceptance",
+      "备份",
+      "容量",
+      "幂等",
+      "恢复",
+      "磁盘",
+      "租约"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+    "knowledge_id": "sre.recovery.acceptance",
+    "title": "Agent 恢复与容量验收",
+    "document": "knowledge/sre_recovery.md",
+    "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+    "excerpt": "## 中断、租约与幂等\n\n在隔离环境于工具执行前后中断 Worker，记录任务租约、恢复耗时及重复副作用。模拟模型超时、检索失败、Agent 离线，要求有界终止与明确降级。重试前验证旧任务是否已产生有效结果。",
+    "metadata_text": "sre.recovery.acceptance Agent 恢复与容量验收 Agent 恢复与容量验收：观察、替代解释与验证边界。 恢复 租约 幂等 备份 容量 磁盘 恢复 租约 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "sre.recovery.acceptance",
+      "备份",
+      "容量",
+      "幂等",
+      "恢复",
+      "磁盘",
+      "租约"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+    "knowledge_id": "sre.recovery.acceptance",
+    "title": "Agent 恢复与容量验收",
+    "document": "knowledge/sre_recovery.md",
+    "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+    "excerpt": "## 持久化与容量\n\n恢复到独立数据库和对象桶，核对行数、对象 hash 与引用完整性，不能只检查备份文件存在。长期测试记录并发、吞吐、延迟、RSS、磁盘增长与失败率；短期健康检查不应外推长期容量。所有演练保留原生产卷。\n\n来源：Mini-Drop 项目验收协议；结合既有 scripts/verify_backup_restore.py，2026-09-19。本文不是已通过的验收报告。",
+    "metadata_text": "sre.recovery.acceptance Agent 恢复与容量验收 Agent 恢复与容量验收：观察、替代解释与验证边界。 恢复 租约 幂等 备份 容量 磁盘 恢复 租约 当前目标身份与时间窗 与问题对应的原始观测 独立对照或反证 知识只能指导调查，不是当前事故证据 缺少所需连接器时明确报告观测缺口",
+    "recall_anchors": [
+      "sre.recovery.acceptance",
+      "备份",
+      "容量",
+      "幂等",
+      "恢复",
+      "磁盘",
+      "租约"
+    ],
+    "required_evidence": [
+      "当前目标身份与时间窗",
+      "与问题对应的原始观测",
+      "独立对照或反证"
+    ],
+    "caveats": [
+      "知识只能指导调查，不是当前事故证据",
+      "缺少所需连接器时明确报告观测缺口"
+    ]
+  },
+  {
+    "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+    "knowledge_id": "jvm.cpu.thread_observation",
+    "title": "Java JVM 线程 CPU 时间与有界正常观测",
+    "document": "knowledge/java_thread_cpu.md",
+    "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+    "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。",
+    "metadata_text": "jvm.cpu.thread_observation Java JVM 线程 CPU 时间与有界正常观测 用 ThreadMXBean 支持/启用状态和有效线程 CPU 时间增量描述同一窗口；低 CPU 不是业务全局健康，未启用、-1 或生命周期变化属于缺测。 java jvm ThreadMXBean getThreadCpuTime isThreadCpuTimeSupported isThreadCpuTimeEnabled cpu thread worker 线程 低CPU 正常CPU java jvm thread CPU measurement JVM/PID 与线程生命周期 ThreadMXBean CPU 测量支持和启用状态 同一窗口两端的有效线程 CPU 时间及墙钟时间 知识不是当前事故证据，也不增加采集权限 -1、未启用及不支持不能等同零 CPU 平台线程统计不能直接归于虚拟线程 低 CPU 不反驳锁、I/O 或依赖等待",
+    "recall_anchors": [
+      "ThreadMXBean",
+      "cpu",
+      "getThreadCpuTime",
+      "isThreadCpuTimeEnabled",
+      "isThreadCpuTimeSupported",
+      "java",
+      "jvm",
+      "jvm.cpu.thread_observation",
+      "thread",
+      "thread CPU measurement",
+      "worker",
+      "低CPU",
+      "正常CPU",
+      "线程"
+    ],
+    "required_evidence": [
+      "JVM/PID 与线程生命周期",
+      "ThreadMXBean CPU 测量支持和启用状态",
+      "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+    ],
+    "caveats": [
+      "知识不是当前事故证据，也不增加采集权限",
+      "-1、未启用及不支持不能等同零 CPU",
+      "平台线程统计不能直接归于虚拟线程",
+      "低 CPU 不反驳锁、I/O 或依赖等待"
+    ]
+  },
+  {
+    "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+    "knowledge_id": "linux.io.synchronous_write",
+    "title": "Linux fsync fdatasync 同步写延迟与反证",
+    "document": "knowledge/synchronous_io.md",
+    "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+    "excerpt": "# Linux 同步写低延迟与有界反证\n\nfsync / fdatasync 是文件同步接口；fsync 同步文件数据与所需元数据，fdatasync 可省略不影响后续数据读取的元数据。成功与失败必须分别记录，失败或缺测不能作为慢同步写的反证。syncwrite、sync_write、synchronous write 和同步落盘在此描述操作类型，不代表数据库引擎内部机制已被观测。\n\n记录当前 PID、文件与挂载/块设备归属、窗口起止、操作类型、成功/失败次数及延迟分布。若同窗有效操作低于已声明慢写阈值，可反驳“该窗口持续慢同步写”这一候选；阈值、样本覆盖和报告来源仍走证据门禁，不能只读到这篇指南就生成 REFUTED 或根因结论。\n\ntmpfs、缓存路径、虚拟磁盘映射和不同采样窗口限制结论范围。低同步写延迟不是物理磁盘全局正常，也不是业务全局健康；块设备等待与共享宿主争用另需设备队列、目标及邻居同窗证据。未知存储协议或数据库引擎的专属语义不能由通用同步写指南替代。\n\n来源：[Linux man-pages fsync/fdatasync 官方项目文档](https://man7.org/linux/man-pages/man2/fsync.2.html)；[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。",
+    "metadata_text": "linux.io.synchronous_write Linux fsync fdatasync 同步写延迟与反证 syncwrite / synchronous write 的有效低延迟窗口可以反驳该窗口持续慢同步写；必须保留调用结果、次数、时间窗、文件系统和块设备归属，不能推广为磁盘全局正常。 fsync fdatasync syncwrite sync_write synchronous write synchronous writes 同步写 同步落盘 低延迟反证 fsync fdatasync synchronous file write latency 调用类型、成功/失败数、延迟和完整采样窗口 目标 PID 与文件/挂载/块设备归属 低延迟阈值及样本覆盖 tmpfs 与缓存路径不证明物理磁盘低延迟 采集失败或缺测不是慢写的反证 单一窗口不证明业务全局健康 知识只能指导调查，不是当前事故证据",
+    "recall_anchors": [
+      "fdatasync",
+      "fsync",
+      "linux.io.synchronous_write",
+      "sync_write",
+      "synchronous file write latency",
+      "synchronous write",
+      "synchronous writes",
+      "syncwrite",
+      "低延迟反证",
+      "同步写",
+      "同步落盘"
+    ],
+    "required_evidence": [
+      "调用类型、成功/失败数、延迟和完整采样窗口",
+      "目标 PID 与文件/挂载/块设备归属",
+      "低延迟阈值及样本覆盖"
+    ],
+    "caveats": [
+      "tmpfs 与缓存路径不证明物理磁盘低延迟",
+      "采集失败或缺测不是慢写的反证",
+      "单一窗口不证明业务全局健康",
+      "知识只能指导调查，不是当前事故证据"
+    ]
+  }
+]

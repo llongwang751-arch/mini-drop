@@ -1,0 +1,234 @@
+{
+  "type": "result",
+  "case_id": "b32",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc9942dce5656b519ff4f7e81c38",
+    "object": "chat.completion",
+    "created": 1790944299,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告 Go 批处理器在 22 秒窗口内用户态 CPU 达到 91%，输入和请求速率保持稳定。这是一个明确的待验证性能异常（CPU 高占用）。已批准 Go CPU Profile 采集，且该工具在允许的白名单内。下一步计划采集 Profile 以验证计算热点，并建立可证伪的假设。\",\n  \"tool_name\": \"collect_go_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，Go 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"Go pprof 中一个具备源码位置的业务函数累计占比至少 20%\"],\n      \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n      \"rationale\": \"用户报告了 91% 的高用户态 CPU，且请求速率稳定，表明可能存在计算密集型热点。需要独立的系统指标和 Profile 采样来验证。\",\n      \"prior_probability\": 0.7,\n      \"estimated_value\": 0.8\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划基于用户描述和合成观测，尚未执行实际工具采集。知识匹配仅提供先验指导，并非当前事故证据。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 5103,
+      "completion_tokens": 339,
+      "total_tokens": 5442,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 2159
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc9942dce5656b519ff4f7e81c38\",\"object\":\"chat.completion\",\"created\":1790944299,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 Go 批处理器在 22 秒窗口内用户态 CPU 达到 91%，输入和请求速率保持稳定。这是一个明确的待验证性能异常（CPU 高占用）。已批准 Go CPU Profile 采集，且该工具在允许的白名单内。下一步计划采集 Profile 以验证计算热点，并建立可证伪的假设。\\\",\\n  \\\"tool_name\\\": \\\"collect_go_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Go 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"Go pprof 中一个具备源码位置的业务函数累计占比至少 20%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n      \\\"rationale\\\": \\\"用户报告了 91% 的高用户态 CPU，且请求速率稳定，表明可能存在计算密集型热点。需要独立的系统指标和 Profile 采样来验证。\\\",\\n      \\\"prior_probability\\\": 0.7,\\n      \\\"estimated_value\\\": 0.8\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划基于用户描述和合成观测，尚未执行实际工具采集。知识匹配仅提供先验指导，并非当前事故证据。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":5103,\"completion_tokens\":339,\"total_tokens\":5442,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":2159},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "7b14c3b7d7655b5cd61c560cec3f8b3532952cefb5c779e9027114b8572e38a2",
+  "seconds": 26.46942,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "go.profile.selection"
+    ],
+    "matches": [
+      {
+        "query": "Go 批处理器的用户态 CPU 在 22 秒窗口达到 91%，输入和请求速率保持；已批准 Go CPU Profile，请将下一步设为采集该 Profile 来验证计算热点。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [
+            "用户态"
+          ],
+          "unsupported_subjects": [],
+          "clause": "Go 批处理器的用户态 CPU 在 22 秒窗口达到 91%",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [
+                "用户态"
+              ],
+              "unsupported_subjects": [],
+              "clause": "Go 批处理器的用户态 CPU 在 22 秒窗口达到 91%"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "输入和请求速率保持"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu",
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "已批准 Go CPU Profile"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请将下一步设为采集该 Profile 来验证计算热点"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "score": 24.043421,
+        "matched_terms": [
+          "profile",
+          "cpu",
+          "用户态",
+          "户态",
+          "热点",
+          "窗口",
+          "计算"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比",
+          "采样起止时间与 CPU 时间增量",
+          "核数/配额及 CPU 百分比口径"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足",
+          "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "Go 批处理器的用户态 CPU 在 22 秒窗口达到 91%，输入和请求速率保持；已批准 Go CPU Profile，请将下一步设为采集该 Profile 来验证计算热点。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "sampling"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "已批准 Go CPU Profile",
+          "source_profile": {
+            "concepts": [
+              "lock_wait",
+              "sampling"
+            ],
+            "runtime_scopes": [
+              "GO"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Go 批处理器的用户态 CPU 在 22 秒窗口达到 91%"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "输入和请求速率保持"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "已批准 Go CPU Profile"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "请将下一步设为采集该 Profile 来验证计算热点"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "score": 15.009805,
+        "matched_terms": [
+          "cpu",
+          "go",
+          "保持",
+          "请求",
+          "速率",
+          "验证"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Go 堆增长与修复复测\n\n分别阅读累计分配与仍存活对象，保持采样口径、GC 阶段和工作负载可比。修复后同时观察存活量、分配速率、CPU 与请求延迟，避免把性能转移到另一资源算作成功。\n\n来源：https://go.dev/doc/diagnostics 。核对日期 2026-09-19；本文是项目调查摘要。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

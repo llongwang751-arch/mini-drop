@@ -1,0 +1,24 @@
+{
+  "query": "请判断昨日03:00至03:05的情况；没有当时的观测、日志和指标。不能用当前观测代替昨日数据，当前无法提出能核验昨日现象的取证动作。",
+  "target": {
+    "service": "python-hotspot",
+    "agent_id": "control-interview-demo-agent"
+  },
+  "time_range": {
+    "start": "2026-10-01T03:00:00+00:00",
+    "end": "2026-10-01T03:05:00+00:00",
+    "timezone": "UTC"
+  },
+  "mode": "ASSISTED",
+  "skill_policy": "DISABLED",
+  "health_check": false,
+  "auto_scope": false,
+  "budget": {
+    "max_duration_seconds": 120,
+    "max_tool_calls": 1,
+    "max_diagnosis_rounds": 1,
+    "max_concurrent_tasks": 1,
+    "max_hosts": 1,
+    "max_risk_level": "R0"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "type": "result",
+  "case_id": "b07",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc958868a17565027d79fa5dd308",
+    "object": "chat.completion",
+    "created": 1790944053,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户提供了 Python 工作进程在 18 秒窗口内 CPU 使用率为 1.4% 的观测数据，并明确要求仅概括已测低 CPU，不进行下一次采集或提升为无故障结论。根据请求意图和现有描述，这是一个对已有信息的概括，没有提出待验证的性能异常。因此，规划判断为 NORMAL。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\n    \"本次判断仅基于用户提供的 18 秒窗口内 CPU 使用率描述。\",\n    \"未对进程的当前状态进行独立检查，不能声明平台或业务全局健康。\",\n    \"低 CPU 使用率不能排除锁、I/O、依赖等待等其他潜在问题。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4551,
+      "completion_tokens": 215,
+      "total_tokens": 4766,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1607
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc958868a17565027d79fa5dd308\",\"object\":\"chat.completion\",\"created\":1790944053,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户提供了 Python 工作进程在 18 秒窗口内 CPU 使用率为 1.4% 的观测数据，并明确要求仅概括已测低 CPU，不进行下一次采集或提升为无故障结论。根据请求意图和现有描述，这是一个对已有信息的概括，没有提出待验证的性能异常。因此，规划判断为 NORMAL。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\n    \\\"本次判断仅基于用户提供的 18 秒窗口内 CPU 使用率描述。\\\",\\n    \\\"未对进程的当前状态进行独立检查，不能声明平台或业务全局健康。\\\",\\n    \\\"低 CPU 使用率不能排除锁、I/O、依赖等待等其他潜在问题。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4551,\"completion_tokens\":215,\"total_tokens\":4766,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1607},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "f7158ac3dc5f389c22d19a4516b585ff60fa32d9f8a9d29fe51c4fd5a4f25541",
+  "seconds": 10.395693,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "Python 工作进程连续 18 秒 CPU 为 1.4%，每秒样本齐全；仅概括已测低 CPU，不把它提升成无故障结论，也不进行下一次采集。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "Python 工作进程连续 18 秒 CPU 为 1.4%",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Python 工作进程连续 18 秒 CPU 为 1.4%"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "每秒样本齐全"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "仅概括已测低 CPU"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不把它提升成无故障结论"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "也不进行下一次采集"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+        "score": 9.086805,
+        "matched_terms": [
+          "cpu",
+          "也不",
+          "进程",
+          "采集"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比",
+          "采样起止时间与 CPU 时间增量",
+          "核数/配额及 CPU 百分比口径"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足",
+          "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+        ],
+        "excerpt": "## 低 CPU、正常描述和缺测\n\n进程或线程 CPU usage / CPU utilization 要写明同一采样窗口、CPU 时间增量、墙钟时长和百分比的单核/多核口径。线程或 worker 的低 CPU 可以反驳该窗口持续计算饱和，不能反驳锁、I/O、依赖等待，也不代表业务全局健康。只有进程身份而没有有效计数时是缺测；用户只要求描述现有输入、未要求健康判定时，可说明描述范围并停止，不制造异常假设。\n\nLinux `/proc/<pid>/stat` 的 utime/stime 是进程用户态/系统态 CPU 时间计数，需按时钟 tick 单位和采样间隔求增量。进程重启、窗口不完整、采集失败不能当作零 CPU。知识本身不能授权新探针或成为当前证据。\n\n来源：[Linux /proc 官方文档](https://docs.kernel.org/filesystems/proc.html)；JVM 线程测量见 [Java 线程 CPU 指南](java_thread_cpu.md)。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

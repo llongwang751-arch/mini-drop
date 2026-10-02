@@ -1,0 +1,165 @@
+{
+  "type": "result",
+  "case_id": "b05",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc9544e51c83a8870428afe5224f",
+    "object": "chat.completion",
+    "created": 1790944036,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户明确要求只描述已有的低线程CPU观测，不检查或采集新数据，不要求健康判断，且未提出待验证的异常。根据共享四态合同，这属于纯描述性请求，应判定为NORMAL。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\n    \"本次判断仅基于用户提供的描述和数值范围，未对当前业务状态进行任何检查。\",\n    \"低线程CPU观测不能代表业务整体健康，也不能排除锁、I/O或依赖等待等其他潜在问题。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4767,
+      "completion_tokens": 175,
+      "total_tokens": 4942,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 1567
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc9544e51c83a8870428afe5224f\",\"object\":\"chat.completion\",\"created\":1790944036,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户明确要求只描述已有的低线程CPU观测，不检查或采集新数据，不要求健康判断，且未提出待验证的异常。根据共享四态合同，这属于纯描述性请求，应判定为NORMAL。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\n    \\\"本次判断仅基于用户提供的描述和数值范围，未对当前业务状态进行任何检查。\\\",\\n    \\\"低线程CPU观测不能代表业务整体健康，也不能排除锁、I/O或依赖等待等其他潜在问题。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4767,\"completion_tokens\":175,\"total_tokens\":4942,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":1567},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "2c6f2f8c11cc01b1c7cc05b1834b25e559cac2e977f26d9cf99301cd74e33302",
+  "seconds": 11.666985,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.cpu.thread_observation"
+    ],
+    "matches": [
+      {
+        "query": "Java ThreadMXBean 已开启线程 CPU 计时，20 秒平台线程窗口的总 CPU 增量为 0.06 秒，采样完整。只描述这段低线程 CPU 观测，不能承诺业务整体正常，不再采集。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [],
+          "matched_anchors": [
+            "ThreadMXBean"
+          ],
+          "unsupported_subjects": [],
+          "clause": "Java ThreadMXBean 已开启线程 CPU 计时",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [],
+              "matched_anchors": [
+                "ThreadMXBean"
+              ],
+              "unsupported_subjects": [],
+              "clause": "Java ThreadMXBean 已开启线程 CPU 计时"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "20 秒平台线程窗口的总 CPU 增量为 0.06 秒"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "采样完整"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "只描述这段低线程 CPU 观测"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不能承诺业务整体正常"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不再采集"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "title": "Java JVM 线程 CPU 时间与有界正常观测",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "score": 50.083704,
+        "matched_terms": [
+          "threadmxbean",
+          "java",
+          "cpu",
+          "只描述",
+          "台线程",
+          "平台线",
+          "业务",
+          "只描",
+          "台线",
+          "增量",
+          "平台",
+          "描述",
+          "正常",
+          "窗口",
+          "线程",
+          "观测"
+        ],
+        "required_evidence": [
+          "JVM/PID 与线程生命周期",
+          "ThreadMXBean CPU 测量支持和启用状态",
+          "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+        ],
+        "caveats": [
+          "知识不是当前事故证据，也不增加采集权限",
+          "-1、未启用及不支持不能等同零 CPU",
+          "平台线程统计不能直接归于虚拟线程",
+          "低 CPU 不反驳锁、I/O 或依赖等待"
+        ],
+        "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}
