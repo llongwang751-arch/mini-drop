@@ -150,7 +150,11 @@ def _technical_subjects(text: str) -> list[str]:
 def _subject_known(subject: str, entries: list[dict[str, Any]]) -> bool:
     # Aliases for resource measures and known runtimes are syntax context;
     # admission still checks the source's actual capability below.
-    aliases = [phrase for vocabulary in (_CONCEPTS, _RUNTIME_SCOPES, _DATABASE_SCOPES)
+    database = _labels(subject, _DATABASE_SCOPES)
+    if database:
+        return any(set(database) & set(_labels(_normalize(_primary_text(entry)), _DATABASE_SCOPES))
+                   for entry in entries)
+    aliases = [phrase for vocabulary in (_CONCEPTS, _RUNTIME_SCOPES)
                for phrases in vocabulary.values() for phrase in phrases]
     if subject in {_normalize(phrase) for phrase in aliases} | _GENERIC_ANCHORS | {
         "process", "application", "data", "heap", "cache", "query", "protocol",
@@ -254,7 +258,7 @@ def assess_relevance(query: str, item: dict[str, Any], *,
     query_runtime, source_runtime = profile["runtime_scopes"], source["runtime_scopes"]
     query_database, source_database = profile["database_scopes"], source["database_scopes"]
     query_unsupported = [subject for subject in profile["technical_subjects"]
-                         if not _subject_known(subject, entries)]
+                         if not _subject_known(subject, [item])]
     decisions = []
     for clause in profile["active_clauses"]:
         text = _normalize(clause)
@@ -269,7 +273,7 @@ def assess_relevance(query: str, item: dict[str, Any], *,
                 if len(normalized) >= 3 and normalized not in _GENERIC_ANCHORS and _contains(text, value):
                     anchors.append(value)
         subjects = _technical_subjects(clause)
-        local_unsupported = [subject for subject in subjects if not _subject_known(subject, entries)]
+        local_unsupported = [subject for subject in subjects if not _subject_known(subject, [item])]
         # Commas do not reset the product being discussed. An omitted subject
         # in 'its index task' inherits the declared technology; a separately
         # named supported topic or portable OS observation can still qualify.
@@ -308,7 +312,9 @@ def assess_relevance(query: str, item: dict[str, Any], *,
         if decision["reason"] != "NO_DISTINCTIVE_DOMAIN_ANCHOR"),
         {"accepted": False, "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR", "shared_concepts": [],
          "matched_anchors": [], "unsupported_subjects": [], "clause": ""})
-    return {**chosen, "source_profile": source, "clause_decisions": decisions}
+    return {**chosen, "source_profile": source, "clause_decisions": decisions,
+            "unregistered_subjects": [subject for subject in profile["technical_subjects"]
+                                      if not _subject_known(subject, entries)]}
 
 
 def relevance_audit(query: str, decisions: list[dict[str, Any]], *, degraded: bool = False) -> dict[str, Any]:

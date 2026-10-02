@@ -17,7 +17,7 @@
 
 所有结果 `causal_root_cause_verified=false`。知识没有命中也不表示服务正常，它只表示没有相关排查先验。检索可用性 `HEALTHY/DEGRADED` 与业务健康分列。
 
-无答案修复采用 `knowledge-subject-admission-v2`。主能力由公开 catalog 的 title、keywords 和 applies_to 声明，summary 中的备选诊断不能扩大覆盖范围；查询中的具名主体须由公开条目覆盖，明确排除的技术替代对象不能借作锚点。无品牌黑名单或评测 case ID 规则；新增主体/能力可通过新 catalog 条目扩展。CPU、TCP 等日常同名词需技术语境，未知应用同时出现独立进程 CPU/RSS 观测时仍可保留通用 Linux 指南。BM25、dense、RRF、rerank 和降级路线共用准入判定，排序分数不等于事实置信度。
+无答案修复采用 `knowledge-subject-admission-v2`。主能力由公开 catalog 的 title、keywords 和 applies_to 声明，summary 中的备选诊断不能扩大覆盖范围；查询中的具名主体须由当前候选条目的公开主能力覆盖，不能因为另一条目提及该主体而获得准入，明确排除的技术替代对象不能借作锚点。无品牌黑名单或评测 case ID 规则；新增主体/能力可通过新 catalog 条目扩展。CPU、TCP 等日常同名词需技术语境，未知应用同时出现独立进程 CPU/RSS 观测时仍可保留通用 Linux 指南。BM25、dense、RRF、rerank 和降级路线共用准入判定，排序分数不等于事实置信度。
 
 ## 先冻结再调用
 

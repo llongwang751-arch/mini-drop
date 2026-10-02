@@ -258,8 +258,6 @@ def _lexical_search(
     candidates: list[dict[str, Any]] = []
     corpus: list[list[str]] = []
     entries = _catalog_entries(root)
-    public_entries = [item for item in entries if item.get("visibility", "PUBLIC") == "PUBLIC"
-                      and not any(item.get(k) for k in ("tenant_id", "acl", "principal_id"))]
     for item in entries:
         if item.get("visibility", "PUBLIC") != "PUBLIC" or any(item.get(k) for k in ("tenant_id", "acl", "principal_id")):
             continue
@@ -309,6 +307,7 @@ def _lexical_search(
                 }
             )
             corpus.append(tokens)
+    public_entries = list({candidate["knowledge_id"]: candidate["item"] for candidate in candidates}.values())
     scores = _bm25_scores(query_tokens, corpus)
     query_set = set(query_tokens)
     best_by_knowledge_id: dict[str, dict[str, Any]] = {}

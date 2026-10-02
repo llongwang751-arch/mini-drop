@@ -4,7 +4,7 @@
 
 共享 `agent_runtime/planning_output.py` 为 legacy function schema 与 LangGraph `finish_diagnosis_plan` 提供相同四态 DTO/校验器。INVESTIGATE 仍要求允许工具及 1–3 个非空支持/证伪条件；NORMAL、INSUFFICIENT_EVIDENCE、REFUSED 必须空工具/假设，并说明范围或缺口。模型不可用/无效的 None 与合法停止结果分别处理。主题 v4 与 Agent v6 使用显式版本化的物理 thread_id（`diagnosis-agent-v6-planning-output:<diagnosis_id>`）分隔旧 Checkpoint；范围选择使用 `scope-agent-v1:<diagnosis_id>`。LangGraph 顶层存储的 checkpoint_ns 可能为空，不能靠传入 namespace 声称隔离。业务 Diagnosis ID、SQL 证据和事件不变；新版本重新投影这些事实，不迁移或删除旧消息历史。
 
-`agent_runtime/relevance.py` 以 `knowledge-subject-admission-v2` 统一 BM25、实体、Dense、RRF、Rerank 及降级候选准入，排名分数不能绕过门禁。能力范围仅从 primary `title`、`keywords`、`applies_to` 判断；summary 与正文中的对照、限制或其他技术提及仍可用于排名，但不能扩展文档能力。命名技术主体须在公共知识 catalog 或审核词汇中获得覆盖，普通资源词不能替代未支持的主体；明确要求排除、不要替代或比较中的否定部分不能制造相关性。服务传入原问题/纠错作为 relevance_query，推测分类可排序但不能创造命中。trace 保存策略、查询画像、准入/拒绝原因、NO_RELEVANT_KNOWLEDGE 和检索后端 HEALTHY/DEGRADED；知识始终只作规划先验。[新冻结评估与边界](PLANNING_RETRIEVAL_V2.md)。
+`agent_runtime/relevance.py` 以 `knowledge-subject-admission-v2` 统一 BM25、实体、Dense、RRF、Rerank 及降级候选准入，排名分数不能绕过门禁。能力范围仅从 primary `title`、`keywords`、`applies_to` 判断；summary 与正文中的对照、限制或其他技术提及仍可用于排名，但不能扩展文档能力。命名技术主体须在当前候选条目的公开主能力或审核词汇中获得覆盖；其他条目中的同名主体不能扩展当前候选范围，普通资源词不能替代未支持的主体；明确要求排除、不要替代或比较中的否定部分不能制造相关性。服务传入原问题/纠错作为 relevance_query，推测分类可排序但不能创造命中。trace 保存策略、查询画像、准入/拒绝原因、NO_RELEVANT_KNOWLEDGE 和检索后端 HEALTHY/DEGRADED；知识始终只作规划先验。[新冻结评估与边界](PLANNING_RETRIEVAL_V2.md)。
 
 ## 2026-09-19 规划截止时间与显式证据缺口
 

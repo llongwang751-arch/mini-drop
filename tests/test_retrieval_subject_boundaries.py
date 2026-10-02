@@ -91,6 +91,29 @@ def test_runtime_or_database_name_without_capability_is_insufficient():
     })["reason"] == "RUNTIME_SCOPE_NOT_REQUESTED"
 
 
+def test_subject_in_another_public_entry_cannot_expand_this_candidates_capability():
+    new_engine = {"title": "NebulaDB transaction waits", "keywords": ["NebulaDB", "lock"]}
+    rag = {"title": "RAG index recall", "keywords": ["rag", "index", "recall"]}
+    decision = assess_relevance("NebulaDB index compaction waits", rag, catalog_entries=[rag, new_engine])
+    assert not decision["accepted"]
+    assert decision["reason"] == "TECHNICAL_SUBJECT_NOT_COVERED"
+    assert decision["unregistered_subjects"] == []
+    assert decision["unsupported_subjects"] == ["nebuladb"]
+    assert not assess_relevance("PostgreSQL index storage settings", rag)["accepted"]
+
+
+def test_invalid_catalog_paths_cannot_register_technical_subjects(tmp_path):
+    rows = [{"knowledge_id": "rag", "title": "RAG index recall", "keywords": ["rag", "index"], "document": "rag.md"},
+            {"knowledge_id": "bad", "title": "NebulaDB locks", "keywords": ["NebulaDB"], "document": "../bad.md"}]
+    (tmp_path / "rag.md").write_text("# RAG\nIndex recall quality.", encoding="utf-8")
+    (tmp_path.parent / "bad.md").write_text("NebulaDB", encoding="utf-8")
+    (tmp_path / "catalog.json").write_text(json.dumps(rows), encoding="utf-8")
+    trace = build_retrieval_trace("NebulaDB index compaction", knowledge_root=tmp_path)
+    assert trace["matches"] == []
+    decision = next(row for row in trace["rejected"] if row["knowledge_id"] == "rag")
+    assert decision["unregistered_subjects"] == ["nebuladb"]
+
+
 @pytest.mark.parametrize("mode", ["dense_rerank", "dense_only", "missing_index", "rerank_failure"])
 def test_unsupported_named_subject_cannot_bypass_any_semantic_route(tmp_path, monkeypatch, mode):
     rows = [{"knowledge_id": "rag", "title": "RAG vector index recall",
