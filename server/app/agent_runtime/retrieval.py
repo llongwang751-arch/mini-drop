@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-RETRIEVER_VERSION = "knowledge-hybrid-v3-three-route"
+RETRIEVER_VERSION = "knowledge-hybrid-v4-domain-admission"
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 _DEFAULT_KNOWLEDGE_ROOT = _REPOSITORY_ROOT / "knowledge"
 _ENGLISH_TOKEN = re.compile(r"[a-z0-9][a-z0-9.+]*", re.IGNORECASE)
@@ -235,21 +235,25 @@ def _bounded_excerpt(text: str, matched_terms: Iterable[str], limit: int = 700) 
     return f"{prefix}{compact[start:end].strip()}{suffix}"
 
 
-def retrieve_knowledge(
+def _lexical_search(
     query: str,
     *,
     top_k: int = 3,
     knowledge_root: str | Path | None = None,
     min_score: float = 0.2,
-) -> list[dict[str, Any]]:
-    """Return ranked repository knowledge; an empty list is a valid no-match."""
+    relevance_query: str | None = None,
+) -> dict[str, Any]:
+    """Rank public knowledge, then enforce query-based domain admission."""
 
+    from .relevance import assess_relevance, concept_score, relevance_audit
     query = str(query or "").strip()
+    relevance_query = query if relevance_query is None else str(relevance_query).strip()
+    empty = {"matches": [], **relevance_audit(relevance_query, [])}
     if not query or top_k <= 0:
-        return []
+        return empty
     query_tokens = _tokenize(query)
     if not query_tokens:
-        return []
+        return empty
     root = Path(knowledge_root).resolve() if knowledge_root else _DEFAULT_KNOWLEDGE_ROOT
     candidates: list[dict[str, Any]] = []
     corpus: list[list[str]] = []
@@ -305,20 +309,26 @@ def retrieve_knowledge(
     scores = _bm25_scores(query_tokens, corpus)
     query_set = set(query_tokens)
     best_by_knowledge_id: dict[str, dict[str, Any]] = {}
+    rejected_by_id: dict[str, dict[str, Any]] = {}
     for candidate, raw_score in zip(candidates, scores):
         matched = query_set.intersection(candidate["tokens"])
         anchor_matched = query_set.intersection(candidate["anchor_tokens"])
-        if not matched or not anchor_matched:
-            continue
-        # Metadata anchors are intentional catalog curation, while BM25 keeps
-        # document frequency and chunk length from dominating common terms.
-        score = raw_score + 0.28 * len(anchor_matched)
+        # Alias recall is local and explicit. Ranking category/body words may
+        # order candidates but never satisfy relevance from the genuine query.
+        score = raw_score + 0.28 * len(anchor_matched) + concept_score(relevance_query, candidate["item"])
         if score < min_score:
+            continue
+        admission = assess_relevance(relevance_query, candidate["item"])
+        if not admission["accepted"]:
+            rejected_by_id.setdefault(candidate["knowledge_id"], {
+                "knowledge_id": candidate["knowledge_id"], "document": candidate["document"],
+                "content_hash": candidate["content_hash"], "score": round(score, 6), **admission})
             continue
         matched_terms = sorted(matched, key=lambda value: (-len(value), value))[:16]
         item = candidate["item"]
         result = {
             "query": query,
+            "relevance": admission,
             "knowledge_id": candidate["knowledge_id"],
             "title": candidate["title"],
             "document": candidate["document"],
@@ -337,7 +347,26 @@ def retrieve_knowledge(
         best_by_knowledge_id.values(),
         key=lambda item: (-float(item["score"]), str(item["knowledge_id"])),
     )
-    return ranked[:top_k]
+    matches = ranked[:top_k]
+    decisions = [
+        {"knowledge_id": item["knowledge_id"], "document": item["document"],
+         "content_hash": item["content_hash"], "score": item["score"], **item["relevance"]}
+        for item in matches
+    ] + sorted(rejected_by_id.values(), key=lambda item: (-item["score"], item["knowledge_id"]))[:30]
+    return {"matches": matches, **relevance_audit(relevance_query, decisions)}
+
+
+def retrieve_knowledge(
+    query: str,
+    *,
+    top_k: int = 3,
+    knowledge_root: str | Path | None = None,
+    min_score: float = 0.2,
+    relevance_query: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return admitted repository knowledge; empty means no relevant prior."""
+    return _lexical_search(query, top_k=top_k, knowledge_root=knowledge_root,
+                           min_score=min_score, relevance_query=relevance_query)["matches"]
 
 
 def build_retrieval_trace(
@@ -345,28 +374,34 @@ def build_retrieval_trace(
     *,
     top_k: int = 3,
     knowledge_root: str | Path | None = None,
+    relevance_query: str | None = None,
 ) -> dict[str, Any]:
     """Build the auditable planner trace and state the Evidence boundary."""
 
     query = str(query or "").strip()
     details = {"actual_backend": "BM25", "requested_backend": "BM25", "degraded_reasons": []}
-    matches = retrieve_knowledge(
-        query,
-        top_k=top_k,
-        knowledge_root=knowledge_root,
-    )
-    if os.getenv("MINI_DROP_RETRIEVAL_MODE", "lexical").lower() == "hybrid":
+    local = _lexical_search(query, top_k=top_k, knowledge_root=knowledge_root,
+                            relevance_query=relevance_query)
+    matches = local.pop("matches")
+    details.update(local)
+    mode = os.getenv("MINI_DROP_RETRIEVAL_MODE", "lexical").strip().lower()
+    if mode == "hybrid":
         from .semantic_retrieval import search
         try:
-            details = search(query, Path(knowledge_root) if knowledge_root else _DEFAULT_KNOWLEDGE_ROOT, top_k)
+            details = search(query, Path(knowledge_root) if knowledge_root else _DEFAULT_KNOWLEDGE_ROOT, top_k,
+                             relevance_query=relevance_query)
             matches = details.pop("matches")
         except Exception:
-            details = {"actual_backend": "BM25", "requested_backend": "HYBRID",
-                       "degraded_reasons": ["HYBRID_UNAVAILABLE"]}
+            details = {**local, "actual_backend": "BM25", "requested_backend": "HYBRID",
+                       "degraded_reasons": ["HYBRID_UNAVAILABLE"], "health": "DEGRADED"}
+    elif mode != "lexical":
+        details.update(requested_backend="UNSUPPORTED", health="DEGRADED",
+                       degraded_reasons=["RETRIEVAL_MODE_UNSUPPORTED"])
     return {
         **details,
         "query": query,
         "query_hash": hashlib.sha256(query.encode("utf-8")).hexdigest(),
+        "relevance_query_hash": hashlib.sha256(details["relevance_query"].encode("utf-8")).hexdigest(),
         "retriever": RETRIEVER_VERSION,
         "catalog": "knowledge/catalog.json",
         "top_k": top_k,

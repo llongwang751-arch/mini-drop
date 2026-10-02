@@ -213,9 +213,14 @@ def _rrf(rankings):
     return scores
 
 
-def search(query: str, root: Path, top_k: int = 3, *, provider=None, client=None) -> dict:
-    from .retrieval import _bm25_scores, _tokenize
+def search(query: str, root: Path, top_k: int = 3, *, provider=None, client=None,
+           relevance_query: str | None = None) -> dict:
+    from .retrieval import _bm25_scores, _tokenize, _catalog_entries
+    from .relevance import assess_relevance, relevance_audit
+    relevance_query = query if relevance_query is None else str(relevance_query).strip()
     chunks = corpus(root)
+    entries = {str(item.get("knowledge_id")): item for item in _catalog_entries(root)}
+    admissions = [assess_relevance(relevance_query, entries[c["knowledge_id"]]) for c in chunks]
     top_k = max(1, min(top_k, 8))
     if not query.strip() or len(query) > 4000:
         raise RetrievalUnavailable("QUERY_INVALID")
@@ -248,14 +253,32 @@ def search(query: str, root: Path, top_k: int = 3, *, provider=None, client=None
         backend = "BM25_ENTITY_CHROMA_RRF"
     except Exception as exc:
         degraded.append(str(exc) if isinstance(exc, RetrievalUnavailable) else "INDEX_UNAVAILABLE")
+    # Dense scores, catalog entity hits and a high reranker score cannot
+    # override domain admission. Exclude rejected text before remote reranking.
+    rejected = []
+    for i in order:
+        if not admissions[i]["accepted"]:
+            rejected.append({"knowledge_id": chunks[i]["knowledge_id"], "chunk_id": chunks[i]["chunk_id"],
+                             "document": chunks[i]["document"], "content_hash": chunks[i]["content_hash"],
+                             "score": round(ranking_scores[i], 6),
+                             "recall_channels": [route for route, ranking in rankings.items() if i in ranking],
+                             **admissions[i]})
+    order = [i for i in order if admissions[i]["accepted"]]
     if order and os.getenv("MINI_DROP_RERANK_ENABLED", "true").lower() == "true" and vector_available:
         try:
             reranked = provider.rerank(query, [chunks[i]["excerpt"] for i in order])
             ranking_scores, score_kind = {order[i]: score for i, score in reranked}, "RERANK_RELEVANCE"
+            for candidate_index, score in reranked:
+                if score < 0.1:
+                    c = chunks[order[candidate_index]]
+                    rejected.append({"knowledge_id": c["knowledge_id"], "chunk_id": c["chunk_id"],
+                                     "document": c["document"], "content_hash": c["content_hash"],
+                                     **admissions[order[candidate_index]], "accepted": False,
+                                     "reason": "RERANK_BELOW_THRESHOLD", "score": round(score, 6)})
             order = [order[i] for i, score in sorted(reranked, key=lambda x: -x[1]) if score >= 0.1]
             backend += "_RERANK"
-        except RetrievalUnavailable as exc:
-            degraded.append(str(exc))
+        except Exception as exc:
+            degraded.append(str(exc) if isinstance(exc, RetrievalUnavailable) else "RERANK_UNAVAILABLE")
     results = []
     seen = set()
     for i in order:
@@ -264,12 +287,16 @@ def search(query: str, root: Path, top_k: int = 3, *, provider=None, client=None
             continue
         seen.add(c["knowledge_id"])
         results.append({k: v for k, v in c.items() if k not in {"metadata_text", "recall_anchors"}})
-        results[-1].update(query=query, score=round(ranking_scores[i], 6), score_kind=score_kind,
+        results[-1].update(query=query, relevance=admissions[i], score=round(ranking_scores[i], 6), score_kind=score_kind,
                            matched_terms=[], excerpt=c["excerpt"][:700],
                            recall_channels=[name for name, ranking in rankings.items() if i in ranking])
         if len(results) >= top_k:
             break
-    return {"matches": results, "actual_backend": backend, "requested_backend": "HYBRID",
+    accepted = [{"knowledge_id": item["knowledge_id"], "chunk_id": item["chunk_id"],
+                 "document": item["document"], "content_hash": item["content_hash"],
+                 "score": item["score"], **item["relevance"]} for item in results]
+    return {**relevance_audit(relevance_query, accepted + rejected, degraded=bool(degraded)),
+            "matches": results, "actual_backend": backend, "requested_backend": "HYBRID",
             "recall_channels": {name: {'available': name != 'DENSE' or vector_available,
                 'candidate_count': len(rankings.get(name, [])),
                 'chunk_ids': [chunks[i]['chunk_id'] for i in rankings.get(name, [])]}

@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4352 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4368 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3182,15 +3182,15 @@ python scripts/render_learning_guide.py
 | `.gitattributes` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `.gitignore` | Git 忽略规则。 | — |
 | `AGENTS.md` | 仓库协作规则；规定重启后先读哪些权威文档以及禁止破坏的数据。 | — |
+| `Makefile` | 开发、测试、生成合同和容器操作的快捷命令。 | — |
+| `README.md` | 项目首页，给出能力概览、快速启动和权威文档入口。 | — |
 | `alembic.ini` | Alembic 数据库迁移入口配置。 | — |
 | `docker-compose.control.yml` | 云端控制面、数据层、Web 和演示实验室的主编排。 | — |
 | `docker-compose.local-sre.yml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `docker-compose.retrieval.yml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `docker-compose.worker.yml` | 独立采集 Worker 的容器编排。 | — |
 | `docker-compose.yml` | 本地开发用的组合服务定义。 | — |
-| `Makefile` | 开发、测试、生成合同和容器操作的快捷命令。 | — |
 | `pyproject.toml` | Python 依赖、打包、pytest 与开发工具配置。 | — |
-| `README.md` | 项目首页，给出能力概览、快速启动和权威文档入口。 | — |
 
 ### 34.2 web：React 页面与交互
 
@@ -3289,6 +3289,10 @@ python scripts/render_learning_guide.py
 | `web/src/components/PerformanceDiagnosisSummary.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | `report` |
 | `web/src/components/PlannerBlock.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `PlannerBlock` |
 | `web/src/components/PlannerBlock.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `web/src/components/PlanningOutputCard.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `boundedPlanningOutput`、`PlanningOutputCard` |
+| `web/src/components/PlanningOutputCard.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
+| `web/src/components/RetrievalOutcomeNotice.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `RetrievalOutcomeNotice` |
+| `web/src/components/RetrievalOutcomeNotice.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/SafeMarkdown.jsx` | React 前端模块，负责对应模块行为的展示或交互。 | `SafeMarkdown` |
 | `web/src/components/SafeMarkdown.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | — |
 | `web/src/components/ScopeCard.jsx` | 目标发现、服务/环境/安全 binding 和时间窗确认。 | `localDateTime`、`defaultWindow`、`candidateLabel`、`ScopeCard` |
@@ -3321,11 +3325,11 @@ python scripts/render_learning_guide.py
 | `web/src/hooks/useSSE.test.jsx` | 前端自动化测试，验证同名模块的对应模块行为。 | `makeFakeES` |
 | `web/src/lib/echarts.js` | React 前端模块，负责对应模块行为的展示或交互。 | — |
 | `web/src/main.jsx` | React 启动入口，挂载路由、主题和错误边界。 | — |
-| `web/src/pages/AgentDetail.jsx` | Agent 心跳、能力、开销、趋势和历史任务详情。 | `AgentDetail` |
-| `web/src/pages/AgentDetail.test.jsx` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
 | `web/src/pages/AIDiagnosis.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
 | `web/src/pages/AIDiagnosis.jsx` | AI 诊断主工作台；组织案例、对话、树、人工干预和验证中心。 | `canonicalStatus`、`nativeId`、`selectionKey`、`normalizeCase`、`isVerifiedReport` 等 7 个声明 |
 | `web/src/pages/AIDiagnosis.test.jsx` | 前端自动化测试，验证同名模块的AI 诊断状态与流程。 | — |
+| `web/src/pages/AgentDetail.jsx` | Agent 心跳、能力、开销、趋势和历史任务详情。 | `AgentDetail` |
+| `web/src/pages/AgentDetail.test.jsx` | 前端自动化测试，验证同名模块的Agent 注册、状态或能力。 | — |
 | `web/src/pages/AuditLogs.jsx` | 审计事件查询页面。 | `AuditLogs` |
 | `web/src/pages/Dashboard.jsx` | 任务面板；展示 Task、Agent、筛选、排序和新建采集。 | `showEventNotification`、`Dashboard` |
 | `web/src/pages/Dashboard.module.css` | 同名页面或组件的布局、响应式和视觉样式。 | — |
@@ -3374,6 +3378,7 @@ python scripts/render_learning_guide.py
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `apiserver/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `apiserver/cmd/apiserver/main.go` | Go API 进程入口，装配配置、数据库、Control、诊断服务和路由。 | `main` |
 | `apiserver/go.mod` | Go 模块依赖与版本声明。 | — |
 | `apiserver/go.sum` | Go 依赖内容校验记录，随依赖工具更新。 | — |
@@ -3411,12 +3416,12 @@ python scripts/render_learning_guide.py
 | `apiserver/internal/taskkind/catalog_test.go` | Go 单元测试，验证对应模块行为。 | `TestCatalogHasUniqueValidKinds`、`TestGeneratedOptionRulesRejectInvalidKnownOptions` |
 | `apiserver/internal/taskkind/validation.go` | TaskKind 参数校验。 | `ValidateOptions` |
 | `apiserver/internal/taskstatus/statuses.go` | Go API 模块，负责对应模块行为。 | — |
-| `apiserver/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 
 ### 34.4 server：Python 诊断、编排与持久化
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `server/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `server/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `server/app/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `server/app/_env.py` | Python 服务模块，负责对应模块行为。 | `_find_env_file`、`_is_docker`、`_load_dotenv` |
@@ -3430,7 +3435,9 @@ python scripts/render_learning_guide.py
 | `server/app/agent_runtime/investigation_strategy.py` | Python 服务模块，负责Agent Runtime。 | `select_react_candidate` |
 | `server/app/agent_runtime/memory.py` | 短期 Checkpoint 与上下文窗口策略。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
 | `server/app/agent_runtime/model_factory.py` | Python 服务模块，负责Agent Runtime。 | `create_chat_model` |
-| `server/app/agent_runtime/retrieval.py` | Knowledge 目录的本地 BM25/词法混合检索。 | `retrieve_knowledge`、`build_retrieval_trace` 等 10 个声明 |
+| `server/app/agent_runtime/planning_output.py` | Python 服务模块，负责Agent Runtime。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
+| `server/app/agent_runtime/relevance.py` | Python 服务模块，负责Agent Runtime。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 8 个声明 |
+| `server/app/agent_runtime/retrieval.py` | Knowledge 目录的本地 BM25/词法混合检索。 | `retrieve_knowledge`、`build_retrieval_trace` 等 11 个声明 |
 | `server/app/agent_runtime/runtime.py` | 框架、模型和 Checkpoint 后端身份描述。 | `RuntimeDescriptor` |
 | `server/app/agent_runtime/semantic_retrieval.py` | Python 服务模块，负责Agent Runtime。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
 | `server/app/agent_runtime/themes.py` | 版本化诊断行为主题和系统提示。 | `diagnosis_system_prompt`、`scope_system_prompt` |
@@ -3480,7 +3487,7 @@ python scripts/render_learning_guide.py
 | `server/app/drop_insight/rounds.py` | Python 服务模块，负责对应模块行为。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
 | `server/app/drop_insight/scaled_skill_ab.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
 | `server/app/drop_insight/schemas.py` | Python 服务模块，负责对应模块行为。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
-| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 135 个声明 |
+| `server/app/drop_insight/service.py` | AI 诊断领域总编排：范围、轮次、工具、证据、报告、树和干预。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 136 个声明 |
 | `server/app/drop_insight/showcase.py` | Python 服务模块，负责对应模块行为。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
 | `server/app/drop_insight/signal_window_validation.py` | Python 服务模块，负责对应模块行为。 | `validate_signal_window` 等 6 个声明 |
 | `server/app/drop_insight/skill_benchmark.py` | Python 服务模块，负责Skill 检索、策略与演进。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
@@ -3522,12 +3529,12 @@ python scripts/render_learning_guide.py
 | `server/migrations/versions/20260901_0006_diagnosis_skill_policy.py` | Alembic 迁移：20260901 0006 diagnosis skill policy。 | `upgrade`、`downgrade` |
 | `server/migrations/versions/20260908_0007_experiments_and_operator_memory.py` | Alembic 迁移：20260908 0007 experiments and operator memory。 | `upgrade`、`downgrade` |
 | `server/migrations/versions/20260910_0008_agent_latest_metrics.py` | 为 Agent 增加可空 JSON 指标字段，保留旧行与缺失值语义，并兼容基线建表。 | `upgrade`、`downgrade` |
-| `server/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 
 ### 34.5 analyzer：采集物分析
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `analyzer/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `analyzer/config.example.toml` | Analyzer 文件，负责对应模块行为或第三方格式兼容。 | — |
 | `analyzer/mini_drop_analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
@@ -3536,18 +3543,18 @@ python scripts/render_learning_guide.py
 | `analyzer/mini_drop_analyzer/profile.proto` | Analyzer 文件，负责性能 Profile或第三方格式兼容。 | `Profile`、`ValueType`、`Sample`、`Label`、`Mapping` 等 8 个声明 |
 | `analyzer/mini_drop_analyzer/profile_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
 | `analyzer/mini_drop_analyzer/pyspy_analyzer.py` | 解析 py-spy speedscope。 | `load_speedscope`、`analyze_speedscope`、`main` |
-| `analyzer/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `analyzer/scripts/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `analyzer/scripts/cddl1.txt` | Analyzer 文件，负责对应模块行为或第三方格式兼容。 | — |
 | `analyzer/scripts/flamegraph.pl` | Analyzer 文件，负责对应模块行为或第三方格式兼容。 | — |
-| `analyzer/scripts/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `analyzer/scripts/stackcollapse-perf.pl` | Analyzer 文件，负责对应模块行为或第三方格式兼容。 | — |
 
 ### 34.6 native：C++ Control、Agent 与 Collector
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
-| `native/agent/bpftrace_compat.h` | 原生 C++ 模块，负责Agent 注册、状态或能力。 | — |
+| `native/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `native/agent/CMakeLists.txt` | CMake 原生构建目标、源文件、编译选项和链接依赖。 | — |
+| `native/agent/bpftrace_compat.h` | 原生 C++ 模块，负责Agent 注册、状态或能力。 | — |
 | `native/agent/include/artifact_uploader.h` | 原生 C++ 模块，负责采集产物、完整性和生命周期。 | — |
 | `native/agent/include/collector.h` | 原生 C++ 模块，负责采集器。 | — |
 | `native/agent/include/collector_registry.h` | 原生 C++ 模块，负责采集器。 | — |
@@ -3584,12 +3591,12 @@ python scripts/render_learning_guide.py
 | `native/gperftools_bridge/CMakeLists.txt` | CMake 原生构建目标、源文件、编译选项和链接依赖。 | — |
 | `native/gperftools_bridge/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `native/gperftools_bridge/src/main.cpp` | 原生 C++ 模块，负责对应模块行为。 | — |
-| `native/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 
 ### 34.7 proto：跨语言协议源文件
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `proto/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `proto/common.proto` | common gRPC/消息协议源文件。 | `PidStats`、`CosConfig`、`UploadTarget`、`File` |
 | `proto/compile.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `main` |
 | `proto/compile.sh` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -3599,7 +3606,6 @@ python scripts/render_learning_guide.py
 | `proto/healthcheck.proto` | healthcheck gRPC/消息协议源文件。 | `HealthCheck`、`HealthCheckRequest`、`ProcessCandidate`、`ProcessCandidateSnapshot`、`HealthCheckResponse` 等 6 个声明 |
 | `proto/hotmethod.proto` | hotmethod gRPC/消息协议源文件。 | `Hotmethod`、`TaskDesc`、`ResourceBudget`、`PerfTask`、`AsyncProfilerTask` 等 13 个声明 |
 | `proto/init.proto` | init gRPC/消息协议源文件。 | `InitAgent`、`RegisterAgentRequest`、`RegisterAgentResponse`、`FetchConfigRequest`、`FetchConfigResponse` |
-| `proto/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `proto/taskkind.proto` | taskkind gRPC/消息协议源文件。 | `TaskKindProfiler` |
 
 ### 34.8 contracts：共享稳定合同
@@ -3620,8 +3626,8 @@ python scripts/render_learning_guide.py
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
-| `demo/cpp-hotspot/build.sh` | cpp-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
 | `demo/cpp-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `demo/cpp-hotspot/build.sh` | cpp-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
 | `demo/cpp-hotspot/main.cpp` | cpp-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
 | `demo/go-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `demo/go-hotspot/go.mod` | Go 模块依赖与版本声明。 | — |
@@ -3629,8 +3635,8 @@ python scripts/render_learning_guide.py
 | `demo/go-hotspot/main_test.go` | Go 单元测试，验证对应模块行为。 | `TestIOTimingSnapshotsKeepCountsAndElapsedInTheSameWindow` |
 | `demo/java-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
 | `demo/java-hotspot/Hotspot.java` | java-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | — |
-| `demo/python-hotspot/app.py` | python-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `CpuFault`、`source_hot_function`、`SourceHotspotFault`、`MemoryFault`、`IoFault` 等 21 个声明 |
 | `demo/python-hotspot/Dockerfile` | 对应服务的可复现容器镜像构建配方。 | — |
+| `demo/python-hotspot/app.py` | python-hotspot 受控故障实验室的源码、依赖或镜像构建文件。 | `CpuFault`、`source_hot_function`、`SourceHotspotFault`、`MemoryFault`、`IoFault` 等 21 个声明 |
 | `demo/rag_service/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
 | `demo/rag_service/app.py` | rag_service 受控故障实验室的源码、依赖或镜像构建文件。 | `Settings`、`lexical_score`、`KnowledgeService`、`serve` |
 
@@ -3643,10 +3649,10 @@ python scripts/render_learning_guide.py
 | `integrations/agi_saber/backend-config.yaml` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/backend-requirements.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/backend_entry.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `integrations/agi_saber/patches/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `integrations/agi_saber/patches/local-search-text-only.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/long-ingest-batch.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `integrations/agi_saber/patches/milvus-lite.patch` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `integrations/agi_saber/patches/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `integrations/agi_saber/query_extraction_cache.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `QueryExtractionCache`、`install_on`、`install` |
 | `integrations/agi_saber/request_observations.py` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | `ExerciseScope`、`OfficeObservationStore`、`install` 等 11 个声明 |
 | `integrations/agi_saber/requirements-vector.txt` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -3717,6 +3723,9 @@ python scripts/render_learning_guide.py
 | `benchmarks/retrieval/heldout_20261002_manifest.json` | 评测来源或数据合同。 | — |
 | `benchmarks/retrieval/heldout_20261002_private.json` | 评测来源或数据合同。 | — |
 | `benchmarks/retrieval/heldout_20261002_public.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/planning_retrieval_v2_manifest.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/planning_retrieval_v2_private.json` | 评测来源或数据合同。 | — |
+| `benchmarks/retrieval/planning_retrieval_v2_public.json` | 评测来源或数据合同。 | — |
 | `benchmarks/retrieval/sre_queries.json` | 评测来源或数据合同。 | — |
 | `benchmarks/root-cause-v1/manifest.json` | 数据集数量、版本、随机种子和文件 SHA-256 清单。 | — |
 | `benchmarks/root-cause-v1/private/oracles.json` | 私有根因/Skill 真值，评测时才与公开输入合并。 | — |
@@ -3802,7 +3811,8 @@ python scripts/render_learning_guide.py
 | `tests/test_go_io_window_harness.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_io_window_uses_new_operations_instead_of_the_lifetime_mean`、`test_missing_operations_resets_and_nonfinite_time_cannot_pass_fixture_verification` |
 | `tests/test_health_check_flow.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `evidence`、`test_measured_outcome_never_requires_positive_root_support`、`test_missing_or_untrusted_data_never_reports_normal`、`test_http_failure_is_detected_but_no_requests_does_not_claim_http_health`、`db` 等 12 个声明 |
 | `tests/test_health_check_postgres.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `seed`、`inspect`、`test_concurrent_completion_waits_for_parent_lock_and_commits_once`、`test_exception_rolls_back_event_terminal_status_and_call_phase`、`test_process_death_and_fresh_process_retry_preserve_atomic_completion` 等 7 个声明 |
-| `tests/test_heldout_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `frozen_copy`、`test_preimplementation_freeze_rejects_changed_suite_or_truth`、`test_freeze_rejects_corpus_source_or_development_drift`、`test_heldout_is_distinct_from_development_and_uses_frozen_corpus`、`test_clean_checkout_comments_and_crlf_do_not_replace_original_corpus_bytes` 等 22 个声明 |
+| `tests/test_heldout_diagnosis.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `original_contract_runs_in_historical_source_sandbox`、`frozen_copy`、`test_preimplementation_freeze_rejects_changed_suite_or_truth`、`test_freeze_rejects_corpus_source_or_development_drift`、`test_heldout_is_distinct_from_development_and_uses_frozen_corpus` 等 23 个声明 |
+| `tests/test_historical_heldout.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_snapshot_contains_only_original_26_registered_inputs`、`test_historical_scope_restores_globals_and_keeps_current_source_drift_protection`、`test_archived_first_report_keeps_original_scores_and_explicit_historical_scope` |
 | `tests/test_hotspot_controls.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `case`、`test_independent_control_never_promotes_ai_or_code_fix`、`test_wrong_target_short_window_and_missing_effect_rejected`、`test_counter_must_show_recovery_and_cleanup`、`test_injection_must_span_profile_window_and_booleans_are_strict` 等 10 个声明 |
 | `tests/test_hypothesis_predicate.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_native_wrapper_cannot_counter_lock_or_match_generic_criteria`、`test_native_inclusive_parent_is_not_a_dominant_lock_counter`、`test_predicate_support_when_top_function_matches_expected`、`test_predicate_counter_when_top_function_matches_falsification`、`test_predicate_none_without_claimable_signal` 等 43 个声明 |
 | `tests/test_interview_demo_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_acceptance_terminal_semantics`、`test_artifact_sample_count_accepts_collector_contract_fields`、`test_java_profile_validator_decodes_standard_content_envelope`、`test_java_gc_validator_requires_independent_counter_window`、`test_generic_decisive_collector_requires_verified_non_empty_artifact` 等 15 个声明 |
@@ -3834,6 +3844,8 @@ python scripts/render_learning_guide.py
 | `tests/test_performance_localization_evaluation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_localization_is_graded_separately_from_causal_and_fix_acceptance`、`test_localization_rejects_wrong_domain_or_unproven_contract`、`test_cpu_localization_requires_independent_cpu_observation_and_go_hot_path` |
 | `tests/test_performance_observation_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `measured`、`verify`、`test_abnormal_numeric_plan_is_checkable_without_requiring_its_opposite_to_be_true`、`test_observation_check_cannot_bypass_trust_quality_or_target_gates`、`test_unknown_slot_is_unchecked_and_conflicting_windows_are_not_merged` 等 12 个声明 |
 | `tests/test_performance_plan_display.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_display_normalization_preserves_the_complete_executable_contract` |
+| `tests/test_planning_output_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `output`、`investigate`、`test_noninvestigation_is_valid_without_probe_or_anomaly`、`test_no_probe_contract_rejects_hidden_action_or_unbounded_claim`、`test_investigation_keeps_falsification_numeric_and_authorization_gates` 等 22 个声明 |
+| `tests/test_planning_retrieval_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `proposal`、`response`、`test_noninvestigation_branches_allow_empty_conditions_and_no_tool`、`test_normal_branch_cannot_claim_cause_or_select_tool_or_drop_scope`、`test_private_truth_never_reaches_public_model_projection` 等 12 个声明 |
 | `tests/test_pprof_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_profile_handles_gzip_and_raw`、`test_analyze_profile_rebuilds_top_and_flame_tree`、`test_pprof_cli_writes_outputs`、`test_pprof_cli_rejects_corrupt_input`、`test_analyzer_runner_pprof_integration` 等 6 个声明 |
 | `tests/test_process_cpu_control.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `document`、`hypothesis`、`test_real_analyzer_counter_window_makes_control_reachable`、`test_low_cpu_is_counter_and_zero_is_observed`、`test_explicit_threshold_languages_and_exact_boundary` 等 22 个声明 |
 | `tests/test_process_resource_monitor.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `rows`、`test_stable_resources_pass_and_first_cpu_sample_is_not_fabricated`、`test_sustained_growth_cannot_pass`、`test_threshold_is_inclusive_and_transient_peak_is_not_leak_proof`、`test_missing_or_sparse_resources_are_invalid` 等 14 个声明 |
@@ -3842,6 +3854,7 @@ python scripts/render_learning_guide.py
 | `tests/test_python_hotspot_memory_cleanup.py` | Python 自动化测试，验证上下文与记忆的成功、失败与边界条件。 | `test_memory_stop_releases_buffers_and_trims_linux_heap`、`test_demo_sets_a_stable_linux_process_name_for_agent_discovery` |
 | `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 25 个声明 |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_without_intervention_stays_an_observation`、`test_support_without_specific_finding_is_not_promoted_to_root_cause`、`test_numeric_performance_findings_render_actual_measurements_with_scope` 等 27 个声明 |
+| `tests/test_retrieval_abstention.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_technical_queries_preserve_portable_and_scoped_guides`、`test_unknown_domains_and_generic_platform_words_abstain`、`test_inferred_category_cannot_turn_an_unknown_query_into_a_match`、`test_empty_genuine_query_is_not_replaced_with_category`、`test_explicit_user_correction_can_supply_the_actual_domain` 等 21 个声明 |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_same_load_business_fix.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_business_fix_preserves_workload_quality_and_probe_integrity`、`test_business_comparison_rejects_changed_inputs_or_unverified_outputs` |
 | `tests/test_seven_gap_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_old_failures_remain_immutable_and_are_not_upgraded_by_new_rules`、`test_fifty_percent_cpu_contract_preserves_percentage_units`、`test_cpu_source_samples_cannot_be_relabelled_as_lock_holder_or_shared_quota_evidence`、`test_registered_cpp_path_requires_recomputed_independent_cpu_and_exact_plan`、`test_cpp_runtime_observation_rejects_correlated_or_forged_proof` 等 12 个声明 |
@@ -3885,6 +3898,7 @@ python scripts/render_learning_guide.py
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_heldout_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
+| `scripts/evaluate_planning_retrieval_v2.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `sha`、`canonical`、`public_only`、`validate_freeze`、`source_receipt` 等 18 个声明 |
 | `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |
@@ -3938,6 +3952,7 @@ python scripts/render_learning_guide.py
 | `scripts/verify_final_ui_acceptance.mjs` | 通过公网只读验证首屏、移动布局、已有报告、探索树、验证中心和记忆，阻止业务写请求。 | — |
 | `scripts/verify_frontend_workbench.mjs` | 使用本地合成 API 与 Chromium 验证首屏、响应式、树和失败刷新；不连接云端。 | — |
 | `scripts/verify_go_io_window.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `window_average`、`main` |
+| `scripts/verify_historical_heldout.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `sha`、`restored_inputs`、`historical_verifier_bytes`、`historical_test_scope`、`verify_historical_report` 等 6 个声明 |
 | `scripts/verify_hotspot_controls.py` | 隔离 Linux Python/Go 函数采样与 OS CPU 基线/故障/恢复对照。 | `write`、`api`、`pprof_result`、`evaluate`、`cpu_window` 等 7 个声明 |
 | `scripts/verify_interview_demo.py` | 用页面同款 API 验收真实故障、A/B、Artifact、Evidence、报告和清理。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `scripts/verify_lats_replay_showcase.py` | 验收冻结 FULL_LATS 双会话、重置证明和命名空间隔离。 | `AcceptanceError`、`Client`、`main` 等 9 个声明 |
@@ -3973,6 +3988,7 @@ python scripts/render_learning_guide.py
 | `deploy/env/interview-demo.env` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
 | `deploy/env/retrieval.env.example` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
 | `deploy/env/worker.env.example` | 部署环境变量模板或面试实验室配置；真实密钥不得写入教材。 | — |
+| `deploy/k8s/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `deploy/k8s/base/analyzer.yaml` | Kubernetes analyzer 资源定义。 | — |
 | `deploy/k8s/base/apiserver.yaml` | Kubernetes apiserver 资源定义。 | — |
 | `deploy/k8s/base/autoscaling.yaml` | Kubernetes autoscaling 资源定义。 | — |
@@ -3986,7 +4002,6 @@ python scripts/render_learning_guide.py
 | `deploy/k8s/base/native-agent.yaml` | Kubernetes native-agent 资源定义。 | — |
 | `deploy/k8s/base/secret.example.yaml` | Kubernetes secret.example 资源定义。 | — |
 | `deploy/k8s/base/web.yaml` | Kubernetes web 资源定义。 | — |
-| `deploy/k8s/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `deploy/nginx/business-apps.conf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `deploy/nginx/control-tls.conf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `deploy/nginx/default.conf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
@@ -4007,6 +4022,35 @@ python scripts/render_learning_guide.py
 |---|---|---|
 | `docs/AGENT_RUNTIME.md` | Runtime、Harness、Theme、上下文、记忆和框架边界。 | — |
 | `docs/AI_DIAGNOSIS.md` | AI 范围、规划、Evidence Gate、LATS 和页面语义。 | — |
+| `docs/BUSINESS_ACCEPTANCE.md` | 业务测量、同负载修复比较、知识库样例、CI 计划及本地/AI 验收边界。 | — |
+| `docs/BUSINESS_ONBOARDING_DESIGN.md` | 业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。 | — |
+| `docs/CLEAN_STACK_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/COMPETITOR_DESIGN_DECISIONS.md` | 开源/商业竞品机制到本项目设计决策的证据链。 | — |
+| `docs/COMPLETION_AUDIT_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/CURRENT_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/DIAGNOSIS_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/DISTRIBUTED_LOAD.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/ENGINEERING_CASES.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/ENGINEERING_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
+| `docs/FULL_CHAIN_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/HELDOUT_EVALUATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
+| `docs/PERFORMANCE_DIAGNOSIS.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/PLANNING_RETRIEVAL_V2.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/PROJECT_CONTEXT.md` | 跨会话架构和当前事实总锚点。 | — |
+| `docs/PROJECT_LEARNING_GUIDE.md` | 当前这份从页面到源码、测试和面试的唯一总教材。 | — |
+| `docs/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `docs/REMAINING_WORK_20260930.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/REPLICATION.md` | 本地、云端和多 Worker 的复刻部署。 | — |
+| `docs/RESTART_HANDOFF.md` | 电脑或会话重启后的精确恢复入口。 | — |
+| `docs/SERVICE_INTEGRATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/SKILLS.md` | Skill 格式、检索、渐进披露、评测、发布与回滚。 | — |
+| `docs/SKILL_AB_INSUFFICIENT_EVIDENCE_POSTMORTEM_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
+| `docs/TEST_ENGINEERING.md` | 测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。 | — |
 | `docs/assets/architecture.svg` | README 静态架构图的可编辑源文件，展示平台、采集 Agent、业务进程与存储职责。 | — |
 | `docs/assets/demo-walkthrough-20260924/01-service.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `docs/assets/demo-walkthrough-20260924/02-upload.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
@@ -4155,11 +4199,6 @@ python scripts/render_learning_guide.py
 | `docs/assets/learning-guide/20260914-lightweight-business/manifest.json` | 截图取证元数据：页面文字、控件、路径、时间、图片 hash 或批次清单。 | — |
 | `docs/assets/learning-guide/20260914-lightweight-business/memos-original-business.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `docs/assets/learning-guide/20260914-lightweight-business/ntfy-original-business.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
-| `docs/BUSINESS_ACCEPTANCE.md` | 业务测量、同负载修复比较、知识库样例、CI 计划及本地/AI 验收边界。 | — |
-| `docs/BUSINESS_ONBOARDING_DESIGN.md` | 业务接入设计与首批轻量业务进展，区分已实现请求关联与待实现阶段观测。 | — |
-| `docs/CLEAN_STACK_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/COMPETITOR_DESIGN_DECISIONS.md` | 开源/商业竞品机制到本项目设计决策的证据链。 | — |
-| `docs/COMPLETION_AUDIT_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/contracts/attempt-manifest.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/business-acceptance-policy.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/business-measurement.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
@@ -4177,31 +4216,8 @@ python scripts/render_learning_guide.py
 | `docs/contracts/task-parameters/pyspy.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/task-parameters/sys_metrics.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
 | `docs/contracts/taskkind.schema.json` | 跨语言合同的机器可读或人类可读稳定合同。 | — |
-| `docs/CURRENT_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
 | `docs/demo/generate_demo_text.py` | 项目设计、使用、部署、接口或验收说明。 | `main` |
 | `docs/demo/mini-drop-demo-20k.txt` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/DEMO_WALKTHROUGH.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/DIAGNOSIS_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/DISTRIBUTED_LOAD.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/ENGINEERING_CASES.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/ENGINEERING_DELIVERY.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/FAULT_PLAZA_21_BENCHMARK_REPORT.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/FAULT_PLAZA_ACCEPTANCE.md` | 严格验收协议、通过标准、历史链路边界、发布修复与页面截图。 | — |
-| `docs/FULL_CHAIN_ACCEPTANCE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/HELDOUT_EVALUATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/INTERVIEW_DEEP_DIVE.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/INTERVIEW_DEMO_GUIDE.md` | 面试现场逐步点击、讲解、预期结果和排障脚本。 | — |
-| `docs/PERFORMANCE_DIAGNOSIS.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/PROJECT_CONTEXT.md` | 跨会话架构和当前事实总锚点。 | — |
-| `docs/PROJECT_LEARNING_GUIDE.md` | 当前这份从页面到源码、测试和面试的唯一总教材。 | — |
-| `docs/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
-| `docs/REMAINING_WORK_20260930.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/REPLICATION.md` | 本地、云端和多 Worker 的复刻部署。 | — |
-| `docs/RESTART_HANDOFF.md` | 电脑或会话重启后的精确恢复入口。 | — |
-| `docs/SERVICE_INTEGRATION.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/SKILL_AB_INSUFFICIENT_EVIDENCE_POSTMORTEM_20260908.md` | 项目设计、使用、部署、接口或验收说明。 | — |
-| `docs/SKILLS.md` | Skill 格式、检索、渐进披露、评测、发布与回滚。 | — |
-| `docs/TEST_ENGINEERING.md` | 测试开发定位、风险回归、质量报告、并发 CI、缺陷复盘与开源机制对照。 | — |
 
 ### 34.18 reports：已经运行后产生的证据报告
 
@@ -4240,6 +4256,8 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/4项修复复测-20260910.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260905.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/AI诊断与Skill复用测试报告-20260906.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260905.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260906.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/backup-restore-run-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-acceptance-index.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-instance-scope-1-after-race-deployed-20260930-cases/java-gc-pressure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4289,8 +4307,6 @@ python scripts/render_learning_guide.py
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/go-cpu-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/source-hotspot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/fault-plaza-strict-pilot-20260928.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
-| `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260905.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
-| `reports/ai-diagnosis/Mini-Drop-AI诊断与Skill复用测试报告-20260906.docx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/postgres-concurrency-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/postgres-concurrency-final-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/ai-diagnosis/postgres-concurrency-fixed-20260909.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4734,6 +4750,7 @@ python scripts/render_learning_guide.py
 | `reports/quality/focused-delivery-20260929/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/regression-evidence.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/focused-delivery-20260929/scope-before-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/health-check-flow-20261001/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `reports/quality/health-check-flow-20261001/browser-check-live/manifest.raw` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/browser-check-live/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/browser-check-live/selected-existing-case.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -4785,7 +4802,6 @@ python scripts/render_learning_guide.py
 | `reports/quality/health-check-flow-20261001/helpers/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/live-check-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
-| `reports/quality/health-check-flow-20261001/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
 | `reports/quality/health-check-flow-20261001/release/ci-first-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/release/ci-first-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/health-check-flow-20261001/release/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -7604,6 +7620,8 @@ python scripts/render_learning_guide.py
 
 | 文件 | 用途 | 源码定位（部分声明） |
 |---|---|---|
+| `output/Agent开发一面问题逐题回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
+| `output/Agent开发一面问题通用回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/acceptance/20260907T180810Z/qualified-java-root-cause.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/acceptance/20260907T180810Z/sys-metrics-v1-compatible.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/acceptance/20260907T181512Z/qualified-java-root-cause.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
@@ -7612,8 +7630,6 @@ python scripts/render_learning_guide.py
 | `output/acceptance/20260908T033851Z/fault-plaza-and-lats.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/acceptance/20260908T033851Z/skill-experiment.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
 | `output/acceptance/20260908T033851Z/validation-center.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
-| `output/Agent开发一面问题逐题回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
-| `output/Agent开发一面问题通用回答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/fault-plaza-closure-source-predeploy.json` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/pdf/双项目面试深挖报告.pdf` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |
 | `output/双项目面试问答.md` | 项目配置、源码或派生材料；从所在目录和引用关系理解其职责。 | — |

@@ -9,7 +9,10 @@ from typing import Any
 from server.app.ai_provider import chat_completions, get_ai_settings, is_feature_enabled
 from server.app.agent_runtime.retrieval import build_retrieval_trace
 from server.app.logging_utils import log_event
-from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT, cpu_plan_validation_error
+from .cpu_criteria import EVIDENCE_PLANNING_REQUIREMENT
+from server.app.agent_runtime.planning_output import (
+    PLANNING_OUTPUT_REQUIREMENT, planning_output_schema, validate_planning_output,
+)
 from .performance_criteria import PERFORMANCE_PLANNING_REQUIREMENT
 
 EVIDENCE_PLANNING_REQUIREMENT += PERFORMANCE_PLANNING_REQUIREMENT
@@ -22,7 +25,7 @@ SYSTEM_PROMPT = """你是性能诊断假设规划器。基于问题、可信范�
 证据反驳、不可观测或门禁拒绝后，应扩展新的候选原因并切换未尝试的证据域；Skill 只提供
 路线先验，本次仍须重新取证。active_skill.skill_instructions 是按需加载并校验过的完整
 Skill 正文；必须遵守其中的证据要求、停止和证伪条件，但它绝不能扩大工具白名单、修改
-目标范围、绕过审批/预算/证据门禁。其他未知原因最多保留一个开放世界兜底候选。"""
+目标范围、绕过审批/预算/证据门禁。其他未知原因最多保留一个开放世界兜底候选。""" + "\n" + PLANNING_OUTPUT_REQUIREMENT
 
 
 def propose_hypothesis_plan(
@@ -51,14 +54,13 @@ def propose_hypothesis_plan(
         allowed = [rule_plan["tool_name"]]
     else:
         allowed = list(dict.fromkeys(allowed_tools))
-        if not allowed:
-            return None
     retrieval_trace = retrieval_trace or build_retrieval_trace(
         "\n".join(
             value
             for value in (query, category, user_correction or "")
             if value
-        )
+        ),
+        relevance_query="\n".join(value for value in (query, user_correction or "") if value),
     )
     if user_preferences is None and diagnosis_id:
         from .operator_memory import load_safe_agent_preferences
@@ -109,27 +111,7 @@ def propose_hypothesis_plan(
     function = {
         "name": "emit_diagnosis_plan",
         "description": "输出受约束、可证伪的性能诊断计划",
-        "parameters": {
-            "type": "object", "additionalProperties": False,
-            "properties": {
-                "reasoning_summary": {"type": "string"},
-                "tool_name": {"type": "string", "enum": allowed},
-                "hypotheses": {
-                    "type": "array", "minItems": 1, "maxItems": 3,
-                    "items": {
-                        "type": "object", "additionalProperties": False,
-                        "properties": {
-                            "statement": {"type": "string"},
-                            "expected_observations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-                            "falsification_criteria": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-                            "rationale": {"type": "string"},
-                        },
-                        "required": ["statement", "expected_observations", "falsification_criteria", "rationale"],
-                    },
-                },
-            },
-            "required": ["reasoning_summary", "tool_name", "hypotheses"],
-        },
+        "parameters": planning_output_schema(allowed),
     }
     settings = get_ai_settings()
     if settings.provider.lower() == "openai":
@@ -169,10 +151,7 @@ def propose_hypothesis_plan(
             return None
         raw = calls[0].get("function", {}).get("arguments", "{}")
         result = json.loads(raw) if isinstance(raw, str) else raw
-        if result.get("tool_name") not in allowed or not result.get("hypotheses"):
-            return None
-        if cpu_plan_validation_error(result["hypotheses"]):
-            return None
+        result = validate_planning_output(result, allowed)
         from .diagnosis_agent import normalize_diagnosis_plan_for_display
 
         result = normalize_diagnosis_plan_for_display(
@@ -182,8 +161,10 @@ def propose_hypothesis_plan(
                 (user_preferences or {}).get("response_language") or "zh-CN"
             ),
         )
-        if cpu_plan_validation_error(result["hypotheses"]):
-            return None
+        result = {**result, **validate_planning_output(
+            {key: value for key, value in result.items() if key in planning_output_schema(allowed)["properties"]},
+            allowed,
+        )}
         result["retrieval_trace"] = retrieval_trace
         return result
     except Exception:

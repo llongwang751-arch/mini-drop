@@ -61,20 +61,13 @@ from server.app.agent_runtime.themes import (
     scope_system_prompt,
 )
 from server.app.logging_utils import log_event
-
-
-_COLLECTION_FAILURE_MARKERS = (
-    "采集失败",
-    "工具失败",
-    "权限不足",
-    "无法附加",
-    "连接失败",
-    "agent 离线",
-    "agent offline",
-    "timeout",
-    "timed out",
-    "超时",
+from server.app.agent_runtime.planning_output import (
+    PLANNING_OUTPUT_REQUIREMENT, PlanningHypothesis, PlanningOutput, validate_planning_output,
+    COLLECTION_FAILURE_MARKERS,
 )
+
+
+_COLLECTION_FAILURE_MARKERS = COLLECTION_FAILURE_MARKERS
 
 DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT = (
     "所有面向用户展示的字段必须以简体中文书写；CPU、JVM、eBPF、py-spy、"
@@ -229,30 +222,7 @@ class DeadlineSummarizationMiddleware(SummarizationMiddleware):
         return SummarizationMiddleware.before_model(bounded, state, runtime)
 
 
-class AgentHypothesis(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    statement: str = Field(min_length=3, max_length=1000)
-    expected_observations: list[str] = Field(min_length=1, max_length=8)
-    falsification_criteria: list[str] = Field(min_length=1, max_length=8)
-    rationale: str = Field(min_length=3, max_length=1000)
-    # Optional LATS value-head outputs.  They are only search priors: the
-    # Evidence Gate remains the sole authority for accepting a conclusion.
-    prior_probability: float | None = Field(default=None, ge=0.0, le=1.0)
-    estimated_value: float | None = Field(default=None, ge=-1.0, le=1.0)
-
-    @field_validator("statement", "rationale")
-    @classmethod
-    def _strip_text(cls, value: str) -> str:
-        return value.strip()
-
-    @field_validator("expected_observations", "falsification_criteria")
-    @classmethod
-    def _clean_items(cls, values: list[str]) -> list[str]:
-        cleaned = [str(item).strip() for item in values if str(item).strip()]
-        if not cleaned:
-            raise ValueError("at least one non-empty criterion is required")
-        return cleaned
+AgentHypothesis = PlanningHypothesis
 
 
 class DiagnosticProbeRequest(BaseModel):
@@ -297,29 +267,36 @@ def request_diagnostic_probe(
             },
             ensure_ascii=False,
         )
-    request = DiagnosticProbeRequest.model_validate(
-        {
+    try:
+        proposal = validate_planning_output({
             "reasoning_summary": reasoning_summary,
             "tool_name": tool_name,
-            "hypotheses": hypotheses,
-        }
-    )
-    if any(marker in criterion.casefold()
-           for hypothesis in request.hypotheses
-           for criterion in hypothesis.falsification_criteria
-           for marker in _COLLECTION_FAILURE_MARKERS):
-        return json.dumps({
-            "accepted": False,
-            "code": "INVALID_FALSIFICATION",
-            "reason": "采集失败或不可观测不能证伪根因。请把每条证伪条件改成采集成功时与假设相反的指标/调用栈结果，工具白名单与预算不变。",
-        }, ensure_ascii=False)
-    cpu_error = cpu_plan_validation_error(request.hypotheses)
-    if cpu_error:
-        return json.dumps({"accepted": False, "code": "INVALID_FALSIFICATION", "reason": cpu_error}, ensure_ascii=False)
-    return json.dumps(
-        {"accepted": True, "proposal": request.model_dump(mode="json")},
-        ensure_ascii=False,
-    )
+            "hypotheses": [item.model_dump(mode="json") if isinstance(item, BaseModel) else item
+                           for item in hypotheses],
+        }, context.allowed_tools)
+    except (TypeError, ValueError) as exc:
+        return json.dumps({"accepted": False, "code": "INVALID_FALSIFICATION", "reason": str(exc)},
+                          ensure_ascii=False)
+    return json.dumps({"accepted": True, "proposal": proposal}, ensure_ascii=False)
+
+
+@tool(
+    "finish_diagnosis_plan",
+    return_direct=True,
+    description=(
+        "Finish this planning turn with the shared four-disposition output contract. "
+        "INVESTIGATE proposes one allowlisted probe and falsifiable hypotheses. "
+        "NORMAL, INSUFFICIENT_EVIDENCE or REFUSED require null tool and no hypotheses; "
+        "these describe planning scope only, never verified health or cause."
+    ),
+)
+def finish_diagnosis_plan(output: PlanningOutput, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
+    try:
+        proposal = validate_planning_output(output, runtime.context.allowed_tools)
+    except (TypeError, ValueError) as exc:
+        return json.dumps({"accepted": False, "code": "INVALID_PLANNING_OUTPUT", "reason": str(exc)},
+                          ensure_ascii=False)
+    return json.dumps({"accepted": True, "proposal": proposal}, ensure_ascii=False)
 
 
 @tool(
@@ -391,6 +368,8 @@ def _diagnosis_system_prompt(request: ModelRequest) -> str:
         + PREFERENCE_MEMORY_REQUIREMENT
         + "\n"
         + EVIDENCE_PLANNING_REQUIREMENT
+        + "\n"
+        + PLANNING_OUTPUT_REQUIREMENT
         + "\n"
         + (
             "All user-visible summaries, hypotheses, expected observations and "
@@ -720,7 +699,7 @@ def _agent_for(settings: AISettings) -> Any:
         )
         agent = create_agent(
             model=model,
-            tools=[request_diagnostic_probe, search_knowledge, read_knowledge_chunk, search_incident_memory]
+            tools=[finish_diagnosis_plan, request_diagnostic_probe, search_knowledge, read_knowledge_chunk, search_incident_memory]
                   + ([query_service_observations] if os.getenv("MINI_DROP_GRAFANA_URL") else []),
             middleware=[
                 _diagnosis_system_prompt,
@@ -853,59 +832,31 @@ def select_scope_with_diagnosis_agent(
 
 
 def _accepted_tool_payload(messages: list[Any]) -> dict[str, Any] | None:
-    accepted_call_id: str | None = None
-    accepted_proposal: dict[str, Any] | None = None
-    for message in reversed(messages):
-        if isinstance(message, ToolMessage) and message.name == "request_diagnostic_probe":
-            try:
-                payload = json.loads(str(message.content))
-            except (TypeError, ValueError):
-                return None
-            if payload.get("accepted") is not True:
-                return None
-            accepted_call_id = str(message.tool_call_id or "").strip() or None
-            try:
-                accepted_proposal = DiagnosticProbeRequest.model_validate(
-                    payload.get("proposal") or {}
-                ).model_dump(mode="json")
-            except (TypeError, ValueError):
-                return None
-            break
-    if accepted_call_id is None or accepted_proposal is None:
-        return None
-    for message in reversed(messages):
-        if not isinstance(message, AIMessage):
+    """Correlate the validated proposal with its executed model call, not prose."""
+    names = {"request_diagnostic_probe", "finish_diagnosis_plan"}
+    for index in range(len(messages) - 1, -1, -1):
+        message = messages[index]
+        if not isinstance(message, ToolMessage) or message.name not in names:
             continue
-        for call in reversed(message.tool_calls or []):
-            if (
-                call.get("name") != "request_diagnostic_probe"
-                or str(call.get("id") or "") != accepted_call_id
-            ):
-                continue
-            try:
-                proposal = DiagnosticProbeRequest.model_validate(
-                    call.get("args") or {}
-                ).model_dump(mode="json")
-                if proposal != accepted_proposal:
-                    return None
-                counters = (
-                    criterion.casefold()
-                    for hypothesis in proposal["hypotheses"]
-                    for criterion in hypothesis["falsification_criteria"]
-                )
-                if any(
-                    marker in criterion
-                    for criterion in counters
-                    for marker in _COLLECTION_FAILURE_MARKERS
-                ):
-                    return None
-                if cpu_plan_validation_error(proposal["hypotheses"]):
-                    return None
-                return proposal
-            except (TypeError, ValueError):
+        try:
+            payload = json.loads(str(message.content))
+            if payload.get("accepted") is not True or not message.tool_call_id:
                 return None
+            accepted = validate_planning_output(payload.get("proposal") or {}, None)
+            for prior in reversed(messages[:index]):
+                if not isinstance(prior, AIMessage):
+                    continue
+                for call in reversed(prior.tool_calls or []):
+                    if call.get("name") != message.name or str(call.get("id") or "") != str(message.tool_call_id):
+                        continue
+                    args = call.get("args") or {}
+                    original = args.get("output") if message.name == "finish_diagnosis_plan" else args
+                    proposed = validate_planning_output(original or {}, None)
+                    return proposed if proposed == accepted else None
+            return None
+        except (TypeError, ValueError):
+            return None
     return None
-
 
 _CJK_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
 _LATIN_WORD_RE = re.compile(r"[A-Za-z]{2,}")
@@ -935,6 +886,17 @@ def normalize_diagnosis_plan_for_display(
     replaced by a deterministic Chinese rule baseline.  The selected semantic
     tool remains subject to the existing allowlist, policy and Evidence Gate.
     """
+
+    if proposal.get("disposition", "INVESTIGATE") != "INVESTIGATE":
+        if response_language == "en-US" or _is_chinese_first_text(proposal.get("reasoning_summary")):
+            return {**proposal, "display_language": response_language}
+        summary = {
+            "NORMAL": "描述或规划范围内未提出异常；尚未做当前状态检查，不能据此确认业务正常。",
+            "INSUFFICIENT_EVIDENCE": "当前缺少必要观测，不能判断；不虚构异常或启动探针。",
+            "REFUSED": "请求超出本次规划的权限或能力范围，已停止提出探针。",
+        }[proposal["disposition"]]
+        return {**proposal, "reasoning_summary": summary, "display_language": "zh-CN",
+                "language_normalization": "SERVER_DISPOSITION_LABEL"}
 
     if response_language == "en-US":
         return {**proposal, "display_language": "en-US"}
@@ -1003,7 +965,7 @@ def plan_with_diagnosis_agent(
 ) -> dict[str, Any] | None:
     """Run one autonomous planning turn and return a validated probe proposal."""
 
-    if not context.diagnosis_id or not context.allowed_tools:
+    if not context.diagnosis_id:
         return None
     circuit_open, status_code = _provider_circuit_open(settings)
     if circuit_open:
@@ -1084,15 +1046,15 @@ def plan_with_diagnosis_agent(
             rejection = json.loads(str(last_tool.content)) if last_tool is not None else {}
         except (TypeError, ValueError):
             rejection = {}
-        if (last_tool is not None and last_tool.name == "request_diagnostic_probe"
+        if (last_tool is not None and last_tool.name in {"request_diagnostic_probe", "finish_diagnosis_plan"}
                 and rejection.get("accepted") is False
-                and rejection.get("code") == "INVALID_FALSIFICATION"):
+                and rejection.get("code") in {"INVALID_FALSIFICATION", "INVALID_PLANNING_OUTPUT"}):
             # One corrective model turn, only for a semantic rejection. Never
             # retry provider/network exceptions or execute an invalid proposal.
             log_event("info", "diagnosis_agent_semantic_correction", diagnosis_id=context.diagnosis_id,
                       reason="INVALID_FALSIFICATION", maximum_corrections=1)
             result = agent.invoke({"messages": [{"role": "user", "content":
-                "服务端校验拒绝上一份计划：" + rejection["reason"] + "请重新调用 request_diagnostic_probe，仅允许本次一次纠正。"}]},
+                "服务端校验拒绝上一份计划：" + rejection["reason"] + "请通过 finish_diagnosis_plan 重新提交四态结果；如仍需调查也可调用 request_diagnostic_probe，仅允许本次一次纠正。"}]},
                 config=invoke_config, context=context)
     except Exception as exc:
         _record_provider_failure(settings, exc)
@@ -1111,7 +1073,11 @@ def plan_with_diagnosis_agent(
                 )
     _record_provider_success(settings)
     proposal = _accepted_tool_payload(list(result.get("messages") or []))
-    if proposal is None or proposal["tool_name"] not in context.allowed_tools:
+    if proposal is None:
+        return None
+    try:
+        proposal = validate_planning_output(proposal, context.allowed_tools)
+    except (TypeError, ValueError):
         return None
     proposal = normalize_diagnosis_plan_for_display(
         proposal,
@@ -1120,7 +1086,10 @@ def plan_with_diagnosis_agent(
             context.user_preferences.get("response_language") or "zh-CN"
         ),
     )
-    if cpu_plan_validation_error(proposal["hypotheses"]):
+    try:
+        validate_planning_output({key: value for key, value in proposal.items()
+                                  if key in PlanningOutput.model_fields}, context.allowed_tools)
+    except (TypeError, ValueError):
         return None
     return {
         **proposal,

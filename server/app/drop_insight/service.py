@@ -78,6 +78,7 @@ from server.app.sql_repository import SqlRepository
 from server.app.storage import presigned_put_url
 from server.app.drop_insight.source_mapper import map_hot_functions
 from .adaptive_planner import propose_hypothesis_plan
+from server.app.agent_runtime.planning_output import PlanningOutput, validate_planning_output
 from .cpu_criteria import (cpu_utilization_hypothesis, compile_cpu_observation_contract,
                            cpu_observation_plan)
 from .lats import (
@@ -1549,7 +1550,10 @@ def _record_planner_knowledge_retrieval(
         for value in (str(query or "").strip(), category, user_correction.strip())
         if value
     )
-    trace = trace_override if trace_override is not None else build_retrieval_trace(retrieval_query)
+    relevance_query = "\n".join(value for value in (str(query or "").strip(), user_correction.strip()) if value)
+    trace = trace_override if trace_override is not None else build_retrieval_trace(
+        retrieval_query, relevance_query=relevance_query,
+    )
     session = new_session()
     try:
         if session.get(DropInsightSessionModel, diagnosis_id) is None:
@@ -2591,6 +2595,7 @@ def _intervention_event_view(event, diagnosis=None) -> dict:
         "created_at": event.occurred_at,
         "status": diagnosis.status if diagnosis is not None else None,
         "diagnosis_version": diagnosis.version if diagnosis is not None else None,
+        "planning_output": payload.get("planning_output"),
     }
 
 
@@ -2769,6 +2774,77 @@ def intervene_diagnosis(
     return _apply_diagnosis_intervention(diagnosis_id, event_id)
 
 
+def _record_noninvestigation_plan(
+    diagnosis_id: str,
+    proposal: dict | None,
+    *,
+    phase: str,
+    effect_key: str,
+    round_index: int | None = None,
+    intervention_event_id: str | None = None,
+) -> dict | None:
+    """Persist an abstaining planning decision without manufacturing hypotheses or health.
+
+    A legitimate no-probe output is different from an unavailable model. Existing
+    evidence, accepted reports, active work and cancellation remain authoritative.
+    """
+    if not proposal or proposal.get("disposition", "INVESTIGATE") == "INVESTIGATE":
+        return None
+    output = validate_planning_output(
+        {key: value for key, value in proposal.items() if key in PlanningOutput.model_fields}, [],
+    )
+    session = new_session()
+    try:
+        diagnosis = _lock_diagnosis(session, diagnosis_id)
+        if diagnosis is None:
+            raise ValueError("diagnosis not found")
+        if diagnosis.deleted_at is not None or diagnosis.status in {"CANCELLED", "FAILED"}:
+            return {"planner_kind": "TERMINAL_SESSION", "status": diagnosis.status,
+                    "hypothesis": None, "tool_call": None}
+        timestamp = now_utc()
+        if diagnosis.status == "NEEDS_CLARIFICATION":
+            _cas_session_update(session, diagnosis, status="UNDERSTANDING", timestamp=timestamp)
+        if diagnosis.status == "UNDERSTANDING":
+            _cas_session_update(session, diagnosis, status="PLANNING", timestamp=timestamp)
+        explanation = output["reasoning_summary"]
+        if output["disposition"] == "NORMAL":
+            explanation += "；这是描述或规划范围内未提出异常，尚未做当前状态检查，不能确认平台或业务全部正常。"
+        finalization = _finalize_diagnosis_in_session(
+            session, diagnosis, reason=f"PLANNER_{output['disposition']}", detail=explanation,
+            effect_key=effect_key + ":finalized",
+        )
+        _append_event(
+            session, diagnosis_id, "planner.output_recorded", "SYSTEM",
+            {"phase": phase, "round_index": round_index, "planning_output": output,
+             "planning_disposition": output["disposition"], "reason": explanation,
+             "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+             "is_evidence": False, "health_check_performed": False,
+             "causal_root_cause_verified": False, "new_tool_requested": False,
+             "finalization": finalization}, timestamp, effect_key=effect_key,
+        )
+        if intervention_event_id is not None:
+            event = session.get(DropInsightEventModel, intervention_event_id)
+            if event is None or event.diagnosis_id != diagnosis_id:
+                raise ValueError("diagnosis intervention not found")
+            event.payload_json = {**(event.payload_json or {}), "planning_output": output,
+                                  "tool_call_id": None, "revision_hypothesis_id": None}
+            _append_event(
+                session, diagnosis_id, "diagnosis.intervention_applied", "SYSTEM",
+                {"intervention_id": event.payload_json.get("intervention_id"),
+                 "action": event.payload_json.get("action"), "round_index": round_index,
+                 "planning_disposition": output["disposition"],
+                 "revision_hypothesis_id": None, "tool_call_id": None}, timestamp,
+                effect_key=f"{event.payload_json['intervention_id']}:applied",
+            )
+        session.commit()
+        return {"planner_kind": "MODEL_DISPOSITION", "planner_version": output["schema_version"],
+                "status": diagnosis.status, "planning_disposition": output["disposition"],
+                "planning_output": output, "reason": explanation,
+                "hypothesis": None, "tool_call": None}
+    finally:
+        session.close()
+
+
 def _apply_diagnosis_intervention(diagnosis_id: str, event_id: str) -> dict:
     """Idempotently project a persisted user turn into a new investigation round."""
 
@@ -2784,7 +2860,7 @@ def _apply_diagnosis_intervention(diagnosis_id: str, event_id: str) -> dict:
         ):
             raise ValueError("diagnosis intervention not found")
         event_payload = dict(event.payload_json or {})
-        if event_payload.get("revision_hypothesis_id"):
+        if event_payload.get("revision_hypothesis_id") or event_payload.get("planning_output"):
             return _intervention_event_view(event, diagnosis)
         target = dict(diagnosis.target_json or {})
         previous = (
@@ -2871,7 +2947,16 @@ def _apply_diagnosis_intervention(diagnosis_id: str, event_id: str) -> dict:
         active_skill=skill_activation,
         retrieval_trace=retrieval_trace,
     )
-    candidate = (proposal or {}).get("hypotheses", [{}])[0]
+    disposition = _record_noninvestigation_plan(
+        diagnosis_id, proposal, phase="INTERVENTION_REPLAN",
+        effect_key=f"{event_payload['intervention_id']}:planning-output",
+        round_index=round_index, intervention_event_id=event_id,
+    )
+    if disposition is not None:
+        with new_session() as session:
+            return _intervention_event_view(session.get(DropInsightEventModel, event_id),
+                                            session.get(DropInsightSessionModel, diagnosis_id))
+    candidate = next(iter((proposal or {}).get("hypotheses") or []), {})
     statement = candidate.get("statement") or baseline["statement"]
     expected = candidate.get("expected_observations") or baseline["expected"]
     falsification = candidate.get("falsification_criteria") or baseline["falsification"]
@@ -3074,7 +3159,7 @@ def _replan_from_feedback(
     feedback: DropInsightFeedbackModel,
 ) -> DropInsightHypothesisModel | None:
     diagnosis = get_diagnosis(diagnosis_id)
-    if diagnosis is None:
+    if diagnosis is None or getattr(diagnosis, "deleted_at", None) is not None or diagnosis.status in {"CANCELLED", "FAILED"}:
         return None
     target = diagnosis.target_json or {}
     binding = _current_target_binding(diagnosis)
@@ -3141,7 +3226,12 @@ def _replan_from_feedback(
         active_skill=skill_activation,
         retrieval_trace=retrieval_trace,
     )
-    candidate = (proposal or {}).get("hypotheses", [{}])[0]
+    if _record_noninvestigation_plan(
+        diagnosis_id, proposal, phase="FEEDBACK_REPLAN",
+        effect_key=f"feedback:{feedback.id}:planning-output", round_index=round_index,
+    ) is not None:
+        return None
+    candidate = next(iter((proposal or {}).get("hypotheses") or []), {})
     statement = candidate.get("statement") or f"用户纠正后待验证：{correction}"
     expected = candidate.get("expected_observations") or baseline["expected"]
     falsification = candidate.get("falsification_criteria") or baseline["falsification"]
@@ -3831,7 +3921,9 @@ def _replan_from_counter_evidence(
     if diagnosis is None or getattr(diagnosis, "status", None) in {
         "COMPLETED",
         "INSUFFICIENT_EVIDENCE",
-    }:
+        "CANCELLED",
+        "FAILED",
+    } or getattr(diagnosis, "deleted_at", None) is not None:
         return None
     if _stop_replanning_at_deadline(diagnosis, report_id):
         return None
@@ -3959,6 +4051,11 @@ def _replan_from_counter_evidence(
             active_skill=skill_activation,
             retrieval_trace=retrieval_trace,
         )
+    if _record_noninvestigation_plan(
+        diagnosis_id, proposal, phase="COUNTER_EVIDENCE_REPLAN",
+        effect_key=f"report:{report_id}:counter:planning-output", round_index=round_index,
+    ) is not None:
+        return None
     reason = (proposal or {}).get("reasoning_summary") or (
         "可信反证推翻上一轮主假设，反思结果已注入下一轮候选扩展。"
     )
@@ -4231,7 +4328,9 @@ def _replan_after_insufficient_evidence(
     if diagnosis is None or getattr(diagnosis, "status", None) in {
         "COMPLETED",
         "INSUFFICIENT_EVIDENCE",
-    }:
+        "CANCELLED",
+        "FAILED",
+    } or getattr(diagnosis, "deleted_at", None) is not None:
         return None
     if _stop_replanning_at_deadline(diagnosis, report_id):
         return None
@@ -4368,6 +4467,11 @@ def _replan_after_insufficient_evidence(
             active_skill=skill_activation,
             retrieval_trace=retrieval_trace,
         )
+    if _record_noninvestigation_plan(
+        diagnosis_id, proposal, phase="INSUFFICIENT_EVIDENCE_REPLAN",
+        effect_key=f"report:{report_id}:insufficient:planning-output", round_index=round_index,
+    ) is not None:
+        return None
     reason = (proposal or {}).get("reasoning_summary") or (
         f"{continuation_reason}，按剩余注册工具和历史成功路线切换取证方向。"
     )
@@ -6417,7 +6521,7 @@ def _finish_health_check(diagnosis_id: str, tool_call_id: str) -> dict | None:
             diagnosis_id=diagnosis_id, event_type="health_check.completed").first()
         if previous is not None:
             return previous.payload_json
-        if diagnosis.deleted_at is not None or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
+        if getattr(diagnosis, "deleted_at", None) is not None or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
             return None
         call = session.query(DropInsightToolCallModel).filter_by(
             id=tool_call_id, diagnosis_id=diagnosis_id, tool_name="collect_sys_metrics").first()
@@ -7778,7 +7882,7 @@ def run_diagnosis_planner(
     diagnosis = get_diagnosis(diagnosis_id)
     if diagnosis is None:
         return None
-    if diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED"}:
+    if getattr(diagnosis, "deleted_at", None) is not None or diagnosis.status in {"COMPLETED", "INSUFFICIENT_EVIDENCE", "CANCELLED", "FAILED"}:
         return {"planner_kind": "TERMINAL_SESSION", "status": diagnosis.status,
                 "hypothesis": None, "tool_call": None}
     validation_session = new_session()
@@ -8213,6 +8317,23 @@ def run_diagnosis_planner(
     if questions is not None and not (
         skill_activation and skill_activation.get("applied", True) is not False
     ):
+        # An already-authorized target may receive a legitimate no-probe answer.
+        # An unknown category never authorizes an investigative model proposal.
+        clarification_retrieval = _record_planner_knowledge_retrieval(
+            diagnosis_id, query=diagnosis.query, category="UNKNOWN", phase="INITIAL_CLARIFICATION",
+            effect_key=f"diagnosis:{diagnosis_id}:clarification:knowledge_retrieval", round_index=1,
+        )
+        clarification_proposal = propose_hypothesis_plan(
+            diagnosis_id=diagnosis_id, query=diagnosis.query, target=target, category="UNKNOWN",
+            rule_plan=plan, allowed_tools=allowed_tools,
+            retrieval_trace=clarification_retrieval,
+        )
+        disposition = _record_noninvestigation_plan(
+            diagnosis_id, clarification_proposal, phase="INITIAL_CLARIFICATION",
+            effect_key=f"diagnosis:{diagnosis_id}:clarification:planning-output", round_index=1,
+        )
+        if disposition is not None:
+            return disposition
         session = new_session()
         try:
             persisted = _lock_diagnosis(session, diagnosis_id)
@@ -8294,6 +8415,12 @@ def run_diagnosis_planner(
         active_skill=skill_activation,
         retrieval_trace=retrieval_trace,
     )
+    disposition = _record_noninvestigation_plan(
+        diagnosis_id, proposal, phase="INITIAL_PLAN",
+        effect_key=f"diagnosis:{diagnosis_id}:initial:planning-output", round_index=1,
+    )
+    if disposition is not None:
+        return disposition
     if proposal and proposal.get("tool_name") in allowed_tools:
         if skill_first_tool is None:
             plan["tool_name"] = proposal["tool_name"]

@@ -1,3 +1,4 @@
+import RetrievalOutcomeNotice from "./RetrievalOutcomeNotice";
 import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -732,6 +733,7 @@ function RAGPanel({ retrievals }) {
                     <Descriptions.Item label="目录">{printable(trace.catalog)}</Descriptions.Item>
                     <Descriptions.Item label="检索摘要哈希" span={2}><Text code copyable>{printable(trace.query_hash)}</Text></Descriptions.Item>
                   </Descriptions>
+                  <RetrievalOutcomeNotice trace={trace} />
                   {rows(trace.degraded_reasons).length > 0 && <Alert type="warning" message="检索已降级" description={trace.degraded_reasons.join("；")} />}
                   {trace.error && <Alert type="warning" message="参考查询未完成" description={printable(trace.error)} />}
                   {trace.source_kind && <Text>外部观察：{trace.source_kind} · {trace.metric} · {trace.unit}（服务窗口级，未作为根因证据）</Text>}

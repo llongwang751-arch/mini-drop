@@ -9,6 +9,16 @@ import pytest
 from scripts import evaluate_heldout_diagnosis as heldout
 
 
+from scripts.verify_historical_heldout import historical_test_scope
+
+
+@pytest.fixture(scope="module", autouse=True)
+def original_contract_runs_in_historical_source_sandbox():
+    """Retain all original gates; current production is intentionally different."""
+    with historical_test_scope(heldout):
+        yield
+
+
 def frozen_copy(tmp_path):
     manifest, _, _ = heldout.validate_freeze()
     names = [heldout.PREFIX + suffix + ".json" for suffix in ("public", "private", "manifest", "frozen_inputs")]

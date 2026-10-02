@@ -3,6 +3,7 @@ import { BranchesOutlined } from "@ant-design/icons";
 import ChatMessage from "./ChatMessage";
 import DiagnosisPathPanel from "./DiagnosisPathPanel";
 import PlannerBlock from "./PlannerBlock";
+import PlanningOutputCard, { boundedPlanningOutput } from "./PlanningOutputCard";
 import ToolCallCard from "./ToolCallCard";
 import EvidenceCard from "./EvidenceCard";
 import ConclusionCard from "./ConclusionCard";
@@ -35,6 +36,7 @@ function buildConversationRounds(
   reports = [],
   interventions = [],
   semanticHypotheses = mergeSemanticHypotheses(hypotheses),
+  events = [],
 ) {
   const rounds = new Map();
   const hypothesisRound = new Map();
@@ -65,6 +67,12 @@ function buildConversationRounds(
   interventions.forEach((item) => {
     ensure(item.round_index || 1).intervention = item;
   });
+  events.filter((event) => event.event_type === "planner.output_recorded")
+    .sort((a, b) => Number(a.sequence || 0) - Number(b.sequence || 0))
+    .forEach((event) => {
+      const payload = event.payload_json || event.payload || {};
+      if (boundedPlanningOutput(payload)) ensure(payload.round_index || 1).planningOutput = payload;
+    });
   toolCalls.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).tools.push(item));
   evidence.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).evidence.push(item));
   reports.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).reports.push(item));
@@ -77,7 +85,7 @@ function ConversationRound({ item, initialQuery, interventionLabels, isLatest })
   const toolNames = [...new Set(item.tools.map(readableToolName))];
   const waitingApproval = item.tools.some((tool) => String(tool.status || "").toUpperCase().includes("APPROVAL"));
   const running = item.tools.some((tool) => ["PENDING", "RUNNING", "TASK_CREATED", "UPLOADING", "ANALYZING"].includes(String(tool.status || "").toUpperCase()));
-  const roundState = waitingApproval ? "等待人工审批" : running ? "正在执行" : item.reports.length ? "本轮已裁决" : item.tools.length ? "等待证据" : "正在规划";
+  const roundState = item.planningOutput ? "已记录规划结果" : waitingApproval ? "等待人工审批" : running ? "正在执行" : item.reports.length ? "本轮已裁决" : item.tools.length ? "等待证据" : "正在规划";
   return (
     <div className={`diagnosis-conversation-round ${isLatest ? "is-latest" : ""}`}>
       {userText && (
@@ -93,11 +101,13 @@ function ConversationRound({ item, initialQuery, interventionLabels, isLatest })
           <div className="diagnosis-round-response-head">
             <Space wrap>
               <Tag color={isLatest ? "processing" : "default"}>第 {item.round} 轮</Tag>
-              <Text strong>{item.round === 1 ? "已理解问题并建立首轮计划" : "已根据新输入修订调查计划"}</Text>
+              <Text strong>{item.planningOutput ? "已完成本轮规划判断" : item.round === 1 ? "已理解问题并建立首轮计划" : "已根据新输入修订调查计划"}</Text>
             </Space>
             <Tag color={waitingApproval ? "gold" : running ? "blue" : item.reports.length ? "green" : "default"}>{roundState}</Tag>
           </div>
-          {primaryHypothesis ? (
+          {item.planningOutput ? (
+            <PlanningOutputCard payload={item.planningOutput} />
+          ) : primaryHypothesis ? (
             <div className="diagnosis-round-plan"><Text type="secondary">本轮主假设</Text><Text>{chineseDiagnosticText(primaryHypothesis.statement)}</Text></div>
           ) : item.continuedHypotheses.length > 0 ? (
             <div className="diagnosis-round-plan">
@@ -209,6 +219,7 @@ export default function ChatThread({
     reportRows,
     interventionRows,
     semanticHypotheses,
+    events,
   );
   const displayedHypothesisCount = semanticHypotheses.length;
 

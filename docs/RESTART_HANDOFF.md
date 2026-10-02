@@ -1,5 +1,9 @@
 # Mini-Drop 重启交接点
 
+## 2026-10-02 规划输出／无答案检索优化进行中
+
+用户已授权优化并更新线上；本轮需完成精确 Git 源码 CI、Diagnosis Worker/Analyzer/Web 三服务发布、冻结 24 题真实模型首轮与只读检索、真实持久事件和浏览器复验。候选实现及隔离历史重算见 [PLANNING_RETRIEVAL_V2](PLANNING_RETRIEVAL_V2.md)。部署前线上仍是 20261002T045234Z/de094fff，不能提前写成新版本。保留旧一小时、21 类工程成绩、原因果历史和所有失败；不重新注入故障，不重跑一小时。
+
 单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。干净 CI 36975451670 已验证该同版本源码镜像与真实 S3 链路；原拉取失败与三次独立失败记录保留。线上既有容器、镜像和数据不因此替换。
 
 单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。

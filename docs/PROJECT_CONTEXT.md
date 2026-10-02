@@ -1,5 +1,13 @@
 # Mini-Drop 当前项目上下文
 
+## 2026-10-02 规划输出与无答案检索 v2（待部署验收）
+
+本轮优化复用现有 LangGraph/legacy 规划入口。`mini-drop.planning-output.v2` 区分 INVESTIGATE、NORMAL、INSUFFICIENT_EVIDENCE、REFUSED；合法非调查结果允许空假设与空工具，记录 `planner.output_recorded` 后不新建采集任务。NORMAL 仅指描述或规划范围未提出异常，不能替代真实当前状态检查。异常调查继续经过原目标、预算、数值、证据和取消门禁；因果验证标志保持 false。
+
+词法与混合检索共用 `knowledge-domain-admission-v1` 相关性门禁，按真实问题中的观测领域、技术锚点和运行时范围判定，分类器猜测不参与相关性准入。空召回输出 NO_RELEVANT_KNOWLEDGE；健康字段只描述检索后端，不等同于业务正常。新主题为 `evidence-first-diagnosis-v4-output-contract`，Checkpoint 命名空间为 `diagnosis-agent-v6-planning-output`；既有业务记录和历史命名空间保留，无数据库迁移。
+
+新评测输入/真值/规则在评测实现与模型调用前冻结；规划 DTO 此前已开始实现，因此不宣称冻结早于全部生产实现。旧 24 题原始请求、结果和评分合同不改；历史重算使用隔离旧源码/语料，明确 current_production_equivalence=false。范围与命令见 [规划与检索 v2](PLANNING_RETRIEVAL_V2.md)。当前仍待精确源码 CI、三服务部署及新 24 题一次性实评，不能将候选测试称为已上线。
+
 单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。干净 CI 36975451670 已验证该同版本源码镜像与真实 S3 链路；原拉取失败与三次独立失败记录保留。线上既有容器、镜像和数据不因此替换。
 
 单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。

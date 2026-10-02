@@ -1,5 +1,11 @@
 # Agent Runtime 设计
 
+## 2026-10-02 规划输出与检索准入
+
+共享 `agent_runtime/planning_output.py` 为 legacy function schema 与 LangGraph `finish_diagnosis_plan` 提供相同四态 DTO/校验器。INVESTIGATE 仍要求允许工具及 1–3 个非空支持/证伪条件；NORMAL、INSUFFICIENT_EVIDENCE、REFUSED 必须空工具/假设，并说明范围或缺口。模型不可用/无效的 None 与合法停止结果分别处理。主题 v4 与 Agent v6 分隔旧 Checkpoint，不迁移或删除旧历史。
+
+`agent_runtime/relevance.py` 统一 BM25、实体、Dense、RRF、Rerank 及降级候选的领域准入，排名分数不能绕过门禁。服务传入原问题/纠错作为 relevance_query；推测分类可参与排序但不能创造知识相关性。trace 保存策略、实际查询画像、准入/拒绝原因、NO_RELEVANT_KNOWLEDGE 和检索后端 HEALTHY/DEGRADED。知识始终只作规划先验。[新冻结评估与边界](PLANNING_RETRIEVAL_V2.md)。
+
 ## 2026-09-19 规划截止时间与显式证据缺口
 
 `agent_runtime/deadlines.py` 以 Autonomous 会话创建时间和 max_duration_seconds 计算剩余时间，与过期扫描的 10–1800 秒钳制一致。范围选择上限 25 秒、每轮规划上限 60 秒，另扣除至少 15 秒探针与 30 秒分析/报告余量。每次模型调用通过 LangChain ModelRequest.model_settings 传递剩余 timeout（单次最多 45 秒），RAG 与语义纠错共用上下文截止时间。计划输出上限 1000 tokens，并将剩余时间提供给模型以减少临近截止时的查询。摘要中间件使用每次调用的副本绑定 timeout（最多 10 秒），避免绕过主模型包装器或污染并发会话。预算停止不计入模型供应商熔断。
