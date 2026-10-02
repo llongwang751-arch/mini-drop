@@ -2793,6 +2793,8 @@ def _record_noninvestigation_plan(
     output = validate_planning_output(
         {key: value for key, value in proposal.items() if key in PlanningOutput.model_fields}, [],
     )
+    from server.app.agent_runtime.planning_request import audited_planner_metadata
+    metadata = audited_planner_metadata(proposal)
     session = new_session()
     try:
         diagnosis = _lock_diagnosis(session, diagnosis_id)
@@ -2820,7 +2822,7 @@ def _record_noninvestigation_plan(
              "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
              "is_evidence": False, "health_check_performed": False,
              "causal_root_cause_verified": False, "new_tool_requested": False,
-             "finalization": finalization}, timestamp, effect_key=effect_key,
+             "finalization": finalization, **metadata}, timestamp, effect_key=effect_key,
         )
         if intervention_event_id is not None:
             event = session.get(DropInsightEventModel, intervention_event_id)
@@ -2840,7 +2842,7 @@ def _record_noninvestigation_plan(
         return {"planner_kind": "MODEL_DISPOSITION", "planner_version": output["schema_version"],
                 "status": diagnosis.status, "planning_disposition": output["disposition"],
                 "planning_output": output, "reason": explanation,
-                "hypothesis": None, "tool_call": None}
+                "hypothesis": None, "tool_call": None, **metadata}
     finally:
         session.close()
 

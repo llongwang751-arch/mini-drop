@@ -2,14 +2,25 @@
   {
     "knowledge_id": "linux.cpu.process_pressure",
     "title": "Linux 进程用户态 CPU 热点",
-    "summary": "用户态 CPU 高只能说明计算压力；需要 Profile 热点、同宿主对比和负载变化来区分代码回归与流量增长。",
+    "summary": "进程或线程 CPU 高、低与正常都需绑定采样窗口和口径；低 CPU 只能反驳同窗持续计算饱和，热点与流量变化另需 Profile 和对照。",
     "keywords": [
       "cpu",
       "userland",
       "hotspot",
       "用户态",
       "热点",
-      "self_code_or_process_pressure"
+      "self_code_or_process_pressure",
+      "process",
+      "thread",
+      "worker",
+      "CPU usage",
+      "CPU utilization",
+      "low CPU",
+      "normal CPU",
+      "进程",
+      "线程",
+      "低CPU",
+      "正常CPU"
     ],
     "applies_to": [
       "cpu",
@@ -18,11 +29,14 @@
     "required_evidence": [
       "CPU user/system 比例",
       "Profile TopN",
-      "同宿主资源对比"
+      "同宿主资源对比",
+      "采样起止时间与 CPU 时间增量",
+      "核数/配额及 CPU 百分比口径"
     ],
     "caveats": [
       "单次 CPU 高不能证明代码回归",
-      "缺少符号时应返回证据不足"
+      "缺少符号时应返回证据不足",
+      "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
     ],
     "document": "linux_cpu.md"
   },
@@ -60,7 +74,16 @@
       "block",
       "磁盘",
       "共享",
-      "host_resource_contention"
+      "host_resource_contention",
+      "block device",
+      "same-host",
+      "same-node",
+      "co-located",
+      "colocated",
+      "同节点",
+      "同主机",
+      "设备队列",
+      "设备等待"
     ],
     "applies_to": [
       "io",
@@ -191,7 +214,12 @@
       "noisy_neighbor",
       "same_host",
       "噪声邻居",
-      "同宿主"
+      "同宿主",
+      "same-node",
+      "co-located",
+      "colocated",
+      "同节点",
+      "同主机"
     ],
     "applies_to": [
       "same_host_noisy_neighbor"
@@ -521,5 +549,78 @@
     "document": "sre_recovery.md",
     "visibility": "PUBLIC",
     "reviewed_at": "2026-09-19"
+  },
+  {
+    "knowledge_id": "jvm.cpu.thread_observation",
+    "title": "Java JVM 线程 CPU 时间与有界正常观测",
+    "summary": "用 ThreadMXBean 支持/启用状态和有效线程 CPU 时间增量描述同一窗口；低 CPU 不是业务全局健康，未启用、-1 或生命周期变化属于缺测。",
+    "keywords": [
+      "java",
+      "jvm",
+      "ThreadMXBean",
+      "getThreadCpuTime",
+      "isThreadCpuTimeSupported",
+      "isThreadCpuTimeEnabled",
+      "cpu",
+      "thread",
+      "worker",
+      "线程",
+      "低CPU",
+      "正常CPU"
+    ],
+    "applies_to": [
+      "java",
+      "jvm",
+      "thread CPU measurement"
+    ],
+    "required_evidence": [
+      "JVM/PID 与线程生命周期",
+      "ThreadMXBean CPU 测量支持和启用状态",
+      "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+    ],
+    "caveats": [
+      "知识不是当前事故证据，也不增加采集权限",
+      "-1、未启用及不支持不能等同零 CPU",
+      "平台线程统计不能直接归于虚拟线程",
+      "低 CPU 不反驳锁、I/O 或依赖等待"
+    ],
+    "document": "java_thread_cpu.md",
+    "visibility": "PUBLIC",
+    "reviewed_at": "2026-10-02"
+  },
+  {
+    "knowledge_id": "linux.io.synchronous_write",
+    "title": "Linux fsync fdatasync 同步写延迟与反证",
+    "summary": "syncwrite / synchronous write 的有效低延迟窗口可以反驳该窗口持续慢同步写；必须保留调用结果、次数、时间窗、文件系统和块设备归属，不能推广为磁盘全局正常。",
+    "keywords": [
+      "fsync",
+      "fdatasync",
+      "syncwrite",
+      "sync_write",
+      "synchronous write",
+      "synchronous writes",
+      "同步写",
+      "同步落盘",
+      "低延迟反证"
+    ],
+    "applies_to": [
+      "fsync",
+      "fdatasync",
+      "synchronous file write latency"
+    ],
+    "required_evidence": [
+      "调用类型、成功/失败数、延迟和完整采样窗口",
+      "目标 PID 与文件/挂载/块设备归属",
+      "低延迟阈值及样本覆盖"
+    ],
+    "caveats": [
+      "tmpfs 与缓存路径不证明物理磁盘低延迟",
+      "采集失败或缺测不是慢写的反证",
+      "单一窗口不证明业务全局健康",
+      "知识只能指导调查，不是当前事故证据"
+    ],
+    "document": "synchronous_io.md",
+    "visibility": "PUBLIC",
+    "reviewed_at": "2026-10-02"
   }
 ]

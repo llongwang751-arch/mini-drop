@@ -11,7 +11,7 @@ import unicodedata
 from typing import Any
 
 
-POLICY_VERSION = "knowledge-subject-admission-v2"
+POLICY_VERSION = "knowledge-subject-admission-v3-coverage"
 
 # Runtime names and generic product words deliberately are not observation
 # domains. A Java lock query must not qualify a MySQL/Go lock guide merely
@@ -22,13 +22,13 @@ _CONCEPTS = {
     "sampling": ("profile", "profiling", "flamegraph", "flame graph", "stack trace", "stacktrace", "py spy", "gil", "speedscope", "采样", "剖面", "火焰图", "热点", "调用栈"),
     "memory": ("rss", "allocation", "allocations", "leak", "内存", "堆内存", "堆分配", "泄漏"),
     "memory_pressure": ("oom", "oom kill", "oom killer", "memory events", "memory pressure", "内存回收", "内存压力"),
-    "block_io": ("i/o", "iowait", "fsync", "fdatasync", "block device", "disk", "storage synchronization", "磁盘", "块设备", "同步写", "同步落", "慢写", "写入", "文件导出"),
+    "block_io": ("i/o", "iowait", "fsync", "fdatasync", "block device", "disk", "storage synchronization", "syncwrite", "sync write", "synchronous write", "synchronous writes", "磁盘", "块设备", "同步写", "同步落", "慢写", "写入", "文件导出"),
     "network": ("tcp", "retransmit", "retransmission", "retransmissions", "packet loss", "rtt", "网络", "重传", "丢包", "链路"),
     "dependency": ("downstream", "dependency", "upstream", "http", "下游", "上游", "依赖", "接口", "调用链", "症状传播"),
     "lock_wait": ("lock", "locks", "locking", "mutex", "monitor", "wait event", "pg stat activity", "transaction", "transactions", "锁等待", "锁竞争", "持锁", "互斥", "长事务", "阻塞"),
     "gc": ("gc", "garbage collection", "garbage collector", "垃圾回收", "停顿", "分代"),
     "cpu_quota": ("cgroup", "cpu.max", "cpu.stat", "quota", "throttling", "throttled", "nr throttled", "配额", "节流", "受限资源组"),
-    "host_contention": ("noisy neighbor", "same host", "co located", "噪声邻居", "同宿主", "邻居", "旁边进程", "共享资源", "共享设备"),
+    "host_contention": ("noisy neighbor", "same host", "same node", "co located", "colocated", "噪声邻居", "同宿主", "同节点", "同主机", "邻居", "旁边进程", "共享资源", "共享设备"),
     "latency_measurement": ("p95", "p99", "percentile", "histogram", "summary", "分位数", "同负载", "复测", "延迟分布"),
     "tool_governance": ("tool budget", "tool call", "tool timeout", "probe budget", "duplicate call", "工具", "探针预算", "重复调用", "采集预算", "采样预算", "证据门禁"),
     "strategy_evaluation": ("react", "lats", "ground truth", "评测", "真值", "对照实验", "独立实验"),
@@ -52,7 +52,8 @@ _DATABASE_SCOPES = {
 _GENERIC_ANCHORS = {
     "agent", "container", "runtime", "linux", "system", "service", "server",
     "database", "performance", "problem", "wait", "waiting", "block", "pressure",
-    "cpu", "memory", "network", "io", "go", "python", "java", "jvm", "cpp",
+    "cpu", "memory", "network", "tcp", "io", "go", "python", "java", "jvm", "cpp",
+    "process", "thread", "threads", "worker", "workers", "进程", "线程",
     "工具", "容器", "恢复", "容量", "实验", "对照", "增长", "共享", "暂停",
     "内存", "磁盘", "网络", "阻塞", "热点", "采样", "数据库", "记忆", "预算", "超时",
 }
@@ -200,7 +201,7 @@ def _profile(text: str, *, require_context: bool) -> dict[str, Any]:
     # character. Actual transport/measurement vocabulary disambiguates them.
     if require_context:
         if "network" in concepts and not any(_contains(normalized, term) for term in (
-            "tcp", "retransmit", "retransmission", "retransmissions", "packet", "rtt",
+            "retransmit", "retransmission", "retransmissions", "packet", "rtt", "transport", "protocol", "counters",
             "connection", "socket", "latency", "bandwidth", "重传", "丢包", "连接", "时延", "带宽", "链路",
         )):
             concepts.remove("network")
@@ -209,7 +210,27 @@ def _profile(text: str, *, require_context: bool) -> dict[str, Any]:
             "hotspot", "sampling", "cores", "kernel", "throttled", "quota", "cpu.max", "cpu.stat",
             "用户态", "系统态", "高", "热点", "进程", "利用率", "占用", "采样", "核满", "计算压力",
         )) and not re.search(r"cpu.{0,20}(?:\d|%)", normalized):
-            concepts.remove("cpu")
+            # Low/normal observations are still technical CPU topics. A
+            # runtime plus worker/thread and a measured state supplies context;
+            # a CPU-controlled game character or unknown engine name does not.
+            runtime_worker = bool(_labels(normalized, _RUNTIME_SCOPES)) and any(
+                _contains(normalized, term) for term in ("thread", "threads", "worker", "workers", "线程")
+            )
+            bounded_state = bool(re.search(
+                r"(?:cpu|processor).{0,25}(?:low|normal|stable|idle|低|正常|稳定|空闲)|"
+                r"(?:low|normal|stable|idle).{0,15}(?:cpu|processor)", normalized
+            ))
+            if not (runtime_worker and bounded_state):
+                concepts.remove("cpu")
+    if "recovery" in concepts and require_context and not any(
+        _contains(normalized, term) for term in (
+            "lease", "idempotency", "backup", "checkpoint", "restart", "crash", "recovery",
+            "租约", "幂等", "备份", "中途重启", "恢复", "容量验收",
+        )
+    ):
+        # Worker is an actor name; only lifecycle/control observations request
+        # a recovery guide. The word alone also occurs in everyday prose.
+        concepts.remove("recovery")
     if any(_contains(normalized, term) for term in ("memory", "heap")) and (
         not require_context or any(_contains(normalized, term) for term in (
             "process", "rss", "allocation", "leak", "pressure", "growth", "usage", "gc",

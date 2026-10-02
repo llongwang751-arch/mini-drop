@@ -66,6 +66,9 @@ from server.app.agent_runtime.planning_output import (
     PLANNING_OUTPUT_REQUIREMENT, PlanningHypothesis, PlanningOutput, validate_planning_output,
     COLLECTION_FAILURE_MARKERS,
 )
+from server.app.agent_runtime.planning_request import (
+    informational_planning_output, planning_request_intent, validate_request_disposition,
+)
 
 
 _COLLECTION_FAILURE_MARKERS = COLLECTION_FAILURE_MARKERS
@@ -294,7 +297,11 @@ def request_diagnostic_probe(
 )
 def finish_diagnosis_plan(output: PlanningOutput, runtime: ToolRuntime[DiagnosisAgentContext]) -> str:
     try:
-        proposal = validate_planning_output(output, runtime.context.allowed_tools)
+        context = runtime.context
+        proposal = validate_request_disposition(
+            output, context.allowed_tools, query=context.query, user_correction=context.user_correction,
+            prior_hypotheses=context.prior_hypotheses, evidence_summary=context.evidence_summary,
+            investigation_memory=context.investigation_memory)
     except (TypeError, ValueError) as exc:
         return json.dumps({"accepted": False, "code": "INVALID_PLANNING_OUTPUT", "reason": str(exc)},
                           ensure_ascii=False)
@@ -348,6 +355,9 @@ def _diagnosis_system_prompt(request: ModelRequest) -> str:
     retrieval_trace["matches"] = prompt_matches
     trusted = {
         "diagnosis_id": context.diagnosis_id,
+        "planning_request_intent": planning_request_intent(
+            context.query, user_correction=context.user_correction, prior_hypotheses=context.prior_hypotheses,
+            evidence_summary=context.evidence_summary, investigation_memory=context.investigation_memory),
         "target": context.target,
         "category": context.category,
         "rule_baseline": context.rule_plan,
@@ -968,6 +978,15 @@ def plan_with_diagnosis_agent(
 
     if not context.diagnosis_id:
         return None
+    from server.app.agent_runtime.memory import load_investigation_memory
+    investigation_memory = load_investigation_memory(context.diagnosis_id)
+    informational = informational_planning_output(
+        context.query, target=context.target,
+        response_language=str(context.user_preferences.get("response_language") or "zh-CN"),
+        user_correction=context.user_correction, prior_hypotheses=context.prior_hypotheses,
+        evidence_summary=context.evidence_summary, investigation_memory=investigation_memory)
+    if informational is not None:
+        return {**informational, "agent_version": AGENT_VERSION, "retrieval_trace": context.retrieval_trace}
     circuit_open, status_code = _provider_circuit_open(settings)
     if circuit_open:
         log_event(
@@ -982,8 +1001,6 @@ def plan_with_diagnosis_agent(
     # Later autonomous rounds include SQLAlchemy DTO audit fields with native
     # datetimes. Normalize the complete runtime context before middleware,
     # model clients, or checkpointers can attempt to serialize it.
-    from server.app.agent_runtime.memory import load_investigation_memory
-    investigation_memory = load_investigation_memory(context.diagnosis_id)
     context = DiagnosisAgentContext(
         diagnosis_id=context.diagnosis_id,
         query=context.query,

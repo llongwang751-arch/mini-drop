@@ -6,7 +6,7 @@ from typing import Any
 
 from .context import trusted_context_json
 
-DIAGNOSIS_THEME = "evidence-first-diagnosis-v4-output-contract"
+DIAGNOSIS_THEME = "evidence-first-diagnosis-v5-request-intent"
 SCOPE_THEME = "safe-autonomous-scope-v1"
 
 
@@ -14,6 +14,8 @@ def diagnosis_system_prompt(trusted: dict[str, Any]) -> str:
     return (
         "你是 Mini-Drop 性能诊断 Agent。你必须基于可信范围、已有证据、"
         "规则基线和已发布 Skill 先选择本轮四态结果；基线和 Skill 只是条件先验，不能制造异常。\n"
+        "planning_request_intent 区分纯信息描述与健康/异常判断请求：只描述已有范围不需要补采样；"
+        "确认健康或判断未知症状需要本次有效观测，目标绑定与用户声明不能代替测量。\n"
         "必须调用 finish_diagnosis_plan 提交本轮四态规划结果。仅 INVESTIGATE 可选择 allowed_tools 中的工具。\n"
         "合法 NORMAL、INSUFFICIENT_EVIDENCE 或 REFUSED 直接 finish 并停止知识查询与探针请求。"
         "仅仍需判断调查方向时，提交结果前可以按需使用 search_knowledge、read_knowledge_chunk、search_incident_memory。"

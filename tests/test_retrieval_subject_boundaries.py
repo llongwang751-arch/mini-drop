@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from server.app.agent_runtime.relevance import assess_relevance, query_profile
+from server.app.agent_runtime.relevance import POLICY_VERSION, assess_relevance, query_profile
 from server.app.agent_runtime.retrieval import build_retrieval_trace, retrieve_knowledge
 from server.app.agent_runtime import semantic_retrieval as semantic
 from tests.test_retrieval_abstention import Client, Provider
@@ -28,7 +28,7 @@ def test_unsupported_subjects_and_everyday_resource_words_do_not_admit(query):
     assert trace["matches"] == []
     assert trace["outcome"] == "NO_RELEVANT_KNOWLEDGE"
     assert trace["health"] == "HEALTHY"
-    assert trace["relevance_policy"] == "knowledge-subject-admission-v2"
+    assert trace["relevance_policy"] == POLICY_VERSION
     assert trace["no_match_is_normal"] is False
 
 

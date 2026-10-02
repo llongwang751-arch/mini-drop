@@ -1,5 +1,17 @@
 # Mini-Drop 重启交接点
 
+## 2026-10-02 信息描述分类边界与知识覆盖（待部署验收）
+
+明确只描述已有信息、同时拒绝检查/采集，且没有当前症状、健康判断、越权动作或未完成调查的请求，按 `mini-drop.planning-request-intent.v1` 收束为规划 NORMAL。这是服务器的请求意图合同，不是模型健康判定：`planner_kind=SERVER_REQUEST_INTENT`、`model_invocations=0`，claim_scope 为 PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION，is_evidence/health_check_performed/causal_root_cause_verified/new_tool_requested 均 false。公共 helper 在 legacy/adaptive 和 LangGraph 的 provider 创建之前执行；请求规则、摘要及请求 digest 可审计。服务共享持久化点只投影严格校验的服务器 metadata，模型输出不能伪装服务器来源。
+
+要求判断服务是否正常、排查当前症状、处理采集失败或已有调查的请求继续使用原健康/调查流程；缺测不补零，权限、数值、Evidence、预算、取消保护不降低。v2 DTO 保持兼容，Agent 使用 v8 物理 thread 隔离，新旧 SQL 业务记录和检查点保留。纯描述 NORMAL 不替代真实体检 NORMAL_OBSERVED。
+
+公开知识补 Java/JVM 线程 CPU、有界低 CPU 观测、同节点/同主机块设备争用、同步写低延迟反证。能力由 catalog 主元数据与官方来源指南声明；准入策略升级为 knowledge-subject-admission-v3-coverage，候选自身主体、运行时、否定和 ACL 门禁保留。generic worker/thread 和日常 TCP 同名词不能旁路技术语境。线上更新将创建新的不可变 Chroma 快照，验证 ready/count 后才激活 Worker/Analyzer，旧快照保留；Web/native/demo/API 和已有工程成绩保持。
+
+新 32 题于 2026-10-02 11:17:23.634 UTC 冻结，四态各 8、检索 16 有答案/16 无答案，与旧题归一化无重复；由维护者编写，开发只取得公共能力定义、不取得私有 oracle。预算 32 次真实 chat、2 并发、48 秒读取超时、1400 tokens、零重试；模型 DTO 评估与服务器信息描述/实际 LangGraph smoke 分开。旧题、真值、成绩与原失败不改，新知识源码与语料在调用前另固定。当前实现不等于部署成功，最终来源以精确 CI/发布/原始实评回执为准。
+
+详细合同见 [分类边界与知识覆盖 v3](PLANNING_BOUNDARY_V3.md)。
+
 ## 2026-10-02 规划输出／无答案检索优化已发布
 
 当前已部署 `20261002T103825Z`，应用源码 `73b4b18ad83553a5012a0025dfb78bb21ff8dc7f`。本次仅更换 Diagnosis Worker 和 Analyzer；Web 保留 a6a36260/20261002T095001Z 的运行镜像，完整 Web Git tree 与最终源码相等，58 个公网资源 SHA 一致；Worker/Analyzer 各 219 个源码文件逐一核对，13 服务健康，其余 11 个容器及紧邻部署前 Office/API/Native/CPP、环境和挂载保持。故障广场 21 场景均 inactive，展示工程判断 21/21、路径 6/21、反证 8 条；没有重跑故障或一小时实验。

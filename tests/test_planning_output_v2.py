@@ -371,3 +371,35 @@ def test_retrieval_admission_uses_user_text_without_server_category_to_create_re
     )
     assert captured == [("月球潮汐对服务有什么影响\nCPU_HOTSPOT\n暂时无指标",
                           {"relevance_query": "月球潮汐对服务有什么影响\n暂时无指标"})]
+
+def test_server_information_contract_persists_model_zero_provenance_without_health(planning):
+    from server.app.agent_runtime.planning_request import informational_planning_output
+    query = "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。"
+    planning(query, "PYTHON", None)
+    proposal = informational_planning_output(query, target={"pid": 123, "runtime": "PYTHON"})
+    assert proposal is not None
+    result = service._record_noninvestigation_plan("diag", proposal, phase="INITIAL_PLAN", effect_key="info-only")
+    assert result["planning_disposition"] == "NORMAL"
+    assert result["planner_kind"] == "SERVER_REQUEST_INTENT" and result["model_invocations"] == 0
+    with new_session() as db:
+        event = db.query(DropInsightEventModel).filter_by(event_type="planner.output_recorded").one()
+        payload = event.payload_json
+        assert payload["planner_kind"] == "SERVER_REQUEST_INTENT" and payload["model_invocations"] == 0
+        assert payload["planning_request_intent"]["intent"] == "INFORMATION_ONLY"
+        assert payload["health_check_performed"] is False and payload["is_evidence"] is False
+        assert db.query(DropInsightHypothesisModel).count() == db.query(DropInsightToolCallModel).count() == 0
+        assert not db.query(DropInsightEventModel).filter_by(event_type="health_check.completed").all()
+
+
+@pytest.mark.parametrize("model_count", [True, 1])
+def test_server_information_contract_cannot_forge_model_zero_metadata(planning, model_count):
+    from server.app.agent_runtime.planning_request import informational_planning_output
+    query = "只描述已有信息，不采集，不做健康判断。"
+    planning(query, "PYTHON", None)
+    proposal = informational_planning_output(query)
+    assert proposal is not None
+    proposal["model_invocations"] = model_count
+    with pytest.raises(ValueError):
+        service._record_noninvestigation_plan("diag", proposal, phase="INITIAL_PLAN", effect_key="forged-info-only")
+    with new_session() as db:
+        assert not db.query(DropInsightEventModel).filter_by(event_type="planner.output_recorded").all()

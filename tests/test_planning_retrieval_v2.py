@@ -8,6 +8,14 @@ import shutil
 import pytest
 
 from scripts import evaluate_planning_retrieval_v2 as evaluation
+from scripts.verify_historical_planning_v2 import historical_planning_test_scope
+
+
+@pytest.fixture(scope="module", autouse=True)
+def historical_v2_evaluation_scope():
+    """Keep original v2 assertions against original df0 source and corpus."""
+    with historical_planning_test_scope(evaluation):
+        yield
 
 
 def proposal(disposition="NORMAL"):

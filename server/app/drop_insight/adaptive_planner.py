@@ -14,6 +14,10 @@ from server.app.agent_runtime.planning_output import (
     PLANNING_OUTPUT_REQUIREMENT, planning_output_schema, validate_planning_output,
 )
 from .performance_criteria import PERFORMANCE_PLANNING_REQUIREMENT
+from server.app.agent_runtime.planning_request import (
+    informational_planning_output, planning_request_intent, validate_request_disposition,
+)
+from server.app.agent_runtime.runtime import AGENT_VERSION
 
 EVIDENCE_PLANNING_REQUIREMENT += PERFORMANCE_PLANNING_REQUIREMENT
 
@@ -48,6 +52,16 @@ def propose_hypothesis_plan(
 ) -> dict[str, Any] | None:
     if not is_feature_enabled("rca"):
         return None
+    from server.app.agent_runtime.memory import load_investigation_memory
+    request_context = {"user_correction": user_correction or "",
+                       "prior_hypotheses": prior_hypotheses or [],
+                       "evidence_summary": evidence_summary or [],
+                       "investigation_memory": load_investigation_memory(diagnosis_id) if diagnosis_id else {}}
+    informational = informational_planning_output(
+        query, target=target, response_language=str((user_preferences or {}).get("response_language") or "zh-CN"),
+        **request_context)
+    if informational is not None:
+        return {**informational, "agent_version": AGENT_VERSION, "retrieval_trace": retrieval_trace}
     # ``allowed_tools`` is a hard policy boundary when the caller supplies it.
     # Never append the rule baseline back into an explicit runtime-filtered
     # allow-list: a stale Skill or fallback must not make a Python/JVM profiler
@@ -120,6 +134,7 @@ def propose_hypothesis_plan(
         function["strict"] = True
     trusted = {
         "target": target,
+        "planning_request_intent": planning_request_intent(query, **request_context),
         "category": category,
         "rule_baseline": rule_plan,
         "allowed_tools": allowed,
@@ -153,7 +168,7 @@ def propose_hypothesis_plan(
             return None
         raw = calls[0].get("function", {}).get("arguments", "{}")
         result = json.loads(raw) if isinstance(raw, str) else raw
-        result = validate_planning_output(result, allowed)
+        result = validate_request_disposition(result, allowed, query=query, **request_context)
         from .diagnosis_agent import normalize_diagnosis_plan_for_display
 
         result = normalize_diagnosis_plan_for_display(

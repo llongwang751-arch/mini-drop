@@ -1,5 +1,17 @@
 # Agent Runtime 设计
 
+## 2026-10-02 信息描述分类边界与知识覆盖（待部署验收）
+
+明确只描述已有信息、同时拒绝检查/采集，且没有当前症状、健康判断、越权动作或未完成调查的请求，按 `mini-drop.planning-request-intent.v1` 收束为规划 NORMAL。这是服务器的请求意图合同，不是模型健康判定：`planner_kind=SERVER_REQUEST_INTENT`、`model_invocations=0`，claim_scope 为 PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION，is_evidence/health_check_performed/causal_root_cause_verified/new_tool_requested 均 false。公共 helper 在 legacy/adaptive 和 LangGraph 的 provider 创建之前执行；请求规则、摘要及请求 digest 可审计。服务共享持久化点只投影严格校验的服务器 metadata，模型输出不能伪装服务器来源。
+
+要求判断服务是否正常、排查当前症状、处理采集失败或已有调查的请求继续使用原健康/调查流程；缺测不补零，权限、数值、Evidence、预算、取消保护不降低。v2 DTO 保持兼容，Agent 使用 v8 物理 thread 隔离，新旧 SQL 业务记录和检查点保留。纯描述 NORMAL 不替代真实体检 NORMAL_OBSERVED。
+
+公开知识补 Java/JVM 线程 CPU、有界低 CPU 观测、同节点/同主机块设备争用、同步写低延迟反证。能力由 catalog 主元数据与官方来源指南声明；准入策略升级为 knowledge-subject-admission-v3-coverage，候选自身主体、运行时、否定和 ACL 门禁保留。generic worker/thread 和日常 TCP 同名词不能旁路技术语境。线上更新将创建新的不可变 Chroma 快照，验证 ready/count 后才激活 Worker/Analyzer，旧快照保留；Web/native/demo/API 和已有工程成绩保持。
+
+新 32 题于 2026-10-02 11:17:23.634 UTC 冻结，四态各 8、检索 16 有答案/16 无答案，与旧题归一化无重复；由维护者编写，开发只取得公共能力定义、不取得私有 oracle。预算 32 次真实 chat、2 并发、48 秒读取超时、1400 tokens、零重试；模型 DTO 评估与服务器信息描述/实际 LangGraph smoke 分开。旧题、真值、成绩与原失败不改，新知识源码与语料在调用前另固定。当前实现不等于部署成功，最终来源以精确 CI/发布/原始实评回执为准。
+
+详细合同见 [分类边界与知识覆盖 v3](PLANNING_BOUNDARY_V3.md)。
+
 ## 2026-10-02 规划输出与检索准入
 
 共享 `agent_runtime/planning_output.py` 为 legacy function schema 与 LangGraph `finish_diagnosis_plan` 提供相同四态 DTO/校验器。INVESTIGATE 仍要求允许工具及 1–3 个非空支持/证伪条件；NORMAL、INSUFFICIENT_EVIDENCE、REFUSED 必须空工具/假设，并说明范围或缺口。模型不可用/无效的 None 与合法停止结果分别处理。主题 v4 与 Agent v7 使用显式版本化的物理 thread_id（`diagnosis-agent-v7-four-state-prompts:<diagnosis_id>`）分隔旧 Checkpoint；范围选择使用 `scope-agent-v1:<diagnosis_id>`。LangGraph 顶层存储的 checkpoint_ns 可能为空，不能靠传入 namespace 声称隔离。业务 Diagnosis ID、SQL 证据和事件不变；新版本重新投影这些事实，不迁移或删除旧消息历史。v7 先选择四态，仅 INVESTIGATE 要求假设、数值判据、扩展候选与切换证据域；合法非调查结果直接 finish 并停止查询和探针请求。非法计划被门禁拒绝只代表计划无效，不制造业务异常；用户声称正常不构成健康证据。四态 DTO、权限、数值证据门禁和独立健康检查均不变。
