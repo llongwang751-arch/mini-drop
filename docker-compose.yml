@@ -19,7 +19,11 @@ services:
     restart: unless-stopped
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/minio-source.Dockerfile
+    image: mini-drop-minio:source-20250408
+    pull_policy: never
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-mini_drop}
@@ -27,7 +31,7 @@ services:
     expose: ["9000", "9001"]
     volumes: ["miniodata:/data"]
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -42,6 +46,7 @@ services:
     command:
       ["sh", "-c", "python -m alembic upgrade head && python scripts/bootstrap_object_store.py"]
     environment:
+      MINI_DROP_GRPC_SECURE: "0"
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
@@ -68,6 +73,8 @@ services:
       MINI_DROP_GRPC_CERT_FILE: ${MINI_DROP_GRPC_CERT_FILE:-/certs/server.crt}
       MINI_DROP_GRPC_KEY_FILE: ${MINI_DROP_GRPC_KEY_FILE:-/certs/server.key}
       MINI_DROP_GRPC_CA_FILE: ${MINI_DROP_GRPC_CA_FILE:-/certs/ca.crt}
+      MINI_DROP_GRPC_CLIENT_CERT_FILE: ${MINI_DROP_GRPC_CLIENT_CERT_FILE:-/certs/client.crt}
+      MINI_DROP_GRPC_CLIENT_KEY_FILE: ${MINI_DROP_GRPC_CLIENT_KEY_FILE:-/certs/client.key}
       MINI_DROP_GRPC_REQUIRE_CLIENT_CERT: ${MINI_DROP_GRPC_REQUIRE_CLIENT_CERT:-0}
       AGENT_OFFLINE_TIMEOUT_SEC: ${AGENT_OFFLINE_TIMEOUT_SEC:-30}
       MINI_DROP_CONTROL_MAINTENANCE_SEC: ${MINI_DROP_CONTROL_MAINTENANCE_SEC:-5}
@@ -110,6 +117,7 @@ services:
       MINI_DROP_FAULT_LAB_GO_URL: ${MINI_DROP_FAULT_LAB_GO_URL:-http://go-hotspot:6060}
       MINI_DROP_FAULT_LAB_JAVA_URL: ${MINI_DROP_FAULT_LAB_JAVA_URL:-http://java-hotspot:8082}
       MINI_DROP_FAULT_LAB_CPP_URL: ${MINI_DROP_FAULT_LAB_CPP_URL:-http://cpp-hotspot:8084}
+      MINI_DROP_FAULT_LAB_AGENT_ID: ${MINI_DROP_FAULT_LAB_AGENT_ID:-${NATIVE_AGENT_ID:-agent_native_cpp}}
       MINI_DROP_SCHEMA_MANAGED: "1"
       # Prefer the controlled demo workload before platform sources so common
       # symbols such as `_run` map to the profiled target during local E2E.
@@ -135,6 +143,7 @@ services:
     env_file: [.env]
     command: ["python", "-m", "server.app.analysis_jobs"]
     environment:
+      MINI_DROP_GRPC_SECURE: "0"
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://mini_drop:mini_drop@postgres:5432/mini_drop}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-mini_drop}
@@ -173,6 +182,10 @@ services:
       MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE: ${MINI_DROP_GRPC_CLIENT_CERT_FILE:-/certs/client.crt}
       MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE: ${MINI_DROP_GRPC_CLIENT_KEY_FILE:-/certs/client.key}
       DATABASE_URL: ${DATABASE_URL:-postgresql://mini_drop:mini_drop@postgres:5432/mini_drop}
+      # 注意：默认关闭 API 鉴权只为本地开发方便。任何可公网访问的部署
+      # 必须显式设置 MINI_DROP_API_AUTH_ENABLED=1 并配置 API Key 与
+      # principals；control compose（docker-compose.control.yml）通过
+      # control.env 注入生产值。
       MINI_DROP_API_AUTH_ENABLED: ${MINI_DROP_API_AUTH_ENABLED:-0}
       MINI_DROP_API_KEY: ${MINI_DROP_API_KEY:-}
       MINI_DROP_API_PRINCIPALS_JSON: ${MINI_DROP_API_PRINCIPALS_JSON:-}

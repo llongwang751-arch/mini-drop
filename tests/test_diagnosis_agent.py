@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 from types import SimpleNamespace
+from server.app.drop_insight.cpu_criteria import cpu_observation_plan
 
 import pytest
 
@@ -51,9 +52,7 @@ def _proposal(tool_name="start_pyspy_profile"):
         "tool_name": tool_name,
         "hypotheses": [
             {
-                "statement": "CPU 由少数 Python 热点函数主导",
-                "expected_observations": ["采样集中在少数调用栈"],
-                "falsification_criteria": ["样本分散且无显著热点"],
+                **cpu_observation_plan("PYTHON"),
                 "rationale": "规则基线和服务运行时均指向 Python",
             }
         ],
@@ -280,7 +279,7 @@ def test_langgraph_english_tool_output_is_normalized_before_service_use(monkeypa
         "tool_name": "start_pyspy_profile",
         "hypotheses": [
             {
-                "statement": "A Python hot function consumes the CPU.",
+                "statement": "A Python function needs source inspection.",
                 "expected_observations": ["Samples converge on one stack."],
                 "falsification_criteria": ["Samples remain evenly distributed."],
                 "rationale": "The process is a Python runtime.",

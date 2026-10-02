@@ -1,0 +1,1039 @@
+{
+  "schema": "mini-drop.performance-failure-audit.v1",
+  "historical_case_count": 21,
+  "historical_root_passes": 0,
+  "recorded_chain_consistent_count": 18,
+  "failure_categories": {
+    "LEGACY_LINEAGE_ACCEPTED": 7,
+    "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER": 9,
+    "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER": 2,
+    "WRONG_TARGET": 3
+  },
+  "source_sha256": {
+    "cpp-cpu-hotspot.json": "9835609bd6bf33ad9c19fbf315252f4e4257ca7b547cf0a6eb4aacd9effdb872",
+    "cpp-downstream-latency.json": "8f9e6035b5b57445208b12a0f51517eacd94d3a00d48490169d9b442705f3e2e",
+    "cpp-file-io.json": "37ca01b55ef3e2a914e2f1dd3158fddb68f8ac0657c96bfd19645e41d115ae70",
+    "cpp-lock-contention.json": "b4f6486aad2a2bfb9e7419561fb5c742a550b56e658983e93fff19485ccffa07",
+    "cpp-memory-growth.json": "2a2cbe75127c5bdbab066a155086438f8ba24f933fe9ad7b91a05e3ab3516961",
+    "cpu-hotspot.json": "35a0246515986deb05b856e315ca2a00ca83c1ffa8e4932137897d62e45d9a3b",
+    "go-cpu-hotspot.json": "8b413b1fe183b736ff7e5c7aa2f9aba7430b4aa1456ae38595c899b1086977b5",
+    "go-file-io.json": "0518cb321a9ceda7ca9700023b43bb61b38f1cafe659493fbaa985b125091165",
+    "go-memory-growth.json": "193ccc58b2932f3f0d08d408b842269db1c914b75643d069fd01a050e2a8e3cd",
+    "go-network-latency.json": "eb6ffe178f65f403469d5d5a56afb5c8184cc41ed7536c8ff51536221182966b",
+    "io-write-latency.json": "2bea4ce072d3f643628520eba4ad96cada84bcfd28741f3f2c9a69bbf12fa2f9",
+    "java-downstream-latency.json": "7a2956925932b0c6702dd2598012b07052b98acfa5896fc881d74379d78db6e6",
+    "java-file-io.json": "151ded52f9b22914509e5266f31cf0e4b00a70d3e63378c19f6fad9758f9ec5f",
+    "java-gc-pressure.json": "04a157e7f43f36e3f3cdacaba7ef0adba0b723faf2eae765d44d8a8f6075b545",
+    "java-lock-contention.json": "d6317a0f31c67e33fa316561575d2fedaf59436fd944f0cebd3ce54e71939283",
+    "java-offheap-growth.json": "f644960af726b0ca0c7386e1a8c4f0131111464a8c263c40fa42aba20625bc3e",
+    "load-saturation.json": "aaa64925d234276fabc8095d5c393fda2db923dc5c941cbd553c6d25775ae6b6",
+    "memory-pressure.json": "69f58a8184caf506cc35037cd3bb1b82487bc1efd8125a441588929ef5e22b0e",
+    "noisy-neighbor.json": "f68b9d9046bf8bc2c3ded929dbc84c4d3b8239d4097180e0501dec8797d4b893",
+    "queue-backlog.json": "3c59570d5fda33941ffcf5719d4975094fbe734f72f04e6362163217ec5d1991",
+    "source-hotspot.json": "00aaa552cee4ca6a076e5dd20ff081a8ca7c99050739e842251053f32eb1ac09"
+  },
+  "cases": [
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_082551_95cc05_4324",
+          "ev_task_task_20260930_082551_95cc05_4320",
+          "ev_task_task_20260930_082551_95cc05_4321",
+          "ev_task_task_20260930_082551_95cc05_4322",
+          "ev_task_task_20260930_082551_95cc05_4323",
+          "ev_task_task_20260930_082701_5e6762_4325",
+          "ev_task_task_20260930_082801_39aa53_4333",
+          "ev_task_task_20260930_082801_39aa53_4330",
+          "ev_task_task_20260930_082801_39aa53_4331",
+          "ev_task_task_20260930_082801_39aa53_4332",
+          "ev_task_task_20260930_082801_39aa53_4328"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_082551_95cc05_4318",
+          "ev_task_task_20260930_082551_95cc05_4319",
+          "ev_task_task_20260930_082701_5e6762_4326",
+          "ev_task_task_20260930_082801_39aa53_4327",
+          "ev_task_task_20260930_082801_39aa53_4329"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_5cd939e4045670e8ffa2b3148480f18d",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_e42a761e749cd4ce89ba31ccca7244f9",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_c8c58ac4d6e09385d1a82b62a7040a82",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.3333333333333333,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_9554f73ea8cb4cae88763325f64e6632 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_084119_2914ba_4359",
+          "ev_task_task_20260930_084248_d809a3_4361"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_084119_2914ba_4360",
+          "ev_task_task_20260930_084248_d809a3_4362",
+          "ev_task_task_20260930_084248_d809a3_4363"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_a3d326cc6243b9de47f801fcdb1fd343",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_b0ba302195d8167b41fe070855a4d427",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_53875d4c11884123835fbf8dda9b3bce ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_083715_77b213_4352",
+          "ev_task_task_20260930_083759_a1714c_4354",
+          "ev_task_task_20260930_083944_4215bf_4357"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_083715_77b213_4353",
+          "ev_task_task_20260930_083759_a1714c_4355",
+          "ev_task_task_20260930_083759_a1714c_4356",
+          "ev_task_task_20260930_083944_4215bf_4358"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_08ce7e75b3a28f1033fbf2f72c28bc91",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_ba1b120d89f71167b0371d16821c3d73",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_c8273d076f54b0a2a4281b4ac9cddab4",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.25,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_082956_213677_4334",
+          "ev_task_task_20260930_083047_7dbca0_4338",
+          "ev_task_task_20260930_083047_7dbca0_4342",
+          "ev_task_task_20260930_083047_7dbca0_4339",
+          "ev_task_task_20260930_083047_7dbca0_4341",
+          "ev_task_task_20260930_083047_7dbca0_4340",
+          "ev_task_task_20260930_083146_0c403d_4343",
+          "ev_task_task_20260930_083217_d27ba0_4346"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_082956_213677_4335",
+          "ev_task_task_20260930_083047_7dbca0_4336",
+          "ev_task_task_20260930_083047_7dbca0_4337",
+          "ev_task_task_20260930_083146_0c403d_4344",
+          "ev_task_task_20260930_083146_0c403d_4345",
+          "ev_task_task_20260930_083217_d27ba0_4347"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_49dac3664f71798f2a00533b248e2122",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_4681b1382906cd859526a2a12a88c990",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_600c99794b1e88e79a51d015a3fd3e94",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_453b25fca07fc3c56f7199f677c1ea7f",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_0aa75674e0d742c3a1af09e251bef9be ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_083321_72190b_4348",
+          "ev_task_task_20260930_083412_d3700f_4350"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_083321_72190b_4349",
+          "ev_task_task_20260930_083412_d3700f_4351"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_862efe4eeeead76b5374bbf14cee7cec",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_70583279cd6fe41c1c364db6614caf09",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "cpu-hotspot",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_072448_fb1952_4159",
+          "ev_task_task_20260930_072448_fb1952_4160",
+          "ev_task_task_20260930_072509_52178a_4161",
+          "ev_task_task_20260930_072619_31ffac_4165",
+          "ev_task_task_20260930_072619_31ffac_4166",
+          "ev_task_task_20260930_072619_31ffac_4167",
+          "ev_task_task_20260930_072619_31ffac_4168",
+          "ev_task_task_20260930_072619_31ffac_4169",
+          "ev_task_task_20260930_072701_d6819b_4170"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_072448_fb1952_4157",
+          "ev_task_task_20260930_072448_fb1952_4158",
+          "ev_task_task_20260930_072509_52178a_4162",
+          "ev_task_task_20260930_072619_31ffac_4163",
+          "ev_task_task_20260930_072619_31ffac_4164",
+          "ev_task_task_20260930_072701_d6819b_4171",
+          "ev_task_task_20260930_072701_d6819b_4172"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_afb8048a486ee0418aeba9a183fc83a8",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_471a5de7b33b9cf7661d5da862c8e963",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_25c72a3ee232f475cc78c47530292d93",
+          "status": "VERIFIED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "coverage_ratio": 1.0,
+          "independent_control": true
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_075209_aea008_4241",
+          "ev_task_task_20260930_075209_aea008_4240",
+          "ev_task_task_20260930_075232_bb56be_4242",
+          "ev_task_task_20260930_075309_b50110_4247",
+          "ev_task_task_20260930_075309_b50110_4248",
+          "ev_task_task_20260930_075309_b50110_4249",
+          "ev_task_task_20260930_075309_b50110_4250",
+          "ev_task_task_20260930_075309_b50110_4246",
+          "ev_task_task_20260930_075350_b9793c_4251"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_075209_aea008_4238",
+          "ev_task_task_20260930_075209_aea008_4239",
+          "ev_task_task_20260930_075232_bb56be_4243",
+          "ev_task_task_20260930_075309_b50110_4244",
+          "ev_task_task_20260930_075309_b50110_4245",
+          "ev_task_task_20260930_075350_b9793c_4252",
+          "ev_task_task_20260930_075350_b9793c_4253"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_ce2129f960402886f5f194987f4a3f4a",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_ef2a46deddcb2d4f7947aab22fe2f314",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_bc2bfda45b7c86c4affb268e8f3bb3c8",
+          "status": "VERIFIED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "coverage_ratio": 1.0,
+          "independent_control": true
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "go-file-io",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_891775971aa24b7089756ea67a55e562 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_080242_1d3c8d_4275",
+          "ev_task_task_20260930_080401_9cc9fa_4277",
+          "ev_task_task_20260930_080513_4901be_4282",
+          "ev_task_task_20260930_080513_4901be_4283",
+          "ev_task_task_20260930_080538_d835f5_4290",
+          "ev_task_task_20260930_080538_d835f5_4286",
+          "ev_task_task_20260930_080538_d835f5_4287",
+          "ev_task_task_20260930_080538_d835f5_4289",
+          "ev_task_task_20260930_080538_d835f5_4288"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_080242_1d3c8d_4276",
+          "ev_task_task_20260930_080401_9cc9fa_4278",
+          "ev_task_task_20260930_080401_9cc9fa_4279",
+          "ev_task_task_20260930_080513_4901be_4280",
+          "ev_task_task_20260930_080513_4901be_4281",
+          "ev_task_task_20260930_080538_d835f5_4284",
+          "ev_task_task_20260930_080538_d835f5_4285"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_71c5b2be03ab414b391785ec4f068646",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_732963c239287d2e691a5be4ce4e68b1",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_c2a3a4177a85a8aeb271e2ce65c6a567",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_255cd930bdb60c1b823abf7d21a4deb3",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_075932_22f7a2_4267",
+          "ev_task_task_20260930_080024_42f855_4269",
+          "ev_task_task_20260930_080123_1c1e7f_4273",
+          "ev_task_task_20260930_080123_1c1e7f_4274"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_075932_22f7a2_4268",
+          "ev_task_task_20260930_080024_42f855_4270",
+          "ev_task_task_20260930_080123_1c1e7f_4271",
+          "ev_task_task_20260930_080123_1c1e7f_4272"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_e219751f45e51a3d366aa4dcda6deae9",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_47e3593a28efda579522aeecdc07adae",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_302617dc95acfa53af7ee04b3fd3aa0b",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_d5916dd3d5254358914d84f87df49815 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_075535_419400_4254",
+          "ev_task_task_20260930_075626_fe6a9b_4258",
+          "ev_task_task_20260930_075626_fe6a9b_4259",
+          "ev_task_task_20260930_075717_24a8a1_4266",
+          "ev_task_task_20260930_075717_24a8a1_4265",
+          "ev_task_task_20260930_075717_24a8a1_4262",
+          "ev_task_task_20260930_075717_24a8a1_4263",
+          "ev_task_task_20260930_075717_24a8a1_4264"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_075535_419400_4255",
+          "ev_task_task_20260930_075626_fe6a9b_4256",
+          "ev_task_task_20260930_075626_fe6a9b_4257",
+          "ev_task_task_20260930_075717_24a8a1_4260",
+          "ev_task_task_20260930_075717_24a8a1_4261"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_5516b995bc08589f5a797a8ab8a139ed",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_6eb4bef4e32ef787aba134e4ebdb6c32",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_7e8d7ad764f15fb3aa6a25b0e87a9731",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.25,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_6529eb57fecf428aa41755d407cfef54 ebpf_io profile did not produce conclusion-supporting Evidence",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_073614_a3df9a_4194",
+          "ev_task_task_20260930_073721_28f327_4196",
+          "ev_task_task_20260930_073831_f3ee10_4201",
+          "ev_task_task_20260930_073831_f3ee10_4202"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_073614_a3df9a_4195",
+          "ev_task_task_20260930_073721_28f327_4197",
+          "ev_task_task_20260930_073721_28f327_4198",
+          "ev_task_task_20260930_073831_f3ee10_4199",
+          "ev_task_task_20260930_073831_f3ee10_4200"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_5d6c3fa313b87f948a1150abb241c8a0",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_4a6edcf09c17e3963ddbd2c7e0539388",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_0bc1ca2b18f03d004b54e7d3e4c1912f",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_5a28e9cf52d847e8b2d7928bc72de5db ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_081605_88dd7c_4306",
+          "ev_task_task_20260930_081605_88dd7c_4307"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_081522_efabb9_4304",
+          "ev_task_task_20260930_081522_efabb9_4305",
+          "ev_task_task_20260930_081605_88dd7c_4308"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_d0642473a52ebdcbb423f303255a1878",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_dc218ea04821971299492577b5ec36e3",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": true
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "java-file-io",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "WRONG_TARGET",
+      "original_error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+      "chain_audit": {
+        "recorded_chain_consistent": false,
+        "matched_evidence_ids": [],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_082309_77b9c7_4313",
+          "ev_task_task_20260930_082309_77b9c7_4314",
+          "ev_task_task_20260930_082416_f199b0_4315",
+          "ev_task_task_20260930_082416_f199b0_4316",
+          "ev_task_task_20260930_082416_f199b0_4317"
+        ],
+        "problems": [
+          "diagnosis selected a different target"
+        ],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_c502ceeb874060d735b8554377d283b5",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_c4185ffb770d183e379c6e81d2548b47",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "WRONG_TARGET",
+      "original_error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+      "chain_audit": {
+        "recorded_chain_consistent": false,
+        "matched_evidence_ids": [],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_080739_9acfb4_4292",
+          "ev_task_task_20260930_080739_9acfb4_4291",
+          "ev_task_task_20260930_080826_15864f_4294",
+          "ev_task_task_20260930_080826_15864f_4293",
+          "ev_task_task_20260930_080947_0e9b10_4298",
+          "ev_task_task_20260930_080947_0e9b10_4299",
+          "ev_task_task_20260930_080947_0e9b10_4300",
+          "ev_task_task_20260930_080947_0e9b10_4301",
+          "ev_task_task_20260930_080947_0e9b10_4297",
+          "ev_task_task_20260930_080947_0e9b10_4295",
+          "ev_task_task_20260930_080947_0e9b10_4296"
+        ],
+        "problems": [
+          "diagnosis selected a different target"
+        ],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_905b3857c935b1140c85d38c4bcc6014",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_34fb63c32c8a2d887e01915d02357b12",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_095334b94ceda584abdfb74a69f22021",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "WRONG_TARGET",
+      "original_error": "auto-scope selected 'tencent-cvm-worker-1', expected demo Agent 'control-interview-demo-agent'",
+      "chain_audit": {
+        "recorded_chain_consistent": false,
+        "matched_evidence_ids": [],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_081317_d83547_4302",
+          "ev_task_task_20260930_081317_d83547_4303"
+        ],
+        "problems": [
+          "diagnosis selected a different target"
+        ],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_8781fbc210197cec5a604508417ffbe8",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_3aeb47d926c6467396cc626bf7d3b216 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_081934_d7d18b_4309",
+          "ev_task_task_20260930_082041_68ea82_4311"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_081934_d7d18b_4310",
+          "ev_task_task_20260930_082041_68ea82_4312"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_9a8f1cc4ba7b76e27fdfa6e0d17523c2",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_62e878fef3b79ce7219ffa64f309e645",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "load-saturation",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_c403de5d8b9547b29f98ab71bc6ca942 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_074437_fb7532_4219",
+          "ev_task_task_20260930_074550_55cbeb_4223",
+          "ev_task_task_20260930_074550_55cbeb_4224"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_074437_fb7532_4220",
+          "ev_task_task_20260930_074550_55cbeb_4221",
+          "ev_task_task_20260930_074550_55cbeb_4222"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_a73b86a43cba4e469291634854e924d7",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_d4acd0b9ade1849234a2c69559bcc263",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_073229_cc7780_4186",
+          "ev_task_task_20260930_073348_eb902e_4188",
+          "ev_task_task_20260930_073429_473ae4_4192",
+          "ev_task_task_20260930_073429_473ae4_4193"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_073229_cc7780_4187",
+          "ev_task_task_20260930_073348_eb902e_4189",
+          "ev_task_task_20260930_073429_473ae4_4190",
+          "ev_task_task_20260930_073429_473ae4_4191"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_dccc0d937fff45a84ed9b64ccb5c941d",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_a22b6e26d15c85d9e32556edc22cee4a",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_8ec83d2f2321e4d340334e4dff13f1c8",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_ebde6b1b327840bb92f50fb4171d7022 sys_metrics profile did not produce conclusion-supporting Evidence",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_074026_dc07c4_4205",
+          "ev_task_task_20260930_074026_dc07c4_4206",
+          "ev_task_task_20260930_074128_cdbc4e_4215",
+          "ev_task_task_20260930_074128_cdbc4e_4213",
+          "ev_task_task_20260930_074128_cdbc4e_4211",
+          "ev_task_task_20260930_074128_cdbc4e_4212",
+          "ev_task_task_20260930_074128_cdbc4e_4214",
+          "ev_task_task_20260930_074241_1bd6dc_4216"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_074026_dc07c4_4203",
+          "ev_task_task_20260930_074026_dc07c4_4204",
+          "ev_task_task_20260930_074043_971f2c_4207",
+          "ev_task_task_20260930_074043_971f2c_4208",
+          "ev_task_task_20260930_074128_cdbc4e_4210",
+          "ev_task_task_20260930_074128_cdbc4e_4209",
+          "ev_task_task_20260930_074241_1bd6dc_4217",
+          "ev_task_task_20260930_074241_1bd6dc_4218"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_d55aabbe74f2181486c09ccc20eeccd7",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_3e1be36b1e82e9cc71b086ef87a3144e",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_5db10350e89a5f9f5a3428c1ef38f8cd",
+          "status": "VERIFIED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "coverage_ratio": 1.0,
+          "independent_control": true
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "historical_lineage_verified": true,
+      "historical_root_cause_accepted": false,
+      "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+      "original_error": null,
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_074754_600873_4225",
+          "ev_task_task_20260930_074908_8a2788_4229",
+          "ev_task_task_20260930_074908_8a2788_4230",
+          "ev_task_task_20260930_074908_8a2788_4231",
+          "ev_task_task_20260930_074908_8a2788_4232",
+          "ev_task_task_20260930_074908_8a2788_4233",
+          "ev_task_task_20260930_074957_e38a6d_4236",
+          "ev_task_task_20260930_074957_e38a6d_4237"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_074754_600873_4226",
+          "ev_task_task_20260930_074908_8a2788_4227",
+          "ev_task_task_20260930_074908_8a2788_4228",
+          "ev_task_task_20260930_074957_e38a6d_4234",
+          "ev_task_task_20260930_074957_e38a6d_4235"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_6067f3b158d3617f9ae825d9a93803d6",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_ec1c2ea1606fec1c0c8178560d6cbd7b",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_ff59b3fdffe25e714c7b6a6aa0b41af9",
+          "status": "PARTIAL_WITHOUT_COUNTER",
+          "claim_scope": null,
+          "coverage_ratio": 0.5,
+          "independent_control": false
+        }
+      ],
+      "same_load_fix_verified": false
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "historical_lineage_verified": false,
+      "historical_root_cause_accepted": false,
+      "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+      "original_error": "diagnosis insight_ae97021aff9048e18c9a481d49b0a6e2 ended as INSUFFICIENT_EVIDENCE",
+      "chain_audit": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20260930_072855_38cc6c_4175",
+          "ev_task_task_20260930_072855_38cc6c_4176",
+          "ev_task_task_20260930_072912_a08405_4177",
+          "ev_task_task_20260930_073036_edb1a0_4184",
+          "ev_task_task_20260930_073036_edb1a0_4185",
+          "ev_task_task_20260930_073036_edb1a0_4181",
+          "ev_task_task_20260930_073036_edb1a0_4182",
+          "ev_task_task_20260930_073036_edb1a0_4183"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20260930_072855_38cc6c_4174",
+          "ev_task_task_20260930_072855_38cc6c_4173",
+          "ev_task_task_20260930_072912_a08405_4178",
+          "ev_task_task_20260930_073036_edb1a0_4179",
+          "ev_task_task_20260930_073036_edb1a0_4180"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "reports": [
+        {
+          "report_id": "report_e0f3ded473b423762bfa44a949e62b9c",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claim_scope": null,
+          "coverage_ratio": 0.0,
+          "independent_control": false
+        },
+        {
+          "report_id": "report_f3dabb325b7e2b1bafcf69a0b503395c",
+          "status": "VERIFIED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "coverage_ratio": 1.0,
+          "independent_control": true
+        }
+      ],
+      "same_load_fix_verified": false
+    }
+  ],
+  "boundary": "Independent audit of archived records; old campaign and grades remain unchanged. No old case has a same-load code-fix verification merely because injection was stopped."
+}

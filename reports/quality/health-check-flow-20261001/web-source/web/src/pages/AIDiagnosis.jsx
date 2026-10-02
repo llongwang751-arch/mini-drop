@@ -1,0 +1,1235 @@
+// AI 诊断主工作台；组织案例、对话、树、人工干预和验证中心。
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TERMINAL_DIAGNOSIS_STATUSES } from "../utils/diagnosisDisplay";
+import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
+import {
+  Alert,
+  Button,
+  Drawer,
+  Input,
+  Modal,
+  Popover,
+  Segmented,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import {
+  BranchesOutlined,
+  DisconnectOutlined,
+  ExperimentOutlined,
+  FullscreenOutlined,
+  MenuUnfoldOutlined,
+  ProfileOutlined,
+  RobotOutlined,
+  SettingOutlined,
+  SendOutlined,
+  SyncOutlined,
+  WifiOutlined,
+} from "@ant-design/icons";
+import ChatThread from "../components/ChatThread";
+import AgentCockpit from "../components/AgentCockpit";
+import DiagnosisFinding from "../components/DiagnosisFinding";
+import HealthCheckActions, { healthCheckResult } from "../components/HealthCheckActions";
+import ObservabilityOverview, { buildObservationModel } from "../components/ObservabilityOverview";
+import ActualExplorationTree from "../components/ActualExplorationTree";
+import DiagnosisCaseList from "../components/DiagnosisCaseList";
+import EvalPanel from "../components/EvalPanel";
+import ManagedServicesPanel from "../components/ManagedServicesPanel";
+import DiagnosisWelcome from "../components/DiagnosisWelcome";
+import MentorComplexShowcase from "../components/MentorComplexShowcase";
+import TechnicalDetailDrawer from "../components/TechnicalDetailDrawer";
+import usePolling from "../hooks/usePolling";
+import useSSE from "../hooks/useSSE";
+import { getFrozenReplayMeta } from "../utils/latsReplay";
+import { isCausalRootReport, projectReportScopes } from "../utils/reportPresentation";
+import {
+  advanceDropInsightOrchestrator,
+  cancelDropInsightDiagnosis,
+  clarifyDropInsightDiagnosis,
+  createDropInsightDiagnosis,
+  createDiagnosticSkillCandidate,
+  decideDropInsightToolCall,
+  deleteDropInsightDiagnosis,
+  evaluateDiagnosticSkill,
+  getAgentRuntimeStatus,
+  getDropInsightBudget,
+  getDropInsightDiagnosis,
+  getDropInsightExplorationTree,
+  listDiagnosticSkillActivations,
+  listDiagnosticSkills,
+  listDropInsightDiagnoses,
+  listDropInsightEvidence,
+  listDropInsightFeedback,
+  listDropInsightEvents,
+  listDropInsightHypotheses,
+  listDropInsightInterventions,
+  listDropInsightReports,
+  listDropInsightRetrievals,
+  listDropInsightToolCalls,
+  runDropInsightPlanner,
+  submitDropInsightFeedback,
+  submitDropInsightIntervention,
+  updateDropInsightToolCall,
+} from "../api/client";
+import "./AIDiagnosis.css";
+import "./Workbench.css";
+
+const { Paragraph, Text, Title } = Typography;
+
+/**
+ * AI 诊断工作台是“调查流程”的投影，不直接执行 shell 或采集器。
+ * 创建诊断后，服务端依次完成目标发现、范围绑定、假设、受控工具调用、证据准入
+ * 与报告生成；本页通过 SSE 增量刷新，并在 SSE 断开时用低频轮询兜底。
+ */
+
+const TERMINAL = TERMINAL_DIAGNOSIS_STATUSES;
+const LOCKED_TERMINAL = new Set(["FAILED", "CANCELLED"]);
+const STATUS_LABELS = {
+  CREATED: "等待开始",
+  PLANNING: "构建假设",
+  COLLECTING: "正在取证",
+  ANALYZING: "证据裁决",
+  WAITING_APPROVAL: "等待审批",
+  COMPLETED: "诊断完成",
+  PARTIAL: "证据不足",
+  FAILED: "诊断失败",
+  CANCELLED: "已取消",
+  UNKNOWN: "状态同步中",
+};
+const EMPTY_RESOURCES = {
+  hypotheses: [],
+  toolCalls: [],
+  evidence: [],
+  reports: [],
+  events: [],
+  feedback: [],
+  interventions: [],
+  budget: null,
+  skillActivations: [],
+  explorationTree: null,
+  runtimeStatus: null,
+  retrievals: [],
+};
+
+const COMPOSER_ACTIONS = [
+  { label: "补充 / 追问", value: "ADD_CONTEXT" },
+  { label: "继续取证", value: "CONTINUE_INVESTIGATION" },
+  { label: "调整方向", value: "CHANGE_DIRECTION" },
+  { label: "寻找反证", value: "CHALLENGE_HYPOTHESIS" },
+];
+
+const COMPOSER_PLACEHOLDERS = {
+  ADD_CONTEXT: "继续追问结论，或补充新的现象、上下文和约束",
+  CONTINUE_INVESTIGATION: "说明希望继续验证的问题；Agent 会保留旧证据并开启下一轮",
+  CHANGE_DIRECTION: "告诉 Agent 要改查哪个方向，以及为什么要调整当前计划",
+  CHALLENGE_HYPOTHESIS: "指出你质疑的假设，Agent 会优先寻找能够推翻它的反证",
+};
+
+function canonicalStatus(status) {
+  const value = String(status || "").toUpperCase();
+  if (["CREATED", "PENDING", "UNDERSTANDING", "NEEDS_CLARIFICATION", "NEEDS_SCOPE_CONFIRMATION"].includes(value)) return "CREATED";
+  if (["PLANNING", "HYPOTHESIZING", "PLAN_READY"].includes(value)) return "PLANNING";
+  if (["COLLECTING", "COLLECTING_EVIDENCE", "RUNNING", "EXECUTING", "PROBING"].includes(value)) return "COLLECTING";
+  if (["ANALYZING", "REPORTING", "VERIFYING"].includes(value)) return "ANALYZING";
+  if (["WAITING_APPROVAL", "WAITING_FOR_APPROVAL", "APPROVAL_REQUIRED"].includes(value)) return "WAITING_APPROVAL";
+  if (["COMPLETED", "DONE", "SUCCEEDED"].includes(value)) return "COMPLETED";
+  if (["PARTIAL_COMPLETED", "PARTIAL", "INSUFFICIENT_EVIDENCE"].includes(value)) return "PARTIAL";
+  if (["FAILED", "ERROR", "TIMED_OUT"].includes(value)) return "FAILED";
+  if (["CANCELLED", "CANCELED"].includes(value)) return "CANCELLED";
+  return "UNKNOWN";
+}
+
+function nativeId(item) {
+  return item.diagnosis_id || item.case_id || item.id || "";
+}
+
+function selectionKey(source, id) {
+  return `${source || "unknown"}:${id}`;
+}
+
+function normalizeCase(item) {
+  const source = "drop_insight_v2";
+  const id = nativeId(item);
+  return {
+    ...item,
+    source,
+    case_id: item.case_id || id,
+    diagnosis_id: item.diagnosis_id || id,
+    canonical_status: item.canonical_status || canonicalStatus(item.status),
+    selection_key: selectionKey(source, id),
+  };
+}
+
+function isVerifiedReport(report) {
+  const verificationStatus = report?.verification?.status
+    || report?.verification_status
+    || report?.status;
+  const evidenceRefs = report?.evidence_refs || report?.evidence_refs_json || [];
+  return isCausalRootReport({ ...report, verification: { ...report?.verification, status: verificationStatus } })
+    && Array.isArray(evidenceRefs)
+    && evidenceRefs.length > 0;
+}
+
+function syncCaseQuery(value) {
+  const url = new URL(window.location.href);
+  if (value) url.searchParams.set("case", value);
+  else url.searchParams.delete("case");
+  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+// 页面只组织选择、读回和操作请求，诊断推进由后台 Worker 保证；默认树和体检摘要来自同一会话事实。
+export default function AIDiagnosis() {
+  const [messageApi, messageHolder] = message.useMessage();
+  const [cases, setCases] = useState([]);
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [workspaceView, setWorkspaceView] = useState("workspace");
+  const [caseFilter, setCaseFilter] = useState("all");
+  const [query, setQuery] = useState("");
+  const [investigationStrategy, setInvestigationStrategy] = useState("LATS");
+  const [sending, setSending] = useState(false);
+  const [detail, setDetail] = useState(null);
+  const [resources, setResources] = useState(EMPTY_RESOURCES);
+  const [resourceErrors, setResourceErrors] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [listLoading, setListLoading] = useState(false);
+  const [listLoaded, setListLoaded] = useState(false);
+  const [listError, setListError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [clarifying, setClarifying] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [pendingCancellation, setPendingCancellation] = useState(null);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [interventionSubmitting, setInterventionSubmitting] = useState(false);
+  const [sourceSkill, setSourceSkill] = useState(null);
+  const [skillEvaluating, setSkillEvaluating] = useState(false);
+  const [skillGenerating, setSkillGenerating] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [replayOpen, setReplayOpen] = useState(false);
+  const [caseDrawerOpen, setCaseDrawerOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [treeFullscreen, setTreeFullscreen] = useState(false);
+  const [pendingTreeIntervention, setPendingTreeIntervention] = useState(null);
+  const [composerAction, setComposerAction] = useState("ADD_CONTEXT");
+  // 每次进入诊断页都先给对话完整宽度。分屏是临时对照工具，不应因上一次
+  // 浏览器偏好把用户永久困在狭窄的双栏布局中。
+  const [contentView, setContentView] = useState("tree");
+  const [mode, setMode] = useState(() => {
+    try {
+      return window.localStorage.getItem("mini-drop-diagnosis-mode") === "expert" ? "expert" : "simple";
+    } catch {
+      return "simple";
+    }
+  });
+  const requestVersion = useRef(0);
+  const resourceDiagnosisId = useRef("");
+  const composerRef = useRef(null);
+  const advancing = useRef(false);
+  const liveRefreshTimer = useRef(null);
+  const selectedIdRef = useRef("");
+  const automaticSkillAttempts = useRef(new Set());
+  const initialCaseKey = useRef(new URLSearchParams(window.location.search).get("case") || "");
+
+  const isExpert = mode === "expert";
+  const selectedId = selectedCase?.diagnosis_id || "";
+  selectedIdRef.current = selectedId;
+  const statusValue = String(detail?.status || selectedCase?.status || "").toUpperCase();
+  const settled = TERMINAL.has(statusValue);
+  const replayMeta = getFrozenReplayMeta(detail, selectedCase, resources.explorationTree);
+  const frozenReplay = replayMeta.isFrozenReplay;
+  const readOnly = LOCKED_TERMINAL.has(statusValue) || frozenReplay;
+
+  const loadSourceSkill = useCallback(async (diagnosisId) => {
+    if (!diagnosisId) {
+      setSourceSkill(null);
+      return null;
+    }
+    try {
+      const skills = await listDiagnosticSkills();
+      const matched = (skills || [])
+        .filter((skill) => (skill.source_diagnosis_ids || []).includes(diagnosisId))
+        .sort((left, right) => Number(right.version || 0) - Number(left.version || 0));
+      const latest = matched[0] || null;
+      setSourceSkill(latest);
+      return latest;
+    } catch {
+      setSourceSkill(null);
+      return null;
+    }
+  }, []);
+
+  const materializeDiagnosticSkill = useCallback(async (diagnosisId, { notify = false } = {}) => {
+    if (!diagnosisId) return null;
+    if (diagnosisId === selectedIdRef.current) setSkillGenerating(true);
+    try {
+      const candidate = await createDiagnosticSkillCandidate(diagnosisId);
+      const evaluated = await evaluateDiagnosticSkill(candidate.skill_id);
+      if (diagnosisId === selectedIdRef.current) setSourceSkill(evaluated);
+      if (notify) {
+        const gate = evaluated?.gate_metrics || {};
+        const actionText = candidate?.parent_skill_id
+          ? `本次诊断已自动把 Skill 优化为 v${candidate.version}`
+          : `本次诊断已自动生成候选 Skill v${candidate.version || 1}`;
+        if (gate.eligible) {
+          messageApi.success(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 0} 通过，等待人工批准发布`);
+        } else {
+          messageApi.warning(`${actionText}，门禁 ${gate.passed || 0}/${gate.total || 3} 通过，暂不投入复用`);
+        }
+      }
+      return evaluated;
+    } finally {
+      if (diagnosisId === selectedIdRef.current) setSkillGenerating(false);
+    }
+  }, []);
+
+  const loadCases = useCallback(async () => {
+    setListLoading(true);
+    setListError("");
+    try {
+      const rows = await listDropInsightDiagnoses();
+      const nextCases = (rows || [])
+        .map(normalizeCase)
+        .sort((a, b) => String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")));
+      setCases(nextCases);
+      const requestedKey = initialCaseKey.current;
+      setSelectedCase((current) => {
+        const requested = current?.selection_key || requestedKey;
+        if (!requested) return current;
+        const match = nextCases.find((item) => item.selection_key === requested || item.diagnosis_id === requested);
+        return match || current;
+      });
+    } catch (error) {
+      setListError(error?.message || "诊断列表暂时不可用，请检查服务连接后重试");
+    } finally {
+      setListLoading(false);
+      setListLoaded(true);
+    }
+  }, []);
+
+  const loadV2Detail = useCallback(async (caseItem, version, projectedDetail = null) => {
+    const id = caseItem.diagnosis_id;
+    const requests = [
+      ["核心详情", getDropInsightDiagnosis(id)],
+      ["实时探索树", getDropInsightExplorationTree(id)],
+      ["事件", listDropInsightEvents(id)],
+      ["候选假设", listDropInsightHypotheses(id)],
+      ["证据", listDropInsightEvidence(id)],
+      ["报告", listDropInsightReports(id)],
+      ["工具调用", listDropInsightToolCalls(id)],
+      ["预算", getDropInsightBudget(id)],
+      ["反馈", listDropInsightFeedback(id)],
+      ["诊断策略复用", listDiagnosticSkillActivations(id)],
+      ["人工干预", listDropInsightInterventions(id)],
+      ["Agent Runtime", getAgentRuntimeStatus()],
+      ["知识检索轨迹", listDropInsightRetrievals(id)],
+    ];
+    const settled = await Promise.allSettled(requests.map(([, request]) => request));
+    if (version !== requestVersion.current || id !== selectedIdRef.current) return;
+    const nativeDetail = settled[0].status === "fulfilled" ? settled[0].value : null;
+    const coreDetail = nativeDetail || projectedDetail;
+    if (!coreDetail) throw settled[0].reason;
+    setDetail(coreDetail);
+    setSelectedCase((current) => {
+      if (!current || current.diagnosis_id !== id) return current;
+      const nextStatus = coreDetail.status || current.status;
+      const nextUpdatedAt = coreDetail.updated_at || current.updated_at;
+      if (nextStatus === current.status && nextUpdatedAt === current.updated_at) return current;
+      return normalizeCase({
+        ...current,
+        status: nextStatus,
+        updated_at: nextUpdatedAt,
+      });
+    });
+    setResources((previous) => {
+      const value = (index, key) => settled[index].status === "fulfilled"
+        ? settled[index].value : previous[key];
+      return {
+        explorationTree: value(1, "explorationTree"),
+        events: value(2, "events"),
+        hypotheses: value(3, "hypotheses"),
+        evidence: value(4, "evidence"),
+        reports: value(5, "reports"),
+        toolCalls: value(6, "toolCalls"),
+        budget: value(7, "budget"),
+        feedback: value(8, "feedback"),
+        skillActivations: value(9, "skillActivations"),
+        interventions: value(10, "interventions"),
+        runtimeStatus: value(11, "runtimeStatus"),
+        retrievals: value(12, "retrievals"),
+      };
+    });
+    if (settled.every((result) => result.status === "fulfilled")) setLastUpdated(new Date());
+    setResourceErrors([
+      ...settled.flatMap((result, index) => index > 0 && result.status === "rejected" ? [requests[index][0]] : []),
+    ]);
+  }, []);
+
+  // 并行读回本会话的领域资源，按当前选择防止迟到响应覆盖新案例；后台刷新失败保留最近成功数据。
+  const loadSelectedDetail = useCallback(async (caseItem, { background = false } = {}) => {
+    const nextId = caseItem?.diagnosis_id || "";
+    // Keep stale data only within the same diagnosis; never carry evidence
+    // across a target switch, including when the new request fails.
+    if (resourceDiagnosisId.current !== nextId) {
+      resourceDiagnosisId.current = nextId;
+      setDetail(null);
+      setResources(EMPTY_RESOURCES);
+      setResourceErrors([]);
+      setLastUpdated(null);
+    }
+    if (!caseItem) {
+      requestVersion.current += 1;
+      setDetail(null);
+      setResources(EMPTY_RESOURCES);
+      setResourceErrors([]);
+      return;
+    }
+    const version = ++requestVersion.current;
+    if (!background) setLoading(true);
+    try {
+      await loadV2Detail(caseItem, version);
+    } catch (error) {
+      if (version === requestVersion.current) {
+        setResourceErrors(["详情"]);
+        if (!background) messageApi.error(error?.message || "诊断详情加载失败");
+      }
+    } finally {
+      if (version === requestVersion.current) setLoading(false);
+    }
+  }, [loadV2Detail]);
+
+  useEffect(() => { loadCases(); }, [loadCases]);
+
+  useEffect(() => {
+    const requested = initialCaseKey.current;
+    if (!requested || !listLoaded || listLoading || listError) return;
+    if (cases.some(item => item.selection_key === requested || item.diagnosis_id === requested)) {
+      if (selectedCase) initialCaseKey.current = "";
+      return;
+    }
+    if (!selectedCase) {
+      setListError("链接中的诊断案例不存在或已从列表隐藏。");
+      initialCaseKey.current = "";
+      syncCaseQuery("");
+    }
+  }, [cases, listError, listLoaded, listLoading, selectedCase]);
+
+  useEffect(() => { loadSelectedDetail(selectedCase); }, [selectedCase, loadSelectedDetail]);
+  useEffect(() => {
+    setSourceSkill(null);
+    loadSourceSkill(selectedId);
+  }, [selectedId, loadSourceSkill]);
+
+  const latestVerifiedReport = useMemo(
+    () => (resources.reports || []).find(isVerifiedReport) || null,
+    [resources.reports],
+  );
+  const displayExplorationTree = useMemo(
+    () => projectReportScopes(resources.explorationTree, resources.reports),
+    [resources.explorationTree, resources.reports],
+  );
+
+  useEffect(() => {
+    if (!selectedId || sourceSkill || !latestVerifiedReport || frozenReplay) return;
+    if (String(detail?.status || "").toUpperCase() !== "COMPLETED") return;
+    // The server extracts only the most recently created report. An earlier
+    // verified branch cannot make a later insufficient report eligible.
+    const newest = [...(resources.reports || [])].sort((a, b) =>
+      new Date(b.created_at || 0) - new Date(a.created_at || 0))[0];
+    if (!isVerifiedReport(newest)) return;
+    if (automaticSkillAttempts.current.has(selectedId)) return;
+    automaticSkillAttempts.current.add(selectedId);
+    materializeDiagnosticSkill(selectedId, { notify: true }).catch((error) => {
+      if (selectedId === selectedIdRef.current) {
+        messageApi.info(error?.message || "本次可信诊断暂未形成可复用 Skill");
+      }
+    });
+  }, [detail?.status, frozenReplay, latestVerifiedReport, materializeDiagnosticSkill, selectedId, sourceSkill, resources.reports]);
+
+  const pollSelectedDetail = useCallback(async () => {
+    if (!selectedId || settled) return;
+    const diagnosisId = selectedId;
+    const session = await getDropInsightDiagnosis(diagnosisId);
+    if (diagnosisId !== selectedIdRef.current) return;
+    if (TERMINAL.has(session.status)) {
+      await loadCases();
+      return;
+    }
+    await loadSelectedDetail(selectedCase, { background: true });
+  }, [loadCases, loadSelectedDetail, selectedCase, selectedId, settled]);
+
+  // SSE 连续事件合并成一次读回，事件本身不替代完整的持久化诊断状态。
+  const handleDiagnosisProgress = useCallback((event) => {
+    const diagnosisId = event?.diagnosis_id;
+    if (!diagnosisId || diagnosisId !== selectedIdRef.current) return;
+    // Coalesce event bursts into one refresh. Keeping the first timer also
+    // prevents a continuous event stream from starving the detail refresh.
+    if (liveRefreshTimer.current) return;
+    liveRefreshTimer.current = window.setTimeout(() => {
+      liveRefreshTimer.current = null;
+      if (diagnosisId === selectedIdRef.current && selectedCase) {
+        loadSelectedDetail(selectedCase, { background: true }).catch(() => undefined);
+      }
+    }, 350);
+  }, [loadSelectedDetail, selectedCase]);
+
+  useEffect(() => {
+    const reloadAfterCredentialChange = () => loadCases();
+    window.addEventListener("mini-drop:credentials-changed", reloadAfterCredentialChange);
+    return () => window.removeEventListener("mini-drop:credentials-changed", reloadAfterCredentialChange);
+  }, [loadCases]);
+
+  const { connected: sseConnected } = useSSE({
+    onDiagnosisProgress: handleDiagnosisProgress,
+    channel: "diagnosis",
+    resourceId: selectedId,
+  });
+
+  useEffect(() => () => {
+    if (liveRefreshTimer.current) window.clearTimeout(liveRefreshTimer.current);
+  }, []);
+
+  usePolling(pollSelectedDetail, {
+    interval: sseConnected ? 10000 : 2500,
+    enabled: Boolean(selectedId) && !settled,
+  });
+
+  function selectCase(item) {
+    setReplayOpen(false);
+    setCaseDrawerOpen(false);
+    setSelectedCase(item);
+    syncCaseQuery(item.selection_key);
+  }
+
+  function startBlankDiagnosis() {
+    setReplayOpen(false);
+    setCaseDrawerOpen(false);
+    setSelectedCase(null);
+    syncCaseQuery("");
+    setWorkspaceView("workspace");
+  }
+
+  function archiveCase(item) {
+    Modal.confirm({
+      title: `归档诊断「${diagnosisDisplayQuery(item.query, item.case_id)}」？`,
+      content: "归档后会从当前列表隐藏，但证据与审计记录继续保留。",
+      okText: "归档",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          await deleteDropInsightDiagnosis(item.diagnosis_id);
+          if (selectedCase?.selection_key === item.selection_key) startBlankDiagnosis();
+          await loadCases();
+          messageApi.success("诊断已归档");
+        } catch (error) {
+          messageApi.error(error?.message || "归档失败");
+        }
+      },
+    });
+  }
+
+  // 先创建会话并立即打开，再请求第一轮规划；任务完成依靠 SSE/轮询读回，不能由按钮点击直接判定成功。
+  async function createAndOpenDiagnosis(payload) {
+    const text = String(payload?.query || "").trim();
+    if (!text) {
+      messageApi.info("请描述遇到的问题，例如：订单服务 CPU 飙高");
+      return null;
+    }
+    setSending(true);
+    try {
+      const created = await createDropInsightDiagnosis({
+        ...payload,
+        query: text,
+      });
+      const item = normalizeCase({ ...created, query: text, status: created.status || "CREATED" });
+      setQuery("");
+      setSelectedCase(item);
+      syncCaseQuery(item.selection_key);
+      setWorkspaceView("workspace");
+      await runDropInsightPlanner(created.diagnosis_id).catch(() => undefined);
+      await loadCases();
+      return created;
+    } catch (error) {
+      messageApi.error(error?.message || "创建诊断失败");
+      return null;
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function startNew() {
+    return createAndOpenDiagnosis({
+      query,
+      budget: { investigation_strategy: investigationStrategy },
+      mode: isExpert ? "ASSISTED" : "AUTONOMOUS",
+      auto_scope: !isExpert,
+    });
+  }
+
+  async function startDiagnosisFromShowcase(diagnosisRequest) {
+    const created = await createAndOpenDiagnosis({
+      ...diagnosisRequest,
+      query: diagnosisRequest?.query || diagnosisRequest?.prompt || "诊断故障广场中的受控异常",
+      mode: diagnosisRequest?.mode || (isExpert ? "ASSISTED" : "AUTONOMOUS"),
+      auto_scope: diagnosisRequest?.auto_scope ?? !isExpert,
+    });
+    if (created) messageApi.success("已切换到真实诊断工作台");
+  }
+
+  async function openDiagnosis(diagnosisId) {
+    if (!diagnosisId) return;
+    const existing = cases.find((item) => item.diagnosis_id === diagnosisId);
+    if (existing) {
+      selectCase(existing);
+      setWorkspaceView("workspace");
+      return;
+    }
+    try {
+      const session = await getDropInsightDiagnosis(diagnosisId);
+      selectCase(normalizeCase(session));
+      setWorkspaceView("workspace");
+    } catch (error) {
+      messageApi.error(error?.message || "诊断记录加载失败");
+    }
+  }
+
+  async function handleIntervention({ action = "ADD_CONTEXT", message: interventionMessage, hypothesis_id: hypothesisId } = {}) {
+    const text = String(interventionMessage || "").trim();
+    if (!selectedId || readOnly || !text || interventionSubmitting) return;
+    setInterventionSubmitting(true);
+    try {
+      const idempotencyKey = globalThis.crypto?.randomUUID?.()
+        || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const saved = await submitDropInsightIntervention(selectedId, {
+        expected_version: detail?.diagnosis_version ?? detail?.version,
+        action,
+        message: text,
+        ...(hypothesisId ? { hypothesis_id: hypothesisId } : {}),
+        idempotency_key: idempotencyKey,
+      });
+      setResources((current) => ({
+        ...current,
+        interventions: [
+          ...(current.interventions || []).filter((item) => item.intervention_id !== saved?.intervention_id),
+          saved,
+        ],
+      }));
+      setQuery("");
+      setComposerAction("ADD_CONTEXT");
+      messageApi.success(action === "ADD_CONTEXT" ? "补充信息已进入下一轮诊断" : "已记录人工干预并更新探索方向");
+      await Promise.all([loadSelectedDetail(selectedCase, { background: true }), loadCases()]);
+      return saved;
+    } catch (error) {
+      messageApi.error(error?.message || "人工干预提交失败");
+      return null;
+    } finally {
+      setInterventionSubmitting(false);
+    }
+  }
+
+  async function submitComposer() {
+    if (!selectedId) return startNew();
+    if (readOnly) {
+      messageApi.info("该诊断已经结束，请点击“新建诊断”开启新的调查");
+      return null;
+    }
+    return handleIntervention({ action: composerAction, message: query });
+  }
+
+  function prepareTreeIntervention(payload) {
+    if (!payload || readOnly) return;
+    setPendingTreeIntervention({
+      action: payload.action || "CHANGE_DIRECTION",
+      hypothesis_id: payload.hypothesis_id,
+      message: payload.message || "",
+    });
+  }
+
+  async function confirmTreeIntervention() {
+    const saved = await handleIntervention(pendingTreeIntervention || {});
+    if (saved) setPendingTreeIntervention(null);
+  }
+
+  async function decideTool(toolCallId, approved) {
+    if (!selectedId || readOnly) return;
+    try {
+      await decideDropInsightToolCall(selectedId, toolCallId, {
+        approved,
+        reason: approved ? "用户在 AI 诊断对话中审批通过" : "用户在 AI 诊断对话中拒绝",
+      });
+      await loadSelectedDetail(selectedCase);
+      await loadCases();
+    } catch (error) { messageApi.error(error?.message || String(error)); }
+  }
+
+  async function handleUpdateToolArgs(toolCallId, argumentsObj) {
+    if (!selectedId || readOnly) return;
+    await updateDropInsightToolCall(selectedId, toolCallId, argumentsObj);
+    await loadSelectedDetail(selectedCase);
+  }
+
+  async function handleClarify(payload) {
+    if (!selectedId || readOnly) return;
+    setClarifying(true);
+    try {
+      await clarifyDropInsightDiagnosis(selectedId, payload);
+      await runDropInsightPlanner(selectedId).catch(() => undefined);
+      await loadSelectedDetail(selectedCase);
+    } catch (error) { messageApi.error(error?.message || "提交澄清失败"); }
+    finally { setClarifying(false); }
+  }
+
+  function confirmCancellation() {
+    if (!selectedId || !detail || settled || readOnly || cancelling) return;
+    setPendingCancellation({ caseItem: selectedCase, id: selectedId, version: detail.version });
+  }
+
+  async function handleCancellation() {
+    if (!pendingCancellation || cancelling) return;
+    const { caseItem, id, version } = pendingCancellation;
+        setCancelling(true);
+        try {
+          const saved = await cancelDropInsightDiagnosis(id, { expected_version: version });
+          if (selectedIdRef.current === id) {
+            // Fence an earlier in-flight refresh before projecting the response.
+            requestVersion.current += 1;
+            setDetail(saved);
+            await loadSelectedDetail(caseItem);
+          }
+          await loadCases();
+          setPendingCancellation(null);
+          messageApi.success("诊断已停止，已有记录已保留");
+        } catch (error) {
+          if (selectedIdRef.current === id) await loadSelectedDetail(caseItem);
+          messageApi.error(error?.message || "停止诊断失败，请刷新后重试");
+        } finally { setCancelling(false); }
+  }
+
+  async function advanceNow() {
+    if (!selectedId || readOnly || advancing.current) return;
+    advancing.current = true;
+    try {
+      await advanceDropInsightOrchestrator(selectedId);
+      await loadSelectedDetail(selectedCase);
+    } catch (error) { messageApi.error(error?.message || "推进失败"); }
+    finally { advancing.current = false; }
+  }
+
+  async function handleSubmitFeedback(payload) {
+    if (!selectedId) return;
+    setFeedbackSubmitting(true);
+    try {
+      const saved = await submitDropInsightFeedback(selectedId, payload);
+      messageApi.success(saved.revision_hypothesis_id ? "已保存纠正并开启下一轮诊断" : "反馈已保存");
+      if (payload.feedback_label === "correct" && !sourceSkill) {
+        try {
+          await materializeDiagnosticSkill(selectedId, { notify: true });
+        } catch (skillError) {
+          messageApi.info(skillError?.message || "本次轨迹尚未满足技能沉淀条件");
+        }
+      }
+      await loadSelectedDetail(selectedCase);
+      await loadCases();
+    } catch (error) {
+      messageApi.error(error?.message || "反馈提交失败");
+    } finally { setFeedbackSubmitting(false); }
+  }
+
+  async function handleEvaluateSkill(skill) {
+    if (!skill?.skill_id || skillEvaluating) return;
+    setSkillEvaluating(true);
+    try {
+      const evaluated = await evaluateDiagnosticSkill(skill.skill_id);
+      setSourceSkill(evaluated);
+      const gate = evaluated?.gate_metrics || {};
+      if (gate.eligible) messageApi.success(`门禁评测通过：${gate.passed || 3}/${gate.total || 3}`);
+      else messageApi.warning(`门禁尚未通过：${gate.passed || 0}/${gate.total || 3}，请到 Skill 广场查看失败项`);
+    } catch (error) {
+      messageApi.error(error?.message || "Skill 门禁评测失败");
+    } finally {
+      setSkillEvaluating(false);
+    }
+  }
+
+  async function handleGenerateSkill() {
+    if (!selectedId || skillGenerating) return;
+    try {
+      await materializeDiagnosticSkill(selectedId, { notify: true });
+    } catch (error) {
+      messageApi.info(error?.message || "当前案例暂未满足候选 Skill 沉淀条件");
+    }
+  }
+
+  const checkResult = healthCheckResult(detail, resources);
+  const examProgress = useMemo(() => {
+    const hasScope = Boolean(detail?.target?.agent_id || detail?.agent_id || detail?.target?.pid || detail?.pid);
+    return {
+      hasScope,
+      hasEvidence: resources.evidence.length > 0,
+      evidenceCount: resources.evidence.length,
+      hasReport: resources.reports.length > 0 || Boolean(healthCheckResult(detail, resources)),
+      terminal: TERMINAL.has(detail?.status),
+    };
+  }, [detail, resources]);
+
+  const canonical = canonicalStatus(detail?.status || selectedCase?.status);
+  const normalObservation = detail && buildObservationModel(detail, resources).assessment.code === "NORMAL_OBSERVED";
+  const treeStats = resources.explorationTree?.stats || {};
+  const hasActiveDiagnosis = Boolean(detail || selectedCase);
+
+  return (
+    <div className={`ai-diagnosis-page ${hasActiveDiagnosis ? "has-session" : "is-start"} content-${contentView}`}>
+      {messageHolder}
+      <Modal title="停止本次诊断？" open={Boolean(pendingCancellation)}
+        okText="停止诊断" cancelText="继续检查" okButtonProps={{ danger: true }}
+        confirmLoading={cancelling} onOk={handleCancellation}
+        onCancel={() => { if (!cancelling) setPendingCancellation(null); }}>
+        将停止后续检查与关联采集，已有证据和报告会保留。正在运行的采集需要短暂等待才能退出。
+      </Modal>
+      <header className="diagnosis-command-header is-compact">
+        <div>
+          <div className="diagnosis-eyebrow"><RobotOutlined /> MINI-DROP · 服务体检</div>
+          <Title level={2}>
+            {hasActiveDiagnosis ? (treeStats.current_round ? `当前诊断 · 第 ${treeStats.current_round} 轮` : "当前诊断 · 轮次待同步") : "从异常现象，找到性能瓶颈"}
+          </Title>
+          <Paragraph>
+            {hasActiveDiagnosis
+              ? "先看本次状态，再沿排查树查看证据与下一步。"
+              : "选择已接入的服务，检查当前状态；有异常时再沿证据逐步排查。"}
+          </Paragraph>
+        </div>
+        <div className="diagnosis-live-signals">
+          <span className={sseConnected ? "is-online" : "is-offline"}>
+            {sseConnected ? <WifiOutlined /> : <DisconnectOutlined />}
+            {sseConnected ? "实时事件已连接" : "轮询兜底中"}
+          </span>
+          {hasActiveDiagnosis && <span><BranchesOutlined /> 第 {treeStats.current_round || 1} 轮排查</span>}
+          <button type="button" className="diagnosis-help-button" onClick={() => setHelpOpen(true)}>诊断说明</button>
+        </div>
+      </header>
+
+      <Modal title="诊断如何工作" open={helpOpen} onCancel={() => setHelpOpen(false)} footer={null} width={760}>
+        <section className="diagnosis-layer-map" aria-label="Mini-Drop 诊断架构分层">
+          <article>
+            <span className="diagnosis-layer-index">01</span>
+            <div>
+              <Text strong>Drop · 探针与采集底座</Text>
+              <Paragraph>C++ Agent 在目标机执行白名单 Collector，产出 Artifact；它负责拿材料，不负责宣布根因。</Paragraph>
+            </div>
+          </article>
+          <article>
+            <span className="diagnosis-layer-index">02</span>
+            <div>
+              <Text strong>诊断智能体（Agent）· 调查与受控执行</Text>
+              <Paragraph>诊断工作进程基于假设和证据选择下一探针；Go API 在能力、权限、风险和预算门禁内创建采集任务。</Paragraph>
+            </div>
+          </article>
+          <article>
+            <span className="diagnosis-layer-index">03</span>
+            <div>
+              <Text strong>Skill 路线记忆 · 经验复用</Text>
+              <Paragraph>只保存已验证的工具顺序、证据要求和退出条件；需评测、发布，冲突时退出并回到基线 Planner。</Paragraph>
+            </div>
+          </article>
+        </section>
+      </Modal>
+
+      <div className="ai-diagnosis-workspace">
+        <main className="ai-diagnosis-main">
+          <div className="diagnosis-workbench-toolbar">
+            <div className="diagnosis-case-title">
+              <Space wrap size={8} className="diagnosis-workspace-navigation">
+                <Segmented
+                  className="diagnosis-workspace-tabs"
+                  aria-label="体检工作区"
+                  options={[{ label: "选择服务", value: "services" }, { label: "体检报告", value: "workspace" }, { label: "案例验证", value: "evaluation" }]}
+                  value={workspaceView}
+                  onChange={setWorkspaceView}
+                />
+                {hasActiveDiagnosis && <Button onClick={startBlankDiagnosis}>新建诊断</Button>}
+                <Button
+                  icon={<MenuUnfoldOutlined />}
+                  aria-label="打开诊断案例列表"
+                  onClick={() => setCaseDrawerOpen(true)}
+                >
+                  诊断案例{cases.length ? ` ${cases.length}` : ""}
+                </Button>
+              </Space>
+              <Text type="secondary">{workspaceView === "services" ? "第一步 · 选择对象" : workspaceView === "evaluation" ? "受控案例" : "本次体检"}</Text>
+              <Title level={4}>{workspaceView === "services" ? "选择要检查的服务" : workspaceView === "evaluation" ? "诊断与 Skill 验证中心" : diagnosisDisplayQuery(detail?.query || selectedCase?.query, "开始一次新诊断")}</Title>
+            </div>
+            {workspaceView === "workspace" && (
+              <Space wrap>
+                {selectedCase && <>
+                  <span className={`diagnosis-status is-${canonical.toLowerCase()}`}>{STATUS_LABELS[canonical]}</span>
+                  {(detail?.target?.trace_id || selectedCase?.target?.trace_id) && (
+                    <Tag color="cyan" title={(detail?.target?.span_id || selectedCase?.target?.span_id) ? `Span ID: ${detail?.target?.span_id || selectedCase?.target?.span_id}` : undefined}>
+                      Trace: {detail?.target?.trace_id || selectedCase?.target?.trace_id}
+                    </Tag>
+                  )}
+                  {frozenReplay && <span className="diagnosis-replay-badge">FULL_LATS · 冻结回放</span>}
+                  <Segmented
+                    value={contentView}
+                    onChange={setContentView}
+                    options={[
+                      { label: "排查树", value: "tree" },
+                      { label: "调查记录", value: "conversation" },
+                      { label: "分屏", value: "split" },
+                    ]}
+                    aria-label="工作台显示方式"
+                  />
+                  {(contentView === "tree" || contentView === "split") && (
+                    <Button
+                      icon={<FullscreenOutlined />}
+                      aria-label="全屏查看探索树"
+                      onClick={() => setTreeFullscreen(true)}
+                    >全屏树</Button>
+                  )}
+                  {readOnly && <span className="diagnosis-readonly-badge">只读记录</span>}
+                  <Popover trigger="click" placement="bottomRight" open={optionsOpen} onOpenChange={setOptionsOpen}
+                    content={<div className="diagnosis-options">
+                      {!frozenReplay && <><Text strong>采集审批方式</Text><Text type="secondary">选择自动检查，或在执行探针前人工审批。</Text>
+                        <Segmented aria-label="采集审批方式" value={mode} onChange={(value) => {
+                          setMode(value);
+                          try { window.localStorage.setItem("mini-drop-diagnosis-mode", value); } catch { /* ignore */ }
+                        }} options={[{ label: "自动检查", value: "simple" }, { label: "人工审批", value: "expert" }]} /></>}
+                      <Button icon={<ExperimentOutlined />} aria-label="打开当前复杂案例回放" onClick={() => { setOptionsOpen(false); setReplayOpen(true); }}>
+                        复杂案例回放{resources.explorationTree?.stats?.rounds ? ` · ${resources.explorationTree.stats.rounds} 轮` : ""}
+                      </Button>
+                      {isExpert && <Button icon={<ProfileOutlined />} onClick={() => { setOptionsOpen(false); setDetailOpen(true); }}>审计细节</Button>}
+                    </div>}>
+                    <Button icon={<SettingOutlined />} aria-label="诊断选项" aria-expanded={optionsOpen}>更多选项</Button>
+                  </Popover>
+                  {!settled && !frozenReplay && <Button type="primary" icon={<SyncOutlined />} onClick={advanceNow}>继续推进</Button>}
+                  {!settled && !frozenReplay && <Button danger disabled={!detail || loading} loading={cancelling} onClick={confirmCancellation}>停止诊断</Button>}
+                </>}
+              </Space>
+            )}
+          </div>
+
+          {workspaceView === "services" ? <ManagedServicesPanel onOpenDiagnosis={openDiagnosis} /> : workspaceView === "evaluation" ? (
+            <div className="diagnosis-evaluation-view">
+              <EvalPanel
+                onStartDiagnosis={startDiagnosisFromShowcase}
+                onOpenDiagnosis={openDiagnosis}
+                onCasesChanged={loadCases}
+              />
+            </div>
+          ) : (
+            <>
+              {detail && (
+                <ol className="diagnosis-exam-journey" aria-label="本次体检进度">
+                  <li className={examProgress.hasScope ? "is-done" : "is-current"}>
+                    <span className="diagnosis-exam-number">1</span><div><strong>确认对象</strong><small>{examProgress.hasScope ? "已找到目标进程" : "正在确认目标进程"}</small></div>
+                  </li>
+                  <li className={examProgress.hasEvidence ? "is-done" : examProgress.terminal ? "is-limited" : "is-current"}>
+                    <span className="diagnosis-exam-number">2</span><div><strong>采集证据</strong><small>{examProgress.hasEvidence ? `已记录 ${examProgress.evidenceCount} 条证据` : examProgress.terminal ? "本次没有可用证据" : "等待采样结果"}</small></div>
+                  </li>
+                  <li className={examProgress.hasReport ? "is-done" : examProgress.terminal ? "is-limited" : "is-current"}>
+                    <span className="diagnosis-exam-number">3</span><div><strong>给出判断</strong><small>{checkResult ? "检查结果与下一步已生成" : examProgress.hasReport ? "报告与下一步已生成" : examProgress.terminal ? "未形成报告" : "等待证据裁决"}</small></div>
+                  </li>
+                </ol>
+              )}
+              {resourceErrors.length > 0 && (
+                <Alert
+                  className="ai-diagnosis-resource-warning"
+                  type="warning"
+                  showIcon
+                  message={`部分数据加载失败：${resourceErrors.join("、")}`}
+                  description={lastUpdated
+                    ? `已保留本会话上次成功加载的数据，最新状态尚未确认。最近完整更新：${lastUpdated.toLocaleTimeString("zh-CN")}`
+                    : "最新状态尚未确认，已加载的本会话数据会继续保留。请重试。"}
+                  action={<Button size="small" aria-label="重试" onClick={() => loadSelectedDetail(selectedCase)}>重试</Button>}
+                />
+              )}
+
+              {frozenReplay && (
+                <Alert
+                  className="diagnosis-replay-notice"
+                  type="info"
+                  showIcon
+                  message="FULL_LATS · 冻结算法回放"
+                  description="本会话只在固定观察快照（snapshot）上执行可重复模拟。真实采集、普通规划器、工具审批和人工干预均已禁用；回放观察不是当前线上状态的实时证据。"
+                />
+              )}
+
+              {detail && !frozenReplay && (
+                <>
+                  <ObservabilityOverview detail={detail} resources={resources} />
+                  <HealthCheckActions key={detail.diagnosis_id} detail={detail} result={checkResult} onOpenDiagnosis={openDiagnosis} onSelectService={() => setWorkspaceView("services")} />
+                  {!normalObservation && !checkResult && <DiagnosisFinding reports={resources.reports} status={detail.status} />}
+                </>
+              )}
+
+              {!hasActiveDiagnosis && (
+                <DiagnosisWelcome
+                  onSelectService={() => setWorkspaceView("services")}
+                  onExample={(example) => { setQuery(example); composerRef.current?.focus(); }}
+                />
+              )}
+              {hasActiveDiagnosis && <Spin spinning={loading}>
+                <div className={`diagnosis-workbench-grid ${detail ? `has-diagnosis view-${contentView}` : "is-empty"}`}>
+                  {(!detail || contentView !== "tree") && <section className="diagnosis-narrative-panel">
+                    <ChatThread
+                      detail={detail}
+                      hypotheses={resources.hypotheses}
+                      toolCalls={resources.toolCalls}
+                      evidence={resources.evidence}
+                      reports={resources.reports}
+                      events={resources.events}
+                      mode={mode}
+                      readOnly={readOnly}
+                      unavailableSections={[]}
+                      onApproveTool={(id) => decideTool(id, true)}
+                      onRejectTool={(id) => decideTool(id, false)}
+                      onUpdateToolArgs={handleUpdateToolArgs}
+                      onClarify={handleClarify}
+                      clarifying={clarifying}
+                      feedback={resources.feedback}
+                      onSubmitFeedback={handleSubmitFeedback}
+                      feedbackSubmitting={feedbackSubmitting}
+                      skillActivations={resources.skillActivations}
+                      interventions={resources.interventions}
+                    />
+                  </section>}
+                  {detail && contentView !== "conversation" && (
+                    <aside className="diagnosis-tree-panel" aria-label="实时诊断探索树">
+                      <ActualExplorationTree
+                        tree={displayExplorationTree}
+                        hypotheses={resources.hypotheses}
+                        toolCalls={resources.toolCalls}
+                        report={latestVerifiedReport || resources.reports?.[0]}
+                        onIntervene={frozenReplay ? undefined : prepareTreeIntervention}
+                        intervening={interventionSubmitting}
+                      />
+                      {!resources.explorationTree?.nodes?.length
+                        && !resources.hypotheses?.length
+                        && !resources.toolCalls?.length && (
+                          <div className="diagnosis-tree-empty">
+                            <BranchesOutlined />
+                            <b>探索树将在规划后逐节点出现</b>
+                            <span>每次假设、工具调用、反证剪枝和人工转向都会通过事件流增量更新。</span>
+                          </div>
+                      )}
+                    </aside>
+                  )}
+                </div>
+              </Spin>}
+
+              {normalObservation && <details className="diagnosis-normal-report"><summary>查看完整报告与证据限制</summary><DiagnosisFinding reports={resources.reports} status={detail.status} /></details>}
+              {detail && <details className="diagnosis-technical-details">
+                <summary>技术数据与采集状态 <span>需要排查工具、证据或模型过程时展开</span></summary>
+                <AgentCockpit
+                  compact={true}
+                  detail={detail}
+                  resources={resources}
+                  sourceSkill={sourceSkill}
+                  connected={sseConnected}
+                  onOpenEvaluation={() => setWorkspaceView("evaluation")}
+                />
+              </details>}
+
+              <div className="diagnosis-composer-shell">
+                {!hasActiveDiagnosis && <div className="diagnosis-composer-label"><Text strong>描述需要排查的现象</Text><Text type="secondary">也可以直接检查服务当前状态，无需制造故障</Text></div>}
+                {frozenReplay && (
+                  <div className="diagnosis-replay-composer-note" role="note">
+                    冻结回放为只读算法轨迹；如需采集当前环境，请新建普通诊断。
+                  </div>
+                )}
+                {selectedId && !readOnly && (
+                  <div className="diagnosis-composer-meta">
+                    <div>
+                      <RobotOutlined />
+                      <span>继续同一条诊断线程 · 旧轮次、证据和报告不会被覆盖</span>
+                    </div>
+                    <Segmented
+                      size="small"
+                      options={COMPOSER_ACTIONS}
+                      value={composerAction}
+                      onChange={setComposerAction}
+                      aria-label="本轮交互意图"
+                    />
+                  </div>
+                )}
+                {!selectedId && <details className="diagnosis-strategy-settings"><summary>高级：调查策略</summary><Segmented size="small" aria-label="调查策略"
+                  options={[{ label: "LATS 假设分支", value: "LATS" }, { label: "ReAct 顺序对照", value: "REACT" }]}
+                  value={investigationStrategy} onChange={setInvestigationStrategy} disabled={sending} /></details>}
+                <div className="diagnosis-composer">
+                  <Input.TextArea
+                    ref={composerRef}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+                        event.preventDefault();
+                        submitComposer();
+                      }
+                    }}
+                    autoSize={{ minRows: hasActiveDiagnosis ? 1 : 3, maxRows: 5 }}
+                    placeholder={frozenReplay
+                      ? "冻结回放不能追加真实采集、普通规划或人工干预"
+                      : selectedId && !readOnly
+                      ? COMPOSER_PLACEHOLDERS[composerAction]
+                      : "描述问题，例如：订单服务最近 5 分钟 CPU 与 P99 同时升高，请定位根因"}
+                    disabled={sending || interventionSubmitting || readOnly}
+                    size="large"
+                    aria-label={selectedId ? "补充诊断上下文" : "描述诊断问题"}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    aria-label={frozenReplay ? "回放只读" : undefined}
+                    onClick={submitComposer}
+                    loading={sending || interventionSubmitting}
+                    disabled={readOnly}
+                    size="large"
+                  >{frozenReplay
+                    ? "回放只读"
+                    : selectedId
+                    ? (statusValue === "COMPLETED" ? "基于结论继续一轮" : "发送并继续诊断")
+                    : "开始诊断"}</Button>
+                </div>
+                {!hasActiveDiagnosis && <div className="diagnosis-start-footnote">
+                  <span>Enter 开始诊断 · Shift + Enter 换行</span>
+                  <Button type="link" onClick={() => setWorkspaceView("evaluation")}>查看性能故障实验</Button>
+                </div>}
+              </div>
+            </>
+          )}
+        </main>
+      </div>
+
+      <Drawer
+        title="诊断案例"
+        placement="left"
+        width="min(380px, calc(100vw - 24px))"
+        open={caseDrawerOpen}
+        onClose={() => setCaseDrawerOpen(false)}
+        className="diagnosis-case-drawer"
+      >
+        <div className="diagnosis-sidebar-heading">
+          <Text strong>选择已有会话，或开始一条新诊断</Text>
+          <Text type="secondary">案例列表不再占用主工作台宽度</Text>
+        </div>
+        <DiagnosisCaseList
+          cases={cases}
+          selectedKey={selectedCase?.selection_key}
+          filter={caseFilter}
+          onFilterChange={setCaseFilter}
+          onSelect={selectCase}
+          onNew={startBlankDiagnosis}
+          onArchive={archiveCase}
+          loading={listLoading}
+          loadError={listError}
+        />
+      </Drawer>
+
+      <Modal
+        title="实时诊断探索树 · 全屏阅读"
+        open={treeFullscreen}
+        onCancel={() => setTreeFullscreen(false)}
+        footer={null}
+        width="calc(100vw - 48px)"
+        className="diagnosis-tree-fullscreen-modal"
+        destroyOnHidden
+      >
+        {detail && (
+          <ActualExplorationTree
+            tree={displayExplorationTree}
+            hypotheses={resources.hypotheses}
+            toolCalls={resources.toolCalls}
+            report={latestVerifiedReport || resources.reports?.[0]}
+            onIntervene={frozenReplay ? undefined : prepareTreeIntervention}
+            intervening={interventionSubmitting}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        title="人工调整诊断路径"
+        open={Boolean(pendingTreeIntervention)}
+        onCancel={() => setPendingTreeIntervention(null)}
+        onOk={confirmTreeIntervention}
+        okText="确认并开启下一轮"
+        cancelText="取消"
+        confirmLoading={interventionSubmitting}
+        okButtonProps={{ disabled: !String(pendingTreeIntervention?.message || "").trim() }}
+        width={620}
+        destroyOnHidden
+      >
+        <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Alert
+            type="info"
+            showIcon
+            message="这次调整会创建新的诊断轮次"
+            description="已有证据和报告会完整保留，Agent 将按你的新方向重排假设与工具计划。"
+          />
+          <div>
+            <Text strong>干预方式</Text>
+            <div style={{ marginTop: 8 }}>
+              <Segmented
+                block
+                value={pendingTreeIntervention?.action || "CHANGE_DIRECTION"}
+                onChange={(action) => setPendingTreeIntervention((current) => ({ ...current, action }))}
+                aria-label="人工干预方式"
+                options={[
+                  { label: "优先调查", value: "CHANGE_DIRECTION" },
+                  { label: "寻找反证", value: "CHALLENGE_HYPOTHESIS" },
+                ]}
+              />
+            </div>
+          </div>
+          {pendingTreeIntervention?.hypothesis_id && (
+            <Text type="secondary">关联假设：{pendingTreeIntervention.hypothesis_id}</Text>
+          )}
+          <div>
+            <Text strong>给 Agent 的具体要求</Text>
+            <Input.TextArea
+              aria-label="给 Agent 的具体要求"
+              autoSize={{ minRows: 4, maxRows: 8 }}
+              value={pendingTreeIntervention?.message || ""}
+              onChange={(event) => setPendingTreeIntervention((current) => ({
+                ...current,
+                message: event.target.value,
+              }))}
+              placeholder="说明希望优先验证什么、需要什么反证，或希望 Agent 避免哪条路径"
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        </Space>
+      </Modal>
+
+      <TechnicalDetailDrawer
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        detail={detail}
+        toolCalls={resources.toolCalls}
+        evidence={resources.evidence}
+        reports={resources.reports}
+        events={resources.events}
+      />
+      <MentorComplexShowcase
+        open={replayOpen}
+        loading={loading}
+        detail={detail}
+        explorationTree={displayExplorationTree}
+        hypotheses={resources.hypotheses}
+        toolCalls={resources.toolCalls}
+        evidence={resources.evidence}
+        reports={resources.reports}
+        sourceSkill={sourceSkill}
+        verifiedReport={frozenReplay ? null : latestVerifiedReport}
+        skillBusy={skillEvaluating || skillGenerating}
+        onGenerateSkill={frozenReplay ? undefined : handleGenerateSkill}
+        onEvaluateSkill={frozenReplay ? undefined : handleEvaluateSkill}
+        onOpenPlaza={() => {
+          setReplayOpen(false);
+          setWorkspaceView("evaluation");
+        }}
+        onClose={() => setReplayOpen(false)}
+      />
+    </div>
+  );
+}

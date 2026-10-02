@@ -1,0 +1,1461 @@
+{
+  "case_id": "b10",
+  "query": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1? Timing is unavailable, no sampled interval exists and further measurement is prohibited.",
+  "trace": {
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1? Timing is unavailable, no sampled interval exists and further measurement is prohibited.",
+    "query_profile": {
+      "concepts": [],
+      "runtime_scopes": [
+        "JVM"
+      ],
+      "database_scopes": [],
+      "technical_subjects": [
+        "cpu",
+        "threadmxbean"
+      ],
+      "active_clauses": [
+        "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1",
+        "Timing is unavailable",
+        "no sampled interval exists and further measurement is prohibited"
+      ],
+      "excluded_mentions": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "score": 0.888717,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [],
+        "matched_anchors": [
+          "ThreadMXBean"
+        ],
+        "unsupported_subjects": [],
+        "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [],
+            "matched_anchors": [
+              "ThreadMXBean"
+            ],
+            "unsupported_subjects": [],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.048387,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.046883,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.045387,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.044854,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.029762,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.029418,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.029412,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.029211,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "chunk_id": "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "79c8eaf0d4cc667f924d5c6d1fc307c6d99703bab0efd99e53cf8015decefdc8",
+        "score": 0.02837,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.028191,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.026172,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.015625,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.015152,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.015152,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.013699,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "agent.tool.governance",
+        "chunk_id": "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "score": 0.013514,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "tool_governance"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.013333,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.013158,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "agent.tool.governance",
+        "chunk_id": "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "score": 0.0125,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "tool_governance"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "Timing is unavailable"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "threadmxbean"
+            ],
+            "clause": "no sampled interval exists and further measurement is prohibited"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 14,
+        "chunk_ids": [
+          "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 5,
+        "chunk_ids": [
+          "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+          "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+          "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+          "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1? Timing is unavailable, no sampled interval exists and further measurement is prohibited.",
+    "query_hash": "da00be3bb5e142eea8c7b37b2ba7a149923d7a1c872585509551ea5a398d2101",
+    "relevance_query_hash": "da00be3bb5e142eea8c7b37b2ba7a149923d7a1c872585509551ea5a398d2101",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 1,
+    "matches": [
+      {
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "title": "Java JVM 线程 CPU 时间与有界正常观测",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。",
+        "required_evidence": [
+          "JVM/PID 与线程生命周期",
+          "ThreadMXBean CPU 测量支持和启用状态",
+          "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+        ],
+        "caveats": [
+          "知识不是当前事故证据，也不增加采集权限",
+          "-1、未启用及不支持不能等同零 CPU",
+          "平台线程统计不能直接归于虚拟线程",
+          "低 CPU 不反驳锁、I/O 或依赖等待"
+        ],
+        "query": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1? Timing is unavailable, no sampled interval exists and further measurement is prohibited.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [],
+          "matched_anchors": [
+            "ThreadMXBean"
+          ],
+          "unsupported_subjects": [],
+          "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [],
+              "matched_anchors": [
+                "ThreadMXBean"
+              ],
+              "unsupported_subjects": [],
+              "clause": "Can this Java worker's thread CPU be declared healthy from ThreadMXBean values of -1"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Timing is unavailable"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "no sampled interval exists and further measurement is prohibited"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "score": 0.888717,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "jvm.cpu.thread_observation"
+  ]
+}

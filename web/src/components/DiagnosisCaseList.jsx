@@ -1,6 +1,7 @@
 import { Alert, Button, Empty, List, Segmented, Space, Tag, Tooltip, Typography } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { getFrozenReplayMeta } from "../utils/latsReplay";
+import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
 
 const { Paragraph, Text } = Typography;
 
@@ -81,7 +82,7 @@ export default function DiagnosisCaseList({
         renderItem={(item) => {
           const active = item.selection_key === selectedKey;
           const [statusColor, statusLabel] = STATUS_META[item.canonical_status] || STATUS_META.UNKNOWN;
-          const query = item.query || item.case_id || "未命名诊断";
+          const query = diagnosisDisplayQuery(item.query, item.case_id || "未命名诊断");
           const replay = getFrozenReplayMeta(item);
           return (
             <List.Item className={active ? "diagnosis-case-row is-selected" : "diagnosis-case-row"}>
@@ -114,7 +115,7 @@ export default function DiagnosisCaseList({
                     type="text"
                     size="small"
                     icon={<DeleteOutlined />}
-                    aria-label={`归档诊断：${item.query || item.case_id}`}
+                    aria-label={`归档诊断：${query}`}
                     onClick={(event) => {
                       event.stopPropagation();
                       onArchive(item);

@@ -1,14 +1,83 @@
 import { chineseDiagnosticText } from "./diagnosisDisplay";
 
 function verificationStatus(report) {
-  return String(report?.verification?.status || "").toUpperCase();
+  return String(report?.verification?.status || report?.verification_status || "").toUpperCase();
+}
+
+export function isCausalRootReport(report) {
+  const verification = report?.verification || {};
+  const scopeAllowed = !Object.hasOwn(verification, "claim_scope")
+    || verification.claim_scope === "CAUSAL_ROOT_CAUSE";
+  const causalAllowed = !Object.hasOwn(verification, "causal_root_cause_verified")
+    || verification.causal_root_cause_verified === true;
+  return verificationStatus(report) === "VERIFIED" && scopeAllowed && causalAllowed
+    && !hasUnattributedHostIO(report);
+}
+
+export function isObservationReport(report) {
+  return report?.verification?.claim_scope === "BOUNDED_OBSERVATION"
+    || report?.verification?.causal_root_cause_verified === false;
+}
+
+// A measured counterexample is useful even when the causal report is inconclusive.
+export function isRefutedObservationReport(report) {
+  const v = report?.verification || {};
+  const observation = v?.observation_verification;
+  const criteria = observation?.criteria;
+  const refs = observation?.evidence_refs;
+  return ["INSUFFICIENT_EVIDENCE", "FALSIFIED", "REJECTED"].includes(verificationStatus(report))
+    && v.claim_scope === "BOUNDED_OBSERVATION" && v.causal_root_cause_verified === false
+    && observation?.schema_version === "performance-observation-verification.v1"
+    && observation.status === "REFUTED" && observation.checked_ratio === 1
+    && observation.claim_scope === "BOUNDED_OBSERVATION" && observation.causal_root_cause_verified === false
+    && Array.isArray(criteria) && criteria.length > 0
+    && criteria.every(c => c?.checked === true && typeof c.matches === "boolean"
+      && Number.isFinite(c.measurement?.value))
+    && criteria.some(c => c?.kind === "falsification" && c.matches === true)
+    && Array.isArray(refs) && refs.length > 0
+    && Array.isArray(report?.counter_evidence_refs)
+    && refs.every(ref => typeof ref === "string" && report.counter_evidence_refs.includes(ref));
+}
+
+export function observationMeasurementText(report) {
+  if (!isRefutedObservationReport(report)) return "";
+  const values = new Map();
+  for (const c of report.verification.observation_verification.criteria) {
+    const m = c.measurement;
+    const label = { average_latency_ms: "平均耗时(ms)", operation_count_delta: "新增成功操作(次)" }[m.field]
+      || `${m.signal}.${m.field}`;
+    values.set(`${m.signal}.${m.field}`, `${label}=${m.value}`);
+  }
+  return [...values.values()].join("；");
+}
+
+export function isLocalizedReport(report) {
+  const result = report?.verification?.bottleneck_localization;
+  return verificationStatus(report) === "VERIFIED" && isObservationReport(report)
+    && report.verification.claim_scope === "BOUNDED_OBSERVATION"
+    && report.verification.causal_root_cause_verified === false && !hasUnattributedHostIO(report)
+    && result?.status === "LOCALIZED" && result.causal_root_cause_verified === false
+    && result.same_load_fix_verified === false && typeof result.location === "string" && Boolean(result.location)
+    && Array.isArray(result.evidence_refs) && result.evidence_refs.length > 0;
+}
+
+export function projectReportScopes(tree, reports = []) {
+  if (!tree?.nodes) return tree;
+  const byId = new Map(reports.map(report => [`report:${report.report_id}`, report]));
+  return { ...tree, nodes: tree.nodes.map(node => {
+    const report = byId.get(node.id);
+    return report ? { ...node, title: reportConclusionTitle(report) } : node;
+  }) };
 }
 
 export function reportConclusionTitle(report) {
   if (hasUnattributedHostIO(report)) return "尚未定位根因";
+  if (isLocalizedReport(report)) return "性能路径已定位，根因仍待确认";
+  if (isRefutedObservationReport(report)) return "已测量，异常假设被反驳";
   const status = verificationStatus(report);
   if (/尚未定位|仍待验证|当前没有能够支持/.test(report?.conclusion || "")) return "尚未定位根因";
-  if (status === "VERIFIED") return "根因结论";
+  if (isObservationReport(report)) return status === "VERIFIED" ? "已验证观测" : "阶段性观测";
+  if (status === "VERIFIED") return isCausalRootReport(report) ? "根因结论" : "已验证证据（范围未确认）";
   if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性发现（待验证）";
   if (["INSUFFICIENT_EVIDENCE", "FALSIFIED", "REJECTED"].includes(status)) {
     return "本轮判断";
@@ -119,7 +188,8 @@ export function selectBestReport(reports = []) {
   const rank = { VERIFIED: 3, PARTIAL_WITHOUT_COUNTER: 2, INSUFFICIENT_EVIDENCE: 1 };
   return [...reports].sort((left, right) => {
     const status = (item) => String(item?.verification?.status || item?.verification_status || "").toUpperCase();
-    return (rank[status(right)] || 0) - (rank[status(left)] || 0)
+    const score = item => isCausalRootReport(item) ? 4 : isRefutedObservationReport(item) ? 1.5 : (rank[status(item)] || 0);
+    return score(right) - score(left)
       || (right?.evidence_refs?.length || 0) - (left?.evidence_refs?.length || 0)
       || Number(right?.confidence || 0) - Number(left?.confidence || 0)
       || new Date(right?.updated_at || right?.created_at || 0) - new Date(left?.updated_at || left?.created_at || 0)
@@ -149,4 +219,16 @@ export function reportConclusionText(report) {
       .replace(/^MIXED_EVIDENCE[：:]\s*/i, "现有证据存在冲突：")
       .replace(/^INSUFFICIENT_EVIDENCE[：:]\s*/i, "当前证据不足："),
   );
+}
+
+export function reportRemediation(report) {
+  const remediation = report?.verification?.remediation || report?.remediation;
+  if (
+    remediation?.schema_version === 2 &&
+    ((Array.isArray(remediation.mitigations) && remediation.mitigations.length > 0) ||
+      (Array.isArray(remediation.root_cause_fixes) && remediation.root_cause_fixes.length > 0))
+  ) {
+    return { ...remediation, root_cause_fixes: isCausalRootReport(report) ? remediation.root_cause_fixes : [] };
+  }
+  return null;
 }

@@ -1,0 +1,92 @@
+{
+  "case_id": "v14",
+  "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.cpu.process_pressure"
+  ],
+  "matches": [
+    {
+      "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [
+          "userland"
+        ],
+        "unsupported_subjects": [],
+        "clause": "A C++ image encoder burns 91% userland CPU with unchanged load",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [
+              "userland"
+            ],
+            "unsupported_subjects": [],
+            "clause": "A C++ image encoder burns 91% userland CPU with unchanged load"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "no stack sample is available"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "sampling"
+            ],
+            "matched_anchors": [
+              "hotspot"
+            ],
+            "unsupported_subjects": [],
+            "clause": "Plan a symbolized native hotspot profile"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 10.98301,
+      "matched_terms": [
+        "userland",
+        "hotspot",
+        "cpu"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

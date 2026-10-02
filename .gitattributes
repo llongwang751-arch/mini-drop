@@ -1,9 +1,82 @@
 * text=auto
+reports/quality/interview-completion-20261001/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/health-check-flow-20261001/** -text whitespace=cr-at-eol,-blank-at-eol
 *.sh text eol=lf
 *.proto text eol=lf
 Dockerfile text eol=lf
 *.Dockerfile text eol=lf
 # Unified patch context and raw historical test output retain their original whitespace.
 *.patch whitespace=-blank-at-eol
+# Raw measurement bytes are hashed by manifests; never normalize their line endings.
+reports/business-acceptance/resource-controls-20260927/** -text whitespace=cr-at-eol
+reports/business-acceptance/conclusion-integrity-20260928/** -text whitespace=cr-at-eol
+reports/business-acceptance/resource-controls-20260927/resource-gap-before.log whitespace=cr-at-eol,-blank-at-eol
 reports/ai-diagnosis/postgres-concurrency-20260909.txt whitespace=-blank-at-eol
 "reports/ai-diagnosis/项目全面检查与修复-20260910.md" whitespace=-blank-at-eof
+
+reports/business-acceptance/deployment-20260928/** -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-strict-pilot-20260928* -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-strict-pilot-20260928-cases/** -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928* -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260928-cases/** -text whitespace=cr-at-eol
+reports/quality/focused-delivery-20260929/** -text whitespace=cr-at-eol
+
+reports/business-acceptance/deployment-20260930/** -text whitespace=cr-at-eol
+
+reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930* -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930-cases/** -text whitespace=cr-at-eol
+
+reports/quality/instance-scope-20260930/** -text whitespace=cr-at-eol
+reports/quality/instance-scope-20260930/instance-scope-before.log whitespace=cr-at-eol,-blank-at-eol
+reports/quality/instance-scope-20260930/harness-before.log whitespace=cr-at-eol,-blank-at-eol
+
+reports/ai-diagnosis/fault-plaza-instance-scope-*-deployed-20260930* -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-instance-scope-*-deployed-20260930-cases/** -text whitespace=cr-at-eol
+
+reports/quality/rpc-read-stability-20260930/** -text whitespace=cr-at-eol
+reports/quality/rpc-read-stability-20260930/client-before.log whitespace=cr-at-eol,-blank-at-eol
+reports/quality/rpc-read-stability-20260930/client-before.xml whitespace=cr-at-eol,-blank-at-eol
+reports/ai-diagnosis/fault-plaza-java-direct-deployed-20260930* -text whitespace=cr-at-eol
+reports/ai-diagnosis/fault-plaza-java-direct-deployed-20260930-cases/** -text whitespace=cr-at-eol
+
+reports/quality/security-cancel-20260930/** -text whitespace=cr-at-eol
+reports/quality/security-cancel-20260930/cancel-before-valid.log whitespace=cr-at-eol,-blank-at-eol
+reports/quality/security-cancel-20260930/binary-build-final.txt whitespace=cr-at-eol,-blank-at-eol
+reports/quality/security-cancel-20260930/web-build.log whitespace=cr-at-eol,-blank-at-eol
+reports/quality/security-cancel-20260930/web-full.log whitespace=cr-at-eol,-blank-at-eof
+
+reports/quality/performance-fix-20260930/** -text whitespace=cr-at-eol
+reports/quality/performance-fix-20260930/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+reports/quality/engineering-cases-20261001/** -text whitespace=cr-at-eol
+reports/quality/engineering-cases-20261001/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+web/public/report-assets/engineering-cases/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/performance-diagnosis-20261001/neutral-correction/** -text whitespace=cr-at-eol
+reports/quality/performance-diagnosis-20261001/neutral-correction/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/performance-diagnosis-20261001/deployed/** -text whitespace=cr-at-eol
+reports/quality/performance-diagnosis-20261001/deployed/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+reports/quality/performance-localization-20261001/** -text whitespace=cr-at-eol
+reports/quality/performance-localization-20261001/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/performance-localization-20261001/**/*.raw whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/performance-localization-20261001/**/*.xml whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+reports/quality/engineering-diagnosis-20261001/** -text whitespace=cr-at-eol
+reports/quality/engineering-diagnosis-20261001/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/engineering-diagnosis-20261001/**/*.xml whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/engineering-diagnosis-20261001/deployed/live-index-before.json whitespace=cr-at-eol,-blank-at-eof
+
+tests/fixtures/engineering_diagnosis_before_seven_gaps.json -text
+reports/quality/seven-gaps-20261002/** -text whitespace=cr-at-eol
+reports/quality/seven-gaps-20261002/**/*.log whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/seven-gaps-20261002/**/*.raw whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/seven-gaps-20261002/**/*.xml whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reports/quality/engineering-score-only-20261002/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+benchmarks/retrieval/heldout_20261002_*.json -text whitespace=cr-at-eol
+reports/quality/interview-release-20261002/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+benchmarks/retrieval/planning_retrieval_v2_*.json -text whitespace=cr-at-eol
+reports/quality/planning-retrieval-v2-20261002/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+benchmarks/retrieval/planning_boundary_v3_*.json -text whitespace=cr-at-eol
+reports/quality/planning-boundary-v3-20261002/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof

@@ -1,0 +1,26 @@
+{
+  "sha256": "40aff2b2f213f02c12968f416cc1f0ad5dde181922720d817ae67c4a4d7ab8e4",
+  "size_bytes": 90212,
+  "runs": [
+    {
+      "label": "current_srcline",
+      "returncode": -13,
+      "stdout_bytes": 127,
+      "stderr": "addr2line_configure /usr/local/bin/cpp-hotspot: addr2line configuration failed\n\t�",
+      "stdout_prefix": "cpp-hotspot 2849549/2849587 2174768.775447: cpu-clock:uhH: \n\t          467572 cpp_cpu_hot_function (/usr/local/bin/cpp-hotspot)"
+    },
+    {
+      "label": "old_fields",
+      "returncode": 0,
+      "stdout_bytes": 399840,
+      "stderr": "",
+      "stdout_prefix": "cpp-hotspot 2849549/2849587 2174768.775447: cpu-clock:uhH: \n\t          467572 cpp_cpu_hot_function (/usr/local/bin/cpp-hotspot)\n\t          4675e7 (anonymous namespace)::cpu_worker() (/usr/local/bin/cpp-hotspot)\n\t          46afb7 std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >::_M_run() (/usr/local/bin/cpp-hotspot)\n\t          4da230 execute_native_thread_routine (/usr/local/bin/cpp-hotspot)\n\ncpp-hotspot 2849549/2849587 2174768.785563: cpu-clock:uhH: \n\t          467579 cpp_cpu_hot_function (/usr/local/bin/cpp-hotspot)\n\t          4675e7 (anonymous namespace)::cpu_worker() (/usr/local/bin/cpp-hotspot)\n\t          46afb7 std::thread::_State_impl<std::thread::_Invoker<std:",
+      "collapse": {
+        "returncode": 0,
+        "stdout_bytes": 239,
+        "stderr": "",
+        "prefix": "cpp-hotspot;std::thread::_State_impl<std::thread::_Invoker<std::tuple<void :4da230 execute_native_thread_routine (/usr/local/bin/cpp-hotspot);cpp_cpu_hot_function:4675e7 (anonymous namespace)::cpu_worker() (/usr/local/bin/cpp-hotspot) 952\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "type": "result",
+  "case_id": "h21",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2f6eda7d5a0ee05e56e50f47df",
+    "object": "chat.completion",
+    "created": 1790920585,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"UNKNOWN\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"ASK_CLARIFICATION\",\n  \"reasoning_summary\": \"用户问题指出业务HTTP变慢，主管断言数据库缺少索引。但当前合成观测仅包含HTTP平均延迟600ms，数据库观测为空，且Agent不支持database_lock工具。根据知识检索，数据库锁等待或索引缺失的诊断需要SQL、执行计划、锁等待时长等具体证据，而当前工具集无法直接采集这些数据库内部指标。因此，无法直接给出数据库根因，需要澄清或获取更多数据库相关观测能力。\",\n  \"expected_observations\": [],\n  \"falsification_criteria\": [],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3566,
+      "completion_tokens": 165,
+      "total_tokens": 3731,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1262
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2f6eda7d5a0ee05e56e50f47df\",\"object\":\"chat.completion\",\"created\":1790920585,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"UNKNOWN\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"ASK_CLARIFICATION\\\",\\n  \\\"reasoning_summary\\\": \\\"用户问题指出业务HTTP变慢，主管断言数据库缺少索引。但当前合成观测仅包含HTTP平均延迟600ms，数据库观测为空，且Agent不支持database_lock工具。根据知识检索，数据库锁等待或索引缺失的诊断需要SQL、执行计划、锁等待时长等具体证据，而当前工具集无法直接采集这些数据库内部指标。因此，无法直接给出数据库根因，需要澄清或获取更多数据库相关观测能力。\\\",\\n  \\\"expected_observations\\\": [],\\n  \\\"falsification_criteria\\\": [],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3566,\"completion_tokens\":165,\"total_tokens\":3731,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1262},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "3ec6811921d6ebb98c9ca7e6ff179496db810c412cadb55cb54b5bb8d623b03f",
+  "seconds": 19.293244,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "mysql.lock_wait",
+      "postgres.waits",
+      "rag.quality.lifecycle"
+    ],
+    "matches": [
+      {
+        "query": "业务HTTP变慢，主管断言数据库少了索引。没有SQL、等待关系和执行计划，当前Agent也不支持database_lock，能直接给数据库根因吗？",
+        "knowledge_id": "mysql.lock_wait",
+        "title": "MySQL 锁等待诊断",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+        "chunk_id": "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+        "score": 34.770034,
+        "matched_terms": [
+          "database",
+          "lock",
+          "sql",
+          "数据库",
+          "关系",
+          "据库",
+          "数据",
+          "断言",
+          "根因",
+          "等待"
+        ],
+        "required_evidence": [
+          "锁等待数与时长",
+          "阻塞会话",
+          "事务持续时间"
+        ],
+        "caveats": [
+          "慢查询不一定由锁等待造成"
+        ],
+        "excerpt": "# MySQL 锁等待\n\n锁等待分析需要建立阻塞事务到被阻塞事务的关系，并检查事务持续时间、访问顺序、隔离级别和慢 SQL。仅观察查询延迟不能断言锁等待。"
+      },
+      {
+        "query": "业务HTTP变慢，主管断言数据库少了索引。没有SQL、等待关系和执行计划，当前Agent也不支持database_lock，能直接给数据库根因吗？",
+        "knowledge_id": "postgres.waits",
+        "title": "PostgreSQL 长事务与锁等待",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "score": 15.497863,
+        "matched_terms": [
+          "数据库",
+          "业务",
+          "执行",
+          "据库",
+          "数据",
+          "没有",
+          "等待"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## PostgreSQL 处置前后比较\n\n先区分连接池排队、锁等待与查询计算消耗。取消或终止事务会影响业务，不能由知识命中自动执行。复测保持相同事务组合与到达率，并比较等待时长、错误率和吞吐。没有数据库连接器时应明确无法观测。\n\n来源：https://www.postgresql.org/docs/current/monitoring-stats.html 。核对日期 2026-09-19；以部署主版本为准。"
+      },
+      {
+        "query": "业务HTTP变慢，主管断言数据库少了索引。没有SQL、等待关系和执行计划，当前Agent也不支持database_lock，能直接给数据库根因吗？",
+        "knowledge_id": "rag.quality.lifecycle",
+        "title": "RAG 质量与索引生命周期",
+        "document": "knowledge/rag_quality.md",
+        "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+        "chunk_id": "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+        "score": 12.293385,
+        "matched_terms": [
+          "agent",
+          "能直接",
+          "直接",
+          "索引",
+          "能直"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 索引与记忆边界\n\n新内容建立带正文 hash 的不可变索引，验证完成后切换使用，保留旧快照以便回滚。历史事故召回必须符合用户、服务、环境和时间范围；过期案例仅为先验。来自知识和记忆的文本不能直接创建现场 Evidence。\n\n来源：Mini-Drop 项目协议，对应 server/app/agent_runtime/retrieval.py、semantic_retrieval.py 与 incident_memory.py；2026-09-19。"
+      }
+    ],
+    "seconds": 0.013916
+  }
+}

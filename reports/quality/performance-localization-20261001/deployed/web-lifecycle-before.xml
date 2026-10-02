@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="13" failures="2" errors="0" time="0.0426618">
+    <testsuite name="src/hooks/useSSE.test.jsx" timestamp="2026-10-01T11:16:24.137Z" hostname="LAPTOP-BTHCSF99" tests="13" failures="2" errors="0" skipped="0" time="0.0426618">
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; connects and reports connected on open" time="0.0155236">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; reconnects with exponential backoff after an error" time="0.003741">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; dispatches task_changed to the handler" time="0.0018576">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; dispatches diagnosis_progress to the handler" time="0.0017534">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; uses the dedicated diagnosis stream when requested" time="0.0014504">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; waits for a diagnosis ID and disconnects when the selection clears" time="0.0020477">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; replays the diagnosis stream from the last received sequence" time="0.0014534">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; closes the stream and clears the timer on unmount" time="0.0011589">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; keeps a single live stream when reconnect is requested manually" time="0.0011367">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; does not reconnect after the component unmounts" time="0.0010318">
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; releases a cached page&apos;s connection and resumes from its last diagnosis cursor" time="0.0047696">
+            <failure message="expected &quot;vi.fn()&quot; to be called at least once" type="AssertionError">
+AssertionError: expected &quot;vi.fn()&quot; to be called at least once
+ ❯ src/hooks/useSSE.test.jsx:202:30
+            </failure>
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; cancels retries while the document is away and ignores late stream errors" time="0.0035349">
+            <failure message="expected [ { onopen: [Function], …(5) }, …(2) ] to have a length of 1 but got 3" type="AssertionError">
+AssertionError: expected [ { onopen: [Function], …(5) }, …(2) ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ src/hooks/useSSE.test.jsx:219:21
+            </failure>
+        </testcase>
+        <testcase classname="src/hooks/useSSE.test.jsx" name="useSSE &gt; removes page lifecycle listeners when the hook unmounts" time="0.0008441">
+        </testcase>
+    </testsuite>
+</testsuites>

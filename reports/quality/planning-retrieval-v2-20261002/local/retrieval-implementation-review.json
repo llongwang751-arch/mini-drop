@@ -1,0 +1,57 @@
+{
+  "status": "VERIFIED",
+  "base_head": "08b70f20a112357390477edb6585564c5a10e2cc",
+  "sources": [
+    {
+      "path": "server/app/agent_runtime/retrieval.py",
+      "clean_candidate_sha256": "e208203b336b1a9267ef0141ae8fc1fb4c159f60b953d61d46d7dddce3a104fe",
+      "worktree_sha256": "847f5aa235680afae18b074b76bf0defe11ce5fb20c9257ee1ec0bc911788c1f",
+      "full_ast_equal": true
+    },
+    {
+      "path": "server/app/agent_runtime/semantic_retrieval.py",
+      "clean_candidate_sha256": "85c71ce0406a08a22af49d40375c9e5593ad4e002c3b3e5a3920ec27ae890f6e",
+      "worktree_sha256": "2d61862efad15dfbe3aec609e49846ce2fcead6d79b6c532c64105a177a85d4b",
+      "full_ast_equal": true
+    },
+    {
+      "path": "server/app/agent_runtime/relevance.py",
+      "clean_candidate_sha256": "2fd70ad8956b9c2d0a3f3a063a8ef58b6ab7065558d263fcebc1ffe3c211be1b",
+      "worktree_sha256": "2fd70ad8956b9c2d0a3f3a063a8ef58b6ab7065558d263fcebc1ffe3c211be1b",
+      "full_ast_equal": true
+    },
+    {
+      "path": "tests/test_retrieval_abstention.py",
+      "clean_candidate_sha256": "b047d420482d0a37a985ca4bd36bcdf3b844244d6feff5e41e16e8342fda4e0e",
+      "worktree_sha256": "b047d420482d0a37a985ca4bd36bcdf3b844244d6feff5e41e16e8342fda4e0e",
+      "full_ast_equal": true
+    }
+  ],
+  "preserved_index_functions": [
+    "corpus",
+    "snapshot_name",
+    "build_index",
+    "read_chunk"
+  ],
+  "new_tests": {
+    "passed": 33,
+    "skipped": 0
+  },
+  "related_regression": {
+    "passed": 68,
+    "skipped": 2,
+    "skips": "Existing tests require unavailable local chromadb; no new test skipped."
+  },
+  "development_set_only": {
+    "cases": 15,
+    "positive_cases": 12,
+    "negative_cases": 3,
+    "recall_at_3": 1.0,
+    "mrr_at_3": 1.0,
+    "no_answer_false_positives": 0
+  },
+  "not_heldout_or_production_accuracy": true,
+  "heldout_private_truth_read": false,
+  "git_staging_mutated": false,
+  "knowledge_or_frozen_reports_mutated": false
+}

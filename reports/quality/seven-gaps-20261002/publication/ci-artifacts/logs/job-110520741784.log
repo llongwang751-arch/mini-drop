@@ -1,0 +1,275 @@
+﻿2026-10-01T18:29:46.5617495Z Current runner version: '2.337.0'
+2026-10-01T18:29:46.5642593Z ##[group]Runner Image Provisioner
+2026-10-01T18:29:46.5643471Z Hosted Compute Agent
+2026-10-01T18:29:46.5644191Z Version: 20260901.588
+2026-10-01T18:29:46.5644858Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-01T18:29:46.5645579Z Build Date: 2026-09-01T19:56:44Z
+2026-10-01T18:29:46.5646450Z Worker ID: {8bb6e66f-a2a5-4eb8-bd8c-eabcaf7d53ca}
+2026-10-01T18:29:46.5647219Z Azure Region: westcentralus
+2026-10-01T18:29:46.5647919Z ##[endgroup]
+2026-10-01T18:29:46.5649395Z ##[group]Operating System
+2026-10-01T18:29:46.5650056Z Ubuntu
+2026-10-01T18:29:46.5650976Z 22.04.5
+2026-10-01T18:29:46.5651522Z LTS
+2026-10-01T18:29:46.5652116Z ##[endgroup]
+2026-10-01T18:29:46.5652724Z ##[group]Runner Image
+2026-10-01T18:29:46.5653374Z Image: ubuntu-22.04
+2026-10-01T18:29:46.5654069Z Version: 20260927.309.1
+2026-10-01T18:29:46.5655329Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-01T18:29:46.5656957Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-01T18:29:46.5658020Z ##[endgroup]
+2026-10-01T18:29:46.5659310Z ##[group]GITHUB_TOKEN Permissions
+2026-10-01T18:29:46.5661577Z Contents: read
+2026-10-01T18:29:46.5662350Z Metadata: read
+2026-10-01T18:29:46.5662967Z Packages: read
+2026-10-01T18:29:46.5663601Z ##[endgroup]
+2026-10-01T18:29:46.5666424Z Secret source: Actions
+2026-10-01T18:29:46.5668259Z Cache mode: write
+2026-10-01T18:29:46.5669579Z Prepare workflow directory
+2026-10-01T18:29:46.6017819Z Prepare all required actions
+2026-10-01T18:29:46.6066348Z Getting action download info
+2026-10-01T18:29:46.9274942Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-01T18:29:47.0178922Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-01T18:29:47.1016483Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-01T18:29:47.3227874Z Complete job name: HTTP load and recovery (short regression)
+2026-10-01T18:29:47.4015652Z ##[group]Run actions/checkout@v4
+2026-10-01T18:29:47.4016553Z with:
+2026-10-01T18:29:47.4017025Z   repository: llongwang751-arch/mini-drop
+2026-10-01T18:29:47.4021272Z   token: ***
+2026-10-01T18:29:47.4021716Z   ssh-strict: true
+2026-10-01T18:29:47.4022151Z   ssh-user: git
+2026-10-01T18:29:47.4022603Z   persist-credentials: true
+2026-10-01T18:29:47.4023092Z   clean: true
+2026-10-01T18:29:47.4023606Z   sparse-checkout-cone-mode: true
+2026-10-01T18:29:47.4024120Z   fetch-depth: 1
+2026-10-01T18:29:47.4024546Z   fetch-tags: false
+2026-10-01T18:29:47.4024989Z   show-progress: true
+2026-10-01T18:29:47.4025434Z   lfs: false
+2026-10-01T18:29:47.4025856Z   submodules: false
+2026-10-01T18:29:47.4026311Z   set-safe-directory: true
+2026-10-01T18:29:47.4026812Z   allow-unsafe-pr-checkout: false
+2026-10-01T18:29:47.4027609Z ##[endgroup]
+2026-10-01T18:29:47.5086280Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-01T18:29:47.5089072Z ##[group]Getting Git version info
+2026-10-01T18:29:47.5090699Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T18:29:47.5092361Z [command]/usr/bin/git version
+2026-10-01T18:29:47.5117193Z git version 2.55.0
+2026-10-01T18:29:47.5139226Z ##[endgroup]
+2026-10-01T18:29:47.5154615Z Temporarily overriding HOME='/home/runner/work/_temp/83ba6c71-b51c-4705-a770-088a14ad5747' before making global git config changes
+2026-10-01T18:29:47.5157057Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T18:29:47.5159813Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T18:29:47.5199748Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T18:29:47.5204465Z ##[group]Initializing the repository
+2026-10-01T18:29:47.5208085Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-01T18:29:47.5359022Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-01T18:29:47.5361326Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-01T18:29:47.5371581Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-01T18:29:47.5373700Z hint: call:
+2026-10-01T18:29:47.5374816Z hint:
+2026-10-01T18:29:47.5375976Z hint: 	git config --global init.defaultBranch <name>
+2026-10-01T18:29:47.5377464Z hint:
+2026-10-01T18:29:47.5378835Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-01T18:29:47.5381118Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-01T18:29:47.5382681Z hint:
+2026-10-01T18:29:47.5383794Z hint: 	git branch -m <name>
+2026-10-01T18:29:47.5384947Z hint:
+2026-10-01T18:29:47.5386384Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-01T18:29:47.5388460Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-01T18:29:47.5393122Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-01T18:29:47.5417731Z ##[endgroup]
+2026-10-01T18:29:47.5419522Z ##[group]Disabling automatic garbage collection
+2026-10-01T18:29:47.5422737Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-01T18:29:47.5471454Z ##[endgroup]
+2026-10-01T18:29:47.5472616Z ##[group]Setting up auth
+2026-10-01T18:29:47.5473740Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T18:29:47.5512866Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T18:29:47.5891760Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T18:29:47.5934758Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T18:29:47.6275045Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T18:29:47.6318011Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T18:29:47.6626553Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-01T18:29:47.6675836Z ##[endgroup]
+2026-10-01T18:29:47.6677223Z ##[group]Fetching the repository
+2026-10-01T18:29:47.6687198Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +06226c703a14dba5999bcc3115633a8be95b2c25:refs/remotes/pull/1/merge
+2026-10-01T18:29:54.5186581Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-01T18:29:54.5187814Z  * [new ref]         06226c703a14dba5999bcc3115633a8be95b2c25 -> pull/1/merge
+2026-10-01T18:29:54.5193272Z ##[endgroup]
+2026-10-01T18:29:54.5194619Z ##[group]Determining the checkout info
+2026-10-01T18:29:54.5195590Z ##[endgroup]
+2026-10-01T18:29:54.5207067Z [command]/usr/bin/git sparse-checkout disable
+2026-10-01T18:29:54.5265878Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-01T18:29:54.5306581Z ##[group]Checking out the ref
+2026-10-01T18:29:54.5312180Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-01T18:29:55.5463517Z Updating files:  95% (2947/3098)
+2026-10-01T18:29:55.5487502Z Updating files:  96% (2975/3098)
+2026-10-01T18:29:55.5518961Z Updating files:  97% (3006/3098)
+2026-10-01T18:29:55.5552802Z Updating files:  98% (3037/3098)
+2026-10-01T18:29:55.5572437Z Updating files:  99% (3068/3098)
+2026-10-01T18:29:55.5573088Z Updating files: 100% (3098/3098)
+2026-10-01T18:29:55.5573699Z Updating files: 100% (3098/3098), done.
+2026-10-01T18:29:55.5614268Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-01T18:29:55.5615113Z 
+2026-10-01T18:29:55.5616235Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-01T18:29:55.5617604Z changes and commit them, and you can discard any commits you make in this
+2026-10-01T18:29:55.5618696Z state without impacting any branches by switching back to a branch.
+2026-10-01T18:29:55.5619124Z 
+2026-10-01T18:29:55.5619392Z If you want to create a new branch to retain commits you create, you may
+2026-10-01T18:29:55.5620042Z do so (now or later) by using -c with the switch command. Example:
+2026-10-01T18:29:55.5620777Z 
+2026-10-01T18:29:55.5620943Z   git switch -c <new-branch-name>
+2026-10-01T18:29:55.5621201Z 
+2026-10-01T18:29:55.5621408Z Or undo this operation with:
+2026-10-01T18:29:55.5621629Z 
+2026-10-01T18:29:55.5621796Z   git switch -
+2026-10-01T18:29:55.5621995Z 
+2026-10-01T18:29:55.5622302Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-01T18:29:55.5622713Z 
+2026-10-01T18:29:55.5623205Z HEAD is now at 06226c7 Merge 35f21b82997349b2f8e8010ae834e27a25fafc8f into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-01T18:29:55.5764469Z ##[endgroup]
+2026-10-01T18:29:55.5774546Z [command]/usr/bin/git log -1 --format=%H
+2026-10-01T18:29:55.5807114Z 06226c703a14dba5999bcc3115633a8be95b2c25
+2026-10-01T18:29:55.6190168Z ##[group]Run actions/setup-python@v5
+2026-10-01T18:29:55.6190904Z with:
+2026-10-01T18:29:55.6191172Z   python-version: 3.11
+2026-10-01T18:29:55.6191669Z   check-latest: false
+2026-10-01T18:29:55.6194819Z   token: ***
+2026-10-01T18:29:55.6195110Z   update-environment: true
+2026-10-01T18:29:55.6195425Z   allow-prereleases: false
+2026-10-01T18:29:55.6195732Z   freethreaded: false
+2026-10-01T18:29:55.6196076Z ##[endgroup]
+2026-10-01T18:29:55.7651753Z ##[group]Installed versions
+2026-10-01T18:29:55.7733811Z (node:2169) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T18:29:55.7734635Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T18:29:55.7735565Z Successfully set up CPython (3.11.16)
+2026-10-01T18:29:55.7736475Z ##[endgroup]
+2026-10-01T18:29:55.7934471Z ##[group]Run python -m pip install "psutil>=7.2,<8" "matplotlib>=3.8,<4"
+2026-10-01T18:29:55.7935669Z [36;1mpython -m pip install "psutil>=7.2,<8" "matplotlib>=3.8,<4"[0m
+2026-10-01T18:29:55.9574397Z shell: /usr/bin/bash -e {0}
+2026-10-01T18:29:55.9574802Z env:
+2026-10-01T18:29:55.9575134Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:29:55.9575653Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T18:29:55.9576160Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:29:55.9576613Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:29:55.9577066Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:29:55.9577533Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T18:29:55.9577936Z ##[endgroup]
+2026-10-01T18:30:00.9302903Z Collecting psutil<8,>=7.2
+2026-10-01T18:30:01.0165099Z   Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+2026-10-01T18:30:01.1799399Z Collecting matplotlib<4,>=3.8
+2026-10-01T18:30:01.1996723Z   Downloading matplotlib-3.11.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+2026-10-01T18:30:01.3092257Z Collecting contourpy>=1.0.1 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.3290564Z   Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+2026-10-01T18:30:01.3567917Z Collecting cycler>=0.10 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.3769371Z   Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+2026-10-01T18:30:01.5313406Z Collecting fonttools>=4.28.2 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.5509140Z   Downloading fonttools-4.66.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (130 kB)
+2026-10-01T18:30:01.6497947Z Collecting kiwisolver>=1.3.1 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.6698716Z   Downloading kiwisolver-1.5.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+2026-10-01T18:30:01.8805970Z Collecting numpy>=1.25 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.9021646Z   Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+2026-10-01T18:30:01.9342120Z Collecting packaging>=20.0 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:01.9535496Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-10-01T18:30:02.1219690Z Collecting pillow>=9 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:02.1416244Z   Downloading pillow-12.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+2026-10-01T18:30:02.1804946Z Collecting pyparsing>=3 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:02.2001069Z   Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+2026-10-01T18:30:02.2291440Z Collecting python-dateutil>=2.7 (from matplotlib<4,>=3.8)
+2026-10-01T18:30:02.2491655Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+2026-10-01T18:30:02.2811248Z Collecting six>=1.5 (from python-dateutil>=2.7->matplotlib<4,>=3.8)
+2026-10-01T18:30:02.3005478Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2026-10-01T18:30:02.3241733Z Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+2026-10-01T18:30:02.3511108Z Downloading matplotlib-3.11.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (9.9 MB)
+2026-10-01T18:30:02.4580128Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.9/9.9 MB 96.9 MB/s  0:00:00
+2026-10-01T18:30:02.4777948Z Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (355 kB)
+2026-10-01T18:30:02.5018384Z Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+2026-10-01T18:30:02.5238500Z Downloading fonttools-4.66.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.4 MB)
+2026-10-01T18:30:02.5583521Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.4/5.4 MB 163.8 MB/s  0:00:00
+2026-10-01T18:30:02.5780556Z Downloading kiwisolver-1.5.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+2026-10-01T18:30:02.5904841Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 123.3 MB/s  0:00:00
+2026-10-01T18:30:02.6102440Z Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+2026-10-01T18:30:02.7155146Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 162.7 MB/s  0:00:00
+2026-10-01T18:30:02.7348471Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-10-01T18:30:02.7568450Z Downloading pillow-12.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+2026-10-01T18:30:02.7950551Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 189.3 MB/s  0:00:00
+2026-10-01T18:30:02.8150708Z Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+2026-10-01T18:30:02.8369995Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+2026-10-01T18:30:02.8594088Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+2026-10-01T18:30:03.3034152Z Installing collected packages: six, pyparsing, psutil, pillow, packaging, numpy, kiwisolver, fonttools, cycler, python-dateutil, contourpy, matplotlib
+2026-10-01T18:30:08.4767813Z 
+2026-10-01T18:30:08.4780858Z Successfully installed contourpy-1.3.3 cycler-0.12.1 fonttools-4.66.1 kiwisolver-1.5.1 matplotlib-3.11.2 numpy-2.4.6 packaging-26.3 pillow-12.3.0 psutil-7.2.2 pyparsing-3.3.3 python-dateutil-2.9.0.post0 six-1.17.0
+2026-10-01T18:30:08.5778506Z ##[group]Run python scripts/run_quality_gate.py --profile endurance --output output/quality-endurance
+2026-10-01T18:30:08.5779284Z [36;1mpython scripts/run_quality_gate.py --profile endurance --output output/quality-endurance[0m
+2026-10-01T18:30:08.5854440Z shell: /usr/bin/bash -e {0}
+2026-10-01T18:30:08.5854700Z env:
+2026-10-01T18:30:08.5854984Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:08.5855448Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T18:30:08.5856112Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:08.5856539Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:08.5856935Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:08.5857334Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T18:30:08.5857672Z ##[endgroup]
+2026-10-01T18:30:10.0193822Z [quality] load-endurance-smoke: RUNNING
+2026-10-01T18:30:40.8377155Z [quality] load-endurance-smoke: PASSED
+2026-10-01T18:30:40.8879493Z [quality] PASSED: /home/runner/work/mini-drop/mini-drop/output/quality-endurance/report.html
+2026-10-01T18:30:40.8992848Z ##[group]Run python scripts/render_load_report.py output/quality-endurance/load-endurance-smoke/measurement/report.json --output output/quality-endurance/load-endurance-smoke/measurement/report.html
+2026-10-01T18:30:40.8994318Z [36;1mpython scripts/render_load_report.py output/quality-endurance/load-endurance-smoke/measurement/report.json --output output/quality-endurance/load-endurance-smoke/measurement/report.html[0m
+2026-10-01T18:30:40.9066175Z shell: /usr/bin/bash -e {0}
+2026-10-01T18:30:40.9066433Z env:
+2026-10-01T18:30:40.9066713Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:40.9067171Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T18:30:40.9067616Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:40.9068025Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:40.9068422Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:40.9068854Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T18:30:40.9069190Z ##[endgroup]
+2026-10-01T18:30:42.5255573Z output/quality-endurance/load-endurance-smoke/measurement/report.html
+2026-10-01T18:30:42.6023676Z ##[group]Run actions/upload-artifact@v4
+2026-10-01T18:30:42.6024003Z with:
+2026-10-01T18:30:42.6024306Z   name: load-endurance-06226c703a14dba5999bcc3115633a8be95b2c25-1
+2026-10-01T18:30:42.6024701Z   path: output/quality-endurance/
+2026-10-01T18:30:42.6024980Z   if-no-files-found: error
+2026-10-01T18:30:42.6025226Z   retention-days: 14
+2026-10-01T18:30:42.6025465Z   compression-level: 6
+2026-10-01T18:30:42.6025689Z   overwrite: false
+2026-10-01T18:30:42.6025916Z   include-hidden-files: false
+2026-10-01T18:30:42.6026160Z env:
+2026-10-01T18:30:42.6026429Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:42.6026877Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T18:30:42.6027310Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:42.6027701Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:42.6028098Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T18:30:42.6028526Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T18:30:42.6028881Z ##[endgroup]
+2026-10-01T18:30:42.7845756Z (node:2268) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T18:30:42.7846841Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T18:30:42.7962957Z With the provided path, there will be 12 files uploaded
+2026-10-01T18:30:42.7964021Z Artifact name is valid!
+2026-10-01T18:30:42.7964440Z Root directory input is valid!
+2026-10-01T18:30:43.0977861Z Beginning upload of artifact content to blob storage
+2026-10-01T18:30:43.1423020Z (node:2268) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-01T18:30:43.4545848Z Uploaded bytes 180030
+2026-10-01T18:30:43.5080764Z Finished uploading artifact content to blob storage!
+2026-10-01T18:30:43.5081805Z SHA256 digest of uploaded artifact zip is a8d1569f80d88f7ccfd404652dc66a8f356f73e5d83b9d1fd4faed6b23d177f7
+2026-10-01T18:30:43.5082993Z Finalizing artifact upload
+2026-10-01T18:30:43.7439724Z Artifact load-endurance-06226c703a14dba5999bcc3115633a8be95b2c25-1.zip successfully finalized. Artifact ID 11184582551
+2026-10-01T18:30:43.7442474Z Artifact load-endurance-06226c703a14dba5999bcc3115633a8be95b2c25-1 has been successfully uploaded! Final size is 180030 bytes. Artifact ID is 11184582551
+2026-10-01T18:30:43.7448538Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/36907241773/artifacts/11184582551
+2026-10-01T18:30:43.7657379Z Post job cleanup.
+2026-10-01T18:30:43.8951554Z (node:2282) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T18:30:43.8952605Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T18:30:43.9142319Z Post job cleanup.
+2026-10-01T18:30:44.0134658Z [command]/usr/bin/git version
+2026-10-01T18:30:44.0184324Z git version 2.55.0
+2026-10-01T18:30:44.0231056Z Temporarily overriding HOME='/home/runner/work/_temp/30f0a259-de98-4248-81e0-6257254144e3' before making global git config changes
+2026-10-01T18:30:44.0232234Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T18:30:44.0237632Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T18:30:44.0286119Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T18:30:44.0327421Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T18:30:44.0638054Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T18:30:44.0671343Z http.https://github.com/.extraheader
+2026-10-01T18:30:44.0684526Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-01T18:30:44.0726489Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T18:30:44.1033614Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T18:30:44.1076760Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T18:30:44.1536419Z Cleaning up orphan processes
+2026-10-01T18:30:44.1872534Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

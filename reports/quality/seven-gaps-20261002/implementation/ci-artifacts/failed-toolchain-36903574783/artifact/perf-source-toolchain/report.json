@@ -1,0 +1,53 @@
+{
+  "schema": "mini-drop.perf-source-toolchain-control.v1",
+  "scope": "TOOLCHAIN_SMOKE",
+  "started_at": "2026-10-01T18:01:23.650004+00:00",
+  "passed": false,
+  "live_perf_sampling": false,
+  "causal_root_cause_verified": false,
+  "runner_sha256": "9095396e8ea7c2a5f93b26fbd2f191eb381aceb91e9b1653fdf4dd5063dff3a0",
+  "cleanup_verified": true,
+  "cpp_image": {
+    "name": "mini-drop-cpp-hotspot:ci",
+    "id": "sha256:76022b46d6707a504cc315615709a883fcc51607e6b9cd943684b3ca7a2b4eae",
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "toolchain_image": {
+    "name": "mini-drop-analyzer-toolchain:ci",
+    "id": "sha256:6a8bb13f33a55c64deb2dd1e4ebcb5fbbc1d759e85e6a1e8d0f3ce1eecaef451",
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "container_isolation": {
+    "readonly_rootfs": true,
+    "network_mode": "none",
+    "user": "mini-drop",
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges"
+    ],
+    "memory_bytes": 134217728,
+    "nano_cpus": 500000000,
+    "pids_limit": 32,
+    "bind_mounts": [
+      {
+        "destination": "/usr/local/bin/cpp-hotspot",
+        "rw": false
+      },
+      {
+        "destination": "/verify_perf_source_toolchain.py",
+        "rw": false
+      },
+      {
+        "destination": "/stackcollapse-perf.pl",
+        "rw": false
+      }
+    ]
+  },
+  "error_type": "RuntimeError",
+  "error": "Actual toolchain smoke failed; see retained container stdout/stderr",
+  "finished_at": "2026-10-01T18:01:24.924790+00:00"
+}

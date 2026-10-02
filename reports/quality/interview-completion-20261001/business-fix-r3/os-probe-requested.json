@@ -1,0 +1,88 @@
+{
+  "tool_call_id": "toolcall_58f71c2941734699b5e18a6b2e206968",
+  "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+  "tool_name": "collect_sys_metrics",
+  "arguments": {
+    "agent_id": "tencent-cvm-worker-1",
+    "pid": 701154,
+    "duration_seconds": 14
+  },
+  "policy_decision": "ALLOW",
+  "policy_checks": [
+    {
+      "name": "SCHEMA",
+      "result": "PASS"
+    },
+    {
+      "name": "TARGET_SCOPE",
+      "result": "PASS"
+    },
+    {
+      "name": "AGENT_CAPABILITY",
+      "result": "PASS"
+    },
+    {
+      "name": "BUDGET",
+      "result": "PASS"
+    },
+    {
+      "name": "RISK_LIMIT",
+      "result": "PASS"
+    },
+    {
+      "name": "HUMAN_APPROVAL",
+      "result": "NOT_REQUIRED"
+    },
+    {
+      "name": "BUDGET_WALL_CLOCK",
+      "result": "PASS",
+      "remaining_seconds": null,
+      "required_seconds": 44
+    },
+    {
+      "name": "BUDGET_DURATION",
+      "result": "PASS",
+      "reserved": 34,
+      "limit": 300
+    },
+    {
+      "name": "BUDGET_CONCURRENCY",
+      "result": "PASS",
+      "reserved": 2,
+      "limit": 3
+    },
+    {
+      "name": "BUDGET_HOSTS",
+      "result": "PASS",
+      "reserved": 1,
+      "limit": 5
+    },
+    {
+      "name": "BUDGET_ARTIFACT_BYTES",
+      "result": "PASS",
+      "reserved": 18874368,
+      "limit": 524288000
+    }
+  ],
+  "policy_reason": "策略检查通过",
+  "status": "TASK_CREATED",
+  "task_id": "task_20261001_154358_b600d6",
+  "result": {},
+  "budget_reservation": {
+    "duration_seconds": 14,
+    "artifact_bytes": 2097152,
+    "agent_id": "tencent-cvm-worker-1",
+    "concurrent_tasks": 1
+  },
+  "budget_settlement": {},
+  "budget_reservation_status": "RESERVED",
+  "terminal_processing_status": "NONE",
+  "terminal_processed_at": null,
+  "requested_by": "legacy_admin",
+  "approved_by": null,
+  "approval_reason": null,
+  "created_at": "2026-10-01 15:43:58.835059+00:00",
+  "decided_at": null,
+  "executed_at": "2026-10-01 15:43:58.850496+00:00"
+}

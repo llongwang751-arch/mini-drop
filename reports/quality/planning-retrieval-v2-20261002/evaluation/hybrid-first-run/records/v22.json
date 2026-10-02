@@ -1,0 +1,618 @@
+{
+  "case_id": "v22",
+  "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+  "trace": {
+    "relevance_policy": "knowledge-domain-admission-v1",
+    "relevance_query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+    "query_profile": {
+      "concepts": [
+        "dependency",
+        "network"
+      ],
+      "runtime_scopes": [],
+      "database_scopes": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "score": 0.94167,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "network"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "distributed.downstream_pressure",
+        "chunk_id": "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "score": 0.59551,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "dependency"
+        ],
+        "matched_anchors": [
+          "dependency",
+          "downstream",
+          "downstream_dependency"
+        ],
+        "source_profile": {
+          "concepts": [
+            "dependency"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "chunk_id": "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "score": 0.031498,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.015873,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.015385,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 0.015152,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.014925,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.014706,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.014493,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.014286,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "chunk_id": "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 0.014085,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+        "score": 0.013889,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.013699,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.013514,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "linux.memory.process_growth",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "score": 0.013333,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "chunk_id": "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 0.013158,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.012658,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.0125,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 3,
+        "chunk_ids": [
+          "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+          "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+          "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 2,
+        "chunk_ids": [
+          "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+          "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+          "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+          "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+          "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+          "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+          "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+    "query_hash": "559687b8c24589f86354d072ce33a2d0f8a5f459b6934faa94a2aa8c14fab2c5",
+    "relevance_query_hash": "559687b8c24589f86354d072ce33a2d0f8a5f459b6934faa94a2aa8c14fab2c5",
+    "retriever": "knowledge-hybrid-v4-domain-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 2,
+    "matches": [
+      {
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。",
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.94167,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      },
+      {
+        "chunk_id": "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+        "knowledge_id": "distributed.downstream_pressure",
+        "title": "下游依赖压力与症状传播",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。",
+        "required_evidence": [
+          "历史拓扑",
+          "上下游时间窗",
+          "Trace 或下游指标"
+        ],
+        "caveats": [
+          "当前拓扑不能直接解释历史故障"
+        ],
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "dependency"
+          ],
+          "matched_anchors": [
+            "dependency",
+            "downstream",
+            "downstream_dependency"
+          ],
+          "source_profile": {
+            "concepts": [
+              "dependency"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.59551,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.network.retransmit",
+    "distributed.downstream_pressure"
+  ]
+}

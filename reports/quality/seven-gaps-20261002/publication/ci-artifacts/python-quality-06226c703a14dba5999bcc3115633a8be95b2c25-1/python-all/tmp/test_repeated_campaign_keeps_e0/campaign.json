@@ -1,0 +1,86 @@
+{
+  "schema": "mini-drop.business-campaign.v1",
+  "run_id": "4408b5ebb5574c4180dd95d902d17c19",
+  "status": "COMPLETED",
+  "started_at": "2026-10-01T18:30:51.801713+00:00",
+  "source_hashes": {
+    "demo/rag_service/app.py": "04a97850d41abbb9baf87d17d2d9d7f50f862dcb2cb8b2db23fe73de5a96fd48",
+    "server/app/drop_insight/business_acceptance.py": "638d97c6d59eaaaedf7f411a19c1cb52b73d4d9f6d07bdc03d6625665f69aed1",
+    "scripts/run_business_acceptance.py": "4e93a23fab28d8a1d1b7432bc1c193159d8b79c201461491c97a30869135db23",
+    "contracts/business_test_plan.json": "dff93acb3fc5693dd8d8c505e33f483ca9404338c74471be71c06bdd77fc2bcb"
+  },
+  "revision": "06226c703a14+1f02e923b6e7",
+  "policy": {
+    "minimum_requests": 30,
+    "recovery_p95_ratio": 1.3,
+    "minimum_success_rate": 0.98,
+    "minimum_quality_rate": 0.98,
+    "minimum_fault_ratio": 1.5,
+    "max_dispatch_lag_ms": 150,
+    "latency_floor_ms": 20
+  },
+  "scope": "LOCAL_HTTP_EXTRACTIVE_FIXTURE; NO_LIVE_AI_DIAGNOSIS; NO_PRODUCTION_CLAIM",
+  "repeat_runs": 2,
+  "results": [
+    {
+      "scenario_id": "RAG-01",
+      "title": "知识库重排工作量异常",
+      "outcome": "IMPROVEMENT_VERIFIED",
+      "case_file": "campaign-cases/RAG-01-r01.json",
+      "report_sha256": "82ce7a63586d1c7c10ea59fe2106205705c3eefc81b93e2bc06a25d04233af39",
+      "run": 1
+    },
+    {
+      "scenario_id": "RAG-01",
+      "title": "知识库重排工作量异常",
+      "outcome": "IMPROVEMENT_VERIFIED",
+      "case_file": "campaign-cases/RAG-01-r02.json",
+      "report_sha256": "8d7507ba118c1104bbeb5b6c79012e3d1601e7c8ca30cb2fa13f005cf9a1db62",
+      "run": 2
+    }
+  ],
+  "repeat_summary": {
+    "schema": "mini-drop.business-repeat-summary.v1",
+    "selection": "ALL_RUNS_RECORDED; NOT_BEST_OF",
+    "scenarios": {
+      "RAG-01": {
+        "runs": 2,
+        "run_indexes": [
+          1,
+          2
+        ],
+        "outcomes": [
+          "IMPROVEMENT_VERIFIED",
+          "IMPROVEMENT_VERIFIED"
+        ],
+        "outcome_stable": true,
+        "p95_ms": {
+          "baseline": {
+            "min": 10.0,
+            "mean": 10.0,
+            "max": 10.0,
+            "stdev": 0.0,
+            "samples": 2
+          },
+          "fault": {
+            "min": 100.0,
+            "mean": 100.0,
+            "max": 100.0,
+            "stdev": 0.0,
+            "samples": 2
+          },
+          "after": {
+            "min": 10.0,
+            "mean": 10.0,
+            "max": 10.0,
+            "stdev": 0.0,
+            "samples": 2
+          }
+        }
+      }
+    },
+    "all_outcome_stable": true
+  },
+  "finished_at": "2026-10-01T18:30:51.816581+00:00",
+  "report_sha256": "1fc40c4c0ad49bddcf2eeebcb25651cf5c0434016f558a83523f031bbdfa4ec0"
+}

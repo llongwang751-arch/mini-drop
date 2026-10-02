@@ -1,0 +1,115 @@
+{
+  "schema": "mini-drop.prompt-boundaries-local.v1",
+  "base_head": "a6a3626094b8edbb5b9a48bef317153035ccca16",
+  "agent_version": "diagnosis-agent-v7-four-state-prompts",
+  "created_at": "2026-10-02T10:31:23.331988+00:00",
+  "checks": [
+    {
+      "name": "pytest",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_disposition_first_prompts.py",
+        "tests/test_checkpoint_thread_isolation.py",
+        "tests/test_planning_output_v2.py",
+        "tests/test_cpu_plan_contract.py",
+        "-q",
+        "--basetemp=output/acceptance/planning-retrieval-v2-20261002/pytest-prompts-v7-r2",
+        "--junitxml=D:\\tx\\mini-drop\\reports\\quality\\planning-retrieval-v2-20261002\\local\\prompt-boundaries\\pytest.xml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "server/app/agent_runtime/planning_output.py",
+        "server/app/drop_insight/adaptive_planner.py",
+        "server/app/agent_runtime/themes.py",
+        "server/app/drop_insight/diagnosis_agent.py",
+        "server/app/drop_insight/performance_criteria.py",
+        "server/app/agent_runtime/runtime.py",
+        "tests/test_disposition_first_prompts.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "model_invocations": 0,
+  "scope": "Offline production completion/correction/timeout boundaries and true StateGraph memory isolation. No live model result is inferred.",
+  "files": [
+    {
+      "path": "archive_prompt_boundaries.py",
+      "sha256": "9e6f3007ba64c1b62ce2b2d58c03dd4476c502e9dcd4dd84cb5f4724b3bda01d",
+      "bytes": 3053
+    },
+    {
+      "path": "clean/docs/AGENT_RUNTIME.md",
+      "sha256": "0406b334f4392bc9761ff0be7f1702ac4c4711f541567ada62be69a20c5b01c3",
+      "bytes": 27666
+    },
+    {
+      "path": "clean/server/app/agent_runtime/planning_output.py",
+      "sha256": "5418917e6522b89a6b8f2856a8c9a347e25e90911692b67ff486237acd564951",
+      "bytes": 7758
+    },
+    {
+      "path": "clean/server/app/agent_runtime/runtime.py",
+      "sha256": "7fb6513925bcf5050493148bd5b673fc6d8dc76efec35adb43b0fe28f2605a05",
+      "bytes": 1121
+    },
+    {
+      "path": "clean/server/app/agent_runtime/themes.py",
+      "sha256": "1c883cdbab7a286f43e95576b5f11816566811cbfb939ed9d94c4157e20e5824",
+      "bytes": 4952
+    },
+    {
+      "path": "clean/server/app/drop_insight/adaptive_planner.py",
+      "sha256": "9228bfa57167f882227d57a66fdd47eff628df20c638b91ec07037293c1ef1d4",
+      "bytes": 7992
+    },
+    {
+      "path": "clean/server/app/drop_insight/diagnosis_agent.py",
+      "sha256": "9bb564e41a9e579ed00d6a0c14ccbd39e7dacfff5a955187c9dea3fc96d55834",
+      "bytes": 45503
+    },
+    {
+      "path": "clean/server/app/drop_insight/performance_criteria.py",
+      "sha256": "8ea1772900cad4c7b5eb70dd846cfe312ddfc7b3bbcd009a7612b586cfafc3e7",
+      "bytes": 6518
+    },
+    {
+      "path": "clean/tests/test_disposition_first_prompts.py",
+      "sha256": "10306760746d13d14b5aee56f0c876b4d1cb093f55a338c2df678f6a4e0199f0",
+      "bytes": 5205
+    },
+    {
+      "path": "prepare_four_state_prompts.py",
+      "sha256": "fbfa208a073dddf3318add6df85e683413654c98a9ad9da52c5fcd7d94c6fb4c",
+      "bytes": 10104
+    },
+    {
+      "path": "pytest.log",
+      "sha256": "6d9252ff5d48d266e2dd33a5409dc8ad214d47016d0cc999b0183be059271cc5",
+      "bytes": 836
+    },
+    {
+      "path": "pytest.xml",
+      "sha256": "467b65a400cb796dbb33ef1bd117a1cdc601aa34a19c7789143be33cb33201c9",
+      "bytes": 18552
+    },
+    {
+      "path": "ruff.log",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+      "bytes": 20
+    },
+    {
+      "path": "source-candidates.json",
+      "sha256": "dc73f29bc42afe56ee45af6235e5d97ae55ef1f6f9ab1692da52746a3966450f",
+      "bytes": 2705
+    }
+  ]
+}

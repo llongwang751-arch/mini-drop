@@ -1,0 +1,178 @@
+{
+  "type": "result",
+  "case_id": "v24",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe848628c0585fae59091702d36",
+    "object": "chat.completion",
+    "created": 1790932699,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户报告在18秒观测窗口内，JVM GC暂停总时长为0ms，RSS无增长，且指出‘停顿全来自GC’的假设缺乏支持。根据提供的合成观测数据，在已检查的GC暂停和RSS增长范围内未发现异常。知识检索结果也仅提供背景信息，并非本次诊断的新证据。因此，当前规划判断为在已描述的范围内正常，但需明确此判断仅限于已观测的指标，不涉及未检查的其他性能维度。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\n    \"本次规划仅基于用户提供的18秒窗口内GC暂停总时长和RSS增长数据。\",\n    \"未检查CPU使用率、线程状态、I/O延迟、网络延迟、锁竞争、下游调用等其他潜在性能问题域。\",\n    \"‘停顿全来自GC’假设被用户主动否定，但未提供关于‘停顿’具体表现（如延迟升高、请求积压）的观测数据，因此无法规划针对‘停顿’原因的进一步调查。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4273,
+      "completion_tokens": 281,
+      "total_tokens": 4554,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1585
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe848628c0585fae59091702d36\",\"object\":\"chat.completion\",\"created\":1790932699,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告在18秒观测窗口内，JVM GC暂停总时长为0ms，RSS无增长，且指出‘停顿全来自GC’的假设缺乏支持。根据提供的合成观测数据，在已检查的GC暂停和RSS增长范围内未发现异常。知识检索结果也仅提供背景信息，并非本次诊断的新证据。因此，当前规划判断为在已描述的范围内正常，但需明确此判断仅限于已观测的指标，不涉及未检查的其他性能维度。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于用户提供的18秒窗口内GC暂停总时长和RSS增长数据。\\\",\\n    \\\"未检查CPU使用率、线程状态、I/O延迟、网络延迟、锁竞争、下游调用等其他潜在性能问题域。\\\",\\n    \\\"‘停顿全来自GC’假设被用户主动否定，但未提供关于‘停顿’具体表现（如延迟升高、请求积压）的观测数据，因此无法规划针对‘停顿’原因的进一步调查。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4273,\"completion_tokens\":281,\"total_tokens\":4554,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1585},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "787378308de9c345a4210bc990665f9336b655af7917950d3cc557acac40f598",
+  "seconds": 14.269591,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.gc.pressure",
+      "linux.memory.process_growth",
+      "container.memory.pressure"
+    ],
+    "matches": [
+      {
+        "query": "JVM 已测窗口 18 秒内 GC pause 总时长 0ms、RSS 没增长；“停顿全来自 GC”假说缺少支持，请仅给已检查范围正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "gc"
+          ],
+          "matched_anchors": [
+            "pause"
+          ],
+          "source_profile": {
+            "concepts": [
+              "gc",
+              "latency_measurement"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "jvm.gc.pressure",
+        "title": "JVM GC 暂停与分配压力",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "79c8eaf0d4cc667f924d5c6d1fc307c6d99703bab0efd99e53cf8015decefdc8",
+        "chunk_id": "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+        "score": 17.874047,
+        "matched_terms": [
+          "pause",
+          "jvm",
+          "gc"
+        ],
+        "required_evidence": [
+          "GC pause P95",
+          "GC 时间占比",
+          "堆分代占用"
+        ],
+        "caveats": [
+          "CPU 高可能是 GC 的原因，也可能是结果"
+        ],
+        "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+      },
+      {
+        "query": "JVM 已测窗口 18 秒内 GC pause 总时长 0ms、RSS 没增长；“停顿全来自 GC”假说缺少支持，请仅给已检查范围正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [
+            "rss"
+          ],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+        "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+        "score": 13.836568,
+        "matched_terms": [
+          "rss",
+          "gc",
+          "增长",
+          "时长"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "JVM 已测窗口 18 秒内 GC pause 总时长 0ms、RSS 没增长；“停顿全来自 GC”假说缺少支持，请仅给已检查范围正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "memory_pressure"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.memory.pressure",
+        "title": "容器内存回收与 OOM",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "score": 5.705064,
+        "matched_terms": [
+          "rss",
+          "缺少",
+          "范围"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器内存压力、回收与 OOM\n\nRSS 高不等于泄漏。区分匿名页、文件缓存、共享页和容器限制；进程视角与 cgroup 视角的统计范围不同。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

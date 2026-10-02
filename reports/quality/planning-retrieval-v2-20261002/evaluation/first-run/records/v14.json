@@ -1,0 +1,174 @@
+{
+  "type": "result",
+  "case_id": "v14",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe593f364425311521dadc06321",
+    "object": "chat.completion",
+    "created": 1790932522,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n    \"schema_version\": \"mini-drop.planning-output.v2\",\n    \"disposition\": \"INVESTIGATE\",\n    \"reasoning_summary\": \"用户报告一个C++图像编码器进程消耗91%用户态CPU，且负载未变，但当前没有可用的栈采样数据。这是一个明确的待验证性能异常。根据知识指导，用户态CPU高需要Profile来定位热点函数。当前允许的工具列表中包含`start_perf_profile`，可用于对C++进程进行原生热点采样，以验证CPU消耗是否集中在特定的业务函数上。因此规划一次取证动作。\",\n    \"tool_name\": \"start_perf_profile\",\n    \"hypotheses\": [\n        {\n            \"statement\": \"本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n            \"expected_observations\": [\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\"],\n            \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n            \"rationale\": \"用户报告了91%的用户态CPU使用率，这远高于单核的50%阈值。假设高CPU消耗是由进程内一个或多个特定的业务函数（如图像编码算法）主导的。通过独立的perf采样，预期能找到一个可映射到源码的业务函数，其采样占比显著。\",\n            \"prior_probability\": 0.8,\n            \"estimated_value\": 0.9\n        }\n    ],\n    \"missing_evidence\": [],\n    \"limitations\": [\"本次规划仅针对C++进程的用户态CPU热点进行采样验证。采样结果可能受符号表完整性、采样时长和系统负载波动影响。规划未涵盖系统态CPU开销、内存泄漏、I/O等待或其他潜在的共因分析。\"],\n    \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4313,
+      "completion_tokens": 409,
+      "total_tokens": 4722,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1369
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe593f364425311521dadc06321\",\"object\":\"chat.completion\",\"created\":1790932522,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n    \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n    \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n    \\\"reasoning_summary\\\": \\\"用户报告一个C++图像编码器进程消耗91%用户态CPU，且负载未变，但当前没有可用的栈采样数据。这是一个明确的待验证性能异常。根据知识指导，用户态CPU高需要Profile来定位热点函数。当前允许的工具列表中包含`start_perf_profile`，可用于对C++进程进行原生热点采样，以验证CPU消耗是否集中在特定的业务函数上。因此规划一次取证动作。\\\",\\n    \\\"tool_name\\\": \\\"start_perf_profile\\\",\\n    \\\"hypotheses\\\": [\\n        {\\n            \\\"statement\\\": \\\"本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n            \\\"expected_observations\\\": [\\\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\\\"],\\n            \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n            \\\"rationale\\\": \\\"用户报告了91%的用户态CPU使用率，这远高于单核的50%阈值。假设高CPU消耗是由进程内一个或多个特定的业务函数（如图像编码算法）主导的。通过独立的perf采样，预期能找到一个可映射到源码的业务函数，其采样占比显著。\\\",\\n            \\\"prior_probability\\\": 0.8,\\n            \\\"estimated_value\\\": 0.9\\n        }\\n    ],\\n    \\\"missing_evidence\\\": [],\\n    \\\"limitations\\\": [\\\"本次规划仅针对C++进程的用户态CPU热点进行采样验证。采样结果可能受符号表完整性、采样时长和系统负载波动影响。规划未涵盖系统态CPU开销、内存泄漏、I/O等待或其他潜在的共因分析。\\\"],\\n    \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4313,\"completion_tokens\":409,\"total_tokens\":4722,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1369},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "cc5f368d19a0e706e37489d62547e8d2b6f2c6e6951581e8c526bad261a01880",
+  "seconds": 35.208183,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "linux.cpu.kernel_overhead",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "matched_anchors": [
+            "hotspot",
+            "userland"
+          ],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 10.98301,
+        "matched_terms": [
+          "userland",
+          "hotspot",
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 3.443056,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "score": 3.133291,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器 CPU 配额与节流\n\n容器延迟升高而宿主机仍空闲时，应检查目标进程所在 cgroup 的 CPU 限额。先校验 /proc/PID/cgroup 与进程启动身份，避免读错容器。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

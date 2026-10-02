@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b04",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc953bcbf902377ce941af12c748",
+    "object": "chat.completion",
+    "created": 1790944033,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n    \"schema_version\": \"mini-drop.planning-output.v2\",\n    \"disposition\": \"NORMAL\",\n    \"reasoning_summary\": \"用户请求仅总结Go应用程序已记录的发布标识符这一事实，这是一个纯信息性请求，不涉及当前状态检查或健康证明。根据四态合同，这属于INFORMATION_ONLY意图，应判定为NORMAL。\",\n    \"tool_name\": null,\n    \"hypotheses\": [],\n    \"missing_evidence\": [],\n    \"limitations\": [\"本次响应仅基于用户提供的描述性信息进行规划判断，未对应用程序的当前运行状态、性能或健康度进行任何检查或采样。\"],\n    \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3627,
+      "completion_tokens": 154,
+      "total_tokens": 3781,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 3627
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc953bcbf902377ce941af12c748\",\"object\":\"chat.completion\",\"created\":1790944033,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n    \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n    \\\"disposition\\\": \\\"NORMAL\\\",\\n    \\\"reasoning_summary\\\": \\\"用户请求仅总结Go应用程序已记录的发布标识符这一事实，这是一个纯信息性请求，不涉及当前状态检查或健康证明。根据四态合同，这属于INFORMATION_ONLY意图，应判定为NORMAL。\\\",\\n    \\\"tool_name\\\": null,\\n    \\\"hypotheses\\\": [],\\n    \\\"missing_evidence\\\": [],\\n    \\\"limitations\\\": [\\\"本次响应仅基于用户提供的描述性信息进行规划判断，未对应用程序的当前运行状态、性能或健康度进行任何检查或采样。\\\"],\\n    \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3627,\"completion_tokens\":154,\"total_tokens\":3781,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":3627},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "10149835e49f23847d6a1cb55fbcf78b1f0457369630870116699108a604b7a9",
+  "seconds": 9.26325,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

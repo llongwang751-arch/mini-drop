@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="9.232" timestamp="2026-09-30T17:29:27.702151+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_drop_insight_report_effects_postgres" name="test_postgres_skill_activation_serializes_competing_planners" time="8.436"><failure message="sqlalchemy.exc.IntegrityError: (psycopg.errors.UniqueViolation) duplicate key value violates unique constraint &quot;uq_diagnostic_skill_activation_diagnosis_skill&quot;&#10;DETAIL:  Key (diagnosis_id, skill_id)=(diagnosis-report-skill-activation-race, skill-activation-race) already exists.&#10;[SQL: INSERT INTO diagnostic_skill_activations (id, skill_id, diagnosis_id, match_score, match_reason_json, baseline_tool, selected_tool, outcome, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(skill_id)s::VARCHAR, %(diagnosis_id)s::VARCHAR, %(match_score)s::INTEGER, %(match_reason_json)s::JSON, %(baseline_tool)s::VARCHAR, %(selected_tool)s::VARCHAR, %(outcome)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]&#10;[parameters: {'id': 'skill_activation_22b7a6cfed034a4bb6236d3e0ca61e36', 'skill_id': 'skill-activation-race', 'diagnosis_id': 'diagnosis-report-skill-activation-race', 'match_score': 900000, 'match_reason_json': Json({'category': 'exact', 'retrieval_sc ... (1241 chars)), 'baseline_tool': 'collect_sys_metrics', 'selected_tool': 'collect_sys_metrics', 'outcome': None, 'created_at': datetime.datetime(2026, 9, 30, 9, 29, 35, 771933, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 9, 30, 9, 29, 35, 771933, tzinfo=datetime.timezone.utc)}]&#10;(Background on this error at: https://sqlalche.me/e/20/gkpj)">D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1963: in _exec_single_context
+    self.dialect.do_execute(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\default.py:943: in do_execute
+    cursor.execute(statement, parameters)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\psycopg\cursor.py:117: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "uq_diagnostic_skill_activation_diagnosis_skill"
+E   DETAIL:  Key (diagnosis_id, skill_id)=(diagnosis-report-skill-activation-race, skill-activation-race) already exists.
+
+The above exception was the direct cause of the following exception:
+tests\test_drop_insight_report_effects_postgres.py:127: in test_postgres_skill_activation_serializes_competing_planners
+    results = [future.result(timeout=5) for future in futures]
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\concurrent\futures\_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\concurrent\futures\_base.py:395: in __get_result
+    raise self._exception
+D:\洛伦兹力不做功\Desktop\1\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+tests\test_drop_insight_report_effects_postgres.py:110: in apply
+    return skill_evolution.apply_active_skill(
+server\app\drop_insight\skill_evolution.py:1900: in apply_active_skill
+    session.commit()
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:2032: in commit
+    trans.commit(_to_root=True)
+&lt;string&gt;:2: in commit
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:1313: in commit
+    self._prepare_impl()
+&lt;string&gt;:2: in _prepare_impl
+    ???
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:1288: in _prepare_impl
+    self.session.flush()
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:4345: in flush
+    self._flush(objects)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:4480: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\session.py:4441: in _flush
+    flush_context.execute()
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1415: in execute
+    return meth(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\sql\elements.py:523: in _execute_on_connection
+    return connection._execute_clauseelement(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1637: in _execute_clauseelement
+    ret = self._execute_context(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1842: in _execute_context
+    return self._exec_single_context(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1982: in _exec_single_context
+    self._handle_dbapi_exception(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:2351: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\base.py:1963: in _exec_single_context
+    self.dialect.do_execute(
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\sqlalchemy\engine\default.py:943: in do_execute
+    cursor.execute(statement, parameters)
+D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\psycopg\cursor.py:117: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.UniqueViolation) duplicate key value violates unique constraint "uq_diagnostic_skill_activation_diagnosis_skill"
+E   DETAIL:  Key (diagnosis_id, skill_id)=(diagnosis-report-skill-activation-race, skill-activation-race) already exists.
+E   [SQL: INSERT INTO diagnostic_skill_activations (id, skill_id, diagnosis_id, match_score, match_reason_json, baseline_tool, selected_tool, outcome, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(skill_id)s::VARCHAR, %(diagnosis_id)s::VARCHAR, %(match_score)s::INTEGER, %(match_reason_json)s::JSON, %(baseline_tool)s::VARCHAR, %(selected_tool)s::VARCHAR, %(outcome)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+E   [parameters: {'id': 'skill_activation_22b7a6cfed034a4bb6236d3e0ca61e36', 'skill_id': 'skill-activation-race', 'diagnosis_id': 'diagnosis-report-skill-activation-race', 'match_score': 900000, 'match_reason_json': Json({'category': 'exact', 'retrieval_sc ... (1241 chars)), 'baseline_tool': 'collect_sys_metrics', 'selected_tool': 'collect_sys_metrics', 'outcome': None, 'created_at': datetime.datetime(2026, 9, 30, 9, 29, 35, 771933, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 9, 30, 9, 29, 35, 771933, tzinfo=datetime.timezone.utc)}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)</failure></testcase></testsuite></testsuites>

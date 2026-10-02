@@ -1,12 +1,42 @@
-# Mini-Drop · Linux 多节点性能诊断平台
+# Mini-Drop · Linux 多节点性能测试与诊断平台
 
-Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述“哪个后台、什么操作变慢”，系统绑定真实运行进程，选择采集工具，分析调用栈与资源指标，再生成带证据引用的诊断报告。
+Mini-Drop 面向多语言服务提供自动化回归、受控故障、性能验收与进程诊断。测试先根据请求成功率、回答引用、尾延迟和资源观测判定结果；出现异常后，再关联目标进程、调用栈和 AI 调查，保留可追溯的失败证据。
 
 项目包含两条入口：**基础采集**由用户选择目标与采集器；**AI 诊断**由受约束的 Agent 在预算内提出假设、调用工具、寻找反证并继续调查。二者共用任务、采集、分析和存储链路。
 
-[项目教程](docs/PROJECT_LEARNING_GUIDE.md) · [演示指南](docs/INTERVIEW_DEMO_GUIDE.md) · [业务接入](docs/SERVICE_INTEGRATION.md) · [部署文档](docs/REPLICATION.md) · [面试深挖](docs/INTERVIEW_DEEP_DIVE.md) · [全部文档](docs/README.md)
+[当前交付事实](docs/CURRENT_DELIVERY.md) · [项目教程](docs/PROJECT_LEARNING_GUIDE.md) · [演示指南](docs/INTERVIEW_DEMO_GUIDE.md) · [业务接入](docs/SERVICE_INTEGRATION.md) · [部署文档](docs/REPLICATION.md) · [面试深挖](docs/INTERVIEW_DEEP_DIVE.md) · [全部文档](docs/README.md)
 
-> 状态说明更新于 **2026-09-14**。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
+**测试开发入口：** 本项目也用于多语言服务的性能与可靠性测试：从风险和测试计划出发，执行自动化回归、受控故障与同负载对照，再用采集证据辅助定位失败。运行 `python scripts/run_quality_gate.py` 可生成本机质量报告；分层测试、真实缺陷复盘、开源对照及测开演示见 [测试开发与质量工程](docs/TEST_ENGINEERING.md)。
+
+**测开 / 后端 / Agent 开发交付：** 当前性能实验采用工程诊断：判断21/21、具体路径6/21、有效反证8条，最新7个窗口与此前14条记录分别标注；[4个工程缺陷闭环](docs/ENGINEERING_CASES.md)仍独立展示。旧专项成绩入口已移除。一小时19,950次请求成功且质量通过、仅1/120窗超限，已接受用于面试。当前口径和部署见[项目上下文](docs/PROJECT_CONTEXT.md)与[工程诊断验收](docs/DIAGNOSIS_ACCEPTANCE.md)。
+
+> 测试工程说明更新于 **2026-09-27**，下文截图保留原拍摄日期。当前支持真实 Linux 采集和多轮调查，根因与修复结果按每份报告独立判定。最新部署与待办以 [项目上下文](docs/PROJECT_CONTEXT.md) 为准，历史案例不代表每次诊断都能成功定位。
+
+## 从测试到定位
+
+| 要验证的风险 | 实现入口 | 可审阅证据 |
+| --- | --- | --- |
+| 缺失观测被误作反证、函数占比错配 | 非法数值/真零值/缺失的判据与结论回归 | [结论可信度缺陷复盘](reports/architecture/conclusion-integrity-20260928.md) |
+| 跳过、缺报告或损坏数据却显示通过 | 风险质量计划 + 原始报告复核 | [质量门禁](scripts/run_quality_gate.py)、[逐请求重算](scripts/verify_load_report.py) |
+| HTTP 200 但延迟、引用质量不达标 | 三窗对照、阶梯负载、持续窗口验收 | [30 分钟与容量实测](reports/architecture/resource-controls-20260927.md)、[业务验收](docs/BUSINESS_ACCEPTANCE.md) |
+| 并发重入、租约接管、重复效果 | 真实 PostgreSQL 事务竞争、Go race | [CI 与缺陷复盘](reports/architecture/test-engineering-ci-20260927.md) |
+| 目标进程资源持续增长 | 按 PID/启动时间采样 RSS、CPU、线程、句柄/FD | [资源判定与范围](docs/BUSINESS_ACCEPTANCE.md#资源增长筛查2026-09-27) |
+| 有热点采样，却没有独立对照 | 隔离 Python/Go 真实进程、OS CPU 时间窗、函数采样 | [独立 CPU 对照](docs/FAULT_PLAZA_ACCEPTANCE.md#隔离-ci-的-pythongo-独立-cpu-对照) |
+| 优化更快但破坏业务行为 | 冻结检索源码的排序、隔离、增删改回归 | [实际 RAG 复验](reports/architecture/test-engineering-ci-20260927.md#实际检索缺陷闭环) |
+
+### 本机体验一条测开链路
+
+下面只启动临时回环 HTTP 样例进程，约半分钟完成短回归，不需要云端、Docker 或真实 LLM。输出目录必须全新，再次运行请换一个目录名。
+
+```powershell
+python -m pip install -e ".[dev,reports]"
+python scripts/run_quality_gate.py --profile endurance --output output/quality/demo-endurance-001
+python scripts/render_load_report.py output/quality/demo-endurance-001/load-endurance-smoke/measurement/report.json --output output/quality/demo-endurance-001/report-charts.html
+```
+
+打开生成的 `report-charts.html`，查看阶段延迟、持续窗口、进程 RSS/CPU 和资源增长表。报告渲染前会复核原始 JSONL，INVALID 不会被改成通过。短回归只验证执行链路；更长运行、容量边界及生产验收分别计数。完整 [测开讲解路线](docs/TEST_ENGINEERING.md) 与 [真实 CI 检查](https://github.com/llongwang751-arch/mini-drop/pull/1) 可对照阅读。
+
+已归档的 [30 分钟图表](reports/business-acceptance/resource-controls-20260927/long/report.html)、[容量复测图表](reports/business-acceptance/resource-controls-20260927/refined/report.html) 可直接下载打开；判定说明与原始证据见 [本轮实测](reports/architecture/resource-controls-20260927.md)。
 
 ## 目录
 
@@ -46,7 +76,11 @@ Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述
 
 ![业务请求选择与后台诊断入口](docs/assets/learning-guide/20260914-lightweight-business/business-request-selection.png)
 
-### 五分钟演示路线
+### 测开与后端岗位优先路线
+
+打开 **AI诊断 → 案例验证 → 已验证缺陷**，挑一个案例，依次讲清现象、失败断言、原因、修复与回归，展开原始证据下载和源码。重点说明测试如何发现旧缺陷，以及修复后怎样防回归。每个案例的验证范围与复现命令见[工程缺陷主线](docs/ENGINEERING_CASES.md)。
+
+### 业务与诊断演示路线
 
 1. 打开 **访问凭据**，使用部署端签发的 API Key 建立浏览器会话。
 2. 进入 **AI 诊断 → 接入服务**，打开一个业务页面，完成笔记读写、文件上传或其他真实操作。
@@ -54,7 +88,7 @@ Mini-Drop 将业务请求、进程采集和 AI 调查连接起来：用户描述
 4. 在 **对话 / 探索树** 中查看每轮假设、工具、证据和报告，必要时补充上下文或要求寻找反证。
 5. 先读报告的根因结论与限制，再看独立的修复复测记录。报告生成不代表已经修改业务代码。
 
-如果需要可重复的受控故障，进入 **验证与 A/B → 故障广场**；如果只想学习采样工具，从 **采集任务** 创建任务。具体按钮、截图和讲解词见 [演示指南](docs/INTERVIEW_DEMO_GUIDE.md)。
+旧受控故障位于 **案例验证 → 历史故障实验**，保留启停与恢复核对。学习采样工具可从 **采集任务** 创建任务。具体讲解词见[演示指南](docs/INTERVIEW_DEMO_GUIDE.md)。
 
 <details>
 <summary>展开查看探索树示例</summary>
@@ -128,7 +162,7 @@ Task 记录一次采集要求，Attempt 记录执行尝试，Artifact 保存产�
 
 仓库当前登记 **13 个诊断 Skill**。系统先召回轻量元数据，再按需读取完整 `SKILL.md`，校验目录、章节和摘要，并记录沿用、切换、偏离与退出轨迹。Skill 提供探针路线，不提供本次故障答案。
 
-知识检索读取 [knowledge/](knowledge/)；Skill 检索使用进程内词法与确定性特征匹配，当前未使用外部向量数据库。领域状态以 PostgreSQL 为权威；LangGraph Checkpoint 的请求后端与实际后端分别显示，降级到内存时不承诺跨进程恢复。长期偏好与本次诊断事实也分别管理。
+知识检索读取 [knowledge/](knowledge/)，当前诊断知识链支持 BM25、Chroma 语义与目录实体三路召回；Skill 检索仍使用进程内词法与确定性特征匹配，两者不是同一条检索链。领域状态以 PostgreSQL 为权威；LangGraph Checkpoint 的请求后端与实际后端分别显示，降级到内存时不承诺跨进程恢复。长期偏好与本次诊断事实也分别管理。
 
 ### 执行与数据保护
 
@@ -258,6 +292,18 @@ curl --fail http://localhost/api/healthz
 首次部署需要完成证书签发、网络可达性、存储上传地址和环境变量配置，再启动服务；完整命令见 [部署文档](docs/REPLICATION.md)。在已有环境发布时保留版本目录和回滚镜像，只更新受影响服务，不重新初始化 CA 或清理数据库与对象存储卷。
 
 ## 开发与测试
+
+先安装已有的开发依赖，再使用统一质量入口。报告默认写入新的 `output/quality/<run-id>/`，保留 HTML、JSON、JUnit、日志和源码摘要；不会覆盖旧运行。
+
+```powershell
+python scripts/run_quality_gate.py --profile smoke      # 高风险回归与协议检查
+python scripts/run_quality_gate.py --profile local      # Python + Web + 真浏览器 + Go 本地回归
+python scripts/run_quality_gate.py --profile business   # 本机 HTTP 同负载三窗实验
+python scripts/run_quality_gate.py --profile stability  # 三窗实验独立重复 3 次与 P95 波动
+python scripts/run_quality_gate.py --profile browser    # 真实 Chromium 界面回归（合成数据）
+```
+
+`local` 需要已安装 Web 依赖和 Go，浏览器套件还需要先 `npm --prefix web run build` 生成 `web/dist`；它不启动 Docker。PostgreSQL 并发测试由独立 CI 临时库作业执行，Linux 原生采集由现有真机验收负责。允许跳过的可选集成项显示 `PASSED_WITH_SKIPS`，没有报告、未知跳过、全跳过、命令失败或超时都会失败。覆盖率观测现包含分支；`python-all` 对 5 个证据/幂等/验收关键模块执行按模块下限门槛（2026-09-26 基线），防止新增未测分支。
 
 下面每组命令均从仓库根目录执行。测试依赖与生产依赖分别由 `pyproject.toml`、`web/package.json` 和 Go 模块声明。
 

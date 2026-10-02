@@ -1,0 +1,1786 @@
+﻿2026-10-01T13:57:09.4209592Z Current runner version: '2.337.0'
+2026-10-01T13:57:09.4235229Z ##[group]Runner Image Provisioner
+2026-10-01T13:57:09.4236078Z Hosted Compute Agent
+2026-10-01T13:57:09.4236646Z Version: 20260901.588
+2026-10-01T13:57:09.4237242Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-01T13:57:09.4237906Z Build Date: 2026-09-01T19:56:44Z
+2026-10-01T13:57:09.4238872Z Worker ID: {fd2e769f-327b-4d83-9e7a-615971e4d2c6}
+2026-10-01T13:57:09.4239539Z Azure Region: centralus
+2026-10-01T13:57:09.4240056Z ##[endgroup]
+2026-10-01T13:57:09.4241517Z ##[group]Operating System
+2026-10-01T13:57:09.4242107Z Ubuntu
+2026-10-01T13:57:09.4242622Z 22.04.5
+2026-10-01T13:57:09.4243158Z LTS
+2026-10-01T13:57:09.4243623Z ##[endgroup]
+2026-10-01T13:57:09.4244188Z ##[group]Runner Image
+2026-10-01T13:57:09.4244727Z Image: ubuntu-22.04
+2026-10-01T13:57:09.4245279Z Version: 20260927.309.1
+2026-10-01T13:57:09.4246576Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-01T13:57:09.4248820Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-01T13:57:09.4250209Z ##[endgroup]
+2026-10-01T13:57:09.4252086Z ##[group]GITHUB_TOKEN Permissions
+2026-10-01T13:57:09.4254615Z Contents: read
+2026-10-01T13:57:09.4255720Z Metadata: read
+2026-10-01T13:57:09.4256581Z Packages: read
+2026-10-01T13:57:09.4257710Z ##[endgroup]
+2026-10-01T13:57:09.4260831Z Secret source: Actions
+2026-10-01T13:57:09.4262249Z Cache mode: write
+2026-10-01T13:57:09.4263974Z Prepare workflow directory
+2026-10-01T13:57:09.4694010Z Prepare all required actions
+2026-10-01T13:57:09.4764900Z Getting action download info
+2026-10-01T13:57:09.7999518Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-01T13:57:09.8874435Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-01T13:57:10.1207913Z Complete job name: Web (React)
+2026-10-01T13:57:10.2024829Z ##[group]Run actions/checkout@v4
+2026-10-01T13:57:10.2025698Z with:
+2026-10-01T13:57:10.2026123Z   repository: llongwang751-arch/mini-drop
+2026-10-01T13:57:10.2029747Z   token: ***
+2026-10-01T13:57:10.2030143Z   ssh-strict: true
+2026-10-01T13:57:10.2030547Z   ssh-user: git
+2026-10-01T13:57:10.2030962Z   persist-credentials: true
+2026-10-01T13:57:10.2031428Z   clean: true
+2026-10-01T13:57:10.2031853Z   sparse-checkout-cone-mode: true
+2026-10-01T13:57:10.2032343Z   fetch-depth: 1
+2026-10-01T13:57:10.2032745Z   fetch-tags: false
+2026-10-01T13:57:10.2033170Z   show-progress: true
+2026-10-01T13:57:10.2033587Z   lfs: false
+2026-10-01T13:57:10.2033975Z   submodules: false
+2026-10-01T13:57:10.2034399Z   set-safe-directory: true
+2026-10-01T13:57:10.2034879Z   allow-unsafe-pr-checkout: false
+2026-10-01T13:57:10.2035609Z ##[endgroup]
+2026-10-01T13:57:10.3066876Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-01T13:57:10.3070016Z ##[group]Getting Git version info
+2026-10-01T13:57:10.3071289Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T13:57:10.3072431Z [command]/usr/bin/git version
+2026-10-01T13:57:10.3132072Z git version 2.55.0
+2026-10-01T13:57:10.3152301Z ##[endgroup]
+2026-10-01T13:57:10.3168169Z Temporarily overriding HOME='/home/runner/work/_temp/d5598182-1322-41b9-8b30-90cd6f310ed7' before making global git config changes
+2026-10-01T13:57:10.3170930Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T13:57:10.3174124Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T13:57:10.3216424Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T13:57:10.3222190Z ##[group]Initializing the repository
+2026-10-01T13:57:10.3227795Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-01T13:57:10.3330032Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-01T13:57:10.3332284Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-01T13:57:10.3334642Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-01T13:57:10.3336229Z hint: call:
+2026-10-01T13:57:10.3337543Z hint:
+2026-10-01T13:57:10.3338852Z hint: 	git config --global init.defaultBranch <name>
+2026-10-01T13:57:10.3340047Z hint:
+2026-10-01T13:57:10.3341928Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-01T13:57:10.3343613Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-01T13:57:10.3344961Z hint:
+2026-10-01T13:57:10.3345707Z hint: 	git branch -m <name>
+2026-10-01T13:57:10.3346529Z hint:
+2026-10-01T13:57:10.3347193Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-01T13:57:10.3348151Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-01T13:57:10.3350852Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-01T13:57:10.3378873Z ##[endgroup]
+2026-10-01T13:57:10.3380379Z ##[group]Disabling automatic garbage collection
+2026-10-01T13:57:10.3382056Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-01T13:57:10.3411257Z ##[endgroup]
+2026-10-01T13:57:10.3412661Z ##[group]Setting up auth
+2026-10-01T13:57:10.3417943Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T13:57:10.3446599Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T13:57:10.3759523Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T13:57:10.3791552Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T13:57:10.4044500Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T13:57:10.4077110Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T13:57:10.4265360Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-01T13:57:10.4301030Z ##[endgroup]
+2026-10-01T13:57:10.4301785Z ##[group]Fetching the repository
+2026-10-01T13:57:10.4310264Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +498b244213fce556678b51aaad10ef13adf790bd:refs/remotes/pull/1/merge
+2026-10-01T13:57:14.8535064Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-01T13:57:14.8537003Z  * [new ref]         498b244213fce556678b51aaad10ef13adf790bd -> pull/1/merge
+2026-10-01T13:57:14.8542431Z ##[endgroup]
+2026-10-01T13:57:14.8543673Z ##[group]Determining the checkout info
+2026-10-01T13:57:14.8545393Z ##[endgroup]
+2026-10-01T13:57:14.8546422Z [command]/usr/bin/git sparse-checkout disable
+2026-10-01T13:57:14.8599800Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-01T13:57:14.8641231Z ##[group]Checking out the ref
+2026-10-01T13:57:14.8643729Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-01T13:57:15.6312649Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-01T13:57:15.6313378Z 
+2026-10-01T13:57:15.6313911Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-01T13:57:15.6315087Z changes and commit them, and you can discard any commits you make in this
+2026-10-01T13:57:15.6316284Z state without impacting any branches by switching back to a branch.
+2026-10-01T13:57:15.6316992Z 
+2026-10-01T13:57:15.6317480Z If you want to create a new branch to retain commits you create, you may
+2026-10-01T13:57:15.6320614Z do so (now or later) by using -c with the switch command. Example:
+2026-10-01T13:57:15.6321324Z 
+2026-10-01T13:57:15.6321709Z   git switch -c <new-branch-name>
+2026-10-01T13:57:15.6322694Z 
+2026-10-01T13:57:15.6323023Z Or undo this operation with:
+2026-10-01T13:57:15.6323439Z 
+2026-10-01T13:57:15.6323710Z   git switch -
+2026-10-01T13:57:15.6324073Z 
+2026-10-01T13:57:15.6324632Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-01T13:57:15.6325375Z 
+2026-10-01T13:57:15.6358785Z HEAD is now at 498b244 Merge be56c91926824ad1de271ec1f1d5946cb94c1e71 into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-01T13:57:15.6361358Z ##[endgroup]
+2026-10-01T13:57:15.6405966Z [command]/usr/bin/git log -1 --format=%H
+2026-10-01T13:57:15.6434674Z 498b244213fce556678b51aaad10ef13adf790bd
+2026-10-01T13:57:15.6694020Z ##[group]Run actions/setup-node@v4
+2026-10-01T13:57:15.6694421Z with:
+2026-10-01T13:57:15.6694707Z   node-version: 22
+2026-10-01T13:57:15.6694997Z   cache: npm
+2026-10-01T13:57:15.6695319Z   cache-dependency-path: web/package-lock.json
+2026-10-01T13:57:15.6695705Z   always-auth: false
+2026-10-01T13:57:15.6696004Z   check-latest: false
+2026-10-01T13:57:15.6699022Z   token: ***
+2026-10-01T13:57:15.6699305Z ##[endgroup]
+2026-10-01T13:57:15.8169902Z Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+2026-10-01T13:57:15.8173991Z (node:2003) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T13:57:15.8175396Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T13:57:15.8177459Z ##[group]Environment details
+2026-10-01T13:57:19.0000335Z node: v22.23.3
+2026-10-01T13:57:19.0000911Z npm: 10.9.9
+2026-10-01T13:57:19.0001271Z yarn: 1.22.22
+2026-10-01T13:57:19.0003191Z ##[endgroup]
+2026-10-01T13:57:19.0026308Z [command]/opt/hostedtoolcache/node/22.23.3/x64/bin/npm config get cache
+2026-10-01T13:57:19.2813559Z /home/runner/.npm
+2026-10-01T13:57:19.4478519Z Cache hit for: node-cache-Linux-x64-npm-a79428a48f53c819bdf3224c6f533bf526ae1b21f28f4ee918b0bcba5121d960
+2026-10-01T13:57:19.4580036Z (node:2003) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-01T13:57:20.5938126Z Received 52012766 of 52012766 (100.0%), 50.0 MBs/sec
+2026-10-01T13:57:20.5939262Z Cache Size: ~50 MB (52012766 B)
+2026-10-01T13:57:20.6077784Z [command]/usr/bin/tar -xf /home/runner/work/_temp/6d79f7f2-673d-425b-aeac-4417caf0faaa/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-01T13:57:20.7007778Z Cache restored successfully
+2026-10-01T13:57:20.7096507Z Cache restored from key: node-cache-Linux-x64-npm-a79428a48f53c819bdf3224c6f533bf526ae1b21f28f4ee918b0bcba5121d960
+2026-10-01T13:57:20.7229384Z ##[group]Run npm ci
+2026-10-01T13:57:20.7229705Z [36;1mnpm ci[0m
+2026-10-01T13:57:20.7494779Z shell: /usr/bin/bash -e {0}
+2026-10-01T13:57:20.7495125Z ##[endgroup]
+2026-10-01T13:57:27.2309854Z 
+2026-10-01T13:57:27.2319331Z added 346 packages, and audited 347 packages in 6s
+2026-10-01T13:57:27.2319947Z 
+2026-10-01T13:57:27.2320286Z 118 packages are looking for funding
+2026-10-01T13:57:27.2320773Z   run `npm fund` for details
+2026-10-01T13:57:27.2460031Z 
+2026-10-01T13:57:27.2460835Z 2 vulnerabilities (1 low, 1 high)
+2026-10-01T13:57:27.2461266Z 
+2026-10-01T13:57:27.2461541Z To address all issues, run:
+2026-10-01T13:57:27.2462002Z   npm audit fix
+2026-10-01T13:57:27.2462203Z 
+2026-10-01T13:57:27.2462417Z Run `npm audit` for details.
+2026-10-01T13:57:27.2844532Z ##[group]Run npx vitest run
+2026-10-01T13:57:27.2844841Z [36;1mnpx vitest run[0m
+2026-10-01T13:57:27.2889334Z shell: /usr/bin/bash -e {0}
+2026-10-01T13:57:27.2889617Z ##[endgroup]
+2026-10-01T13:57:28.0334722Z 
+2026-10-01T13:57:28.0337955Z [1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/home/runner/work/mini-drop/mini-drop/web[39m
+2026-10-01T13:57:28.0338672Z 
+2026-10-01T13:57:34.1510252Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:35.3793793Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:35.8580958Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:35.9187378Z [90mstderr[2m | src/components/ActualExplorationTree.test.jsx[2m > [22m[2mActualExplorationTree[2m > [22m[2mshows Skill retrieval, full-body loading and cross-round reuse inside the dynamic tree
+2026-10-01T13:57:35.9200230Z [22m[39mWarning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:57:35.9290173Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:57:35.9333715Z 
+2026-10-01T13:57:36.4365953Z  [32m✓[39m src/components/ActualExplorationTree.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 4649[2mms[22m[39m
+2026-10-01T13:57:36.4406538Z      [33m[2m✓[22m[39m uses stable tool IDs and distinguishes failed probes from counter-evidence [33m 1067[2mms[22m[39m
+2026-10-01T13:57:36.4414132Z      [33m[2m✓[22m[39m shows the route actually explored, including pruning and direction changes [33m 314[2mms[22m[39m
+2026-10-01T13:57:36.4416378Z      [33m[2m✓[22m[39m defaults to the parent-child tree, while keeping the round path as an auxiliary view [33m 338[2mms[22m[39m
+2026-10-01T13:57:36.4418643Z      [33m[2m✓[22m[39m renders server-provided LATS phase, best path and node scores without flattening the tree [33m 499[2mms[22m[39m
+2026-10-01T13:57:36.4420499Z      [33m[2m✓[22m[39m lets a user redirect or challenge a hypothesis node [33m 339[2mms[22m[39m
+2026-10-01T13:57:36.4422346Z      [33m[2m✓[22m[39m merges legacy paraphrase nodes but preserves descendants and score history [33m 439[2mms[22m[39m
+2026-10-01T13:57:36.4424382Z      [33m[2m✓[22m[39m shows Skill retrieval, full-body loading and cross-round reuse inside the dynamic tree [33m 500[2mms[22m[39m
+2026-10-01T13:57:36.4426479Z      [33m[2m✓[22m[39m projects the persisted activation and observed-route overlay returned by the backend [33m 318[2mms[22m[39m
+2026-10-01T13:57:37.1706115Z  [32m✓[39m src/components/FaultPlazaPanel.test.jsx [2m([22m[2m11 tests[22m[2m)[22m[33m 4470[2mms[22m[39m
+2026-10-01T13:57:37.1740389Z      [33m[2m✓[22m[39m prefers current engineering localization over a frozen strict failure [33m 1085[2mms[22m[39m
+2026-10-01T13:57:37.1756098Z      [33m[2m✓[22m[39m shows fresh acceptance gates and opens evidence without injecting a fault [33m 431[2mms[22m[39m
+2026-10-01T13:57:37.1802964Z      [33m[2m✓[22m[39m starts an allowlisted real fault and forwards its diagnosis request [33m 316[2mms[22m[39m
+2026-10-01T13:57:37.1828029Z      [33m[2m✓[22m[39m stops an injected fault when diagnosis creation fails [33m 398[2mms[22m[39m
+2026-10-01T13:57:37.1854040Z      [33m[2m✓[22m[39m disables Skill A/B when the server reports no published route [33m 335[2mms[22m[39m
+2026-10-01T13:57:37.1855943Z      [33m[2m✓[22m[39m shows one recommended scenario per runtime with counts and non-Python runtimes first [33m 464[2mms[22m[39m
+2026-10-01T13:57:37.1857918Z      [33m[2m✓[22m[39m filters by runtime while keeping an active scenario visible for safe stopping [33m 446[2mms[22m[39m
+2026-10-01T13:57:37.1861940Z      [33m[2m✓[22m[39m shows runtime investigation metadata and disables only the unavailable scenario [33m 378[2mms[22m[39m
+2026-10-01T13:57:39.4585964Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:42.4511971Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:42.6733070Z  [32m✓[39m src/components/ObservabilityOverview.test.jsx [2m([22m[2m16 tests[22m[2m)[22m[33m 893[2mms[22m[39m
+2026-10-01T13:57:42.6760681Z      [33m[2m✓[22m[39m keeps the default view concise and exposes provenance on demand [33m 493[2mms[22m[39m
+2026-10-01T13:57:42.7100897Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:42.9029749Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:42.9952458Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.2200105Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.4053067Z [90mstderr[2m | src/pages/AIDiagnosis.test.jsx[2m > [22m[2mAIDiagnosis V2 workspace[2m > [22m[2mdoes not submit while confirming a Chinese IME composition
+2026-10-01T13:57:43.4054355Z [22m[39mWarning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T13:57:43.4054899Z 
+2026-10-01T13:57:43.4109997Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:43.4138942Z 
+2026-10-01T13:57:43.4169342Z act(() => {
+2026-10-01T13:57:43.4209390Z   /* fire events that update state */
+2026-10-01T13:57:43.4239524Z });
+2026-10-01T13:57:43.4249574Z /* assert on the output */
+2026-10-01T13:57:43.4250086Z 
+2026-10-01T13:57:43.4251448Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:43.4253347Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:192:68)
+2026-10-01T13:57:43.4254661Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T13:57:43.4255340Z 
+2026-10-01T13:57:43.4256259Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:43.4267494Z 
+2026-10-01T13:57:43.4268001Z act(() => {
+2026-10-01T13:57:43.4268774Z   /* fire events that update state */
+2026-10-01T13:57:43.4269466Z });
+2026-10-01T13:57:43.4269963Z /* assert on the output */
+2026-10-01T13:57:43.4270359Z 
+2026-10-01T13:57:43.4271430Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:43.4291902Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:192:68)
+2026-10-01T13:57:43.4293273Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T13:57:43.4293933Z 
+2026-10-01T13:57:43.4294649Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:43.4295381Z 
+2026-10-01T13:57:43.4295680Z act(() => {
+2026-10-01T13:57:43.4296243Z   /* fire events that update state */
+2026-10-01T13:57:43.4296981Z });
+2026-10-01T13:57:43.4297582Z /* assert on the output */
+2026-10-01T13:57:43.4320838Z 
+2026-10-01T13:57:43.4322166Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:43.4323904Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:192:68)
+2026-10-01T13:57:43.4325207Z Warning: An update to AIDiagnosis inside a test was not wrapped in act(...).
+2026-10-01T13:57:43.4325928Z 
+2026-10-01T13:57:43.4326768Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:43.4327503Z 
+2026-10-01T13:57:43.4327854Z act(() => {
+2026-10-01T13:57:43.4355134Z   /* fire events that update state */
+2026-10-01T13:57:43.4355844Z });
+2026-10-01T13:57:43.4356351Z /* assert on the output */
+2026-10-01T13:57:43.4356776Z 
+2026-10-01T13:57:43.4358556Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:43.4360264Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:192:68)
+2026-10-01T13:57:43.4361605Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T13:57:43.4362245Z 
+2026-10-01T13:57:43.4362956Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:43.4363686Z 
+2026-10-01T13:57:43.4363949Z act(() => {
+2026-10-01T13:57:43.4364502Z   /* fire events that update state */
+2026-10-01T13:57:43.4365333Z });
+2026-10-01T13:57:43.4365780Z /* assert on the output */
+2026-10-01T13:57:43.4366177Z 
+2026-10-01T13:57:43.4367243Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:43.4369046Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T13:57:43.4370084Z     at div
+2026-10-01T13:57:43.4370887Z     at AIDiagnosis (/home/runner/work/mini-drop/mini-drop/web/src/pages/AIDiagnosis.jsx:192:68)
+2026-10-01T13:57:43.4371656Z 
+2026-10-01T13:57:43.5186922Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.5249791Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.5660468Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看规划假设 in an inspectable modal
+2026-10-01T13:57:43.5670440Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:43.5696326Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:43.5728643Z 
+2026-10-01T13:57:43.7119839Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.7416934Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.7516431Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.7880571Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看工具调用 in an inspectable modal
+2026-10-01T13:57:43.7907240Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:43.7909565Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:43.7910583Z 
+2026-10-01T13:57:43.9639970Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.9727592Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:43.9940642Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mopens 查看证据 in an inspectable modal
+2026-10-01T13:57:43.9980549Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:43.9982453Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:44.0008931Z 
+2026-10-01T13:57:44.1992902Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:44.4890560Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:44.4915736Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:44.5180141Z [90mstderr[2m | src/components/AgentCockpit.test.jsx[2m > [22m[2mAgentCockpit[2m > [22m[2mrenders evidence roles and gate states as Chinese labels
+2026-10-01T13:57:44.5208718Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:44.5211112Z Warning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:57:44.5211867Z 
+2026-10-01T13:57:44.9261958Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:45.1386656Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:45.3493861Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:45.3709962Z  [32m✓[39m src/components/AgentCockpit.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 4021[2mms[22m[39m
+2026-10-01T13:57:45.3715071Z      [33m[2m✓[22m[39m shows eight real metric buttons, including LATS, and the persisted runtime identity [33m 774[2mms[22m[39m
+2026-10-01T13:57:45.3716893Z      [33m[2m✓[22m[39m shows live LATS phase, selection, best path, budget and termination without claiming rollback [33m 437[2mms[22m[39m
+2026-10-01T13:57:45.3718869Z      [33m[2m✓[22m[39m shows auditable RAG sources while keeping knowledge outside the Evidence layer [33m 302[2mms[22m[39m
+2026-10-01T13:57:45.3720320Z      [33m[2m✓[22m[39m opens 查看规划假设 in an inspectable modal [33m 309[2mms[22m[39m
+2026-10-01T13:57:45.3721765Z      [33m[2m✓[22m[39m separates session context and Skill route memory from factual Evidence [33m 347[2mms[22m[39m
+2026-10-01T13:57:45.3723263Z      [33m[2m✓[22m[39m shows derived evaluation rates and keeps Skill publication human-controlled [33m 511[2mms[22m[39m
+2026-10-01T13:57:45.6371855Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:46.7132520Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:48.6303607Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:57:49.2887341Z [90mstderr[2m | src/components/ScopeCard.test.jsx[2m > [22m[2mScopeCard secure target discovery[2m > [22m[2mrequires an explicit closed selection when multiple candidates are eligible
+2026-10-01T13:57:49.2910198Z [22m[39mWarning: An update to InternalFormItem inside a test was not wrapped in act(...).
+2026-10-01T13:57:49.2910924Z 
+2026-10-01T13:57:49.2921220Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:49.2922289Z 
+2026-10-01T13:57:49.2922793Z act(() => {
+2026-10-01T13:57:49.2923542Z   /* fire events that update state */
+2026-10-01T13:57:49.2924357Z });
+2026-10-01T13:57:49.2924997Z /* assert on the output */
+2026-10-01T13:57:49.2925519Z 
+2026-10-01T13:57:49.2926813Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:49.2928869Z     at InternalFormItem (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/FormItem/index.js:58:5)
+2026-10-01T13:57:49.2930002Z     at div
+2026-10-01T13:57:49.2941459Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/col.js:40:13
+2026-10-01T13:57:49.2942815Z     at div
+2026-10-01T13:57:49.2943725Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/row.js:57:18
+2026-10-01T13:57:49.2944638Z     at form
+2026-10-01T13:57:49.2945585Z     at Form (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Form.js:21:19)
+2026-10-01T13:57:49.2946964Z     at NoFormStyle (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/context.js:32:3)
+2026-10-01T13:57:49.2948580Z     at FormProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/FormContext.js:19:31)
+2026-10-01T13:57:49.2949723Z     at FormProvider
+2026-10-01T13:57:49.2951035Z     at DisabledContextProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/DisabledContext.js:12:3)
+2026-10-01T13:57:49.2952768Z     at InternalForm (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/Form.js:50:33)
+2026-10-01T13:57:49.2953763Z     at div
+2026-10-01T13:57:49.2955211Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:57:49.2956187Z     at div
+2026-10-01T13:57:49.2957066Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:57:49.2958048Z     at div
+2026-10-01T13:57:49.2958731Z     at div
+2026-10-01T13:57:49.2959614Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/card/Card.js:53:18
+2026-10-01T13:57:49.2960946Z     at ScopeCard (/home/runner/work/mini-drop/mini-drop/web/src/components/ScopeCard.jsx:56:22)
+2026-10-01T13:57:49.2962425Z Warning: An update to Field inside a test was not wrapped in act(...).
+2026-10-01T13:57:49.2963093Z 
+2026-10-01T13:57:49.2963767Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:49.2964465Z 
+2026-10-01T13:57:49.2964761Z act(() => {
+2026-10-01T13:57:49.2965387Z   /* fire events that update state */
+2026-10-01T13:57:49.2966045Z });
+2026-10-01T13:57:49.2966620Z /* assert on the output */
+2026-10-01T13:57:49.2970299Z 
+2026-10-01T13:57:49.2971725Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:49.2973527Z     at Field (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Field.js:49:34)
+2026-10-01T13:57:49.2975020Z     at WrapperField (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Field.js:598:20)
+2026-10-01T13:57:49.2976562Z     at InternalFormItem (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/FormItem/index.js:58:5)
+2026-10-01T13:57:49.2977620Z     at div
+2026-10-01T13:57:49.2978788Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/col.js:40:13
+2026-10-01T13:57:49.2979649Z     at div
+2026-10-01T13:57:49.2980564Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/grid/row.js:57:18
+2026-10-01T13:57:49.2981530Z     at form
+2026-10-01T13:57:49.2982469Z     at Form (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/Form.js:21:19)
+2026-10-01T13:57:49.2983976Z     at NoFormStyle (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/context.js:32:3)
+2026-10-01T13:57:49.2985620Z     at FormProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-field-form/lib/FormContext.js:19:31)
+2026-10-01T13:57:49.2986752Z     at FormProvider
+2026-10-01T13:57:49.2988425Z     at DisabledContextProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/DisabledContext.js:12:3)
+2026-10-01T13:57:49.2990261Z     at InternalForm (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/form/Form.js:50:33)
+2026-10-01T13:57:49.2991204Z     at div
+2026-10-01T13:57:49.2992037Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:57:49.2992950Z     at div
+2026-10-01T13:57:49.2993785Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:57:49.2994744Z     at div
+2026-10-01T13:57:49.2995281Z     at div
+2026-10-01T13:57:49.2996171Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/card/Card.js:53:18
+2026-10-01T13:57:49.2997435Z     at ScopeCard (/home/runner/work/mini-drop/mini-drop/web/src/components/ScopeCard.jsx:56:22)
+2026-10-01T13:57:49.2998655Z 
+2026-10-01T13:57:50.4221241Z  [32m✓[39m src/pages/AIDiagnosis.test.jsx [2m([22m[2m20 tests[22m[2m)[22m[33m 15439[2mms[22m[39m
+2026-10-01T13:57:50.4250559Z      [33m[2m✓[22m[39m finishes a measured healthy check without a root report and offers fresh sampling [33m 2789[2mms[22m[39m
+2026-10-01T13:57:50.4259008Z      [33m[2m✓[22m[39m keeps a deep link available for retry after a transient list failure [33m 508[2mms[22m[39m
+2026-10-01T13:57:50.4280226Z      [33m[2m✓[22m[39m retains the requested case while React replays asynchronous state updates [33m 575[2mms[22m[39m
+2026-10-01T13:57:50.4290001Z      [33m[2m✓[22m[39m confirms cancellation with session version and refreshes the terminal record [33m 1308[2mms[22m[39m
+2026-10-01T13:57:50.4338154Z      [33m[2m✓[22m[39m hides cancellation on completed records [33m 540[2mms[22m[39m
+2026-10-01T13:57:50.4340409Z      [33m[2m✓[22m[39m does not automatically generate a skill from a bounded observation [33m 355[2mms[22m[39m
+2026-10-01T13:57:50.4366644Z      [33m[2m✓[22m[39m still generates a candidate from a completed diagnosis with an eligible latest report [33m 331[2mms[22m[39m
+2026-10-01T13:57:50.4369636Z      [33m[2m✓[22m[39m preserves a same-session report on partial and core refresh failures, but clears it when switching sessions [33m 1581[2mms[22m[39m
+2026-10-01T13:57:50.4401038Z      [33m[2m✓[22m[39m renders only Drop Insight V2 diagnoses [33m 1192[2mms[22m[39m
+2026-10-01T13:57:50.4453671Z      [33m[2m✓[22m[39m uses a full-width primary view and only splits when the user asks [33m 1097[2mms[22m[39m
+2026-10-01T13:57:50.4455067Z      [33m[2m✓[22m[39m shows a measured normal window before the tree and keeps report limits available [33m 396[2mms[22m[39m
+2026-10-01T13:57:50.4479676Z      [33m[2m✓[22m[39m lets the user review and edit a tree intervention before starting a new round [33m 1248[2mms[22m[39m
+2026-10-01T13:57:50.4481306Z      [33m[2m✓[22m[39m merges the active diagnosis replay, exploration tree and Skill decision in a modal [33m 807[2mms[22m[39m
+2026-10-01T13:57:50.4482700Z      [33m[2m✓[22m[39m continues a completed diagnosis as a real intervention round [33m 611[2mms[22m[39m
+2026-10-01T13:57:50.4484106Z      [33m[2m✓[22m[39m lets the user challenge the current plan from the persistent composer [33m 558[2mms[22m[39m
+2026-10-01T13:57:50.4485565Z      [33m[2m✓[22m[39m locks real collection, the ordinary planner and interventions for a frozen replay session [33m 531[2mms[22m[39m
+2026-10-01T13:57:51.3080964Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.3082745Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.3083764Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.3084691Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.3085197Z 
+2026-10-01T13:57:51.3170640Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.3229952Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.3258686Z 
+2026-10-01T13:57:51.5318456Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.5340121Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.5388970Z 
+2026-10-01T13:57:51.5642535Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.5644587Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.5645415Z 
+2026-10-01T13:57:51.6254793Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.6279922Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.6368845Z 
+2026-10-01T13:57:51.7731566Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.7756758Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.7757683Z 
+2026-10-01T13:57:51.8417189Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.8440055Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.8452932Z 
+2026-10-01T13:57:51.8884213Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mcreates real AUTO and DISABLED diagnoses and reports only observed metrics
+2026-10-01T13:57:51.8910092Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:51.8924262Z 
+2026-10-01T13:57:52.4390857Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.4412093Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.4413475Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.4459749Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.4461070Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.4488830Z 
+2026-10-01T13:57:52.4520887Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.4549947Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.4550796Z 
+2026-10-01T13:57:52.5336014Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.5360107Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.5361269Z 
+2026-10-01T13:57:52.5760113Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.5880405Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.5968934Z 
+2026-10-01T13:57:52.6104677Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.6129927Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.6198728Z 
+2026-10-01T13:57:52.6707593Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.6709929Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.6710575Z 
+2026-10-01T13:57:52.7161031Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.7162984Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.7163612Z 
+2026-10-01T13:57:52.7510272Z  [32m✓[39m src/components/ScopeCard.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[33m 5832[2mms[22m[39m
+2026-10-01T13:57:52.7512123Z      [33m[2m✓[22m[39m hides raw authority clarification prompts resolved by secure discovery [33m 1264[2mms[22m[39m
+2026-10-01T13:57:52.7540392Z      [33m[2m✓[22m[39m requires an explicit closed selection when multiple candidates are eligible [33m 816[2mms[22m[39m
+2026-10-01T13:57:52.7569668Z      [33m[2m✓[22m[39m shows a distinct EMPTY state and disables submission [33m 303[2mms[22m[39m
+2026-10-01T13:57:52.7579610Z      [33m[2m✓[22m[39m shows a distinct STALE state and disables submission [33m 308[2mms[22m[39m
+2026-10-01T13:57:52.7592331Z      [33m[2m✓[22m[39m fails closed when the selected binding disappears on refresh [33m 466[2mms[22m[39m
+2026-10-01T13:57:52.7593965Z      [33m[2m✓[22m[39m submits expected version and binding authority without raw agent or PID [33m 591[2mms[22m[39m
+2026-10-01T13:57:52.7595794Z      [33m[2m✓[22m[39m does not resubmit an immutable server time range [33m 563[2mms[22m[39m
+2026-10-01T13:57:52.7662970Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mkeeps an earlier supported hypothesis visible when a later branch is insufficient
+2026-10-01T13:57:52.7709637Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:52.7728538Z 
+2026-10-01T13:57:53.0404370Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.0430182Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.0442494Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.0443803Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.0444961Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.0445645Z 
+2026-10-01T13:57:53.0447513Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.0449539Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.0450203Z 
+2026-10-01T13:57:53.1490972Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.1510289Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.1518839Z 
+2026-10-01T13:57:53.1702101Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.1704262Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.1705191Z 
+2026-10-01T13:57:53.2110797Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.2112562Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.2113351Z 
+2026-10-01T13:57:53.2553837Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.2555966Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.2556830Z 
+2026-10-01T13:57:53.2889002Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.2891267Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.2892066Z 
+2026-10-01T13:57:53.3084336Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.3086719Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.3094555Z 
+2026-10-01T13:57:53.5830939Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.5832763Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.5833758Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.5835259Z 
+2026-10-01T13:57:53.5871079Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.5873095Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.5873793Z 
+2026-10-01T13:57:53.6023388Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.6040422Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.6041363Z 
+2026-10-01T13:57:53.6264576Z [90mstderr[2m | src/components/SkillABPanel.test.jsx[2m > [22m[2mSkillABPanel[2m > [22m[2mrestores a real A/B pair after leaving and returning to the validation center
+2026-10-01T13:57:53.6269968Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:57:53.6270814Z 
+2026-10-01T13:57:53.6763127Z  [32m✓[39m src/components/SkillABPanel.test.jsx [2m([22m[2m5 tests[22m[2m)[22m[33m 3777[2mms[22m[39m
+2026-10-01T13:57:53.6790760Z      [33m[2m✓[22m[39m creates real AUTO and DISABLED diagnoses and reports only observed metrics [33m 2169[2mms[22m[39m
+2026-10-01T13:57:53.6824728Z      [33m[2m✓[22m[39m keeps an earlier supported hypothesis visible when a later branch is insufficient [33m 737[2mms[22m[39m
+2026-10-01T13:57:53.6849933Z      [33m[2m✓[22m[39m restores a real A/B pair after leaving and returning to the validation center [33m 863[2mms[22m[39m
+2026-10-01T13:57:55.3618021Z  [32m✓[39m src/hooks/useSSE.test.jsx [2m([22m[2m13 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+2026-10-01T13:57:56.6467871Z  [32m✓[39m src/utils/reportPresentation.test.js [2m([22m[2m31 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+2026-10-01T13:57:58.2030062Z [90mstderr[2m | src/components/ManagedServicesPanel.test.jsx[2m > [22m[2msubmits only the selected request ID and rejects an expired selection
+2026-10-01T13:57:58.2050258Z [22m[39mWarning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T13:57:58.2051161Z 
+2026-10-01T13:57:58.2051971Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:58.2052772Z 
+2026-10-01T13:57:58.2053123Z act(() => {
+2026-10-01T13:57:58.2053725Z   /* fire events that update state */
+2026-10-01T13:57:58.2054308Z });
+2026-10-01T13:57:58.2054809Z /* assert on the output */
+2026-10-01T13:57:58.2055249Z 
+2026-10-01T13:57:58.2056439Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:58.2058090Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T13:57:58.2059640Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T13:57:58.2060374Z 
+2026-10-01T13:57:58.2061111Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:58.2061842Z 
+2026-10-01T13:57:58.2062146Z act(() => {
+2026-10-01T13:57:58.2062670Z   /* fire events that update state */
+2026-10-01T13:57:58.2063269Z });
+2026-10-01T13:57:58.2063790Z /* assert on the output */
+2026-10-01T13:57:58.2064219Z 
+2026-10-01T13:57:58.2065807Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:58.2067456Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T13:57:58.2068879Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T13:57:58.2070465Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T13:57:58.2072615Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T13:57:58.2074380Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T13:57:58.2075856Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T13:57:58.2077521Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T13:57:58.2078209Z 
+2026-10-01T13:57:58.2079066Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:58.2079807Z 
+2026-10-01T13:57:58.2080103Z act(() => {
+2026-10-01T13:57:58.2080688Z   /* fire events that update state */
+2026-10-01T13:57:58.2081289Z });
+2026-10-01T13:57:58.2081816Z /* assert on the output */
+2026-10-01T13:57:58.2082222Z 
+2026-10-01T13:57:58.2083209Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:58.2084787Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T13:57:58.2086180Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T13:57:58.2087916Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T13:57:58.2094410Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T13:57:58.2149861Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T13:57:58.2194219Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T13:57:58.2224423Z Warning: An update to Notifications inside a test was not wrapped in act(...).
+2026-10-01T13:57:58.2246641Z 
+2026-10-01T13:57:58.2247559Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:58.2248378Z 
+2026-10-01T13:57:58.2251723Z act(() => {
+2026-10-01T13:57:58.2252366Z   /* fire events that update state */
+2026-10-01T13:57:58.2252993Z });
+2026-10-01T13:57:58.2253509Z /* assert on the output */
+2026-10-01T13:57:58.2253890Z 
+2026-10-01T13:57:58.2255109Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:58.2256822Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-notification/lib/Notifications.js:19:32
+2026-10-01T13:57:58.2366763Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T13:57:58.2368789Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T13:57:58.2394632Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T13:57:58.2396393Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T13:57:58.2398017Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T13:57:58.2400592Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T13:57:58.2401925Z Warning: An update to ForwardRef inside a test was not wrapped in act(...).
+2026-10-01T13:57:58.2402607Z 
+2026-10-01T13:57:58.2403288Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:57:58.2404039Z 
+2026-10-01T13:57:58.2404324Z act(() => {
+2026-10-01T13:57:58.2404868Z   /* fire events that update state */
+2026-10-01T13:57:58.2405437Z });
+2026-10-01T13:57:58.2405960Z /* assert on the output */
+2026-10-01T13:57:58.2406350Z 
+2026-10-01T13:57:58.2407524Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:57:58.2409479Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/useMessage.js:52:5
+2026-10-01T13:57:58.2410757Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:41:5
+2026-10-01T13:57:58.2412246Z     at MotionWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/MotionWrapper.js:17:30)
+2026-10-01T13:57:58.2413899Z     at ProviderChildren (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:142:5)
+2026-10-01T13:57:58.2415600Z     at ConfigProvider (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/config-provider/index.js:444:25)
+2026-10-01T13:57:58.2416988Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/message/index.js:68:60
+2026-10-01T13:57:58.2417741Z 
+2026-10-01T13:57:58.4499903Z  [32m✓[39m src/components/ConclusionCard.test.jsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1097[2mms[22m[39m
+2026-10-01T13:57:58.4529990Z      [33m[2m✓[22m[39m explains that inclusive Go function shares overlap [33m 604[2mms[22m[39m
+2026-10-01T13:57:59.4499965Z  [31m❯[39m src/components/ManagedServicesPanel.test.jsx [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5670[2mms[22m[39m
+2026-10-01T13:57:59.4510241Z    [33m[2m✓[22m[39m starts diagnosis by service identity and symptoms without sending a PID [33m 1289[2mms[22m[39m
+2026-10-01T13:57:59.4529671Z    [32m✓[39m disables diagnosis for stale observations[32m 208[2mms[22m[39m
+2026-10-01T13:57:59.4559644Z    [32m✓[39m checks the current state without requiring a fault description[32m 197[2mms[22m[39m
+2026-10-01T13:57:59.4589611Z    [33m[2m✓[22m[39m shows real RAG stages and leaves unavailable stages empty [33m 478[2mms[22m[39m
+2026-10-01T13:57:59.4619737Z [31m   [31m×[31m keeps a current check separate from a selected historical request[39m[33m 1051[2mms[22m[39m
+2026-10-01T13:57:59.4621487Z    [33m[2m✓[22m[39m shows a real upload's chunking, indexing and process usage [32m 300[2mms[22m[39m
+2026-10-01T13:57:59.4649439Z    [32m✓[39m does not retain actionable status after a failed refresh[32m 265[2mms[22m[39m
+2026-10-01T13:57:59.4650764Z    [33m[2m✓[22m[39m submits only the selected request ID and rejects an expired selection [33m 633[2mms[22m[39m
+2026-10-01T13:57:59.4652238Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3507) [33m 463[2mms[22m[39m
+2026-10-01T13:57:59.4653730Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3407) [33m 358[2mms[22m[39m
+2026-10-01T13:57:59.4655229Z    [33m[2m✓[22m[39m checks both original 2000ms comparisons after preparation (3448) [33m 422[2mms[22m[39m
+2026-10-01T13:57:59.7839214Z  [32m✓[39m src/utils/observationAssessment.test.js [2m([22m[2m20 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-10-01T13:58:01.0700245Z  [32m✓[39m src/utils/diagnosisDisplay.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-10-01T13:58:03.7554481Z  [32m✓[39m src/components/ChatThread.test.jsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1710[2mms[22m[39m
+2026-10-01T13:58:03.7557301Z      [33m[2m✓[22m[39m keeps fix verification disabled for an observation in simple mode [33m 730[2mms[22m[39m
+2026-10-01T13:58:05.1131023Z  [32m✓[39m src/components/LatsReplayPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1317[2mms[22m[39m
+2026-10-01T13:58:05.1160219Z      [33m[2m✓[22m[39m creates a fresh UUID session and opens the returned diagnosis immediately [33m 1098[2mms[22m[39m
+2026-10-01T13:58:06.5008074Z  [32m✓[39m src/hooks/SSEContext.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+2026-10-01T13:58:08.1296890Z  [32m✓[39m src/components/HealthCheckActions.test.jsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1375[2mms[22m[39m
+2026-10-01T13:58:08.1340589Z      [33m[2m✓[22m[39m creates a fresh sampling session for NORMAL_OBSERVED [33m 972[2mms[22m[39m
+2026-10-01T13:58:08.4173450Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:08.4422548Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrejects an explicit zero-sample artifact instead of rendering an empty flamegraph
+2026-10-01T13:58:08.4453561Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:58:08.4458727Z 
+2026-10-01T13:58:08.4574016Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrejects an explicit zero-sample artifact instead of rendering an empty flamegraph
+2026-10-01T13:58:08.4593635Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:58:08.4599033Z 
+2026-10-01T13:58:09.0240176Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:09.0501874Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:09.0723428Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrenders continuous window outcomes in Chinese
+2026-10-01T13:58:09.0769411Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:58:09.0770863Z 
+2026-10-01T13:58:09.1009298Z [90mstderr[2m | src/pages/TaskResult.test.jsx[2m > [22m[2mTaskResult collection boundary[2m > [22m[2mrenders continuous window outcomes in Chinese
+2026-10-01T13:58:09.1012173Z [22m[39mWarning: [antd: Table] `index` parameter of `rowKey` function is deprecated. There is no guarantee that it will work as expected.
+2026-10-01T13:58:09.1023573Z 
+2026-10-01T13:58:09.1353030Z  [32m✓[39m src/pages/TaskResult.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2395[2mms[22m[39m
+2026-10-01T13:58:09.1360982Z      [33m[2m✓[22m[39m renders collection results and points diagnosis to the V2 workspace [33m 1218[2mms[22m[39m
+2026-10-01T13:58:09.1362949Z      [33m[2m✓[22m[39m rejects an explicit zero-sample artifact instead of rendering an empty flamegraph [33m 847[2mms[22m[39m
+2026-10-01T13:58:09.1364563Z      [33m[2m✓[22m[39m renders continuous window outcomes in Chinese [33m 323[2mms[22m[39m
+2026-10-01T13:58:13.2789264Z  [32m✓[39m src/components/EngineeringCasesPanel.test.jsx [2m([22m[2m11 tests[22m[2m)[22m[33m 2016[2mms[22m[39m
+2026-10-01T13:58:13.2828077Z    [33m[2m✓[22m[39m shows actual before/after evidence and does not claim automated AI root acceptance [33m 1436[2mms[22m[39m
+2026-10-01T13:58:13.4531512Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:13.9295617Z  [32m✓[39m src/components/ToolCallCard.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2095[2mms[22m[39m
+2026-10-01T13:58:13.9313724Z      [33m[2m✓[22m[39m shows approve/reject for a pending approval tool [33m 941[2mms[22m[39m
+2026-10-01T13:58:13.9320086Z      [33m[2m✓[22m[39m keeps the server-bound agent and PID immutable while editing sampling parameters [33m 1066[2mms[22m[39m
+2026-10-01T13:58:16.4267356Z  [32m✓[39m src/components/FlamegraphViewer.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2870[2mms[22m[39m
+2026-10-01T13:58:16.4269088Z      [33m[2m✓[22m[39m renders a 10k-node flamegraph without crashing [33m 1006[2mms[22m[39m
+2026-10-01T13:58:16.4270541Z      [33m[2m✓[22m[39m renders Java HTML as SVG data without inserting an executable iframe [33m 890[2mms[22m[39m
+2026-10-01T13:58:16.4301046Z      [33m[2m✓[22m[39m does not show a late response from the previously selected task [33m 910[2mms[22m[39m
+2026-10-01T13:58:18.5863331Z  [32m✓[39m src/components/AppLayout.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1522[2mms[22m[39m
+2026-10-01T13:58:18.5865380Z      [33m[2m✓[22m[39m shows the fallback indicator until the shared stream opens [33m 1034[2mms[22m[39m
+2026-10-01T13:58:18.7443137Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:19.1903129Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:19.6440592Z  [32m✓[39m src/components/MentorComplexShowcase.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2093[2mms[22m[39m
+2026-10-01T13:58:19.6469944Z      [33m[2m✓[22m[39m replays only the diagnosis passed by the active workspace [33m 1355[2mms[22m[39m
+2026-10-01T13:58:19.6537416Z      [33m[2m✓[22m[39m shows the candidate Skill produced by the same diagnosis [33m 734[2mms[22m[39m
+2026-10-01T13:58:20.8040210Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:21.0943072Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:21.1980406Z  [32m✓[39m src/components/BusinessAcceptancePanel.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1712[2mms[22m[39m
+2026-10-01T13:58:21.1999901Z    [33m[2m✓[22m[39m does not turn missing evidence into a passing result [33m 887[2mms[22m[39m
+2026-10-01T13:58:21.2013843Z    [33m[2m✓[22m[39m shows fallback separately from full recovery and AI diagnosis [33m 449[2mms[22m[39m
+2026-10-01T13:58:21.2015336Z    [33m[2m✓[22m[39m links an executed actual RAG diagnosis without claiming root verification [33m 319[2mms[22m[39m
+2026-10-01T13:58:24.4997638Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:24.5347563Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:24.5383732Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:24.5439703Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:24.5469570Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:24.5498535Z 
+2026-10-01T13:58:24.5804281Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:24.5830356Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:24.5881202Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:24.5891038Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:24.5950448Z 
+2026-10-01T13:58:24.6280474Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:24.6301819Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:24.6367902Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:24.6440801Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:24.6469051Z 
+2026-10-01T13:58:25.0470784Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:25.0490934Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:25.0492872Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:25.0494498Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:25.0495841Z 
+2026-10-01T13:58:25.0931833Z  [32m✓[39m src/components/DiagnosisPathPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 928[2mms[22m[39m
+2026-10-01T13:58:25.0940337Z      [33m[2m✓[22m[39m shows Chinese event and actor labels, with raw protocol codes in secondary details [33m 919[2mms[22m[39m
+2026-10-01T13:58:25.2527449Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:25.2673637Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:25.2677730Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:25.2679732Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:25.2681262Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:25.2682121Z 
+2026-10-01T13:58:25.2740389Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mignores late responses from another agent and resets the trend on navigation
+2026-10-01T13:58:25.2752270Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:25.2755266Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:25.2756832Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:25.2757696Z 
+2026-10-01T13:58:25.3029717Z  [32m✓[39m src/components/DiagnosisSkillOutcomeCard.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1739[2mms[22m[39m
+2026-10-01T13:58:25.3033374Z      [33m[2m✓[22m[39m shows the Skill produced by a verified diagnosis and exposes its gates [33m 1541[2mms[22m[39m
+2026-10-01T13:58:25.6562082Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:25.6716476Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mshows a request error and retry instead of only claiming the agent does not exist
+2026-10-01T13:58:25.6720121Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:25.6721782Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:25.6723213Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:25.6724015Z 
+2026-10-01T13:58:25.6770062Z [90mstderr[2m | src/pages/AgentDetail.test.jsx[2m > [22m[2mshows a request error and retry instead of only claiming the agent does not exist
+2026-10-01T13:58:25.6774479Z [22m[39mWarning: [antd: Descriptions] `labelStyle` is deprecated. Please use `styles={{ label: {} }}` instead.
+2026-10-01T13:58:25.6776006Z Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.
+2026-10-01T13:58:25.6777438Z Warning: [antd: Descriptions] Sum of column `span` in a line not match `column` of Descriptions.
+2026-10-01T13:58:25.6807329Z 
+2026-10-01T13:58:25.6818713Z  [32m✓[39m src/pages/AgentDetail.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2679[2mms[22m[39m
+2026-10-01T13:58:25.6820691Z    [33m[2m✓[22m[39m ignores late responses from another agent and resets the trend on navigation [33m 2297[2mms[22m[39m
+2026-10-01T13:58:25.6821749Z    [33m[2m✓[22m[39m shows a request error and retry instead of only claiming the agent does not exist [33m 379[2mms[22m[39m
+2026-10-01T13:58:26.6448656Z  [32m✓[39m src/hooks/usePolling.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+2026-10-01T13:58:29.8415897Z [90mstderr[2m | src/components/EvalPanel.test.jsx[2m > [22m[2mEvalPanel replay entry[2m > [22m[2mdefaults to performance experiments and keeps engineering regressions separate
+2026-10-01T13:58:29.8470201Z [22m[39mWarning: An update to EngineeringDiagnosisSummary inside a test was not wrapped in act(...).
+2026-10-01T13:58:29.8478898Z 
+2026-10-01T13:58:29.8479966Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:29.8480710Z 
+2026-10-01T13:58:29.8480986Z act(() => {
+2026-10-01T13:58:29.8481541Z   /* fire events that update state */
+2026-10-01T13:58:29.8482170Z });
+2026-10-01T13:58:29.8482669Z /* assert on the output */
+2026-10-01T13:58:29.8483079Z 
+2026-10-01T13:58:29.8484176Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:29.8486041Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:29.8487265Z     at div
+2026-10-01T13:58:29.8488144Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:29.8489249Z     at div
+2026-10-01T13:58:29.8490100Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:29.8490955Z     at main
+2026-10-01T13:58:29.8491410Z     at div
+2026-10-01T13:58:29.8492278Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:29.8493153Z 
+2026-10-01T13:58:30.2320389Z [90mstderr[2m | src/components/EvalPanel.test.jsx[2m > [22m[2mEvalPanel replay entry[2m > [22m[2mdefaults to performance experiments and keeps engineering regressions separate
+2026-10-01T13:58:30.2325180Z [22m[39mWarning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.2325947Z 
+2026-10-01T13:58:30.2326764Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.2327502Z 
+2026-10-01T13:58:30.2327798Z act(() => {
+2026-10-01T13:58:30.2328526Z   /* fire events that update state */
+2026-10-01T13:58:30.2329144Z });
+2026-10-01T13:58:30.2329628Z /* assert on the output */
+2026-10-01T13:58:30.2330020Z 
+2026-10-01T13:58:30.2331133Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.2332619Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2334028Z     at DefaultLoadingIcon (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/DefaultLoadingIcon.js:44:5)
+2026-10-01T13:58:30.2335010Z     at button
+2026-10-01T13:58:30.2335886Z     at Wave (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/_util/wave/index.js:19:5)
+2026-10-01T13:58:30.2337158Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/button.js:60:7
+2026-10-01T13:58:30.2337928Z     at div
+2026-10-01T13:58:30.2338519Z     at div
+2026-10-01T13:58:30.2339363Z     at DomWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/DomWrapper.js:20:34)
+2026-10-01T13:58:30.2340609Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2341758Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.2342585Z     at section
+2026-10-01T13:58:30.2344192Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.2345410Z     at div
+2026-10-01T13:58:30.2346232Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.2347085Z     at div
+2026-10-01T13:58:30.2347827Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.2348813Z     at main
+2026-10-01T13:58:30.2349217Z     at div
+2026-10-01T13:58:30.2350040Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.2351741Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.2352343Z 
+2026-10-01T13:58:30.2352963Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.2353642Z 
+2026-10-01T13:58:30.2353911Z act(() => {
+2026-10-01T13:58:30.2354435Z   /* fire events that update state */
+2026-10-01T13:58:30.2354975Z });
+2026-10-01T13:58:30.2355472Z /* assert on the output */
+2026-10-01T13:58:30.2355844Z 
+2026-10-01T13:58:30.2356909Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.2358581Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2360107Z     at DefaultLoadingIcon (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/DefaultLoadingIcon.js:44:5)
+2026-10-01T13:58:30.2361193Z     at button
+2026-10-01T13:58:30.2362060Z     at Wave (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/_util/wave/index.js:19:5)
+2026-10-01T13:58:30.2363271Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/button.js:60:7
+2026-10-01T13:58:30.2364110Z     at div
+2026-10-01T13:58:30.2364569Z     at div
+2026-10-01T13:58:30.2365932Z     at DomWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/DomWrapper.js:20:34)
+2026-10-01T13:58:30.2367301Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2368648Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.2369438Z     at section
+2026-10-01T13:58:30.2371138Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.2372167Z     at div
+2026-10-01T13:58:30.2372931Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.2373749Z     at div
+2026-10-01T13:58:30.2374518Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.2375279Z     at main
+2026-10-01T13:58:30.2375572Z     at div
+2026-10-01T13:58:30.2376310Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.2377332Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.2377795Z 
+2026-10-01T13:58:30.2378467Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.2378993Z 
+2026-10-01T13:58:30.2379116Z act(() => {
+2026-10-01T13:58:30.2379483Z   /* fire events that update state */
+2026-10-01T13:58:30.2379875Z });
+2026-10-01T13:58:30.2380179Z /* assert on the output */
+2026-10-01T13:58:30.2380418Z 
+2026-10-01T13:58:30.2381295Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.2382565Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2383764Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.2384538Z     at section
+2026-10-01T13:58:30.2386018Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.2387070Z     at div
+2026-10-01T13:58:30.2387878Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.2395013Z     at div
+2026-10-01T13:58:30.2395939Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.2396715Z     at main
+2026-10-01T13:58:30.2397055Z     at div
+2026-10-01T13:58:30.2397840Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.2399480Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.2400005Z 
+2026-10-01T13:58:30.2400601Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.2401212Z 
+2026-10-01T13:58:30.2401334Z act(() => {
+2026-10-01T13:58:30.2401752Z   /* fire events that update state */
+2026-10-01T13:58:30.2402155Z });
+2026-10-01T13:58:30.2402478Z /* assert on the output */
+2026-10-01T13:58:30.2402712Z 
+2026-10-01T13:58:30.2403661Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.2404978Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.2406086Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.2406803Z     at section
+2026-10-01T13:58:30.2407845Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.2408989Z     at div
+2026-10-01T13:58:30.2409724Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.2410469Z     at div
+2026-10-01T13:58:30.2411161Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.2411781Z     at main
+2026-10-01T13:58:30.2412014Z     at div
+2026-10-01T13:58:30.2412580Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.2413079Z 
+2026-10-01T13:58:30.2581885Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:30.3565466Z [90mstderr[2m | src/components/EvalPanel.test.jsx[2m > [22m[2mEvalPanel replay entry[2m > [22m[2mplaces the real Fault Plaza before frozen replay and forwards diagnosis navigation
+2026-10-01T13:58:30.3610242Z [22m[39mWarning: An update to EngineeringDiagnosisSummary inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.3625096Z 
+2026-10-01T13:58:30.3659904Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.3698779Z 
+2026-10-01T13:58:30.3724116Z act(() => {
+2026-10-01T13:58:30.3769432Z   /* fire events that update state */
+2026-10-01T13:58:30.3799332Z });
+2026-10-01T13:58:30.3828989Z /* assert on the output */
+2026-10-01T13:58:30.3877107Z 
+2026-10-01T13:58:30.3881550Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.3883427Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.3884684Z     at div
+2026-10-01T13:58:30.3885566Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.3886460Z     at div
+2026-10-01T13:58:30.3887186Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.3887975Z     at main
+2026-10-01T13:58:30.3888526Z     at div
+2026-10-01T13:58:30.3889382Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.3890246Z 
+2026-10-01T13:58:30.3892486Z [90mstderr[2m | src/components/EvalPanel.test.jsx[2m > [22m[2mEvalPanel replay entry[2m > [22m[2mplaces the real Fault Plaza before frozen replay and forwards diagnosis navigation
+2026-10-01T13:58:30.3894491Z [22m[39mWarning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.3895077Z 
+2026-10-01T13:58:30.3895683Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.3896331Z 
+2026-10-01T13:58:30.3896541Z act(() => {
+2026-10-01T13:58:30.3897029Z   /* fire events that update state */
+2026-10-01T13:58:30.3897776Z });
+2026-10-01T13:58:30.3898218Z /* assert on the output */
+2026-10-01T13:58:30.3898744Z 
+2026-10-01T13:58:30.3899757Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.3901180Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.3902625Z     at DefaultLoadingIcon (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/DefaultLoadingIcon.js:44:5)
+2026-10-01T13:58:30.3903698Z     at button
+2026-10-01T13:58:30.3904589Z     at Wave (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/_util/wave/index.js:19:5)
+2026-10-01T13:58:30.3905976Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/button.js:60:7
+2026-10-01T13:58:30.3908623Z     at div
+2026-10-01T13:58:30.3909061Z     at div
+2026-10-01T13:58:30.3909980Z     at DomWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/DomWrapper.js:20:34)
+2026-10-01T13:58:30.3911247Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.3912402Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.3913208Z     at section
+2026-10-01T13:58:30.3914358Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.3915473Z     at div
+2026-10-01T13:58:30.3916280Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.3917123Z     at div
+2026-10-01T13:58:30.3922057Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.3923641Z  [32m✓[39m src/components/EvalPanel.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1063[2mms[22m[39m
+2026-10-01T13:58:30.3924592Z     at main
+2026-10-01T13:58:30.3925677Z      [33m[2m✓[22m[39m defaults to performance experiments and keeps engineering regressions separate [33m 905[2mms[22m[39m
+2026-10-01T13:58:30.3939619Z     at div
+2026-10-01T13:58:30.3940663Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.3941764Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.3942291Z 
+2026-10-01T13:58:30.3942875Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.3962776Z 
+2026-10-01T13:58:30.3963133Z act(() => {
+2026-10-01T13:58:30.3963658Z   /* fire events that update state */
+2026-10-01T13:58:30.3964200Z });
+2026-10-01T13:58:30.3964653Z /* assert on the output */
+2026-10-01T13:58:30.3964984Z 
+2026-10-01T13:58:30.3966090Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.3999262Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.4000866Z     at DefaultLoadingIcon (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/DefaultLoadingIcon.js:44:5)
+2026-10-01T13:58:30.4013803Z     at button
+2026-10-01T13:58:30.4014793Z     at Wave (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/_util/wave/index.js:19:5)
+2026-10-01T13:58:30.4016483Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/button/button.js:60:7
+2026-10-01T13:58:30.4017340Z     at div
+2026-10-01T13:58:30.4017720Z     at div
+2026-10-01T13:58:30.4018744Z     at DomWrapper (/home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/DomWrapper.js:20:34)
+2026-10-01T13:58:30.4020082Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.4021283Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.4022366Z     at section
+2026-10-01T13:58:30.4023489Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.4024576Z     at div
+2026-10-01T13:58:30.4025375Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.4026162Z     at div
+2026-10-01T13:58:30.4026933Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.4027721Z     at main
+2026-10-01T13:58:30.4028077Z     at div
+2026-10-01T13:58:30.4028906Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.4029925Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.4030459Z 
+2026-10-01T13:58:30.4031008Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.4031573Z 
+2026-10-01T13:58:30.4031794Z act(() => {
+2026-10-01T13:58:30.4032256Z   /* fire events that update state */
+2026-10-01T13:58:30.4032686Z });
+2026-10-01T13:58:30.4033085Z /* assert on the output */
+2026-10-01T13:58:30.4033384Z 
+2026-10-01T13:58:30.4034242Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.4035518Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.4036543Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.4037449Z     at section
+2026-10-01T13:58:30.4038672Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.4039715Z     at div
+2026-10-01T13:58:30.4040439Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.4041104Z     at div
+2026-10-01T13:58:30.4068657Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.4098966Z     at main
+2026-10-01T13:58:30.4099488Z     at div
+2026-10-01T13:58:30.4109465Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.4155566Z Warning: An update to CSSMotion inside a test was not wrapped in act(...).
+2026-10-01T13:58:30.4178918Z 
+2026-10-01T13:58:30.4189720Z When testing, code that causes React state updates should be wrapped into act(...):
+2026-10-01T13:58:30.4209935Z 
+2026-10-01T13:58:30.4248952Z act(() => {
+2026-10-01T13:58:30.4249517Z   /* fire events that update state */
+2026-10-01T13:58:30.4269162Z });
+2026-10-01T13:58:30.4298944Z /* assert on the output */
+2026-10-01T13:58:30.4338569Z 
+2026-10-01T13:58:30.4339921Z This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+2026-10-01T13:58:30.4359339Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/rc-motion/lib/CSSMotion.js:42:32
+2026-10-01T13:58:30.4390436Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/alert/Alert.js:74:7
+2026-10-01T13:58:30.4398957Z     at section
+2026-10-01T13:58:30.4430025Z     at EngineeringDiagnosisSummary (/home/runner/work/mini-drop/mini-drop/web/src/components/EngineeringDiagnosisSummary.jsx:14:40)
+2026-10-01T13:58:30.4452127Z     at div
+2026-10-01T13:58:30.4473998Z     at Item (/home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/Item.js:12:3)
+2026-10-01T13:58:30.4474975Z     at div
+2026-10-01T13:58:30.4475795Z     at /home/runner/work/mini-drop/mini-drop/web/node_modules/antd/lib/space/index.js:44:39
+2026-10-01T13:58:30.4476589Z     at main
+2026-10-01T13:58:30.4477008Z     at div
+2026-10-01T13:58:30.4477881Z     at EvalPanel (/home/runner/work/mini-drop/mini-drop/web/src/components/EvalPanel.jsx:445:22)
+2026-10-01T13:58:30.4478757Z 
+2026-10-01T13:58:31.1412397Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T13:58:31.1430453Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:31.1456814Z Warning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:31.1479270Z 
+2026-10-01T13:58:31.2600426Z  [32m✓[39m src/components/PerformanceDiagnosisSummary.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1759[2mms[22m[39m
+2026-10-01T13:58:31.2620252Z    [33m[2m✓[22m[39m shows every old scenario while keeping recorded lineage separate from causal root success [33m 1038[2mms[22m[39m
+2026-10-01T13:58:31.2622499Z    [33m[2m✓[22m[39m fails closed for http and can retry without injecting faults [33m 585[2mms[22m[39m
+2026-10-01T13:58:31.8147196Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:31.8241193Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T13:58:31.8269838Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:31.8300665Z 
+2026-10-01T13:58:32.1719719Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T13:58:32.1760240Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:32.1788887Z 
+2026-10-01T13:58:32.1933403Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T13:58:32.1935571Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:32.1936391Z 
+2026-10-01T13:58:32.2220254Z [90mstderr[2m | src/components/SkillExperimentPanel.test.jsx[2m > [22m[2mSkillExperimentPanel[2m > [22m[2muses the server-assigned arm and never asks the browser to choose one
+2026-10-01T13:58:32.2222641Z [22m[39mWarning: [antd: Card] `bordered` is deprecated. Please use `variant` instead.
+2026-10-01T13:58:32.2223366Z 
+2026-10-01T13:58:32.2534757Z  [32m✓[39m src/components/SkillExperimentPanel.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 2225[2mms[22m[39m
+2026-10-01T13:58:32.2536185Z      [33m[2m✓[22m[39m uses the server-assigned arm and never asks the browser to choose one [33m 2216[2mms[22m[39m
+2026-10-01T13:58:34.5525940Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:35.0771214Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:35.1000043Z  [32m✓[39m src/components/EngineeringDiagnosisSummary.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1513[2mms[22m[39m
+2026-10-01T13:58:35.1020470Z    [33m[2m✓[22m[39m shows engineering acceptance separately from localization, refutation and untouched cases [33m 1238[2mms[22m[39m
+2026-10-01T13:58:35.7641006Z  [32m✓[39m src/components/PlannerBlock.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 510[2mms[22m[39m
+2026-10-01T13:58:35.7648106Z      [33m[2m✓[22m[39m merges cross-round paraphrases while keeping the latest state and unique causes [33m 507[2mms[22m[39m
+2026-10-01T13:58:36.2932354Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:36.4818457Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:37.2548862Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:37.3646577Z  [32m✓[39m src/components/FixVerificationPanel.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1721[2mms[22m[39m
+2026-10-01T13:58:37.3648813Z      [33m[2m✓[22m[39m shows an explicit unverified outcome when no repair records exist [33m 738[2mms[22m[39m
+2026-10-01T13:58:37.3651001Z      [33m[2m✓[22m[39m does not mistake a load failure for an absent repair [33m 442[2mms[22m[39m
+2026-10-01T13:58:37.3652475Z      [33m[2m✓[22m[39m renders past verification records [33m 538[2mms[22m[39m
+2026-10-01T13:58:38.5261496Z  [32m✓[39m src/utils/asyncProfiler.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-01T13:58:39.9509462Z  [32m✓[39m src/components/EvidenceCard.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 547[2mms[22m[39m
+2026-10-01T13:58:39.9546629Z      [33m[2m✓[22m[39m uses Chinese evidence role, gate decision, tool and observation labels [33m 493[2mms[22m[39m
+2026-10-01T13:58:41.1737305Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:41.4412638Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:41.5426322Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:41.6039877Z  [32m✓[39m src/components/SafeMarkdown.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+2026-10-01T13:58:42.1850606Z  [32m✓[39m src/components/DiagnosisFinding.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+2026-10-01T13:58:42.1890627Z      [33m[2m✓[22m[39m retains a supported report when a later branch is inconclusive, without hiding limitations [33m 372[2mms[22m[39m
+2026-10-01T13:58:42.2020561Z Not implemented: Window's getComputedStyle() method: with pseudo-elements
+2026-10-01T13:58:42.2718103Z  [32m✓[39m src/pages/Schedules.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2036[2mms[22m[39m
+2026-10-01T13:58:42.2719383Z      [33m[2m✓[22m[39m renders the schedule list [33m 1101[2mms[22m[39m
+2026-10-01T13:58:42.2720533Z      [33m[2m✓[22m[39m opens the creation drawer from the primary action [33m 812[2mms[22m[39m
+2026-10-01T13:58:42.8755796Z  [32m✓[39m src/utils/sysMetrics.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-10-01T13:58:43.6380320Z  [32m✓[39m src/utils/latsReplay.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-10-01T13:58:44.2120540Z  [32m✓[39m src/utils/parseJsonPayload.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-10-01T13:58:44.8700402Z  [32m✓[39m src/utils/agentMetrics.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-10-01T13:58:45.5516098Z  [32m✓[39m src/utils/parseJsonOffMainThread.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-10-01T13:58:46.1423427Z  [32m✓[39m src/utils/diagnosisQuery.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-10-01T13:58:47.6026036Z  [32m✓[39m src/components/DiagnosisCaseList.test.jsx [2m([22m[2m1 test[22m[2m)[22m[33m 979[2mms[22m[39m
+2026-10-01T13:58:47.6028633Z      [33m[2m✓[22m[39m separates FULL_LATS frozen replay sessions from ordinary live diagnoses [33m 976[2mms[22m[39m
+2026-10-01T13:58:47.7802719Z  [32m✓[39m src/utils/skillBenchmark.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-10-01T13:58:48.6080777Z  [32m✓[39m src/utils/latsSearch.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-10-01T13:58:48.6510773Z  [32m✓[39m src/components/StatusTag.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[32m 300[2mms[22m[39m
+2026-10-01T13:58:48.6549736Z 
+2026-10-01T13:58:48.6550601Z [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+2026-10-01T13:58:48.6551086Z 
+2026-10-01T13:58:48.6553018Z [41m[1m FAIL [22m[49m src/components/ManagedServicesPanel.test.jsx[2m > [22mkeeps a current check separate from a selected historical request
+2026-10-01T13:58:48.6554880Z [31m[1mTestingLibraryElementError[22m[39m: Unable to find role="heading" and name "办公助手"
+2026-10-01T13:58:48.6555480Z 
+2026-10-01T13:58:48.6555783Z Ignored nodes: comments, script, style
+2026-10-01T13:58:48.6556631Z [36m<body>[39m
+2026-10-01T13:58:48.6557002Z   [36m<div>[39m
+2026-10-01T13:58:48.6557369Z     [36m<div[39m
+2026-10-01T13:58:48.6558651Z       [33mclass[39m=[32m"ant-space css-dev-only-do-not-override-mncuj7 ant-space-vertical managed-service-exam"[39m
+2026-10-01T13:58:48.6559904Z       [33mstyle[39m=[32m"column-gap: 16px; row-gap: 16px;"[39m
+2026-10-01T13:58:48.6560543Z     [36m>[39m
+2026-10-01T13:58:48.6560971Z       [36m<div[39m
+2026-10-01T13:58:48.6561585Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6562096Z       [36m>[39m
+2026-10-01T13:58:48.6562502Z         [36m<div[39m
+2026-10-01T13:58:48.6563453Z           [33mclass[39m=[32m"ant-card ant-card-bordered css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6564273Z         [36m>[39m
+2026-10-01T13:58:48.6564645Z           [36m<div[39m
+2026-10-01T13:58:48.6565207Z             [33mclass[39m=[32m"ant-card-head"[39m
+2026-10-01T13:58:48.6565766Z           [36m>[39m
+2026-10-01T13:58:48.6566188Z             [36m<div[39m
+2026-10-01T13:58:48.6566854Z               [33mclass[39m=[32m"ant-card-head-wrapper"[39m
+2026-10-01T13:58:48.6567473Z             [36m>[39m
+2026-10-01T13:58:48.6567941Z               [36m<div[39m
+2026-10-01T13:58:48.6568808Z                 [33mclass[39m=[32m"ant-card-head-title"[39m
+2026-10-01T13:58:48.6569381Z               [36m>[39m
+2026-10-01T13:58:48.6569894Z                 [0m选择服务，开始体检[0m
+2026-10-01T13:58:48.6570418Z               [36m</div>[39m
+2026-10-01T13:58:48.6570871Z               [36m<div[39m
+2026-10-01T13:58:48.6571448Z                 [33mclass[39m=[32m"ant-card-extra"[39m
+2026-10-01T13:58:48.6572024Z               [36m>[39m
+2026-10-01T13:58:48.6572504Z                 [36m<button[39m
+2026-10-01T13:58:48.6573158Z                   [33maria-label[39m=[32m"刷新服务"[39m
+2026-10-01T13:58:48.6574633Z                   [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6575927Z                   [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6576465Z                 [36m>[39m
+2026-10-01T13:58:48.6576997Z                   [36m<span[39m
+2026-10-01T13:58:48.6579055Z                     [33mclass[39m=[32m"ant-btn-icon ant-btn-loading-icon ant-btn-loading-icon-motion-leave ant-btn-loading-icon-motion-leave-active ant-btn-loading-icon-motion"[39m
+2026-10-01T13:58:48.6580833Z                     [33mstyle[39m=[32m"width: 0px; opacity: 0; transform: scale(0);"[39m
+2026-10-01T13:58:48.6581604Z                   [36m>[39m
+2026-10-01T13:58:48.6582151Z                     [36m<span[39m
+2026-10-01T13:58:48.6582861Z                       [33maria-label[39m=[32m"loading"[39m
+2026-10-01T13:58:48.6583711Z                       [33mclass[39m=[32m"anticon anticon-loading anticon-spin"[39m
+2026-10-01T13:58:48.6584584Z                       [33mrole[39m=[32m"img"[39m
+2026-10-01T13:58:48.6585214Z                     [36m>[39m
+2026-10-01T13:58:48.6585795Z                       [36m<svg[39m
+2026-10-01T13:58:48.6586499Z                         [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6587280Z                         [33mdata-icon[39m=[32m"loading"[39m
+2026-10-01T13:58:48.6588093Z                         [33mfill[39m=[32m"currentColor"[39m
+2026-10-01T13:58:48.6589139Z                         [33mfocusable[39m=[32m"false"[39m
+2026-10-01T13:58:48.6590260Z                         [33mheight[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6591158Z                         [33mviewBox[39m=[32m"0 0 1024 1024"[39m
+2026-10-01T13:58:48.6591932Z                         [33mwidth[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6592824Z                       [36m>[39m
+2026-10-01T13:58:48.6593392Z                         [36m<path[39m
+2026-10-01T13:58:48.6595933Z                           [33md[39m=[32m"M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 00-94.3-139.9 437.71 437.71 0 00-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z"[39m
+2026-10-01T13:58:48.6598390Z                         [36m/>[39m
+2026-10-01T13:58:48.6599012Z                       [36m</svg>[39m
+2026-10-01T13:58:48.6599654Z                     [36m</span>[39m
+2026-10-01T13:58:48.6600297Z                   [36m</span>[39m
+2026-10-01T13:58:48.6600923Z                   [36m<span>[39m
+2026-10-01T13:58:48.6601551Z                     [0m刷新服务[0m
+2026-10-01T13:58:48.6602162Z                   [36m</span>[39m
+2026-10-01T13:58:48.6602776Z                 [36m</button>[39m
+2026-10-01T13:58:48.6603366Z               [36m</div>[39m
+2026-10-01T13:58:48.6603898Z             [36m</div>[39m
+2026-10-01T13:58:48.6604425Z           [36m</div>[39m
+2026-10-01T13:58:48.6604921Z           [36m<div[39m
+2026-10-01T13:58:48.6605568Z             [33mclass[39m=[32m"ant-card-body"[39m
+2026-10-01T13:58:48.6606205Z           [36m>[39m
+2026-10-01T13:58:48.6606678Z             [36m<div[39m
+2026-10-01T13:58:48.6607649Z               [33mclass[39m=[32m"ant-typography css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6608683Z             [36m>[39m
+2026-10-01T13:58:48.6609492Z               [0m可以直接检查当前状态；如果刚完成一次业务操作，先选中对应请求，体检会带上这次操作的时间与耗时。[0m
+2026-10-01T13:58:48.6610151Z             [36m</div>[39m
+2026-10-01T13:58:48.6610690Z             [36m<div[39m
+2026-10-01T13:58:48.6611336Z               [33maria-label[39m=[32m"服务体检流程"[39m
+2026-10-01T13:58:48.6612141Z               [33mclass[39m=[32m"managed-service-steps"[39m
+2026-10-01T13:58:48.6612793Z             [36m>[39m
+2026-10-01T13:58:48.6613310Z               [36m<span>[39m
+2026-10-01T13:58:48.6613867Z                 [0m1 选择服务[0m
+2026-10-01T13:58:48.6614412Z               [36m</span>[39m
+2026-10-01T13:58:48.6614966Z               [36m<span>[39m
+2026-10-01T13:58:48.6615528Z                 [0m2 检查状态或描述异常[0m
+2026-10-01T13:58:48.6616114Z               [36m</span>[39m
+2026-10-01T13:58:48.6616672Z               [36m<span>[39m
+2026-10-01T13:58:48.6617236Z                 [0m3 查看体检报告与排查树[0m
+2026-10-01T13:58:48.6617809Z               [36m</span>[39m
+2026-10-01T13:58:48.6618527Z             [36m</div>[39m
+2026-10-01T13:58:48.6619078Z             [36m<details>[39m
+2026-10-01T13:58:48.6619632Z               [36m<summary>[39m
+2026-10-01T13:58:48.6620263Z                 [0m体检会采集什么？[0m
+2026-10-01T13:58:48.6620832Z               [36m</summary>[39m
+2026-10-01T13:58:48.6621339Z               [36m<span[39m
+2026-10-01T13:58:48.6622554Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6623582Z               [36m>[39m
+2026-10-01T13:58:48.6624491Z                 [0m系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。[0m
+2026-10-01T13:58:48.6625204Z               [36m</span>[39m
+2026-10-01T13:58:48.6625692Z             [36m</details>[39m
+2026-10-01T13:58:48.6626131Z           [36m</div>[39m
+2026-10-01T13:58:48.6626539Z         [36m</div>[39m
+2026-10-01T13:58:48.6626928Z       [36m</div>[39m
+2026-10-01T13:58:48.6627301Z       [36m<div[39m
+2026-10-01T13:58:48.6627811Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6628483Z       [36m/>[39m
+2026-10-01T13:58:48.6629169Z       [36m<div[39m
+2026-10-01T13:58:48.6629732Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6630259Z       [36m>[39m
+2026-10-01T13:58:48.6630661Z         [36m<div[39m
+2026-10-01T13:58:48.6631675Z           [33mclass[39m=[32m"ant-card ant-card-bordered managed-service-card css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6632687Z         [36m>[39m
+2026-10-01T13:58:48.6633050Z           [36m<div[39m
+2026-10-01T13:58:48.6633589Z             [33mclass[39m=[32m"ant-card-head"[39m
+2026-10-01T13:58:48.6634095Z           [36m>[39m
+2026-10-01T13:58:48.6634726Z             [36m<div[39m
+2026-10-01T13:58:48.6635340Z               [33mclass[39m=[32m"ant-card-head-wrapper"[39m
+2026-10-01T13:58:48.6635897Z             [36m>[39m
+2026-10-01T13:58:48.6636246Z               [36m<div[39m
+2026-10-01T13:58:48.6636813Z                 [33mclass[39m=[32m"ant-card-head-title"[39m
+2026-10-01T13:58:48.6637334Z               [36m>[39m
+2026-10-01T13:58:48.6637816Z                 [0m办公助手[0m
+2026-10-01T13:58:48.6638462Z               [36m</div>[39m
+2026-10-01T13:58:48.6638936Z             [36m</div>[39m
+2026-10-01T13:58:48.6639398Z           [36m</div>[39m
+2026-10-01T13:58:48.6639810Z           [36m<div[39m
+2026-10-01T13:58:48.6640367Z             [33mclass[39m=[32m"ant-card-body"[39m
+2026-10-01T13:58:48.6640850Z           [36m>[39m
+2026-10-01T13:58:48.6641247Z             [36m<div[39m
+2026-10-01T13:58:48.6642769Z               [33mclass[39m=[32m"ant-space css-dev-only-do-not-override-mncuj7 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"[39m
+2026-10-01T13:58:48.6644387Z               [33mstyle[39m=[32m"flex-wrap: wrap; margin-bottom: 12px;"[39m
+2026-10-01T13:58:48.6645078Z             [36m>[39m
+2026-10-01T13:58:48.6645452Z               [36m<div[39m
+2026-10-01T13:58:48.6645997Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6646473Z               [36m>[39m
+2026-10-01T13:58:48.6646902Z                 [36m<span[39m
+2026-10-01T13:58:48.6647717Z                   [33mclass[39m=[32m"ant-tag ant-tag-blue css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6648633Z                 [36m>[39m
+2026-10-01T13:58:48.6649102Z                   [0m已发现后台进程[0m
+2026-10-01T13:58:48.6649636Z                 [36m</span>[39m
+2026-10-01T13:58:48.6650126Z               [36m</div>[39m
+2026-10-01T13:58:48.6650569Z               [36m<div[39m
+2026-10-01T13:58:48.6651168Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6651737Z               [36m>[39m
+2026-10-01T13:58:48.6652173Z                 [36m<span[39m
+2026-10-01T13:58:48.6652965Z                   [33mclass[39m=[32m"ant-tag css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6653762Z                 [36m/>[39m
+2026-10-01T13:58:48.6654230Z               [36m</div>[39m
+2026-10-01T13:58:48.6654681Z               [36m<div[39m
+2026-10-01T13:58:48.6655225Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6655700Z               [36m>[39m
+2026-10-01T13:58:48.6656091Z                 [36m<span[39m
+2026-10-01T13:58:48.6656814Z                   [33mclass[39m=[32m"ant-tag css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6657513Z                 [36m>[39m
+2026-10-01T13:58:48.6657980Z                   [0m环境：[0m
+2026-10-01T13:58:48.6658605Z                 [36m</span>[39m
+2026-10-01T13:58:48.6659110Z               [36m</div>[39m
+2026-10-01T13:58:48.6659540Z               [36m<div[39m
+2026-10-01T13:58:48.6660140Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6660668Z               [36m>[39m
+2026-10-01T13:58:48.6661068Z                 [36m<a[39m
+2026-10-01T13:58:48.6661674Z                   [33maria-disabled[39m=[32m"false"[39m
+2026-10-01T13:58:48.6663327Z                   [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6664554Z                   [33mhref[39m=[32m"/api/office/"[39m
+2026-10-01T13:58:48.6665306Z                   [33mrel[39m=[32m"noopener noreferrer"[39m
+2026-10-01T13:58:48.6665910Z                   [33mtabindex[39m=[32m"0"[39m
+2026-10-01T13:58:48.6666491Z                   [33mtarget[39m=[32m"_blank"[39m
+2026-10-01T13:58:48.6667011Z                 [36m>[39m
+2026-10-01T13:58:48.6667485Z                   [36m<span>[39m
+2026-10-01T13:58:48.6668033Z                     [0m打开办公助手[0m
+2026-10-01T13:58:48.6668969Z                   [36m</span>[39m
+2026-10-01T13:58:48.6669480Z                 [36m</a>[39m
+2026-10-01T13:58:48.6669956Z               [36m</div>[39m
+2026-10-01T13:58:48.6670382Z             [36m</div>[39m
+2026-10-01T13:58:48.6670801Z             [36m<div[39m
+2026-10-01T13:58:48.6671889Z               [33mclass[39m=[32m"ant-typography managed-service-description css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6672844Z             [36m/>[39m
+2026-10-01T13:58:48.6673296Z             [36m<details[39m
+2026-10-01T13:58:48.6673872Z               [33mstyle[39m=[32m"margin-bottom: 16px;"[39m
+2026-10-01T13:58:48.6674413Z             [36m>[39m
+2026-10-01T13:58:48.6674879Z               [36m<summary[39m
+2026-10-01T13:58:48.6675578Z                 [33mstyle[39m=[32m"cursor: pointer; margin-bottom: 12px;"[39m
+2026-10-01T13:58:48.6676256Z               [36m>[39m
+2026-10-01T13:58:48.6676744Z                 [0m查看采集进程与能力[0m
+2026-10-01T13:58:48.6677274Z               [36m</summary>[39m
+2026-10-01T13:58:48.6677749Z               [36m<div[39m
+2026-10-01T13:58:48.6679069Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6679971Z               [36m/>[39m
+2026-10-01T13:58:48.6680401Z               [36m<div[39m
+2026-10-01T13:58:48.6681152Z                 [33mclass[39m=[32m"ant-typography css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6681956Z               [36m>[39m
+2026-10-01T13:58:48.6682437Z                 [0m负责采集：[0m
+2026-10-01T13:58:48.6682882Z                 [36m<br />[39m
+2026-10-01T13:58:48.6683412Z                 [0m服务名：[0m
+2026-10-01T13:58:48.6683954Z                 [36m<br />[39m
+2026-10-01T13:58:48.6684401Z                 [0m最近观测：[0m
+2026-10-01T13:58:48.6684834Z                 [0m暂无[0m
+2026-10-01T13:58:48.6685256Z               [36m</div>[39m
+2026-10-01T13:58:48.6685659Z               [36m<div[39m
+2026-10-01T13:58:48.6686730Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6687697Z               [36m>[39m
+2026-10-01T13:58:48.6688669Z                 [0m实际使用的采集器还会按进程运行时和权限检查；例如 Python 后台不会使用 JVM 采集器。[0m
+2026-10-01T13:58:48.6689379Z               [36m</div>[39m
+2026-10-01T13:58:48.6689925Z             [36m</details>[39m
+2026-10-01T13:58:48.6690449Z             [36m<div[39m
+2026-10-01T13:58:48.6691109Z               [33mclass[39m=[32m"managed-service-request"[39m
+2026-10-01T13:58:48.6691672Z             [36m>[39m
+2026-10-01T13:58:48.6692128Z               [36m<label[39m
+2026-10-01T13:58:48.6692817Z                 [33mfor[39m=[32m"business-request-office"[39m
+2026-10-01T13:58:48.6693454Z               [36m>[39m
+2026-10-01T13:58:48.6693922Z                 [0m关联业务请求（可选）[0m
+2026-10-01T13:58:48.6694473Z               [36m</label>[39m
+2026-10-01T13:58:48.6694898Z               [36m<div[39m
+2026-10-01T13:58:48.6695515Z                 [33maria-label[39m=[32m"办公助手的业务请求"[39m
+2026-10-01T13:58:48.6697191Z                 [33mclass[39m=[32m"ant-select ant-select-outlined css-dev-only-do-not-override-mncuj7 ant-select-single ant-select-allow-clear ant-select-show-arrow ant-select-show-search"[39m
+2026-10-01T13:58:48.6698998Z                 [33mstyle[39m=[32m"width: 100%; margin: 8px 0px;"[39m
+2026-10-01T13:58:48.6699633Z               [36m>[39m
+2026-10-01T13:58:48.6700359Z                 [36m<div[39m
+2026-10-01T13:58:48.6700986Z                   [33mclass[39m=[32m"ant-select-selector"[39m
+2026-10-01T13:58:48.6701536Z                 [36m>[39m
+2026-10-01T13:58:48.6702004Z                   [36m<span[39m
+2026-10-01T13:58:48.6702624Z                     [33mclass[39m=[32m"ant-select-selection-wrap"[39m
+2026-10-01T13:58:48.6703240Z                   [36m>[39m
+2026-10-01T13:58:48.6703725Z                     [36m<span[39m
+2026-10-01T13:58:48.6704450Z                       [33mclass[39m=[32m"ant-select-selection-search"[39m
+2026-10-01T13:58:48.6705327Z                     [36m>[39m
+2026-10-01T13:58:48.6705815Z                       [36m<input[39m
+2026-10-01T13:58:48.6706442Z                         [33maria-autocomplete[39m=[32m"list"[39m
+2026-10-01T13:58:48.6707263Z                         [33maria-controls[39m=[32m"business-request-office_list"[39m
+2026-10-01T13:58:48.6708143Z                         [33maria-expanded[39m=[32m"false"[39m
+2026-10-01T13:58:48.6709095Z                         [33maria-haspopup[39m=[32m"listbox"[39m
+2026-10-01T13:58:48.6709833Z                         [33maria-label[39m=[32m"办公助手的业务请求"[39m
+2026-10-01T13:58:48.6710628Z                         [33maria-owns[39m=[32m"business-request-office_list"[39m
+2026-10-01T13:58:48.6711370Z                         [33mautocomplete[39m=[32m"off"[39m
+2026-10-01T13:58:48.6712156Z                         [33mclass[39m=[32m"ant-select-selection-search-input"[39m
+2026-10-01T13:58:48.6712976Z                         [33mid[39m=[32m"business-request-office"[39m
+2026-10-01T13:58:48.6713708Z                         [33mrole[39m=[32m"combobox"[39m
+2026-10-01T13:58:48.6714305Z                         [33mtype[39m=[32m"search"[39m
+2026-10-01T13:58:48.6714898Z                         [33mvalue[39m=[32m""[39m
+2026-10-01T13:58:48.6715450Z                       [36m/>[39m
+2026-10-01T13:58:48.6715985Z                     [36m</span>[39m
+2026-10-01T13:58:48.6716559Z                     [36m<span[39m
+2026-10-01T13:58:48.6717333Z                       [33mclass[39m=[32m"ant-select-selection-placeholder"[39m
+2026-10-01T13:58:48.6718038Z                     [36m>[39m
+2026-10-01T13:58:48.6718821Z                       [0m选择一次操作，也可以只描述当前持续故障[0m
+2026-10-01T13:58:48.6719428Z                     [36m</span>[39m
+2026-10-01T13:58:48.6719955Z                   [36m</span>[39m
+2026-10-01T13:58:48.6720477Z                 [36m</div>[39m
+2026-10-01T13:58:48.6720984Z                 [36m<span[39m
+2026-10-01T13:58:48.6721587Z                   [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6722286Z                   [33mclass[39m=[32m"ant-select-arrow"[39m
+2026-10-01T13:58:48.6723209Z                   [33mstyle[39m=[32m"user-select: none; -webkit-user-select: none;"[39m
+2026-10-01T13:58:48.6723963Z                   [33munselectable[39m=[32m"on"[39m
+2026-10-01T13:58:48.6724510Z                 [36m>[39m
+2026-10-01T13:58:48.6725040Z                   [36m<span[39m
+2026-10-01T13:58:48.6725620Z                     [33maria-label[39m=[32m"down"[39m
+2026-10-01T13:58:48.6726437Z                     [33mclass[39m=[32m"anticon anticon-down ant-select-suffix"[39m
+2026-10-01T13:58:48.6727273Z                     [33mrole[39m=[32m"img"[39m
+2026-10-01T13:58:48.6727764Z                   [36m>[39m
+2026-10-01T13:58:48.6728427Z                     [36m<svg[39m
+2026-10-01T13:58:48.6729074Z                       [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6729787Z                       [33mdata-icon[39m=[32m"down"[39m
+2026-10-01T13:58:48.6730446Z                       [33mfill[39m=[32m"currentColor"[39m
+2026-10-01T13:58:48.6730996Z                       [33mfocusable[39m=[32m"false"[39m
+2026-10-01T13:58:48.6731548Z                       [33mheight[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6732110Z                       [33mviewBox[39m=[32m"64 64 896 896"[39m
+2026-10-01T13:58:48.6732944Z                       [33mwidth[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6733460Z                     [36m>[39m
+2026-10-01T13:58:48.6733964Z                       [36m<path[39m
+2026-10-01T13:58:48.6735526Z                         [33md[39m=[32m"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"[39m
+2026-10-01T13:58:48.6736790Z                       [36m/>[39m
+2026-10-01T13:58:48.6737275Z                     [36m</svg>[39m
+2026-10-01T13:58:48.6738188Z                   [36m</span>[39m
+2026-10-01T13:58:48.6738849Z                 [36m</span>[39m
+2026-10-01T13:58:48.6739324Z               [36m</div>[39m
+2026-10-01T13:58:48.6739793Z             [36m</div>[39m
+2026-10-01T13:58:48.6740212Z             [36m<label[39m
+2026-10-01T13:58:48.6740744Z               [33mfor[39m=[32m"service-query-office"[39m
+2026-10-01T13:58:48.6741120Z             [36m>[39m
+2026-10-01T13:58:48.6741639Z               [0m有异常现象？写在这里（可选）[0m
+2026-10-01T13:58:48.6742129Z             [36m</label>[39m
+2026-10-01T13:58:48.6742593Z             [36m<textarea[39m
+2026-10-01T13:58:48.6743495Z               [33mclass[39m=[32m"ant-input css-dev-only-do-not-override-mncuj7 ant-input-outlined"[39m
+2026-10-01T13:58:48.6744487Z               [33mid[39m=[32m"service-query-office"[39m
+2026-10-01T13:58:48.6745140Z               [33mmaxlength[39m=[32m"2000"[39m
+2026-10-01T13:58:48.6745998Z               [33mplaceholder[39m=[32m"描述你做了什么、哪里变慢或失败。例如：上传文件时，其他页面也明显变慢。"[39m
+2026-10-01T13:58:48.6746743Z               [33mrows[39m=[32m"2"[39m
+2026-10-01T13:58:48.6747380Z               [33mstyle[39m=[32m"margin: 8px 0px 12px;"[39m
+2026-10-01T13:58:48.6747947Z             [36m/>[39m
+2026-10-01T13:58:48.6748548Z             [36m<div[39m
+2026-10-01T13:58:48.6749182Z               [33mclass[39m=[32m"managed-service-actions"[39m
+2026-10-01T13:58:48.6749778Z             [36m>[39m
+2026-10-01T13:58:48.6750125Z               [36m<button[39m
+2026-10-01T13:58:48.6750665Z                 [33maria-label[39m=[32m"检查当前状态"[39m
+2026-10-01T13:58:48.6751437Z                 [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"[39m
+2026-10-01T13:58:48.6752461Z                 [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6752952Z               [36m>[39m
+2026-10-01T13:58:48.6753469Z                 [36m<span>[39m
+2026-10-01T13:58:48.6753966Z                   [0m检查当前状态[0m
+2026-10-01T13:58:48.6754449Z                 [36m</span>[39m
+2026-10-01T13:58:48.6754917Z               [36m</button>[39m
+2026-10-01T13:58:48.6755420Z               [36m<button[39m
+2026-10-01T13:58:48.6755994Z                 [33maria-label[39m=[32m"诊断这个后台"[39m
+2026-10-01T13:58:48.6757293Z                 [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6758731Z                 [33mdisabled[39m=[32m""[39m
+2026-10-01T13:58:48.6759360Z                 [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6759849Z               [36m>[39m
+2026-10-01T13:58:48.6760291Z                 [36m<span>[39m
+2026-10-01T13:58:48.6760798Z                   [0m排查描述的异常[0m
+2026-10-01T13:58:48.6761260Z                 [36m</span>[39m
+2026-10-01T13:58:48.6761743Z               [36m</button>[39m
+2026-10-01T13:58:48.6762204Z             [36m</div>[39m
+2026-10-01T13:58:48.6762614Z           [36m</div>[39m
+2026-10-01T13:58:48.6763201Z         [36m</div>[39m
+2026-10-01T13:58:48.6763631Z       [36m</div>[39m
+2026-10-01T13:58:48.6763963Z     [36m</div>[39m
+2026-10-01T13:58:48.6764320Z   [36m</div>[39m
+2026-10-01T13:58:48.6764726Z [36m</body>[39m
+2026-10-01T13:58:48.6764925Z 
+2026-10-01T13:58:48.6765181Z Ignored nodes: comments, script, style
+2026-10-01T13:58:48.6765641Z [36m<body>[39m
+2026-10-01T13:58:48.6766013Z   [36m<div>[39m
+2026-10-01T13:58:48.6766270Z     [36m<div[39m
+2026-10-01T13:58:48.6766965Z       [33mclass[39m=[32m"ant-space css-dev-only-do-not-override-mncuj7 ant-space-vertical managed-service-exam"[39m
+2026-10-01T13:58:48.6768001Z       [33mstyle[39m=[32m"column-gap: 16px; row-gap: 16px;"[39m
+2026-10-01T13:58:48.6768709Z     [36m>[39m
+2026-10-01T13:58:48.6769107Z       [36m<div[39m
+2026-10-01T13:58:48.6769640Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6770164Z       [36m>[39m
+2026-10-01T13:58:48.6770544Z         [36m<div[39m
+2026-10-01T13:58:48.6771446Z           [33mclass[39m=[32m"ant-card ant-card-bordered css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6772244Z         [36m>[39m
+2026-10-01T13:58:48.6772642Z           [36m<div[39m
+2026-10-01T13:58:48.6773187Z             [33mclass[39m=[32m"ant-card-head"[39m
+2026-10-01T13:58:48.6773712Z           [36m>[39m
+2026-10-01T13:58:48.6774124Z             [36m<div[39m
+2026-10-01T13:58:48.6774913Z               [33mclass[39m=[32m"ant-card-head-wrapper"[39m
+2026-10-01T13:58:48.6775489Z             [36m>[39m
+2026-10-01T13:58:48.6775904Z               [36m<div[39m
+2026-10-01T13:58:48.6776422Z                 [33mclass[39m=[32m"ant-card-head-title"[39m
+2026-10-01T13:58:48.6777027Z               [36m>[39m
+2026-10-01T13:58:48.6777483Z                 [0m选择服务，开始体检[0m
+2026-10-01T13:58:48.6777990Z               [36m</div>[39m
+2026-10-01T13:58:48.6778494Z               [36m<div[39m
+2026-10-01T13:58:48.6779046Z                 [33mclass[39m=[32m"ant-card-extra"[39m
+2026-10-01T13:58:48.6779602Z               [36m>[39m
+2026-10-01T13:58:48.6780080Z                 [36m<button[39m
+2026-10-01T13:58:48.6780689Z                   [33maria-label[39m=[32m"刷新服务"[39m
+2026-10-01T13:58:48.6782008Z                   [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6783127Z                   [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6783619Z                 [36m>[39m
+2026-10-01T13:58:48.6784093Z                   [36m<span[39m
+2026-10-01T13:58:48.6785403Z                     [33mclass[39m=[32m"ant-btn-icon ant-btn-loading-icon ant-btn-loading-icon-motion-leave ant-btn-loading-icon-motion-leave-active ant-btn-loading-icon-motion"[39m
+2026-10-01T13:58:48.6786853Z                     [33mstyle[39m=[32m"width: 0px; opacity: 0; transform: scale(0);"[39m
+2026-10-01T13:58:48.6787498Z                   [36m>[39m
+2026-10-01T13:58:48.6788029Z                     [36m<span[39m
+2026-10-01T13:58:48.6788712Z                       [33maria-label[39m=[32m"loading"[39m
+2026-10-01T13:58:48.6789475Z                       [33mclass[39m=[32m"anticon anticon-loading anticon-spin"[39m
+2026-10-01T13:58:48.6790220Z                       [33mrole[39m=[32m"img"[39m
+2026-10-01T13:58:48.6790724Z                     [36m>[39m
+2026-10-01T13:58:48.6791183Z                       [36m<svg[39m
+2026-10-01T13:58:48.6791973Z                         [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6792628Z                         [33mdata-icon[39m=[32m"loading"[39m
+2026-10-01T13:58:48.6793273Z                         [33mfill[39m=[32m"currentColor"[39m
+2026-10-01T13:58:48.6793901Z                         [33mfocusable[39m=[32m"false"[39m
+2026-10-01T13:58:48.6794482Z                         [33mheight[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6795189Z                         [33mviewBox[39m=[32m"0 0 1024 1024"[39m
+2026-10-01T13:58:48.6796032Z                         [33mwidth[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6796595Z                       [36m>[39m
+2026-10-01T13:58:48.6797116Z                         [36m<path[39m
+2026-10-01T13:58:48.6799541Z                           [33md[39m=[32m"M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 00-94.3-139.9 437.71 437.71 0 00-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z"[39m
+2026-10-01T13:58:48.6801298Z                         [36m/>[39m
+2026-10-01T13:58:48.6801828Z                       [36m</svg>[39m
+2026-10-01T13:58:48.6802354Z                     [36m</span>[39m
+2026-10-01T13:58:48.6802860Z                   [36m</span>[39m
+2026-10-01T13:58:48.6803377Z                   [36m<span>[39m
+2026-10-01T13:58:48.6803903Z                     [0m刷新服务[0m
+2026-10-01T13:58:48.6804399Z                   [36m</span>[39m
+2026-10-01T13:58:48.6804926Z                 [36m</button>[39m
+2026-10-01T13:58:48.6805287Z               [36m</div>[39m
+2026-10-01T13:58:48.6805688Z             [36m</div>[39m
+2026-10-01T13:58:48.6806038Z           [36m</div>[39m
+2026-10-01T13:58:48.6806389Z           [36m<div[39m
+2026-10-01T13:58:48.6806878Z             [33mclass[39m=[32m"ant-card-body"[39m
+2026-10-01T13:58:48.6807346Z           [36m>[39m
+2026-10-01T13:58:48.6807704Z             [36m<div[39m
+2026-10-01T13:58:48.6808413Z               [33mclass[39m=[32m"ant-typography css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6808886Z             [36m>[39m
+2026-10-01T13:58:48.6809325Z               [0m可以直接检查当前状态；如果刚完成一次业务操作，先选中对应请求，体检会带上这次操作的时间与耗时。[0m
+2026-10-01T13:58:48.6809668Z             [36m</div>[39m
+2026-10-01T13:58:48.6809923Z             [36m<div[39m
+2026-10-01T13:58:48.6810241Z               [33maria-label[39m=[32m"服务体检流程"[39m
+2026-10-01T13:58:48.6810652Z               [33mclass[39m=[32m"managed-service-steps"[39m
+2026-10-01T13:58:48.6810995Z             [36m>[39m
+2026-10-01T13:58:48.6811261Z               [36m<span>[39m
+2026-10-01T13:58:48.6811548Z                 [0m1 选择服务[0m
+2026-10-01T13:58:48.6811821Z               [36m</span>[39m
+2026-10-01T13:58:48.6812096Z               [36m<span>[39m
+2026-10-01T13:58:48.6812397Z                 [0m2 检查状态或描述异常[0m
+2026-10-01T13:58:48.6812701Z               [36m</span>[39m
+2026-10-01T13:58:48.6812974Z               [36m<span>[39m
+2026-10-01T13:58:48.6813275Z                 [0m3 查看体检报告与排查树[0m
+2026-10-01T13:58:48.6813570Z               [36m</span>[39m
+2026-10-01T13:58:48.6813830Z             [36m</div>[39m
+2026-10-01T13:58:48.6814105Z             [36m<details>[39m
+2026-10-01T13:58:48.6814393Z               [36m<summary>[39m
+2026-10-01T13:58:48.6814694Z                 [0m体检会采集什么？[0m
+2026-10-01T13:58:48.6814988Z               [36m</summary>[39m
+2026-10-01T13:58:48.6815276Z               [36m<span[39m
+2026-10-01T13:58:48.6815880Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6816393Z               [36m>[39m
+2026-10-01T13:58:48.6816906Z                 [0m系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。[0m
+2026-10-01T13:58:48.6817302Z               [36m</span>[39m
+2026-10-01T13:58:48.6817586Z             [36m</details>[39m
+2026-10-01T13:58:48.6818042Z           [36m</div>[39m
+2026-10-01T13:58:48.6818485Z         [36m</div>[39m
+2026-10-01T13:58:48.6818747Z       [36m</div>[39m
+2026-10-01T13:58:48.6818994Z       [36m<div[39m
+2026-10-01T13:58:48.6819318Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6819616Z       [36m/>[39m
+2026-10-01T13:58:48.6819842Z       [36m<div[39m
+2026-10-01T13:58:48.6820142Z         [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6820429Z       [36m>[39m
+2026-10-01T13:58:48.6820659Z         [36m<div[39m
+2026-10-01T13:58:48.6821372Z           [33mclass[39m=[32m"ant-card ant-card-bordered managed-service-card css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6821886Z         [36m>[39m
+2026-10-01T13:58:48.6822120Z           [36m<div[39m
+2026-10-01T13:58:48.6822438Z             [33mclass[39m=[32m"ant-card-head"[39m
+2026-10-01T13:58:48.6822734Z           [36m>[39m
+2026-10-01T13:58:48.6822969Z             [36m<div[39m
+2026-10-01T13:58:48.6823332Z               [33mclass[39m=[32m"ant-card-head-wrapper"[39m
+2026-10-01T13:58:48.6823657Z             [36m>[39m
+2026-10-01T13:58:48.6823902Z               [36m<div[39m
+2026-10-01T13:58:48.6824254Z                 [33mclass[39m=[32m"ant-card-head-title"[39m
+2026-10-01T13:58:48.6824572Z               [36m>[39m
+2026-10-01T13:58:48.6824829Z                 [0m办公助手[0m
+2026-10-01T13:58:48.6825104Z               [36m</div>[39m
+2026-10-01T13:58:48.6825371Z             [36m</div>[39m
+2026-10-01T13:58:48.6825619Z           [36m</div>[39m
+2026-10-01T13:58:48.6825875Z           [36m<div[39m
+2026-10-01T13:58:48.6826197Z             [33mclass[39m=[32m"ant-card-body"[39m
+2026-10-01T13:58:48.6826495Z           [36m>[39m
+2026-10-01T13:58:48.6826727Z             [36m<div[39m
+2026-10-01T13:58:48.6827574Z               [33mclass[39m=[32m"ant-space css-dev-only-do-not-override-mncuj7 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"[39m
+2026-10-01T13:58:48.6828602Z               [33mstyle[39m=[32m"flex-wrap: wrap; margin-bottom: 12px;"[39m
+2026-10-01T13:58:48.6828976Z             [36m>[39m
+2026-10-01T13:58:48.6829237Z               [36m<div[39m
+2026-10-01T13:58:48.6829577Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6829895Z               [36m>[39m
+2026-10-01T13:58:48.6830176Z                 [36m<span[39m
+2026-10-01T13:58:48.6830676Z                   [33mclass[39m=[32m"ant-tag ant-tag-blue css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6852055Z                 [36m>[39m
+2026-10-01T13:58:48.6852678Z                   [0m已发现后台进程[0m
+2026-10-01T13:58:48.6853019Z                 [36m</span>[39m
+2026-10-01T13:58:48.6853339Z               [36m</div>[39m
+2026-10-01T13:58:48.6853644Z               [36m<div[39m
+2026-10-01T13:58:48.6853997Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6854332Z               [36m>[39m
+2026-10-01T13:58:48.6854629Z                 [36m<span[39m
+2026-10-01T13:58:48.6855100Z                   [33mclass[39m=[32m"ant-tag css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6855523Z                 [36m/>[39m
+2026-10-01T13:58:48.6855824Z               [36m</div>[39m
+2026-10-01T13:58:48.6856093Z               [36m<div[39m
+2026-10-01T13:58:48.6856428Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6856752Z               [36m>[39m
+2026-10-01T13:58:48.6857025Z                 [36m<span[39m
+2026-10-01T13:58:48.6857481Z                   [33mclass[39m=[32m"ant-tag css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6857888Z                 [36m>[39m
+2026-10-01T13:58:48.6858162Z                   [0m环境：[0m
+2026-10-01T13:58:48.6858639Z                 [36m</span>[39m
+2026-10-01T13:58:48.6858945Z               [36m</div>[39m
+2026-10-01T13:58:48.6859205Z               [36m<div[39m
+2026-10-01T13:58:48.6859785Z                 [33mclass[39m=[32m"ant-space-item"[39m
+2026-10-01T13:58:48.6860122Z               [36m>[39m
+2026-10-01T13:58:48.6860375Z                 [36m<a[39m
+2026-10-01T13:58:48.6860718Z                   [33maria-disabled[39m=[32m"false"[39m
+2026-10-01T13:58:48.6861513Z                   [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6862212Z                   [33mhref[39m=[32m"/api/office/"[39m
+2026-10-01T13:58:48.6862615Z                   [33mrel[39m=[32m"noopener noreferrer"[39m
+2026-10-01T13:58:48.6863104Z                   [33mtabindex[39m=[32m"0"[39m
+2026-10-01T13:58:48.6863469Z                   [33mtarget[39m=[32m"_blank"[39m
+2026-10-01T13:58:48.6863780Z                 [36m>[39m
+2026-10-01T13:58:48.6864073Z                   [36m<span>[39m
+2026-10-01T13:58:48.6864383Z                     [0m打开办公助手[0m
+2026-10-01T13:58:48.6864687Z                   [36m</span>[39m
+2026-10-01T13:58:48.6864995Z                 [36m</a>[39m
+2026-10-01T13:58:48.6865290Z               [36m</div>[39m
+2026-10-01T13:58:48.6865551Z             [36m</div>[39m
+2026-10-01T13:58:48.6865812Z             [36m<div[39m
+2026-10-01T13:58:48.6866417Z               [33mclass[39m=[32m"ant-typography managed-service-description css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6866936Z             [36m/>[39m
+2026-10-01T13:58:48.6867211Z             [36m<details[39m
+2026-10-01T13:58:48.6867582Z               [33mstyle[39m=[32m"margin-bottom: 16px;"[39m
+2026-10-01T13:58:48.6867916Z             [36m>[39m
+2026-10-01T13:58:48.6868190Z               [36m<summary[39m
+2026-10-01T13:58:48.6868788Z                 [33mstyle[39m=[32m"cursor: pointer; margin-bottom: 12px;"[39m
+2026-10-01T13:58:48.6869166Z               [36m>[39m
+2026-10-01T13:58:48.6869471Z                 [0m查看采集进程与能力[0m
+2026-10-01T13:58:48.6869782Z               [36m</summary>[39m
+2026-10-01T13:58:48.6870068Z               [36m<div[39m
+2026-10-01T13:58:48.6870645Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6871163Z               [36m/>[39m
+2026-10-01T13:58:48.6871420Z               [36m<div[39m
+2026-10-01T13:58:48.6871891Z                 [33mclass[39m=[32m"ant-typography css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6872321Z               [36m>[39m
+2026-10-01T13:58:48.6872587Z                 [0m负责采集：[0m
+2026-10-01T13:58:48.6872873Z                 [36m<br />[39m
+2026-10-01T13:58:48.6873161Z                 [0m服务名：[0m
+2026-10-01T13:58:48.6873433Z                 [36m<br />[39m
+2026-10-01T13:58:48.6873709Z                 [0m最近观测：[0m
+2026-10-01T13:58:48.6873970Z                 [0m暂无[0m
+2026-10-01T13:58:48.6874248Z               [36m</div>[39m
+2026-10-01T13:58:48.6874508Z               [36m<div[39m
+2026-10-01T13:58:48.6875084Z                 [33mclass[39m=[32m"ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"[39m
+2026-10-01T13:58:48.6875595Z               [36m>[39m
+2026-10-01T13:58:48.6876001Z                 [0m实际使用的采集器还会按进程运行时和权限检查；例如 Python 后台不会使用 JVM 采集器。[0m
+2026-10-01T13:58:48.6876355Z               [36m</div>[39m
+2026-10-01T13:58:48.6876652Z             [36m</details>[39m
+2026-10-01T13:58:48.6876919Z             [36m<div[39m
+2026-10-01T13:58:48.6877274Z               [33mclass[39m=[32m"managed-service-request"[39m
+2026-10-01T13:58:48.6877613Z             [36m>[39m
+2026-10-01T13:58:48.6877880Z               [36m<label[39m
+2026-10-01T13:58:48.6878367Z                 [33mfor[39m=[32m"business-request-office"[39m
+2026-10-01T13:58:48.6878728Z               [36m>[39m
+2026-10-01T13:58:48.6879019Z                 [0m关联业务请求（可选）[0m
+2026-10-01T13:58:48.6879312Z               [36m</label>[39m
+2026-10-01T13:58:48.6879579Z               [36m<div[39m
+2026-10-01T13:58:48.6879938Z                 [33maria-label[39m=[32m"办公助手的业务请求"[39m
+2026-10-01T13:58:48.6881046Z                 [33mclass[39m=[32m"ant-select ant-select-outlined css-dev-only-do-not-override-mncuj7 ant-select-single ant-select-allow-clear ant-select-show-arrow ant-select-show-search"[39m
+2026-10-01T13:58:48.6881952Z                 [33mstyle[39m=[32m"width: 100%; margin: 8px 0px;"[39m
+2026-10-01T13:58:48.6882304Z               [36m>[39m
+2026-10-01T13:58:48.6882580Z                 [36m<div[39m
+2026-10-01T13:58:48.6882957Z                   [33mclass[39m=[32m"ant-select-selector"[39m
+2026-10-01T13:58:48.6883289Z                 [36m>[39m
+2026-10-01T13:58:48.6883653Z                   [36m<span[39m
+2026-10-01T13:58:48.6884047Z                     [33mclass[39m=[32m"ant-select-selection-wrap"[39m
+2026-10-01T13:58:48.6884403Z                   [36m>[39m
+2026-10-01T13:58:48.6884688Z                     [36m<span[39m
+2026-10-01T13:58:48.6885101Z                       [33mclass[39m=[32m"ant-select-selection-search"[39m
+2026-10-01T13:58:48.6885479Z                     [36m>[39m
+2026-10-01T13:58:48.6885771Z                       [36m<input[39m
+2026-10-01T13:58:48.6886163Z                         [33maria-autocomplete[39m=[32m"list"[39m
+2026-10-01T13:58:48.6886654Z                         [33maria-controls[39m=[32m"business-request-office_list"[39m
+2026-10-01T13:58:48.6887122Z                         [33maria-expanded[39m=[32m"false"[39m
+2026-10-01T13:58:48.6887542Z                         [33maria-haspopup[39m=[32m"listbox"[39m
+2026-10-01T13:58:48.6887957Z                         [33maria-label[39m=[32m"办公助手的业务请求"[39m
+2026-10-01T13:58:48.6888631Z                         [33maria-owns[39m=[32m"business-request-office_list"[39m
+2026-10-01T13:58:48.6889109Z                         [33mautocomplete[39m=[32m"off"[39m
+2026-10-01T13:58:48.6889583Z                         [33mclass[39m=[32m"ant-select-selection-search-input"[39m
+2026-10-01T13:58:48.6890073Z                         [33mid[39m=[32m"business-request-office"[39m
+2026-10-01T13:58:48.6890504Z                         [33mrole[39m=[32m"combobox"[39m
+2026-10-01T13:58:48.6890881Z                         [33mtype[39m=[32m"search"[39m
+2026-10-01T13:58:48.6891246Z                         [33mvalue[39m=[32m""[39m
+2026-10-01T13:58:48.6891574Z                       [36m/>[39m
+2026-10-01T13:58:48.6891874Z                     [36m</span>[39m
+2026-10-01T13:58:48.6892178Z                     [36m<span[39m
+2026-10-01T13:58:48.6892612Z                       [33mclass[39m=[32m"ant-select-selection-placeholder"[39m
+2026-10-01T13:58:48.6893019Z                     [36m>[39m
+2026-10-01T13:58:48.6893373Z                       [0m选择一次操作，也可以只描述当前持续故障[0m
+2026-10-01T13:58:48.6893709Z                     [36m</span>[39m
+2026-10-01T13:58:48.6894012Z                   [36m</span>[39m
+2026-10-01T13:58:48.6894308Z                 [36m</div>[39m
+2026-10-01T13:58:48.6894605Z                 [36m<span[39m
+2026-10-01T13:58:48.6894945Z                   [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6895342Z                   [33mclass[39m=[32m"ant-select-arrow"[39m
+2026-10-01T13:58:48.6895858Z                   [33mstyle[39m=[32m"user-select: none; -webkit-user-select: none;"[39m
+2026-10-01T13:58:48.6896324Z                   [33munselectable[39m=[32m"on"[39m
+2026-10-01T13:58:48.6896640Z                 [36m>[39m
+2026-10-01T13:58:48.6896923Z                   [36m<span[39m
+2026-10-01T13:58:48.6897267Z                     [33maria-label[39m=[32m"down"[39m
+2026-10-01T13:58:48.6897730Z                     [33mclass[39m=[32m"anticon anticon-down ant-select-suffix"[39m
+2026-10-01T13:58:48.6898181Z                     [33mrole[39m=[32m"img"[39m
+2026-10-01T13:58:48.6898629Z                   [36m>[39m
+2026-10-01T13:58:48.6898921Z                     [36m<svg[39m
+2026-10-01T13:58:48.6899281Z                       [33maria-hidden[39m=[32m"true"[39m
+2026-10-01T13:58:48.6899666Z                       [33mdata-icon[39m=[32m"down"[39m
+2026-10-01T13:58:48.6900192Z                       [33mfill[39m=[32m"currentColor"[39m
+2026-10-01T13:58:48.6900589Z                       [33mfocusable[39m=[32m"false"[39m
+2026-10-01T13:58:48.6900958Z                       [33mheight[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6901350Z                       [33mviewBox[39m=[32m"64 64 896 896"[39m
+2026-10-01T13:58:48.6901734Z                       [33mwidth[39m=[32m"1em"[39m
+2026-10-01T13:58:48.6902049Z                     [36m>[39m
+2026-10-01T13:58:48.6902342Z                       [36m<path[39m
+2026-10-01T13:58:48.6903363Z                         [33md[39m=[32m"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"[39m
+2026-10-01T13:58:48.6904094Z                       [36m/>[39m
+2026-10-01T13:58:48.6904391Z                     [36m</svg>[39m
+2026-10-01T13:58:48.6904699Z                   [36m</span>[39m
+2026-10-01T13:58:48.6904994Z                 [36m</span>[39m
+2026-10-01T13:58:48.6905286Z               [36m</div>[39m
+2026-10-01T13:58:48.6905556Z             [36m</div>[39m
+2026-10-01T13:58:48.6905830Z             [36m<label[39m
+2026-10-01T13:58:48.6906175Z               [33mfor[39m=[32m"service-query-office"[39m
+2026-10-01T13:58:48.6906496Z             [36m>[39m
+2026-10-01T13:58:48.6906800Z               [0m有异常现象？写在这里（可选）[0m
+2026-10-01T13:58:48.6907097Z             [36m</label>[39m
+2026-10-01T13:58:48.6907379Z             [36m<textarea[39m
+2026-10-01T13:58:48.6907928Z               [33mclass[39m=[32m"ant-input css-dev-only-do-not-override-mncuj7 ant-input-outlined"[39m
+2026-10-01T13:58:48.6908616Z               [33mid[39m=[32m"service-query-office"[39m
+2026-10-01T13:58:48.6909000Z               [33mmaxlength[39m=[32m"2000"[39m
+2026-10-01T13:58:48.6909522Z               [33mplaceholder[39m=[32m"描述你做了什么、哪里变慢或失败。例如：上传文件时，其他页面也明显变慢。"[39m
+2026-10-01T13:58:48.6909954Z               [33mrows[39m=[32m"2"[39m
+2026-10-01T13:58:48.6910338Z               [33mstyle[39m=[32m"margin: 8px 0px 12px;"[39m
+2026-10-01T13:58:48.6910670Z             [36m/>[39m
+2026-10-01T13:58:48.6910928Z             [36m<div[39m
+2026-10-01T13:58:48.6911288Z               [33mclass[39m=[32m"managed-service-actions"[39m
+2026-10-01T13:58:48.6911628Z             [36m>[39m
+2026-10-01T13:58:48.6911905Z               [36m<button[39m
+2026-10-01T13:58:48.6912246Z                 [33maria-label[39m=[32m"检查当前状态"[39m
+2026-10-01T13:58:48.6913002Z                 [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"[39m
+2026-10-01T13:58:48.6913667Z                 [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6913968Z               [36m>[39m
+2026-10-01T13:58:48.6914252Z                 [36m<span>[39m
+2026-10-01T13:58:48.6914547Z                   [0m检查当前状态[0m
+2026-10-01T13:58:48.6914838Z                 [36m</span>[39m
+2026-10-01T13:58:48.6915142Z               [36m</button>[39m
+2026-10-01T13:58:48.6915424Z               [36m<button[39m
+2026-10-01T13:58:48.6915754Z                 [33maria-label[39m=[32m"诊断这个后台"[39m
+2026-10-01T13:58:48.6916500Z                 [33mclass[39m=[32m"ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"[39m
+2026-10-01T13:58:48.6917148Z                 [33mdisabled[39m=[32m""[39m
+2026-10-01T13:58:48.6917497Z                 [33mtype[39m=[32m"button"[39m
+2026-10-01T13:58:48.6917813Z               [36m>[39m
+2026-10-01T13:58:48.6918083Z                 [36m<span>[39m
+2026-10-01T13:58:48.6918512Z                   [0m排查描述的异常[0m
+2026-10-01T13:58:48.6918804Z                 [36m</span>[39m
+2026-10-01T13:58:48.6919103Z               [36m</button>[39m
+2026-10-01T13:58:48.6919371Z             [36m</div>[39m
+2026-10-01T13:58:48.6919632Z           [36m</div>[39m
+2026-10-01T13:58:48.6919901Z         [36m</div>[39m
+2026-10-01T13:58:48.6920279Z       [36m</div>[39m
+2026-10-01T13:58:48.6920521Z     [36m</div>[39m
+2026-10-01T13:58:48.6920766Z   [36m</div>[39m
+2026-10-01T13:58:48.6921004Z [36m</body>[39m
+2026-10-01T13:58:48.6921592Z [90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+2026-10-01T13:58:48.6922337Z [90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+2026-10-01T13:58:48.6922997Z [36m [2m❯[22m src/components/ManagedServicesPanel.test.jsx:[2m57:16[22m[39m
+2026-10-01T13:58:48.6923733Z     [90m 55|[39m   startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "fres…
+2026-10-01T13:58:48.6924463Z     [90m 56|[39m   [34mrender[39m([33m<[39m[33mManagedServicesPanel[39m [33m/[39m[33m>[39m)[33m;[39m
+2026-10-01T13:58:48.6925320Z     [90m 57|[39m   [35mawait[39m screen[33m.[39m[34mfindByRole[39m([32m"heading"[39m[33m,[39m { name[33m:[39m [32m"办公助手"[39m })[33m;[39m
+2026-10-01T13:58:48.6925918Z     [90m   |[39m                [31m^[39m
+2026-10-01T13:58:48.6926564Z     [90m 58|[39m   fireEvent[33m.[39m[34mmouseDown[39m(screen[33m.[39m[34mgetByRole[39m([32m"combobox"[39m))[33m;[39m
+2026-10-01T13:58:48.6927642Z     [90m 59|[39m   fireEvent[33m.[39m[34mclick[39m([35mawait[39m screen[33m.[39m[34mfindByText[39m([36m/140 ms/[39m))[33m;[39m
+2026-10-01T13:58:48.6928219Z 
+2026-10-01T13:58:48.6928679Z [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+2026-10-01T13:58:48.6928950Z 
+2026-10-01T13:58:48.6928977Z 
+2026-10-01T13:58:48.6929617Z [2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m48 passed[39m[22m[90m (49)[39m
+2026-10-01T13:58:48.6930690Z [2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m306 passed[39m[22m[90m (307)[39m
+2026-10-01T13:58:48.6931432Z [2m   Start at [22m 13:57:28
+2026-10-01T13:58:48.6932478Z [2m   Duration [22m 80.61s[2m (transform 3.20s, setup 7.74s, import 92.98s, tests 83.84s, environment 46.50s)[22m
+2026-10-01T13:58:48.6933026Z 
+2026-10-01T13:58:48.6933036Z 
+2026-10-01T13:58:48.7066283Z ##[error]TestingLibraryElementError: Unable to find role="heading" and name "办公助手"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="ant-space css-dev-only-do-not-override-mncuj7 ant-space-vertical managed-service-exam"
+      style="column-gap: 16px; row-gap: 16px;"
+    >
+      <div
+        class="ant-space-item"
+      >
+        <div
+          class="ant-card ant-card-bordered css-dev-only-do-not-override-mncuj7"
+        >
+          <div
+            class="ant-card-head"
+          >
+            <div
+              class="ant-card-head-wrapper"
+            >
+              <div
+                class="ant-card-head-title"
+              >
+                选择服务，开始体检
+              </div>
+              <div
+                class="ant-card-extra"
+              >
+                <button
+                  aria-label="刷新服务"
+                  class="ant-btn css-dev-only-do-not-override-mncuj7 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+                  type="button"
+                >
+                  <span
+                    class="ant-btn-icon ant-btn-loading-icon ant-btn-loading-icon-motion-leave ant-btn-loading-icon-motion-leave-active ant-btn-loading-icon-motion"
+                    style="width: 0px; opacity: 0; transform: scale(0);"
+                  >
+                    <span
+                      aria-label="loading"
+                      class="anticon anticon-loading anticon-spin"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="loading"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 00-94.3-139.9 437.71 437.71 0 00-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                  <span>
+                    刷新服务
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-card-body"
+          >
+            <div
+              class="ant-typography css-dev-only-do-not-override-mncuj7"
+            >
+              可以直接检查当前状态；如果刚完成一次业务操作，先选中对应请求，体检会带上这次操作的时间与耗时。
+            </div>
+            <div
+              aria-label="服务体检流程"
+              class="managed-service-steps"
+            >
+              <span>
+                1 选择服务
+              </span>
+              <span>
+                2 检查状态或描述异常
+              </span>
+              <span>
+                3 查看体检报告与排查树
+              </span>
+            </div>
+            <details>
+              <summary>
+                体检会采集什么？
+              </summary>
+              <span
+                class="ant-typography ant-typography-secondary css-dev-only-do-not-override-mncuj7"
+              >
+                系统会重新核对目标进程，采集进程 CPU、内存等当前窗口指标，并保存工具、证据和报告。进程存在不代表业务健康；历史请求耗时与稍后的进程采样属于不同时间窗。
+              </span>
+            </details>
+          </div>
+        </div>
+      </div>
+      <div
+        class="ant-space-item"
+      />
+      <div
+        class="ant-space-item"
+      >
+        <div
+          class="ant-card ant-card-bordered managed-service-card css-dev-only-do-not-override-mncuj7"
+        >
+          <div
+            class="ant-card-head"
+          >
+            <div
+              class="ant-card-head-wrapper"
+            >
+              <div
+                class="ant-card-head-title"
+              >
+                办公助手
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-card-body"
+          >
+            <div
+             
+2026-10-01T13:58:48.7237512Z ##[error]Process completed with exit code 1.
+2026-10-01T13:58:48.7393214Z Post job cleanup.
+2026-10-01T13:58:48.8275759Z [command]/usr/bin/git version
+2026-10-01T13:58:48.8315385Z git version 2.55.0
+2026-10-01T13:58:48.8352938Z Temporarily overriding HOME='/home/runner/work/_temp/0b2e7ec8-16fd-4775-929a-570a5f2f6a48' before making global git config changes
+2026-10-01T13:58:48.8354584Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T13:58:48.8359891Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T13:58:48.8396274Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T13:58:48.8431149Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T13:58:48.8645822Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T13:58:48.8679623Z http.https://github.com/.extraheader
+2026-10-01T13:58:48.8681198Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-01T13:58:48.8714407Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T13:58:48.8923796Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T13:58:48.8955954Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T13:58:48.9297155Z Cleaning up orphan processes
+2026-10-01T13:58:48.9554016Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

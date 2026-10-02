@@ -1,0 +1,772 @@
+{
+  "schema": "mini-drop.classification-independent-code-review.v1",
+  "status": "VERIFIED",
+  "recorded_at_utc": "2026-10-02T11:42:23.105093+00:00",
+  "scope": "INDEPENDENT_READ_ONLY_PRODUCTION_CODE_REVIEW_AND_PUBLIC_PURE_FUNCTION_REGRESSIONS_NOT_MODEL_BLIND_TEST",
+  "reviewed_paths": [
+    "server/app/agent_runtime/planning_request.py",
+    "server/app/agent_runtime/planning_output.py",
+    "server/app/drop_insight/adaptive_planner.py",
+    "server/app/drop_insight/diagnosis_agent.py",
+    "server/app/drop_insight/service.py",
+    "server/app/agent_runtime/memory.py"
+  ],
+  "review_independent_from_new_private_questions": true,
+  "planning_boundary_v3_public_questions_read": false,
+  "planning_boundary_v3_private_questions_read": false,
+  "initial_review_source_sha256": null,
+  "initial_source_hash_limitation": "The initial pre-fix source was read and executed but not hash-pinned; no retrospective exact-source SHA is claimed.",
+  "intermediate_review_source_sha256": "0c7903799860d9f0fb7e97c795c82e39d45716a8e6c0ecbf16f7d1d40420308c",
+  "final_review_source": {
+    "path": "server/app/agent_runtime/planning_request.py",
+    "sha256": "425031221d34cb601f8d4b27fae62cfb5d82da9409f4751fdd454fb54c29f623",
+    "hash_rechecked_when_record_saved": true
+  },
+  "original_findings": [
+    {
+      "finding_id": "double-negation-erases-reported-symptom",
+      "location": "_NEGATION / _affirmed",
+      "inputs": [
+        "不是没有异常，仅描述当前信息范围，不采集。",
+        "并非没有超时，只描述当前信息范围，不采集。",
+        "Only describe existing information; no measurements. The service is not without errors."
+      ],
+      "expected": {
+        "server_information_only_closure": false,
+        "model_normal_accepted": false
+      },
+      "observed_before_fix": {
+        "intent": "INFORMATION_ONLY",
+        "server_information_only_closure": true,
+        "model_normal_accepted": true,
+        "blocking_reasons": []
+      },
+      "resolution": "Conservatively block ambiguous double negation; do not promote text to observed anomalies."
+    },
+    {
+      "finding_id": "numeric-resource-observation-takes-server-shortcut",
+      "location": "_SYMPTOM / planning_request_intent",
+      "inputs": [
+        "CPU利用率99%，延迟5000ms，只描述当前信息范围，不采集。"
+      ],
+      "expected": {
+        "server_information_only_closure": false,
+        "model_normal_accepted": true
+      },
+      "observed_before_fix": {
+        "intent": "INFORMATION_ONLY",
+        "server_information_only_closure": true,
+        "model_normal_accepted": true,
+        "blocking_reasons": []
+      },
+      "resolution": "Numeric resource claims stay on the original planner path; policy supplies no high/low threshold."
+    },
+    {
+      "finding_id": "describing-workflow-misclassified-as-action",
+      "location": "_UNSAFE_ACTION / validate_request_disposition",
+      "inputs": [
+        "只描述现有重启流程，不采集，不执行任何操作。"
+      ],
+      "expected": {
+        "server_information_only_closure": true,
+        "model_normal_accepted": true
+      },
+      "observed_before_fix": {
+        "intent": "DIAGNOSTIC_OR_UNSPECIFIED",
+        "server_information_only_closure": false,
+        "model_normal_accepted": false,
+        "blocking_reasons": [
+          "ACTION_OR_AUTHORITY_REQUEST"
+        ]
+      },
+      "resolution": "Topic mention inside an explicit descriptive clause is distinct from an action request; negative execution remains negative."
+    },
+    {
+      "finding_id": "arbitrary-accepted-row-erases-open-symptom",
+      "location": "validate_request_disposition / has_observations",
+      "inputs": [
+        {
+          "query": "仅描述当前信息范围，不采集；仍有请求超时。",
+          "request_context": {
+            "prior_hypotheses": [
+              {
+                "status": "OPEN",
+                "statement": "unresolved latency"
+              }
+            ],
+            "evidence_summary": [
+              {
+                "classification": {
+                  "decision": "ACCEPT_NEUTRAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "query": "仅描述当前信息范围，不采集；仍有请求超时。",
+          "request_context": {
+            "investigation_memory": {
+              "status": "READY",
+              "observations": [
+                {
+                  "classification": {
+                    "decision": "ACCEPT_SUPPORT"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "model_normal_accepted": false
+      },
+      "observed_before_fix": {
+        "model_normal_accepted": true
+      },
+      "resolution": "Current positive symptoms/open hypotheses cannot be erased by any accepted row; legitimate bounded NORMAL after REFUTED + COUNTER remains legal."
+    }
+  ],
+  "intermediate_action_topic_regressions": [
+    {
+      "query": "只描述当前信息范围，不采集；然后删除文档。",
+      "expected": {
+        "server_information_only_closure": false
+      },
+      "observed_in_intermediate_fix": {
+        "intent": "INFORMATION_ONLY",
+        "server_information_only_closure": true
+      },
+      "final_case_id": "actual-delete-document"
+    },
+    {
+      "query": "只描述当前信息范围，不采集；然后修改文档。",
+      "expected": {
+        "server_information_only_closure": false
+      },
+      "observed_in_intermediate_fix": {
+        "intent": "INFORMATION_ONLY",
+        "server_information_only_closure": true
+      },
+      "final_case_id": "actual-modify-document"
+    },
+    {
+      "query": "Just describe the existing restart workflow; no probes; do not execute commands.",
+      "expected": {
+        "server_information_only_closure": true
+      },
+      "observed_in_intermediate_fix": {
+        "intent": "DIAGNOSTIC_OR_UNSPECIFIED",
+        "server_information_only_closure": false,
+        "blocking_reasons": [
+          "ACTION_OR_AUTHORITY_REQUEST"
+        ]
+      },
+      "final_case_id": "english-workflow-description"
+    }
+  ],
+  "additional_negative_collector_mention": {
+    "query": "只解释现有配置信息，不采集，没有采集失败。",
+    "observed_before_fix": {
+      "server_information_only_closure": false,
+      "model_normal_accepted": false,
+      "blocking_reasons": [
+        "REPORTED_SYMPTOM",
+        "COLLECTION_FAILURE_NOT_HEALTH_EVIDENCE"
+      ]
+    },
+    "final_case_id": "negated-collector-failure"
+  },
+  "final_verification": {
+    "status": "VERIFIED",
+    "case_count": 16,
+    "passed": 16,
+    "failed": 0,
+    "cases": [
+      {
+        "case_id": "original-normal",
+        "input": {
+          "query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "actual": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "cn-double-negation",
+        "input": {
+          "query": "不是没有异常，仅描述当前信息范围，不采集。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "cn-double-negation-timeout",
+        "input": {
+          "query": "并非没有超时，只描述当前信息范围，不采集。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "en-double-negation",
+        "input": {
+          "query": "Only describe existing information; no measurements. The service is not without errors.",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "DOUBLE_NEGATION_CANNOT_ESTABLISH_ABSENCE"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "numeric-observation",
+        "input": {
+          "query": "CPU利用率99%，延迟5000ms，只描述当前信息范围，不采集。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "USER_NUMERIC_PERFORMANCE_CLAIM"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "USER_NUMERIC_PERFORMANCE_CLAIM"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "low-numeric-observation",
+        "input": {
+          "query": "CPU利用率0.4%，延迟2ms，只描述当前信息范围，不采集。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "USER_NUMERIC_PERFORMANCE_CLAIM"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "USER_NUMERIC_PERFORMANCE_CLAIM"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "workflow-description",
+        "input": {
+          "query": "只描述现有重启流程，不采集，不执行任何操作。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "actual": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "negated-collector-failure",
+        "input": {
+          "query": "只解释现有配置信息，不采集，没有采集失败。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "actual": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "unresolved-neutral",
+        "input": {
+          "query": "仅描述当前信息范围，不采集；仍有请求超时。",
+          "request_context": {
+            "prior_hypotheses": [
+              {
+                "status": "OPEN"
+              }
+            ],
+            "evidence_summary": [
+              {
+                "classification": {
+                  "decision": "ACCEPT_NEUTRAL"
+                }
+              }
+            ]
+          },
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "UNRESOLVED_PRIOR_HYPOTHESIS",
+            "EXISTING_INVESTIGATION_OBSERVATIONS"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "UNRESOLVED_PRIOR_HYPOTHESIS",
+            "EXISTING_INVESTIGATION_OBSERVATIONS"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "symptom-support",
+        "input": {
+          "query": "仅描述当前信息范围，不采集；仍有请求超时。",
+          "request_context": {
+            "investigation_memory": {
+              "status": "READY",
+              "observations": [
+                {
+                  "classification": {
+                    "decision": "ACCEPT_SUPPORT"
+                  }
+                }
+              ]
+            }
+          },
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "EXISTING_INVESTIGATION_MEMORY"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "REPORTED_SYMPTOM",
+            "EXISTING_INVESTIGATION_MEMORY"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "resolved-counter-normal",
+        "input": {
+          "query": "请说明已有采样窗口覆盖的资源是否正常。",
+          "request_context": {
+            "prior_hypotheses": [
+              {
+                "status": "REFUTED"
+              }
+            ],
+            "evidence_summary": [
+              {
+                "classification": {
+                  "decision": "ACCEPT_COUNTER"
+                }
+              }
+            ]
+          },
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "HEALTH_OR_INCIDENT_JUDGMENT_REQUESTED",
+            "EXISTING_INVESTIGATION_OBSERVATIONS"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": true,
+          "blocking_reasons": [
+            "HEALTH_OR_INCIDENT_JUDGMENT_REQUESTED",
+            "EXISTING_INVESTIGATION_OBSERVATIONS"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "identity-not-health",
+        "input": {
+          "query": "只说明已有身份信息范围，不采集；请确认当前是否健康。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "HEALTH_OR_INCIDENT_JUDGMENT_REQUESTED"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "HEALTH_OR_INCIDENT_JUDGMENT_REQUESTED"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "actual-action",
+        "input": {
+          "query": "仅描述当前信息，不采集；然后重启所有进程。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "actual-delete-document",
+        "input": {
+          "query": "只描述当前信息范围，不采集；然后删除文档。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "actual-modify-document",
+        "input": {
+          "query": "只描述当前信息范围，不采集；然后修改文档。",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "actual": {
+          "server_information_only_closure": false,
+          "model_normal_accepted": false,
+          "blocking_reasons": [
+            "ACTION_OR_AUTHORITY_REQUEST"
+          ]
+        },
+        "assertions_passed": true
+      },
+      {
+        "case_id": "english-workflow-description",
+        "input": {
+          "query": "Just describe the existing restart workflow; no probes; do not execute commands.",
+          "request_context": {},
+          "model_output_under_validation": {
+            "disposition": "NORMAL",
+            "reasoning_summary": "仅描述所提供的信息或已经检查的有界窗口。",
+            "tool_name": null,
+            "hypotheses": [],
+            "limitations": [
+              "这不是全局健康或因果结论。"
+            ],
+            "missing_evidence": [],
+            "causal_root_cause_verified": false
+          }
+        },
+        "expected": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "actual": {
+          "server_information_only_closure": true,
+          "model_normal_accepted": true,
+          "blocking_reasons": []
+        },
+        "assertions_passed": true
+      }
+    ],
+    "results_origin": "Actual assert-checked pure-function execution before saving this new receipt; not fabricated provider outputs."
+  },
+  "code_path_findings": {
+    "adaptive_and_direct_langgraph_check_sql_memory_before_server_closure": true,
+    "finish_and_legacy_call_original_shared_validator_first": true,
+    "original_tool_allowlist_cpu_numeric_collector_failure_gates_preserved": true,
+    "health_check_uses_original_independent_collection_path": true,
+    "service_finalizer_keeps_active_tool_calls_and_best_accepted_reports_authoritative": true
+  },
+  "model_calls_attempted": 0,
+  "provider_calls_attempted": 0,
+  "actual_tasks_dispatched": 0,
+  "actual_faults_injected": 0,
+  "source_code_modified_by_reviewer": false,
+  "new_receipt_is_only_file_write_in_recording_step": true,
+  "limitations": [
+    "Maintenance-authored public code review examples are not model blind-test questions.",
+    "ACCEPT_* records in pure-function review contexts are synthetic classifications, not real collected Evidence.",
+    "The 16 function checks do not claim real LangGraph/model/deployment acceptance; root owns those separate receipts.",
+    "No new private evaluation inputs or truth were inspected."
+  ]
+}

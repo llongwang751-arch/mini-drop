@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.312" timestamp="2026-10-02T00:56:07.909468+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_actual_source_query_can_select_registered_cpu_observations" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = cpu_utilization_hypothesis('先确认 CPU 异常，再定位源码级热点函数')">def test_actual_source_query_can_select_registered_cpu_observations():
+&gt;       assert cpu_utilization_hypothesis('先确认 CPU 异常，再定位源码级热点函数')
+E       AssertionError: assert False
+E        +  where False = cpu_utilization_hypothesis('先确认 CPU 异常，再定位源码级热点函数')
+
+tests\test_seven_gap_diagnosis_windows.py:23: AssertionError</failure></testcase><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_perf_commands_request_dwarf_source_lines_without_event_period" time="0.006"><failure message="AssertionError: assert ('srcline' in ['comm', 'pid', 'tid', 'time', 'event', 'ip', ...])">tmp_path = WindowsPath('D:/tx/mini-drop/.pytest-work/test_perf_commands_request_dwa0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A0AC3482B0&gt;
+
+    def test_perf_commands_request_dwarf_source_lines_without_event_period(tmp_path, monkeypatch):
+        commands=[]
+        monkeypatch.setattr(hotmethod_analyzer.shutil, 'which', lambda _: '/usr/bin/perf')
+        monkeypatch.setattr(hotmethod_analyzer.subprocess, 'run', lambda cmd, **kwargs: commands.append(cmd))
+        source=tmp_path/'perf.data';source.write_bytes(b'unit-input')
+        assert hotmethod_analyzer._perf_script(source,tmp_path/'script.txt')==(True,'')
+        assert hotmethod_analyzer._stackcollapse(tmp_path/'script.txt',tmp_path/'folded.txt')==(True,'')
+        fields=commands[0][commands[0].index('-F')+1].split(',')
+&gt;       assert 'srcline' in fields and 'period' not in fields
+E       AssertionError: assert ('srcline' in ['comm', 'pid', 'tid', 'time', 'event', 'ip', ...])
+
+tests\test_seven_gap_diagnosis_windows.py:46: AssertionError</failure></testcase><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass[missing_source]" time="0.001"><failure message="KeyError: 'CPP'">fault = 'missing_source'
+
+    @pytest.mark.parametrize('fault', ['missing_source','short_profile','runtime_wrapper','incorrect_share'])
+    def test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass(fault):
+&gt;       plan=cpu_observation_plan('CPP')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_seven_gap_diagnosis_windows.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+runtime = 'CPP', threshold = 50
+
+    def cpu_observation_plan(runtime: str, threshold: float = 50, *, language: str = "zh-CN") -&gt; dict:
+        runtime = runtime.upper()
+&gt;       contract = CPU_OBSERVATION_CONTRACTS[runtime]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'CPP'
+
+output\acceptance\seven-gaps-20261002\diagnosis-before\cpu_criteria.py:64: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass[short_profile]" time="0.001"><failure message="KeyError: 'CPP'">fault = 'short_profile'
+
+    @pytest.mark.parametrize('fault', ['missing_source','short_profile','runtime_wrapper','incorrect_share'])
+    def test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass(fault):
+&gt;       plan=cpu_observation_plan('CPP')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_seven_gap_diagnosis_windows.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+runtime = 'CPP', threshold = 50
+
+    def cpu_observation_plan(runtime: str, threshold: float = 50, *, language: str = "zh-CN") -&gt; dict:
+        runtime = runtime.upper()
+&gt;       contract = CPU_OBSERVATION_CONTRACTS[runtime]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'CPP'
+
+output\acceptance\seven-gaps-20261002\diagnosis-before\cpu_criteria.py:64: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass[runtime_wrapper]" time="0.000"><failure message="KeyError: 'CPP'">fault = 'runtime_wrapper'
+
+    @pytest.mark.parametrize('fault', ['missing_source','short_profile','runtime_wrapper','incorrect_share'])
+    def test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass(fault):
+&gt;       plan=cpu_observation_plan('CPP')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_seven_gap_diagnosis_windows.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+runtime = 'CPP', threshold = 50
+
+    def cpu_observation_plan(runtime: str, threshold: float = 50, *, language: str = "zh-CN") -&gt; dict:
+        runtime = runtime.upper()
+&gt;       contract = CPU_OBSERVATION_CONTRACTS[runtime]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'CPP'
+
+output\acceptance\seven-gaps-20261002\diagnosis-before\cpu_criteria.py:64: KeyError</failure></testcase><testcase classname="tests.test_seven_gap_diagnosis_windows" name="test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass[incorrect_share]" time="0.000"><failure message="KeyError: 'CPP'">fault = 'incorrect_share'
+
+    @pytest.mark.parametrize('fault', ['missing_source','short_profile','runtime_wrapper','incorrect_share'])
+    def test_cpp_source_predicate_does_not_invent_a_mapping_or_sampling_mass(fault):
+&gt;       plan=cpu_observation_plan('CPP')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_seven_gap_diagnosis_windows.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+runtime = 'CPP', threshold = 50
+
+    def cpu_observation_plan(runtime: str, threshold: float = 50, *, language: str = "zh-CN") -&gt; dict:
+        runtime = runtime.upper()
+&gt;       contract = CPU_OBSERVATION_CONTRACTS[runtime]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'CPP'
+
+output\acceptance\seven-gaps-20261002\diagnosis-before\cpu_criteria.py:64: KeyError</failure></testcase></testsuite></testsuites>

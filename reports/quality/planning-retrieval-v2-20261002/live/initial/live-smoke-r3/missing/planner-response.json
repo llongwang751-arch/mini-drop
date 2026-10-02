@@ -1,0 +1,27 @@
+{
+  "planner_kind": "MODEL_DISPOSITION",
+  "planner_version": "mini-drop.planning-output.v2",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "planning_disposition": "INSUFFICIENT_EVIDENCE",
+  "planning_output": {
+    "schema_version": "mini-drop.planning-output.v2",
+    "disposition": "INSUFFICIENT_EVIDENCE",
+    "reasoning_summary": "用户要求判断昨日03:00至03:05的情况，但明确说明没有当时的观测、日志和指标，且不能用当前观测代替昨日数据。当前可用的诊断工具只能采集当前或未来的系统指标，无法对过去的时间窗口进行有效取证。由于缺失历史观测数据且无法提出可执行的取证计划来核验昨日现象，因此证据不足。",
+    "tool_name": null,
+    "hypotheses": [],
+    "missing_evidence": [
+      "昨日03:00至03:05时间窗口的系统指标观测",
+      "昨日03:00至03:05时间窗口的进程日志",
+      "昨日03:00至03:05时间窗口的性能采样数据"
+    ],
+    "limitations": [
+      "诊断工具仅支持采集当前或未来的系统指标，无法回溯观测历史时间窗口",
+      "没有历史观测数据存储，无法验证昨日是否存在异常",
+      "当前规划范围仅限于可观测的时间窗口"
+    ],
+    "causal_root_cause_verified": false
+  },
+  "reason": "用户要求判断昨日03:00至03:05的情况，但明确说明没有当时的观测、日志和指标，且不能用当前观测代替昨日数据。当前可用的诊断工具只能采集当前或未来的系统指标，无法对过去的时间窗口进行有效取证。由于缺失历史观测数据且无法提出可执行的取证计划来核验昨日现象，因此证据不足。",
+  "hypothesis": null,
+  "tool_call": null
+}

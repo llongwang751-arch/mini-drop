@@ -54,9 +54,25 @@ def test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms(tmp_pat
     assert report["root_cause_evaluation_540"]["skill_retrieval"]["matched_expected_skill"] == 404
     assert report["paired_skill_ab_500"]["skill_retrieval"]["matched_expected_skill"] == 364
     assert report["paired_skill_ab_500"]["regressed_cases"] == 0
-    assert report["dataset"]["diversity_audit"]["normalized_observation_template_count"] == 21
+    # 2026-09-20 观测语料改为逐用例确定性抖动的度量形态后，归一化模板
+    # 不再按场景复用：540 条各自独立，不再出现"540 条只有 21 个模板"。
+    assert report["dataset"]["diversity_audit"]["normalized_observation_template_count"] == 540
     assert report["dataset"]["diversity_audit"]["cases_with_uniquely_identifying_public_metadata"] == 540
     assert report["paired_skill_ab_500"]["scenario_cluster_delta_bootstrap_95"]["cluster_count"] == 20
+
+
+def test_root_cause_observations_do_not_leak_expected_signals(tmp_path):
+    # 2026-09-20 去自证循环：观测必须是采集器视角的度量形态，
+    # 不得逐字复制 Oracle 的 expected_signals（旧语料因此文本预测全中）。
+    build(tmp_path)
+    public = load_json(tmp_path / "public" / "cases.json")
+    private = load_json(tmp_path / "private" / "oracles.json")
+    oracles = {str(item["case_id"]): item for item in private["oracles"]}
+    for case in public["cases"]:
+        oracle = oracles[str(case["case_id"])]
+        observation_text = json.dumps(case["observations_by_collector"], ensure_ascii=False)
+        for signal in oracle["expected_signals"]:
+            assert signal not in observation_text, case["case_id"]
 
 
 def test_root_cause_replay_is_deterministic(tmp_path):

@@ -1,0 +1,132 @@
+{
+  "type": "result",
+  "case_id": "h17",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2feb8c580927a6a1ba53be45ff",
+    "object": "chat.completion",
+    "created": 1790920617,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"NORMAL\",\n  \"disposition\": \"NORMAL_IN_CHECKED_SCOPE\",\n  \"next_tool\": \"NO_TOOL\",\n  \"reasoning_summary\": \"用户明确表示是例行检查，无投诉。提供的合成观测数据显示CPU占用率低（2%）、内存无增长、HTTP延迟和错误率正常。在已检查的范围内未发现异常，无需强行寻找根因。\",\n  \"expected_observations\": [],\n  \"falsification_criteria\": [],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3521,
+      "completion_tokens": 122,
+      "total_tokens": 3643,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1217
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2feb8c580927a6a1ba53be45ff\",\"object\":\"chat.completion\",\"created\":1790920617,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"NORMAL\\\",\\n  \\\"disposition\\\": \\\"NORMAL_IN_CHECKED_SCOPE\\\",\\n  \\\"next_tool\\\": \\\"NO_TOOL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户明确表示是例行检查，无投诉。提供的合成观测数据显示CPU占用率低（2%）、内存无增长、HTTP延迟和错误率正常。在已检查的范围内未发现异常，无需强行寻找根因。\\\",\\n  \\\"expected_observations\\\": [],\\n  \\\"falsification_criteria\\\": [],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3521,\"completion_tokens\":122,\"total_tokens\":3643,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1217},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "e2874eb1f351b41ed42e98b43e4531ec95823975bd2365d7ca72867f1ab225cb",
+  "seconds": 7.585657,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.memory.process_growth",
+      "container.cpu.throttling",
+      "distributed.downstream_pressure"
+    ],
+    "matches": [
+      {
+        "query": "只是例行检查，没有投诉。已检查的CPU、内存增长和接口指标如下；应报告正常还是强行找一个根因？",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "score": 30.682751,
+        "matched_terms": [
+          "内存增",
+          "增长和",
+          "存增长",
+          "内存",
+          "增长",
+          "存增",
+          "指标",
+          "长和"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "只是例行检查，没有投诉。已检查的CPU、内存增长和接口指标如下；应报告正常还是强行找一个根因？",
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "score": 16.776347,
+        "matched_terms": [
+          "cpu",
+          "增长和",
+          "应报告",
+          "增长",
+          "应报",
+          "报告",
+          "长和"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU 配额对照与处置边界\n\n区分代码消耗增长、负载增长和配额变小。只有在容量允许且处置授权明确时才试验调整配额，并保存原值；复测仍使用原请求负载。缺少 cgroup 数据时应报告观测缺口，不用宿主机 CPU 空闲排除配额限制。\n\n来源：https://docs.kernel.org/admin-guide/cgroup-v2.html 。核对日期 2026-09-19；字段语义参考上游，调查步骤为项目约定。"
+      },
+      {
+        "query": "只是例行检查，没有投诉。已检查的CPU、内存增长和接口指标如下；应报告正常还是强行找一个根因？",
+        "knowledge_id": "distributed.downstream_pressure",
+        "title": "下游依赖压力与症状传播",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "chunk_id": "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+        "score": 8.658655,
+        "matched_terms": [
+          "只是",
+          "指标",
+          "根因"
+        ],
+        "required_evidence": [
+          "历史拓扑",
+          "上下游时间窗",
+          "Trace 或下游指标"
+        ],
+        "caveats": [
+          "当前拓扑不能直接解释历史故障"
+        ],
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。"
+      }
+    ],
+    "seconds": 0.014021
+  }
+}

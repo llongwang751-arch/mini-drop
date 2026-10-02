@@ -1,0 +1,52 @@
+# Local overlay. Use -p mini-drop-local-sre and --env-file .env.local-sre.
+services:
+  minio:
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
+  migrate:
+    image: mini-drop-local-sre-python:20260919
+    build:
+      dockerfile: deploy/dockerfiles/local-sre-python.Dockerfile
+    env_file: !override [.env.local-sre]
+  diagnosis-worker:
+    image: mini-drop-local-sre-python:20260919
+    env_file: !override [.env.local-sre]
+    environment:
+      MINI_DROP_RETRIEVAL_MODE: hybrid
+      MINI_DROP_CHROMA_HOST: chroma
+      MINI_DROP_CHROMA_PORT: "8000"
+    depends_on:
+      chroma: {condition: service_started}
+  analyzer:
+    image: mini-drop-local-sre-python:20260919
+    env_file: !override [.env.local-sre]
+  control-plane:
+    image: mini-drop-native-control:local
+    build: !reset null
+  native-agent:
+    image: mini-drop-native-agent:local
+    build: !reset null
+  apiserver:
+    image: mini-drop-local-sre-api:20260919
+    build: !override
+      context: ./output/local-sre-api
+      dockerfile: ../../deploy/dockerfiles/local-sre-api.Dockerfile
+  python-hotspot:
+    image: mini-drop-local-sre-hotspot:20260919
+    ports: !reset []
+  web:
+    image: mini-drop-local-sre-web:20260919
+    build:
+      context: ./web/dist
+      dockerfile: ../../deploy/dockerfiles/web-prebuilt.Dockerfile
+      args:
+        WEB_RUNTIME_IMAGE: mini-drop-web:latest
+    ports: !override ["127.0.0.1:18080:80"]
+  chroma:
+    image: mini-drop-local-sre-python:20260919
+    command: ["chroma", "run", "--host", "0.0.0.0", "--port", "8000", "--path", "/var/lib/mini-drop-runtime/chroma"]
+    expose: ["8000"]
+    volumes: ["knowledge_chroma:/var/lib/mini-drop-runtime"]
+    restart: unless-stopped
+volumes:
+  knowledge_chroma:

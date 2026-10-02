@@ -1,0 +1,235 @@
+.ai-diagnosis-page {
+  --diagnosis-ink: var(--md-ink);
+  --diagnosis-muted: var(--md-muted);
+  --diagnosis-blue: var(--md-accent);
+  --diagnosis-blue-soft: var(--md-accent-soft);
+  --diagnosis-green: var(--md-success);
+  --diagnosis-red: var(--md-danger);
+  --diagnosis-line: var(--md-line);
+  --diagnosis-canvas: var(--md-canvas);
+}
+.diagnosis-command-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin: 0 0 28px; padding: 0; color: var(--md-ink); }
+.diagnosis-eyebrow { color: var(--md-muted); font-size: 12px; font-weight: 500; letter-spacing: 0.03em; }
+.diagnosis-eyebrow .anticon { margin-right: 6px; color: var(--md-accent); }
+.diagnosis-command-header h2.ant-typography { margin: 12px 0 10px; color: var(--md-ink); font-size: clamp(26px, 2.5vw, 34px); font-weight: 650; letter-spacing: -0.04em; line-height: 1.4; text-wrap: balance; }
+.diagnosis-command-header > div > div.ant-typography { margin: 0; color: var(--md-muted); font-size: 14px; line-height: 1.7; }
+.ai-diagnosis-page.has-session.content-tree .diagnosis-command-header .diagnosis-eyebrow,
+.ai-diagnosis-page.has-session.content-tree .diagnosis-command-header > div > div.ant-typography { display: none; }
+.ai-diagnosis-page.has-session.content-tree .diagnosis-command-header h2.ant-typography { font-size: 26px; margin-top: 0; }
+.diagnosis-live-signals { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding-top: 8px; color: var(--md-muted); font-size: 12px; }
+.diagnosis-live-signals > span { display: inline-flex; align-items: center; gap: 6px; }
+.diagnosis-live-signals .is-online { color: var(--md-success); }
+.diagnosis-help-button { min-height: 40px; padding: 8px 14px; background: var(--md-surface); border: 1px solid var(--md-line); border-radius: 9px; color: var(--md-muted); font: inherit; cursor: pointer; transition: border-color 180ms, color 180ms; }
+.diagnosis-help-button:hover { color: var(--md-accent); border-color: var(--md-accent); }
+.ai-diagnosis-workspace, .ai-diagnosis-main { min-width: 0; width: 100%; }
+.diagnosis-workbench-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 0 0 24px; margin: 0; }
+.diagnosis-case-title { flex: 1 1 100%; min-width: 0; }
+.diagnosis-workspace-navigation.ant-space { display: flex; width: 100%; gap: 16px !important; margin-bottom: 18px; }
+.diagnosis-workspace-navigation > .ant-space-item:last-child { margin-left: auto; }
+.diagnosis-workspace-tabs.ant-segmented { padding: 4px; border: 1px solid var(--md-line); border-radius: 12px; background: #eef1f6; }
+.diagnosis-workspace-tabs .ant-segmented-item { min-height: 40px; color: var(--md-muted); border-radius: 8px; }
+.diagnosis-workspace-tabs .ant-segmented-item-label { padding: 6px 20px; line-height: 28px; }
+.diagnosis-workspace-tabs .ant-segmented-item-selected { color: var(--md-ink); box-shadow: 0 1px 4px rgb(24 36 59 / 7%); }
+.diagnosis-case-title > .ant-typography-secondary { display: block; color: var(--md-muted); font-size: 12px; margin: 8px 0; }
+.diagnosis-case-title h4.ant-typography { max-width: 100%; margin: 0; color: var(--md-ink); font-size: 22px; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-diagnosis-page.is-start .diagnosis-case-title > .ant-typography { display: none; }
+.ai-diagnosis-page.is-start .diagnosis-workspace-navigation { margin-bottom: 0; }
+.diagnosis-exam-journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0 0 24px; padding: 20px 24px; border: 1px solid var(--md-line); border-radius: var(--md-radius); background: var(--md-surface); list-style: none; }
+.diagnosis-exam-journey li { display: flex; min-width: 0; align-items: center; gap: 12px; }
+.diagnosis-exam-number { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; background: var(--md-accent-soft); color: var(--md-accent); border: 1px solid #d6e0f6; border-radius: 50%; font-size: 13px; font-weight: 650; }
+.diagnosis-exam-journey li.is-done .diagnosis-exam-number { color: var(--md-success); background: #eef7f3; border-color: #cce5d9; }
+.diagnosis-exam-journey li.is-limited .diagnosis-exam-number { color: var(--md-warning); background: #fff8e9; border-color: #e9d8b2; }
+.diagnosis-exam-journey strong, .diagnosis-exam-journey small { display: block; }
+.diagnosis-exam-journey strong { color: var(--md-ink); font-size: 13px; font-weight: 600; }
+.diagnosis-exam-journey small { margin-top: 4px; color: var(--md-muted); font-size: 12px; line-height: 1.5; }
+.diagnosis-observation { margin: 0 0 24px; overflow: hidden; border: 1px solid var(--md-line); border-radius: var(--md-radius); background: var(--md-surface); }
+.observation-assessment { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 24px; background: #f8faff; border-bottom: 1px solid var(--md-line); }
+.observation-assessment.is-normal_observed { background: #f4faf7; }
+.observation-assessment.is-anomaly_observed, .observation-assessment.is-controlled_fault_observed { background: #fffbf2; }
+.observation-assessment.is-fault_verified { background: #fff7f8; }
+.observation-assessment-icon { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 12px; background: var(--md-accent-soft); color: var(--md-accent); font-size: 22px; }
+.observation-assessment.is-normal_observed .observation-assessment-icon { color: var(--md-success); background: #e5f3ec; }
+.observation-assessment.is-anomaly_observed .observation-assessment-icon, .observation-assessment.is-controlled_fault_observed .observation-assessment-icon { color: var(--md-warning); background: #fff1cf; }
+.observation-assessment.is-fault_verified .observation-assessment-icon { color: var(--md-danger); background: #fbe6e9; }
+.observation-assessment h3 { margin: 0 0 6px; color: var(--md-ink); font-size: 19px; font-weight: 650; line-height: 1.5; }
+.observation-assessment p { max-width: 760px; margin: 0; color: var(--md-muted); font-size: 13px; line-height: 1.7; }
+.observation-target-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 22px 24px 4px; color: var(--md-muted); font-size: 12px; }
+.observation-target-summary strong { color: var(--md-ink); font-size: 14px; }
+.observation-target-summary code, .observation-probe-list code { color: var(--md-muted); font-family: Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; }
+.observation-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding: 24px 8px 28px; }
+.observation-metric { display: flex; min-width: 0; flex-direction: column; gap: 8px; padding: 0 24px; }
+.observation-metric + .observation-metric { border-left: 1px solid var(--md-line); }
+.observation-metric > span { color: var(--md-muted); font-size: 13px; }
+.observation-metric strong { color: var(--md-ink); font-size: clamp(22px, 2vw, 30px); font-weight: 600; line-height: 1.3; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.observation-metric small { color: var(--md-muted); font-size: 11px; line-height: 1.6; }
+.observation-metric.is-missing strong { font-size: 20px; color: var(--md-muted); }
+.observation-details { border-top: 1px solid var(--md-line); }
+.observation-details > summary { padding: 16px 24px; color: var(--md-muted); font-size: 13px; }
+.observation-detail-body { display: grid; gap: 24px; padding: 0 24px 24px; }
+.observation-target-strip, .observation-secondary-metrics, .observation-business-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+.observation-target-item, .observation-secondary-metrics > div, .observation-business-grid > div { display: grid; min-width: 0; gap: 6px; }
+.observation-target-item span, .observation-secondary-metrics span, .observation-business-grid span { color: var(--md-muted); font-size: 12px; }
+.observation-target-item strong { font-size: 13px; overflow-wrap: anywhere; }
+.observation-target-item .is-mono { font-family: Consolas, monospace; font-size: 12px; }
+.observation-section-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.observation-business-metrics h4, .observation-section-heading h4 { margin: 0 0 6px; font-size: 15px; }
+.observation-business-metrics p, .observation-section-heading p { margin: 0 0 16px; color: var(--md-muted); font-size: 13px; }
+.observation-business-grid strong, .observation-secondary-metrics strong { color: var(--md-ink); font-size: 18px; font-variant-numeric: tabular-nums; }
+.observation-probe-list { display: grid; gap: 12px; }
+.observation-probe-list article { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--md-line); border-radius: 10px; }
+.observation-probe-list article > div { flex: 1; display: grid; gap: 4px; }
+.observation-probe-list strong { font-size: 13px; }
+.observation-probe-list small { color: var(--md-muted); font-size: 12px; }
+.observation-probe-status { width: 6px; height: 6px; border-radius: 50%; background: var(--md-accent); }
+.observation-probe-status.is-done { background: var(--md-success); }
+.observation-instrumentation { display: grid; gap: 12px; }
+.observation-instrumentation > div { display: flex; align-items: flex-start; gap: 10px; color: var(--md-muted); font-size: 12px; line-height: 1.7; }
+.observation-instrumentation strong { margin-right: 10px; color: var(--md-ink); }
+.observation-window-note { color: var(--md-muted); font-size: 12px; overflow-wrap: anywhere; }
+.observation-window-note > span { margin: 0 6px; }
+.observation-empty-row { color: var(--md-muted); font-size: 13px; }
+.observation-request-summary { display: flex; gap: 8px 20px; flex-wrap: wrap; margin: 20px 24px 0; padding: 16px; border-radius: 10px; background: var(--md-accent-soft); color: var(--md-muted); font-size: 12px; }
+.observation-request-summary strong { flex-basis: 100%; color: var(--md-ink); font-size: 14px; }
+.diagnosis-finding { margin: 0 0 24px; padding: 22px 24px; border-radius: 12px; }
+.diagnosis-workbench-grid.has-diagnosis { padding: 0; gap: 24px; }
+.diagnosis-tree-panel { min-height: 0; }
+.diagnosis-tree-panel .actual-exploration-tree.ant-card { border-color: var(--md-line); border-radius: var(--md-radius); box-shadow: none; }
+.diagnosis-tree-panel .actual-exploration-tree .ant-card-head { padding-inline: 24px; min-height: 60px; }
+.diagnosis-tree-panel .actual-exploration-tree .ant-card-body { padding: 24px; }
+.diagnosis-tree-panel .diagnosis-tree-fit-viewport { background: #fafbfe; border-color: var(--md-line); border-radius: 12px; }
+.diagnosis-tree-empty { min-height: 240px; }
+.diagnosis-normal-report, .diagnosis-technical-details { margin: 24px 0 0; border: 1px solid var(--md-line); border-radius: 12px; background: var(--md-surface); }
+.diagnosis-normal-report > summary, .diagnosis-technical-details > summary { padding: 16px 20px; color: var(--md-ink); font-size: 13px; font-weight: 600; }
+.diagnosis-technical-details > summary span { margin-left: 12px; color: var(--md-muted); font-size: 12px; font-weight: 400; }
+.diagnosis-normal-report .diagnosis-finding { margin: 0; border: 0; }
+.diagnosis-technical-details .agent-cockpit { margin: 0; }
+.diagnosis-composer-shell { position: static; margin-top: 24px; padding: 24px; border: 1px solid var(--md-line); border-radius: var(--md-radius); background: var(--md-surface); }
+.diagnosis-welcome, .managed-service-directory, .diagnosis-observation { animation: workbenchEnter 240ms var(--md-ease) both; }
+@keyframes workbenchEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.diagnosis-composer-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 16px; }
+.diagnosis-composer-label > .ant-typography:first-child { color: var(--md-ink); font-size: 15px; }
+.diagnosis-composer-label > .ant-typography:last-child { color: var(--md-muted); font-size: 12px; }
+.diagnosis-composer-shell > .ant-segmented { margin-bottom: 12px; }
+.diagnosis-strategy-settings { margin-bottom: 12px; font-size: 12px; color: var(--md-muted); }
+.diagnosis-strategy-settings > summary { min-height: 32px; }
+.diagnosis-options { display: grid; width: min(260px, calc(100vw - 56px)); gap: 12px; padding: 8px; }
+.diagnosis-options > .ant-typography-secondary { font-size: 12px; }
+.diagnosis-options > .ant-btn { min-height: 44px; }
+.diagnosis-composer-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; color: var(--md-muted); font-size: 12px; }
+.diagnosis-composer-meta > div:first-child { display: flex; align-items: center; gap: 8px; }
+.diagnosis-composer { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+.diagnosis-composer .ant-input { padding: 14px 16px; font-size: 14px; line-height: 1.7; background: #fafbfe; border-color: #d5dce8; border-radius: 10px; resize: none; }
+.diagnosis-composer .ant-input:focus { background: #fff; }
+.diagnosis-composer .ant-btn { min-height: 46px; padding-inline: 22px; font-size: 14px; border-radius: 10px; }
+.diagnosis-start-footnote { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; color: var(--md-muted); font-size: 12px; }
+.diagnosis-start-footnote .ant-btn { padding: 0; font-size: 12px; }
+.diagnosis-evaluation-view { padding: 0; }
+.managed-service-exam.ant-space { display: flex; width: 100%; padding: 0; }
+.managed-service-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.managed-service-intro > div > .ant-typography { color: var(--md-ink); font-size: 17px; }
+.managed-service-intro > div > div.ant-typography { margin: 8px 0 0; font-size: 13px; color: var(--md-muted); }
+.managed-service-directory { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start; }
+.managed-service-list { display: grid; gap: 8px; position: sticky; top: 96px; }
+.managed-service-list-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding-inline: 12px; color: var(--md-muted); font-size: 12px; }
+.managed-service-list-heading span { padding: 1px 7px; background: #e9edf5; border-radius: 5px; color: var(--md-ink); }
+.managed-service-option { display: flex; min-width: 0; min-height: 76px; align-items: center; gap: 12px; padding: 16px 12px; border: 1px solid transparent; border-radius: 12px; background: transparent; text-align: left; cursor: pointer; transition: background 180ms, border-color 180ms; }
+.managed-service-option > .anticon:first-child { color: var(--md-muted); font-size: 19px; }
+.managed-service-option > .anticon:last-child { margin-left: auto; color: var(--md-muted); font-size: 12px; }
+.managed-service-option > span:not(.anticon) { display: grid; min-width: 0; gap: 6px; }
+.managed-service-option strong { color: var(--md-ink); font-size: 13px; font-weight: 600; }
+.managed-service-option small { color: var(--md-muted); font-size: 11px; line-height: 1.6; }
+.managed-service-option:hover { background: #eef1f7; }
+.managed-service-option.is-selected { border-color: #d9e2f5; background: #fff; box-shadow: 0 2px 6px rgb(24 36 59 / 3%); }
+.managed-service-option.is-selected > .anticon { color: var(--md-accent); }
+.managed-service-list > p { padding: 8px 12px; margin: 0; color: var(--md-muted); font-size: 12px; line-height: 1.8; }
+.managed-service-selected { min-width: 0; }
+.managed-service-name { margin: 0; color: var(--md-ink); font-size: 18px; font-weight: 650; }
+.managed-service-card .ant-card-head-wrapper { gap: 16px; }
+.managed-service-exercise { margin: 12px 0; padding: 0 16px; border: 1px solid var(--md-line); border-radius: 10px; background: #f8faff; }
+.managed-service-exercise .office-exercise { margin: 0 0 16px; padding: 0; border: 0; background: none; }
+.managed-service-collection-note { padding: 16px 20px; border: 1px solid var(--md-line); border-radius: 12px; background: #fff; }
+.managed-service-collection-note summary { color: var(--md-muted); font-size: 13px; }
+.managed-service-exam > .ant-space-item { width: 100%; }
+.managed-service-exam .ant-card { border-radius: var(--md-radius); border-color: var(--md-line); box-shadow: none; }
+.managed-service-exam .ant-card-head { min-height: 62px; }
+.managed-service-exam .ant-card-head-title { font-size: 17px; }
+.managed-service-description { color: var(--md-muted); font-size: 14px; line-height: 1.8; }
+.managed-service-steps { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 20px 0 12px; color: var(--md-muted); font-size: 13px; }
+.managed-service-steps span { background: none; padding: 0; }
+.managed-service-card label, .managed-service-request label { display: block; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--md-ink); }
+.managed-service-card details > summary { padding: 12px 0; font-size: 13px; color: var(--md-muted); }
+.managed-service-request { padding: 20px; margin: 20px 0; border: 1px solid var(--md-line); border-radius: 12px; background: #fafbfe; }
+.managed-service-request label { margin-top: 0; }
+.managed-service-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.managed-service-actions .ant-btn { min-height: 44px; }
+.office-exercise { padding: 20px; margin: 20px 0; border: 1px solid var(--md-line); border-radius: 12px; background: #f8faff; }
+.office-exercise-results { display: grid; gap: 12px; margin-top: 16px; }
+.office-exercise-results > div:not(:last-child) { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--md-line); font-size: 13px; }
+.office-request-stages > div { display: flex; gap: 10px 20px; flex-wrap: wrap; margin: 12px 0; font-size: 13px; color: var(--md-muted); }
+.office-request-stages > .ant-typography { display: block; }
+.office-request-stages details .ant-typography { overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+  .managed-service-directory { grid-template-columns: 200px minmax(0, 1fr); gap: 16px; }
+  .diagnosis-command-header { gap: 16px; }
+  .diagnosis-live-signals > span { display: none; }
+  .observation-metric { padding-inline: 16px; }
+}
+@media (max-width: 820px) {
+  .managed-service-directory { grid-template-columns: 1fr; }
+  .managed-service-list { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .managed-service-list-heading, .managed-service-list > p { grid-column: 1 / -1; }
+  .diagnosis-command-header { margin-bottom: 24px; }
+  .diagnosis-command-header h2.ant-typography { font-size: 26px; }
+  .diagnosis-workspace-tabs .ant-segmented-item-label { padding-inline: 14px; }
+  .diagnosis-exam-journey { gap: 16px; padding: 16px; }
+  .diagnosis-exam-journey li { align-items: flex-start; gap: 8px; }
+  .observation-assessment { grid-template-columns: auto minmax(0, 1fr); }
+  .observation-assessment > .ant-tag { grid-column: 2; width: fit-content; }
+}
+@media (max-width: 640px) {
+  .managed-service-card .ant-card-head-wrapper { flex-wrap: wrap; padding-block: 16px; gap: 12px; }
+  .managed-service-card .ant-card-head-title { flex-basis: 100%; }
+  .managed-service-card .ant-card-extra { margin-inline-start: 0; }
+  .managed-service-option { padding: 12px 10px; gap: 8px; }
+  .managed-service-option > .anticon:last-child { display: none; }
+  .managed-service-option strong { font-size: 12px; }
+  .managed-service-option small { font-size: 11px; }
+  .managed-service-list > p { display: none; }
+  .diagnosis-command-header { position: relative; display: block; }
+  .diagnosis-eyebrow { padding-right: 90px; }
+  .diagnosis-command-header h2.ant-typography { margin-top: 14px; font-size: 24px; }
+  .diagnosis-command-header > div > div.ant-typography { font-size: 13px; }
+  .diagnosis-live-signals { position: absolute; top: -4px; right: 0; padding: 0; }
+  .diagnosis-help-button { min-width: 72px; min-height: 44px; padding: 8px; font-size: 12px; }
+  .diagnosis-workspace-navigation { row-gap: 12px !important; }
+  .diagnosis-workspace-navigation > .ant-space-item:first-child { width: 100%; }
+  .diagnosis-workspace-navigation > .ant-space-item:last-child { margin-left: 0; }
+  .diagnosis-workspace-tabs.ant-segmented { display: flex; width: 100%; }
+  .diagnosis-workspace-tabs .ant-segmented-group { width: 100%; }
+  .diagnosis-workspace-tabs .ant-segmented-item { flex: 1; min-height: 44px; }
+  .diagnosis-workspace-tabs .ant-segmented-item-label { padding-inline: 8px; font-size: 13px; line-height: 32px; }
+  .diagnosis-exam-journey { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .diagnosis-exam-journey li { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+  .diagnosis-exam-journey strong { font-size: 12px; }
+  .diagnosis-exam-journey small { display: none; }
+  .observation-assessment { padding: 20px; gap: 12px; }
+  .observation-assessment h3 { font-size: 17px; }
+  .observation-target-summary { padding: 20px 20px 4px; }
+  .observation-metrics { grid-template-columns: 1fr 1fr; gap: 24px 0; padding: 24px 4px; }
+  .observation-metric { padding-inline: 16px; }
+  .observation-metric:nth-child(3) { border-left: 0; }
+  .observation-details > summary { padding: 16px 20px; }
+  .observation-detail-body { padding: 0 20px 20px; }
+  .observation-request-summary { margin: 16px 20px 0; }
+  .diagnosis-finding { padding: 20px; }
+  .diagnosis-tree-panel .actual-exploration-tree .ant-card-body { padding: 16px; }
+  .diagnosis-tree-panel .actual-exploration-tree .ant-card-head { padding-inline: 16px; }
+  .diagnosis-technical-details > summary span { display: block; margin: 4px 0 0; }
+  .diagnosis-composer-shell { padding: 20px; }
+  .diagnosis-composer { grid-template-columns: 1fr; }
+  .diagnosis-composer .ant-btn { width: 100%; }
+  .diagnosis-composer .ant-input { font-size: 16px; }
+  .diagnosis-start-footnote > span { display: none; }
+  .diagnosis-start-footnote .ant-btn { min-height: 44px; }
+  .managed-service-request, .office-exercise { padding: 16px; }
+}

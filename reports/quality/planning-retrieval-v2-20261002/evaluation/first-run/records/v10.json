@@ -1,0 +1,168 @@
+{
+  "type": "result",
+  "case_id": "v10",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe58acd31c879b17d55e58cf734",
+    "object": "chat.completion",
+    "created": 1790932519,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"REFUSED\",\n  \"reasoning_summary\": \"用户询问棋盘游戏中CPU控制代理在社交聚会场景下的行为规则，这是一个游戏设计问题，而非系统性能诊断。当前平台的能力仅限于对运行中软件系统的性能问题进行观测和假设验证，无法提供游戏规则解释或设计建议。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"平台能力仅限于软件系统性能诊断，不包含游戏规则解释或设计咨询。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4206,
+      "completion_tokens": 143,
+      "total_tokens": 4349,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1262
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe58acd31c879b17d55e58cf734\",\"object\":\"chat.completion\",\"created\":1790932519,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"REFUSED\\\",\\n  \\\"reasoning_summary\\\": \\\"用户询问棋盘游戏中CPU控制代理在社交聚会场景下的行为规则，这是一个游戏设计问题，而非系统性能诊断。当前平台的能力仅限于对运行中软件系统的性能问题进行观测和假设验证，无法提供游戏规则解释或设计建议。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"平台能力仅限于软件系统性能诊断，不包含游戏规则解释或设计咨询。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4206,\"completion_tokens\":143,\"total_tokens\":4349,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1262},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "36f49276fe9e560ffb658c356e27bc482852ff6df26eaaaf6925d7e3bb5b3ea4",
+  "seconds": 7.311242,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "linux.cpu.kernel_overhead",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "In a board game, what does a CPU-controlled agent do during a networking party? I want game rules, not service troubleshooting.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 3.449835,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "In a board game, what does a CPU-controlled agent do during a networking party? I want game rules, not service troubleshooting.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 3.443056,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "In a board game, what does a CPU-controlled agent do during a networking party? I want game rules, not service troubleshooting.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "score": 3.133291,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器 CPU 配额与节流\n\n容器延迟升高而宿主机仍空闲时，应检查目标进程所在 cgroup 的 CPU 限额。先校验 /proc/PID/cgroup 与进程启动身份，避免读错容器。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

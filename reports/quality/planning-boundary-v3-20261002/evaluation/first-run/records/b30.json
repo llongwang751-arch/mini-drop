@@ -1,0 +1,277 @@
+{
+  "type": "result",
+  "case_id": "b30",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc98a876ab72d5bc1d4ee436609a",
+    "object": "chat.completion",
+    "created": 1790944258,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告 Python 进程在 28 秒窗口内用户态 CPU 占用率达 87%，输入规模未变，并授权进行 py-spy 采样。这是一个明确的待验证性能异常（高 CPU 使用率）。目标是在允许的工具范围内，规划取证以识别主要的计算函数。已有系统指标显示高 CPU，但需要独立的 Profile 采样来定位热点代码。\",\n  \"tool_name\": \"start_pyspy_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，Python 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\"],\n      \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n      \"rationale\": \"已有观测显示进程 CPU 为 87%，符合高 CPU 现象假设。下一步通过 py-spy 采样验证 CPU 时间是否集中在少数几个业务函数上，以定位热点。\",\n      \"prior_probability\": 0.7,\n      \"estimated_value\": 0.8\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于用户描述和已有系统指标，旨在定位 CPU 热点函数。高 CPU 本身不能证明代码回归，需结合业务上下文分析。规划范围不包括修复或因果验证。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 5289,
+      "completion_tokens": 364,
+      "total_tokens": 5653,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 2089
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc98a876ab72d5bc1d4ee436609a\",\"object\":\"chat.completion\",\"created\":1790944258,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 Python 进程在 28 秒窗口内用户态 CPU 占用率达 87%，输入规模未变，并授权进行 py-spy 采样。这是一个明确的待验证性能异常（高 CPU 使用率）。目标是在允许的工具范围内，规划取证以识别主要的计算函数。已有系统指标显示高 CPU，但需要独立的 Profile 采样来定位热点代码。\\\",\\n  \\\"tool_name\\\": \\\"start_pyspy_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Python 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n      \\\"rationale\\\": \\\"已有观测显示进程 CPU 为 87%，符合高 CPU 现象假设。下一步通过 py-spy 采样验证 CPU 时间是否集中在少数几个业务函数上，以定位热点。\\\",\\n      \\\"prior_probability\\\": 0.7,\\n      \\\"estimated_value\\\": 0.8\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于用户描述和已有系统指标，旨在定位 CPU 热点函数。高 CPU 本身不能证明代码回归，需结合业务上下文分析。规划范围不包括修复或因果验证。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":5289,\"completion_tokens\":364,\"total_tokens\":5653,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":2089},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "f746590decbe99bd53764093c85f8f4b48d990bdd1bf96baf06480904bbce6d0",
+  "seconds": 21.74158,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "python.sampling.attribution"
+    ],
+    "matches": [
+      {
+        "query": "Python 转换进程在 28 秒完整窗口占用 87% 用户态 CPU，输入规模未变。授权 py-spy 短采样；规划验证哪个计算函数占主要样本，不把单一高 CPU 当代码回归。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [
+            "用户态"
+          ],
+          "unsupported_subjects": [
+            "py",
+            "spy"
+          ],
+          "clause": "Python 转换进程在 28 秒完整窗口占用 87% 用户态 CPU",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [
+                "用户态"
+              ],
+              "unsupported_subjects": [
+                "py",
+                "spy"
+              ],
+              "clause": "Python 转换进程在 28 秒完整窗口占用 87% 用户态 CPU"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "py",
+                "spy"
+              ],
+              "clause": "输入规模未变"
+            },
+            {
+              "accepted": false,
+              "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "py",
+                "spy"
+              ],
+              "clause": "授权 py-spy 短采样"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "py",
+                "spy"
+              ],
+              "clause": "规划验证哪个计算函数占主要样本"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "py",
+                "spy"
+              ],
+              "clause": "不把单一高 CPU 当代码回归"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "score": 36.571465,
+        "matched_terms": [
+          "cpu",
+          "代码回",
+          "用户态",
+          "码回归",
+          "代码",
+          "回归",
+          "户态",
+          "码回",
+          "窗口",
+          "计算",
+          "进程",
+          "采样"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比",
+          "采样起止时间与 CPU 时间增量",
+          "核数/配额及 CPU 百分比口径"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足",
+          "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "Python 转换进程在 28 秒完整窗口占用 87% 用户态 CPU，输入规模未变。授权 py-spy 短采样；规划验证哪个计算函数占主要样本，不把单一高 CPU 当代码回归。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "sampling"
+          ],
+          "matched_anchors": [
+            "py-spy"
+          ],
+          "unsupported_subjects": [],
+          "clause": "授权 py-spy 短采样",
+          "source_profile": {
+            "concepts": [
+              "sampling"
+            ],
+            "runtime_scopes": [
+              "PYTHON"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Python 转换进程在 28 秒完整窗口占用 87% 用户态 CPU"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "输入规模未变"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [
+                "py-spy"
+              ],
+              "unsupported_subjects": [],
+              "clause": "授权 py-spy 短采样"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "规划验证哪个计算函数占主要样本"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不把单一高 CPU 当代码回归"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "score": 28.291974,
+        "matched_terms": [
+          "python",
+          "cpu",
+          "spy",
+          "py",
+          "代码",
+          "样本",
+          "计算",
+          "进程",
+          "采样",
+          "验证"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

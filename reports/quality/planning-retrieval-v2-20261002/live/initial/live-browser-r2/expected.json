@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "name": "missing",
+      "expected_disposition": "INSUFFICIENT_EVIDENCE",
+      "passed": true,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "LangGraph internal model calls are not equated to planner invocations",
+      "diagnosis_id": "insight_18021f4eda4240b99dc2a7b7d123f591",
+      "actual_disposition": "INSUFFICIENT_EVIDENCE",
+      "new_tool_calls": 0,
+      "new_tasks": 0,
+      "new_evidence": 0,
+      "new_reports": 0
+    },
+    {
+      "name": "refused",
+      "expected_disposition": "REFUSED",
+      "passed": true,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "LangGraph internal model calls are not equated to planner invocations",
+      "diagnosis_id": "insight_410b05d6e5564424be13038a8a991a2b",
+      "actual_disposition": "REFUSED",
+      "new_tool_calls": 0,
+      "new_tasks": 0,
+      "new_evidence": 0,
+      "new_reports": 0
+    }
+  ],
+  "no_answer_cases": [
+    {
+      "name": "normal",
+      "diagnosis_id": "insight_cb62cff3cfa2456d8dbaa0c05e9e0ec9",
+      "retrieval_event_ids": [
+        "event_6f3e049b517a4764a46c7b672ce6627f",
+        "event_27e141119112470daf5de10b86845dbd"
+      ]
+    },
+    {
+      "name": "missing",
+      "diagnosis_id": "insight_18021f4eda4240b99dc2a7b7d123f591",
+      "retrieval_event_ids": [
+        "event_4f8015d3b3fc4e15a9e8122f002ee480",
+        "event_c14215ff6fcf409293356e7df77863c3"
+      ]
+    },
+    {
+      "name": "refused",
+      "diagnosis_id": "insight_410b05d6e5564424be13038a8a991a2b",
+      "retrieval_event_ids": [
+        "event_399a28f91e6c4a0b89f240cf257d9259"
+      ]
+    }
+  ],
+  "total_live_cases": 3,
+  "source_head": "df0d3ef00a945e7d909f73868819799b2b7cc7f7",
+  "release": "/opt/mini-drop-releases/20261002T085733Z",
+  "health": {
+    "dependencies": {
+      "control_plane": "healthy",
+      "database": "healthy",
+      "diagnostic_ai": "healthy"
+    },
+    "language": "go",
+    "service": "mini-drop-apiserver"
+  },
+  "scope": "Read-only live Chrome/CDP rendering of genuine persisted planning results and existing engineering index; normal certificate verification; no fault/session/tool mutations"
+}

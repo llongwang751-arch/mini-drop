@@ -1,0 +1,123 @@
+{
+  "type": "result",
+  "case_id": "h14",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2eaaefe5a8a5540dc4faec0cc2",
+    "object": "chat.completion",
+    "created": 1790920535,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"LOCK\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"start_jvm_profile\",\n  \"reasoning_summary\": \"合成观测显示锁等待显著：窗口内总等待时长20秒，获取500次，有8个线程被阻塞。这支持了锁竞争异常。需要启动JVM性能剖析来识别具体的持锁或等待路径。\",\n  \"expected_observations\": [\"JVM剖析中识别出导致高等待的特定监视器（monitor）或锁对象\", \"剖析中一个或多个业务线程在锁相关方法（如 wait, notify, synchronized 块）上花费了显著的CPU时间或样本\"],\n  \"falsification_criteria\": [\"JVM剖析中未发现与高锁等待观测（20秒，500次获取）相关的显著热点或阻塞栈\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3509,
+      "completion_tokens": 198,
+      "total_tokens": 3707,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1205
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2eaaefe5a8a5540dc4faec0cc2\",\"object\":\"chat.completion\",\"created\":1790920535,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"LOCK\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"start_jvm_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示锁等待显著：窗口内总等待时长20秒，获取500次，有8个线程被阻塞。这支持了锁竞争异常。需要启动JVM性能剖析来识别具体的持锁或等待路径。\\\",\\n  \\\"expected_observations\\\": [\\\"JVM剖析中识别出导致高等待的特定监视器（monitor）或锁对象\\\", \\\"剖析中一个或多个业务线程在锁相关方法（如 wait, notify, synchronized 块）上花费了显著的CPU时间或样本\\\"],\\n  \\\"falsification_criteria\\\": [\\\"JVM剖析中未发现与高锁等待观测（20秒，500次获取）相关的显著热点或阻塞栈\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3509,\"completion_tokens\":198,\"total_tokens\":3707,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1205},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "0b00de537eb44f70c49834805e55f5a7c069b1ddd21b17b52c0d6aa8dd24ad8e",
+  "seconds": 20.276748,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.network.retransmit",
+      "python.sampling.attribution",
+      "postgres.waits"
+    ],
+    "matches": [
+      {
+        "query": "Java 工作线程在同一个monitor上等待，窗口内等待总量20s、500次获取；希望先看持锁/等待路径。",
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 13.835701,
+        "matched_terms": [
+          "在同一",
+          "同一",
+          "在同",
+          "路径"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      },
+      {
+        "query": "Java 工作线程在同一个monitor上等待，窗口内等待总量20s、500次获取；希望先看持锁/等待路径。",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "score": 5.922511,
+        "matched_terms": [
+          "同一",
+          "线程"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。"
+      },
+      {
+        "query": "Java 工作线程在同一个monitor上等待，窗口内等待总量20s、500次获取；希望先看持锁/等待路径。",
+        "knowledge_id": "postgres.waits",
+        "title": "PostgreSQL 长事务与锁等待",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "chunk_id": "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+        "score": 5.388477,
+        "matched_terms": [
+          "窗口",
+          "等待"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## PostgreSQL 长事务与锁等待\n\n建立阻塞方与被阻塞方关系，并记录事务年龄、请求窗口和查询标识。连接数高不能单独证明锁竞争。查询文本可能含业务敏感数据，使用摘要和受限的只读查询。"
+      }
+    ],
+    "seconds": 0.014213
+  }
+}

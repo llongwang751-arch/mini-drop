@@ -1,5 +1,17 @@
 # Drop Insight V2 接口契约
 
+## 2026-09-30 请求实例范围
+
+`CreateDiagnosisRequest.target.agent_id`是发现范围的约束，不是采样授权。自动和手动发现都只检查该Agent的新鲜可信快照；发现请求传入不同Agent时拒绝冲突，不跨主机回退。最终采样仍必须通过opaque discovery/binding及原有进程身份校验。显式进程名存在多个候选时保持澄清，不以模型排序选择其中一个。
+
+受控故障启动返回`diagnosis_request.target.agent_id`，来源为运维配置`MINI_DROP_FAULT_LAB_AGENT_ID`；缺少该配置在注入前拒绝。浏览器与验收器须保留该条件，实验室返回的PID及验收器预期PID不作为诊断请求权威。旧请求没有Agent约束时继续允许跨Agent发现，但显式重复进程名不能猜选。
+
+## 2026-09-19 调查策略扩展
+
+`CreateDiagnosisRequest.budget.investigation_strategy` 接受 `LATS`（默认）或 `REACT`；其他值按严格 schema 拒绝。ReAct 共享模型、工具和授权门禁，选择动作时按新规划次序，不用 UCT 分数。事件命名沿用 `lats.*`，`search.algorithm=REACT`、`execution_mode=BOUNDED_REACT` 标明真实策略。历史原始事件不迁移。
+
+报告 `verification.remediation.schema_version=2` 表示只提供取证或受控变更计划；不包含自动执行权限。检索与外部查询沿用 `planner.knowledge_retrieved` 的 retrieval_trace 保存，`tool` 区分知识、历史报告和 Grafana 观察，全部 `is_evidence=false`。
+
 当前公开前缀为 `/api/v2`。Go API 完成认证、请求限制和传输，Python Diagnosis Worker 通过私有
 gRPC 执行领域逻辑。机器可读路径以 `openapi.v1.json` 为准。
 
@@ -148,3 +160,9 @@ python -m pytest tests/test_contracts.py tests/test_diagnostic_ai_rpc.py -q
 接口单测不替代完整平台验收。完整链路要证明 Go 响应头为
 `X-Mini-Drop-AI-Transport: grpc`，并能追踪 Task、Attempt、Artifact、AnalysisJob、Evidence 与
 Report 引用。
+
+## 诊断取消
+
+`POST /api/v2/diagnoses/{diagnosis_id}/cancel`，请求体 `{"reason":"用户停止本次诊断","expected_version":4}`，reason可省略、去空白后1–512字，版本可省略、提供时须>=1，拒绝额外字段。返回现有Diagnosis结构。全范围operator/admin可调用；viewer/approver及资源范围受限V2账号403。缺失或归档404，首次版本冲突/其他终态409，非法输入422。重复CANCELLED请求不改原因、操作者或版本，即使携带取消前的expected_version也返回200。
+
+会话、关联活跃任务与AnalysisJob取消和事件/outbox同事务提交；已完成任务、报告与证据保留。Agent在心跳收到cancel_task_id后终止采集进程组，响应不是物理退出回执。当前同步Analyzer不能即时杀掉计算，但租约撤销与终态检查拒绝晚到产物入库。故障注入须另行停止恢复。`scripts/generate_cancellation_contract.py`从CancelDiagnosisRequest刷新OpenAPI该路由，不能独立编辑生成的请求schema。

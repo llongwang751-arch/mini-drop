@@ -1,0 +1,2611 @@
+{
+  "schema": "mini-drop.seven-gap-browser-expectations.v1",
+  "current": {
+    "schema": "mini-drop.engineering-diagnosis-index.v1",
+    "profile": "engineering-diagnosis.v1",
+    "evaluation_mode": "MIXED_LIVE_CAMPAIGNS",
+    "fresh_live_run": false,
+    "fresh_live_scenarios": 7,
+    "regraded_prior_scenarios": 14,
+    "registered_scenarios": 21,
+    "evaluated_scenarios": 21,
+    "diagnosis_accepted": 21,
+    "localization_accepted": 6,
+    "refuted": 8,
+    "not_evaluated": [],
+    "cases": [
+      {
+        "scenario_id": "cpu-hotspot",
+        "diagnosis_id": "insight_4e2cac8347544786a09d9352c3237495",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_78c41bd87964529af575ff1f5de0bfa5",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "CPU 计算热点",
+        "case_sha256": "dac45a784c0b828be5f5e8deb739349a953d8d8ccadd01c2df6cca059c6adcba",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "source-hotspot",
+        "diagnosis_id": "insight_c48cddbfca2a420ba11c42415af9d5c2",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "source_hot_function；_sample；_publish_application_metrics",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_9113365336ad65999e835df3d8315d8b",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "source_hot_function；_sample；_publish_application_metrics",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Python 源码热点",
+        "case_sha256": "2ecb759ad9d3947e022e34fbce9e83feebc3c098938e03f6cab573f006bebaa1",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "memory-pressure",
+        "diagnosis_id": "insight_480fec9591864e36bc3dd8a8ae6d7a10",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_4195815ae9bd12c4dfeb024f8a21488e",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_02e3a809191acf9bd3785fa56e2fbe40",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "进程内存增长",
+        "case_sha256": "220c7e1873257336d18118ee10f3a274d8c7454a61de4eac8c47c4fe15568c4d",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "io-write-latency",
+        "diagnosis_id": "insight_0c461586b0924971a9521b4392ec6c72",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_df674d800f3b9b663974813ccb488213",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_ead6b92cb912e322ce27b30a4c44ba85",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "同步写入压力",
+        "case_sha256": "2c044f9184036c4f298f4c7f36f3db9107b9a08ad9bf13dc7950c5702051e334",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "noisy-neighbor",
+        "diagnosis_id": "insight_e588c05f9d8241119df432ca76cae3e1",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_0192c35b4844c46ff34c9ddb18815cca",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "同机噪声邻居",
+        "case_sha256": "0a55234c74584973898c49b0fb52ef33f6ff7900ee44b1122b967e8a6a3b0d83",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "load-saturation",
+        "diagnosis_id": "insight_ba83f061fe8848a5ba95409f4525eadd",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_f4faa762ecc041f9a973fbc6419d18ce",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "入口负载饱和",
+        "case_sha256": "5c2e0afc0fefe832c881e8edfb98a36972c59d734ab46852653d0a3bb97fcdc5",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "queue-backlog",
+        "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "生产消费队列堆积",
+        "case_sha256": "b47c3c925d96046983c0519de4bf19a9d87e044447d3ff2b27b2874d30e789d6",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "go-cpu-hotspot",
+        "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "main.runCPUFault；main.goCPUHotFunction",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_c45097843ac98795520072c62416514c",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "main.runCPUFault；main.goCPUHotFunction",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 服务 CPU 热点",
+        "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+        "fresh_live_run": false,
+        "campaign_id": "prior-20260930",
+        "originally_live_record": false
+      },
+      {
+        "scenario_id": "go-network-latency",
+        "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_edde7124ef71a1cafad121c60943c593",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 网络等待与下游慢响应",
+        "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a",
+        "fresh_live_run": false,
+        "campaign_id": "prior-20260930",
+        "originally_live_record": false
+      },
+      {
+        "scenario_id": "go-memory-growth",
+        "diagnosis_id": "insight_c8fd60186dc34bcbab99b102879cdddd",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_5c7d4acaa6c560e0547d3d9371bbbaaa",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 堆内存持续增长",
+        "case_sha256": "3251e2ba16d079dc83b57086734a3a7ca1d6a9ca288e6e0de87ef5c7871fb517",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "go-file-io",
+        "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Go 同步文件写入",
+        "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b",
+        "fresh_live_run": false,
+        "campaign_id": "prior-20260930",
+        "originally_live_record": false
+      },
+      {
+        "scenario_id": "java-gc-pressure",
+        "diagnosis_id": "insight_d828a33b55b74fb3965f0ce3c5a7f249",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_7b52c7ede1771ac21e828336cebc56a6",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_6df1d173790675f7c9e41f1f0f452672",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 分配风暴与 GC 压力",
+        "case_sha256": "2ef939e648d799f6d5f12fc80ec4c1affdcb9e94fc6f12687106b9bb4a7367cf",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "java-lock-contention",
+        "diagnosis_id": "insight_c5d19923c6524f1589dd2bcac90920f1",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_537b9fad241d839fbc358abe981bd341",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_d3914a7684abe5f139738684f0cb7031",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 锁竞争",
+        "case_sha256": "fecc28a2b6b68014521f83d11b40ff36ac6354ea3d904340937ff4c5ce3bedba",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "java-downstream-latency",
+        "diagnosis_id": "insight_7faa74ba878d4555b2b72185ce81888f",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "下游调用耗时路径",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_1529588fbc2fdd9e9cda5bde8281c089",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "下游调用耗时路径",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 下游依赖慢响应",
+        "case_sha256": "69152f1971290e1a4a9a5b16163ee240abdf4352dc6e0f8ee5f9dff9479e6d17",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "java-offheap-growth",
+        "diagnosis_id": "insight_4423bd58c97b46ff96d5db95506b0242",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_88cc7ad1db0132857aaad3bd69aeb27f",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 堆外内存持续增长",
+        "case_sha256": "3dd011f0f05cf7c9ff2306da411c6f2b5f6e557362b92b60a53ac821ff25ffd7",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "java-file-io",
+        "diagnosis_id": "insight_be58ee31560b422a97e11a89d855ea95",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_bd34e978939666816ad3c6289194452b",
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "location": null,
+            "independent_control_required": false
+          },
+          {
+            "report_id": "report_6cb9c224eaea61a6cf3ffebbc7589fd5",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "Java 同步文件写入",
+        "case_sha256": "66c8ef626b30319b31e7959c5439dcac16d43298bb13167a2c73be758d8a372c",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "cpp-cpu-hotspot",
+        "diagnosis_id": "insight_400e527ed1524139bedfd0403b5553a6",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "cpp_cpu_hot_function",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_9eacfe6b27eeee01861cfeaedf7d784b",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "cpp_cpu_hot_function",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 计算热点",
+        "case_sha256": "90facdc6e18ecd170e706128efb4f1c061b144f145855b4d062968a4d1808801",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "cpp-lock-contention",
+        "diagnosis_id": "insight_b944cda00f874563842a7ec6fe697501",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "SUPPORTED_OBSERVATION",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_ccce185f5aeef8a021951514585278c8",
+            "outcome": "SUPPORTED_OBSERVATION",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 互斥锁竞争",
+        "case_sha256": "609cb77ad08920afc04be151802159f8db4dabce564f315b29217a46d197e6c6",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "cpp-memory-growth",
+        "diagnosis_id": "insight_83256cf18789478cb7a8caa29be362cb",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_e02eb7855e0f8ab8f6f0d1506e86acdf",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 有界内存保留",
+        "case_sha256": "c33e0842c025cf3b0384886f134c373d76fb3aa20a66873f376fcb375d8128bf",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "cpp-file-io",
+        "diagnosis_id": "insight_ba819c2b01014444a184c0dec3401e04",
+        "diagnosis_accepted": true,
+        "localization_accepted": false,
+        "outcome": "REFUTED",
+        "location": null,
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_ad3baf8b10f1bcedebdd498dc49593bd",
+            "outcome": "REFUTED",
+            "location": null,
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 同步文件写入",
+        "case_sha256": "dd101941c73a084b14378f89f9b9e2cd922343a6110213af3368e7906087fec9",
+        "fresh_live_run": true,
+        "campaign_id": "seven-gaps-20261002",
+        "originally_live_record": true
+      },
+      {
+        "scenario_id": "cpp-downstream-latency",
+        "diagnosis_id": "insight_571b7eaa82e54958a06cd1925e59a87b",
+        "diagnosis_accepted": true,
+        "localization_accepted": true,
+        "outcome": "LOCALIZED_ANOMALY",
+        "location": "下游调用耗时路径",
+        "causal_root_cause_verified": false,
+        "same_load_fix_verified": false,
+        "recorded_chain_verified": true,
+        "cleanup_and_recovery_verified": true,
+        "reports": [
+          {
+            "report_id": "report_deea32391be1037219f934403142fcf3",
+            "outcome": "LOCALIZED_ANOMALY",
+            "location": "下游调用耗时路径",
+            "independent_control_required": false
+          }
+        ],
+        "profile": "engineering-diagnosis.v1",
+        "title": "C++ 下游响应变慢",
+        "case_sha256": "d8b9888911f2d3510e93d930da537b7e3d33c0d47048f006fa2384752d56476b",
+        "fresh_live_run": false,
+        "campaign_id": "interview-completion-20261001",
+        "originally_live_record": true
+      }
+    ],
+    "download_url": "/report-assets/engineering-diagnosis/index.json",
+    "causal_and_fix_acceptance": "NOT_EVALUATED_BY_THIS_PROFILE",
+    "boundary": "Engineering diagnosis response, not causal proof or whole-business health; historical results unchanged.",
+    "current_campaign_id": "seven-gaps-20261002",
+    "campaigns": [
+      {
+        "campaign_id": "interview-completion-20261001",
+        "evaluated_scenarios": 11,
+        "current_campaign": false
+      },
+      {
+        "campaign_id": "seven-gaps-20261002",
+        "evaluated_scenarios": 7,
+        "current_campaign": true
+      },
+      {
+        "campaign_id": "prior-20260930",
+        "evaluated_scenarios": 3,
+        "current_campaign": false
+      }
+    ]
+  },
+  "new_cases": [
+    {
+      "scenario_id": "source-hotspot",
+      "diagnosis_id": "insight_c48cddbfca2a420ba11c42415af9d5c2",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "source_hot_function；_sample；_publish_application_metrics",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_9113365336ad65999e835df3d8315d8b",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "source_hot_function；_sample；_publish_application_metrics",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Python 源码热点",
+      "case_sha256": "2ecb759ad9d3947e022e34fbce9e83feebc3c098938e03f6cab573f006bebaa1",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/seven-cases/source-hotspot.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4619,
+          "artifact_type": "raw",
+          "file": "task_20261001_173226_6ece8d-raw.raw",
+          "sha256": "8812dbbbfaf78b6c52402e239f16d7111be79e9d7d2331dee15c2905d228bdfa",
+          "bytes": 144409
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4620,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173226_6ece8d-manifest.raw",
+          "sha256": "4c9c63f501b8aff9fd15c90e90aaae0f7a3b1e354d499410c1313fc10e3ec3db",
+          "bytes": 1104
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4621,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_173226_6ece8d-flamegraph_json.raw",
+          "sha256": "5e3bc4e9b19f4476aa10e626e1a66fd21da4059bcedb19478b8e8fe15677f41c",
+          "bytes": 2853
+        },
+        {
+          "task_id": "task_20261001_173226_6ece8d",
+          "artifact_id": 4622,
+          "artifact_type": "top_json",
+          "file": "task_20261001_173226_6ece8d-top_json.raw",
+          "sha256": "8d5f50cafad91c7791678af34914f056bb65186dacb6a985f2027d4a7a6ad294",
+          "bytes": 1769
+        },
+        {
+          "task_id": "task_20261001_173245_976dae",
+          "artifact_id": 4623,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173245_976dae-sys_metrics.raw",
+          "sha256": "c539c2c5ae8b981756d752cbe41961c66ffbf03bd4572f55e622d8987d320d4b",
+          "bytes": 32086
+        },
+        {
+          "task_id": "task_20261001_173245_976dae",
+          "artifact_id": 4624,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173245_976dae-manifest.raw",
+          "sha256": "18dd29918bbc5648710e9eb3d268b685bc687c042770955578846c7220af807f",
+          "bytes": 1109
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_173226_6ece8d_4619",
+        "ev_task_task_20261001_173226_6ece8d_4620",
+        "ev_task_task_20261001_173226_6ece8d_4621",
+        "ev_task_task_20261001_173226_6ece8d_4622",
+        "ev_task_task_20261001_173245_976dae_4623",
+        "ev_task_task_20261001_173245_976dae_4624"
+      ],
+      "task_ids": [
+        "task_20261001_173226_6ece8d",
+        "task_20261001_173245_976dae"
+      ],
+      "completed_task_ids": [
+        "task_20261001_173226_6ece8d",
+        "task_20261001_173245_976dae"
+      ]
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "diagnosis_id": "insight_400e527ed1524139bedfd0403b5553a6",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "cpp_cpu_hot_function",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_9eacfe6b27eeee01861cfeaedf7d784b",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "cpp_cpu_hot_function",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 计算热点",
+      "case_sha256": "90facdc6e18ecd170e706128efb4f1c061b144f145855b4d062968a4d1808801",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/cpp-retry-cases/cpp-cpu-hotspot.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4651,
+          "artifact_type": "raw",
+          "file": "task_20261001_175444_ba95c3-raw.raw",
+          "sha256": "68d7b354b750046d0e6bf3a652a9f2710ffc76d8a5a8f753ab0c32d2f1e3bf31",
+          "bytes": 90124
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4652,
+          "artifact_type": "manifest",
+          "file": "task_20261001_175444_ba95c3-manifest.raw",
+          "sha256": "cf9640aed021ea6f84d7a4c3e92a4c197b03771efa3e2724b92c2b1764753a62",
+          "bytes": 1270
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4653,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_175444_ba95c3-flamegraph_json.raw",
+          "sha256": "23bdb790de5a1cf693b2c7ebfae2b34556606806225ac4c27a5e99dc3cc62149",
+          "bytes": 563
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4654,
+          "artifact_type": "flamegraph_svg",
+          "file": "task_20261001_175444_ba95c3-flamegraph_svg.raw",
+          "sha256": "9e32e76578edcfe20b18107469763afd8b9cdc67e699c878b93975fbc39e1e81",
+          "bytes": 15024
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4655,
+          "artifact_type": "top_json",
+          "file": "task_20261001_175444_ba95c3-top_json.raw",
+          "sha256": "d793f7b4428f4deed8b9b9d309be7c3472f65182dd87a2732715e118fd004f38",
+          "bytes": 1188
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4656,
+          "artifact_type": "callgraph_json",
+          "file": "task_20261001_175444_ba95c3-callgraph_json.raw",
+          "sha256": "747d907a9989eb2b2a71547ba48f89c35a4384d051339d179d3dba07eadce56e",
+          "bytes": 2137
+        },
+        {
+          "task_id": "task_20261001_175444_ba95c3",
+          "artifact_id": 4657,
+          "artifact_type": "suggestions_md",
+          "file": "task_20261001_175444_ba95c3-suggestions_md.raw",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        },
+        {
+          "task_id": "task_20261001_175532_a59ce1",
+          "artifact_id": 4658,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_175532_a59ce1-sys_metrics.raw",
+          "sha256": "05401aa3700fe0baa31b41c33fe11e2fd3f28bf5f3c731a438fec08d3539138f",
+          "bytes": 23783
+        },
+        {
+          "task_id": "task_20261001_175532_a59ce1",
+          "artifact_id": 4659,
+          "artifact_type": "manifest",
+          "file": "task_20261001_175532_a59ce1-manifest.raw",
+          "sha256": "9f3bf45dd990bacdd7e9c79356fbf94f1674e348f1df6bc448f1f542e564780c",
+          "bytes": 1109
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_175444_ba95c3_4657",
+        "ev_task_task_20261001_175444_ba95c3_4651",
+        "ev_task_task_20261001_175444_ba95c3_4652",
+        "ev_task_task_20261001_175444_ba95c3_4653",
+        "ev_task_task_20261001_175444_ba95c3_4654",
+        "ev_task_task_20261001_175444_ba95c3_4655",
+        "ev_task_task_20261001_175444_ba95c3_4656",
+        "ev_task_task_20261001_175532_a59ce1_4659",
+        "ev_task_task_20261001_175532_a59ce1_4658"
+      ],
+      "task_ids": [
+        "task_20261001_175444_ba95c3",
+        "task_20261001_175532_a59ce1"
+      ],
+      "completed_task_ids": [
+        "task_20261001_175444_ba95c3",
+        "task_20261001_175532_a59ce1"
+      ]
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "diagnosis_id": "insight_b944cda00f874563842a7ec6fe697501",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_ccce185f5aeef8a021951514585278c8",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 互斥锁竞争",
+      "case_sha256": "609cb77ad08920afc04be151802159f8db4dabce564f315b29217a46d197e6c6",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/seven-cases/cpp-lock-contention.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_173647_ac6f09",
+          "artifact_id": 4627,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173647_ac6f09-sys_metrics.raw",
+          "sha256": "20d0ec8ed8529af173c8280f74da38578dddefc2c11a13c935abf829ba8b193c",
+          "bytes": 23543
+        },
+        {
+          "task_id": "task_20261001_173647_ac6f09",
+          "artifact_id": 4628,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173647_ac6f09-manifest.raw",
+          "sha256": "99d4d9c1e3373f0397010ef2c2adcce2e55bd9d3a31a68d0ee3f822b60463566",
+          "bytes": 1109
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_173647_ac6f09_4627",
+        "ev_task_task_20261001_173647_ac6f09_4628"
+      ],
+      "task_ids": [
+        "task_20261001_173647_ac6f09"
+      ],
+      "completed_task_ids": [
+        "task_20261001_173647_ac6f09"
+      ]
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "diagnosis_id": "insight_0c461586b0924971a9521b4392ec6c72",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_df674d800f3b9b663974813ccb488213",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_ead6b92cb912e322ce27b30a4c44ba85",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "同步写入压力",
+      "case_sha256": "2c044f9184036c4f298f4c7f36f3db9107b9a08ad9bf13dc7950c5702051e334",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/seven-cases/io-write-latency.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_173822_85355f",
+          "artifact_id": 4629,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_173822_85355f-sys_metrics.raw",
+          "sha256": "712ac324c72d3e50bf5d4c5b42d58c0716f345361bbd1fe887ce685aacd9453b",
+          "bytes": 32515
+        },
+        {
+          "task_id": "task_20261001_173822_85355f",
+          "artifact_id": 4630,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173822_85355f-manifest.raw",
+          "sha256": "63d62109edee511ca1767b2eeaf6e4c6e01d12e79d6d790d9c2a5f4a160e0a99",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4631,
+          "artifact_type": "raw",
+          "file": "task_20261001_173941_38c496-raw.raw",
+          "sha256": "27ca861866b063dcbf490fa14a8e5bf9089c71809da19b746027c1a762a3f382",
+          "bytes": 93879
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4632,
+          "artifact_type": "manifest",
+          "file": "task_20261001_173941_38c496-manifest.raw",
+          "sha256": "e614ad0319fb6e231420e84af086d2d502df3f3f07f0d037792a5de666f8dbbe",
+          "bytes": 1102
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4633,
+          "artifact_type": "flamegraph_json",
+          "file": "task_20261001_173941_38c496-flamegraph_json.raw",
+          "sha256": "f958ada04e34d0e757b1ad884da0de49d3078a0d59777df691412fdd93ba13e9",
+          "bytes": 1409
+        },
+        {
+          "task_id": "task_20261001_173941_38c496",
+          "artifact_id": 4634,
+          "artifact_type": "top_json",
+          "file": "task_20261001_173941_38c496-top_json.raw",
+          "sha256": "13fae62376ceecb9723ab5dfc4328f8a1c5507db135f3af00e0e1aae86e8e6c6",
+          "bytes": 618
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_173822_85355f_4629",
+        "ev_task_task_20261001_173822_85355f_4630",
+        "ev_task_task_20261001_173941_38c496_4631",
+        "ev_task_task_20261001_173941_38c496_4632",
+        "ev_task_task_20261001_173941_38c496_4633",
+        "ev_task_task_20261001_173941_38c496_4634"
+      ],
+      "task_ids": [
+        "task_20261001_173822_85355f",
+        "task_20261001_173941_38c496"
+      ],
+      "completed_task_ids": [
+        "task_20261001_173822_85355f",
+        "task_20261001_173941_38c496"
+      ]
+    },
+    {
+      "scenario_id": "java-file-io",
+      "diagnosis_id": "insight_be58ee31560b422a97e11a89d855ea95",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_bd34e978939666816ad3c6289194452b",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_6cb9c224eaea61a6cf3ffebbc7589fd5",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 同步文件写入",
+      "case_sha256": "66c8ef626b30319b31e7959c5439dcac16d43298bb13167a2c73be758d8a372c",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/seven-cases/java-file-io.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_174057_4044ac",
+          "artifact_id": 4635,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_174057_4044ac-sys_metrics.raw",
+          "sha256": "ef9088ab5381bd19428ba639e9fedc20bed7492106a00b31b0c3d1986f01c744",
+          "bytes": 31303
+        },
+        {
+          "task_id": "task_20261001_174057_4044ac",
+          "artifact_id": 4636,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174057_4044ac-manifest.raw",
+          "sha256": "013055a3de6b4e5adf3caad1c3a70c76ee244a88d7f3d22ff5c9cf8e2962980c",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4637,
+          "artifact_type": "java_flamegraph_html",
+          "file": "task_20261001_174219_59dd08-java_flamegraph_html.raw",
+          "sha256": "bc1f303377323d39159107766cadf1819cc0e0ba4cc7287263a1dfbc5b4f6993",
+          "bytes": 16039
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4638,
+          "artifact_type": "jvm_gc_metrics",
+          "file": "task_20261001_174219_59dd08-jvm_gc_metrics.raw",
+          "sha256": "e6362c71ba3d06ac289d797ae8bb529bc273eb092aae387ed9c7b035c6afe47c",
+          "bytes": 2019
+        },
+        {
+          "task_id": "task_20261001_174219_59dd08",
+          "artifact_id": 4639,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174219_59dd08-manifest.raw",
+          "sha256": "28a55bf57843cea987f5541af1ed23c48407b528667f25745dd4c593f9d38319",
+          "bytes": 2038
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_174057_4044ac_4635",
+        "ev_task_task_20261001_174057_4044ac_4636",
+        "ev_task_task_20261001_174219_59dd08_4637",
+        "ev_task_task_20261001_174219_59dd08_4638",
+        "ev_task_task_20261001_174219_59dd08_4639"
+      ],
+      "task_ids": [
+        "task_20261001_174057_4044ac",
+        "task_20261001_174219_59dd08"
+      ],
+      "completed_task_ids": [
+        "task_20261001_174057_4044ac",
+        "task_20261001_174219_59dd08"
+      ]
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "diagnosis_id": "insight_ba819c2b01014444a184c0dec3401e04",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_ad3baf8b10f1bcedebdd498dc49593bd",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 同步文件写入",
+      "case_sha256": "dd101941c73a084b14378f89f9b9e2cd922343a6110213af3368e7906087fec9",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/seven-cases/cpp-file-io.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_174413_db953f",
+          "artifact_id": 4640,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_174413_db953f-sys_metrics.raw",
+          "sha256": "b53963d122e3ce077cf7c6c40803a4fd55557c5346d15ef6639c71e4e42c6b84",
+          "bytes": 23738
+        },
+        {
+          "task_id": "task_20261001_174413_db953f",
+          "artifact_id": 4641,
+          "artifact_type": "manifest",
+          "file": "task_20261001_174413_db953f-manifest.raw",
+          "sha256": "64c2a4aeca2bb75741b817d1bd15219871f9dbca333cdecfeaa015b3f86c9601",
+          "bytes": 1109
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_174413_db953f_4640",
+        "ev_task_task_20261001_174413_db953f_4641"
+      ],
+      "task_ids": [
+        "task_20261001_174413_db953f"
+      ],
+      "completed_task_ids": [
+        "task_20261001_174413_db953f"
+      ]
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "diagnosis_id": "insight_e588c05f9d8241119df432ca76cae3e1",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_0192c35b4844c46ff34c9ddb18815cca",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "同机噪声邻居",
+      "case_sha256": "0a55234c74584973898c49b0fb52ef33f6ff7900ee44b1122b967e8a6a3b0d83",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true,
+      "case_path": "reports/quality/seven-gaps-20261002/noisy-retry-cases/noisy-neighbor.json",
+      "downloads": [
+        {
+          "task_id": "task_20261001_181733_aefc9b",
+          "artifact_id": 4660,
+          "artifact_type": "sys_metrics",
+          "file": "task_20261001_181733_aefc9b-sys_metrics.raw",
+          "sha256": "8697a6701a347532ea45cc0a9c936524ad1982ea1e577c598c6a0f1bbf6008d4",
+          "bytes": 35087
+        },
+        {
+          "task_id": "task_20261001_181733_aefc9b",
+          "artifact_id": 4661,
+          "artifact_type": "manifest",
+          "file": "task_20261001_181733_aefc9b-manifest.raw",
+          "sha256": "76598c3e3dc9a4ffc11f2ac870fdb533975b613c84e29fca345f01403c9def6c",
+          "bytes": 1109
+        }
+      ],
+      "evidence_ids": [
+        "ev_task_task_20261001_181733_aefc9b_4660",
+        "ev_task_task_20261001_181733_aefc9b_4661"
+      ],
+      "task_ids": [
+        "task_20261001_181733_aefc9b"
+      ],
+      "completed_task_ids": [
+        "task_20261001_181733_aefc9b"
+      ]
+    }
+  ],
+  "health_cases": [
+    {
+      "name": "normal",
+      "diagnosis_id": "insight_8d7d9d15496e42f18be26711329658b3",
+      "label": "检查结果：正常"
+    },
+    {
+      "name": "anomaly",
+      "diagnosis_id": "insight_7785e3d08c3942e7b82f654c7eaf5e83",
+      "label": "检查结果：异常"
+    },
+    {
+      "name": "recovery",
+      "diagnosis_id": "insight_fac8d0be92314de48b11526115a024f2",
+      "label": "检查结果：正常"
+    },
+    {
+      "name": "unknown",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "label": "检查结果：无法判断"
+    },
+    {
+      "name": "resampled",
+      "diagnosis_id": "insight_3404155bb9404de5aaafc3f4d30efef0",
+      "label": "检查结果：正常"
+    }
+  ],
+  "old_paths": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "main.runCPUFault；main.goCPUHotFunction",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_c45097843ac98795520072c62416514c",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "main.runCPUFault；main.goCPUHotFunction",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 服务 CPU 热点",
+      "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_edde7124ef71a1cafad121c60943c593",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 网络等待与下游慢响应",
+      "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    },
+    {
+      "scenario_id": "go-file-io",
+      "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 同步文件写入",
+      "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    }
+  ],
+  "business_diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "historical": {
+    "schema": "mini-drop.performance-failure-audit.v1",
+    "historical_case_count": 21,
+    "historical_root_passes": 0,
+    "recorded_chain_consistent_count": 18,
+    "failure_categories": {
+      "LEGACY_LINEAGE_ACCEPTED": 7,
+      "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER": 9,
+      "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER": 2,
+      "WRONG_TARGET": 3
+    },
+    "source_sha256": {
+      "cpp-cpu-hotspot.json": "9835609bd6bf33ad9c19fbf315252f4e4257ca7b547cf0a6eb4aacd9effdb872",
+      "cpp-downstream-latency.json": "8f9e6035b5b57445208b12a0f51517eacd94d3a00d48490169d9b442705f3e2e",
+      "cpp-file-io.json": "37ca01b55ef3e2a914e2f1dd3158fddb68f8ac0657c96bfd19645e41d115ae70",
+      "cpp-lock-contention.json": "b4f6486aad2a2bfb9e7419561fb5c742a550b56e658983e93fff19485ccffa07",
+      "cpp-memory-growth.json": "2a2cbe75127c5bdbab066a155086438f8ba24f933fe9ad7b91a05e3ab3516961",
+      "cpu-hotspot.json": "35a0246515986deb05b856e315ca2a00ca83c1ffa8e4932137897d62e45d9a3b",
+      "go-cpu-hotspot.json": "8b413b1fe183b736ff7e5c7aa2f9aba7430b4aa1456ae38595c899b1086977b5",
+      "go-file-io.json": "0518cb321a9ceda7ca9700023b43bb61b38f1cafe659493fbaa985b125091165",
+      "go-memory-growth.json": "193ccc58b2932f3f0d08d408b842269db1c914b75643d069fd01a050e2a8e3cd",
+      "go-network-latency.json": "eb6ffe178f65f403469d5d5a56afb5c8184cc41ed7536c8ff51536221182966b",
+      "io-write-latency.json": "2bea4ce072d3f643628520eba4ad96cada84bcfd28741f3f2c9a69bbf12fa2f9",
+      "java-downstream-latency.json": "7a2956925932b0c6702dd2598012b07052b98acfa5896fc881d74379d78db6e6",
+      "java-file-io.json": "151ded52f9b22914509e5266f31cf0e4b00a70d3e63378c19f6fad9758f9ec5f",
+      "java-gc-pressure.json": "04a157e7f43f36e3f3cdacaba7ef0adba0b723faf2eae765d44d8a8f6075b545",
+      "java-lock-contention.json": "d6317a0f31c67e33fa316561575d2fedaf59436fd944f0cebd3ce54e71939283",
+      "java-offheap-growth.json": "f644960af726b0ca0c7386e1a8c4f0131111464a8c263c40fa42aba20625bc3e",
+      "load-saturation.json": "aaa64925d234276fabc8095d5c393fda2db923dc5c941cbd553c6d25775ae6b6",
+      "memory-pressure.json": "69f58a8184caf506cc35037cd3bb1b82487bc1efd8125a441588929ef5e22b0e",
+      "noisy-neighbor.json": "f68b9d9046bf8bc2c3ded929dbc84c4d3b8239d4097180e0501dec8797d4b893",
+      "queue-backlog.json": "3c59570d5fda33941ffcf5719d4975094fbe734f72f04e6362163217ec5d1991",
+      "source-hotspot.json": "00aaa552cee4ca6a076e5dd20ff081a8ca7c99050739e842251053f32eb1ac09"
+    },
+    "cases": [
+      {
+        "scenario_id": "cpp-cpu-hotspot",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_082551_95cc05_4324",
+            "ev_task_task_20260930_082551_95cc05_4320",
+            "ev_task_task_20260930_082551_95cc05_4321",
+            "ev_task_task_20260930_082551_95cc05_4322",
+            "ev_task_task_20260930_082551_95cc05_4323",
+            "ev_task_task_20260930_082701_5e6762_4325",
+            "ev_task_task_20260930_082801_39aa53_4333",
+            "ev_task_task_20260930_082801_39aa53_4330",
+            "ev_task_task_20260930_082801_39aa53_4331",
+            "ev_task_task_20260930_082801_39aa53_4332",
+            "ev_task_task_20260930_082801_39aa53_4328"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_082551_95cc05_4318",
+            "ev_task_task_20260930_082551_95cc05_4319",
+            "ev_task_task_20260930_082701_5e6762_4326",
+            "ev_task_task_20260930_082801_39aa53_4327",
+            "ev_task_task_20260930_082801_39aa53_4329"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_5cd939e4045670e8ffa2b3148480f18d",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_e42a761e749cd4ce89ba31ccca7244f9",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_c8c58ac4d6e09385d1a82b62a7040a82",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.3333333333333333,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "cpp-downstream-latency",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_9554f73ea8cb4cae88763325f64e6632 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_084119_2914ba_4359",
+            "ev_task_task_20260930_084248_d809a3_4361"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_084119_2914ba_4360",
+            "ev_task_task_20260930_084248_d809a3_4362",
+            "ev_task_task_20260930_084248_d809a3_4363"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_a3d326cc6243b9de47f801fcdb1fd343",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_b0ba302195d8167b41fe070855a4d427",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "cpp-file-io",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_53875d4c11884123835fbf8dda9b3bce ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_083715_77b213_4352",
+            "ev_task_task_20260930_083759_a1714c_4354",
+            "ev_task_task_20260930_083944_4215bf_4357"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_083715_77b213_4353",
+            "ev_task_task_20260930_083759_a1714c_4355",
+            "ev_task_task_20260930_083759_a1714c_4356",
+            "ev_task_task_20260930_083944_4215bf_4358"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_08ce7e75b3a28f1033fbf2f72c28bc91",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_ba1b120d89f71167b0371d16821c3d73",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_c8273d076f54b0a2a4281b4ac9cddab4",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.25,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "cpp-lock-contention",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_082956_213677_4334",
+            "ev_task_task_20260930_083047_7dbca0_4338",
+            "ev_task_task_20260930_083047_7dbca0_4342",
+            "ev_task_task_20260930_083047_7dbca0_4339",
+            "ev_task_task_20260930_083047_7dbca0_4341",
+            "ev_task_task_20260930_083047_7dbca0_4340",
+            "ev_task_task_20260930_083146_0c403d_4343",
+            "ev_task_task_20260930_083217_d27ba0_4346"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_082956_213677_4335",
+            "ev_task_task_20260930_083047_7dbca0_4336",
+            "ev_task_task_20260930_083047_7dbca0_4337",
+            "ev_task_task_20260930_083146_0c403d_4344",
+            "ev_task_task_20260930_083146_0c403d_4345",
+            "ev_task_task_20260930_083217_d27ba0_4347"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_49dac3664f71798f2a00533b248e2122",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_4681b1382906cd859526a2a12a88c990",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_600c99794b1e88e79a51d015a3fd3e94",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_453b25fca07fc3c56f7199f677c1ea7f",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "cpp-memory-growth",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_0aa75674e0d742c3a1af09e251bef9be ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_083321_72190b_4348",
+            "ev_task_task_20260930_083412_d3700f_4350"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_083321_72190b_4349",
+            "ev_task_task_20260930_083412_d3700f_4351"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_862efe4eeeead76b5374bbf14cee7cec",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_70583279cd6fe41c1c364db6614caf09",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "cpu-hotspot",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_072448_fb1952_4159",
+            "ev_task_task_20260930_072448_fb1952_4160",
+            "ev_task_task_20260930_072509_52178a_4161",
+            "ev_task_task_20260930_072619_31ffac_4165",
+            "ev_task_task_20260930_072619_31ffac_4166",
+            "ev_task_task_20260930_072619_31ffac_4167",
+            "ev_task_task_20260930_072619_31ffac_4168",
+            "ev_task_task_20260930_072619_31ffac_4169",
+            "ev_task_task_20260930_072701_d6819b_4170"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_072448_fb1952_4157",
+            "ev_task_task_20260930_072448_fb1952_4158",
+            "ev_task_task_20260930_072509_52178a_4162",
+            "ev_task_task_20260930_072619_31ffac_4163",
+            "ev_task_task_20260930_072619_31ffac_4164",
+            "ev_task_task_20260930_072701_d6819b_4171",
+            "ev_task_task_20260930_072701_d6819b_4172"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_afb8048a486ee0418aeba9a183fc83a8",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_471a5de7b33b9cf7661d5da862c8e963",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_25c72a3ee232f475cc78c47530292d93",
+            "status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "coverage_ratio": 1.0,
+            "independent_control": true
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "go-cpu-hotspot",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_075209_aea008_4241",
+            "ev_task_task_20260930_075209_aea008_4240",
+            "ev_task_task_20260930_075232_bb56be_4242",
+            "ev_task_task_20260930_075309_b50110_4247",
+            "ev_task_task_20260930_075309_b50110_4248",
+            "ev_task_task_20260930_075309_b50110_4249",
+            "ev_task_task_20260930_075309_b50110_4250",
+            "ev_task_task_20260930_075309_b50110_4246",
+            "ev_task_task_20260930_075350_b9793c_4251"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_075209_aea008_4238",
+            "ev_task_task_20260930_075209_aea008_4239",
+            "ev_task_task_20260930_075232_bb56be_4243",
+            "ev_task_task_20260930_075309_b50110_4244",
+            "ev_task_task_20260930_075309_b50110_4245",
+            "ev_task_task_20260930_075350_b9793c_4252",
+            "ev_task_task_20260930_075350_b9793c_4253"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_ce2129f960402886f5f194987f4a3f4a",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_ef2a46deddcb2d4f7947aab22fe2f314",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_bc2bfda45b7c86c4affb268e8f3bb3c8",
+            "status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "coverage_ratio": 1.0,
+            "independent_control": true
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "go-file-io",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_891775971aa24b7089756ea67a55e562 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_080242_1d3c8d_4275",
+            "ev_task_task_20260930_080401_9cc9fa_4277",
+            "ev_task_task_20260930_080513_4901be_4282",
+            "ev_task_task_20260930_080513_4901be_4283",
+            "ev_task_task_20260930_080538_d835f5_4290",
+            "ev_task_task_20260930_080538_d835f5_4286",
+            "ev_task_task_20260930_080538_d835f5_4287",
+            "ev_task_task_20260930_080538_d835f5_4289",
+            "ev_task_task_20260930_080538_d835f5_4288"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_080242_1d3c8d_4276",
+            "ev_task_task_20260930_080401_9cc9fa_4278",
+            "ev_task_task_20260930_080401_9cc9fa_4279",
+            "ev_task_task_20260930_080513_4901be_4280",
+            "ev_task_task_20260930_080513_4901be_4281",
+            "ev_task_task_20260930_080538_d835f5_4284",
+            "ev_task_task_20260930_080538_d835f5_4285"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_71c5b2be03ab414b391785ec4f068646",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_732963c239287d2e691a5be4ce4e68b1",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_c2a3a4177a85a8aeb271e2ce65c6a567",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_255cd930bdb60c1b823abf7d21a4deb3",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "go-memory-growth",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_075932_22f7a2_4267",
+            "ev_task_task_20260930_080024_42f855_4269",
+            "ev_task_task_20260930_080123_1c1e7f_4273",
+            "ev_task_task_20260930_080123_1c1e7f_4274"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_075932_22f7a2_4268",
+            "ev_task_task_20260930_080024_42f855_4270",
+            "ev_task_task_20260930_080123_1c1e7f_4271",
+            "ev_task_task_20260930_080123_1c1e7f_4272"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_e219751f45e51a3d366aa4dcda6deae9",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_47e3593a28efda579522aeecdc07adae",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_302617dc95acfa53af7ee04b3fd3aa0b",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "go-network-latency",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_d5916dd3d5254358914d84f87df49815 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_075535_419400_4254",
+            "ev_task_task_20260930_075626_fe6a9b_4258",
+            "ev_task_task_20260930_075626_fe6a9b_4259",
+            "ev_task_task_20260930_075717_24a8a1_4266",
+            "ev_task_task_20260930_075717_24a8a1_4265",
+            "ev_task_task_20260930_075717_24a8a1_4262",
+            "ev_task_task_20260930_075717_24a8a1_4263",
+            "ev_task_task_20260930_075717_24a8a1_4264"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_075535_419400_4255",
+            "ev_task_task_20260930_075626_fe6a9b_4256",
+            "ev_task_task_20260930_075626_fe6a9b_4257",
+            "ev_task_task_20260930_075717_24a8a1_4260",
+            "ev_task_task_20260930_075717_24a8a1_4261"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_5516b995bc08589f5a797a8ab8a139ed",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_6eb4bef4e32ef787aba134e4ebdb6c32",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_7e8d7ad764f15fb3aa6a25b0e87a9731",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.25,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "io-write-latency",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_6529eb57fecf428aa41755d407cfef54 ebpf_io profile did not produce conclusion-supporting Evidence",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_073614_a3df9a_4194",
+            "ev_task_task_20260930_073721_28f327_4196",
+            "ev_task_task_20260930_073831_f3ee10_4201",
+            "ev_task_task_20260930_073831_f3ee10_4202"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_073614_a3df9a_4195",
+            "ev_task_task_20260930_073721_28f327_4197",
+            "ev_task_task_20260930_073721_28f327_4198",
+            "ev_task_task_20260930_073831_f3ee10_4199",
+            "ev_task_task_20260930_073831_f3ee10_4200"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_5d6c3fa313b87f948a1150abb241c8a0",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_4a6edcf09c17e3963ddbd2c7e0539388",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_0bc1ca2b18f03d004b54e7d3e4c1912f",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "java-downstream-latency",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_5a28e9cf52d847e8b2d7928bc72de5db ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_081605_88dd7c_4306",
+            "ev_task_task_20260930_081605_88dd7c_4307"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_081522_efabb9_4304",
+            "ev_task_task_20260930_081522_efabb9_4305",
+            "ev_task_task_20260930_081605_88dd7c_4308"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_d0642473a52ebdcbb423f303255a1878",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_dc218ea04821971299492577b5ec36e3",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": true
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "java-file-io",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "WRONG_TARGET",
+        "original_error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+        "chain_audit": {
+          "recorded_chain_consistent": false,
+          "matched_evidence_ids": [],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_082309_77b9c7_4313",
+            "ev_task_task_20260930_082309_77b9c7_4314",
+            "ev_task_task_20260930_082416_f199b0_4315",
+            "ev_task_task_20260930_082416_f199b0_4316",
+            "ev_task_task_20260930_082416_f199b0_4317"
+          ],
+          "problems": [
+            "diagnosis selected a different target"
+          ],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_c502ceeb874060d735b8554377d283b5",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_c4185ffb770d183e379c6e81d2548b47",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "java-gc-pressure",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "WRONG_TARGET",
+        "original_error": "auto-scope selected 'tencent-lighthouse-worker-2', expected demo Agent 'control-interview-demo-agent'",
+        "chain_audit": {
+          "recorded_chain_consistent": false,
+          "matched_evidence_ids": [],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_080739_9acfb4_4292",
+            "ev_task_task_20260930_080739_9acfb4_4291",
+            "ev_task_task_20260930_080826_15864f_4294",
+            "ev_task_task_20260930_080826_15864f_4293",
+            "ev_task_task_20260930_080947_0e9b10_4298",
+            "ev_task_task_20260930_080947_0e9b10_4299",
+            "ev_task_task_20260930_080947_0e9b10_4300",
+            "ev_task_task_20260930_080947_0e9b10_4301",
+            "ev_task_task_20260930_080947_0e9b10_4297",
+            "ev_task_task_20260930_080947_0e9b10_4295",
+            "ev_task_task_20260930_080947_0e9b10_4296"
+          ],
+          "problems": [
+            "diagnosis selected a different target"
+          ],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_905b3857c935b1140c85d38c4bcc6014",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_34fb63c32c8a2d887e01915d02357b12",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_095334b94ceda584abdfb74a69f22021",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "java-lock-contention",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "WRONG_TARGET",
+        "original_error": "auto-scope selected 'tencent-cvm-worker-1', expected demo Agent 'control-interview-demo-agent'",
+        "chain_audit": {
+          "recorded_chain_consistent": false,
+          "matched_evidence_ids": [],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_081317_d83547_4302",
+            "ev_task_task_20260930_081317_d83547_4303"
+          ],
+          "problems": [
+            "diagnosis selected a different target"
+          ],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_8781fbc210197cec5a604508417ffbe8",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "java-offheap-growth",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_3aeb47d926c6467396cc626bf7d3b216 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_081934_d7d18b_4309",
+            "ev_task_task_20260930_082041_68ea82_4311"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_081934_d7d18b_4310",
+            "ev_task_task_20260930_082041_68ea82_4312"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_9a8f1cc4ba7b76e27fdfa6e0d17523c2",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_62e878fef3b79ce7219ffa64f309e645",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "load-saturation",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_c403de5d8b9547b29f98ab71bc6ca942 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_074437_fb7532_4219",
+            "ev_task_task_20260930_074550_55cbeb_4223",
+            "ev_task_task_20260930_074550_55cbeb_4224"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_074437_fb7532_4220",
+            "ev_task_task_20260930_074550_55cbeb_4221",
+            "ev_task_task_20260930_074550_55cbeb_4222"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_a73b86a43cba4e469291634854e924d7",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_d4acd0b9ade1849234a2c69559bcc263",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "memory-pressure",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_073229_cc7780_4186",
+            "ev_task_task_20260930_073348_eb902e_4188",
+            "ev_task_task_20260930_073429_473ae4_4192",
+            "ev_task_task_20260930_073429_473ae4_4193"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_073229_cc7780_4187",
+            "ev_task_task_20260930_073348_eb902e_4189",
+            "ev_task_task_20260930_073429_473ae4_4190",
+            "ev_task_task_20260930_073429_473ae4_4191"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_dccc0d937fff45a84ed9b64ccb5c941d",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_a22b6e26d15c85d9e32556edc22cee4a",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_8ec83d2f2321e4d340334e4dff13f1c8",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "noisy-neighbor",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "SUPPORT_COVERAGE_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_ebde6b1b327840bb92f50fb4171d7022 sys_metrics profile did not produce conclusion-supporting Evidence",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_074026_dc07c4_4205",
+            "ev_task_task_20260930_074026_dc07c4_4206",
+            "ev_task_task_20260930_074128_cdbc4e_4215",
+            "ev_task_task_20260930_074128_cdbc4e_4213",
+            "ev_task_task_20260930_074128_cdbc4e_4211",
+            "ev_task_task_20260930_074128_cdbc4e_4212",
+            "ev_task_task_20260930_074128_cdbc4e_4214",
+            "ev_task_task_20260930_074241_1bd6dc_4216"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_074026_dc07c4_4203",
+            "ev_task_task_20260930_074026_dc07c4_4204",
+            "ev_task_task_20260930_074043_971f2c_4207",
+            "ev_task_task_20260930_074043_971f2c_4208",
+            "ev_task_task_20260930_074128_cdbc4e_4210",
+            "ev_task_task_20260930_074128_cdbc4e_4209",
+            "ev_task_task_20260930_074241_1bd6dc_4217",
+            "ev_task_task_20260930_074241_1bd6dc_4218"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_d55aabbe74f2181486c09ccc20eeccd7",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_3e1be36b1e82e9cc71b086ef87a3144e",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_5db10350e89a5f9f5a3428c1ef38f8cd",
+            "status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "coverage_ratio": 1.0,
+            "independent_control": true
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "queue-backlog",
+        "historical_lineage_verified": true,
+        "historical_root_cause_accepted": false,
+        "failure_category": "LEGACY_LINEAGE_ACCEPTED",
+        "original_error": null,
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_074754_600873_4225",
+            "ev_task_task_20260930_074908_8a2788_4229",
+            "ev_task_task_20260930_074908_8a2788_4230",
+            "ev_task_task_20260930_074908_8a2788_4231",
+            "ev_task_task_20260930_074908_8a2788_4232",
+            "ev_task_task_20260930_074908_8a2788_4233",
+            "ev_task_task_20260930_074957_e38a6d_4236",
+            "ev_task_task_20260930_074957_e38a6d_4237"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_074754_600873_4226",
+            "ev_task_task_20260930_074908_8a2788_4227",
+            "ev_task_task_20260930_074908_8a2788_4228",
+            "ev_task_task_20260930_074957_e38a6d_4234",
+            "ev_task_task_20260930_074957_e38a6d_4235"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_6067f3b158d3617f9ae825d9a93803d6",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_ec1c2ea1606fec1c0c8178560d6cbd7b",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_ff59b3fdffe25e714c7b6a6aa0b41af9",
+            "status": "PARTIAL_WITHOUT_COUNTER",
+            "claim_scope": null,
+            "coverage_ratio": 0.5,
+            "independent_control": false
+          }
+        ],
+        "same_load_fix_verified": false
+      },
+      {
+        "scenario_id": "source-hotspot",
+        "historical_lineage_verified": false,
+        "historical_root_cause_accepted": false,
+        "failure_category": "OUTCOME_REJECTED_BY_LINEAGE_WRAPPER",
+        "original_error": "diagnosis insight_ae97021aff9048e18c9a481d49b0a6e2 ended as INSUFFICIENT_EVIDENCE",
+        "chain_audit": {
+          "recorded_chain_consistent": true,
+          "matched_evidence_ids": [
+            "ev_task_task_20260930_072855_38cc6c_4175",
+            "ev_task_task_20260930_072855_38cc6c_4176",
+            "ev_task_task_20260930_072912_a08405_4177",
+            "ev_task_task_20260930_073036_edb1a0_4184",
+            "ev_task_task_20260930_073036_edb1a0_4185",
+            "ev_task_task_20260930_073036_edb1a0_4181",
+            "ev_task_task_20260930_073036_edb1a0_4182",
+            "ev_task_task_20260930_073036_edb1a0_4183"
+          ],
+          "unmatched_evidence_ids": [
+            "ev_task_task_20260930_072855_38cc6c_4174",
+            "ev_task_task_20260930_072855_38cc6c_4173",
+            "ev_task_task_20260930_072912_a08405_4178",
+            "ev_task_task_20260930_073036_edb1a0_4179",
+            "ev_task_task_20260930_073036_edb1a0_4180"
+          ],
+          "problems": [],
+          "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+        },
+        "reports": [
+          {
+            "report_id": "report_e0f3ded473b423762bfa44a949e62b9c",
+            "status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "coverage_ratio": 0.0,
+            "independent_control": false
+          },
+          {
+            "report_id": "report_f3dabb325b7e2b1bafcf69a0b503395c",
+            "status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "coverage_ratio": 1.0,
+            "independent_control": true
+          }
+        ],
+        "same_load_fix_verified": false
+      }
+    ],
+    "boundary": "Independent audit of archived records; old campaign and grades remain unchanged. No old case has a same-load code-fix verification merely because injection was stopped.",
+    "campaign_date": "2026-09-30",
+    "download_url": "/report-assets/performance-audit/index.json",
+    "new_live_acceptance": "NOT_EVALUATED"
+  },
+  "engineering": {
+    "schema": "mini-drop.engineering-case-index.v1",
+    "revision": "20261001",
+    "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+    "model_auto_root_cause": "NOT_EVALUATED",
+    "legacy_fault_catalog": {
+      "count": 21,
+      "preserved": true,
+      "affects_this_score": false
+    },
+    "cases": [
+      {
+        "id": "parallel-timing",
+        "title": "并行检索计时被误算为零",
+        "area": "性能测试 / 观测",
+        "symptom": "10 秒检索中，两段并行 embedding 累计 12 秒，旧代码却报告检索剩余耗时为零。",
+        "root_cause": "将并行子阶段耗时相加后从父窗口相减，重复扣除了重叠区间。",
+        "fix": "计算子阶段时间区间并集，再与父窗口求交；独立预期为 2000ms。",
+        "scope_note": "确定性计时回放，不涉及真实模型请求，也不评估 AI 自动定位。",
+        "reproduce_command": "python scripts/reproduce_parallel_timing_defect.py --before reports/quality/engineering-cases-20261001/timing-before.py --output output/quality/timing-replay-new.json",
+        "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/f37f44e0f43ea58720da3638658a82c65430c595/integrations/agi_saber/request_observations.py",
+        "status": "VERIFIED_DEFECT_FIX",
+        "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+        "model_auto_root_cause": "NOT_EVALUATED",
+        "before": {
+          "selected": 1,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0,
+          "retrieval_ms": 0
+        },
+        "after": {
+          "selected": 1,
+          "failed": 0,
+          "passed": 1,
+          "skipped": 0,
+          "retrieval_ms": 2000
+        },
+        "evidence": [
+          {
+            "role": "reproduction",
+            "filename": "parallel-timing/parallel-timing.json",
+            "sha256": "036ba1878a339946550f510ba1036ebedab6d0a9fd021b10fd37818797df58e9"
+          },
+          {
+            "role": "before_source",
+            "filename": "parallel-timing/timing-before.py",
+            "sha256": "f89afa3c24e80e89009e993155c920ce4f538248144b569e06dde9158e5c1669"
+          },
+          {
+            "role": "after_source",
+            "filename": "parallel-timing/timing-after.py",
+            "sha256": "5c26f368fafd6bc2a802df8ed30c95f0866950dd15c6710ec3577cb9ebaad64d"
+          }
+        ]
+      },
+      {
+        "id": "empty-query-cache",
+        "title": "合法空提取结果导致重复模型调用",
+        "area": "后端 / 缓存边界",
+        "symptom": "模型明确返回合法空实体 JSON 时，重复查询仍反复执行提取。",
+        "root_cause": "旧缓存仅按结果是否非空判定成功，混淆了合法空结果与模型失败。",
+        "fix": "显式校验合法空 JSON 并允许缓存；异常、非法 JSON 和未知空结果仍不缓存。",
+        "scope_note": "9 个隔离缓存测试使用模型替身；不代表冷请求 SLO 或真实模型质量。",
+        "reproduce_command": "python -m pytest tests/test_office_query_cache.py -q",
+        "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/f37f44e0f43ea58720da3638658a82c65430c595/integrations/agi_saber/query_extraction_cache.py",
+        "status": "VERIFIED_DEFECT_FIX",
+        "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+        "model_auto_root_cause": "NOT_EVALUATED",
+        "before": {
+          "selected": 9,
+          "failed": 2,
+          "skipped": 0,
+          "passed": 7,
+          "test_names": [
+            "test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model",
+            "test_empty_or_failed_extraction_is_never_cached",
+            "test_restored_instances_reuse_query_extraction_but_always_read_current_graph",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":[],\"relations\":[]}-1]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\\n{\"entities\":[],\"relations\":[]}\\n```-1]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[invalid json-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{}-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":\"wrong\",\"relations\":[]}-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[response5-2]"
+          ]
+        },
+        "after": {
+          "selected": 9,
+          "failed": 0,
+          "skipped": 0,
+          "passed": 9,
+          "test_names": [
+            "test_extraction_cache_is_bounded_expires_and_does_not_share_tenant_or_model",
+            "test_empty_or_failed_extraction_is_never_cached",
+            "test_restored_instances_reuse_query_extraction_but_always_read_current_graph",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":[],\"relations\":[]}-1]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[```json\\n{\"entities\":[],\"relations\":[]}\\n```-1]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[invalid json-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{}-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[{\"entities\":\"wrong\",\"relations\":[]}-2]",
+            "test_valid_empty_json_is_reused_but_swallowed_failures_remain_misses[response5-2]"
+          ]
+        },
+        "evidence": [
+          {
+            "role": "before",
+            "filename": "empty-query-cache/cache-empty-before.xml",
+            "sha256": "bb827b7c1b37bbe0b15efc0ee1fa18add70c380d254eb40be5d591f0e27f02f1"
+          },
+          {
+            "role": "after",
+            "filename": "empty-query-cache/cache-empty-targeted.xml",
+            "sha256": "7e73352f10e45ab5d8cabffeb900e7a3b120fd1ded304adc5dbead960c71d7d4"
+          }
+        ]
+      },
+      {
+        "id": "skill-first-insert-race",
+        "title": "并发首次激活 Skill 触发唯一约束冲突",
+        "area": "后端 / PostgreSQL 并发",
+        "symptom": "两个规划器首次激活同一 Skill 时，其中一个事务抛出 UniqueViolation。",
+        "root_cause": "查询不存在与插入之间没有串行化，两个事务同时判断可以首次写入。",
+        "fix": "先锁定诊断父记录，再查询及插入，保留数据库唯一约束和幂等行为。",
+        "scope_note": "真实隔离 PostgreSQL、两个独立事务。需要专用测试库；本地跳过不算通过。",
+        "reproduce_command": "RUN_POSTGRES_TESTS=1 python -m pytest tests/test_drop_insight_report_effects_postgres.py -k skill_activation -q（配置专用测试库）",
+        "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/9c98ab33140aae708dff1092d10c829cdec98830/server/app/drop_insight/skill_evolution.py",
+        "status": "VERIFIED_DEFECT_FIX",
+        "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+        "model_auto_root_cause": "NOT_EVALUATED",
+        "before": {
+          "selected": 1,
+          "failed": 1,
+          "skipped": 0,
+          "passed": 0,
+          "test_names": [
+            "test_postgres_skill_activation_serializes_competing_planners"
+          ]
+        },
+        "after": {
+          "selected": 1,
+          "failed": 0,
+          "skipped": 0,
+          "passed": 1,
+          "test_names": [
+            "test_postgres_skill_activation_serializes_competing_planners"
+          ]
+        },
+        "evidence": [
+          {
+            "role": "before",
+            "filename": "skill-first-insert-race/postgres-race-before.xml",
+            "sha256": "9c06a5a2775d0be571042f7ec967f9ef24ca0811764f010c6674f31ec1797684"
+          },
+          {
+            "role": "after",
+            "filename": "skill-first-insert-race/postgres-race-after.xml",
+            "sha256": "1c2027cf078a5d942a871576e1faf7efc784ac5e49571b36a9d2a8d177b87272"
+          }
+        ]
+      },
+      {
+        "id": "notification-lifecycle",
+        "title": "停止诊断后通知在离开页面时残留",
+        "area": "前端 / 生命周期回归",
+        "symptom": "取消诊断后离开页面，旧全局通知仍留在文档中。",
+        "root_cause": "全局 message 的生命周期独立于诊断组件，卸载页面不会销毁通知。",
+        "fix": "使用页面内 message.useMessage 上下文，使通知随组件卸载。",
+        "scope_note": "同一条取消与卸载测试，旧版失败、新版通过；其余未选用例不计入本案例。",
+        "reproduce_command": "cd web; npm test -- src/pages/AIDiagnosis.test.jsx -t \"confirms cancellation\" --maxWorkers=1",
+        "source_url": "https://github.com/llongwang751-arch/mini-drop/blob/7ad2060/web/src/pages/AIDiagnosis.jsx",
+        "status": "VERIFIED_DEFECT_FIX",
+        "validation_scope": "ENGINEERING_DEFECT_REGRESSION",
+        "model_auto_root_cause": "NOT_EVALUATED",
+        "before": {
+          "selected": 1,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "after": {
+          "selected": 1,
+          "failed": 0,
+          "skipped": 0,
+          "passed": 1,
+          "test_names": [
+            "AIDiagnosis V2 workspace > confirms cancellation with session version and refreshes the terminal record"
+          ]
+        },
+        "evidence": [
+          {
+            "role": "before",
+            "filename": "notification-lifecycle/toast-before.log",
+            "sha256": "e98527aa0c0d686462b9c9347fa72a400bff6abd346345f9c4d9cc53f0ed367b"
+          },
+          {
+            "role": "after",
+            "filename": "notification-lifecycle/notification-after.xml",
+            "sha256": "51468530cc7f570d3779344ea51354b1ee4ea10f914149c73420aafb90f77aee"
+          }
+        ]
+      }
+    ]
+  },
+  "scope": "Read-only browser rendering and fresh authenticated artifact SHA downloads; no fault injection, new diagnosis, causal grade or hour test"
+}

@@ -1,0 +1,178 @@
+{
+  "type": "result",
+  "case_id": "v01",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe371c7185fd2592474a7257a4c",
+    "object": "chat.completion",
+    "created": 1790932382,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户要求仅说明已检查的资源是否正常。提供的合成观测数据显示，在12秒窗口内，Python进程CPU占用率为0.9%（单核），RSS内存为160MiB且零增长。这些数值均在正常范围内，未提出待验证的性能异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\n    \"本次规划仅基于提供的合成观测数据，未对进程进行实时状态检查。\",\n    \"结论仅针对已观测的CPU和RSS内存指标，未涵盖其他潜在资源（如磁盘I/O、网络、锁竞争、GC活动等）。\",\n    \"未验证是否存在代码级热点、内存泄漏模式或容器资源限制（如CPU节流）。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4356,
+      "completion_tokens": 212,
+      "total_tokens": 4568,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 4356
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe371c7185fd2592474a7257a4c\",\"object\":\"chat.completion\",\"created\":1790932382,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户要求仅说明已检查的资源是否正常。提供的合成观测数据显示，在12秒窗口内，Python进程CPU占用率为0.9%（单核），RSS内存为160MiB且零增长。这些数值均在正常范围内，未提出待验证的性能异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于提供的合成观测数据，未对进程进行实时状态检查。\\\",\\n    \\\"结论仅针对已观测的CPU和RSS内存指标，未涵盖其他潜在资源（如磁盘I/O、网络、锁竞争、GC活动等）。\\\",\\n    \\\"未验证是否存在代码级热点、内存泄漏模式或容器资源限制（如CPU节流）。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4356,\"completion_tokens\":212,\"total_tokens\":4568,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":4356},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "2bf63b6ca38293d86416bdb92bc1fc0c4f0b5d7f8848f2638915bdb0c5a93c22",
+  "seconds": 30.848391,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "linux.memory.process_growth",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 12.587511,
+        "matched_terms": [
+          "cpu",
+          "增长",
+          "说明",
+          "资源",
+          "进程"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [
+            "rss"
+          ],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+        "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+        "score": 11.562159,
+        "matched_terms": [
+          "rss",
+          "增长",
+          "进程"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "score": 7.994761,
+        "matched_terms": [
+          "cpu",
+          "窗口",
+          "进程"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

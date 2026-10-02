@@ -1,0 +1,73 @@
+{
+  "case_id": "v22",
+  "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.network.retransmit"
+  ],
+  "matches": [
+    {
+      "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "network"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "network"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Do"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.network.retransmit",
+      "title": "TCP 重传、丢包与网络延迟",
+      "document": "knowledge/tcp_retransmit.md",
+      "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+      "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+      "score": 10.253645,
+      "matched_terms": [
+        "network",
+        "rtt"
+      ],
+      "required_evidence": [
+        "重传率",
+        "连接级 RTT",
+        "链路两端指标"
+      ],
+      "caveats": [
+        "应用超时和网络丢包可能互相影响"
+      ],
+      "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

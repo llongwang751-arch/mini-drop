@@ -1,0 +1,750 @@
+{
+  "name": "mini-drop-clean-827898774ab88a89",
+  "networks": {
+    "default": {
+      "name": "mini-drop-clean-827898774ab88a89_default",
+      "ipam": {}
+    }
+  },
+  "services": {
+    "analyzer": {
+      "cpus": 1,
+      "command": [
+        "python",
+        "-m",
+        "server.app.analysis_jobs"
+      ],
+      "depends_on": {
+        "migrate": {
+          "condition": "service_completed_successfully",
+          "required": true
+        },
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AGENT_HEARTBEAT_INTERVAL_SEC": "2",
+        "DATABASE_URL": "<REDACTED>",
+        "MINIO_ACCESS_KEY": "clean_stack",
+        "MINIO_AGENT_ENDPOINT": "minio:9000",
+        "MINIO_AUTO_CREATE_BUCKET": "1",
+        "MINIO_BUCKET": "clean-stack",
+        "MINIO_ENDPOINT": "minio:9000",
+        "MINIO_SECRET_KEY": "<REDACTED>",
+        "MINIO_SECURE": "0",
+        "MINI_DROP_AGENT_CHECKPOINT_BACKEND": "postgres",
+        "MINI_DROP_AGENT_FRAMEWORK": "langgraph",
+        "MINI_DROP_AI_API_KEY": "<REDACTED>",
+        "MINI_DROP_AI_ENABLED": "none",
+        "MINI_DROP_ANALYZER_LEASE_SEC": "120",
+        "MINI_DROP_ANALYZER_MAX_RETRIES": "3",
+        "MINI_DROP_ANALYZER_POLL_SEC": "1",
+        "MINI_DROP_API_AUTH_ENABLED": "1",
+        "MINI_DROP_API_KEY": "<REDACTED>",
+        "MINI_DROP_GRPC_AUTH_ENABLED": "1",
+        "MINI_DROP_GRPC_CA_FILE": "/certs/ca.crt",
+        "MINI_DROP_GRPC_CERT_FILE": "/certs/server.crt",
+        "MINI_DROP_GRPC_CLIENT_CERT_FILE": "/certs/client.crt",
+        "MINI_DROP_GRPC_CLIENT_KEY_FILE": "/certs/client.key",
+        "MINI_DROP_GRPC_KEY_FILE": "/certs/server.key",
+        "MINI_DROP_GRPC_REQUIRE_CLIENT_CERT": "1",
+        "MINI_DROP_GRPC_SECURE": "0",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>",
+        "MINI_DROP_SCHEMA_MANAGED": "1",
+        "NATIVE_AGENT_ID": "clean_agent_827898774ab88a89",
+        "POSTGRES_DB": "mini_drop",
+        "POSTGRES_PASSWORD": "<REDACTED>",
+        "POSTGRES_USER": "mini_drop"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-m",
+          "server.app.analysis_jobs",
+          "--healthcheck"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/python-worker:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "805306368",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ]
+    },
+    "apiserver": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/apiserver.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cpus": 1,
+      "command": null,
+      "depends_on": {
+        "control-plane": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "diagnosis-worker": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "DATABASE_URL": "<REDACTED>",
+        "MINIO_ACCESS_KEY": "clean_stack",
+        "MINIO_AGENT_ENDPOINT": "minio:9000",
+        "MINIO_BUCKET": "clean-stack",
+        "MINIO_ENDPOINT": "minio:9000",
+        "MINIO_SECRET_KEY": "<REDACTED>",
+        "MINI_DROP_API_AUTH_ENABLED": "1",
+        "MINI_DROP_API_KEY": "<REDACTED>",
+        "MINI_DROP_API_LISTEN_ADDR": ":8080",
+        "MINI_DROP_API_PRINCIPALS_JSON": "",
+        "MINI_DROP_CONTROL_GRPC_ADDRESS": "control-plane:50051",
+        "MINI_DROP_CONTROL_GRPC_CA_FILE": "/certs/ca.crt",
+        "MINI_DROP_CONTROL_GRPC_CLIENT_CERT_FILE": "/certs/client.crt",
+        "MINI_DROP_CONTROL_GRPC_CLIENT_KEY_FILE": "/certs/client.key",
+        "MINI_DROP_CONTROL_GRPC_TIMEOUT_MS": "3000",
+        "MINI_DROP_CONTROL_GRPC_TLS": "1",
+        "MINI_DROP_DIAGNOSTIC_AI_GRPC_ADDRESS": "diagnosis-worker:50061",
+        "MINI_DROP_DIAGNOSTIC_AI_GRPC_SERVER_NAME": "diagnosis-worker",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>",
+        "MINI_DROP_SCHEDULE_POLL_SEC": "5"
+      },
+      "expose": [
+        "8080"
+      ],
+      "group_add": [
+        "0"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "/usr/local/bin/mini-drop-apiserver",
+          "--healthcheck"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/apiserver:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "201326592",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "<PRIVATE_RUNTIME>/certs",
+          "target": "/certs",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "control-plane": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/native-control.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cpus": 1,
+      "command": null,
+      "depends_on": {
+        "migrate": {
+          "condition": "service_completed_successfully",
+          "required": true
+        },
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AGENT_OFFLINE_TIMEOUT_SEC": "30",
+        "DATABASE_URL": "<REDACTED>",
+        "MINIO_BUCKET": "clean-stack",
+        "MINI_DROP_CONTROL_MAINTENANCE_SEC": "5",
+        "MINI_DROP_GRPC_AUTH_ENABLED": "1",
+        "MINI_DROP_GRPC_CA_FILE": "/certs/ca.crt",
+        "MINI_DROP_GRPC_CERT_FILE": "/certs/server.crt",
+        "MINI_DROP_GRPC_CLIENT_CERT_FILE": "/certs/client.crt",
+        "MINI_DROP_GRPC_CLIENT_KEY_FILE": "/certs/client.key",
+        "MINI_DROP_GRPC_KEY_FILE": "/certs/server.key",
+        "MINI_DROP_GRPC_REQUIRE_CLIENT_CERT": "1",
+        "MINI_DROP_GRPC_SECURE": "1",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>",
+        "NATIVE_CONTROL_HEALTH_ADDR": "127.0.0.1:50051",
+        "NATIVE_CONTROL_LISTEN_ADDR": "0.0.0.0:50051"
+      },
+      "expose": [
+        "50051"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "/usr/local/bin/mini-drop-native-control",
+          "--healthcheck"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/control-plane:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "268435456",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "<PRIVATE_RUNTIME>/certs",
+          "target": "/certs",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "diagnosis-worker": {
+      "cpus": 1,
+      "command": [
+        "python",
+        "-m",
+        "server.app.diagnosis_worker"
+      ],
+      "depends_on": {
+        "migrate": {
+          "condition": "service_completed_successfully",
+          "required": true
+        },
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AGENT_HEARTBEAT_INTERVAL_SEC": "2",
+        "DATABASE_URL": "<REDACTED>",
+        "MINIO_ACCESS_KEY": "clean_stack",
+        "MINIO_AGENT_ENDPOINT": "minio:9000",
+        "MINIO_AUTO_CREATE_BUCKET": "1",
+        "MINIO_BUCKET": "clean-stack",
+        "MINIO_ENDPOINT": "minio:9000",
+        "MINIO_SECRET_KEY": "<REDACTED>",
+        "MINIO_SECURE": "0",
+        "MINI_DROP_AGENT_CHECKPOINT_BACKEND": "postgres",
+        "MINI_DROP_AGENT_FRAMEWORK": "langgraph",
+        "MINI_DROP_AGENT_MEMORY_KEEP_TOKENS": "<REDACTED>",
+        "MINI_DROP_AGENT_MEMORY_MAX_MESSAGES": "24",
+        "MINI_DROP_AGENT_MEMORY_MAX_TOKENS": "<REDACTED>",
+        "MINI_DROP_AI_API_KEY": "<REDACTED>",
+        "MINI_DROP_AI_ENABLED": "none",
+        "MINI_DROP_API_AUTH_ENABLED": "1",
+        "MINI_DROP_API_KEY": "<REDACTED>",
+        "MINI_DROP_DIAGNOSIS_POLL_SEC": "2",
+        "MINI_DROP_DIAGNOSTIC_AI_GRPC_PORT": "50061",
+        "MINI_DROP_EXPERIMENT_EVAL_INTERVAL_SEC": "300",
+        "MINI_DROP_FAULT_LAB_AGENT_ID": "clean_agent_827898774ab88a89",
+        "MINI_DROP_FAULT_LAB_CPP_URL": "http://cpp-hotspot:8084",
+        "MINI_DROP_FAULT_LAB_GO_URL": "http://go-hotspot:6060",
+        "MINI_DROP_FAULT_LAB_JAVA_URL": "http://java-hotspot:8082",
+        "MINI_DROP_FAULT_LAB_URL": "http://python-hotspot:8081",
+        "MINI_DROP_GRPC_AUTH_ENABLED": "1",
+        "MINI_DROP_GRPC_CA_FILE": "/certs/ca.crt",
+        "MINI_DROP_GRPC_CERT_FILE": "/certs/server.crt",
+        "MINI_DROP_GRPC_CLIENT_CERT_FILE": "/certs/client.crt",
+        "MINI_DROP_GRPC_CLIENT_KEY_FILE": "/certs/client.key",
+        "MINI_DROP_GRPC_KEY_FILE": "/certs/server.key",
+        "MINI_DROP_GRPC_REQUIRE_CLIENT_CERT": "1",
+        "MINI_DROP_GRPC_SECURE": "1",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>",
+        "MINI_DROP_SCHEMA_MANAGED": "1",
+        "MINI_DROP_SOURCE_ROOTS": "/workspace-source/demo/python-hotspot:/workspace-source/demo/go-hotspot:/workspace-source/demo/java-hotspot:/workspace-source/demo/cpp-hotspot:/workspace-source/server:/workspace-source/native",
+        "NATIVE_AGENT_ID": "clean_agent_827898774ab88a89",
+        "POSTGRES_DB": "mini_drop",
+        "POSTGRES_PASSWORD": "<REDACTED>",
+        "POSTGRES_USER": "mini_drop"
+      },
+      "expose": [
+        "50061"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-m",
+          "server.app.diagnosis_worker",
+          "--healthcheck"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/python-worker:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "1073741824",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "<EXACT_GIT_CHECKOUT>",
+          "target": "/workspace-source",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "<PRIVATE_RUNTIME>/certs",
+          "target": "/certs",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "migrate": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/python-worker.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cpus": 1,
+      "command": [
+        "sh",
+        "-c",
+        "python -m alembic upgrade head && python scripts/bootstrap_object_store.py"
+      ],
+      "depends_on": {
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AGENT_HEARTBEAT_INTERVAL_SEC": "2",
+        "DATABASE_URL": "<REDACTED>",
+        "MINIO_ACCESS_KEY": "clean_stack",
+        "MINIO_AGENT_ENDPOINT": "minio:9000",
+        "MINIO_AUTO_CREATE_BUCKET": "1",
+        "MINIO_BUCKET": "clean-stack",
+        "MINIO_ENDPOINT": "minio:9000",
+        "MINIO_SECRET_KEY": "<REDACTED>",
+        "MINIO_SECURE": "0",
+        "MINI_DROP_AGENT_CHECKPOINT_BACKEND": "postgres",
+        "MINI_DROP_AGENT_FRAMEWORK": "langgraph",
+        "MINI_DROP_AI_API_KEY": "<REDACTED>",
+        "MINI_DROP_AI_ENABLED": "none",
+        "MINI_DROP_API_AUTH_ENABLED": "1",
+        "MINI_DROP_API_KEY": "<REDACTED>",
+        "MINI_DROP_GRPC_AUTH_ENABLED": "1",
+        "MINI_DROP_GRPC_CA_FILE": "/certs/ca.crt",
+        "MINI_DROP_GRPC_CERT_FILE": "/certs/server.crt",
+        "MINI_DROP_GRPC_CLIENT_CERT_FILE": "/certs/client.crt",
+        "MINI_DROP_GRPC_CLIENT_KEY_FILE": "/certs/client.key",
+        "MINI_DROP_GRPC_KEY_FILE": "/certs/server.key",
+        "MINI_DROP_GRPC_REQUIRE_CLIENT_CERT": "1",
+        "MINI_DROP_GRPC_SECURE": "0",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>",
+        "NATIVE_AGENT_ID": "clean_agent_827898774ab88a89",
+        "POSTGRES_DB": "mini_drop",
+        "POSTGRES_PASSWORD": "<REDACTED>",
+        "POSTGRES_USER": "mini_drop"
+      },
+      "image": "mini-drop-clean-827898774ab88a89/python-worker:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "805306368",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ]
+    },
+    "minio": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/minio-source.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cpus": 1,
+      "command": [
+        "server",
+        "/data",
+        "--console-address",
+        ":9001"
+      ],
+      "entrypoint": null,
+      "environment": {
+        "MINIO_ROOT_PASSWORD": "<REDACTED>",
+        "MINIO_ROOT_USER": "clean_stack"
+      },
+      "expose": [
+        "9000",
+        "9001"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "curl",
+          "--fail",
+          "--silent",
+          "http://127.0.0.1:9000/minio/health/ready"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/minio:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "402653184",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "miniodata",
+          "target": "/data",
+          "volume": {}
+        }
+      ]
+    },
+    "native-agent": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/native-agent.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cap_drop": [
+        "ALL"
+      ],
+      "cpus": 1,
+      "command": null,
+      "depends_on": {
+        "control-plane": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "minio": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AGENT_GRPC_ADDR": "control-plane:50051",
+        "AGENT_GRPC_CA_CERT": "/certs/ca.crt",
+        "AGENT_GRPC_CLIENT_CERT": "/certs/agent.crt",
+        "AGENT_GRPC_CLIENT_KEY": "/certs/agent.key",
+        "AGENT_GRPC_SECURE": "1",
+        "AGENT_HEARTBEAT_INTERVAL_SEC": "2",
+        "AGENT_ID": "clean_agent_827898774ab88a89",
+        "AGENT_RESULT_OUTBOX_DIR": "/var/lib/mini-drop-agent/outbox",
+        "MINIO_BUCKET": "clean-stack",
+        "MINI_DROP_GRPC_TOKEN": "<REDACTED>"
+      },
+      "image": "mini-drop-clean-827898774ab88a89/native-agent:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "402653184",
+      "networks": {
+        "default": null
+      },
+      "pid": "host",
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "agentoutbox",
+          "target": "/var/lib/mini-drop-agent/outbox",
+          "volume": {}
+        },
+        {
+          "type": "bind",
+          "source": "<PRIVATE_RUNTIME>/certs",
+          "target": "/certs",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "postgres": {
+      "cpus": 1,
+      "command": null,
+      "entrypoint": null,
+      "environment": {
+        "POSTGRES_DB": "mini_drop",
+        "POSTGRES_PASSWORD": "<REDACTED>",
+        "POSTGRES_USER": "mini_drop"
+      },
+      "expose": [
+        "5432"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U mini_drop"
+        ],
+        "timeout": "5s",
+        "interval": "5s",
+        "retries": 10
+      },
+      "image": "postgres:16",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "402653184",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "pgdata",
+          "target": "/var/lib/postgresql/data",
+          "volume": {}
+        }
+      ]
+    },
+    "python-hotspot": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>/demo/python-hotspot",
+        "dockerfile": "Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cap_drop": [
+        "ALL"
+      ],
+      "cpus": 1,
+      "command": null,
+      "entrypoint": null,
+      "environment": {
+        "CPU_HOTSPOT_ACTIVE": "0"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=2)"
+        ],
+        "timeout": "3s",
+        "interval": "5s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/python-hotspot:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "134217728",
+      "networks": {
+        "default": null
+      },
+      "pid": "host",
+      "pids_limit": 256,
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ]
+    },
+    "web": {
+      "build": {
+        "context": "<EXACT_GIT_CHECKOUT>",
+        "dockerfile": "deploy/dockerfiles/web.Dockerfile",
+        "args": {
+          "ALPINE_MIRROR": "https://dl-cdn.alpinelinux.org/alpine",
+          "GOPROXY": "https://proxy.golang.org,direct",
+          "NATIVE_BUILD_JOBS": "1",
+          "UBUNTU_MIRROR": "http://archive.ubuntu.com/ubuntu"
+        }
+      },
+      "cpus": 1,
+      "command": null,
+      "depends_on": {
+        "apiserver": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "wget -q --spider http://127.0.0.1/ || exit 1"
+        ],
+        "timeout": "5s",
+        "interval": "10s",
+        "retries": 10
+      },
+      "image": "mini-drop-clean-827898774ab88a89/web:exact-git",
+      "labels": {
+        "mini-drop.clean-stack.owner": "mini-drop-clean-827898774ab88a89"
+      },
+      "mem_limit": "134217728",
+      "networks": {
+        "default": null
+      },
+      "pids_limit": 256,
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 80,
+          "published": "0",
+          "protocol": "tcp"
+        }
+      ],
+      "pull_policy": "never",
+      "restart": "no",
+      "security_opt": [
+        "no-new-privileges:true"
+      ]
+    }
+  },
+  "volumes": {
+    "agentoutbox": {
+      "name": "mini-drop-clean-827898774ab88a89_agentoutbox"
+    },
+    "miniodata": {
+      "name": "mini-drop-clean-827898774ab88a89_miniodata"
+    },
+    "pgdata": {
+      "name": "mini-drop-clean-827898774ab88a89_pgdata"
+    }
+  }
+}

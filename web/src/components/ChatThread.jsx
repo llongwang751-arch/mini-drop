@@ -3,30 +3,30 @@ import { BranchesOutlined } from "@ant-design/icons";
 import ChatMessage from "./ChatMessage";
 import DiagnosisPathPanel from "./DiagnosisPathPanel";
 import PlannerBlock from "./PlannerBlock";
+import PlanningOutputCard, { boundedPlanningOutput } from "./PlanningOutputCard";
 import ToolCallCard from "./ToolCallCard";
 import EvidenceCard from "./EvidenceCard";
 import ConclusionCard from "./ConclusionCard";
 import ScopeCard from "./ScopeCard";
 import FixVerificationPanel from "./FixVerificationPanel";
 import DiagnosisFeedbackCard from "./DiagnosisFeedbackCard";
-import { chineseDiagnosticText } from "../utils/diagnosisDisplay";
+import { TOOL_LABELS, chineseDiagnosticText } from "../utils/diagnosisDisplay";
+import { diagnosisDisplayQuery } from "../utils/diagnosisQuery";
 import { mergeSemanticHypotheses } from "../utils/hypothesisSemantics";
-import { selectBestReport } from "../utils/reportPresentation";
+import { selectBestReport, isCausalRootReport } from "../utils/reportPresentation";
 
 const { Text } = Typography;
 
-const TOOL_LABELS = {
-  collect_sys_metrics: "系统指标采集",
-  collect_database_diagnostics: "数据库状态采集",
-  start_perf_profile: "CPU 火焰图采集",
-  start_pyspy_profile: "Python 调用栈采集",
-  start_ebpf_io_profile: "I/O 延迟采集",
-  get_agent_status: "采集节点检查",
-};
 
 function readableToolName(tool) {
   const key = tool?.tool_name || tool?.name || tool?.tool || "";
   return TOOL_LABELS[key] || key || "待选择采集器";
+}
+
+function percentText(value) {
+  if (value === null || value === undefined) return "未记录";
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? `${Math.round(numeric * 100)}%` : "未记录";
 }
 
 function buildConversationRounds(
@@ -36,6 +36,7 @@ function buildConversationRounds(
   reports = [],
   interventions = [],
   semanticHypotheses = mergeSemanticHypotheses(hypotheses),
+  events = [],
 ) {
   const rounds = new Map();
   const hypothesisRound = new Map();
@@ -66,6 +67,12 @@ function buildConversationRounds(
   interventions.forEach((item) => {
     ensure(item.round_index || 1).intervention = item;
   });
+  events.filter((event) => event.event_type === "planner.output_recorded")
+    .sort((a, b) => Number(a.sequence || 0) - Number(b.sequence || 0))
+    .forEach((event) => {
+      const payload = event.payload_json || event.payload || {};
+      if (boundedPlanningOutput(payload)) ensure(payload.round_index || 1).planningOutput = payload;
+    });
   toolCalls.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).tools.push(item));
   evidence.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).evidence.push(item));
   reports.forEach((item) => ensure(hypothesisRound.get(item.hypothesis_id) || 1).reports.push(item));
@@ -78,7 +85,7 @@ function ConversationRound({ item, initialQuery, interventionLabels, isLatest })
   const toolNames = [...new Set(item.tools.map(readableToolName))];
   const waitingApproval = item.tools.some((tool) => String(tool.status || "").toUpperCase().includes("APPROVAL"));
   const running = item.tools.some((tool) => ["PENDING", "RUNNING", "TASK_CREATED", "UPLOADING", "ANALYZING"].includes(String(tool.status || "").toUpperCase()));
-  const roundState = waitingApproval ? "等待人工审批" : running ? "正在执行" : item.reports.length ? "本轮已裁决" : item.tools.length ? "等待证据" : "正在规划";
+  const roundState = item.planningOutput ? "已记录规划结果" : waitingApproval ? "等待人工审批" : running ? "正在执行" : item.reports.length ? "本轮已裁决" : item.tools.length ? "等待证据" : "正在规划";
   return (
     <div className={`diagnosis-conversation-round ${isLatest ? "is-latest" : ""}`}>
       {userText && (
@@ -94,11 +101,13 @@ function ConversationRound({ item, initialQuery, interventionLabels, isLatest })
           <div className="diagnosis-round-response-head">
             <Space wrap>
               <Tag color={isLatest ? "processing" : "default"}>第 {item.round} 轮</Tag>
-              <Text strong>{item.round === 1 ? "已理解问题并建立首轮计划" : "已根据新输入修订调查计划"}</Text>
+              <Text strong>{item.planningOutput ? "已完成本轮规划判断" : item.round === 1 ? "已理解问题并建立首轮计划" : "已根据新输入修订调查计划"}</Text>
             </Space>
             <Tag color={waitingApproval ? "gold" : running ? "blue" : item.reports.length ? "green" : "default"}>{roundState}</Tag>
           </div>
-          {primaryHypothesis ? (
+          {item.planningOutput ? (
+            <PlanningOutputCard payload={item.planningOutput} />
+          ) : primaryHypothesis ? (
             <div className="diagnosis-round-plan"><Text type="secondary">本轮主假设</Text><Text>{chineseDiagnosticText(primaryHypothesis.statement)}</Text></div>
           ) : item.continuedHypotheses.length > 0 ? (
             <div className="diagnosis-round-plan">
@@ -179,8 +188,7 @@ export default function ChatThread({
     );
   }
   const latestFeedback = feedbackRows[0] || null;
-  const reportVerificationStatus = latestReport?.verification?.status;
-  const hasVerifiedRootCause = reportVerificationStatus === "VERIFIED";
+  const hasVerifiedRootCause = isCausalRootReport(latestReport);
   const sortedTools = [...(toolCalls || [])].sort(
     (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
   );
@@ -211,6 +219,7 @@ export default function ChatThread({
     reportRows,
     interventionRows,
     semanticHypotheses,
+    events,
   );
   const displayedHypothesisCount = semanticHypotheses.length;
 
@@ -244,17 +253,17 @@ export default function ChatThread({
                     <Space wrap>
                       <Tag color="green">Skill {index + 1}</Tag>
                       <Tag>版本 {reason.skill_version || "-"}</Tag>
-                      <Tag color="blue">匹配度 {Math.round(Number(activation.match_score || 0) * 100)}%</Tag>
+                      <Tag color="blue">匹配度 {percentText(activation.match_score)}</Tag>
                       {reason.retrieval === "HYBRID_BM25_VECTOR" && (
                         <>
-                          <Tag color="purple">BM25 {Math.round(Number(reason.bm25 || 0) * 100)}%</Tag>
-                          <Tag color="geekblue">向量 {Math.round(Number(reason.vector || 0) * 100)}%</Tag>
-                          <Tag>上下文 {Math.round(Number(reason.structured || 0) * 100)}%</Tag>
+                          <Tag color="purple">BM25 {percentText(reason.bm25)}</Tag>
+                          <Tag color="geekblue">向量 {percentText(reason.vector)}</Tag>
+                          <Tag>上下文 {percentText(reason.structured)}</Tag>
                         </>
                       )}
                       {Number(reason.observed_outcomes || 0) > 0 && (
                         <Tag color="cyan">
-                          复用可信度 {Math.round(Number(reason.posterior_reliability || 0) * 100)}%
+                          复用可信度 {percentText(reason.posterior_reliability)}%
                           （{reason.observed_outcomes} 次反馈）
                         </Tag>
                       )}
@@ -334,7 +343,7 @@ export default function ChatThread({
           <ConversationRound
             key={item.round}
             item={item}
-            initialQuery={detail.query || detail.id}
+            initialQuery={diagnosisDisplayQuery(detail.query, detail.id)}
             interventionLabels={interventionLabels}
             isLatest={index === conversationRounds.length - 1}
           />

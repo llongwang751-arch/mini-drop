@@ -1,0 +1,92 @@
+.....FFFFFFF..............FFFFF...........                               [100%]
+================================== FAILURES ===================================
+_________ test_duplicate_explicit_process_name_requires_clarification _________
+tests\test_auto_scope_selection.py:129: in test_duplicate_explicit_process_name_requires_clarification
+    assert _select_auto_scope_candidate("诊断进程名为 java 的延迟", {"candidates": rows},
+E   AssertionError: assert {'binding_id': 'control', 'collector_capabilities': ['java_async'], 'eligible': True, 'environment': 'production', ...} is None
+E    +  where {'binding_id': 'control', 'collector_capabilities': ['java_async'], 'eligible': True, 'environment': 'production', ...} = _select_auto_scope_candidate('诊断进程名为 java 的延迟', {'candidates': [{'binding_id': 'control', 'collector_capabilities': ['java_async'], 'eligible': True, 'environment': '...{'binding_id': 'other', 'collector_capabilities': ['java_async'], 'eligible': True, 'environment': 'production', ...}]}, diagnosis_id='ambiguous-java')
+_____ test_requested_agent_narrows_discovery_and_automatic_binding[False] _____
+tests\test_auto_scope_selection.py:160: in test_requested_agent_narrows_discovery_and_automatic_binding
+    assert discovery["status"] == "READY"
+E   AssertionError: assert 'AMBIGUOUS' == 'READY'
+E     
+E     - READY
+E     + AMBIGUOUS
+_____ test_requested_agent_narrows_discovery_and_automatic_binding[True] ______
+tests\test_auto_scope_selection.py:156: in test_requested_agent_narrows_discovery_and_automatic_binding
+    assert diagnosis.target_json["process_binding"]["agent_id"] == "requested-host"
+E   AssertionError: assert 'other-host' == 'requested-host'
+E     
+E     - requested-host
+E     + other-host
+_ test_unavailable_requested_instance_never_falls_back_to_other_host[absent] __
+tests\test_auto_scope_selection.py:173: in test_unavailable_requested_instance_never_falls_back_to_other_host
+    assert diagnosis.status == "NEEDS_CLARIFICATION"
+E   AssertionError: assert 'UNDERSTANDING' == 'NEEDS_CLARIFICATION'
+E     
+E     - NEEDS_CLARIFICATION
+E     + UNDERSTANDING
+__ test_unavailable_requested_instance_never_falls_back_to_other_host[stale] __
+tests\test_auto_scope_selection.py:173: in test_unavailable_requested_instance_never_falls_back_to_other_host
+    assert diagnosis.status == "NEEDS_CLARIFICATION"
+E   AssertionError: assert 'UNDERSTANDING' == 'NEEDS_CLARIFICATION'
+E     
+E     - NEEDS_CLARIFICATION
+E     + UNDERSTANDING
+_ test_unavailable_requested_instance_never_falls_back_to_other_host[ambiguous] _
+tests\test_auto_scope_selection.py:173: in test_unavailable_requested_instance_never_falls_back_to_other_host
+    assert diagnosis.status == "NEEDS_CLARIFICATION"
+E   AssertionError: assert 'UNDERSTANDING' == 'NEEDS_CLARIFICATION'
+E     
+E     - NEEDS_CLARIFICATION
+E     + UNDERSTANDING
+_______________ test_discovery_cannot_override_requested_agent ________________
+tests\test_auto_scope_selection.py:184: in test_discovery_cannot_override_requested_agent
+    with pytest.raises(ValueError, match="agent"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______________ test_missing_lab_agent_rejects_before_injection _______________
+tests\test_fault_plaza.py:17: in test_missing_lab_agent_rejects_before_injection
+    with pytest.raises(fault_plaza.FaultPlazaError, match="AGENT_ID"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'server.app.drop_insight.fault_plaza.FaultPlazaError'>
+_ test_fault_request_carries_operator_agent_without_snapshot_pid[java-gc-pressure] _
+tests\test_fault_plaza.py:26: in test_fault_request_carries_operator_agent_without_snapshot_pid
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'target'
+_ test_fault_request_carries_operator_agent_without_snapshot_pid[go-cpu-hotspot] _
+tests\test_fault_plaza.py:26: in test_fault_request_carries_operator_agent_without_snapshot_pid
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'target'
+_ test_fault_request_carries_operator_agent_without_snapshot_pid[cpu-hotspot] _
+tests\test_fault_plaza.py:26: in test_fault_request_carries_operator_agent_without_snapshot_pid
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'target'
+_ test_fault_request_carries_operator_agent_without_snapshot_pid[cpp-file-io] _
+tests\test_fault_plaza.py:26: in test_fault_request_carries_operator_agent_without_snapshot_pid
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+           ^^^^^^^^^^^^^^^^^
+E   KeyError: 'target'
+============================== warnings summary ===============================
+tests/test_auto_scope_selection.py::test_background_scope_respects_explicit_manual_selection
+  D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\pytest_asyncio\plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_auto_scope_selection.py::test_duplicate_explicit_process_name_requires_clarification
+FAILED tests/test_auto_scope_selection.py::test_requested_agent_narrows_discovery_and_automatic_binding[False]
+FAILED tests/test_auto_scope_selection.py::test_requested_agent_narrows_discovery_and_automatic_binding[True]
+FAILED tests/test_auto_scope_selection.py::test_unavailable_requested_instance_never_falls_back_to_other_host[absent]
+FAILED tests/test_auto_scope_selection.py::test_unavailable_requested_instance_never_falls_back_to_other_host[stale]
+FAILED tests/test_auto_scope_selection.py::test_unavailable_requested_instance_never_falls_back_to_other_host[ambiguous]
+FAILED tests/test_auto_scope_selection.py::test_discovery_cannot_override_requested_agent
+FAILED tests/test_fault_plaza.py::test_missing_lab_agent_rejects_before_injection
+FAILED tests/test_fault_plaza.py::test_fault_request_carries_operator_agent_without_snapshot_pid[java-gc-pressure]
+FAILED tests/test_fault_plaza.py::test_fault_request_carries_operator_agent_without_snapshot_pid[go-cpu-hotspot]
+FAILED tests/test_fault_plaza.py::test_fault_request_carries_operator_agent_without_snapshot_pid[cpu-hotspot]
+FAILED tests/test_fault_plaza.py::test_fault_request_carries_operator_agent_without_snapshot_pid[cpp-file-io]
+12 failed, 30 passed, 1 warning in 2.97s

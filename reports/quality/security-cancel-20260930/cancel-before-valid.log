@@ -1,0 +1,150 @@
+FFFFFFFFFFF                                                              [100%]
+================================== FAILURES ===================================
+__ test_cancel_is_idempotent_even_with_original_version_and_preserves_actor ___
+
+    def test_cancel_is_idempotent_even_with_original_version_and_preserves_actor():
+        diagnosis = seed()
+>       first = service.cancel_diagnosis(diagnosis.id, reason="停止本次检查", cancelled_by="operator:alice", expected_version=diagnosis.version)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:44: AttributeError
+______ test_cancel_stops_owned_active_task_and_releases_budget[PENDING] _______
+
+task_status = 'PENDING'
+
+    @pytest.mark.parametrize("task_status", ["PENDING", "RUNNING", "UPLOADING", "ANALYZING"])
+    def test_cancel_stops_owned_active_task_and_releases_budget(task_status):
+        diagnosis = seed("COLLECTING_EVIDENCE", task_status)
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:57: AttributeError
+______ test_cancel_stops_owned_active_task_and_releases_budget[RUNNING] _______
+
+task_status = 'RUNNING'
+
+    @pytest.mark.parametrize("task_status", ["PENDING", "RUNNING", "UPLOADING", "ANALYZING"])
+    def test_cancel_stops_owned_active_task_and_releases_budget(task_status):
+        diagnosis = seed("COLLECTING_EVIDENCE", task_status)
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:57: AttributeError
+_____ test_cancel_stops_owned_active_task_and_releases_budget[UPLOADING] ______
+
+task_status = 'UPLOADING'
+
+    @pytest.mark.parametrize("task_status", ["PENDING", "RUNNING", "UPLOADING", "ANALYZING"])
+    def test_cancel_stops_owned_active_task_and_releases_budget(task_status):
+        diagnosis = seed("COLLECTING_EVIDENCE", task_status)
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:57: AttributeError
+_____ test_cancel_stops_owned_active_task_and_releases_budget[ANALYZING] ______
+
+task_status = 'ANALYZING'
+
+    @pytest.mark.parametrize("task_status", ["PENDING", "RUNNING", "UPLOADING", "ANALYZING"])
+    def test_cancel_stops_owned_active_task_and_releases_budget(task_status):
+        diagnosis = seed("COLLECTING_EVIDENCE", task_status)
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:57: AttributeError
+__________ test_cancel_does_not_rewrite_completed_history[COMPLETED] __________
+
+status = 'COMPLETED'
+
+    @pytest.mark.parametrize("status", ["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED"])
+    def test_cancel_does_not_rewrite_completed_history(status):
+        diagnosis = seed(status)
+        with pytest.raises(ValueError, match="terminal"):
+>           service.cancel_diagnosis(diagnosis.id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:73: AttributeError
+____ test_cancel_does_not_rewrite_completed_history[INSUFFICIENT_EVIDENCE] ____
+
+status = 'INSUFFICIENT_EVIDENCE'
+
+    @pytest.mark.parametrize("status", ["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED"])
+    def test_cancel_does_not_rewrite_completed_history(status):
+        diagnosis = seed(status)
+        with pytest.raises(ValueError, match="terminal"):
+>           service.cancel_diagnosis(diagnosis.id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:73: AttributeError
+___________ test_cancel_does_not_rewrite_completed_history[FAILED] ____________
+
+status = 'FAILED'
+
+    @pytest.mark.parametrize("status", ["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED"])
+    def test_cancel_does_not_rewrite_completed_history(status):
+        diagnosis = seed(status)
+        with pytest.raises(ValueError, match="terminal"):
+>           service.cancel_diagnosis(diagnosis.id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:73: AttributeError
+___________ test_cancel_rejects_stale_version_without_side_effects ____________
+
+    def test_cancel_rejects_stale_version_without_side_effects():
+        diagnosis = seed()
+        with pytest.raises(ValueError, match="version conflict"):
+>           service.cancel_diagnosis(diagnosis.id, expected_version=diagnosis.version + 1)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:80: AttributeError
+_______ test_late_planner_cannot_create_hypothesis_or_tool_after_cancel _______
+
+    def test_late_planner_cannot_create_hypothesis_or_tool_after_cancel():
+        diagnosis = seed()
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:86: AttributeError
+_ test_cancel_preserves_completed_tool_result_and_missing_or_archived_is_not_found _
+
+    def test_cancel_preserves_completed_tool_result_and_missing_or_archived_is_not_found():
+        diagnosis = seed("COLLECTING_EVIDENCE", "DONE")
+        with new_session() as session:
+            call = session.get(DropInsightToolCallModel, "cancel-call")
+            call.status = "COMPLETED"
+            call.result_json = {"immutable_artifact": "sha256:original"}
+            session.commit()
+>       service.cancel_diagnosis(diagnosis.id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'server.app.drop_insight.service' has no attribute 'cancel_diagnosis'. Did you mean: 'advance_diagnosis'?
+
+tests\test_diagnosis_cancellation.py:103: AttributeError
+============================== warnings summary ===============================
+tests/test_diagnosis_cancellation.py::test_cancel_is_idempotent_even_with_original_version_and_preserves_actor
+  D:\洛伦兹力不做功\Desktop\1\Lib\site-packages\pytest_asyncio\plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_is_idempotent_even_with_original_version_and_preserves_actor
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_stops_owned_active_task_and_releases_budget[PENDING]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_stops_owned_active_task_and_releases_budget[RUNNING]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_stops_owned_active_task_and_releases_budget[UPLOADING]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_stops_owned_active_task_and_releases_budget[ANALYZING]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_does_not_rewrite_completed_history[COMPLETED]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_does_not_rewrite_completed_history[INSUFFICIENT_EVIDENCE]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_does_not_rewrite_completed_history[FAILED]
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_rejects_stale_version_without_side_effects
+FAILED tests/test_diagnosis_cancellation.py::test_late_planner_cannot_create_hypothesis_or_tool_after_cancel
+FAILED tests/test_diagnosis_cancellation.py::test_cancel_preserves_completed_tool_result_and_missing_or_archived_is_not_found
+11 failed, 1 warning in 1.19s

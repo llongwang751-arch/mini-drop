@@ -1,0 +1,125 @@
+{
+  "type": "result",
+  "case_id": "v16",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe6529f2afc7e53904764dd6a37",
+    "object": "chat.completion",
+    "created": 1790932570,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告 Python 进程在稳态负载下 RSS 从 120 MiB 增长到 460 MiB，需要区分是缓存保留还是内存泄漏。已有观测显示负载未变且无堆内存剖析数据。为验证内存增长的性质，计划采集内存剖析数据，以识别是否存在长期持有的对象或分配热点。\",\n  \"tool_name\": \"collect_memory_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，Python 进程 RSS 的显著增长主要由长期持有的业务对象（潜在泄漏）导致，而非临时缓存。\",\n      \"expected_observations\": [\"memory_retention.retained_memory_mb >= 300\"],\n      \"falsification_criteria\": [\"memory_retention.retained_memory_mb < 300\"],\n      \"rationale\": \"RSS 增长了 340 MiB。如果增长主要源于长期持有的对象（如缓存未过期或泄漏），内存剖析应能识别出大量被保留的内存。\",\n      \"prior_probability\": 0.5,\n      \"estimated_value\": 0.8\n    },\n    {\n      \"statement\": \"本次诊断中，Python 进程 RSS 的显著增长主要由文件系统缓存或其他非堆内存区域贡献，业务对象保留内存有限。\",\n      \"expected_observations\": [\"memory_growth.rss_delta_mb >= 300\", \"memory_retention.retained_memory_mb < 100\"],\n      \"falsification_criteria\": [\"memory_retention.retained_memory_mb >= 100\"],\n      \"rationale\": \"RSS 增长可能源于操作系统文件缓存（如 mmap 文件）或共享库，这些不会在进程堆剖析中显示为大量保留内存。\",\n      \"prior_probability\": 0.4,\n      \"estimated_value\": 0.7\n    },\n    {\n      \"statement\": \"本次诊断中，Python 进程存在内存分配热点，但 RSS 增长是多种因素（如堆碎片、临时大对象）的混合结果，不构成典型泄漏。\",\n      \"expected_observations\": [\"memory_growth.rss_delta_mb >= 300\", \"memory_growth.retained_memory_delta_mb >= 50\"],\n      \"falsification_criteria\": [\"memory_growth.retained_memory_delta_mb < 50\"],\n      \"rationale\": \"增长可能由频繁分配/释放导致的堆扩张、碎片化或短期大对象引起，这些在剖析中可能显示为适度的保留内存增量。\",\n      \"prior_probability\": 0.1,\n      \"estimated_value\": 0.3\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划基于合成离线场景，不执行实际工具。假设验证依赖于 collect_memory_profile 工具的成功执行和数据返回。无法直接观测文件缓存或共享内存的具体贡献。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3838,
+      "completion_tokens": 667,
+      "total_tokens": 4505,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1150
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe6529f2afc7e53904764dd6a37\",\"object\":\"chat.completion\",\"created\":1790932570,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 Python 进程在稳态负载下 RSS 从 120 MiB 增长到 460 MiB，需要区分是缓存保留还是内存泄漏。已有观测显示负载未变且无堆内存剖析数据。为验证内存增长的性质，计划采集内存剖析数据，以识别是否存在长期持有的对象或分配热点。\\\",\\n  \\\"tool_name\\\": \\\"collect_memory_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Python 进程 RSS 的显著增长主要由长期持有的业务对象（潜在泄漏）导致，而非临时缓存。\\\",\\n      \\\"expected_observations\\\": [\\\"memory_retention.retained_memory_mb \\u003e= 300\\\"],\\n      \\\"falsification_criteria\\\": [\\\"memory_retention.retained_memory_mb \\u003c 300\\\"],\\n      \\\"rationale\\\": \\\"RSS 增长了 340 MiB。如果增长主要源于长期持有的对象（如缓存未过期或泄漏），内存剖析应能识别出大量被保留的内存。\\\",\\n      \\\"prior_probability\\\": 0.5,\\n      \\\"estimated_value\\\": 0.8\\n    },\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Python 进程 RSS 的显著增长主要由文件系统缓存或其他非堆内存区域贡献，业务对象保留内存有限。\\\",\\n      \\\"expected_observations\\\": [\\\"memory_growth.rss_delta_mb \\u003e= 300\\\", \\\"memory_retention.retained_memory_mb \\u003c 100\\\"],\\n      \\\"falsification_criteria\\\": [\\\"memory_retention.retained_memory_mb \\u003e= 100\\\"],\\n      \\\"rationale\\\": \\\"RSS 增长可能源于操作系统文件缓存（如 mmap 文件）或共享库，这些不会在进程堆剖析中显示为大量保留内存。\\\",\\n      \\\"prior_probability\\\": 0.4,\\n      \\\"estimated_value\\\": 0.7\\n    },\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，Python 进程存在内存分配热点，但 RSS 增长是多种因素（如堆碎片、临时大对象）的混合结果，不构成典型泄漏。\\\",\\n      \\\"expected_observations\\\": [\\\"memory_growth.rss_delta_mb \\u003e= 300\\\", \\\"memory_growth.retained_memory_delta_mb \\u003e= 50\\\"],\\n      \\\"falsification_criteria\\\": [\\\"memory_growth.retained_memory_delta_mb \\u003c 50\\\"],\\n      \\\"rationale\\\": \\\"增长可能由频繁分配/释放导致的堆扩张、碎片化或短期大对象引起，这些在剖析中可能显示为适度的保留内存增量。\\\",\\n      \\\"prior_probability\\\": 0.1,\\n      \\\"estimated_value\\\": 0.3\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划基于合成离线场景，不执行实际工具。假设验证依赖于 collect_memory_profile 工具的成功执行和数据返回。无法直接观测文件缓存或共享内存的具体贡献。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3838,\"completion_tokens\":667,\"total_tokens\":4505,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1150},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "d60cd0fec170be3a01a5d9a960b051c60928fbd93784412c428c6e4c87781740",
+  "seconds": 30.042279,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "container.memory.pressure",
+      "linux.memory.process_growth"
+    ],
+    "matches": [
+      {
+        "query": "Resident set grows from 120 to 460 MiB at steady load in a Python process; distinguish retention from a cache before calling it a leak.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "memory_pressure"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.memory.pressure",
+        "title": "容器内存回收与 OOM",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器内存压力、回收与 OOM\n\nRSS 高不等于泄漏。区分匿名页、文件缓存、共享页和容器限制；进程视角与 cgroup 视角的统计范围不同。"
+      },
+      {
+        "query": "Resident set grows from 120 to 460 MiB at steady load in a Python process; distinguish retention from a cache before calling it a leak.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [
+            "leak"
+          ],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+        "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

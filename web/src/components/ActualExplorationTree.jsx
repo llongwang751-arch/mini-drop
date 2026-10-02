@@ -31,6 +31,7 @@ import {
   chineseDiagnosticText,
   diagnosticStatusLabel,
   diagnosticToolLabel,
+  TOOL_LABELS,
 } from "../utils/diagnosisDisplay";
 import { hypothesisSemanticKey } from "../utils/hypothesisSemantics";
 import "./MentorComplexShowcase.css";
@@ -38,14 +39,6 @@ import "./ActualExplorationTree.css";
 
 const { Text } = Typography;
 
-const TOOL_LABELS = {
-  collect_sys_metrics: "系统指标",
-  collect_database_diagnostics: "数据库状态",
-  start_perf_profile: "CPU 火焰图",
-  start_pyspy_profile: "Python 调用栈",
-  start_ebpf_io_profile: "I/O 延迟",
-  get_agent_status: "采集节点检查",
-};
 
 const CATEGORY_LABELS = {
   CPU_HOTSPOT: "CPU",
@@ -82,6 +75,10 @@ function inferCategory(name = "") {
   if (name.includes("network")) return "NETWORK_DEGRADATION";
   if (name.includes("sys_metrics")) return "SYSTEM_RESOURCE";
   return "GENERAL";
+}
+
+function countText(value) {
+  return value == null ? "未记录" : value;
 }
 
 function buildFallbackTree(hypotheses = [], toolCalls = [], report) {
@@ -136,7 +133,8 @@ function buildFallbackTree(hypotheses = [], toolCalls = [], report) {
     if (previous !== current) switches.push({
       from_category: previous,
       to_category: current,
-      reason: "上一方向证据不足，转向新的取证分支",
+      // 前端只能观察到相邻探针的类别变化，不得编造转向原因冒充服务端事件。
+      inferred: true,
     });
   }
   return { nodes, switches };
@@ -151,13 +149,13 @@ const NODE_META = {
 };
 
 const KIND_LABELS = {
-  diagnosis: "诊断根节点",
-  intervention: "人工干预",
-  hypothesis: "候选假设",
-  tool: "工具调用",
-  evidence: "证据裁决",
-  report: "诊断结论",
-  verification: "修复复测",
+  diagnosis: "本次问题",
+  intervention: "人工调整",
+  hypothesis: "排查方向",
+  tool: "采集动作",
+  evidence: "证据",
+  report: "检查结论",
+  verification: "修复后复查",
 };
 
 const EDGE_KIND_LABELS = {
@@ -696,6 +694,7 @@ function mergeLegacyHypothesisNodes(nodes, edges = []) {
 
 function scoreLabel(search) {
   const algorithm = String(search?.algorithm || "").toUpperCase();
+  if (algorithm === "REACT") return "ReAct 规划顺序";
   return algorithm.includes("PUCT") ? "PUCT" : algorithm.includes("UCT") ? "UCT" : "UCT / PUCT";
 }
 
@@ -728,13 +727,6 @@ function LatsNodeMetrics({ node, scoreName, onInspect }) {
           {node.lats_best_path && <Tag color="gold">当前最佳路径</Tag>}
         </Space>
       )}
-      {values.length > 0 && (
-        <div className="tree-lats-metric-grid">
-          {values.map((item) => (
-            <span key={item.key}><small>{item.label}</small><b>{item.value}</b></span>
-          ))}
-        </div>
-      )}
       <Button
         type="link"
         size="small"
@@ -743,7 +735,7 @@ function LatsNodeMetrics({ node, scoreName, onInspect }) {
         onClick={() => onInspect(node)}
         aria-label={`查看 LATS 节点评分：${node.title}`}
       >
-        查看评分
+        搜索详情
       </Button>
     </div>
   );
@@ -880,7 +872,9 @@ function LatsSearchStrip({ search, nodeById }) {
           <div className="is-live-tool-count">
             <Text strong>实时工具调用</Text>
             <Space wrap size={[6, 6]}>
-              <Tag>{budget?.usedToolCalls ?? 0}/{budget?.maxToolCalls ?? 0}</Tag>
+              {budget?.usedToolCalls != null && budget?.maxToolCalls != null
+                ? <Tag>{budget.usedToolCalls}/{budget.maxToolCalls}</Tag>
+                : <Tag>实时工具调用未记录</Tag>}
               <Text type="secondary">冻结回放不调用真实采集器</Text>
             </Space>
           </div>
@@ -1230,15 +1224,18 @@ function ExplorationNode({
           {active && <Tag>刚刚更新</Tag>}
           {node.kind === "tool" && <Tag>{diagnosticStatusLabel(node.status)}</Tag>}
           {node.domain && <Tag>{node.domain}</Tag>}
-          <SkillRouteReferenceTags node={node} />
         </Space>
-        {node.tool && <div className="tree-card-tool"><Text code>{node.tool}</Text></div>}
-        {node.evidence && (
+        {(node.tool || node.evidence || hasSkillRoute) && <details className="tree-node-details" onPointerDown={(event) => event.stopPropagation()}>
+          <summary>查看记录与依据</summary>
+          <SkillRouteReferenceTags node={node} />
+          {node.tool && <div className="tree-card-tool"><Text code>{node.tool}</Text></div>}
+          {node.evidence && (
           <div className="tree-card-evidence">
             <span>{node.kind === "evidence" ? "证据内容" : node.kind === "tool" ? "执行许可与记录" : "判断依据"}</span>
             <Text type="secondary">{node.evidence}</Text>
           </div>
-        )}
+          )}
+        </details>}
         <LatsNodeMetrics node={node} scoreName={scoreName} onInspect={onInspectSearch} />
         {node.kind === "hypothesis" && hypothesisIdOf(node) && onIntervene && (
           <div className="tree-node-actions" onPointerDown={(event) => event.stopPropagation()}>
@@ -1647,35 +1644,40 @@ function StructuredExplorationTree({
       )}
     >
       <Space wrap className="actual-tree-summary">
-        <Tag color="blue">{stats.rounds || 0} 轮</Tag>
-        <Tag color="blue">探索 {decoratedNodes.length} 个可见节点</Tag>
-        {semanticProjection.mergedCount > 0 && <Tag color="cyan">语义合并 {semanticProjection.mergedCount} 个重复假设</Tag>}
-        <Tag>父子关系 {graph.edgeCount} 条</Tag>
-        <Tag color="red">剪枝 {stats.pruned ?? prunedCount} 条</Tag>
-        <Tag color="purple">方向切换 {(switches || []).length} 次</Tag>
-        {Number(stats.human_interventions || 0) > 0 && <Tag color="cyan">人工干预 {stats.human_interventions} 次</Tag>}
-        {skillTrace && <Tag color="purple">Skill {skillTrace.stateMeta.label}</Tag>}
-        {snapshot?.status && <Tag>{diagnosticStatusLabel(snapshot.status)}</Tag>}
+        <Text strong>沿分支查看：判断 → 采集 → 证据 → 结论</Text>
+        <Tag color="blue">{stats.rounds || 0} 轮排查</Tag>
+        {Number(stats.pruned ?? prunedCount) > 0 && <Tag color="red">已排除 {stats.pruned ?? prunedCount} 条方向</Tag>}
       </Space>
+      <details className="diagnosis-tree-search-details">
+        <summary>查看排查统计与调查路线</summary>
+        <Space wrap>
+          <Tag>可见节点 {decoratedNodes.length}</Tag>
+          <Tag>父子关系 {graph.edgeCount} 条</Tag>
+          {semanticProjection.mergedCount > 0 && <Tag>合并重复假设 {semanticProjection.mergedCount} 个</Tag>}
+          <Tag>方向切换 {(switches || []).filter((item) => !item.inferred).length} 次</Tag>
+          {(switches || []).some((item) => item.inferred) && <Tag>推断方向变化 {(switches || []).filter((item) => item.inferred).length} 次</Tag>}
+          {Number(stats.human_interventions || 0) > 0 && <Tag>人工干预 {stats.human_interventions} 次</Tag>}
+          {skillTrace && <Tag>Skill {skillTrace.stateMeta.label}</Tag>}
+          {snapshot?.status && <Tag>{diagnosticStatusLabel(snapshot.status)}</Tag>}
+        </Space>
+      </details>
       <details className="diagnosis-tree-search-details">
         <summary>{frozenReplay ? "FULL_LATS · 冻结回放，非现场证据" : "实时调查 · 现场随时间变化，不可回滚"} <span>查看搜索预算与评分</span></summary>
         <LatsSearchStrip search={projectedSearch} nodeById={nodeById} />
       </details>
       <details className="diagnosis-tree-search-details">
-        <summary>这棵树怎么看 · 工具有哪些</summary>
-        <p>从问题到候选原因，再到工具调用、证据裁决和报告。连线表示调查关系，不是程序函数调用。报告完成不代表故障修复。</p>
+        <summary>如何阅读排查树</summary>
+        <p><strong>架构说明：</strong>本树为「循证性能决策树」。树的每个主节点是业务机理的<strong>因果假设分支 (Hypothesis)</strong>，挂载的子节点是求证该假设派发的<strong>验证探针 (Probe Tool)</strong>。LATS 在假设空间进行强化选枝与反驳剪枝，避免在工具空间盲目无序试探。</p>
         <p>系统指标看资源变化；perf 看 CPU 热函数；py-spy 看 Python 栈；Go pprof 和 JVM async-profiler 看对应运行时；smaps 看内存；eBPF 看主机块设备延迟；连续采样看多窗口变化。实际可用工具受目标、能力和权限限制。</p>
         <p>采集失败或证据质量不足表示尚不可判断，不能当成假设被证伪。Skill 只建议取证顺序，不提供本次故障证据。</p>
       </details>
       {viewMode === "topology" ? (
         <>
           <div className="diagnosis-tree-legend" aria-label="探索树图例">
-            <span className="is-visited"><i />已调查分支</span>
-            <span className="is-refuted"><i />已被反证</span>
-            <span className="is-unavailable"><i />失败或证据不足</span>
-            <span className="is-confirmed"><i />报告采用路径（不代表修复）</span>
-            <span className="is-unvisited"><i />停止后未继续</span>
-            {skillTrace && <span className="is-skill-prior"><i />Skill 路线（非证据）</span>}
+            <span className="is-visited"><i />已检查</span>
+            <span className="is-refuted"><i />已排除</span>
+            <span className="is-unavailable"><i />尚不能判断</span>
+            <span className="is-confirmed"><i />报告采用（不代表已修复）</span>
           </div>
           <FitExplorationTree>
             <div className="exploration-tree exploration-tree-dynamic diagnosis-record-tree">
@@ -1696,6 +1698,7 @@ function StructuredExplorationTree({
               </ul>
             </div>
           </FitExplorationTree>
+          {(skillTrace || snapshot?.rounds?.length > 0 || switches?.length > 0) && <details className="diagnosis-tree-search-details"><summary>查看每轮路线、转向和 Skill</summary>
           <SkillTraceLane trace={skillTrace} onInspect={() => setSkillDetailOpen(true)} />
           {snapshot?.rounds?.length > 0 && (
             <div className="live-tree-rounds" aria-label="诊断轮次">
@@ -1704,8 +1707,8 @@ function StructuredExplorationTree({
                   <b>{round.round_index}</b>
                   <span>第 {round.round_index} 轮</span>
                   <small>{frozenReplay
-                    ? `${round.simulation_count ?? round.tool_call_count ?? 0} 模拟 · ${round.evidence_count ?? 0} 冻结观察`
-                    : `${round.tool_call_count ?? 0} 工具 · ${round.evidence_count ?? 0} 证据`}</small>
+                    ? `${countText(round.simulation_count ?? round.tool_call_count)} 模拟 · ${countText(round.evidence_count)} 冻结观察`
+                    : `${countText(round.tool_call_count)} 工具 · ${countText(round.evidence_count)} 证据`}</small>
                 </div>
               ))}
             </div>
@@ -1713,14 +1716,17 @@ function StructuredExplorationTree({
           {(switches || []).map((item, index) => (
             <div className="actual-tree-switch" key={`${item.from || item.from_category}-${item.to || item.to_category}-${index}`}>
               <SwapOutlined />
-              <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : "purple"}>
-                {item.source === "USER_INTERVENTION" ? "人工转向" : "取证转向"}
+              <Tag color={item.source === "USER_INTERVENTION" ? "cyan" : item.inferred ? "default" : "purple"}>
+                {item.source === "USER_INTERVENTION" ? "人工转向" : item.inferred ? "推断方向变化" : "取证转向"}
               </Tag>
               第 {index + 1} 次转向：{CATEGORY_LABELS[item.from || item.from_category] || item.from || item.from_category}
               {" → "}{CATEGORY_LABELS[item.to || item.to_category] || item.to || item.to_category}
-              <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>
+              {item.inferred
+                ? <Text type="secondary">（前端按相邻探针类别推断，非服务端持久化事件）</Text>
+                : <Text type="secondary">，{chineseDiagnosticText(item.reason)}</Text>}
             </div>
           ))}
+          </details>}
         </>
       ) : (
         <ReadableRouteBoard

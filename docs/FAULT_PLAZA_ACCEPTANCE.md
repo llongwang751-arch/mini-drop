@@ -1,5 +1,59 @@
 # 21 场景严格验收
 
+## 2026-10-02 当前成绩统一为工程诊断
+
+按用户本次要求，旧因果专项成绩从页面、默认API及公开索引移除。故障广场不再返回latest_acceptance/旧acceptance_level，不加载旧成绩文件；前端仅使用工程索引，删除旧成绩折叠、卡片旧标签及复验链接。旧公开路径由publication=RETIRED的源合同生成无分数替代地址，不能通过重新生成恢复旧分数。
+
+当前展示工程判断21/21、异常路径6/21、有效反证8条，来源为最新7个窗口及此前14条记录；21类实验启停、新案例和证据合同继续使用。报告的因果/同负载修复标志仍由证据决定，工程判断不改称因果验证。本次不重新注入故障或重跑小时压测。实现、测试及最终发布见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)。
+
+本次移除已发布`20261002T045234Z`，应用源码`de094fff754f2d8cb7139dd99e31c7a30d5fb754`，[精确CI36966142203](https://github.com/llongwang751-arch/mini-drop/actions/runs/36966142203)完成14/14作业。Python1682项通过/16项登记跳过，前端317项、Chromium固定数据8项及真实PostgreSQL14项零跳过通过；后端相关127项本地回归通过。Worker/Analyzer各211份源码、Web容器及公网58份资源SHA一致；13容器健康、21场景inactive，环境/挂载及另外10容器、紧邻部署前Office/API/Native基线核对通过。线上API的21场景均不含旧成绩字段，旧公开地址仅返回无分数替代地址；真实浏览器确认旧成绩及入口消失，新工程21/21、具体路径6/21、反证8条、四种宽度和既有体检/业务路径通过，41份证据重新下载SHA一致。没有新建诊断或重跑故障/压测。发布回执和测试见[本次归档](../reports/quality/engineering-score-only-20261002/manifest.json)。
+
+## 2026-10-01 性能路径、反证与案例链接最终交付
+
+最新Web发布`20261001T112302Z` / `ebb1a0e6a3a7396db789bb8a0a47c734d1219aff`；[精确CI36854620615](https://github.com/llongwang751-arch/mini-drop/actions/runs/36854620615)成功13/13，Python1358通过/10登记跳过、Web294通过、真实PostgreSQL8通过零跳过，Chroma与Go race/真实镜像/连续I/O专项通过。仅Web更换，其余12容器保持；Worker/Analyzer/Go demo仍为20261001T094553Z / c59aac566cedef6a239eb1d640ee8fb796524ae3。Worker/Analyzer各193文件、Web56文件SHA复核，13容器健康，API3依赖健康，21故障inactive；Office PID1650962、NRestarts=0，API与Office源码及数据保持。
+
+新独立三案例：CPU具体热函数与HTTP耗时路径已定位，路径定位2/3；I/O同一窗口684次操作平均0.081ms，3/3数值判据已检查，REFUTED反驳慢操作假设。37份原始下载SHA一致，取证/撤销恢复/清理/收束3/3，严格因果0/3；停止前I/O成功10232次、失败0，8MiB轮转修复采样提前停止，默认64MiB tmpfs不能称真实磁盘瓶颈。
+
+真实Chrome验证三个案例链接、CPU/HTTP路径、I/O反证与数值、健康检查正常（仅已检查范围）、默认21项/工程4项/9份下载SHA、1440/1024/768/375宽度，无JS/HTTP异常。反证展示旧代码5项失败，案例链接状态重放/列表失败重试旧代码2项失败；修复后完整Web294项通过。保留有效反证、ACCEPT_COUNTER准入和最新合格窗口；React函数状态更新保持纯函数，不再提前清空请求链接。
+
+剩余重点是可归属的真实磁盘等待、HTTP与TCP传输拆分，以及固定输入/负载的原因干预。没有完成全部21类因果验收，不用本轮路径与反证改写旧分数。一小时按用户已接受的1/120窗超限不重跑，原严格FAILED保持。以下同日期段落为此前过程快照，以本段为当前状态。全部失败、成功、原始下载、CI与发布回执见[本轮交付](../reports/architecture/performance-localization-20261001.md)及[归档SHA清单](../reports/quality/performance-localization-20261001/manifest.json)。
+
+## 2026-10-01 当前版本
+
+性能21类主入口恢复并全部默认可见。v3独立记录链路与诊断执行合同；精确源码10002e94/CI36832916434已通过13/13并部署20261001T075239Z，真实页面及21故障inactive复核通过。尚未执行新完整21类因果验收，不能以数值规则或本地测试替代。见[性能诊断](PERFORMANCE_DIAGNOSIS.md)。
+
+## 2026-10-01 性能主线恢复与v3口径
+
+用户新指令要求继续修复21类性能诊断，不以4个工程案例代替。只读复盘发现9项终态不足、2项无支持结论被算作lineage失败，3项目标错配；归档链内部一致18/21不等于新取证或根因通过。
+
+v3新增独立`lineage_evaluation`，`lineage_verified`检查Task/Attempt/Artifact SHA/Analyzer/Evidence与目标对应。原包装器的终态、指定采集器、支持引用和最少轮次仍由`diagnosis_contract_verified`约束整项通过，没有降低根因门槛。原v2记录与成绩保持。[性能失败复盘与后续因果协议](PERFORMANCE_DIAGNOSIS.md)。
+
+## 2026-10-01 演示范围调整
+
+21类不再作为默认面试目标，保留“历史故障实验”、停止控制及原始成绩。当前不重启21类验收，不扩展全能诊断能力。
+
+## 2026-09-30 验收传输路径修复（本地客户端）
+
+定位上轮失败：系统代理路径复现读取超时，同接口直连成功；原时段74条API非SSE GET均200、最大34ms。重试的JVM/perf采样发生在客户端超时撤销之后，因此零GC/无样本不能用来评估故障期采样能力。新增显式直连选项和方法/路径/异常类型记录，默认路由不变、不重试不确定POST、不放宽判据，TLS链与主机名仍验证。9项旧代码负向复现，相关96项修复通过，全量1201通过/8登记跳过。运行时保持d26bc2c，[CI36704929921](https://github.com/llongwang751-arch/mini-drop/actions/runs/36704929921)成功13/13；测试源码67b428828f4b6b2d93d3917e81b5c18ddd463de4，测试merge8a4f9c3fabf59840c373c86447890af9a6a311c0。Python1201通过/8登记跳过，真实PG专项6通过零跳过，4份CI原始ZIP归档并核对SHA，冻结部署的独立新GC批次已COMPLETED，无传输错误，取证链/注入/撤销恢复/清理/收束均通过，三工具完成；VERIFIED有界观测仍不计因果根因，严格0/1，真实浏览器通过；原两个STOPPED_UNSAFE_TO_CONTINUE记录保留。详情见[传输复盘](../reports/architecture/acceptance-transport-20260930.md)。
+
+## 本轮子集与完整成绩的边界
+
+实例范围三项新批次目标正确3/3、清理与恢复3/3，严格根因0/3。Skill修复后的历史GC协议成绩1/1保留，但该报告只有分配/GC相关且缺范围，不能称因果证明。当前Java新报告为BOUNDED_OBSERVATION、causal=false；即使VERIFIED也应拒绝因果根因成绩。范围修复首批遇TLS/读取错误，原STOPPED_UNSAFE_TO_CONTINUE记录保留，独立安全清理另存。[本轮证据](../reports/architecture/instance-scope-fix-20260930.md)与原完整21场景分开；默认API不再提供旧成绩字段。
+
+## 2026-09-30 最新交付
+
+后端及Web新代码已部署并复核；一小时请求19,950全成功，但60RPS与9个持续窗口延迟超限，整体未通过。Web观测范围误标及HTTP409已修复，224项测试与CI13/13通过，云端同会话复验通过。详情和能力边界见[本次部署验收](../reports/architecture/deployment-validation-20260930.md)。下方带日期记录保留当时状态。
+
+## 2026-09-29 观察范围与根因分数
+
+新报告声明 `BOUNDED_OBSERVATION` 时，不论是否VERIFIED、覆盖率1或包含场景函数词，都不能通过根因门禁。显式未知/非法范围和非布尔因果标记也拒绝；没有范围字段的历史报告保持旧口径兼容，不回写历史结果。此检查是对机械词汇评分的约束，不是新增的因果证明。合成同输入的前后复现见[原始证据](../reports/quality/focused-delivery-20260929/scope-before-after.json)。
+
+9月28日新部署批次已按用户要求停止：完成9/21、严格0/9、原门禁根因字段1/9、链路4/9、恢复/清理9/9；第10项中断不计完成。原始campaign为STOPPED_BY_USER，不能投影为完整21项新成绩。本轮只完善判定与回归，不启动新故障。
+
+## 2026-09-23 演示控制与严格根因分开
+
+云端新“故障广场”页面降低信息密度，保留每场景启停、受控诊断和停用入口。21 个场景的启停/清理链路可演示，但最近严格根因门禁仍为 **1/21**；不能把 21/21 控制链路通过改写为 21/21 根因已验证。AGI-saber 的基线、慢检索、撤销后三阶段位于“选择服务”卡片，是单独的业务请求级演示，真实延迟由受限请求标记注入，仅作用于当前一次请求；细节见 [全链路验收](FULL_CHAIN_ACCEPTANCE.md)。
+
 本轮由用户明确要求重新验收，使用云端四种运行时的 21 个受控故障。历史的 `passed: true` 只代表链路与清理校验，不能当作根因准确率。
 
 ## 执行与证据
@@ -64,3 +118,49 @@
 ## 原生证据分支补充修复
 
 4 项复测暴露锁反证与通用关键词匹配分支仍可引用零自身采样的进程包装帧。补丁统一可归属函数的自身权重，并排除零权重包装帧，已发布 `20260910T092419Z`。Go CPU 补充复测另存 `fault-plaza-predicate-retest-20260910.json`，不修改前两次测量。全部结果与剩余缺口见 [本轮验收结论](../reports/ai-diagnosis/21场景验收结论-20260910.md)。
+
+## 2026-09-20 证据门禁收紧与复测要求
+
+- 假设谓词移除了全部捏造覆盖槽位：`covered or [0]`、`[0] if falsification else []`、硬编码 `[0]`/`[0, 1]`（GIL 反证与用户态热点 SUPPORT 分支）、以及 `claim_verifier` 在谓词未映射槽位时默认补槽位 0 的兜底。覆盖槽位现在只能由判据文本与证据域的真实匹配（`_criterion_text_indexes`）产生；谓词未映射槽位时，方向性 claim 仍参与反证/对照判定，但不覆盖覆盖率分母。
+- 因此 `root_gate_verified` 中"覆盖率为 1"的语义比 2026-09-10 更严格：无法再靠结构分支把覆盖槽位"送满"。
+- 首轮 `1/21`（`fault-plaza-strict-21-20260910-r2.json`）与两次针对性复测均在旧门禁下测得。在新门禁下重跑 21 场景之前，这些数字不得引用为当前能力；页面投影读取历史运行记录，不会自动变成新门禁成绩。
+- 复测必须按本协议执行并单独记录云端版本与诊断 ID；本地离线测试全绿不构成复测。受控回放基准（`reports/evaluation/`）不等于本协议的真机验收。
+
+## 2026-09-20 复测执行记录
+
+- 发布 `20260920T185032Z`（替换 diagnosis-worker / analyzer / web；native 与 Go API 未动）激活并三服务 healthy 后启动复测。
+- 运行入口：`output/acceptance/gate-tightening-20260920/run_strict_21.py`（沿用 r2 模式：认证 client 与只读实验室快照均凭据在内存读取）。
+- 输出：`reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json`（RUNNING 期间增量写盘并附 sha256，不覆盖任何历史 campaign）。
+
+**最终结果：21 项执行，1 项通过（java-gc-pressure），20 项未通过。** 与 2026-09-10 旧门禁的通过集合相同，但口径不同：
+
+- 20 个未通过项全部卡在 `root_gate_verified`（收紧后的门禁下没有产生 VERIFIED 报告）；注入观察与清理均通过，`cleanup_verified` 21/21。2026-09-28逐项核对原始case后更正：`lineage_verified` 实为10/21，存在11项链路未通过；此前“链路合同没有失败项”的文字不符合原始字段。原始JSON未改写。
+- **java-gc-pressure 在取消捏造覆盖槽位后仍然通过**：其 `root_gate_verified` 依赖的是判据文本与 JVM 计数器证据的真实匹配，不是旧的 CONTROL 捷径。这是当前唯一在新门禁下成立的严格通过记录。
+- 本轮成绩即当前可引用的严格口径：`1/21`，通过数不是根因准确率，也不代表修复闭环（`fix_verified` 全部为 false）。下一步提高通过率的方向仍是：独立对照采集的可达性（20 个失败项的共同缺口）与服务端最小判据模板。
+
+## 2026-09-27 只读失败分层与下一批顺序
+
+本次重新读取现有 `fault-plaza-acceptance-index.json`，并沿每项 `source_report` 核对对应 campaign 的 `report_evaluation`。这是对 2026-09-10 历史数据的只读整理，没有重新向云端注入故障，也不改变任何原始判定：21 项中链路通过 12、严格通过 1、撤销恢复 21、清理 21、代码修复验证 0。
+
+| 分组 | 数量 | 下一步证据标准 |
+| --- | --- | --- |
+| 链路未通过 | 9 | 先检查目标 PID/身份、采集器可达性、产物解析和任务失败，再讨论根因 |
+| 链路通过但根因未通过 | 11 | 检查具体发现、独立反证/对照和场景匹配，不能用重复支持采样冒充对照 |
+| 严格通过 | 1 | Java GC 压力；仍没有同负载代码修复复测，不能称自动修复完成 |
+
+优先取 Python `source-hotspot` 和 Go `go-cpu-hotspot` 做下一批受控复验：历史最终报告已经有 `concrete_finding=true` 与 `oracle_vocabulary_match=true`，但仍是 `PARTIAL_WITHOUT_COUNTER`。需要补可验证的独立对照并保留同一目标、请求负载和版本证据，不应继续只堆支持采样。对应源分别为 `fault-plaza-fixes-retest-20260910.json` 和 `fault-plaza-predicate-retest-20260910.json`。
+
+Java `java-downstream-latency` 则有一份门禁 VERIFIED 报告，但场景词汇匹配为 false，最终未接受。下一步应人工核对报告是否解释注入的下游延迟及词汇判据是否过窄，不能仅凭 VERIFIED 字段把整场改成通过。网络、文件 I/O 和 C++ 锁等链路失败项排在后面，先解决可采集性再运行昂贵的诊断。
+
+本轮另新增本机独立 HTTP 进程的阶梯/恢复/持续实验，能测请求排队与业务 SLO，但它不是以上云端 AI 根因复验；两者成绩分开保留。
+
+## 隔离 CI 的 Python/Go 独立 CPU 对照
+
+执行入口 `python scripts/run_quality_gate.py --profile hotspot-controls`，限隔离 Linux，需 Go 与 psutil。只启动当前仓库 demo 子进程：端口占用时拒绝启动；API 返回 PID 必须属于自己创建的进程；不接受任意目标地址。故障白名单为 Python source / Go cpu，注入 60 秒自动截止，finally 撤销并回读，最终回收目标进程。
+
+每种运行时记录 4 秒正常、8 秒故障、4 秒恢复三个 OS CPU 时间窗，目标 PID/create_time 必须一致。故障 CPU 至少单核 25%、相对基线增加至少 20 个百分点，恢复不得高于 max(10%, baseline+5 个百分点)。Python 现有合作式栈采样需新增至少 20 个 `source_hot_function` 样本；它是业务内插桩，不能称外部随机采样器。Go 保存 5 秒实际 pprof，至少 1 CPU 秒样本，`main.goCPUHotFunction` 累计占比至少 50%。原始 profile、快照、版本与判据保留。
+
+该实验提供函数采样与操作系统 CPU 计数的独立观察方法，结果叫 CONTROL_VERIFIED。它未经过原生 Agent 远程采集、AI 假设编排、身份签名/Artifact 入库及严格反证门禁，因此不自动补齐云端历史 1/21。撤销故障减少 CPU 工作量，所以 fix_verified 始终 false。下一步若接入云端证据，必须复用真实目标身份、窗口和来源合同，不能把本报告直接灌进证据表。
+
+
+本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。

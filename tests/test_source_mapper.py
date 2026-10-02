@@ -54,6 +54,14 @@ def test_maps_go_method_and_reports_concurrency_signals(tmp_path: Path) -> None:
     assert "goroutine_or_channel" in mapping["review_signals"]
 
 
+def test_maps_go_function_returning_a_slice(tmp_path: Path) -> None:
+    (tmp_path / "main.go").write_text("package main\nfunc calculate(data []byte) []byte {\n return data\n}\n", encoding="utf-8")
+    result = map_hot_functions(["main.calculate"], roots=[tmp_path], language_hint="GO")
+    assert result["unresolved_symbols"] == []
+    assert result["mappings"][0]["qualname"] == "calculate"
+    assert result["mappings"][0]["line_start"] == 2
+
+
 def test_maps_cpp_qualified_function(tmp_path: Path) -> None:
     (tmp_path / "worker.cpp").write_text(
         "#include <unistd.h>\n\n"

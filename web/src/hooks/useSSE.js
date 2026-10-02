@@ -20,6 +20,8 @@ import { createDiagnosisEventSource, createEventSource } from "../api/client";
  * @param {(connected: boolean) => void} [handlers.onConnectionChange]
  * @param {"control"|"diagnosis"} [handlers.channel]
  * @param {string} [handlers.resourceId] - diagnosis channel 的诊断 ID
+ * @param {boolean} [handlers.enabled] - 为 false 时不建立连接（供 SSEProvider
+ *   在会话同步完成前门控共享连接）
  * @returns {{ connected: boolean, reconnect: () => void }}
  */
 export default function useSSE({
@@ -30,6 +32,7 @@ export default function useSSE({
   onConnectionChange,
   channel = "control",
   resourceId = "",
+  enabled = true,
 } = {}) {
   const [connected, setConnected] = useState(false);
   const reconnectTimer = useRef(null);
@@ -37,18 +40,31 @@ export default function useSSE({
   const sourceRef = useRef(null);
   const cursorRef = useRef(0);
   const mountedRef = useRef(false);
+  const pageSuspendedRef = useRef(false);
   const maxRetryDelay = 30000;
 
   const handlersRef = useRef({ onTaskChanged, onAgentStatus, onDiagnosisComplete, onDiagnosisProgress, onConnectionChange });
   handlersRef.current = { onTaskChanged, onAgentStatus, onDiagnosisComplete, onDiagnosisProgress, onConnectionChange };
 
   const connect = useCallback(() => {
-    if (!mountedRef.current) return null;
+    if (!mountedRef.current || pageSuspendedRef.current) return null;
     if (reconnectTimer.current) {
       clearTimeout(reconnectTimer.current);
       reconnectTimer.current = null;
     }
     sourceRef.current?.close();
+    sourceRef.current = null;
+    if (!enabled) {
+      // 调用方门控：例如 SSEProvider 先完成会话同步再启用共享连接。
+      setConnected(false);
+      handlersRef.current.onConnectionChange?.(false);
+      return null;
+    }
+    if (channel === "diagnosis" && !resourceId) {
+      setConnected(false);
+      handlersRef.current.onConnectionChange?.(false);
+      return null;
+    }
     const es = channel === "diagnosis"
       ? createDiagnosisEventSource(resourceId, cursorRef.current)
       : createEventSource();
@@ -113,6 +129,7 @@ export default function useSSE({
     };
 
     es.onerror = () => {
+      if (pageSuspendedRef.current || sourceRef.current !== es) return;
       if (sourceRef.current !== es || !mountedRef.current) return;
       setConnected(false);
       handlersRef.current.onConnectionChange?.(false);
@@ -128,15 +145,36 @@ export default function useSSE({
     };
 
     return es;
-  }, [channel, resourceId]);
+  }, [channel, resourceId, enabled]);
 
   useEffect(() => {
     mountedRef.current = true;
     cursorRef.current = 0;
     connect();
+    const suspend = () => {
+      pageSuspendedRef.current = true;
+      sourceRef.current?.close();
+      sourceRef.current = null;
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = null;
+      }
+      setConnected(false);
+      handlersRef.current.onConnectionChange?.(false);
+    };
+    const resume = () => {
+      if (!pageSuspendedRef.current) return;
+      pageSuspendedRef.current = false;
+      retryCount.current = 0;
+      connect();
+    };
+    window.addEventListener("pagehide", suspend);
+    window.addEventListener("pageshow", resume);
     window.addEventListener("mini-drop:credentials-changed", connect);
     return () => {
       mountedRef.current = false;
+      window.removeEventListener("pagehide", suspend);
+      window.removeEventListener("pageshow", resume);
       window.removeEventListener("mini-drop:credentials-changed", connect);
       sourceRef.current?.close();
       sourceRef.current = null;

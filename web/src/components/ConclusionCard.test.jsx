@@ -3,6 +3,28 @@ import { describe, expect, it } from "vitest";
 import ConclusionCard from "./ConclusionCard";
 
 describe("ConclusionCard", () => {
+  it("explains that inclusive Go function shares overlap", () => {
+    render(<ConclusionCard report={{ verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+      bottleneck_localization: { status: "LOCALIZED", location: "main.outer；main.calculate", evidence_refs: ["ev-1"],
+        causal_root_cause_verified: false, same_load_fix_verified: false, profile_semantics: "INCLUSIVE_OVERLAPPING_PATHS" },
+    } }} />);
+    expect(screen.getByText(/各函数占比不能相加/)).toBeInTheDocument();
+    expect(screen.getByText(/main.outer；main.calculate/)).toBeInTheDocument();
+  });
+  it("separates checked criteria from matching conditions and independent controls", () => {
+    render(<ConclusionCard report={{ conclusion: "已验证观测：调用耗时 240 ms。", verification: {
+      status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false,
+      bottleneck_localization: { status: "LOCALIZED", location: "HTTP 调用耗时路径",
+        evidence_refs: ["ev-1"], causal_root_cause_verified: false, same_load_fix_verified: false },
+      observation_verification: { schema_version: "performance-observation-verification.v1", status: "VERIFIED",
+        criteria: [{ checked: true, matches: true }, { checked: true, matches: false }] },
+    } }} />);
+    expect(screen.getByText("性能路径已定位，根因仍待确认")).toBeInTheDocument();
+    expect(screen.getByText(/数值判据已检查 2\/2 项/)).toBeInTheDocument();
+    expect(screen.getByText(/同一产物的多个数值不算独立对照/)).toBeInTheDocument();
+    expect(screen.queryByText("根因结论")).not.toBeInTheDocument();
+  });
   it("does not present historical host-only I/O as a process root cause", () => {
     render(<ConclusionCard report={{ confidence: .6, verification: { status: "PARTIAL_WITHOUT_COUNTER" },
       conclusion: "阶段性判断：尚未定位到具体函数", claims: [{ valid: true, statement: "host block-device tracepoints observed a measurable high-latency tail" }],
@@ -90,5 +112,70 @@ describe("ConclusionCard", () => {
 
     expect(screen.getByText("根因结论")).toBeInTheDocument();
     expect(screen.getByText(/Go CPU 热点定位/)).toBeInTheDocument();
+  });
+
+  it("renders SRE actionable mitigations and root-cause fixes when remediation is present", () => {
+    render(
+      <ConclusionCard
+        report={{
+          confidence: 0.95,
+          verification: {
+            status: "VERIFIED",
+            remediation: {
+              schema_version: 2,
+              mitigations: [
+                {
+                  title: "CPU 资源应急压制与动态限流",
+                  action: "临时调高容器 CPU 配额限制；在 API 网关对高耗算力接口开启限流。",
+                  urgency: "HIGH",
+                },
+              ],
+              root_cause_fixes: [
+                {
+                  title: "算法热点消除与本地缓存优化",
+                  action: "重构密集计算代码；引入本地 LRU 缓存避免重算。",
+                  scope: "CODE",
+                },
+              ],
+            },
+          },
+          conclusion: "根因结论：CPU 密集计算热点确认。",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("SRE 处置预案与治理建议")).toBeInTheDocument();
+    expect(screen.getByText("取证与处置计划")).toBeInTheDocument();
+    expect(screen.getByText("P0 紧急压制")).toBeInTheDocument();
+    expect(screen.getByText("CPU 资源应急压制与动态限流")).toBeInTheDocument();
+    expect(screen.getByText("治理验证计划")).toBeInTheDocument();
+    expect(screen.getByText("代码重构")).toBeInTheDocument();
+    expect(screen.getByText("算法热点消除与本地缓存优化")).toBeInTheDocument();
+  });
+
+  it("does not present legacy unbound commands as a current plan", () => {
+    render(<ConclusionCard report={{ verification: { status: "VERIFIED", remediation: {
+      mitigations: [{ title: "unsafe legacy action", command: "kill -USR1 42" }],
+    } } }} />);
+    expect(screen.queryByText("unsafe legacy action")).not.toBeInTheDocument();
+    expect(screen.queryByText(/kill -USR1/)).not.toBeInTheDocument();
+  });
+
+  it("renders trace_id linkage tag when present in verification", () => {
+    render(
+      <ConclusionCard
+        report={{
+          confidence: 0.85,
+          verification: {
+            status: "VERIFIED",
+            trace_id: "trace-ebpf-9a8b7c",
+            span_id: "span-123456",
+          },
+          conclusion: "已成功定位慢请求调用链路与 CPU 热点函数。",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Trace: trace-ebpf-9a8b7c")).toBeInTheDocument();
   });
 });

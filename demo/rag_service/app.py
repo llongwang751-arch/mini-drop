@@ -9,10 +9,12 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 from difflib import SequenceMatcher
+from functools import lru_cache
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import re
+import socket
 import sqlite3
 import threading
 import time
@@ -37,11 +39,19 @@ class Settings:
     dependency_latency_ms: int = 0
     dependency_timeout_ms: int = 600
     allow_extractive_fallback: bool = False
+    cache_rerank: bool = False
+
+
+def lexical_score(question, content):
+    return SequenceMatcher(None, question, content, autojunk=False).ratio()
 
 
 class KnowledgeService:
     def __init__(self, settings=Settings()):
         self.settings=settings
+        # The immutable text is part of the key: changed documents cannot reuse
+        # an old score. Each fixture owns a bounded cache, cleared on shutdown.
+        self._score = lru_cache(maxsize=1024)(lexical_score) if settings.cache_rerank else lexical_score
         self._query_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix="query")
         self._ingest_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix="ingest")
         self._db=sqlite3.connect(":memory:",check_same_thread=False)
@@ -70,7 +80,7 @@ class KnowledgeService:
             (" OR ".join('"'+v+'"' for v in tokens) or '"no_match"',self.settings.rerank_candidates)).fetchall()
         stages['retrieval']=(time.perf_counter()-t)*1000
         t=time.perf_counter()
-        ranked=sorted(rows,key=lambda row:SequenceMatcher(None,question.lower(),row[1]+" "+row[2],autojunk=False).ratio(),reverse=True)
+        ranked=sorted(rows,key=lambda row:self._score(question.lower(),row[1]+" "+row[2]),reverse=True)
         stages['rerank']=(time.perf_counter()-t)*1000
         t=time.perf_counter()
         degraded=False
@@ -106,10 +116,16 @@ class KnowledgeService:
         self._query_pool.shutdown(wait=True,cancel_futures=False)
         self._ingest_pool.shutdown(wait=True,cancel_futures=False)
         self._db.close()
+        if self.settings.cache_rerank:
+            self._score.cache_clear()
 
 
 def serve(service,host="127.0.0.1",port=8097):
     class Handler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+        def setup(self):
+            super().setup()
+            self.connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         def log_message(self,*args): pass
         def do_GET(self):
             if self.path!='/health': self.send_error(404);return

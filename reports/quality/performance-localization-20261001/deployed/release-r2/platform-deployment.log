@@ -1,0 +1,87 @@
+Sending build context to Docker daemon  9.246MB
+
+Step 1/4 : FROM sha256:16acd8fc7abf090f2959a0fc40627f627a60255325a3ad8161de2cc74fb37784
+ ---> 16acd8fc7abf
+Step 2/4 : COPY server/ /app/server/
+ ---> Using cache
+ ---> bf57adee67cd
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> Using cache
+ ---> 0c4974e1dd93
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> Using cache
+ ---> ffadeda47a6b
+Successfully built ffadeda47a6b
+Successfully tagged mini-drop-diagnosis-worker:20261001T084906Z
+candidate imports passed
+Sending build context to Docker daemon  9.246MB
+
+Step 1/4 : FROM sha256:d45d02c5df6d34f021712dab751573a4dbbefe0855c74360b83c7491d6c9d411
+ ---> d45d02c5df6d
+Step 2/4 : COPY server/ /app/server/
+ ---> Using cache
+ ---> 9c79faa1636c
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> Using cache
+ ---> 6ee65db19d26
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> Using cache
+ ---> ffb3f5a353ab
+Successfully built ffb3f5a353ab
+Successfully tagged mini-drop-analyzer:20261001T084906Z
+candidate imports passed
+Sending build context to Docker daemon  9.246MB
+
+Step 1/2 : FROM sha256:7cd59c760e83efcedcb760cc286d590ad7e1a1775a3edf8b898ceeb797e1a221
+ ---> 7cd59c760e83
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> Using cache
+ ---> 4b4490204425
+Successfully built 4b4490204425
+Successfully tagged mini-drop-web:20261001T084906Z
+Sending build context to Docker daemon  19.46kB
+
+Step 1/8 : FROM golang:1.26.5-alpine AS build
+1.26.5-alpine: Pulling from library/golang
+Digest: sha256:0178a641fbb4858c5f1b48e34bdaabe0350a330a1b1149aabd498d0699ff5fb2
+Status: Downloaded newer image for golang:1.26.5-alpine
+ ---> 0178a641fbb4
+Step 2/8 : WORKDIR /src
+ ---> Running in 506b0fc71f1b
+ ---> Removed intermediate container 506b0fc71f1b
+ ---> 65dad2fb1939
+Step 3/8 : COPY go.mod main.go ./
+ ---> 8b0914547600
+Step 4/8 : RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/go-hotspot .
+ ---> Running in 3b2187e813e2
+[91mgo: go.mod requires go >= 1.26.8 (running go 1.26.5; GOTOOLCHAIN=local)
+[0mDEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+The command '/bin/sh -c CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/go-hotspot .' returned a non-zero code: 1
+Traceback (most recent call last):
+  File "/root/incoming-20261001T084906Z/deploy_runtime.py", line 192, in <module>
+    main()
+  File "/root/incoming-20261001T084906Z/deploy_runtime.py", line 127, in main
+    subprocess.run(['docker', 'build', '-f', str(recipe), '-t', image, str(context)], check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'build', '-f', '/root/incoming-20261001T084906Z/source/demo/go-hotspot/Dockerfile', '-t', 'mini-drop-go-hotspot:20261001T084906Z', '/root/incoming-20261001T084906Z/source/demo/go-hotspot']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['python3', '/root/incoming-20261001T084906Z/deploy_runtime.py']' returned non-zero exit status 1.

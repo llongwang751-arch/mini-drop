@@ -1,0 +1,114 @@
+{
+  "schema": "mini-drop.runtime-evidence-archive.v1",
+  "status": "VERIFIED_BYTE_IDENTICAL",
+  "created_at_utc": "2026-10-02T12:38:59.162642+00:00",
+  "revision": 1,
+  "previous_manifest": null,
+  "previous_manifest_sha256": null,
+  "inventory_sha256": "5cd00fbb696ba254ff2d5f802c8851f6252c796bc985ad4630817710b3cb57bd",
+  "file_count": 6,
+  "total_bytes": 35932,
+  "files": [
+    {
+      "path": "v3-final-measured-deployment-capacity.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-final-measured-deployment-capacity.json",
+      "bytes": 626,
+      "source_sha256": "49bfc10f18bd1e7cc288a99bd2c4f4257d2d2d6fad5f72d9525c6b7a0b83e2dd",
+      "archived_sha256": "49bfc10f18bd1e7cc288a99bd2c4f4257d2d2d6fad5f72d9525c6b7a0b83e2dd",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-knowledge-verification.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-knowledge-verification.json",
+      "bytes": 1012,
+      "source_sha256": "65d4d637f1031ba27a2c11e4d9b4d950a6dfd1d6a94b573da4aadf754d2e1c7a",
+      "archived_sha256": "65d4d637f1031ba27a2c11e4d9b4d950a6dfd1d6a94b573da4aadf754d2e1c7a",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-publication-metadata-compatibility.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-publication-metadata-compatibility.json",
+      "bytes": 550,
+      "source_sha256": "7aa624950cd1faa77d225184107add3e64744dc804235475cb0053e99e4efb7d",
+      "archived_sha256": "7aa624950cd1faa77d225184107add3e64744dc804235475cb0053e99e4efb7d",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-publication-verification.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-publication-verification.json",
+      "bytes": 4920,
+      "source_sha256": "be485e6bd1480b9b93d2bdcfec1d06984a09927f0cbb26563136a622f97089ac",
+      "archived_sha256": "be485e6bd1480b9b93d2bdcfec1d06984a09927f0cbb26563136a622f97089ac",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-runtime-preactivation.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-runtime-preactivation.json",
+      "bytes": 14412,
+      "source_sha256": "c1d6eb17179566a1271b72a7b3e0fe5624a585b185dd033f4d1635b530e06cdb",
+      "archived_sha256": "c1d6eb17179566a1271b72a7b3e0fe5624a585b185dd033f4d1635b530e06cdb",
+      "copied_byte_for_byte": true
+    },
+    {
+      "path": "v3-runtime-predeployment.json",
+      "source": "output/acceptance/planning-boundary-v3-20261002/v3-runtime-predeployment.json",
+      "bytes": 14412,
+      "source_sha256": "fecbf10c2141a207b55a57ff71d420e9f9b7239034d85af9734e3bcce2a00e08",
+      "archived_sha256": "fecbf10c2141a207b55a57ff71d420e9f9b7239034d85af9734e3bcce2a00e08",
+      "copied_byte_for_byte": true
+    }
+  ],
+  "added_files_this_revision": [
+    "v3-final-measured-deployment-capacity.json",
+    "v3-knowledge-verification.json",
+    "v3-publication-metadata-compatibility.json",
+    "v3-publication-verification.json",
+    "v3-runtime-preactivation.json",
+    "v3-runtime-predeployment.json"
+  ],
+  "scope": "deployment",
+  "producer": {
+    "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+    "release_tag": "20261002T120042Z",
+    "publication_status": "DEPLOYED_AND_RUNTIME_VERIFIED",
+    "manifest_sha256": "a6a02d2adfff8acaccd8e31deb897a715af252cc4dcc48f3b759aa940fde093f",
+    "manifest_digest_kind": "CANONICAL_JSON_FOR_PRODUCER_TAG_ONLY_RAW_FILE_SHA_IN_INVENTORY"
+  },
+  "boundary": "Public verification and hashed predeployment/preactivation state; nested final/prepared archives have independent inventories.",
+  "credential_audit": {
+    "status": "PASSED_FOR_DECLARED_LOCAL_SCOPE",
+    "files_scanned": 55,
+    "actual_sensitive_value_matches": 0,
+    "high_confidence_pattern_matches": 0,
+    "sensitive_nonempty_json_fields": 0,
+    "json_environment_is_hash_only": true,
+    "actual_sensitive_values_checked": 9,
+    "actual_values_not_written": true,
+    "sources": [
+      "current process sensitive environment values",
+      "local non-example env sensitive values",
+      "local Git credential helper"
+    ],
+    "env_files_examined": 3,
+    "remote_production_environment_values_examined": false,
+    "public_git_username_excluded_from_secret_values": true,
+    "production_environment_followup": "Root's aggregate publication audit checks actual production-specific secrets in memory."
+  },
+  "excluded": [
+    "tgz/zip/source bundles",
+    "private env/key files",
+    "database/cache/temp",
+    "vector index data"
+  ],
+  "preservation": {
+    "existing_archive_bytes_unchanged": true,
+    "old_manifest_revisions_unchanged": true,
+    "raw_failures_never_relabelled": true,
+    "stage_originals_unchanged": true
+  },
+  "scope_limits": [
+    "No source/Git/provider/model/deployment action is performed by this generator.",
+    "Prepared source metadata is not proof of deployment.",
+    "Original failed smoke cases and later durable-event readback are separate observations."
+  ]
+}

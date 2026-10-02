@@ -1,0 +1,1579 @@
+{
+  "case_id": "v23",
+  "query": "同步 write 调用本窗 900 次，平均耗时 0.07ms，零失败；这反驳慢写假设，只说明所测调用正常，不要据此诊断磁盘根因。",
+  "trace": {
+    "actual_backend": "BM25",
+    "requested_backend": "BM25",
+    "degraded_reasons": [],
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "同步 write 调用本窗 900 次，平均耗时 0.07ms，零失败；这反驳慢写假设，只说明所测调用正常，不要据此诊断磁盘根因。",
+    "query_profile": {
+      "concepts": [
+        "block_io"
+      ],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [
+        "write"
+      ],
+      "active_clauses": [
+        "同步 write 调用本窗 900 次",
+        "平均耗时 0.07ms",
+        "零失败",
+        "这反驳慢写假设",
+        "只说明所测调用正常",
+        "不要据此诊断磁盘根因"
+      ],
+      "excluded_mentions": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.io.synchronous_write",
+        "document": "knowledge/synchronous_io.md",
+        "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+        "score": 27.608666,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "这反驳慢写假设",
+        "source_profile": {
+          "concepts": [
+            "block_io"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "零失败"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "score": 10.570889,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 7.518505,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 4.62773,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.downstream_pressure",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 4.625824,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "dependency"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "score": 3.766072,
+        "accepted": false,
+        "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [
+          "write"
+        ],
+        "clause": "这反驳慢写假设",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 3.611406,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 3.359811,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "agent.tool.governance",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "score": 3.32445,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "tool_governance"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 2.909985,
+        "accepted": false,
+        "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [
+          "write"
+        ],
+        "clause": "这反驳慢写假设",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "mysql.lock_wait",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+        "score": 2.372557,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "MYSQL"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "score": 2.224204,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 2.053065,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "rag.quality.lifecycle",
+        "document": "knowledge/rag_quality.md",
+        "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+        "score": 1.919317,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "retrieval_quality"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 1.812299,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 1.737718,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 1.718711,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "同步 write 调用本窗 900 次"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "平均耗时 0.07ms"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "零失败"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "这反驳慢写假设"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "只说明所测调用正常"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "write"
+            ],
+            "clause": "不要据此诊断磁盘根因"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "query": "同步 write 调用本窗 900 次，平均耗时 0.07ms，零失败；这反驳慢写假设，只说明所测调用正常，不要据此诊断磁盘根因。",
+    "query_hash": "ef2eacabb66c42a59f94ba82aa3f453d64b69289b1c5333a8e364fc8441b67a6",
+    "relevance_query_hash": "ef2eacabb66c42a59f94ba82aa3f453d64b69289b1c5333a8e364fc8441b67a6",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 1,
+    "matches": [
+      {
+        "query": "同步 write 调用本窗 900 次，平均耗时 0.07ms，零失败；这反驳慢写假设，只说明所测调用正常，不要据此诊断磁盘根因。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "这反驳慢写假设",
+          "source_profile": {
+            "concepts": [
+              "block_io"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "同步 write 调用本窗 900 次"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "平均耗时 0.07ms"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "零失败"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "这反驳慢写假设"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "只说明所测调用正常"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "不要据此诊断磁盘根因"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.io.synchronous_write",
+        "title": "Linux fsync fdatasync 同步写延迟与反证",
+        "document": "knowledge/synchronous_io.md",
+        "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+        "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+        "score": 27.608666,
+        "matched_terms": [
+          "write",
+          "反驳",
+          "同步",
+          "失败",
+          "慢写",
+          "根因",
+          "正常",
+          "磁盘",
+          "调用"
+        ],
+        "required_evidence": [
+          "调用类型、成功/失败数、延迟和完整采样窗口",
+          "目标 PID 与文件/挂载/块设备归属",
+          "低延迟阈值及样本覆盖"
+        ],
+        "caveats": [
+          "tmpfs 与缓存路径不证明物理磁盘低延迟",
+          "采集失败或缺测不是慢写的反证",
+          "单一窗口不证明业务全局健康",
+          "知识只能指导调查，不是当前事故证据"
+        ],
+        "excerpt": "# Linux 同步写低延迟与有界反证\n\nfsync / fdatasync 是文件同步接口；fsync 同步文件数据与所需元数据，fdatasync 可省略不影响后续数据读取的元数据。成功与失败必须分别记录，失败或缺测不能作为慢同步写的反证。syncwrite、sync_write、synchronous write 和同步落盘在此描述操作类型，不代表数据库引擎内部机制已被观测。\n\n记录当前 PID、文件与挂载/块设备归属、窗口起止、操作类型、成功/失败次数及延迟分布。若同窗有效操作低于已声明慢写阈值，可反驳“该窗口持续慢同步写”这一候选；阈值、样本覆盖和报告来源仍走证据门禁，不能只读到这篇指南就生成 REFUTED 或根因结论。\n\ntmpfs、缓存路径、虚拟磁盘映射和不同采样窗口限制结论范围。低同步写延迟不是物理磁盘全局正常，也不是业务全局健康；块设备等待与共享宿主争用另需设备队列、目标及邻居同窗证据。未知存储协议或数据库引擎的专属语义不能由通用同步写指南替代。\n\n来源：[Linux man-pages fsync/fdatasync 官方项目文档](https://man7.org/linux/man-pages/man2/fsync.2.html)；[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。"
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.io.synchronous_write"
+  ]
+}

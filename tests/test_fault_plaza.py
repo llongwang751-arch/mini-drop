@@ -5,6 +5,27 @@ import pytest
 from server.app.drop_insight import fault_plaza
 
 
+@pytest.fixture(autouse=True)
+def configured_lab_agent(monkeypatch):
+    monkeypatch.setenv("MINI_DROP_FAULT_LAB_AGENT_ID", "test-lab-agent")
+
+
+def test_missing_lab_agent_rejects_before_injection(monkeypatch):
+    monkeypatch.delenv("MINI_DROP_FAULT_LAB_AGENT_ID")
+    calls = []
+    monkeypatch.setattr(fault_plaza, "_request_json", lambda *args, **kwargs: calls.append(args) or {})
+    with pytest.raises(fault_plaza.FaultPlazaError, match="AGENT_ID"):
+        fault_plaza.start_fault_scenario("java-gc-pressure", 30)
+    assert calls == []
+
+
+@pytest.mark.parametrize("scenario_id", ["java-gc-pressure", "go-cpu-hotspot", "cpu-hotspot", "cpp-file-io"])
+def test_fault_request_carries_operator_agent_without_snapshot_pid(monkeypatch, scenario_id):
+    monkeypatch.setattr(fault_plaza, "_request_json", lambda *args, **kwargs: {"pid": 123})
+    request = fault_plaza.start_fault_scenario(scenario_id, 30)["diagnosis_request"]
+    assert request["target"] == {"agent_id": "test-lab-agent"}
+
+
 def _disable_all_labs(monkeypatch) -> None:
     for environment in fault_plaza._LAB_ENVIRONMENTS.values():
         monkeypatch.delenv(environment, raising=False)
@@ -73,13 +94,7 @@ def test_fault_plaza_exposes_multilanguage_routes_and_multiround_contract(monkey
     assert all(2 <= item["minimum_diagnosis_rounds"] <= 4 for item in scenarios)
     assert all(len(item["investigation_stages"]) >= 3 for item in scenarios)
     assert all("诊断" in item["diagnosis_query"] for item in scenarios)
-    acceptance_levels = {
-        item["scenario_id"]: item["acceptance_level"] for item in scenarios
-    }
-    assert acceptance_levels["source-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
-    assert acceptance_levels["go-cpu-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
-    assert acceptance_levels["java-gc-pressure"] == "HISTORICAL_LINEAGE_VERIFIED"
-    assert acceptance_levels["cpp-cpu-hotspot"] == "HISTORICAL_LINEAGE_VERIFIED"
+    assert all("acceptance_level" not in item and "latest_acceptance" not in item for item in scenarios)
     expected_process = {
         "python": "python-hotspot",
         "go": "go-hotspot",
@@ -238,3 +253,49 @@ def test_memory_fault_keeps_server_owned_safe_defaults(monkeypatch) -> None:
 
     assert calls[0][2] == {"megabytes": 96, "duration_seconds": 45}
     assert result["scenario"]["active"] is True
+
+
+@pytest.mark.parametrize("operation", ["list", "start", "stop", "rpc_list"])
+def test_default_fault_controls_never_read_or_return_retired_strict_scores(
+    tmp_path, monkeypatch, operation,
+) -> None:
+    from pathlib import Path
+
+    strict_index = tmp_path / "retired-strict-index.json"
+    monkeypatch.setenv("MINI_DROP_FAULT_ACCEPTANCE_INDEX", str(strict_index))
+    _disable_all_labs(monkeypatch)
+    monkeypatch.setattr(fault_plaza, "_request_json", lambda *_args, **_kwargs: {"fault_active": True})
+    actual_stat, actual_read_text = Path.stat, Path.read_text
+
+    def guarded_stat(path, *args, **kwargs):
+        if path == strict_index:
+            pytest.fail("default fault controls must not access the retired strict index")
+        return actual_stat(path, *args, **kwargs)
+
+    def guarded_read_text(path, *args, **kwargs):
+        if path == strict_index:
+            pytest.fail("default fault controls must not load the retired strict score")
+        return actual_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "stat", guarded_stat)
+    monkeypatch.setattr(Path, "read_text", guarded_read_text)
+    if operation == "list":
+        response = fault_plaza.get_fault_plaza()
+        scenarios = response["scenarios"]
+    elif operation == "rpc_list":
+        from server.app.diagnostic_ai_rpc import dispatch
+
+        result = dispatch("GET", "/showcases/fault-plaza", "", "", "test-operator")
+        assert result.status == 200
+        response = result.body["data"]
+        scenarios = response["scenarios"]
+    else:
+        control = fault_plaza.start_fault_scenario if operation == "start" else fault_plaza.stop_fault_scenario
+        response = control("cpu-hotspot", 30) if operation == "start" else control("cpu-hotspot")
+        scenarios = [response["scenario"]]
+    if operation in {"list", "rpc_list"}:
+        assert len(scenarios) == 21
+        assert {item["target_runtime"] for item in scenarios} == {"Python", "Go", "Java", "C++"}
+    retired_grades = {"latest_acceptance", "acceptance_level", "root_cause_accepted", "passed", "fix_verified"}
+    assert not retired_grades.intersection(response)
+    assert all(not retired_grades.intersection(item) for item in scenarios)

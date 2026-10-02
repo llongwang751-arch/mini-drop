@@ -1,0 +1,244 @@
+{
+  "case_id": "v08",
+  "query": "Oracle RAC global-cache wait: only a caller says it felt slow; no ASH or wait events have been collected. Do not substitute MySQL lock evidence.",
+  "trace": {
+    "actual_backend": "BM25",
+    "requested_backend": "BM25",
+    "degraded_reasons": [],
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "Oracle RAC global-cache wait: only a caller says it felt slow; no ASH or wait events have been collected. Do not substitute MySQL lock evidence.",
+    "query_profile": {
+      "concepts": [],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [
+        "ash",
+        "rac"
+      ],
+      "active_clauses": [
+        "Oracle RAC global-cache wait: only a caller says it felt slow",
+        "no ASH or wait events have been collected"
+      ],
+      "excluded_mentions": [
+        "Do not substitute MySQL lock evidence"
+      ]
+    },
+    "accepted": [],
+    "rejected": [
+      {
+        "knowledge_id": "mysql.lock_wait",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+        "score": 15.54467,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "MYSQL"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "Oracle RAC global-cache wait: only a caller says it felt slow"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "no ASH or wait events have been collected"
+          }
+        ],
+        "unregistered_subjects": [
+          "ash",
+          "rac"
+        ]
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 3.639931,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "Oracle RAC global-cache wait: only a caller says it felt slow"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "no ASH or wait events have been collected"
+          }
+        ],
+        "unregistered_subjects": [
+          "ash",
+          "rac"
+        ]
+      },
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "score": 2.938937,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "Oracle RAC global-cache wait: only a caller says it felt slow"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "no ASH or wait events have been collected"
+          }
+        ],
+        "unregistered_subjects": [
+          "ash",
+          "rac"
+        ]
+      },
+      {
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "score": 2.33672,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "Oracle RAC global-cache wait: only a caller says it felt slow"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "ash",
+              "rac"
+            ],
+            "clause": "no ASH or wait events have been collected"
+          }
+        ],
+        "unregistered_subjects": [
+          "ash",
+          "rac"
+        ]
+      }
+    ],
+    "outcome": "NO_RELEVANT_KNOWLEDGE",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "query": "Oracle RAC global-cache wait: only a caller says it felt slow; no ASH or wait events have been collected. Do not substitute MySQL lock evidence.",
+    "query_hash": "69dfe0286f68019f9f96f288d23150de5ba11b63dbca9f2e1b99af5b78cf4492",
+    "relevance_query_hash": "69dfe0286f68019f9f96f288d23150de5ba11b63dbca9f2e1b99af5b78cf4492",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 0,
+    "matches": [],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": []
+}

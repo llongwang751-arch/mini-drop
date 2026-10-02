@@ -1,0 +1,27 @@
+{
+  "planner_kind": "MODEL_DISPOSITION",
+  "planner_version": "mini-drop.planning-output.v2",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "planning_disposition": "INSUFFICIENT_EVIDENCE",
+  "planning_output": {
+    "schema_version": "mini-drop.planning-output.v2",
+    "disposition": "INSUFFICIENT_EVIDENCE",
+    "reasoning_summary": "当前仅知目标进程存在（PID 2850799），但没有任何性能观测数据。用户明确要求不提出采集动作，因此无法获取必要的系统基线或症状信息。缺少时间窗口定义和任何可观察的性能指标。",
+    "tool_name": null,
+    "hypotheses": [],
+    "missing_evidence": [
+      "系统基线指标（CPU、内存、IO等）",
+      "性能症状或异常时间窗口",
+      "进程活动模式或资源使用情况"
+    ],
+    "limitations": [
+      "用户明确要求不提出异常假设或采集动作，限制了取证能力",
+      "仅凭进程存在信息无法判断性能状态",
+      "没有历史观测数据可供参考"
+    ],
+    "causal_root_cause_verified": false
+  },
+  "reason": "当前仅知目标进程存在（PID 2850799），但没有任何性能观测数据。用户明确要求不提出采集动作，因此无法获取必要的系统基线或症状信息。缺少时间窗口定义和任何可观察的性能指标。",
+  "hypothesis": null,
+  "tool_call": null
+}

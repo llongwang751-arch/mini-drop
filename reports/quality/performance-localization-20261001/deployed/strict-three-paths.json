@@ -1,0 +1,496 @@
+{
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "197382d654ac84d16f821acd979146a0d74cce2a357a3b5cc9725a0013866708",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "34bce28d788390ceaa98f3226015376ab008ce56271d1be97e9cd91257786850",
+      "scripts/audit_fault_plaza_failures.py": "036be7442c370777b5ee01ed7a395c3548c753f2ab5f3147758824924f3e0aed"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20261001T085318Z",
+      "previous_release": "/opt/mini-drop-releases/20261001T075239Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "05f7a2cebf15fce3321abf2a0a63b1600b1718e8afc7e44297a36d0fb04c699e",
+      "source_head": "3c3c87881124526605272818d8ff384bc0151fc3",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer",
+        "web",
+        "go-hotspot"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:16acd8fc7abf090f2959a0fc40627f627a60255325a3ad8161de2cc74fb37784",
+          "new": "sha256:ffadeda47a6b8828f157d3ad389096f3ccf2952db78f87bc538605fe1bca2f1c",
+          "tag": "mini-drop-diagnosis-worker:20261001T085318Z"
+        },
+        "analyzer": {
+          "old": "sha256:d45d02c5df6d34f021712dab751573a4dbbefe0855c74360b83c7491d6c9d411",
+          "new": "sha256:ffb3f5a353ab1b1199ffd867b30b6a99ee0b8ec289e59852e13f26a0af270bbd",
+          "tag": "mini-drop-analyzer:20261001T085318Z"
+        },
+        "web": {
+          "old": "sha256:7cd59c760e83efcedcb760cc286d590ad7e1a1775a3edf8b898ceeb797e1a221",
+          "new": "sha256:4b4490204425c2b56ad0d9c40e5cbe0762e1a57e29b77a40a58ca995a1bd7cf2",
+          "tag": "mini-drop-web:20261001T085318Z"
+        },
+        "go-hotspot": {
+          "old": "sha256:9a479ad5c77094added77fb6af48131daf858340e0aebd369844748c54197e2b",
+          "new": "sha256:5b872b0f0bde544b25ca58bf8b3cf5e3f15ee818bdb5ddd5a3350d43f5239696",
+          "tag": "mini-drop-go-hotspot:20261001T085318Z"
+        }
+      },
+      "untouched_container_count": 9,
+      "rollback_config": "/opt/mini-drop-releases/20261001T085318Z/private/rollback.compose.json"
+    },
+    "git_head": "3c3c87881124526605272818d8ff384bc0151fc3"
+  },
+  "schema": "mini-drop.fault-plaza-strict-acceptance.v3",
+  "started_at": "2026-10-01T09:01:14.475347+00:00",
+  "run_status": "COMPLETED",
+  "selected_count": 3,
+  "results": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "title": "Go 服务 CPU 热点",
+      "started_at": "2026-10-01T09:01:14.476745+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "diagnosis_contract_verified": true,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1743835,
+        "comm": "go-hotspot"
+      },
+      "diagnosis_id": "insight_a7371aef754a465ba48ae510a9d8d688",
+      "fault_before_stop": {
+        "observed_at": "2026-10-01T09:04:49.324497+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 89.397522019,
+          "cpu_fault_active": true,
+          "cpu_operations": 1445682500,
+          "fault_active": true,
+          "heap_alloc_bytes": 1536456,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 0,
+          "io_failures": 0,
+          "io_fault_active": false,
+          "io_operation_duration_ms_total": 0,
+          "io_operations": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 0,
+          "network_average_latency_ms": 0,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": false,
+          "network_requests": 0,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          }
+        }
+      },
+      "lineage_evaluation": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20261001_090245_04cfb2_4441",
+          "ev_task_task_20261001_090245_04cfb2_4440",
+          "ev_task_task_20261001_090304_d06cee_4442",
+          "ev_task_task_20261001_090346_68c396_4450",
+          "ev_task_task_20261001_090346_68c396_4447",
+          "ev_task_task_20261001_090346_68c396_4448",
+          "ev_task_task_20261001_090346_68c396_4449",
+          "ev_task_task_20261001_090346_68c396_4446",
+          "ev_task_task_20261001_090428_051ee1_4451"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20261001_090245_04cfb2_4439",
+          "ev_task_task_20261001_090245_04cfb2_4438",
+          "ev_task_task_20261001_090304_d06cee_4443",
+          "ev_task_task_20261001_090346_68c396_4444",
+          "ev_task_task_20261001_090346_68c396_4445",
+          "ev_task_task_20261001_090428_051ee1_4453",
+          "ev_task_task_20261001_090428_051ee1_4452"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_7976f5d25c51308d782ed329f8c5f57a",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4ded5ccc8af6581d38116675270ada9f",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c7414b27e1ec21c5526ed05e06925f5a",
+            "gate_status": "VERIFIED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "scope_allows_root_cause": false,
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "cpu_operations",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 5722913.988771358,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-10-01T09:04:59.518060+00:00",
+      "report_sha256": "2a1d052333fd96982339c3f2e8ef2368fcada76bf9a6ff6eff9139e09ea455f8",
+      "case_report": "D:\\tx\\mini-drop\\output\\acceptance\\performance-localization-20261001\\strict-three-paths-cases\\go-cpu-hotspot.json"
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "title": "Go 网络等待与下游慢响应",
+      "started_at": "2026-10-01T09:04:59.526248+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "diagnosis_contract_verified": false,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1743835,
+        "comm": "go-hotspot"
+      },
+      "error": "diagnosis insight_28133bb24f4a458a85c604c8561f0f89 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_28133bb24f4a458a85c604c8561f0f89",
+      "fault_before_stop": {
+        "observed_at": "2026-10-01T09:08:55.660317+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 0,
+          "cpu_fault_active": false,
+          "cpu_operations": 1446317500,
+          "fault_active": false,
+          "heap_alloc_bytes": 712088,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 0,
+          "io_failures": 0,
+          "io_fault_active": false,
+          "io_operation_duration_ms_total": 0,
+          "io_operations": 0,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 68.329418288,
+          "network_average_latency_ms": 240.75112282656514,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": true,
+          "network_requests": 3546,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          }
+        }
+      },
+      "lineage_evaluation": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20261001_090609_1c787c_4454",
+          "ev_task_task_20261001_090728_98d87b_4458",
+          "ev_task_task_20261001_090728_98d87b_4459",
+          "ev_task_task_20261001_090839_710cf9_4466",
+          "ev_task_task_20261001_090839_710cf9_4463",
+          "ev_task_task_20261001_090839_710cf9_4464",
+          "ev_task_task_20261001_090839_710cf9_4465",
+          "ev_task_task_20261001_090839_710cf9_4462"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20261001_090609_1c787c_4455",
+          "ev_task_task_20261001_090728_98d87b_4456",
+          "ev_task_task_20261001_090728_98d87b_4457",
+          "ev_task_task_20261001_090839_710cf9_4460",
+          "ev_task_task_20261001_090839_710cf9_4461"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_2d28244b80c872d1435e5da5f43cbcb8",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_1878ff6745ff14042383ce1c81ce006b",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_8f016c77e5eccf9d3553b031a7fe3f4f",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "network_requests",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 11.708518968601506,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-10-01T09:09:06.427527+00:00",
+      "report_sha256": "f651882ca0920153063149e4a3b07d2b97c139d3635f3afb9fe760c6f3c91bcd",
+      "case_report": "D:\\tx\\mini-drop\\output\\acceptance\\performance-localization-20261001\\strict-three-paths-cases\\go-network-latency.json"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "title": "Go 同步文件写入",
+      "started_at": "2026-10-01T09:09:06.434187+00:00",
+      "passed": false,
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "diagnosis_contract_verified": false,
+      "root_cause_accepted": false,
+      "fix_verified": false,
+      "session_drained": true,
+      "target": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1743835,
+        "comm": "go-hotspot"
+      },
+      "error": "diagnosis insight_3575a923f0c845859cc0bf60ef95c6e2 ended as INSUFFICIENT_EVIDENCE",
+      "error_type": "AcceptanceError",
+      "diagnosis_id": "insight_3575a923f0c845859cc0bf60ef95c6e2",
+      "fault_before_stop": {
+        "observed_at": "2026-10-01T09:12:38.729702+00:00",
+        "snapshot": {
+          "cpu_auto_stop_remaining_seconds": 0,
+          "cpu_fault_active": false,
+          "cpu_operations": 1446317500,
+          "fault_active": false,
+          "heap_alloc_bytes": 2676992,
+          "host_pid": 1,
+          "io_auto_stop_remaining_seconds": 0,
+          "io_bytes_written": 66977792,
+          "io_failures": 1,
+          "io_fault_active": false,
+          "io_operation_duration_ms_total": 42.660716,
+          "io_operations": 511,
+          "memory_auto_stop_remaining_seconds": 0,
+          "memory_fault_active": false,
+          "network_auto_stop_remaining_seconds": 0,
+          "network_average_latency_ms": 240.7512253884507,
+          "network_delay_ms": 240,
+          "network_failures": 0,
+          "network_fault_active": false,
+          "network_requests": 3550,
+          "pid": 1,
+          "retained_memory_bytes": 0,
+          "runtime": "go",
+          "status": "ok",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          }
+        }
+      },
+      "lineage_evaluation": {
+        "recorded_chain_consistent": true,
+        "matched_evidence_ids": [
+          "ev_task_task_20261001_090959_c4f3bb_4467",
+          "ev_task_task_20261001_091108_83e0ae_4469",
+          "ev_task_task_20261001_091206_3dbee2_4474",
+          "ev_task_task_20261001_091206_3dbee2_4475",
+          "ev_task_task_20261001_091206_3dbee2_4476",
+          "ev_task_task_20261001_091206_3dbee2_4477",
+          "ev_task_task_20261001_091206_3dbee2_4478"
+        ],
+        "unmatched_evidence_ids": [
+          "ev_task_task_20261001_090959_c4f3bb_4468",
+          "ev_task_task_20261001_091108_83e0ae_4470",
+          "ev_task_task_20261001_091108_83e0ae_4471",
+          "ev_task_task_20261001_091206_3dbee2_4472",
+          "ev_task_task_20261001_091206_3dbee2_4473"
+        ],
+        "problems": [],
+        "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+      },
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_cb5526b3a6270c7e14956230756e2aec",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c17cd425ba9a23190ff78631b1e27d89",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_bd7f1bba05f2f1dd185ea6e5cf688183",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "claim_scope": null,
+            "scope_allows_root_cause": true,
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "intervention": {
+        "field": "io_bytes_written",
+        "mode": "counter",
+        "values": {
+          "baseline": 0.0,
+          "fault": 5815195.856587618,
+          "recovery": 0.0
+        },
+        "process_identity": {
+          "verified": true,
+          "identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 1743835,
+            "namespace_pid": 1,
+            "start_ticks": 214391106,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "dff7e3adc3e7328568f9a1694492d33de24ba30218978b6f34604e58de898cae",
+            "container_started_at": "2026-10-01T08:58:56.002135399Z"
+          },
+          "snapshot_count": 6
+        },
+        "injection_observed": true,
+        "recovery_observed": true,
+        "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+      },
+      "finished_at": "2026-10-01T09:12:48.702701+00:00",
+      "report_sha256": "ecc33ac83cab98f49ab689b2e689afcb98d4356f809c3a189db424690345fd75",
+      "case_report": "D:\\tx\\mini-drop\\output\\acceptance\\performance-localization-20261001\\strict-three-paths-cases\\go-file-io.json"
+    }
+  ],
+  "truth_boundary": "Recorded lineage and diagnosis outcome are separate. PASS still requires the full diagnosis execution contract, verified concrete scenario-matching causal root, and measured withdrawal recovery. Stopping injected work is NOT a code fix or same-load service recovery. Independent lab snapshots are NOT inserted into Agent reports.",
+  "completed_count": 3,
+  "passed_count": 0,
+  "failed_count": 3,
+  "passed": false,
+  "updated_at": "2026-10-01T09:12:48.710504+00:00",
+  "report_sha256": "1cb4895f9c6907454cf3edcff50a6aa67388f1eb35ede4fbf323deabacc58c51"
+}

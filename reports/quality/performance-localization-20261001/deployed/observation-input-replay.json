@@ -1,0 +1,114 @@
+[
+  {
+    "scenario_id": "go-network-latency",
+    "diagnosis_id": "insight_28133bb24f4a458a85c604c8561f0f89",
+    "scope": "Read-only replay with the declared numeric contract; original hypotheses/reports unchanged",
+    "plan": {
+      "statement": "HTTP 网络路径耗时的有界观测，尚未确定服务处理或传输原因",
+      "expected": [
+        "network_latency.average_latency_ms >= 100"
+      ],
+      "falsification": [
+        "network_latency.average_latency_ms < 100"
+      ]
+    },
+    "observation": {
+      "schema_version": "performance-observation-verification.v1",
+      "status": "VERIFIED",
+      "checked_ratio": 1.0,
+      "criteria": [
+        {
+          "kind": "expected",
+          "index": 0,
+          "criterion": "network_latency.average_latency_ms >= 100",
+          "checked": true,
+          "matches": true,
+          "measurement": {
+            "signal": "network_latency",
+            "field": "average_latency_ms",
+            "value": 240.764,
+            "threshold": 100.0,
+            "matches": true
+          },
+          "evidence_id": "ev_task_task_20261001_090609_1c787c_4454"
+        },
+        {
+          "kind": "falsification",
+          "index": 0,
+          "criterion": "network_latency.average_latency_ms < 100",
+          "checked": true,
+          "matches": false,
+          "measurement": {
+            "signal": "network_latency",
+            "field": "average_latency_ms",
+            "value": 240.764,
+            "threshold": 100.0,
+            "matches": false
+          },
+          "evidence_id": "ev_task_task_20261001_090609_1c787c_4454"
+        }
+      ],
+      "evidence_refs": [
+        "ev_task_task_20261001_090609_1c787c_4454"
+      ],
+      "independent_control_verified": false,
+      "claim_scope": "BOUNDED_OBSERVATION",
+      "causal_root_cause_verified": false
+    }
+  },
+  {
+    "scenario_id": "go-file-io",
+    "diagnosis_id": "insight_3575a923f0c845859cc0bf60ef95c6e2",
+    "scope": "Read-only replay with the declared numeric contract; original hypotheses/reports unchanged",
+    "plan": {
+      "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+      "expected": [
+        "io_latency.average_latency_ms >= 10",
+        "io_latency.operation_count_delta >= 5"
+      ],
+      "falsification": [
+        "io_latency.average_latency_ms < 10"
+      ]
+    },
+    "observation": {
+      "schema_version": "performance-observation-verification.v1",
+      "status": "INSUFFICIENT_OBSERVABILITY",
+      "checked_ratio": 0.0,
+      "criteria": [
+        {
+          "kind": "expected",
+          "index": 0,
+          "criterion": "io_latency.average_latency_ms >= 10",
+          "checked": false,
+          "matches": null,
+          "measurement": null,
+          "evidence_id": "ev_task_task_20261001_090959_c4f3bb_4467"
+        },
+        {
+          "kind": "expected",
+          "index": 1,
+          "criterion": "io_latency.operation_count_delta >= 5",
+          "checked": false,
+          "matches": null,
+          "measurement": null,
+          "evidence_id": "ev_task_task_20261001_090959_c4f3bb_4467"
+        },
+        {
+          "kind": "falsification",
+          "index": 0,
+          "criterion": "io_latency.average_latency_ms < 10",
+          "checked": false,
+          "matches": null,
+          "measurement": null,
+          "evidence_id": "ev_task_task_20261001_090959_c4f3bb_4467"
+        }
+      ],
+      "evidence_refs": [
+        "ev_task_task_20261001_090959_c4f3bb_4467"
+      ],
+      "independent_control_verified": false,
+      "claim_scope": "BOUNDED_OBSERVATION",
+      "causal_root_cause_verified": false
+    }
+  }
+]

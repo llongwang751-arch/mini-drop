@@ -1,0 +1,250 @@
+{
+  "type": "result",
+  "case_id": "b28",
+  "status": "TIMEOUT",
+  "response": {},
+  "http_status": null,
+  "error_type": "ReadTimeout",
+  "seconds": 48.049114,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.iowait.shared_block_device",
+      "linux.io.synchronous_write",
+      "sre.recovery.acceptance"
+    ],
+    "matches": [
+      {
+        "query": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval. A bounded eBPF I/O profile is permitted to test which process and operation contributes latency.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "matched_anchors": [
+            "block device",
+            "co-located",
+            "same-node"
+          ],
+          "unsupported_subjects": [
+            "ebpf"
+          ],
+          "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval",
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "host_contention"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io",
+                "host_contention"
+              ],
+              "matched_anchors": [
+                "block device",
+                "co-located",
+                "same-node"
+              ],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval"
+            },
+            {
+              "accepted": false,
+              "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "A bounded eBPF I/O profile is permitted to test which process and operation contributes latency"
+            }
+          ],
+          "unregistered_subjects": [
+            "ebpf"
+          ]
+        },
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "chunk_id": "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+        "score": 22.712697,
+        "matched_terms": [
+          "located",
+          "device",
+          "block",
+          "ebpf",
+          "node",
+          "same",
+          "co"
+        ],
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。"
+      },
+      {
+        "query": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval. A bounded eBPF I/O profile is permitted to test which process and operation contributes latency.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [
+            "ebpf"
+          ],
+          "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval",
+          "source_profile": {
+            "concepts": [
+              "block_io"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval"
+            },
+            {
+              "accepted": false,
+              "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "A bounded eBPF I/O profile is permitted to test which process and operation contributes latency"
+            }
+          ],
+          "unregistered_subjects": [
+            "ebpf"
+          ]
+        },
+        "knowledge_id": "linux.io.synchronous_write",
+        "title": "Linux fsync fdatasync 同步写延迟与反证",
+        "document": "knowledge/synchronous_io.md",
+        "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+        "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+        "score": 1.552708,
+        "matched_terms": [
+          "block"
+        ],
+        "required_evidence": [
+          "调用类型、成功/失败数、延迟和完整采样窗口",
+          "目标 PID 与文件/挂载/块设备归属",
+          "低延迟阈值及样本覆盖"
+        ],
+        "caveats": [
+          "tmpfs 与缓存路径不证明物理磁盘低延迟",
+          "采集失败或缺测不是慢写的反证",
+          "单一窗口不证明业务全局健康",
+          "知识只能指导调查，不是当前事故证据"
+        ],
+        "excerpt": "# Linux 同步写低延迟与有界反证\n\nfsync / fdatasync 是文件同步接口；fsync 同步文件数据与所需元数据，fdatasync 可省略不影响后续数据读取的元数据。成功与失败必须分别记录，失败或缺测不能作为慢同步写的反证。syncwrite、sync_write、synchronous write 和同步落盘在此描述操作类型，不代表数据库引擎内部机制已被观测。\n\n记录当前 PID、文件与挂载/块设备归属、窗口起止、操作类型、成功/失败次数及延迟分布。若同窗有效操作低于已声明慢写阈值，可反驳“该窗口持续慢同步写”这一候选；阈值、样本覆盖和报告来源仍走证据门禁，不能只读到这篇指南就生成 REFUTED 或根因结论。\n\ntmpfs、缓存路径、虚拟磁盘映射和不同采样窗口限制结论范围。低同步写延迟不是物理磁盘全局正常，也不是业务全局健康；块设备等待与共享宿主争用另需设备队列、目标及邻居同窗证据。未知存储协议或数据库引擎的专属语义不能由通用同步写指南替代。\n\n来源：[Linux man-pages fsync/fdatasync 官方项目文档](https://man7.org/linux/man-pages/man2/fsync.2.html)；[Linux 块层统计官方文档](https://docs.kernel.org/block/stat.html)。"
+      },
+      {
+        "query": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval. A bounded eBPF I/O profile is permitted to test which process and operation contributes latency.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [
+            "ebpf"
+          ],
+          "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval",
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "recovery"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "Two co-located C++ instances on the same node show rising block-device waits in a complete 32-second interval"
+            },
+            {
+              "accepted": false,
+              "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [
+                "ebpf"
+              ],
+              "clause": "A bounded eBPF I/O profile is permitted to test which process and operation contributes latency"
+            }
+          ],
+          "unregistered_subjects": [
+            "ebpf"
+          ]
+        },
+        "knowledge_id": "sre.recovery.acceptance",
+        "title": "Agent 恢复与容量验收",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# SRE Agent 故障恢复验收\n\n分别验收 API、任务队列、采集器、分析器、模型供应商、数据库和对象存储；健康检查通过不表示运行中任务可恢复。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

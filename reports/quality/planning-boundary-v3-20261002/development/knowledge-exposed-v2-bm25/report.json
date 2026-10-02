@@ -1,0 +1,359 @@
+{
+  "schema": "mini-drop.public-coverage-regression.v3",
+  "scope": "REGRESSION_ON_EXPOSED_V2_QUESTIONS_NOT_NEW_BLIND",
+  "status": "COMPLETED",
+  "not_held_out": true,
+  "implementation_scope": "WORKING_SOURCE_MATCHES_CLEAN_CANDIDATE_FUNCTIONS",
+  "inputs": {
+    "benchmarks/retrieval/planning_retrieval_v2_public.json": "1b9a8b36575d5b1a0ce1061e6691d707e12cb3db91809aca4c1478f0137ba92e",
+    "benchmarks/retrieval/planning_retrieval_v2_private.json": "d44df950b4f50addc2d8aadd30bc3124cd768d6bb6568708dfc413ebf1e55752",
+    "benchmarks/retrieval/planning_retrieval_v2_manifest.json": "ae57be9a369db8df7c10131810f4deaa68bf2ea91104911233a6ad67c8f58d4e"
+  },
+  "public_source_sha256": {
+    "server/app/agent_runtime/relevance.py": "e84346de3dfca90b3ef2eec1a96a5e14332acd50ab2e23a350e747fd5d5fa927",
+    "server/app/agent_runtime/retrieval.py": "3ff1f6dbdfd9e6b50f9b605fd64cfa74b41fffda27b348d1868d6d5600e85294",
+    "server/app/agent_runtime/semantic_retrieval.py": "d6031ff5a23348254f25313f94571b37548dd252e7b53ea0b6663674c463e16c",
+    "knowledge/agent_experiments.md": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+    "knowledge/agent_tool_governance.md": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+    "knowledge/catalog.json": "36b3f50888fe51df434a5b071fec15e8a105fefcf864967894f1ba4a912285dc",
+    "knowledge/cgroup_cpu.md": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+    "knowledge/distributed_attribution.md": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+    "knowledge/go_profiles.md": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+    "knowledge/java_thread_cpu.md": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+    "knowledge/jvm_gc.md": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+    "knowledge/latency_measurement.md": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+    "knowledge/linux_cpu.md": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+    "knowledge/linux_iowait.md": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+    "knowledge/linux_memory.md": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+    "knowledge/memory_pressure.md": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+    "knowledge/mysql_lock_wait.md": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+    "knowledge/postgres_waits.md": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+    "knowledge/python_sampling.md": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+    "knowledge/rag_quality.md": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+    "knowledge/sre_recovery.md": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+    "knowledge/synchronous_io.md": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+    "knowledge/tcp_retransmit.md": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd"
+  },
+  "requested_backend": "BM25",
+  "metrics": {
+    "case_count": 24,
+    "positive_cases": 16,
+    "no_answer_cases": 8,
+    "recall_at_3": 0.90625,
+    "mrr_at_3": 0.90625,
+    "no_answer_false_positive_count": 0,
+    "no_answer_false_positive_rate": 0.0
+  },
+  "cases": [
+    {
+      "case_id": "v01",
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v02",
+      "matched_ids": [
+        "jvm.cpu.thread_observation",
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v03",
+      "matched_ids": [
+        "container.memory.pressure",
+        "linux.cpu.process_pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "container.memory.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v04",
+      "matched_ids": [
+        "linux.network.retransmit"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v05",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v06",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v07",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v08",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v09",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v10",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v11",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v12",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v13",
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead",
+        "python.sampling.attribution"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v14",
+      "matched_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v15",
+      "matched_ids": [
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v16",
+      "matched_ids": [
+        "linux.memory.process_growth"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v17",
+      "matched_ids": [
+        "jvm.gc.pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v18",
+      "matched_ids": [
+        "go.profile.selection",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v19",
+      "matched_ids": [
+        "linux.iowait.shared_block_device",
+        "linux.io.synchronous_write",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "relevant_ids": [
+        "distributed.same_host_noisy_neighbor",
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v20",
+      "matched_ids": [
+        "linux.cpu.kernel_overhead",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v21",
+      "matched_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "python.sampling.attribution"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v22",
+      "matched_ids": [
+        "linux.network.retransmit"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v23",
+      "matched_ids": [
+        "linux.io.synchronous_write"
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 0.0,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v24",
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    }
+  ],
+  "documents": 19,
+  "chunks": 44,
+  "chat_calls_attempted": 0,
+  "retrieval_provider_calls_attempted": 0,
+  "index_creation_attempted": false,
+  "actual_tasks_dispatched": 0,
+  "actual_faults_injected": 0,
+  "knowledge_is_evidence": false,
+  "evidence_sha256": {
+    "corpus.json": "8967a58a40742d054eb980316f6c110c4cf9f99a1d70f912dd9caca104ded0c0",
+    "records/v01.json": "4a4b76d229b04992a08cc71ab6048c5ee4658492e67a1865df1bbde2766458c5",
+    "records/v02.json": "c060e3bf384ec104e560858704425bd6e1e32c02435d8ca4d65e575ef2588741",
+    "records/v03.json": "06d90dfeda36cb589d5e2460311c71b70f6496a029893eed2fff4a11e435c053",
+    "records/v04.json": "e7db9df83320bd40244c0fcb95e6cf97ad670524b3322ef6050d106da00ab11c",
+    "records/v05.json": "36a53709b915f8145ef28710d357544fe3510e826f5dc817e53477c5f2b3be3c",
+    "records/v06.json": "ea171d4854c3ff62812147a4197b54029f7ff8030eddee2943ffcdff2c9450a3",
+    "records/v07.json": "898cae3080ea28cf167cdb7c66322f4b32cc79dcc50f87609a68bb066d5f4eaf",
+    "records/v08.json": "9d6d76db7e93913325029e66d165ee52729949da99b7bcf7a87e92c266eab577",
+    "records/v09.json": "dd5070ec38551ed6843c2c63063c88682e598e3d32f7401155e5d1444c8b4aab",
+    "records/v10.json": "21d7180c1d49efbdd3c4edbfb2487dd8955b50f46d2f5a6a10fd3ab21d87d9da",
+    "records/v11.json": "d0dbf60c83995729838cbafd4ff934fb0a2ea43e1af24192139c28b040d801c2",
+    "records/v12.json": "ae07f75858f8babc2dd979babc6e02b6effa31ceae444b07b0bea6807f8250c6",
+    "records/v13.json": "f6aeb4b30da4ab0acaf5ddb17fc4c2a19eed7c1fb37865e783a034b00b42c6f1",
+    "records/v14.json": "afa0c84826e8480c112b64323297076051868351eec411bf05b5551172ef8445",
+    "records/v15.json": "f4ccd4d7d9fc2ce2edd40adb47289b2d3518356000a6ffde1a857fbee4bbdba2",
+    "records/v16.json": "ef7e844e9af217c3b1da807d20f6768f2227ee9b20de50c1a2aebd07317d8af0",
+    "records/v17.json": "b9b5417ef97dcf1a9dc147c6f7beeaafec6f244204378f4b1601c3bc0d6f102e",
+    "records/v18.json": "10c34159658868655f7bbad4af72ba215375b841710df2b0b605f8128fc4f925",
+    "records/v19.json": "4cecbc95ee7c5b1cd9caf385b671d46d6564e714695afbeae2e55680afe49e6b",
+    "records/v20.json": "350dab24ab8faff7fbe62466e20aa69e75ad5f7b365810d65a2a4f621638ef89",
+    "records/v21.json": "10a21d0a4c24a8a14c4e80070884940773d5789a8b71574484562b72a0ed26c6",
+    "records/v22.json": "017385df721fde20d020123f9207f22a7e71ce58c96c1f1b66127cbf3c935015",
+    "records/v23.json": "3e3bec88d7cb0cf84d7837e461513f4b9da0dc884edca1e9992dddd58a997174",
+    "records/v24.json": "9dc9698fcb7f11954e89f065a7df8142c01e63303b7fc92188f2c909dabd3e5f"
+  }
+}

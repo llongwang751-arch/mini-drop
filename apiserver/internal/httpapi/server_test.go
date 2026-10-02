@@ -203,7 +203,7 @@ func TestPrometheusMetricsAreServedByGo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -226,7 +226,7 @@ func TestTaskKindCatalogIsServedByGo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status=%d", resp.StatusCode)
 	}
@@ -252,7 +252,7 @@ func TestUnknownAPIPathDoesNotCrossLegacyCatchAll(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("unknown API status=%d, want 404", resp.StatusCode)
 	}
@@ -275,7 +275,7 @@ func TestAuthRejectsAndAcceptsAPIKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("authenticated status=%d", resp.StatusCode)
 	}
@@ -378,6 +378,28 @@ func TestRBACPrincipalAndResourceScope(t *testing.T) {
 
 }
 
+func TestDiagnosisCancellationRequiresOperatorOrAdmin(t *testing.T) {
+	for _, role := range []string{"viewer", "approver", "operator", "admin"} {
+		t.Run(role, func(t *testing.T) {
+			handler := New(config.Config{ListenAddr: ":0", AuthEnabled: true,
+				Principals: []config.Principal{{ID: "cancel-test", APIKey: "test-key", Roles: []string{role},
+					AgentIDs: []string{"*"}, ServiceIDs: []string{"*"}, Environments: []string{"*"}}}},
+				slog.New(slog.NewTextHandler(io.Discard, nil)))
+			request := httptest.NewRequest(http.MethodPost, "/api/v2/diagnoses/diag-a/cancel", strings.NewReader(`{}`))
+			request.Header.Set("X-API-Key", "test-key")
+			recorder := httptest.NewRecorder()
+			handler.ServeHTTP(recorder, request)
+			want := http.StatusForbidden
+			if role == "operator" || role == "admin" {
+				want = http.StatusServiceUnavailable // passed RBAC, no worker configured in this test
+			}
+			if recorder.Code != want {
+				t.Fatalf("role=%s status=%d want=%d", role, recorder.Code, want)
+			}
+		})
+	}
+}
+
 func TestEventCursorRoundTrip(t *testing.T) {
 	raw := formatEventCursor(123, 456)
 	taskID, auditID := parseEventCursor(raw)
@@ -428,7 +450,7 @@ func TestSafeDownloadFilename(t *testing.T) {
 }
 
 func TestV2ResourceScopeCannotBypassRESTOrSSE(t *testing.T) {
-	for _, path := range []string{"/api/v2/diagnoses", "/api/v2/diagnoses/foreign/events/stream", "/api/v2/showcases/fault-plaza/cpu/start"} {
+	for _, path := range []string{"/api/v2/diagnoses", "/api/v2/diagnoses/foreign/events/stream", "/api/v2/diagnoses/foreign/cancel", "/api/v2/showcases/fault-plaza/cpu/start"} {
 		for _, method := range []string{http.MethodGet, http.MethodPost} {
 			for _, scope := range []string{"agent", "service", "environment", "all"} {
 				t.Run(method+path+scope, func(t *testing.T) {

@@ -1,0 +1,75 @@
+{
+  "scope": "Offline frozen-source replay, not a new live acceptance",
+  "old_source_sha256": "7322f48764daba6422f4e20df6480ce84847f940e1c0f3e7be7e37b79428c40b",
+  "new_source_sha256": "2553994d5ec0fada4a1eca17cc5edcea2b0e392f416b7350a52ac759e9bb28a6",
+  "input": {
+    "proposal": {
+      "tool_name": "collect_sys_metrics",
+      "reasoning_summary": "Inspect observed performance",
+      "hypotheses": [
+        {
+          "statement": "Observe synchronous I/O",
+          "rationale": "Use real measurements",
+          "expected_observations": [
+            "io_latency.average_latency_ms >= 10",
+            "io_latency.operation_count_delta >= 5"
+          ],
+          "falsification_criteria": [
+            "io_latency.average_latency_ms < 10"
+          ]
+        }
+      ]
+    },
+    "rule_plan": {
+      "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+      "expected": [
+        "io_latency.average_latency_ms >= 10",
+        "io_latency.operation_count_delta >= 5"
+      ],
+      "falsification": [
+        "io_latency.average_latency_ms < 10"
+      ]
+    }
+  },
+  "before": {
+    "tool_name": "collect_sys_metrics",
+    "reasoning_summary": "模型返回了英文主导内容，服务端改用中文规则基线继续规划。",
+    "hypotheses": [
+      {
+        "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+        "expected_observations": [
+          "新的真实采集结果能区分当前候选原因"
+        ],
+        "falsification_criteria": [
+          "该证据域指标平稳，无法支持当前候选原因"
+        ],
+        "rationale": "该候选来自服务端规则基线，仍需本次真实取证验证。",
+        "prior_probability": null,
+        "estimated_value": null
+      }
+    ],
+    "display_language": "zh-CN",
+    "language_normalization": "SERVER_RULE_FALLBACK"
+  },
+  "after": {
+    "tool_name": "collect_sys_metrics",
+    "reasoning_summary": "模型返回了英文主导内容，服务端改用中文规则基线继续规划。",
+    "hypotheses": [
+      {
+        "statement": "目标进程同步写操作耗时的有界观测，尚未归因块设备",
+        "expected_observations": [
+          "io_latency.average_latency_ms >= 10",
+          "io_latency.operation_count_delta >= 5"
+        ],
+        "falsification_criteria": [
+          "io_latency.average_latency_ms < 10"
+        ],
+        "rationale": "该候选来自服务端规则基线，仍需本次真实取证验证。",
+        "prior_probability": null,
+        "estimated_value": null
+      }
+    ],
+    "display_language": "zh-CN",
+    "language_normalization": "SERVER_RULE_FALLBACK"
+  }
+}

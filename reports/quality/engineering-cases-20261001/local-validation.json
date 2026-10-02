@@ -1,0 +1,94 @@
+{
+  "scope": "REPOSITORY_REGRESSION; NO_NEW_LIVE_FAULTS; NO_HOUR_RERUN",
+  "python": {
+    "total": 1270,
+    "passed": 1260,
+    "failed": 0,
+    "skipped": 10,
+    "unexpected_skips": [],
+    "failures": [],
+    "skips": [
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_competing_cancellations_fence_late_planner",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_cancellation_fences_late_analyzer_commit",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_skill_activation_serializes_competing_planners",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_claim_lease_takeover_and_fencing",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_session_lock_serializes_event_effect_identity",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_drop_insight_report_effects_postgres::test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_outbox_postgres::test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+        "reason": "set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests"
+      },
+      {
+        "test": "tests.test_sre_agent_upgrade::test_real_chroma_snapshot_and_retrieval",
+        "reason": "could not import 'chromadb': No module named 'chromadb'"
+      },
+      {
+        "test": "tests.test_sre_agent_upgrade::test_chroma_http_requests_are_bounded_from_startup",
+        "reason": "could not import 'chromadb': No module named 'chromadb'"
+      }
+    ]
+  },
+  "critical_coverage": {
+    "mode": "GATED",
+    "minimum": 88.41,
+    "modules": {
+      "server/app/drop_insight/business_acceptance.py": {
+        "percent_covered": 94.69,
+        "floor": 94,
+        "observed": true
+      },
+      "server/app/drop_insight/event_store.py": {
+        "percent_covered": 95.7,
+        "floor": 95,
+        "observed": true
+      },
+      "server/app/drop_insight/hypothesis_predicate.py": {
+        "percent_covered": 88.41,
+        "floor": 85,
+        "observed": true
+      },
+      "server/app/drop_insight/report_conclusion.py": {
+        "percent_covered": 100.0,
+        "floor": 100,
+        "observed": true
+      },
+      "server/app/drop_insight/fix_verification.py": {
+        "percent_covered": 100.0,
+        "floor": 100,
+        "observed": true
+      }
+    },
+    "breaches": []
+  },
+  "contracts": "PASSED",
+  "web": {
+    "total": 240,
+    "failures": 0,
+    "skipped": 0
+  },
+  "build": "PASSED",
+  "production_dependency_audit": "0 vulnerabilities",
+  "cases": "4 engineering defects; AI root NOT_EVALUATED"
+}

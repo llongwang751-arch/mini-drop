@@ -1,0 +1,92 @@
+{
+  "case_id": "v06",
+  "query": "Kafka consumer offset lag may have increased, but I have neither broker telemetry nor a measured interval. Can its cause be established?",
+  "trace": {
+    "actual_backend": "BM25",
+    "requested_backend": "BM25",
+    "degraded_reasons": [],
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "Kafka consumer offset lag may have increased, but I have neither broker telemetry nor a measured interval. Can its cause be established?",
+    "query_profile": {
+      "concepts": [],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [],
+      "active_clauses": [
+        "Kafka consumer offset lag may have increased",
+        "I have neither broker telemetry nor a measured interval",
+        "Can its cause be established"
+      ],
+      "excluded_mentions": []
+    },
+    "accepted": [],
+    "rejected": [
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "score": 4.222082,
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Kafka consumer offset lag may have increased"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "I have neither broker telemetry nor a measured interval"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Can its cause be established"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "NO_RELEVANT_KNOWLEDGE",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "query": "Kafka consumer offset lag may have increased, but I have neither broker telemetry nor a measured interval. Can its cause be established?",
+    "query_hash": "b84cf7b580090ee5272c1791969b03a7f2b2e2c95d14e1f649ec90aa8f383295",
+    "relevance_query_hash": "b84cf7b580090ee5272c1791969b03a7f2b2e2c95d14e1f649ec90aa8f383295",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 0,
+    "matches": [],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": []
+}

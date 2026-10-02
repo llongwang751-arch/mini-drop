@@ -1,0 +1,194 @@
+{
+  "case_id": "v21",
+  "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "python.sampling.attribution",
+    "linux.cpu.process_pressure"
+  ],
+  "matches": [
+    {
+      "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [
+          "py-spy"
+        ],
+        "unsupported_subjects": [],
+        "clause": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "sampling"
+            ],
+            "matched_anchors": [
+              "py-spy"
+            ],
+            "unsupported_subjects": [],
+            "clause": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "匹配窗口进程 CPU 0.4%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "请说明图占比不能支持饱和"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "并仅评价已测范围"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "python.sampling.attribution",
+      "title": "Python 采样归因与空闲线程",
+      "document": "knowledge/python_sampling.md",
+      "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+      "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+      "score": 24.840013,
+      "matched_terms": [
+        "python",
+        "spy",
+        "能支持",
+        "py",
+        "函数",
+        "支持",
+        "能支",
+        "进程"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。"
+    },
+    {
+      "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [
+          "spy"
+        ],
+        "clause": "匹配窗口进程 CPU 0.4%",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "sampling"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "spy"
+            ],
+            "clause": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "spy"
+            ],
+            "clause": "匹配窗口进程 CPU 0.4%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "spy"
+            ],
+            "clause": "请说明图占比不能支持饱和"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "spy"
+            ],
+            "clause": "并仅评价已测范围"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 8.735413,
+      "matched_terms": [
+        "cpu",
+        "说明",
+        "进程"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

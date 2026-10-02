@@ -1,0 +1,360 @@
+{
+  "schema": "mini-drop.load-endurance.v1",
+  "status": "RUNNING",
+  "run_id": "a27e3d4ff1124f2db9eefefc667ead07",
+  "started_at": "2026-09-30T16:15:50.991121+00:00",
+  "plan": {
+    "rates": [
+      5,
+      20,
+      40,
+      60
+    ],
+    "step_seconds": 15,
+    "soak_rate": 5,
+    "soak_seconds": 3600,
+    "recovery_seconds": 15,
+    "bucket_seconds": 30,
+    "concurrency": 128,
+    "timeout_seconds": 5,
+    "p95_limit_ms": 200,
+    "minimum_success_rate": 0.99,
+    "minimum_quality_rate": 0.99,
+    "max_dispatch_lag_ms": 250,
+    "minimum_samples": 30,
+    "dependency_latency_ms": 10,
+    "reuse_connections": true,
+    "cache_rerank": true
+  },
+  "source_hashes": {
+    "scripts/run_load_endurance.py": "5a7482663093f4b5443e66d837faf7448ee27f7f6405ce1c0a2e6498ba038f18",
+    "scripts/process_resource_monitor.py": "995bb0fe94d27c61c033a255f99cae94facc5dc425d5969f262e59f854c0d4b1",
+    "demo/rag_service/app.py": "2a45cf021e1b1209cdabbdf343c076f698c31089684d835e133f24cd41097e3b",
+    "scripts/run_distributed_endurance.py": "1e5c7624a9dd4bac884cb8ab953df8049c414a6025ddb29c4893a2168891d3dc"
+  },
+  "dataset_sha256": "21d055283e22f5ab714a908655a67dab2623502518f9ae46441b8304f11587ab",
+  "question_set_sha256": "e52f25b4e94664ecd7b55a666909dc7d2ee1295fba9ee49cfad71730f8f0a611",
+  "transport": {
+    "ssh_tunnel_count": 4,
+    "routing": "THREAD_AFFINITY"
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.0",
+    "machine_id_sha256": "14196bb108abb1e293ebc9cc2420ed06696b3c112918fa4f39510166bb5c037f",
+    "cpu_count": 24
+  },
+  "scope": "TWO_HOST_SSH_HTTP_FIXTURE; NETWORK_AND_TUNNEL_INCLUDED; NO_LIVE_LLM",
+  "limitations": [
+    "Dedicated fixture, not production capacity",
+    "SSH and network cost included",
+    "Distinct OS identities do not establish distinct physical hardware",
+    "Resource growth screen is not proof of absence of leaks"
+  ],
+  "stages": [
+    {
+      "name": "step-1",
+      "rate": 5,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.000626400003966,
+      "raw_file": "step-1.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 75,
+        "sent": 75,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 67.7852000007988,
+        "p95_ms": 90.14259999821661,
+        "p99_ms": null,
+        "latency_sample_count": 75,
+        "max_dispatch_lag_ms": 2.660400001332164,
+        "successful_rps_including_drain": 4.999791208717802
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 75,
+            "sent": 75,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 67.7852000007988,
+            "p95_ms": 90.14259999821661,
+            "p99_ms": null,
+            "latency_sample_count": 75,
+            "max_dispatch_lag_ms": 2.660400001332164
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-2",
+      "rate": 20,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.016552500004764,
+      "raw_file": "step-2.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 300,
+        "sent": 300,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 71.58980000531301,
+        "p95_ms": 88.65969999897061,
+        "p99_ms": 101.0965000023134,
+        "latency_sample_count": 300,
+        "max_dispatch_lag_ms": 1.560999997309409,
+        "successful_rps_including_drain": 19.977954327393377
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 300,
+            "sent": 300,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 71.58980000531301,
+            "p95_ms": 88.65969999897061,
+            "p99_ms": 101.0965000023134,
+            "latency_sample_count": 300,
+            "max_dispatch_lag_ms": 1.560999997309409
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-3",
+      "rate": 40,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.040943200001493,
+      "raw_file": "step-3.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 600,
+        "sent": 600,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 67.24160000158008,
+        "p95_ms": 104.34050000912976,
+        "p99_ms": 134.18110000202432,
+        "latency_sample_count": 600,
+        "max_dispatch_lag_ms": 2.6962999982060865,
+        "successful_rps_including_drain": 39.89111533909259
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 600,
+            "sent": 600,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 67.24160000158008,
+            "p95_ms": 104.34050000912976,
+            "p99_ms": 134.18110000202432,
+            "latency_sample_count": 600,
+            "max_dispatch_lag_ms": 2.6962999982060865
+          }
+        }
+      ]
+    },
+    {
+      "name": "step-4",
+      "rate": 60,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.036750399995071,
+      "raw_file": "step-4.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 900,
+        "sent": 900,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 67.89199999184348,
+        "p95_ms": 107.76919999625534,
+        "p99_ms": 145.6386333302362,
+        "latency_sample_count": 900,
+        "max_dispatch_lag_ms": 1.6167666617548093,
+        "successful_rps_including_drain": 59.85335767761996
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 900,
+            "sent": 900,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 67.89199999184348,
+            "p95_ms": 107.76919999625534,
+            "p99_ms": 145.6386333302362,
+            "latency_sample_count": 900,
+            "max_dispatch_lag_ms": 1.6167666617548093
+          }
+        }
+      ]
+    },
+    {
+      "name": "recovery",
+      "rate": 5,
+      "duration_seconds": 15,
+      "elapsed_with_drain_seconds": 15.000516699998116,
+      "raw_file": "recovery.jsonl",
+      "summary": {
+        "status": "PASSED",
+        "reasons": [],
+        "offered": 75,
+        "sent": 75,
+        "unsent": 0,
+        "success_rate": 1.0,
+        "quality_rate": 1.0,
+        "p50_ms": 70.89479999558534,
+        "p95_ms": 101.81919999740785,
+        "p99_ms": null,
+        "latency_sample_count": 75,
+        "max_dispatch_lag_ms": 2.511500002583489,
+        "successful_rps_including_drain": 4.9998277725999545
+      },
+      "buckets": [
+        {
+          "offset_seconds": 0,
+          "duration_seconds": 15,
+          "summary": {
+            "status": "PASSED",
+            "reasons": [],
+            "offered": 75,
+            "sent": 75,
+            "unsent": 0,
+            "success_rate": 1.0,
+            "quality_rate": 1.0,
+            "p50_ms": 70.89479999558534,
+            "p95_ms": 101.81919999740785,
+            "p99_ms": null,
+            "latency_sample_count": 75,
+            "max_dispatch_lag_ms": 2.511500002583489
+          }
+        }
+      ]
+    }
+  ],
+  "git_head": "52881ec2db0ad3622f00e9e55e5bff1e1fe71391",
+  "remote": {
+    "run_id": "a27e3d4ff1124f2db9eefefc667ead07",
+    "machine_id_sha256": "f909d7eaa061e2fe304778b77da1e767585fef7218d36493796efa9bfa8bb916",
+    "pid": 375497,
+    "create_time": 1790784962.25,
+    "port": 44855,
+    "source_hashes": {
+      "scripts/run_load_endurance.py": "5a7482663093f4b5443e66d837faf7448ee27f7f6405ce1c0a2e6498ba038f18",
+      "scripts/process_resource_monitor.py": "995bb0fe94d27c61c033a255f99cae94facc5dc425d5969f262e59f854c0d4b1",
+      "demo/rag_service/app.py": "2a45cf021e1b1209cdabbdf343c076f698c31089684d835e133f24cd41097e3b",
+      "scripts/run_distributed_endurance.py": "1e5c7624a9dd4bac884cb8ab953df8049c414a6025ddb29c4893a2168891d3dc"
+    },
+    "dataset_sha256": "21d055283e22f5ab714a908655a67dab2623502518f9ae46441b8304f11587ab",
+    "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "cpu_count": 2,
+    "dependency_latency_ms": 10
+  },
+  "fixture_pid": 375497,
+  "warmup": [
+    {
+      "index": 0,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.01340000017080456,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "3766986b117e4f85a243eaa1280244b7",
+      "stage_ms": {
+        "queue": 0.18338719382882118,
+        "retrieval": 0.9590010158717632,
+        "rerank": 2.7393391355872154,
+        "generation": 10.093456134200096
+      },
+      "latency_ms": 122.51140000444138
+    },
+    {
+      "index": 1,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0018999999156221747,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "eef247d320dc4e52a58e421e50451ed6",
+      "stage_ms": {
+        "queue": 0.08811196312308311,
+        "retrieval": 0.5725077353417873,
+        "rerank": 4.47384687140584,
+        "generation": 10.075531899929047
+      },
+      "latency_ms": 76.9356999953743
+    },
+    {
+      "index": 2,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0020000006770715117,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "bd59722f77364c66b583d05cc9e4b31f",
+      "stage_ms": {
+        "queue": 0.04915287718176842,
+        "retrieval": 0.5847890861332417,
+        "rerank": 4.2649488896131516,
+        "generation": 10.073989629745483
+      },
+      "latency_ms": 37.31250000419095
+    },
+    {
+      "index": 3,
+      "scheduled_offset_seconds": 0.0,
+      "sent": true,
+      "dispatch_lag_ms": 0.0007999988156370819,
+      "success": true,
+      "quality_passed": true,
+      "http_status": 200,
+      "error": null,
+      "trace_id": "82ac544e39934588bee8e355973da00b",
+      "stage_ms": {
+        "queue": 0.04543503746390343,
+        "retrieval": 0.4973551258444786,
+        "rerank": 4.058223217725754,
+        "generation": 10.079469997435808
+      },
+      "latency_ms": 43.48000000027241
+    }
+  ]
+}

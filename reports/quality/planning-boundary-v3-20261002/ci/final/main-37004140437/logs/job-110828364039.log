@@ -1,0 +1,218 @@
+﻿2026-10-02T12:00:18.4877917Z Current runner version: '2.337.0'
+2026-10-02T12:00:18.4897816Z ##[group]Runner Image Provisioner
+2026-10-02T12:00:18.4898646Z Hosted Compute Agent
+2026-10-02T12:00:18.4899285Z Version: 20260901.588
+2026-10-02T12:00:18.4899845Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T12:00:18.4900456Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T12:00:18.4901040Z Worker ID: {e82b6835-53bc-456d-96ad-ec41da306a6b}
+2026-10-02T12:00:18.4901684Z Azure Region: westus3
+2026-10-02T12:00:18.4902182Z ##[endgroup]
+2026-10-02T12:00:18.4903236Z ##[group]Operating System
+2026-10-02T12:00:18.4903831Z Ubuntu
+2026-10-02T12:00:18.4904295Z 22.04.5
+2026-10-02T12:00:18.4904817Z LTS
+2026-10-02T12:00:18.4905274Z ##[endgroup]
+2026-10-02T12:00:18.4905719Z ##[group]Runner Image
+2026-10-02T12:00:18.4906303Z Image: ubuntu-22.04
+2026-10-02T12:00:18.4906780Z Version: 20260927.309.1
+2026-10-02T12:00:18.4907884Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-02T12:00:18.4909320Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-02T12:00:18.4910265Z ##[endgroup]
+2026-10-02T12:00:18.4911239Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T12:00:18.4912831Z Contents: read
+2026-10-02T12:00:18.4913335Z Metadata: read
+2026-10-02T12:00:18.4913873Z Packages: read
+2026-10-02T12:00:18.4914380Z ##[endgroup]
+2026-10-02T12:00:18.4916011Z Secret source: Actions
+2026-10-02T12:00:18.4916893Z Cache mode: write
+2026-10-02T12:00:18.4917454Z Prepare workflow directory
+2026-10-02T12:00:18.5192924Z Prepare all required actions
+2026-10-02T12:00:18.5245456Z Getting action download info
+2026-10-02T12:00:18.8099486Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-02T12:00:18.8991025Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T12:00:19.1338938Z Complete job name: Supply chain (trivy report)
+2026-10-02T12:00:19.1971477Z ##[group]Run actions/checkout@v4
+2026-10-02T12:00:19.1972112Z with:
+2026-10-02T12:00:19.1972479Z   repository: llongwang751-arch/mini-drop
+2026-10-02T12:00:19.1975419Z   token: ***
+2026-10-02T12:00:19.1975766Z   ssh-strict: true
+2026-10-02T12:00:19.1976118Z   ssh-user: git
+2026-10-02T12:00:19.1976466Z   persist-credentials: true
+2026-10-02T12:00:19.1976845Z   clean: true
+2026-10-02T12:00:19.1977191Z   sparse-checkout-cone-mode: true
+2026-10-02T12:00:19.1977591Z   fetch-depth: 1
+2026-10-02T12:00:19.1977920Z   fetch-tags: false
+2026-10-02T12:00:19.1978261Z   show-progress: true
+2026-10-02T12:00:19.1978605Z   lfs: false
+2026-10-02T12:00:19.1978924Z   submodules: false
+2026-10-02T12:00:19.1979402Z   set-safe-directory: true
+2026-10-02T12:00:19.1979799Z   allow-unsafe-pr-checkout: false
+2026-10-02T12:00:19.1980374Z ##[endgroup]
+2026-10-02T12:00:19.2824176Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-02T12:00:19.2826184Z ##[group]Getting Git version info
+2026-10-02T12:00:19.2827132Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T12:00:19.2828369Z [command]/usr/bin/git version
+2026-10-02T12:00:19.2857673Z git version 2.55.0
+2026-10-02T12:00:19.2874465Z ##[endgroup]
+2026-10-02T12:00:19.2887398Z Temporarily overriding HOME='/home/runner/work/_temp/4b71bd79-285a-4f7b-895e-b32a87abe657' before making global git config changes
+2026-10-02T12:00:19.2889225Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T12:00:19.2891673Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T12:00:19.2924246Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T12:00:19.2932737Z ##[group]Initializing the repository
+2026-10-02T12:00:19.2940574Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-02T12:00:19.3000242Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-02T12:00:19.3001670Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-02T12:00:19.3003292Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-02T12:00:19.3004355Z hint: call:
+2026-10-02T12:00:19.3004995Z hint:
+2026-10-02T12:00:19.3005758Z hint: 	git config --global init.defaultBranch <name>
+2026-10-02T12:00:19.3006648Z hint:
+2026-10-02T12:00:19.3007497Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-02T12:00:19.3008798Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-02T12:00:19.3010819Z hint:
+2026-10-02T12:00:19.3011480Z hint: 	git branch -m <name>
+2026-10-02T12:00:19.3012203Z hint:
+2026-10-02T12:00:19.3013128Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-02T12:00:19.3014519Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-02T12:00:19.3017025Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-02T12:00:19.3041209Z ##[endgroup]
+2026-10-02T12:00:19.3042163Z ##[group]Disabling automatic garbage collection
+2026-10-02T12:00:19.3044994Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-02T12:00:19.3075229Z ##[endgroup]
+2026-10-02T12:00:19.3076131Z ##[group]Setting up auth
+2026-10-02T12:00:19.3081271Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T12:00:19.3113381Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T12:00:19.3403957Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T12:00:19.3450432Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T12:00:19.3670200Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T12:00:19.3704376Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T12:00:19.3922163Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-02T12:00:19.3960712Z ##[endgroup]
+2026-10-02T12:00:19.3961388Z ##[group]Fetching the repository
+2026-10-02T12:00:19.3967649Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea:refs/remotes/pull/1/merge
+2026-10-02T12:00:24.0855365Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-02T12:00:24.0856532Z  * [new ref]         7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea -> pull/1/merge
+2026-10-02T12:00:24.0859433Z ##[endgroup]
+2026-10-02T12:00:24.0860448Z ##[group]Determining the checkout info
+2026-10-02T12:00:24.0863501Z ##[endgroup]
+2026-10-02T12:00:24.0873425Z [command]/usr/bin/git sparse-checkout disable
+2026-10-02T12:00:24.0921387Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-02T12:00:24.0956025Z ##[group]Checking out the ref
+2026-10-02T12:00:24.0956665Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-02T12:00:25.1068338Z Updating files:  75% (4651/6162)
+2026-10-02T12:00:25.1134448Z Updating files:  76% (4684/6162)
+2026-10-02T12:00:25.1171194Z Updating files:  77% (4745/6162)
+2026-10-02T12:00:25.1497591Z Updating files:  78% (4807/6162)
+2026-10-02T12:00:25.1767020Z Updating files:  79% (4868/6162)
+2026-10-02T12:00:25.1818129Z Updating files:  80% (4930/6162)
+2026-10-02T12:00:25.1912638Z Updating files:  81% (4992/6162)
+2026-10-02T12:00:25.1994216Z Updating files:  82% (5053/6162)
+2026-10-02T12:00:25.2049282Z Updating files:  83% (5115/6162)
+2026-10-02T12:00:25.2079341Z Updating files:  84% (5177/6162)
+2026-10-02T12:00:25.2132874Z Updating files:  85% (5238/6162)
+2026-10-02T12:00:25.2187438Z Updating files:  86% (5300/6162)
+2026-10-02T12:00:25.2284355Z Updating files:  87% (5361/6162)
+2026-10-02T12:00:25.2328564Z Updating files:  88% (5423/6162)
+2026-10-02T12:00:25.2428147Z Updating files:  89% (5485/6162)
+2026-10-02T12:00:25.2496629Z Updating files:  90% (5546/6162)
+2026-10-02T12:00:25.2536753Z Updating files:  91% (5608/6162)
+2026-10-02T12:00:25.2572598Z Updating files:  92% (5670/6162)
+2026-10-02T12:00:25.2625499Z Updating files:  93% (5731/6162)
+2026-10-02T12:00:25.2655373Z Updating files:  94% (5793/6162)
+2026-10-02T12:00:25.2686362Z Updating files:  95% (5854/6162)
+2026-10-02T12:00:25.2721106Z Updating files:  96% (5916/6162)
+2026-10-02T12:00:25.2842111Z Updating files:  97% (5978/6162)
+2026-10-02T12:00:25.2872596Z Updating files:  98% (6039/6162)
+2026-10-02T12:00:25.2900751Z Updating files:  99% (6101/6162)
+2026-10-02T12:00:25.2901266Z Updating files: 100% (6162/6162)
+2026-10-02T12:00:25.2901753Z Updating files: 100% (6162/6162), done.
+2026-10-02T12:00:25.2967130Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-02T12:00:25.2967364Z 
+2026-10-02T12:00:25.2967735Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T12:00:25.2968501Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T12:00:25.2969253Z state without impacting any branches by switching back to a branch.
+2026-10-02T12:00:25.2969603Z 
+2026-10-02T12:00:25.2969986Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T12:00:25.2972649Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T12:00:25.2973305Z 
+2026-10-02T12:00:25.2973517Z   git switch -c <new-branch-name>
+2026-10-02T12:00:25.2973808Z 
+2026-10-02T12:00:25.2973968Z Or undo this operation with:
+2026-10-02T12:00:25.2974211Z 
+2026-10-02T12:00:25.2974345Z   git switch -
+2026-10-02T12:00:25.2974512Z 
+2026-10-02T12:00:25.2974705Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T12:00:25.2975247Z 
+2026-10-02T12:00:25.2975561Z HEAD is now at 7abe089 Merge cfea6744fc2395d5392440b2404ee275ada0a69f into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-02T12:00:25.3071292Z ##[endgroup]
+2026-10-02T12:00:25.3112494Z [command]/usr/bin/git log -1 --format=%H
+2026-10-02T12:00:25.3138389Z 7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea
+2026-10-02T12:00:25.3329860Z ##[group]Run curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+2026-10-02T12:00:25.3330718Z [36;1mcurl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin[0m
+2026-10-02T12:00:25.3583466Z shell: /usr/bin/bash -e {0}
+2026-10-02T12:00:25.3583765Z ##[endgroup]
+2026-10-02T12:00:25.4429380Z aquasecurity/trivy info checking GitHub for latest tag
+2026-10-02T12:00:25.6800064Z aquasecurity/trivy info found version: 0.75.0 for v0.75.0/Linux/64bit
+2026-10-02T12:00:27.4339662Z aquasecurity/trivy info installed /usr/local/bin/trivy
+2026-10-02T12:00:27.4875470Z ##[group]Run trivy fs --scanners vuln,secret,misconfig --exit-code 0 \
+2026-10-02T12:00:27.4875884Z [36;1mtrivy fs --scanners vuln,secret,misconfig --exit-code 0 \[0m
+2026-10-02T12:00:27.4876271Z [36;1m  --format json --output output/trivy-fs.json .[0m
+2026-10-02T12:00:27.4942166Z shell: /usr/bin/bash -e {0}
+2026-10-02T12:00:27.4942383Z ##[endgroup]
+2026-10-02T12:00:27.5762347Z 2026-10-02T12:00:27Z	INFO	[vulndb] Need to update DB
+2026-10-02T12:00:27.5762768Z 2026-10-02T12:00:27Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-10-02T12:00:27.5763351Z 2026-10-02T12:00:27Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-10-02T12:00:32.6606134Z 32.12 MiB / 120.57 MiB [--------------->____________________________________________] 26.64% ? p/s ?86.86 MiB / 120.57 MiB [------------------------------------------->________________] 72.04% ? p/s ?120.57 MiB / 120.57 MiB [--------------------------------------------------------->] 100.00% ? p/s ?120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 147.19 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 147.19 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 147.19 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 137.70 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 137.70 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 137.70 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 128.81 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 128.81 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 128.81 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 120.50 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 120.50 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 120.50 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 112.73 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [------------------------------------------->] 100.00% 112.73 MiB p/s ETA 0s120.57 MiB / 120.57 MiB [-----------------------------------------------] 100.00% 35.85 MiB p/s 3.6s2026-10-02T12:00:32Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-10-02T12:00:32.6681726Z 2026-10-02T12:00:32Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-02T12:00:32.6682627Z 2026-10-02T12:00:32Z	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-10-02T12:00:32.6683467Z 2026-10-02T12:00:32Z	INFO	[checks-client] Need to update the checks bundle
+2026-10-02T12:00:32.6684073Z 2026-10-02T12:00:32Z	INFO	[checks-client] Downloading the checks bundle...
+2026-10-02T12:00:34.8932841Z 234.65 KiB / 234.65 KiB [------------------------------------------------------] 100.00% ? p/s 100ms2026-10-02T12:00:34Z	INFO	[secret] Secret scanning is enabled
+2026-10-02T12:00:34.8934108Z 2026-10-02T12:00:34Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln,misconfig' to disable secret scanning
+2026-10-02T12:00:34.8935182Z 2026-10-02T12:00:34Z	INFO	[secret] Please see https://trivy.dev/docs/v0.75/guide/scanner/secret#recommendation for faster secret detection
+2026-10-02T12:00:41.6506812Z 2026-10-02T12:00:41Z	INFO	[npm] Run "npm install" to collect the license information of packages	dir="web/node_modules"
+2026-10-02T12:00:45.5236643Z 2026-10-02T12:00:45Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
+2026-10-02T12:00:45.5237399Z 2026-10-02T12:00:45Z	INFO	Number of language-specific files	num=3
+2026-10-02T12:00:45.5237736Z 2026-10-02T12:00:45Z	INFO	[gomod] Detecting vulnerabilities...
+2026-10-02T12:00:45.5248615Z 2026-10-02T12:00:45Z	INFO	[npm] Detecting vulnerabilities...
+2026-10-02T12:00:45.5282075Z 2026-10-02T12:00:45Z	INFO	Detected config files	num=28
+2026-10-02T12:00:45.5293749Z 2026-10-02T12:00:45Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.75/guide/scanner/vulnerability#severity-selection for details.
+2026-10-02T12:00:45.6103536Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T12:00:45.6103789Z with:
+2026-10-02T12:00:45.6104005Z   name: trivy-fs-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea
+2026-10-02T12:00:45.6104271Z   path: output/trivy-fs.json
+2026-10-02T12:00:45.6104495Z   if-no-files-found: warn
+2026-10-02T12:00:45.6104723Z   compression-level: 6
+2026-10-02T12:00:45.6104903Z   overwrite: false
+2026-10-02T12:00:45.6105081Z   include-hidden-files: false
+2026-10-02T12:00:45.6105281Z ##[endgroup]
+2026-10-02T12:00:45.7534010Z (node:1934) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T12:00:45.7534764Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T12:00:45.7577984Z With the provided path, there will be 1 file uploaded
+2026-10-02T12:00:45.7581194Z Artifact name is valid!
+2026-10-02T12:00:45.7581932Z Root directory input is valid!
+2026-10-02T12:00:46.1131133Z Beginning upload of artifact content to blob storage
+2026-10-02T12:00:46.1331306Z (node:1934) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T12:00:46.3989444Z Uploaded bytes 41492
+2026-10-02T12:00:46.4602314Z Finished uploading artifact content to blob storage!
+2026-10-02T12:00:46.4603059Z SHA256 digest of uploaded artifact zip is 45ebb2f8276a44f3fb4811cc5f570afffa3f4d8a5ec696ac7c05a9745432ae9f
+2026-10-02T12:00:46.4604891Z Finalizing artifact upload
+2026-10-02T12:00:46.7243744Z Artifact trivy-fs-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea.zip successfully finalized. Artifact ID 11225266124
+2026-10-02T12:00:46.7244725Z Artifact trivy-fs-7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea has been successfully uploaded! Final size is 41492 bytes. Artifact ID is 11225266124
+2026-10-02T12:00:46.7248717Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/37004140437/artifacts/11225266124
+2026-10-02T12:00:46.7429426Z Post job cleanup.
+2026-10-02T12:00:46.8127207Z [command]/usr/bin/git version
+2026-10-02T12:00:46.8164750Z git version 2.55.0
+2026-10-02T12:00:46.8193942Z Temporarily overriding HOME='/home/runner/work/_temp/a4678309-bfc3-467d-90b8-142c75c1ffca' before making global git config changes
+2026-10-02T12:00:46.8195089Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T12:00:46.8197865Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T12:00:46.8231618Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T12:00:46.8262484Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T12:00:46.8506556Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T12:00:46.8535583Z http.https://github.com/.extraheader
+2026-10-02T12:00:46.8540147Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-02T12:00:46.8574120Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T12:00:46.8820362Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T12:00:46.8855925Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T12:00:46.9227075Z Cleaning up orphan processes
+2026-10-02T12:00:46.9505763Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

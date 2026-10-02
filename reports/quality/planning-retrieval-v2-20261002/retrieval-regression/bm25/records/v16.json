@@ -1,0 +1,74 @@
+{
+  "case_id": "v16",
+  "query": "Resident set grows from 120 to 460 MiB at steady load in a Python process; distinguish retention from a cache before calling it a leak.",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.memory.process_growth"
+  ],
+  "matches": [
+    {
+      "query": "Resident set grows from 120 to 460 MiB at steady load in a Python process; distinguish retention from a cache before calling it a leak.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "memory"
+        ],
+        "matched_anchors": [
+          "leak"
+        ],
+        "unsupported_subjects": [],
+        "clause": "distinguish retention from a cache before calling it a leak",
+        "source_profile": {
+          "concepts": [
+            "memory"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Resident set grows from 120 to 460 MiB at steady load in a Python process"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "memory"
+            ],
+            "matched_anchors": [
+              "leak"
+            ],
+            "unsupported_subjects": [],
+            "clause": "distinguish retention from a cache before calling it a leak"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.memory.process_growth",
+      "title": "进程内存增长与压力",
+      "document": "knowledge/linux_memory.md",
+      "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+      "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+      "score": 0.4,
+      "matched_terms": [],
+      "required_evidence": [
+        "RSS 时间序列",
+        "内存限制",
+        "分配热点或 GC 指标"
+      ],
+      "caveats": [
+        "缓存增长和泄漏表现可能相似"
+      ],
+      "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

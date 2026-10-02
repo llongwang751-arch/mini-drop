@@ -1,0 +1,35 @@
+
+> mini-drop-web@0.1.0 test
+> vitest run src/pages/AIDiagnosis.test.jsx --maxWorkers=1 -t confirms cancellation
+
+
+ RUN  v4.1.11 D:/tx/mini-drop/web
+
+Not implemented: Window's getComputedStyle() method: with pseudo-elements
+ ❯ src/pages/AIDiagnosis.test.jsx (17 tests | 1 failed | 16 skipped) 773ms
+     × confirms cancellation with session version and refreshes the terminal record 772ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/AIDiagnosis.test.jsx > AIDiagnosis V2 workspace > confirms cancellation with session version and refreshes the terminal record
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <span>
+  诊断已停止，已有记录已保留
+</span> instead
+ ❯ src/pages/AIDiagnosis.test.jsx:95:53
+     93|     await screen.findByText("诊断已停止，已有记录已保留");
+     94|     view.unmount();
+     95|     expect(screen.queryByText("诊断已停止，已有记录已保留")).not.toBeInTheDocument(…
+       |                                                     ^
+     96|   });
+     97|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 skipped (17)
+   Start at  21:16:45
+   Duration  7.62s (transform 591ms, setup 194ms, import 5.43s, tests 773ms, environment 1.06s)
+

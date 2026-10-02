@@ -1,0 +1,1029 @@
+{
+  "diagnosis": {
+    "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+    "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=d56943f712044d5abfe26f400a6f9c13",
+    "target": {
+      "service": "rag-fix-case",
+      "environment": "session-53146.scope",
+      "agent_id": "tencent-cvm-worker-1",
+      "pid": 694708,
+      "process_binding": {
+        "agent_id": "tencent-cvm-worker-1",
+        "pid": 694708,
+        "boot_id": "1c90a702-e68a-4193-b533-0b5af38e1418",
+        "process_start_ticks": 234276590,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 694708,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_777849d6a3d7359e",
+        "snapshot_generation": 206801,
+        "snapshot_received_at": "2026-10-01T15:26:08.253481+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-10-01T15:26:13.864285Z",
+      "end": "2026-10-01T15:31:13.864285Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-10-01T15:26:13.864285Z",
+      "end": "2026-10-01T15:31:13.864285Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 100,
+      "max_tool_calls": 3,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 8,
+    "clarification_questions": [],
+    "created_at": "2026-10-01 15:26:13.706822+00:00",
+    "updated_at": "2026-10-01 15:27:09.004879+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "reports": [],
+  "evidence": [],
+  "tool-calls": [
+    {
+      "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "hypothesis_id": "hyp_3357c1ebbe284d6093283d0f382d5a70",
+      "tool_name": "start_pyspy_profile",
+      "arguments": {
+        "agent_id": "tencent-cvm-worker-1",
+        "pid": 694708,
+        "duration_seconds": 15,
+        "sample_rate": 99
+      },
+      "policy_decision": "DENY",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "SESSION_PREAUTHORIZED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "FAIL",
+          "remaining_seconds": 44.741949,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 100
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 16777216,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "资源预算预留失败: BUDGET_WALL_CLOCK insufficient finalization reserve",
+      "status": "DENIED",
+      "task_id": null,
+      "result": {},
+      "budget_reservation": {},
+      "budget_settlement": {},
+      "budget_reservation_status": "NONE",
+      "terminal_processing_status": "NONE",
+      "terminal_processed_at": null,
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-10-01 15:27:08.964899+00:00",
+      "decided_at": "2026-10-01 15:27:08.964899+00:00",
+      "executed_at": null
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "hyp_3357c1ebbe284d6093283d0f382d5a70",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "statement": "目标 Python 进程可能存在用户态热点函数或 GIL 竞争",
+      "expected_observations": [
+        "py-spy 样本集中在少数 Python 函数或线程"
+      ],
+      "falsification_criteria": [
+        "Python 栈样本均匀且无明显热点"
+      ],
+      "status": "OPEN",
+      "source": "DETERMINISTIC_RULE",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:27:08.816416+00:00",
+      "updated_at": "2026-10-01 15:27:08.816416+00:00"
+    },
+    {
+      "hypothesis_id": "hyp_93dc8b5928e146878a5371ff3f6cbce5",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "statement": "GIL 竞争限制多线程并发能力",
+      "expected_observations": [
+        "多线程 CPU 密集但并行度受限"
+      ],
+      "falsification_criteria": [
+        "单线程热点明确且 GIL 非瓶颈"
+      ],
+      "status": "OPEN",
+      "source": "DETERMINISTIC_RULE",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:27:08.828805+00:00",
+      "updated_at": "2026-10-01 15:27:08.828805+00:00"
+    },
+    {
+      "hypothesis_id": "hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "statement": "等待或 I/O 阻塞被误判为用户态热点",
+      "expected_observations": [
+        "系统调用或等待占比偏高"
+      ],
+      "falsification_criteria": [
+        "用户态函数独占热点"
+      ],
+      "status": "OPEN",
+      "source": "DETERMINISTIC_RULE",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:27:08.850294+00:00",
+      "updated_at": "2026-10-01 15:27:08.850294+00:00"
+    },
+    {
+      "hypothesis_id": "hyp_693e7b63507a4406a8002da3eb7cad16",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "statement": "其他未知原因（OTHER/UNKNOWN）",
+      "expected_observations": [
+        "存在尚未被既有候选假设充分解释的观测现象"
+      ],
+      "falsification_criteria": [
+        "所有观测现象均能被既有候选假设充分解释"
+      ],
+      "status": "OPEN",
+      "source": "SYSTEM_FALLBACK",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:27:08.872775+00:00",
+      "updated_at": "2026-10-01 15:27:08.872775+00:00"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event_7e24174aa5164ccd936873492724e83b",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "AUTO",
+        "created_by": "legacy_admin",
+        "auto_scope": true,
+        "health_check": false
+      },
+      "occurred_at": "2026-10-01 15:26:13.706822+00:00"
+    },
+    {
+      "event_id": "event_cac9d4e3cb8b4168b536d71252538382",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 2,
+      "event_type": "diagnosis.clarified",
+      "actor": "AI_SCOPE_RESOLVER",
+      "payload": {
+        "target": {
+          "service": "rag-fix-case",
+          "environment": "session-53146.scope",
+          "agent_id": "tencent-cvm-worker-1",
+          "pid": 694708,
+          "process_binding": {
+            "agent_id": "tencent-cvm-worker-1",
+            "pid": 694708,
+            "boot_id": "1c90a702-e68a-4193-b533-0b5af38e1418",
+            "process_start_ticks": 234276590,
+            "pid_namespace_inode": 4026531836,
+            "namespace_pid": 694708,
+            "executable_identity": "python3.12",
+            "process_snapshot_id": "psnap_777849d6a3d7359e",
+            "snapshot_generation": 206801,
+            "snapshot_received_at": "2026-10-01T15:26:08.253481+00:00"
+          }
+        },
+        "time_range": {
+          "start": "2026-10-01T15:26:13.864285Z",
+          "end": "2026-10-01T15:31:13.864285Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "requested_time_range": {
+          "start": "2026-10-01T15:26:13.864285Z",
+          "end": "2026-10-01T15:31:13.864285Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "effective_time_range": {}
+      },
+      "occurred_at": "2026-10-01 15:26:13.866295+00:00"
+    },
+    {
+      "event_id": "event_cc95c351e3fa4aa5bb0b5314fc3391d3",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 3,
+      "event_type": "skill.route_activated",
+      "actor": "SYSTEM",
+      "payload": {
+        "applied": true,
+        "state": "ACTIVATED",
+        "skill_id": "builtin_python_runtime_diagnosis_4efd3323868f",
+        "skill_name": "python-runtime-diagnosis",
+        "version": 3,
+        "category": "PYTHON_RUNTIME",
+        "skill_category": "PYTHON_RUNTIME",
+        "baseline_category": "PYTHON_RUNTIME",
+        "selected_category": "PYTHON_RUNTIME",
+        "match_score": 0.681,
+        "baseline_tool": "start_pyspy_profile",
+        "selected_tool": "start_pyspy_profile",
+        "reuse_step": {
+          "trace_key": "1:INITIAL_PLAN",
+          "round_index": 1,
+          "phase": "INITIAL_PLAN",
+          "state": "ACTIVATED",
+          "baseline_tool": "start_pyspy_profile",
+          "selected_tool": "start_pyspy_profile",
+          "selected_route_index": 1,
+          "route_length": 3,
+          "completed_route_tools": [],
+          "attempted_tools": [],
+          "category_before": "PYTHON_RUNTIME",
+          "category_after": "PYTHON_RUNTIME",
+          "category_corrected": false,
+          "applied_at": "2026-10-01T15:26:44.473242+00:00"
+        },
+        "load_mode": "FULL_SKILL_MD",
+        "content_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+        "source_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+        "source_path": "skills/python-runtime-diagnosis/SKILL.md",
+        "loaded_sections": [
+          "目标",
+          "输入契约",
+          "适用与停止条件",
+          "取证顺序",
+          "结论门槛",
+          "必需证据与反证",
+          "安全边界",
+          "输出契约",
+          "回归门禁"
+        ],
+        "round_index": 1,
+        "phase": "INITIAL_PLAN",
+        "knowledge_is_evidence": false
+      },
+      "occurred_at": "2026-10-01 15:26:44.476444+00:00"
+    },
+    {
+      "event_id": "event_ddb79ab2212440af8dc2dc32e8efda52",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 4,
+      "event_type": "planner.knowledge_retrieved",
+      "actor": "SYSTEM",
+      "payload": {
+        "phase": "INITIAL_PLAN",
+        "round_index": 1,
+        "retrieval_trace": {
+          "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+          "requested_backend": "HYBRID",
+          "recall_channels": {
+            "BM25": {
+              "available": true,
+              "candidate_count": 20,
+              "chunk_ids": [
+                "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+                "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+                "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+                "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf"
+              ]
+            },
+            "ENTITY": {
+              "available": true,
+              "candidate_count": 8,
+              "chunk_ids": [
+                "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+                "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d"
+              ]
+            },
+            "DENSE": {
+              "available": true,
+              "candidate_count": 20,
+              "chunk_ids": [
+                "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+                "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+                "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+                "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+                "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7"
+              ]
+            }
+          },
+          "degraded_reasons": [],
+          "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+          "embedding_model": "Qwen/Qwen3-Embedding-4B",
+          "dimensions": 1024,
+          "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=d56943f712044d5abfe26f400a6f9c13\nPYTHON_RUNTIME",
+          "query_hash": "fc0885cb9454d490a70e1c41e212d69e63cc68854f98f2699c50e851b2c2613e",
+          "retriever": "knowledge-hybrid-v3-three-route",
+          "catalog": "knowledge/catalog.json",
+          "top_k": 3,
+          "matched_count": 3,
+          "matches": [
+            {
+              "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+              "knowledge_id": "python.sampling.attribution",
+              "title": "Python 采样归因与空闲线程",
+              "document": "knowledge/python_sampling.md",
+              "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+              "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+              "required_evidence": [
+                "当前目标身份与时间窗",
+                "与问题对应的原始观测",
+                "独立对照或反证"
+              ],
+              "caveats": [
+                "知识只能指导调查，不是当前事故证据",
+                "缺少所需连接器时明确报告观测缺口"
+              ],
+              "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=d56943f712044d5abfe26f400a6f9c13\nPYTHON_RUNTIME",
+              "score": 0.986427,
+              "score_kind": "RERANK_RELEVANCE",
+              "matched_terms": [],
+              "recall_channels": [
+                "BM25",
+                "ENTITY",
+                "DENSE"
+              ]
+            },
+            {
+              "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+              "knowledge_id": "linux.cpu.kernel_overhead",
+              "title": "Linux 系统态 CPU 偏高",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+              "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+              "required_evidence": [
+                "CPU system 比例",
+                "内核栈或系统调用分布"
+              ],
+              "caveats": [
+                "不能仅凭 system% 判断具体内核模块"
+              ],
+              "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=d56943f712044d5abfe26f400a6f9c13\nPYTHON_RUNTIME",
+              "score": 0.869865,
+              "score_kind": "RERANK_RELEVANCE",
+              "matched_terms": [],
+              "recall_channels": [
+                "BM25",
+                "ENTITY",
+                "DENSE"
+              ]
+            },
+            {
+              "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+              "knowledge_id": "linux.cpu.process_pressure",
+              "title": "Linux 进程用户态 CPU 热点",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+              "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+              "required_evidence": [
+                "CPU user/system 比例",
+                "Profile TopN",
+                "同宿主资源对比"
+              ],
+              "caveats": [
+                "单次 CPU 高不能证明代码回归",
+                "缺少符号时应返回证据不足"
+              ],
+              "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=d56943f712044d5abfe26f400a6f9c13\nPYTHON_RUNTIME",
+              "score": 0.869865,
+              "score_kind": "RERANK_RELEVANCE",
+              "matched_terms": [],
+              "recall_channels": [
+                "BM25",
+                "ENTITY",
+                "DENSE"
+              ]
+            }
+          ],
+          "evidence_contract": {
+            "is_evidence": false,
+            "status": "KNOWLEDGE_PRIOR_ONLY",
+            "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+          }
+        },
+        "knowledge_is_evidence": false
+      },
+      "occurred_at": "2026-10-01 15:26:47.059225+00:00"
+    },
+    {
+      "event_id": "event_3eee123f14714aca9bbbe336c60de363",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 5,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:27:08.816416+00:00"
+    },
+    {
+      "event_id": "event_c62ac6325d1b4b1bb18dba996d33add0",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 6,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_93dc8b5928e146878a5371ff3f6cbce5",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:27:08.828805+00:00"
+    },
+    {
+      "event_id": "event_5cc7f2aa27894247a76fb7d7a0cfec9b",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 7,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:27:08.850294+00:00"
+    },
+    {
+      "event_id": "event_d0ccc1c1c6a5440aaf282a53283b53e0",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 8,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_693e7b63507a4406a8002da3eb7cad16",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:27:08.872775+00:00"
+    },
+    {
+      "event_id": "event_0411d665696a49808fba70f519c489df",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 9,
+      "event_type": "lats.search_started",
+      "actor": "SYSTEM",
+      "payload": {
+        "algorithm": "LATS-UCT",
+        "algorithm_version": "drop-insight-lats-v1",
+        "semantics": {
+          "execution_mode": "BUDGETED_LATS",
+          "environment_semantics": "LIVE_PROGRESSIVE",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "strict_environment_reversibility": false,
+          "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+        },
+        "config": {
+          "investigation_strategy": "LATS",
+          "top_k": 3,
+          "exploration_constant": 1.4142135623730951,
+          "max_iterations": 1,
+          "max_tool_calls": 3,
+          "selection_policy": "UCT",
+          "value_lambda": 0.5,
+          "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+        },
+        "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+        "model_has_shell_access": false
+      },
+      "occurred_at": "2026-10-01 15:27:08.893574+00:00"
+    },
+    {
+      "event_id": "event_93b2ceb5f0f94a4bb4659d42999bc80e",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 10,
+      "event_type": "lats.candidates_expanded",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 4,
+        "candidates": [
+          {
+            "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+            "statement": "目标 Python 进程可能存在用户态热点函数或 GIL 竞争",
+            "expected_observations": [
+              "py-spy 样本集中在少数 Python 函数或线程"
+            ],
+            "falsification_criteria": [
+              "Python 栈样本均匀且无明显热点"
+            ],
+            "reason": "",
+            "recommended_tool": "start_pyspy_profile",
+            "evidence_domain": null,
+            "prior": 0.522648,
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 0,
+            "is_open_world_sentinel": false,
+            "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+            "hypothesis_id": "hyp_3357c1ebbe284d6093283d0f382d5a70",
+            "depth": 0,
+            "parent_node_id": null
+          },
+          {
+            "candidate_key": "candidate:2f2b4c3aa3646a5dd780",
+            "statement": "GIL 竞争限制多线程并发能力",
+            "expected_observations": [
+              "多线程 CPU 密集但并行度受限"
+            ],
+            "falsification_criteria": [
+              "单线程热点明确且 GIL 非瓶颈"
+            ],
+            "reason": "",
+            "recommended_tool": "start_pyspy_profile",
+            "evidence_domain": null,
+            "prior": 0.261324,
+            "initial_value": 0.57,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.57,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 1,
+            "is_open_world_sentinel": false,
+            "node_id": "hypothesis:hyp_93dc8b5928e146878a5371ff3f6cbce5",
+            "hypothesis_id": "hyp_93dc8b5928e146878a5371ff3f6cbce5",
+            "depth": 0,
+            "parent_node_id": null
+          },
+          {
+            "candidate_key": "candidate:f6a6ffa89bf4a487fb40",
+            "statement": "等待或 I/O 阻塞被误判为用户态热点",
+            "expected_observations": [
+              "系统调用或等待占比偏高"
+            ],
+            "falsification_criteria": [
+              "用户态函数独占热点"
+            ],
+            "reason": "",
+            "recommended_tool": "start_pyspy_profile",
+            "evidence_domain": null,
+            "prior": 0.174216,
+            "initial_value": 0.46,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.46,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 2,
+            "is_open_world_sentinel": false,
+            "node_id": "hypothesis:hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+            "hypothesis_id": "hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+            "depth": 0,
+            "parent_node_id": null
+          },
+          {
+            "candidate_key": "candidate:other-unknown",
+            "statement": "其他未知原因（OTHER/UNKNOWN）",
+            "expected_observations": [
+              "存在尚未被既有候选假设充分解释的观测现象"
+            ],
+            "falsification_criteria": [
+              "所有观测现象均能被既有候选假设充分解释"
+            ],
+            "reason": "",
+            "recommended_tool": "start_pyspy_profile",
+            "evidence_domain": null,
+            "prior": 0.041812,
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 3,
+            "is_open_world_sentinel": true,
+            "node_id": "hypothesis:hyp_693e7b63507a4406a8002da3eb7cad16",
+            "hypothesis_id": "hyp_693e7b63507a4406a8002da3eb7cad16",
+            "depth": 0,
+            "parent_node_id": null
+          }
+        ],
+        "progressive_widening": true
+      },
+      "occurred_at": "2026-10-01 15:27:08.893574+00:00"
+    },
+    {
+      "event_id": "event_4c7e2a09af7541f1bd1f7ec00b56d578",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 11,
+      "event_type": "lats.candidates_evaluated",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "evaluations": [
+          {
+            "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          },
+          {
+            "node_id": "hypothesis:hyp_93dc8b5928e146878a5371ff3f6cbce5",
+            "initial_value": 0.57,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.57,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          },
+          {
+            "node_id": "hypothesis:hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+            "initial_value": 0.46,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.46,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          },
+          {
+            "node_id": "hypothesis:hyp_693e7b63507a4406a8002da3eb7cad16",
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          }
+        ],
+        "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+        "evidence_gate_is_separate": true
+      },
+      "occurred_at": "2026-10-01 15:27:08.893574+00:00"
+    },
+    {
+      "event_id": "event_c84ac0b3b6b446c1818ac56a5e8347fb",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 12,
+      "event_type": "lats.node_selected",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+        "score": 1000000.0,
+        "components": {
+          "q": 0.68,
+          "exploration": 1000000.0,
+          "prior_bonus": 0.0,
+          "prior": 0.522648,
+          "visits": 0,
+          "virtual_loss": 0.0,
+          "unvisited": true
+        },
+        "rank": 0,
+        "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+        "selection_policy": "UCT",
+        "scores": [
+          {
+            "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+            "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.68,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.522648,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 0
+          },
+          {
+            "node_id": "hypothesis:hyp_93dc8b5928e146878a5371ff3f6cbce5",
+            "candidate_key": "candidate:2f2b4c3aa3646a5dd780",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.57,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.261324,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 1
+          },
+          {
+            "node_id": "hypothesis:hyp_5d2d188c29c645169ec3a3ca7f007c5e",
+            "candidate_key": "candidate:f6a6ffa89bf4a487fb40",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.46,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.174216,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 2
+          },
+          {
+            "node_id": "hypothesis:hyp_693e7b63507a4406a8002da3eb7cad16",
+            "candidate_key": "candidate:other-unknown",
+            "score": 1000000.0,
+            "components": {
+              "q": -0.05,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.041812,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 3
+          }
+        ],
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 4,
+        "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+      },
+      "occurred_at": "2026-10-01 15:27:08.893574+00:00"
+    },
+    {
+      "event_id": "event_b541590ed2f9423e862988c9b6c3db6d",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 13,
+      "event_type": "tool_call.requested",
+      "actor": "PLANNER",
+      "payload": {
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "tool_name": "start_pyspy_profile",
+        "policy_decision": "DENY",
+        "status": "DENIED"
+      },
+      "occurred_at": "2026-10-01 15:27:08.964899+00:00"
+    },
+    {
+      "event_id": "event_50847e481f8f410c98391d736f58bb99",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 14,
+      "event_type": "lats.action_proposed",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "task_id": null,
+        "tool_name": "start_pyspy_profile",
+        "policy_decision": "DENY",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "status": "DENIED",
+        "proposal_only": true
+      },
+      "occurred_at": "2026-10-01 15:27:08.979121+00:00"
+    },
+    {
+      "event_id": "event_83aeafef3c7a43deb0336158030b88fc",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 15,
+      "event_type": "lats.action_blocked",
+      "actor": "POLICY",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "task_id": null,
+        "tool_name": "start_pyspy_profile",
+        "policy_decision": "DENY",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "status": "DENIED"
+      },
+      "occurred_at": "2026-10-01 15:27:08.979121+00:00"
+    },
+    {
+      "event_id": "event_2d330b8514a346a6af53d87c1434f09e",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 16,
+      "event_type": "lats.observation_recorded",
+      "actor": "POLICY",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "task_id": null,
+        "tool_name": "start_pyspy_profile",
+        "policy_decision": "DENY",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "observation_id": "policy:toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "observation_source": "POLICY_GATE",
+        "summary": "当前动作被策略或人工门禁拒绝，未执行真实采集。",
+        "evidence_ids": [],
+        "external_observation": false,
+        "failure_is_counter_evidence": false
+      },
+      "occurred_at": "2026-10-01 15:27:08.979121+00:00"
+    },
+    {
+      "event_id": "event_fc1cf7facb4148a6be2b6038bf98da0e",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 17,
+      "event_type": "lats.reflection_recorded",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "decision": "SWITCH_DIRECTION",
+        "summary": "当前动作被策略或人工门禁拒绝；不生成事故反证，改选允许的证据域。",
+        "grounded_in_observation": "policy:toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "reflection_is_evidence": false
+      },
+      "occurred_at": "2026-10-01 15:27:08.979121+00:00"
+    },
+    {
+      "event_id": "event_51693dba314743948ef13ca2e7bc98e6",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 18,
+      "event_type": "lats.backpropagated",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70",
+        "tool_call_id": "toolcall_76b39f6de5684cb2a7ea679e89719f4e",
+        "path_node_ids": [
+          "hypothesis:hyp_3357c1ebbe284d6093283d0f382d5a70"
+        ],
+        "reward": -0.55,
+        "outcome": "POLICY_BLOCKED",
+        "components": {
+          "evidence_gate": -0.45,
+          "confidence": -0.1,
+          "quality_penalty": 0.0,
+          "support_count": 0,
+          "counter_count": 0,
+          "rejected_count": 0
+        }
+      },
+      "occurred_at": "2026-10-01 15:27:08.979121+00:00"
+    },
+    {
+      "event_id": "event_4ca162b8ce9246568978cf242cca56b3",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 19,
+      "event_type": "diagnosis.insufficient_evidence_finalized",
+      "actor": "SYSTEM",
+      "payload": {
+        "termination_reason": "BUDGET_EXHAUSTED",
+        "termination_detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+        "accepted_support_report": false,
+        "best_supported_report_id": null,
+        "minimum_diagnosis_rounds": 1,
+        "observed_diagnosis_rounds": 0,
+        "minimum_rounds_satisfied": false
+      },
+      "occurred_at": "2026-10-01 15:27:09.004879+00:00"
+    },
+    {
+      "event_id": "event_647d6fa8706d426482ff40d1ca875083",
+      "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+      "sequence": 20,
+      "event_type": "lats.search_terminated",
+      "actor": "SYSTEM",
+      "payload": {
+        "reason": "BUDGET_EXHAUSTED",
+        "detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+        "final_status": "INSUFFICIENT_EVIDENCE",
+        "best_report_id": null
+      },
+      "occurred_at": "2026-10-01 15:27:09.009391+00:00"
+    }
+  ],
+  "tasks": []
+}

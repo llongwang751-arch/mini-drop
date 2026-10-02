@@ -1,0 +1,423 @@
+{
+  "schema_version": "mini-drop.clean-stack-acceptance.v1",
+  "status": "PASSED",
+  "source_head": "7abe089ae9bfc9705b56c73a5b1dd19dd3bad7ea",
+  "project": "mini-drop-clean-1282cdf72b9dd084",
+  "started_at": "2026-10-02T12:00:31.010524+00:00",
+  "scope": "FRESH_CHECKOUT_CORE_PLATFORM_REAL_SYS_METRICS",
+  "stages": [
+    {
+      "name": "preflight",
+      "status": "PASSED",
+      "elapsed_seconds": 2.182
+    },
+    {
+      "name": "configuration",
+      "status": "PASSED",
+      "elapsed_seconds": 1.679
+    },
+    {
+      "name": "build",
+      "status": "PASSED",
+      "elapsed_seconds": 390.871
+    },
+    {
+      "name": "start",
+      "status": "PASSED",
+      "elapsed_seconds": 48.698
+    },
+    {
+      "name": "migration",
+      "status": "PASSED",
+      "elapsed_seconds": 0.12
+    },
+    {
+      "name": "heartbeat",
+      "status": "PASSED",
+      "elapsed_seconds": 3.011
+    },
+    {
+      "name": "task",
+      "status": "PASSED",
+      "elapsed_seconds": 15.126
+    },
+    {
+      "name": "artifacts",
+      "status": "PASSED",
+      "elapsed_seconds": 0.345
+    },
+    {
+      "name": "readonly",
+      "status": "PASSED",
+      "elapsed_seconds": 0.013
+    },
+    {
+      "name": "cleanup",
+      "status": "PASSED",
+      "elapsed_seconds": 15.435
+    }
+  ],
+  "excluded": [
+    "Office",
+    "Go/Java/C++ workload deployment",
+    "perf/BPF/other collectors",
+    "external model quality",
+    "OS installation",
+    "airgap",
+    "hour endurance"
+  ],
+  "security": {
+    "private_grpc_mtls": true,
+    "grpc_token_auth": true,
+    "api_key_auth": true,
+    "public_http": "loopback ephemeral port only",
+    "model_mode": "none",
+    "production_credentials": false
+  },
+  "cleanup": {
+    "status": "PASSED",
+    "removed_container_ids": [
+      "1fd435f886547b03313343174d5aa0880c6422a6a16ea82bfd306b6d1f8e816c",
+      "0b347f65039f8e1b24275b62f3ef1bbd34cbade5b024e685965912db82c5d827",
+      "8f505a71a56b554b938684825c24dbb2910d5fdab076095cf1867fdba59802c8",
+      "41b8bb76da0b2729b7a70dfc4115298e2d17b8e21d94ede3240fecbcbc380c88",
+      "6f72a6ab89887238039e82c6b4d4d8d752404a37ddbdf6109a808505789f6ede",
+      "8b060dce41c86fe74b95f26a63f19cf910d25ff01253bf69e59bc4394a6209da",
+      "ed3bcd12b4f480ef68badc7c922c8e67d079cdd878a8a627f7113df989b125ca",
+      "0d8015d9da23a4c941d7382d078cc95197a9ec198c40f861e02074cab9edebab",
+      "539eb391344272de71a00096eb1ff6ab661cd24df12a3baf58d763f8154ddb68",
+      "2f6788b5b03a8aef358893192e5a878fb89ac315b1f5ed2f7295dfbcd73c3363"
+    ],
+    "removed_network_ids": [
+      "d1f281c9bdfb"
+    ],
+    "retained_own_volumes_for_runner_teardown": [
+      "mini-drop-clean-1282cdf72b9dd084_agentoutbox",
+      "mini-drop-clean-1282cdf72b9dd084_miniodata",
+      "mini-drop-clean-1282cdf72b9dd084_pgdata"
+    ],
+    "volumes_deleted": false,
+    "global_prune": false
+  },
+  "source_tree": "df22dc2228f4f826405c1f5842b751c9d8af84dc",
+  "runner": {
+    "docker_version": "28.0.4",
+    "cpus": 4,
+    "memory_bytes": 16765415424,
+    "disk_free_bytes": 92020174848,
+    "runtime_memory_ceiling_mb": 4416,
+    "native_build_jobs": 1,
+    "build_mode": "sequential_no_cache_official_base_pull"
+  },
+  "canonical_sources": {
+    "docker-compose.yml": "5be18fd9a2a41b502761f0e98a1a9a4e803a65c595bd010916dc53cfe32eba80",
+    "deploy/dockerfiles/apiserver.Dockerfile": "a6bf0406516c99afd7ab5d50759077c9bf86640177424c034cd06ddb37776a6b",
+    "deploy/dockerfiles/local-sre-api.Dockerfile": "ef6febb4ff89dd166e1b38f9448044dd695b927147587b761cb159f57859fa50",
+    "deploy/dockerfiles/local-sre-python.Dockerfile": "3a6dfb309fc4a0e7a14c71d26bec1ef3cfbf4baaa0f8635c1306d20a0d537fbd",
+    "deploy/dockerfiles/minio-source.Dockerfile": "0c515872b500551058a91d544aad0357c7b29c64e9fd29e3d328acbc8e29928b",
+    "deploy/dockerfiles/native-agent-source-overlay.Dockerfile": "2171abab89e7b82bc5dc2f1a6b2b65ac961b4bbf64607daee6ddf1a6ecc6bc8e",
+    "deploy/dockerfiles/native-agent.Dockerfile": "468bf0f263b35c15450a4a378d195e42eec8a7bb375f62b8b8b7979ceed482d0",
+    "deploy/dockerfiles/native-control.Dockerfile": "92511eff5025d0e9c1406ef75297219c60c850769adf447cdd30feffbd731cbb",
+    "deploy/dockerfiles/python-worker-source-overlay.Dockerfile": "4009b85a615b687adc8031c20e503a2ff4eece9d7b48efe5748f87d4852b3ddf",
+    "deploy/dockerfiles/python-worker.Dockerfile": "5966fcd2effc796736ac3626ccc89dda4c2027756877dc74f65caa0df7bf5c40",
+    "deploy/dockerfiles/sre-release-python.Dockerfile": "ca5ba837643a48908491af791ff5b2905f27bd8b2a73b347c94010a384d4698f",
+    "deploy/dockerfiles/web-prebuilt.Dockerfile": "6a62d4ae730ae9f123bd19f9a0b002b7a9d5d01cdc78e72a1fc5c35ea80e85ab",
+    "deploy/dockerfiles/web.Dockerfile": "6b756e2a003681c90942f5b74c6f46c8dad48178425ecf210259ea1000f3a7ab",
+    "demo/python-hotspot/Dockerfile": "fda4626a61bea4ed93e738875a086d396b324704d9b6c59a7d55fc62a6dafc51",
+    "deploy/scripts/generate-dev-certs.sh": "3e4357fcc2c0b9bf6ad8081c92b1df483f9e6adf0a8c0753e6cccf75df94df93"
+  },
+  "configuration": {
+    "sanitized_sha256": "202c7c6fed7b2d4a46736f7a89b2ef6ae94c22f4f9216683495ee61821ae9c51",
+    "template": "docker-compose.yml",
+    "services": [
+      "analyzer",
+      "apiserver",
+      "control-plane",
+      "diagnosis-worker",
+      "migrate",
+      "minio",
+      "native-agent",
+      "postgres",
+      "python-hotspot",
+      "web"
+    ],
+    "image_tags_unique": true,
+    "private_key_permissions": {
+      "client.key": {
+        "uid": 65532,
+        "mode": "0600"
+      },
+      "agent.key": {
+        "uid": 0,
+        "mode": "0600"
+      }
+    },
+    "permitted_overrides": [
+      "unique project/images",
+      "private PKI/env/source absolute paths",
+      "official build mirrors and serial native build",
+      "bounded runtime resources and no restart",
+      "loopback ephemeral Web port",
+      "single idle Python target",
+      "sys_metrics-only Agent capabilities/mounts"
+    ]
+  },
+  "services_ready": {
+    "healthy": 8,
+    "agent_running_pending_heartbeat": 1,
+    "migration_exit_zero": 1
+  },
+  "migration": {
+    "source_heads": [
+      "20260910_0008"
+    ],
+    "database_heads": [
+      "20260910_0008"
+    ]
+  },
+  "agent": {
+    "id": "clean_agent_1282cdf72b9dd084",
+    "fresh_heartbeats_observed": 2,
+    "snapshot_id": "psnap_d6f7bc8023b3d803",
+    "owned_target_container_id": "539eb391344272de71a00096eb1ff6ab661cd24df12a3baf58d763f8154ddb68",
+    "owned_target_host_pid": 30541
+  },
+  "artifact": {
+    "sha256": "b2dcb7c61ee2367bed1f8dbbfc2b2f3633a70a017e329221b9f2e7c790422179",
+    "size_bytes": 12685,
+    "sample_count": 6,
+    "window_ms": 5003,
+    "target_pid": 30541,
+    "process_start_ticks": 47149,
+    "analyzer_type": "collector.sys_metrics",
+    "analysis_schema": "sys_metrics_analysis.v2",
+    "task_id": "task_20261002_120757_49a43101"
+  },
+  "finished_at": "2026-10-02T12:08:28.608586+00:00",
+  "evidence_files": {
+    "agent-heartbeat.json": {
+      "sha256": "3453286345c447c7fac38ee3dfc14aa546c12d621356f19ebfd7dff1dde0b04c",
+      "size_bytes": 979
+    },
+    "agent-runtime-permissions.json": {
+      "sha256": "603fd5028f8aebdcf64224ae520e2853befd44a54a4f4978bb8d238727176b6f",
+      "size_bytes": 123
+    },
+    "built-images.json": {
+      "sha256": "d15da53aeedb3df0e49c983e0e55ab95a69060046ac94e7430c1f1b729cdfc9a",
+      "size_bytes": 2337
+    },
+    "command-001.log": {
+      "sha256": "cdf6f686f2c545c297a31cf0e97ed670832d489c49afb408d547fbf7e2df5469",
+      "size_bytes": 42
+    },
+    "command-002.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-003.log": {
+      "sha256": "f6631bb603e34a29980ef6b56ba7346c519276586cd9590808d6a60973adf85a",
+      "size_bytes": 42
+    },
+    "command-005.log": {
+      "sha256": "5a3af0cf1fa88a89bef2e8386bd4bc37c1306c4de8de182a6c5d00f66de03809",
+      "size_bytes": 32
+    },
+    "command-006.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-007.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-008.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-009.log": {
+      "sha256": "a0b59e638989fed4eddceb21a4664aafe1ea60887a8dd093ae336f87565db7df",
+      "size_bytes": 461
+    },
+    "command-010.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-011.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-012.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-013.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-015.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-016.log": {
+      "sha256": "9dca6317effef85527a7254b988112830d799e23aeb1133e09bb61c7a26801ec",
+      "size_bytes": 33005
+    },
+    "command-017.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-018.log": {
+      "sha256": "d0f4cd0d13b289bee6a793919e87a8970edac9f35e86e815d5b770b2f8e3723f",
+      "size_bytes": 66574
+    },
+    "command-019.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-020.log": {
+      "sha256": "000baff505d4d52a8f4c7584015647759c70942588492546a8ec1f7742a85121",
+      "size_bytes": 78352
+    },
+    "command-021.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-022.log": {
+      "sha256": "1a42caaa816094fd78e214938813251a9879051a4f09fefdf84022f381dc9b75",
+      "size_bytes": 104892
+    },
+    "command-023.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-024.log": {
+      "sha256": "841d06d5170d19c8c626c4861bced7731ba4605d97b95f0189dc8975fc48bcf7",
+      "size_bytes": 7111
+    },
+    "command-025.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-026.log": {
+      "sha256": "e934c2b212d0195cecfd322cdf8319b130e7d15cec355fbb28b25fe4b8cc37d6",
+      "size_bytes": 9682
+    },
+    "command-027.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-028.log": {
+      "sha256": "c3c8ccf54842116c031186beaec1b3427c8627ebad419fb6bcbce7add520a9d2",
+      "size_bytes": 2360
+    },
+    "command-029.log": {
+      "sha256": "f53809766835dc27e1f472fdee3c1998fe7cfb9c3f0a7fe3bc6b55473c592cd6",
+      "size_bytes": 7696
+    },
+    "command-040.log": {
+      "sha256": "d7a69e6f56cd09228aedf5d06192e873eee8b2c9d43705b0415452160898b3a4",
+      "size_bytes": 5430
+    },
+    "command-051.log": {
+      "sha256": "5654c9d49f72ffa1a4db5a08167b5e71cc39f6b2d05f9b54b4f04bf865828be7",
+      "size_bytes": 17
+    },
+    "command-052.log": {
+      "sha256": "9bd7b3db9c1c7cd3c18610e9d97a2025ac9f6181167ab0f8c77654a804ae73d1",
+      "size_bytes": 225
+    },
+    "command-053.log": {
+      "sha256": "b0768f2f6ad20bf6a1779f26348993b629a7aa0b6001fd41cf9cc9a4f35e26b7",
+      "size_bytes": 114
+    },
+    "command-054.log": {
+      "sha256": "b77a768b82c9e81e74d18e860e8ae374f1c0a6d9c601f4bdc8c731f4fe82f7d6",
+      "size_bytes": 15
+    },
+    "command-058.log": {
+      "sha256": "9bbaff5b3c0e116599c318842d55c7fc221f43c40f8c95a0bb65ce10692a660b",
+      "size_bytes": 412
+    },
+    "command-062.log": {
+      "sha256": "cbc6cf7119747804a52cbcd46257df6fd42cf312268d44e32be2731da0f54da6",
+      "size_bytes": 183
+    },
+    "command-063.log": {
+      "sha256": "cdf6f686f2c545c297a31cf0e97ed670832d489c49afb408d547fbf7e2df5469",
+      "size_bytes": 42
+    },
+    "command-064.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-065.log": {
+      "sha256": "08d4963fb901366293090f4813d79d633c3c71abd11f9b57ad3adbdc12c811b2",
+      "size_bytes": 17029
+    },
+    "command-068.log": {
+      "sha256": "4d101b046873ff5ca8bb1e74f358be7180a555bffb0bdc20ce15fd48e9129df3",
+      "size_bytes": 706
+    },
+    "command-069.log": {
+      "sha256": "bc6fcc60439ace8a5f14ae2145220f45524126a1ffaed68f4d2c8f23b07a3c23",
+      "size_bytes": 651
+    },
+    "command-072.log": {
+      "sha256": "b192b53e0949ed2162a56ce1d4643e9ebfda990bd4825a7820157507242828c3",
+      "size_bytes": 14
+    },
+    "compose-sanitized.json": {
+      "sha256": "202c7c6fed7b2d4a46736f7a89b2ef6ae94c22f4f9216683495ee61821ae9c51",
+      "size_bytes": 22458
+    },
+    "minio-source-version.json": {
+      "sha256": "01aa35963487ed38980051dc4f97b45935e7fecac438e5f4d260bdb0ee6da070",
+      "size_bytes": 650
+    },
+    "persisted-chain.json": {
+      "sha256": "daf75c18227420236286115b29fc35e0465e65747b4b89803ee582bb382e249c",
+      "size_bytes": 793
+    },
+    "process-snapshot.json": {
+      "sha256": "8b612a907fbbbaeb83fcf53154234666d670bfdc0027018873092f2b621beb03",
+      "size_bytes": 689
+    },
+    "service-readiness.json": {
+      "sha256": "fc4373f9ca2c555ba52fff89d75c444867a7beb14e5dfdb1f5edad179f067493",
+      "size_bytes": 1777
+    },
+    "sys_metrics.raw.json": {
+      "sha256": "b2dcb7c61ee2367bed1f8dbbfc2b2f3633a70a017e329221b9f2e7c790422179",
+      "size_bytes": 12685
+    },
+    "target-identity-after.json": {
+      "sha256": "34f4be901b4d52cd4e641509dbba34dce8c5bf83d7a659f5d07e4108bbbb822b",
+      "size_bytes": 262
+    },
+    "target-identity-before.json": {
+      "sha256": "34f4be901b4d52cd4e641509dbba34dce8c5bf83d7a659f5d07e4108bbbb822b",
+      "size_bytes": 262
+    },
+    "task-admission.json": {
+      "sha256": "c60ec5d8194eb192856b49fa4fd7d5315091c85d5cf4f03fbdc3af8a6d684380",
+      "size_bytes": 124
+    },
+    "task-artifacts.json": {
+      "sha256": "be819d1a87f397a359d2d50f6071530a82120de66993a7a62acd8f16e5365ea2",
+      "size_bytes": 8772
+    },
+    "task-events.json": {
+      "sha256": "773ea150513a811b4b43bda171dee56f7f3d89678078c4029d86a9ca5295d09b",
+      "size_bytes": 2608
+    },
+    "task-final.json": {
+      "sha256": "77cf4fe754b55631b74b080529d5e206df86b4cd1fbb07cc760e3a64ce4664c4",
+      "size_bytes": 1152
+    },
+    "web-http-contract.json": {
+      "sha256": "178d59f8df4b4fee346ffd712b1d8046344b1f6919272bb83874a7847559ef02",
+      "size_bytes": 1288
+    }
+  }
+}

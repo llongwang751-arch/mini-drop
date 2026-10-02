@@ -1,0 +1,51 @@
+.diagnosis-welcome { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 48px 40px; border: 1px solid var(--md-line); border-radius: 20px; background: var(--md-surface); }
+.diagnosis-welcome-copy { min-width: 0; }
+.diagnosis-welcome-kicker { color: var(--md-accent); font-size: 13px; font-weight: 600; }
+.diagnosis-welcome-copy h3 { margin: 18px 0; color: var(--md-ink); font-size: clamp(30px, 3vw, 42px); font-weight: 650; letter-spacing: -0.045em; line-height: 1.35; }
+.diagnosis-welcome-copy p { margin: 0 0 28px; color: var(--md-muted); font-size: 15px; line-height: 1.9; }
+.diagnosis-welcome-copy > .ant-btn { height: 48px; padding-inline: 22px; font-size: 14px; }
+.diagnosis-welcome-examples { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; margin-top: 30px; color: var(--md-muted); font-size: 12px; }
+.diagnosis-welcome-examples button { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; color: var(--md-ink); font-size: 12px; cursor: pointer; }
+.diagnosis-welcome-examples button .anticon { color: var(--md-muted); transition: transform 180ms var(--md-ease); }
+.diagnosis-welcome-examples button:hover { color: var(--md-accent); }
+.diagnosis-welcome-examples button:hover .anticon { color: var(--md-accent); transform: translateX(3px); }
+.diagnosis-blueprint { display: flex; flex-direction: column; min-width: 0; align-items: center; padding: 24px; border: 1px solid #e6ebf5; border-radius: 16px; background: radial-gradient(ellipse at 50% 50%, #edf2fd 0%, #f8faff 72%); }
+.blueprint-title { display: flex; width: 100%; align-items: center; gap: 8px; margin-bottom: 28px; color: var(--md-muted); font-size: 12px; }
+.blueprint-title > .anticon { color: var(--md-accent); }
+.blueprint-title small { margin-left: auto; color: var(--md-muted); font-size: 11px; }
+.blueprint-root, .blueprint-result { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 20px; border: 1px solid #dbe3f2; border-radius: 12px; background: #fff; box-shadow: 0 4px 14px rgb(36 88 211 / 4%); }
+.blueprint-root .anticon, .blueprint-result .anticon { color: var(--md-accent); font-size: 22px; }
+.blueprint-root strong, .blueprint-result strong { display: block; color: var(--md-ink); font-size: 14px; font-weight: 600; }
+.blueprint-root small, .blueprint-result small { display: block; margin-top: 4px; color: var(--md-muted); font-size: 11px; }
+.blueprint-connector { position: relative; width: 55%; height: 28px; flex-shrink: 0; border-top: 0; border-bottom: 1px solid #b7c8e8; }
+.blueprint-connector::before { position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px solid #b7c8e8; content: ""; }
+.blueprint-branches { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; }
+.blueprint-branches > div { position: relative; display: grid; gap: 6px; justify-items: center; padding: 16px 8px; border: 1px solid #dbe3f2; border-radius: 12px; background: #fff; }
+.blueprint-branches > div::before { position: absolute; height: 16px; top: -17px; left: 50%; border-left: 1px solid #b7c8e8; content: ""; }
+.blueprint-branches .anticon { color: var(--md-accent); font-size: 20px; margin-bottom: 2px; }
+.blueprint-branches strong { color: var(--md-ink); font-size: 13px; font-weight: 600; }
+.blueprint-branches small { color: var(--md-muted); font-size: 11px; }
+.blueprint-connector.is-merge { border-bottom: 0; border-top: 1px solid #b7c8e8; margin-top: 16px; }
+.blueprint-connector.is-merge::after { position: absolute; inset: -17px 0 auto; height: 16px; border-inline: 1px solid #b7c8e8; content: ""; }
+.blueprint-result { width: 100%; padding-block: 15px; }
+@media (max-width: 1100px) {
+  .diagnosis-welcome { gap: 24px; padding: 32px 24px; }
+  .diagnosis-blueprint { padding: 20px 16px; }
+  .diagnosis-welcome-examples { gap: 4px 12px; }
+}
+@media (max-width: 820px) {
+  .diagnosis-welcome { grid-template-columns: 1fr; gap: 28px; }
+  .diagnosis-welcome-copy h3 { font-size: 32px; }
+  .diagnosis-blueprint { max-width: 480px; width: 100%; justify-self: center; }
+}
+@media (max-width: 480px) {
+  .diagnosis-welcome { padding: 28px 22px; border-radius: 16px; }
+  .diagnosis-welcome-copy h3 { font-size: 30px; }
+  .diagnosis-welcome-copy p { font-size: 14px; }
+  .diagnosis-welcome-examples { margin-top: 22px; }
+  .diagnosis-welcome-examples > span { flex-basis: 100%; }
+  .diagnosis-blueprint { padding: 18px 12px; }
+  .blueprint-result { padding-inline: 12px; }
+  .blueprint-result strong { font-size: 12px; }
+  .welcome-desktop-break { display: none; }
+}

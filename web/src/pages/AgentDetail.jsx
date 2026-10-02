@@ -202,7 +202,7 @@ export default function AgentDetail() {
 
   if (loading) {
     return (
-      <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+      <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
         <Skeleton.Input active size="small" style={{ width: 200 }} />
         <Row gutter={SPACING.lg}>
           <Col xs={24} lg={12}>
@@ -241,17 +241,9 @@ export default function AgentDetail() {
   }
 
   return (
-    <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+    <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
       {/* 页头 */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 8,
-        }}
-      >
+      <div className="workspace-page-header">
         <Space align="center">
           <Button
             icon={<ArrowLeftOutlined />}

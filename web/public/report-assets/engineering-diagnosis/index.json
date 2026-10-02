@@ -1,0 +1,649 @@
+{
+  "schema": "mini-drop.engineering-diagnosis-index.v1",
+  "profile": "engineering-diagnosis.v1",
+  "evaluation_mode": "MIXED_LIVE_CAMPAIGNS",
+  "fresh_live_run": false,
+  "fresh_live_scenarios": 7,
+  "regraded_prior_scenarios": 14,
+  "registered_scenarios": 21,
+  "evaluated_scenarios": 21,
+  "diagnosis_accepted": 21,
+  "localization_accepted": 6,
+  "refuted": 8,
+  "not_evaluated": [],
+  "cases": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "diagnosis_id": "insight_4e2cac8347544786a09d9352c3237495",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_78c41bd87964529af575ff1f5de0bfa5",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "CPU 计算热点",
+      "case_sha256": "dac45a784c0b828be5f5e8deb739349a953d8d8ccadd01c2df6cca059c6adcba",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "diagnosis_id": "insight_c48cddbfca2a420ba11c42415af9d5c2",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "source_hot_function；_sample；_publish_application_metrics",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_9113365336ad65999e835df3d8315d8b",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "source_hot_function；_sample；_publish_application_metrics",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Python 源码热点",
+      "case_sha256": "2ecb759ad9d3947e022e34fbce9e83feebc3c098938e03f6cab573f006bebaa1",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "diagnosis_id": "insight_480fec9591864e36bc3dd8a8ae6d7a10",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_4195815ae9bd12c4dfeb024f8a21488e",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_02e3a809191acf9bd3785fa56e2fbe40",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "进程内存增长",
+      "case_sha256": "220c7e1873257336d18118ee10f3a274d8c7454a61de4eac8c47c4fe15568c4d",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "diagnosis_id": "insight_0c461586b0924971a9521b4392ec6c72",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_df674d800f3b9b663974813ccb488213",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_ead6b92cb912e322ce27b30a4c44ba85",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "同步写入压力",
+      "case_sha256": "2c044f9184036c4f298f4c7f36f3db9107b9a08ad9bf13dc7950c5702051e334",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "diagnosis_id": "insight_e588c05f9d8241119df432ca76cae3e1",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_0192c35b4844c46ff34c9ddb18815cca",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "同机噪声邻居",
+      "case_sha256": "0a55234c74584973898c49b0fb52ef33f6ff7900ee44b1122b967e8a6a3b0d83",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "load-saturation",
+      "diagnosis_id": "insight_ba83f061fe8848a5ba95409f4525eadd",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_f4faa762ecc041f9a973fbc6419d18ce",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "入口负载饱和",
+      "case_sha256": "5c2e0afc0fefe832c881e8edfb98a36972c59d734ab46852653d0a3bb97fcdc5",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "diagnosis_id": "insight_9cfa5417cfcd47388f6669ed99fbcbdf",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_fb136d4ab160ad3978d97d80941371b7",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "生产消费队列堆积",
+      "case_sha256": "b47c3c925d96046983c0519de4bf19a9d87e044447d3ff2b27b2874d30e789d6",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "main.runCPUFault；main.goCPUHotFunction",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_c45097843ac98795520072c62416514c",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "main.runCPUFault；main.goCPUHotFunction",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 服务 CPU 热点",
+      "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_edde7124ef71a1cafad121c60943c593",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 网络等待与下游慢响应",
+      "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "diagnosis_id": "insight_c8fd60186dc34bcbab99b102879cdddd",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_5c7d4acaa6c560e0547d3d9371bbbaaa",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 堆内存持续增长",
+      "case_sha256": "3251e2ba16d079dc83b57086734a3a7ca1d6a9ca288e6e0de87ef5c7871fb517",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "go-file-io",
+      "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 同步文件写入",
+      "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b",
+      "fresh_live_run": false,
+      "campaign_id": "prior-20260930",
+      "originally_live_record": false
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "diagnosis_id": "insight_d828a33b55b74fb3965f0ce3c5a7f249",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_7b52c7ede1771ac21e828336cebc56a6",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_6df1d173790675f7c9e41f1f0f452672",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 分配风暴与 GC 压力",
+      "case_sha256": "2ef939e648d799f6d5f12fc80ec4c1affdcb9e94fc6f12687106b9bb4a7367cf",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "diagnosis_id": "insight_c5d19923c6524f1589dd2bcac90920f1",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_537b9fad241d839fbc358abe981bd341",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_d3914a7684abe5f139738684f0cb7031",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 锁竞争",
+      "case_sha256": "fecc28a2b6b68014521f83d11b40ff36ac6354ea3d904340937ff4c5ce3bedba",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "diagnosis_id": "insight_7faa74ba878d4555b2b72185ce81888f",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "下游调用耗时路径",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_1529588fbc2fdd9e9cda5bde8281c089",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "下游调用耗时路径",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 下游依赖慢响应",
+      "case_sha256": "69152f1971290e1a4a9a5b16163ee240abdf4352dc6e0f8ee5f9dff9479e6d17",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "diagnosis_id": "insight_4423bd58c97b46ff96d5db95506b0242",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_88cc7ad1db0132857aaad3bd69aeb27f",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 堆外内存持续增长",
+      "case_sha256": "3dd011f0f05cf7c9ff2306da411c6f2b5f6e557362b92b60a53ac821ff25ffd7",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "java-file-io",
+      "diagnosis_id": "insight_be58ee31560b422a97e11a89d855ea95",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_bd34e978939666816ad3c6289194452b",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_6cb9c224eaea61a6cf3ffebbc7589fd5",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Java 同步文件写入",
+      "case_sha256": "66c8ef626b30319b31e7959c5439dcac16d43298bb13167a2c73be758d8a372c",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "diagnosis_id": "insight_400e527ed1524139bedfd0403b5553a6",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "cpp_cpu_hot_function",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_9eacfe6b27eeee01861cfeaedf7d784b",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "cpp_cpu_hot_function",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 计算热点",
+      "case_sha256": "90facdc6e18ecd170e706128efb4f1c061b144f145855b4d062968a4d1808801",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "diagnosis_id": "insight_b944cda00f874563842a7ec6fe697501",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "SUPPORTED_OBSERVATION",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_ccce185f5aeef8a021951514585278c8",
+          "outcome": "SUPPORTED_OBSERVATION",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 互斥锁竞争",
+      "case_sha256": "609cb77ad08920afc04be151802159f8db4dabce564f315b29217a46d197e6c6",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "diagnosis_id": "insight_83256cf18789478cb7a8caa29be362cb",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_e02eb7855e0f8ab8f6f0d1506e86acdf",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 有界内存保留",
+      "case_sha256": "c33e0842c025cf3b0384886f134c373d76fb3aa20a66873f376fcb375d8128bf",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "diagnosis_id": "insight_ba819c2b01014444a184c0dec3401e04",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_ad3baf8b10f1bcedebdd498dc49593bd",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 同步文件写入",
+      "case_sha256": "dd101941c73a084b14378f89f9b9e2cd922343a6110213af3368e7906087fec9",
+      "fresh_live_run": true,
+      "campaign_id": "seven-gaps-20261002",
+      "originally_live_record": true
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "diagnosis_id": "insight_571b7eaa82e54958a06cd1925e59a87b",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "下游调用耗时路径",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_deea32391be1037219f934403142fcf3",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "下游调用耗时路径",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "C++ 下游响应变慢",
+      "case_sha256": "d8b9888911f2d3510e93d930da537b7e3d33c0d47048f006fa2384752d56476b",
+      "fresh_live_run": false,
+      "campaign_id": "interview-completion-20261001",
+      "originally_live_record": true
+    }
+  ],
+  "download_url": "/report-assets/engineering-diagnosis/index.json",
+  "causal_and_fix_acceptance": "NOT_EVALUATED_BY_THIS_PROFILE",
+  "boundary": "Engineering diagnosis response, not causal proof or whole-business health; historical results unchanged.",
+  "current_campaign_id": "seven-gaps-20261002",
+  "campaigns": [
+    {
+      "campaign_id": "interview-completion-20261001",
+      "evaluated_scenarios": 11,
+      "current_campaign": false
+    },
+    {
+      "campaign_id": "seven-gaps-20261002",
+      "evaluated_scenarios": 7,
+      "current_campaign": true
+    },
+    {
+      "campaign_id": "prior-20260930",
+      "evaluated_scenarios": 3,
+      "current_campaign": false
+    }
+  ]
+}

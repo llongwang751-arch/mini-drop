@@ -1,0 +1,85 @@
+# 工程诊断验收与扩展新问题
+
+## 2026-10-02 当前成绩统一为工程诊断
+
+按用户本次要求，旧因果专项成绩从页面、默认API及公开索引移除。故障广场不再返回latest_acceptance/旧acceptance_level，不加载旧成绩文件；前端仅使用工程索引，删除旧成绩折叠、卡片旧标签及复验链接。旧公开路径由publication=RETIRED的源合同生成无分数替代地址，不能通过重新生成恢复旧分数。
+
+当前展示工程判断21/21、异常路径6/21、有效反证8条，来源为最新7个窗口及此前14条记录；21类实验启停、新案例和证据合同继续使用。报告的因果/同负载修复标志仍由证据决定，工程判断不改称因果验证。本次不重新注入故障或重跑小时压测。实现、测试及最终发布见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)。
+
+本次移除已发布`20261002T045234Z`，应用源码`de094fff754f2d8cb7139dd99e31c7a30d5fb754`，[精确CI36966142203](https://github.com/llongwang751-arch/mini-drop/actions/runs/36966142203)完成14/14作业。Python1682项通过/16项登记跳过，前端317项、Chromium固定数据8项及真实PostgreSQL14项零跳过通过；后端相关127项本地回归通过。Worker/Analyzer各211份源码、Web容器及公网58份资源SHA一致；13容器健康、21场景inactive，环境/挂载及另外10容器、紧邻部署前Office/API/Native基线核对通过。线上API的21场景均不含旧成绩字段，旧公开地址仅返回无分数替代地址；真实浏览器确认旧成绩及入口消失，新工程21/21、具体路径6/21、反证8条、四种宽度和既有体检/业务路径通过，41份证据重新下载SHA一致。没有新建诊断或重跑故障/压测。发布回执和测试见[本次归档](../reports/quality/engineering-score-only-20261002/manifest.json)。
+
+## 2026-10-02 七类观测与规划缺口已补齐
+
+七类独立真机工程验收全部通过：Python/C++ 源码热点定位、C++ mutex 与共享 cgroup 配额竞争观测、Python/Java/C++ 三种同步 I/O 低延迟反证。新生成成绩为工程判断21/21、具体路径6/21、有效反证8条，范围明确为本轮7条与历史14条。首次七试验5/7及两个失败保留，后续两次独立重试通过，合计九次试验。原始 case、下载SHA、恢复与清理见[七类交付](../reports/architecture/seven-gaps-20261002.md)。
+
+C++ 原因是镜像缺binutils/addr2line，已补正式依赖及真实镜像工具链CI；共享配额原因是原始boot_id末尾换行与摘要正规化差异，仅修复文本边缘空白，身份/配额/窗口门禁保持。分析器错误持久化限长原因，注册的数值合同优先规划。三个I/O窗口在tmpfs中低于10ms，REFUTED不能叫磁盘根因；CPP I/O后续perf预算拒绝导致完整记录链false，不妨碍已验证系统观测的工程反证，不能说七类完整工具链均通过。
+
+实现63a8284的CI36904602187实际14/14成功：Python1675通过/16登记跳过、真实PG14通过零跳过、Web313通过、Chromium7、Native CTest5。后端修复已发布20261001T180807Z，各211份源码、环境/挂载与C++ ELF核对通过；本轮新合同与公开成绩已统一发布。正常体检、异常调查、工程观测与因果验证继续分别统计。
+
+最终合同与Web统一发布`20261001T183631Z`，应用源码`35f21b82997349b2f8e8010ae834e27a25fafc8f`，[精确CI36907241773](https://github.com/llongwang751-arch/mini-drop/actions/runs/36907241773)成功14/14，CI merge与发布Git tree一致。Python1675通过/16登记跳过、Web313通过、真实PG14通过零跳过、Chromium7与Native CTest5通过。Worker/Analyzer各211份源码、Web容器和公网全部资源SHA一致，环境及挂载检查通过，另10容器及紧邻部署前Office/API基线保持，21故障inactive。真实浏览器验证21/21工程判断、6类路径、8条反证，7新+14历史范围，七案例32份新产物及四工程案例9份下载SHA、既有体检/业务路径和四视口。独立原始审计331/331项通过；全部九试验43产物SHA一致。回滚配置与数据保留，证据见[最终发布](../reports/quality/seven-gaps-20261002/publication/)及[归档清单](../reports/quality/seven-gaps-20261002/manifest.json)。
+
+## 2026-10-02 面试交付补齐（已部署）
+
+已完成五个重点的实现与独立实验：真实体检三态及撤销恢复/重采、隔离真实业务同负载修复、PostgreSQL并发及进程中断、视觉与功能统一Git来源、剩余18类性能工程验收。新工程成绩为判断14/21、具体路径4/21、有效反证5条：18类本轮新实验与3类先前真机记录分开标注，7类证据不足保留。79份新性能原始下载SHA一致，18类撤销/恢复/收束完成；不能把REFUTED计为异常定位。
+
+体检五会话覆盖NORMAL→CPU异常→恢复NORMAL，以及取消采样后无法判断→重新采样NORMAL，8份原始下载SHA一致，零根因报告。独立真实PG专项新增6项，CI36882851972实际运行新旧合计14项，零跳过；本机缺PG的跳过不算通过。该CI总计12/13作业成功，实Chromium旧布局断言失败已复现并修正；统一发布使用下述后续全绿CI，不将旧失败改为通过。
+
+业务为Worker1隔离的真实HTTP/SQLite FTS5样例，EXTRACTIVE_LOCAL，不代表办公助手或在线LLM。在固定输入、同一进程寿命、同96候选、4RPS/360请求/8并发上限下，三窗1080请求均成功且答案质量100%；修复前P95 68.377ms→修复后2.696ms，重排P95 65.885ms→0.142ms。平台实际采到find_longest_match路径并保留独立CPU反证，6份原始下载SHA一致；这是人工提出假设→平台取证→工程修复→同负载复测，不宣称Agent自动因果根因。第一轮规划预算耗尽及第二轮不可执行假设被拒记录保持。修复源包含缓存及连接处理，不能把全部HTTP收益只归于缓存。
+
+统一版本已发布`20261001T160532Z`，后端与Web都来自同一Git源码`f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff`。[CI36888942005](https://github.com/llongwang751-arch/mini-drop/actions/runs/36888942005)成功13/13；PR测试merge7cfa9e7与发布提交Git tree一致，证据已核对。Python1451通过/16登记跳过、Web309通过、真实PG14通过零跳过、真实Chromium7项回归通过；Chroma独立零跳过及Go race/安全/真实镜像与连续I/O专项通过。之前的CI浏览器失败、业务两次失败和原8/18评分保留。
+
+Worker/Analyzer各208份源码、Web58份容器内和公网文件SHA一致；13容器健康，另10容器ID保持，21故障inactive。部署前后Office保持紧邻基线PID2670585/NRestarts=0、agent-workspace-20261001T160559Z；本轮更早Office由外部工作独立更新，不能声称整轮不变。API二进制SHA保持。回滚配置`/opt/mini-drop-releases/20261001T160532Z/private/rollback.compose.json`，旧发布与数据保留。
+
+真实浏览器验证工程14/21/路径4/21/反证5、18新+3旧范围、五个体检状态、业务find_longest_match报告、原CPU/HTTP/I/O路径及浏览器前进后退、4工程案例/9份下载SHA与1440/1024/768/375宽度，无JS/HTTP错误。上线后另一个真实Go正常检查验证trace/span关联标签在可信重绑后保留，2份原始下载SHA一致；标签为明确测试值，不冒充真实请求因果。三次隔离业务进程均已退出。全部证据及发布回执见[补齐交付](../reports/architecture/interview-completion-20261001.md)与[归档清单](../reports/quality/interview-completion-20261001/manifest.json)。
+
+下方带旧版本的段落是历史过程记录。
+
+
+2026-10-01用户要求降低不适合求职演示的默认门槛。默认采用`engineering-diagnosis.v1`，严格因果实验作为独立专项。两个版本评价的能力不同，不覆盖旧记录。
+
+## 放宽与保留的要求
+
+| 项目 | 默认工程验收 | 严格因果实验 |
+|---|---|---|
+| 目标身份、任务/产物/Analyzer来源、SHA与测量真实性 | 必须 | 必须 |
+| 有依据的具体观测或源码路径 | 必须；数值重新计算，不能靠关键词 | 必须 |
+| 独立因果对照 | 可选，不用缺对照阻止有界判断 | 必须 |
+| 固定调查轮次 | 不要求；按证据能否给出判断评分 | 依专项协议 |
+| 会话必须COMPLETED | 不要求；INSUFFICIENT_EVIDENCE中的完整反证也可合格；运行中、失败、取消不合格 | 原协议保留 |
+| 撤销注入、恢复、清理与收束 | 故障实验必须 | 必须 |
+| 同负载代码修复证明 | 单独成绩，不作为诊断通过前提 | 要宣称修复则必须 |
+
+工程结果包括`LOCALIZED_ANOMALY`、`SUPPORTED_OBSERVATION`、`REFUTED`、证据不足及证据冲突。REFUTED可以通过“诊断判断”，不能通过“异常路径定位”，也不能推广为全部业务健康。
+
+当前按新规则重评已有三个冻结真机案例：诊断判断3/3，异常路径定位2/3，有效反证1条。共注册21类，另18类未按此规则验收。没有执行新21类批次，不宣称21/21，也不称这次重评为新准确率测试。
+
+## 代码入口
+
+- `contracts/engineering_diagnosis.json`：规则版本、21类的机器信号域、可选Profile合同、案例SHA与一个或多个证据清单。
+- `scripts/evaluate_engineering_diagnosis.py`：通用评分器，解析引用、核对来源与原始数值，独立记录诊断和定位，不修改报告因果标志。
+- `scripts/build_engineering_diagnosis.py`：核验清单中的原始字节，生成网页只读索引；`--check`已加入质量门禁。
+- `web/src/components/EngineeringDiagnosisSummary.jsx`：当前工程结果、未验收数量与原诊断入口；故障卡优先展示对应工程成绩。
+
+## 新增一个问题的流程
+
+1. 定义可观察的现象和范围，例如“目标进程RSS在窗口内增加8MiB”，不要直接把增长叫内存泄漏。声明单位、阈值和反证条件。
+2. 在`server/app/drop_insight/fault_plaza.py`注册安全的固定启停接口、目标和采集器；已有业务接入仍按`SERVICE_INTEGRATION.md`，不允许浏览器传入任意命令或URL。
+3. 选用已有机器信号域。CPU、内存、I/O、HTTP、队列等已登记字段可复用；新的语义需要补Analyzer指标和`performance_criteria.py`字段，不能把HTTP延迟冒充TCP重传。
+4. 做独立的真实采集，保留目标身份、Task/Attempt/Artifact/Evidence、下载SHA、撤销恢复与清理。健康/反证样本也保留；不只收成功样本。
+5. 将新批次归档成独立清单，把清单路径/SHA追加到合同`evidence_manifests`，更新对应`scenarios`的`case_path`/`case_sha256`。新类型新增注册项，原批次和文件不修改。评分器不写死三个Go案例；已有内存域复用的回归测试验证了扩展方式。
+6. 运行生成器、负向回归和CI，再发布网页索引。缺身份、篡改数字、缺测、错误信号域和未清理都应失败；规则含义变化时增加规则版本，保留旧成绩。
+
+```powershell
+python scripts/build_engineering_diagnosis.py
+python scripts/build_engineering_diagnosis.py --check
+python -m pytest tests/test_engineering_diagnosis.py -q
+python scripts/run_quality_gate.py --profile python --output output/quality/engineering-diagnosis
+```
+
+验收规则不能替代采集器。新问题若没有可测量的指标，先补观测能力；若要证明真正原因，再增加同输入、同负载的原因干预专项。这样可以扩展工程诊断，而不必每个问题一开始就完成完整因果实验。
+
+## 已验证的线上版本
+
+评分/展示源码0fa79f15的[CI36861902293](https://github.com/llongwang751-arch/mini-drop/actions/runs/36861902293)成功13/13：Python1382通过/10登记跳过、Web299通过、真实PG8通过零跳过；不可变Git源码本地Web299/构建/体积门禁通过。线上Web20261001T122233Z已由并行前端任务发布，包含相同工程组件与语义一致的生成索引；整体为冻结工作树构建、300项测试，并非本提交精确CI产物。本轮直接复验现有发布，保留其界面改动。58份Web、Worker/Analyzer各193份SHA复核，13容器健康，21故障inactive，Office PID1650962/NRestarts=0。真实Chrome新成绩、三张卡与诊断入口、正常检查、9份下载SHA和4种宽度通过，无JS/HTTP错误。未创建新诊断、注入故障或重跑已接受的一小时。原始记录见[本轮交付](../reports/architecture/engineering-diagnosis-20261001.md)与[90文件SHA清单](../reports/quality/engineering-diagnosis-20261001/manifest.json)。
+
+当前剩余18类是“未按工程标准验收”，不能展示为已通过，也不是本轮失败。扩展时按下述源合同和独立证据流程逐域补齐。

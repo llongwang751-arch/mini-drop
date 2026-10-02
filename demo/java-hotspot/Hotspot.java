@@ -51,6 +51,7 @@ public final class Hotspot {
     private static final AtomicLong OFFHEAP_RETAINED_BYTES = new AtomicLong();
     private static final AtomicLong IO_BYTES_WRITTEN = new AtomicLong();
     private static final AtomicLong IO_OPERATIONS = new AtomicLong();
+    private static final AtomicLong IO_OPERATION_NANOS = new AtomicLong();
     private static final AtomicLong IO_FAILURES = new AtomicLong();
     private static final ReentrantLock DEMO_LOCK = new ReentrantLock();
     private static final List<ByteBuffer> DIRECT_RETAINED =
@@ -58,7 +59,7 @@ public final class Hotspot {
     private static final Object IO_LOCK = new Object();
     private static final Path IO_PATH = Path.of("/tmp/mini-drop-java-io-fault.bin");
     private static final Path METRICS_PATH = Path.of("/tmp/mini-drop-jvm-metrics.json");
-    private static final long IO_MAX_FILE_BYTES = 64L * 1_024 * 1_024;
+    private static final long IO_MAX_FILE_BYTES = 8L * 1_024 * 1_024;
 
     private static final class FaultSwitch {
         private final AtomicBoolean active = new AtomicBoolean(false);
@@ -134,6 +135,11 @@ public final class Hotspot {
     }
 
     private static String snapshot() {
+        long[] ioCounters;
+        synchronized (IO_LOCK) {
+            ioCounters = new long[] {IO_BYTES_WRITTEN.get(), IO_OPERATIONS.get(),
+                IO_OPERATION_NANOS.get(), IO_FAILURES.get()};
+        }
         long requests = DOWNSTREAM_REQUESTS.get();
         double latencyMillis = requests == 0
             ? 0.0
@@ -181,9 +187,10 @@ public final class Hotspot {
             + ",\"offheap_retained_bytes\":" + OFFHEAP_RETAINED_BYTES.get()
             + ",\"offheap_auto_stop_remaining_seconds\":" + OFFHEAP_FAULT.remainingSeconds()
             + ",\"io_fault_active\":" + ioActive
-            + ",\"io_bytes_written\":" + IO_BYTES_WRITTEN.get()
-            + ",\"io_operations\":" + IO_OPERATIONS.get()
-            + ",\"io_failures\":" + IO_FAILURES.get()
+            + ",\"io_bytes_written\":" + ioCounters[0]
+            + ",\"io_operations\":" + ioCounters[1]
+            + ",\"io_operation_duration_ms_total\":" + (ioCounters[2] / 1_000_000.0)
+            + ",\"io_failures\":" + ioCounters[3]
             + ",\"io_auto_stop_remaining_seconds\":" + IO_FAULT.remainingSeconds()
             + "}";
     }
@@ -398,19 +405,23 @@ public final class Hotspot {
                 wasActive = true;
                 synchronized (IO_LOCK) {
                     if (!IO_FAULT.isActive()) continue;
-                    try (FileChannel channel = FileChannel.open(
-                        IO_PATH,
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.WRITE,
-                        StandardOpenOption.APPEND
-                    )) {
-                        ByteBuffer payload = ByteBuffer.wrap(bytes);
-                        while (payload.hasRemaining()) channel.write(payload);
-                        channel.force(true);
+                    long operationStarted = System.nanoTime();
+                    try {
+                        try (FileChannel channel = FileChannel.open(
+                            IO_PATH,
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.WRITE,
+                            StandardOpenOption.APPEND
+                        )) {
+                            ByteBuffer payload = ByteBuffer.wrap(bytes);
+                            while (payload.hasRemaining()) channel.write(payload);
+                            channel.force(true);
+                        }
+                        // Includes close; excludes pacing, IO_LOCK waiting and rotation.
+                        IO_OPERATION_NANOS.addAndGet(System.nanoTime() - operationStarted);
                         IO_BYTES_WRITTEN.addAndGet(bytes.length);
                         IO_OPERATIONS.incrementAndGet();
-                        if (channel.size() >= IO_MAX_FILE_BYTES) {
-                            channel.close();
+                        if (Files.size(IO_PATH) >= IO_MAX_FILE_BYTES) {
                             Files.deleteIfExists(IO_PATH);
                         }
                     } catch (IOException exception) {
@@ -508,6 +519,7 @@ public final class Hotspot {
             cleanupJavaIO();
             IO_BYTES_WRITTEN.set(0);
             IO_OPERATIONS.set(0);
+            IO_OPERATION_NANOS.set(0);
             IO_FAILURES.set(0);
         }));
         server.createContext("/faults/io/stop", exchange -> {

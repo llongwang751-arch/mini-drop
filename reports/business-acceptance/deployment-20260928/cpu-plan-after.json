@@ -1,0 +1,17 @@
+{
+  "before_sha256": "4665858319e842befe57583d0e087a7bc3c32c416aa1b9b79bbb002aea83d40a",
+  "case": "reports\\ai-diagnosis\\fault-plaza-strict-pilot-20260928-cases\\source-hotspot.json",
+  "case_sha256": "24cbc630670fe3be867ea179fcb3c44071aedbeea2b2068559f402f9b8ad5e08",
+  "hypothesis_id": "hyp_a966a102be7d4c3b9b706b23deeb45a7",
+  "after": {
+    "accepted": false,
+    "code": "INVALID_FALSIFICATION",
+    "reason": "该假设明确断言进程 CPU 高占用，但没有可由独立 OS 计数验证的数值反证。请声明与假设相符的单核 CPU 阈值，例如‘目标进程 CPU 占用率低于 50%’，并用 collect_sys_metrics 检查；函数分布、解释器占比或复合‘平稳且低于’不能替代。若并未主张 CPU 高占用，应缩小假设本身的含义；不要删除其他仍必要的反证以获得通过。"
+  },
+  "source_sha256": {
+    "server\\app\\drop_insight\\cpu_criteria.py": "48dedf5d48ece2c38e2c37d3134b157d13a71ac5bde3ae1a82052dd895e8608e",
+    "server\\app\\drop_insight\\diagnosis_agent.py": "e87ce3ea6e225e6f124d1a9c58207e251eacbe465da4951b1ee5562d868011be",
+    "server\\app\\drop_insight\\adaptive_planner.py": "00b2a27c3e36cb676d099781f77b973feb1efae44bab7696c7c5ad63a6e24c3f",
+    "server\\app\\drop_insight\\hypothesis_predicate.py": "2b8db87dd08457e4f7efa9d0aea10ba5982118b2ffeabb0d2657144c07f3efc3"
+  }
+}

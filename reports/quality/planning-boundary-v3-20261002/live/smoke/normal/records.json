@@ -1,0 +1,3622 @@
+{
+  "detail": {
+    "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+    "query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。",
+    "target": {
+      "service": "python-hotspot",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 2850799,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 2850799,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 217461927,
+        "pid_namespace_inode": 4026532805,
+        "namespace_pid": 1,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_06df91897e789f48",
+        "snapshot_generation": 13341,
+        "snapshot_received_at": "2026-10-02T12:16:55.423558+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-10-02T12:15:40.130226Z",
+      "end": "2026-10-02T12:16:40.130226Z",
+      "timezone": "UTC"
+    },
+    "requested_time_range": {
+      "start": "2026-10-02T12:15:40.130226Z",
+      "end": "2026-10-02T12:16:40.130226Z",
+      "timezone": "UTC"
+    },
+    "effective_time_range": {},
+    "mode": "ASSISTED",
+    "skill_policy": "DISABLED",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 120,
+      "max_tool_calls": 1,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 1,
+      "max_hosts": 1,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R0",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 5,
+    "clarification_questions": [
+      {
+        "question_id": "target.environment",
+        "prompt": "目标属于哪个环境？"
+      }
+    ],
+    "created_at": "2026-10-02 12:16:56.984952+00:00",
+    "updated_at": "2026-10-02 12:16:59.000112+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "events": [
+    {
+      "event_id": "event_fbbf7667088e417db1a95f4167711dd0",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "DISABLED",
+        "created_by": "legacy_admin",
+        "auto_scope": false,
+        "health_check": false
+      },
+      "occurred_at": "2026-10-02 12:16:56.984952+00:00"
+    },
+    {
+      "event_id": "event_70f3c445e3d3484f8978650ca1d2ddf8",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 2,
+      "event_type": "diagnosis.clarified",
+      "actor": "USER",
+      "payload": {
+        "target": {
+          "service": "python-hotspot",
+          "agent_id": "control-interview-demo-agent",
+          "pid": 2850799,
+          "process_binding": {
+            "agent_id": "control-interview-demo-agent",
+            "pid": 2850799,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "process_start_ticks": 217461927,
+            "pid_namespace_inode": 4026532805,
+            "namespace_pid": 1,
+            "executable_identity": "python3.12",
+            "process_snapshot_id": "psnap_06df91897e789f48",
+            "snapshot_generation": 13341,
+            "snapshot_received_at": "2026-10-02T12:16:55.423558+00:00"
+          }
+        },
+        "time_range": {
+          "start": "2026-10-02T12:15:40.130226Z",
+          "end": "2026-10-02T12:16:40.130226Z",
+          "timezone": "UTC"
+        },
+        "requested_time_range": {
+          "start": "2026-10-02T12:15:40.130226Z",
+          "end": "2026-10-02T12:16:40.130226Z",
+          "timezone": "UTC"
+        },
+        "effective_time_range": {}
+      },
+      "occurred_at": "2026-10-02 12:16:57.892372+00:00"
+    },
+    {
+      "event_id": "event_c92a32bb27d64d41914988c47f45d6a9",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 3,
+      "event_type": "planner.knowledge_retrieved",
+      "actor": "SYSTEM",
+      "payload": {
+        "phase": "INITIAL_CLARIFICATION",
+        "round_index": 1,
+        "retrieval_trace": {
+          "relevance_policy": "knowledge-subject-admission-v3-coverage",
+          "relevance_query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。",
+          "query_profile": {
+            "concepts": [],
+            "runtime_scopes": [],
+            "database_scopes": [],
+            "technical_subjects": [],
+            "active_clauses": [
+              "现在没有观察到异常",
+              "只描述当前信息所覆盖的范围",
+              "不声称全局健康",
+              "不提出异常假设或采集动作"
+            ],
+            "excluded_mentions": []
+          },
+          "accepted": [],
+          "rejected": [
+            {
+              "knowledge_id": "agent.tool.governance",
+              "chunk_id": "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+              "document": "knowledge/agent_tool_governance.md",
+              "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+              "score": 0.031319,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "tool_governance"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "agent.tool.governance",
+              "chunk_id": "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+              "document": "knowledge/agent_tool_governance.md",
+              "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+              "score": 0.031258,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "tool_governance"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.cpu.process_pressure",
+              "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+              "score": 0.030835,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "cpu",
+                  "recovery",
+                  "sampling"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "jvm.cpu.thread_observation",
+              "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+              "document": "knowledge/java_thread_cpu.md",
+              "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+              "score": 0.029907,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "cpu",
+                  "recovery"
+                ],
+                "runtime_scopes": [
+                  "JVM"
+                ],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "agent.strategy.evaluation",
+              "chunk_id": "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+              "document": "knowledge/agent_experiments.md",
+              "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+              "score": 0.02971,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "strategy_evaluation"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "sre.recovery.acceptance",
+              "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+              "document": "knowledge/sre_recovery.md",
+              "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+              "score": 0.029437,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "block_io",
+                  "recovery"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "agent.strategy.evaluation",
+              "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+              "document": "knowledge/agent_experiments.md",
+              "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+              "score": 0.029274,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "strategy_evaluation"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.cpu.process_pressure",
+              "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+              "score": 0.02904,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "cpu",
+                  "recovery",
+                  "sampling"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "agent.tool.governance",
+              "chunk_id": "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+              "document": "knowledge/agent_tool_governance.md",
+              "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+              "score": 0.028629,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "tool_governance"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "python.sampling.attribution",
+              "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+              "document": "knowledge/python_sampling.md",
+              "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+              "score": 0.027151,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "sampling"
+                ],
+                "runtime_scopes": [
+                  "PYTHON"
+                ],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "go.profile.selection",
+              "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+              "document": "knowledge/go_profiles.md",
+              "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+              "score": 0.025833,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "lock_wait",
+                  "sampling"
+                ],
+                "runtime_scopes": [
+                  "GO"
+                ],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "rag.quality.lifecycle",
+              "chunk_id": "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+              "document": "knowledge/rag_quality.md",
+              "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+              "score": 0.025645,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "retrieval_quality"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "sre.recovery.acceptance",
+              "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+              "document": "knowledge/sre_recovery.md",
+              "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+              "score": 0.025641,
+              "recall_channels": [
+                "BM25",
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "block_io",
+                  "recovery"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.cpu.kernel_overhead",
+              "chunk_id": "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+              "score": 0.015873,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "kernel"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.io.synchronous_write",
+              "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+              "document": "knowledge/synchronous_io.md",
+              "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+              "score": 0.015625,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "block_io"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "agent.strategy.evaluation",
+              "chunk_id": "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+              "document": "knowledge/agent_experiments.md",
+              "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+              "score": 0.014925,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "strategy_evaluation"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "distributed.downstream_pressure",
+              "chunk_id": "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+              "document": "knowledge/distributed_attribution.md",
+              "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+              "score": 0.014706,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "dependency"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "distributed.same_host_noisy_neighbor",
+              "chunk_id": "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+              "document": "knowledge/distributed_attribution.md",
+              "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+              "score": 0.014493,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "host_contention"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "container.memory.pressure",
+              "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+              "document": "knowledge/memory_pressure.md",
+              "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+              "score": 0.014286,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "memory_pressure"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "python.sampling.attribution",
+              "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+              "document": "knowledge/python_sampling.md",
+              "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+              "score": 0.014085,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "sampling"
+                ],
+                "runtime_scopes": [
+                  "PYTHON"
+                ],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "rag.quality.lifecycle",
+              "chunk_id": "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+              "document": "knowledge/rag_quality.md",
+              "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+              "score": 0.013699,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "retrieval_quality"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.network.retransmit",
+              "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+              "document": "knowledge/tcp_retransmit.md",
+              "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+              "score": 0.013699,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "network"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "postgres.waits",
+              "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+              "document": "knowledge/postgres_waits.md",
+              "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+              "score": 0.013514,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "lock_wait"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": [
+                  "POSTGRES"
+                ]
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "python.sampling.attribution",
+              "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+              "document": "knowledge/python_sampling.md",
+              "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+              "score": 0.013333,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "sampling"
+                ],
+                "runtime_scopes": [
+                  "PYTHON"
+                ],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "container.memory.pressure",
+              "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+              "document": "knowledge/memory_pressure.md",
+              "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+              "score": 0.013158,
+              "recall_channels": [
+                "BM25"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "memory_pressure"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.cpu.kernel_overhead",
+              "chunk_id": "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+              "document": "knowledge/linux_cpu.md",
+              "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+              "score": 0.013158,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "kernel"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            },
+            {
+              "knowledge_id": "linux.memory.process_growth",
+              "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+              "document": "knowledge/linux_memory.md",
+              "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+              "score": 0.012987,
+              "recall_channels": [
+                "DENSE"
+              ],
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "",
+              "source_profile": {
+                "concepts": [
+                  "memory"
+                ],
+                "runtime_scopes": [],
+                "database_scopes": []
+              },
+              "clause_decisions": [
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "现在没有观察到异常"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "只描述当前信息所覆盖的范围"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不声称全局健康"
+                },
+                {
+                  "accepted": false,
+                  "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                  "shared_concepts": [],
+                  "matched_anchors": [],
+                  "unsupported_subjects": [],
+                  "clause": "不提出异常假设或采集动作"
+                }
+              ],
+              "unregistered_subjects": []
+            }
+          ],
+          "outcome": "NO_RELEVANT_KNOWLEDGE",
+          "health": "HEALTHY",
+          "health_scope": "RETRIEVAL_ONLY",
+          "no_match_is_normal": false,
+          "actual_backend": "BM25_ENTITY_CHROMA_RRF",
+          "requested_backend": "HYBRID",
+          "recall_channels": {
+            "BM25": {
+              "available": true,
+              "candidate_count": 20,
+              "chunk_ids": [
+                "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+                "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+                "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+                "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+                "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+                "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+                "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+                "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+                "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+                "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+                "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+                "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f"
+              ]
+            },
+            "ENTITY": {
+              "available": true,
+              "candidate_count": 0,
+              "chunk_ids": []
+            },
+            "DENSE": {
+              "available": true,
+              "candidate_count": 20,
+              "chunk_ids": [
+                "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+                "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+                "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+                "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+                "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+                "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+                "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+                "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+                "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+                "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+                "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9"
+              ]
+            }
+          },
+          "degraded_reasons": [],
+          "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+          "embedding_model": "Qwen/Qwen3-Embedding-4B",
+          "dimensions": 1024,
+          "query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。\nUNKNOWN",
+          "query_hash": "8d1ce6516af489fdeb87fd525d66c7c8692f60ee02b8dea165f8f2acfefd8104",
+          "relevance_query_hash": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+          "retriever": "knowledge-hybrid-v5-subject-admission",
+          "catalog": "knowledge/catalog.json",
+          "top_k": 3,
+          "matched_count": 0,
+          "matches": [],
+          "evidence_contract": {
+            "is_evidence": false,
+            "status": "KNOWLEDGE_PRIOR_ONLY",
+            "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+          }
+        },
+        "knowledge_is_evidence": false
+      },
+      "occurred_at": "2026-10-02 12:16:58.951834+00:00"
+    },
+    {
+      "event_id": "event_ce902f3fd5504bf9b6c910f490aca622",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 4,
+      "event_type": "diagnosis.insufficient_evidence_finalized",
+      "actor": "SYSTEM",
+      "payload": {
+        "termination_reason": "PLANNER_NORMAL",
+        "termination_detail": "本轮仅描述已提供信息及其覆盖范围；没有进行当前状态检查，不产生健康或根因结论。；这是描述或规划范围内未提出异常，尚未做当前状态检查，不能确认平台或业务全部正常。",
+        "accepted_support_report": false,
+        "best_supported_report_id": null,
+        "minimum_diagnosis_rounds": 1,
+        "observed_diagnosis_rounds": 0,
+        "minimum_rounds_satisfied": false
+      },
+      "occurred_at": "2026-10-02 12:16:59.000112+00:00"
+    },
+    {
+      "event_id": "event_d4eb0c4057894852980d93de9d99fcd5",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 5,
+      "event_type": "planner.output_recorded",
+      "actor": "SYSTEM",
+      "payload": {
+        "phase": "INITIAL_CLARIFICATION",
+        "round_index": 1,
+        "planning_output": {
+          "schema_version": "mini-drop.planning-output.v2",
+          "disposition": "NORMAL",
+          "reasoning_summary": "本轮仅描述已提供信息及其覆盖范围；没有进行当前状态检查，不产生健康或根因结论。",
+          "tool_name": null,
+          "hypotheses": [],
+          "missing_evidence": [],
+          "limitations": [
+            "仅限已有描述和规划范围；目标身份不等于健康测量。",
+            "没有进行采样或异常验证，不确认业务正常或因果根因。",
+            "已有身份字段：service；字段内容未经本次重新验证。"
+          ],
+          "causal_root_cause_verified": false
+        },
+        "planning_disposition": "NORMAL",
+        "reason": "本轮仅描述已提供信息及其覆盖范围；没有进行当前状态检查，不产生健康或根因结论。；这是描述或规划范围内未提出异常，尚未做当前状态检查，不能确认平台或业务全部正常。",
+        "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+        "is_evidence": false,
+        "health_check_performed": false,
+        "causal_root_cause_verified": false,
+        "new_tool_requested": false,
+        "finalization": {
+          "finalized": true,
+          "status": "INSUFFICIENT_EVIDENCE",
+          "best_report_id": null
+        },
+        "planner_kind": "SERVER_REQUEST_INTENT",
+        "planner_version": "mini-drop.planning-request-intent.v1",
+        "model_invocations": 0,
+        "planning_request_intent": {
+          "policy_version": "mini-drop.planning-request-intent.v1",
+          "intent": "INFORMATION_ONLY",
+          "required_disposition": "NORMAL",
+          "request_digest": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+          "matched_rules": [
+            "EXPLICIT_BOUNDED_DESCRIPTION",
+            "EXPLICIT_NO_OBSERVATION_ACTION"
+          ],
+          "blocking_reasons": [],
+          "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+          "is_evidence": false,
+          "health_check_performed": false,
+          "causal_root_cause_verified": false
+        }
+      },
+      "occurred_at": "2026-10-02 12:16:58.989629+00:00"
+    }
+  ],
+  "hypotheses": [],
+  "tool-calls": [],
+  "evidence": [],
+  "reports": [],
+  "retrievals": [
+    {
+      "event_id": "event_c92a32bb27d64d41914988c47f45d6a9",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "sequence": 3,
+      "phase": "INITIAL_CLARIFICATION",
+      "round_index": 1,
+      "retrieval_trace": {
+        "relevance_policy": "knowledge-subject-admission-v3-coverage",
+        "relevance_query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。",
+        "query_profile": {
+          "concepts": [],
+          "runtime_scopes": [],
+          "database_scopes": [],
+          "technical_subjects": [],
+          "active_clauses": [
+            "现在没有观察到异常",
+            "只描述当前信息所覆盖的范围",
+            "不声称全局健康",
+            "不提出异常假设或采集动作"
+          ],
+          "excluded_mentions": []
+        },
+        "accepted": [],
+        "rejected": [
+          {
+            "knowledge_id": "agent.tool.governance",
+            "chunk_id": "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+            "document": "knowledge/agent_tool_governance.md",
+            "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+            "score": 0.031319,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "tool_governance"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "agent.tool.governance",
+            "chunk_id": "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+            "document": "knowledge/agent_tool_governance.md",
+            "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+            "score": 0.031258,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "tool_governance"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.cpu.process_pressure",
+            "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+            "document": "knowledge/linux_cpu.md",
+            "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+            "score": 0.030835,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "cpu",
+                "recovery",
+                "sampling"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "jvm.cpu.thread_observation",
+            "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+            "document": "knowledge/java_thread_cpu.md",
+            "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+            "score": 0.029907,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "cpu",
+                "recovery"
+              ],
+              "runtime_scopes": [
+                "JVM"
+              ],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "agent.strategy.evaluation",
+            "chunk_id": "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+            "document": "knowledge/agent_experiments.md",
+            "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+            "score": 0.02971,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "strategy_evaluation"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "sre.recovery.acceptance",
+            "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+            "document": "knowledge/sre_recovery.md",
+            "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+            "score": 0.029437,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "block_io",
+                "recovery"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "agent.strategy.evaluation",
+            "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+            "document": "knowledge/agent_experiments.md",
+            "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+            "score": 0.029274,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "strategy_evaluation"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.cpu.process_pressure",
+            "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+            "document": "knowledge/linux_cpu.md",
+            "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+            "score": 0.02904,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "cpu",
+                "recovery",
+                "sampling"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "agent.tool.governance",
+            "chunk_id": "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+            "document": "knowledge/agent_tool_governance.md",
+            "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+            "score": 0.028629,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "tool_governance"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "python.sampling.attribution",
+            "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+            "document": "knowledge/python_sampling.md",
+            "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+            "score": 0.027151,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "sampling"
+              ],
+              "runtime_scopes": [
+                "PYTHON"
+              ],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "go.profile.selection",
+            "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+            "document": "knowledge/go_profiles.md",
+            "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+            "score": 0.025833,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "lock_wait",
+                "sampling"
+              ],
+              "runtime_scopes": [
+                "GO"
+              ],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "rag.quality.lifecycle",
+            "chunk_id": "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+            "document": "knowledge/rag_quality.md",
+            "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+            "score": 0.025645,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "retrieval_quality"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "sre.recovery.acceptance",
+            "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+            "document": "knowledge/sre_recovery.md",
+            "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+            "score": 0.025641,
+            "recall_channels": [
+              "BM25",
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "block_io",
+                "recovery"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.cpu.kernel_overhead",
+            "chunk_id": "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+            "document": "knowledge/linux_cpu.md",
+            "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+            "score": 0.015873,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "kernel"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.io.synchronous_write",
+            "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+            "document": "knowledge/synchronous_io.md",
+            "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+            "score": 0.015625,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "block_io"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "agent.strategy.evaluation",
+            "chunk_id": "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+            "document": "knowledge/agent_experiments.md",
+            "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+            "score": 0.014925,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "strategy_evaluation"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "distributed.downstream_pressure",
+            "chunk_id": "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+            "document": "knowledge/distributed_attribution.md",
+            "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+            "score": 0.014706,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "dependency"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "distributed.same_host_noisy_neighbor",
+            "chunk_id": "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+            "document": "knowledge/distributed_attribution.md",
+            "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+            "score": 0.014493,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "host_contention"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "container.memory.pressure",
+            "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+            "document": "knowledge/memory_pressure.md",
+            "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+            "score": 0.014286,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "memory_pressure"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "python.sampling.attribution",
+            "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+            "document": "knowledge/python_sampling.md",
+            "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+            "score": 0.014085,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "sampling"
+              ],
+              "runtime_scopes": [
+                "PYTHON"
+              ],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "rag.quality.lifecycle",
+            "chunk_id": "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+            "document": "knowledge/rag_quality.md",
+            "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+            "score": 0.013699,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "retrieval_quality"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.network.retransmit",
+            "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+            "document": "knowledge/tcp_retransmit.md",
+            "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+            "score": 0.013699,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "network"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "postgres.waits",
+            "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+            "document": "knowledge/postgres_waits.md",
+            "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+            "score": 0.013514,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "lock_wait"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": [
+                "POSTGRES"
+              ]
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "python.sampling.attribution",
+            "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+            "document": "knowledge/python_sampling.md",
+            "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+            "score": 0.013333,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "sampling"
+              ],
+              "runtime_scopes": [
+                "PYTHON"
+              ],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "container.memory.pressure",
+            "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+            "document": "knowledge/memory_pressure.md",
+            "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+            "score": 0.013158,
+            "recall_channels": [
+              "BM25"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "memory_pressure"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.cpu.kernel_overhead",
+            "chunk_id": "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+            "document": "knowledge/linux_cpu.md",
+            "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+            "score": 0.013158,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "kernel"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          },
+          {
+            "knowledge_id": "linux.memory.process_growth",
+            "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+            "document": "knowledge/linux_memory.md",
+            "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+            "score": 0.012987,
+            "recall_channels": [
+              "DENSE"
+            ],
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "",
+            "source_profile": {
+              "concepts": [
+                "memory"
+              ],
+              "runtime_scopes": [],
+              "database_scopes": []
+            },
+            "clause_decisions": [
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "现在没有观察到异常"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "只描述当前信息所覆盖的范围"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不声称全局健康"
+              },
+              {
+                "accepted": false,
+                "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+                "shared_concepts": [],
+                "matched_anchors": [],
+                "unsupported_subjects": [],
+                "clause": "不提出异常假设或采集动作"
+              }
+            ],
+            "unregistered_subjects": []
+          }
+        ],
+        "outcome": "NO_RELEVANT_KNOWLEDGE",
+        "health": "HEALTHY",
+        "health_scope": "RETRIEVAL_ONLY",
+        "no_match_is_normal": false,
+        "actual_backend": "BM25_ENTITY_CHROMA_RRF",
+        "requested_backend": "HYBRID",
+        "recall_channels": {
+          "BM25": {
+            "available": true,
+            "candidate_count": 20,
+            "chunk_ids": [
+              "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+              "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+              "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+              "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+              "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+              "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+              "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+              "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+              "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+              "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+              "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+              "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+              "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+              "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+              "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+              "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+              "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+              "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+              "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+              "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f"
+            ]
+          },
+          "ENTITY": {
+            "available": true,
+            "candidate_count": 0,
+            "chunk_ids": []
+          },
+          "DENSE": {
+            "available": true,
+            "candidate_count": 20,
+            "chunk_ids": [
+              "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+              "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+              "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+              "6bf9407282a439f52211367e3afd0a8afd5bebc0e5a0ec6ffe4e118631f68b16",
+              "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+              "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+              "22a06ee768f315fd23763efa1965fa265968912613dca76fd0c33b901e13a74b",
+              "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+              "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+              "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+              "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+              "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+              "3d70b62f91f214c5cf73eb7ea68f7c4a6afc45243b32962e321836054032b58d",
+              "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+              "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+              "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+              "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+              "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+              "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+              "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9"
+            ]
+          }
+        },
+        "degraded_reasons": [],
+        "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+        "embedding_model": "Qwen/Qwen3-Embedding-4B",
+        "dimensions": 1024,
+        "query": "现在没有观察到异常，只描述当前信息所覆盖的范围；不声称全局健康，不提出异常假设或采集动作。\nUNKNOWN",
+        "query_hash": "8d1ce6516af489fdeb87fd525d66c7c8692f60ee02b8dea165f8f2acfefd8104",
+        "relevance_query_hash": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+        "retriever": "knowledge-hybrid-v5-subject-admission",
+        "catalog": "knowledge/catalog.json",
+        "top_k": 3,
+        "matched_count": 0,
+        "matches": [],
+        "evidence_contract": {
+          "is_evidence": false,
+          "status": "KNOWLEDGE_PRIOR_ONLY",
+          "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+        }
+      },
+      "occurred_at": "2026-10-02 12:16:58.951834+00:00"
+    }
+  ]
+}

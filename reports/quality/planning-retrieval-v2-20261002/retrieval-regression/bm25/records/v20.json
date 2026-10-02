@@ -1,0 +1,142 @@
+{
+  "case_id": "v20",
+  "query": "C++ service has system CPU 71% and user CPU 2% during unchanged load. Investigate kernel/syscall overhead without naming a specific guilty module.",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.cpu.kernel_overhead",
+    "linux.cpu.process_pressure"
+  ],
+  "matches": [
+    {
+      "query": "C++ service has system CPU 71% and user CPU 2% during unchanged load. Investigate kernel/syscall overhead without naming a specific guilty module.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "kernel"
+        ],
+        "matched_anchors": [
+          "kernel"
+        ],
+        "unsupported_subjects": [],
+        "clause": "Investigate kernel/syscall overhead without naming a specific guilty module",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "C++ service has system CPU 71% and user CPU 2% during unchanged load"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "kernel"
+            ],
+            "matched_anchors": [
+              "kernel"
+            ],
+            "unsupported_subjects": [],
+            "clause": "Investigate kernel/syscall overhead without naming a specific guilty module"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.kernel_overhead",
+      "title": "Linux 系统态 CPU 偏高",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+      "score": 18.427084,
+      "matched_terms": [
+        "overhead",
+        "kernel",
+        "system",
+        "cpu"
+      ],
+      "required_evidence": [
+        "CPU system 比例",
+        "内核栈或系统调用分布"
+      ],
+      "caveats": [
+        "不能仅凭 system% 判断具体内核模块"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    },
+    {
+      "query": "C++ service has system CPU 71% and user CPU 2% during unchanged load. Investigate kernel/syscall overhead without naming a specific guilty module.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "C++ service has system CPU 71% and user CPU 2% during unchanged load",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "C++ service has system CPU 71% and user CPU 2% during unchanged load"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Investigate kernel/syscall overhead without naming a specific guilty module"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 9.511691,
+      "matched_terms": [
+        "system",
+        "user",
+        "cpu"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

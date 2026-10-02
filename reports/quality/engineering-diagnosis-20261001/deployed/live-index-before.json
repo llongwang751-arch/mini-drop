@@ -1,0 +1,142 @@
+{
+  "schema": "mini-drop.engineering-diagnosis-index.v1",
+  "profile": "engineering-diagnosis.v1",
+  "evaluation_mode": "REGRADING_FROZEN_LIVE_RECORDS",
+  "fresh_live_run": false,
+  "registered_scenarios": 21,
+  "evaluated_scenarios": 3,
+  "diagnosis_accepted": 3,
+  "localization_accepted": 2,
+  "refuted": 1,
+  "not_evaluated": [
+    "cpu-hotspot",
+    "source-hotspot",
+    "memory-pressure",
+    "io-write-latency",
+    "noisy-neighbor",
+    "load-saturation",
+    "queue-backlog",
+    "go-memory-growth",
+    "java-gc-pressure",
+    "java-lock-contention",
+    "java-downstream-latency",
+    "java-offheap-growth",
+    "java-file-io",
+    "cpp-cpu-hotspot",
+    "cpp-lock-contention",
+    "cpp-memory-growth",
+    "cpp-file-io",
+    "cpp-downstream-latency"
+  ],
+  "cases": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "main.runCPUFault；main.goCPUHotFunction",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_c45097843ac98795520072c62416514c",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "main.runCPUFault；main.goCPUHotFunction",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 服务 CPU 热点",
+      "case_sha256": "b90f6387259868bd8cfc5666893db7515207ec092cc3e891bc3d73b7045c177b"
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+      "diagnosis_accepted": true,
+      "localization_accepted": true,
+      "outcome": "LOCALIZED_ANOMALY",
+      "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_edde7124ef71a1cafad121c60943c593",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+          "outcome": "LOCALIZED_ANOMALY",
+          "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 网络等待与下游慢响应",
+      "case_sha256": "92e857a22e1a2ae3ed685d50ccee376b6c83ecac0ac2518ae5cdea3d8156936a"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+      "diagnosis_accepted": true,
+      "localization_accepted": false,
+      "outcome": "REFUTED",
+      "location": null,
+      "causal_root_cause_verified": false,
+      "same_load_fix_verified": false,
+      "recorded_chain_verified": true,
+      "cleanup_and_recovery_verified": true,
+      "reports": [
+        {
+          "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "location": null,
+          "independent_control_required": false
+        },
+        {
+          "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+          "outcome": "REFUTED",
+          "location": null,
+          "independent_control_required": false
+        }
+      ],
+      "profile": "engineering-diagnosis.v1",
+      "title": "Go 同步文件写入",
+      "case_sha256": "aa5367ff104cf438032dd46dca9361803a79c166397e4b1c42fb61637945e49b"
+    }
+  ],
+  "download_url": "/report-assets/engineering-diagnosis/index.json",
+  "causal_and_fix_acceptance": "NOT_EVALUATED_BY_THIS_PROFILE",
+  "boundary": "Engineering diagnosis response, not causal proof or whole-business health; historical results unchanged."
+}
+

@@ -1,0 +1,166 @@
+{
+  "type": "result",
+  "case_id": "v22",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe7229eb3b76b8b1ae92f457a90",
+    "object": "chat.completion",
+    "created": 1790932624,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户描述了一个被证据反驳的疑似网络重传故障。在匹配的时间窗口内，观测到 TCP 重传增量为 0 且 RTT 稳定在 1ms，这直接否定了网络重传或显著延迟是当前问题的原因。因此，当前描述中不存在待验证的性能异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于提供的合成观测数据（TCP重传、RTT）进行判断，未对目标 Java 进程的 CPU、内存、I/O 或 JVM 内部状态进行检查。不能声明平台或业务整体健康。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4269,
+      "completion_tokens": 190,
+      "total_tokens": 4459,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1325
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe7229eb3b76b8b1ae92f457a90\",\"object\":\"chat.completion\",\"created\":1790932624,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户描述了一个被证据反驳的疑似网络重传故障。在匹配的时间窗口内，观测到 TCP 重传增量为 0 且 RTT 稳定在 1ms，这直接否定了网络重传或显著延迟是当前问题的原因。因此，当前描述中不存在待验证的性能异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于提供的合成观测数据（TCP重传、RTT）进行判断，未对目标 Java 进程的 CPU、内存、I/O 或 JVM 内部状态进行检查。不能声明平台或业务整体健康。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4269,\"completion_tokens\":190,\"total_tokens\":4459,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1325},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "a9192d5ed5626c5c15c90f0a88acc852c4911440a6d836a6f326bd93bb354266",
+  "seconds": 34.523939,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "distributed.downstream_pressure",
+      "linux.network.retransmit",
+      "linux.cpu.kernel_overhead"
+    ],
+    "matches": [
+      {
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "dependency"
+          ],
+          "matched_anchors": [
+            "dependency",
+            "downstream",
+            "downstream_dependency"
+          ],
+          "source_profile": {
+            "concepts": [
+              "dependency"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "distributed.downstream_pressure",
+        "title": "下游依赖压力与症状传播",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "9353757ab98008c2f610cdda5e620969995822fc0fad8cde0bb7988b1cca008e",
+        "chunk_id": "3851ea181c87113b8f19e610cf9be8fe5e1220a1ed3135a718762c06cd05e3d4",
+        "score": 10.368388,
+        "matched_terms": [
+          "dependency",
+          "downstream"
+        ],
+        "required_evidence": [
+          "历史拓扑",
+          "上下游时间窗",
+          "Trace 或下游指标"
+        ],
+        "caveats": [
+          "当前拓扑不能直接解释历史故障"
+        ],
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。"
+      },
+      {
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+        "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+        "score": 10.253645,
+        "matched_terms": [
+          "network",
+          "rtt"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      },
+      {
+        "query": "A suspected network retransmission fault is contradicted by zero retransmission delta and stable 1ms RTT in the same interval. Do not claim every downstream dependency is healthy.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

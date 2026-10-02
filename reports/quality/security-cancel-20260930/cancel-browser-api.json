@@ -1,0 +1,155 @@
+{
+  "created": {
+    "diagnosis_id": "insight_d4f27a59f2374658bd8023a4fa67d74b",
+    "query": "验收：演示停止尚未开始采集的诊断",
+    "target": {
+      "service": null,
+      "environment": null,
+      "agent_id": null,
+      "host_id": null,
+      "container_id": null,
+      "pid": null,
+      "instance_id": null,
+      "trace_id": null,
+      "span_id": null
+    },
+    "time_range": {},
+    "requested_time_range": {},
+    "effective_time_range": {},
+    "mode": "ASSISTED",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 300,
+      "max_tool_calls": 12,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 6,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "NEEDS_CLARIFICATION",
+    "version": 1,
+    "clarification_questions": [
+      {
+        "question_id": "target.service",
+        "prompt": "要诊断哪个服务？"
+      },
+      {
+        "question_id": "target.environment",
+        "prompt": "目标属于哪个环境？"
+      },
+      {
+        "question_id": "target.binding",
+        "prompt": "请从服务端发现的进程候选中安全绑定诊断目标。"
+      },
+      {
+        "question_id": "time_range",
+        "prompt": "故障发生在哪个时间范围？"
+      }
+    ],
+    "created_at": "2026-09-30 12:05:54.187841+00:00",
+    "updated_at": "2026-09-30 12:05:54.187841+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "repeated": {
+    "diagnosis_id": "insight_d4f27a59f2374658bd8023a4fa67d74b",
+    "query": "验收：演示停止尚未开始采集的诊断",
+    "target": {
+      "service": null,
+      "environment": null,
+      "agent_id": null,
+      "host_id": null,
+      "container_id": null,
+      "pid": null,
+      "instance_id": null,
+      "trace_id": null,
+      "span_id": null
+    },
+    "time_range": {},
+    "requested_time_range": {},
+    "effective_time_range": {},
+    "mode": "ASSISTED",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 300,
+      "max_tool_calls": 12,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 6,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "CANCELLED",
+    "version": 2,
+    "clarification_questions": [
+      {
+        "question_id": "target.service",
+        "prompt": "要诊断哪个服务？"
+      },
+      {
+        "question_id": "target.environment",
+        "prompt": "目标属于哪个环境？"
+      },
+      {
+        "question_id": "target.binding",
+        "prompt": "请从服务端发现的进程候选中安全绑定诊断目标。"
+      },
+      {
+        "question_id": "time_range",
+        "prompt": "故障发生在哪个时间范围？"
+      }
+    ],
+    "created_at": "2026-09-30 12:05:54.187841+00:00",
+    "updated_at": "2026-09-30 12:05:56.749529+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "events": [
+    {
+      "event_id": "event_c28e97dff0034afeac8cb44014d01c37",
+      "diagnosis_id": "insight_d4f27a59f2374658bd8023a4fa67d74b",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "AUTO",
+        "created_by": "legacy_admin",
+        "auto_scope": false,
+        "health_check": false
+      },
+      "occurred_at": "2026-09-30 12:05:54.187841+00:00"
+    },
+    {
+      "event_id": "event_add15b81d25e46e7ace68f88dbd09e4a",
+      "diagnosis_id": "insight_d4f27a59f2374658bd8023a4fa67d74b",
+      "sequence": 2,
+      "event_type": "diagnosis.cancelled",
+      "actor": "USER",
+      "payload": {
+        "reason": "用户停止本次诊断",
+        "cancelled_by": "legacy_admin",
+        "previous_status": "NEEDS_CLARIFICATION",
+        "cancelled_task_ids": []
+      },
+      "occurred_at": "2026-09-30 12:05:56.749529+00:00"
+    }
+  ]
+}

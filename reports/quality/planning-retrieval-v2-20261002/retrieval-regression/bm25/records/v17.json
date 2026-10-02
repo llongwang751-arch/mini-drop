@@ -1,0 +1,80 @@
+{
+  "case_id": "v17",
+  "query": "Java stop-the-world pause 达到 380ms 并伴随分配量增长，请对 GC pressure 做可反驳的 JVM 取证规划。",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "jvm.gc.pressure"
+  ],
+  "matches": [
+    {
+      "query": "Java stop-the-world pause 达到 380ms 并伴随分配量增长，请对 GC pressure 做可反驳的 JVM 取证规划。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [],
+        "matched_anchors": [
+          "pause"
+        ],
+        "unsupported_subjects": [],
+        "clause": "Java stop-the-world pause 达到 380ms 并伴随分配量增长",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [],
+            "matched_anchors": [
+              "pause"
+            ],
+            "unsupported_subjects": [],
+            "clause": "Java stop-the-world pause 达到 380ms 并伴随分配量增长"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "gc"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "请对 GC pressure 做可反驳的 JVM 取证规划"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "jvm.gc.pressure",
+      "title": "JVM GC 暂停与分配压力",
+      "document": "knowledge/jvm_gc.md",
+      "content_hash": "79c8eaf0d4cc667f924d5c6d1fc307c6d99703bab0efd99e53cf8015decefdc8",
+      "chunk_id": "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+      "score": 24.816023,
+      "matched_terms": [
+        "pressure",
+        "pause",
+        "jvm",
+        "gc",
+        "分配"
+      ],
+      "required_evidence": [
+        "GC pause P95",
+        "GC 时间占比",
+        "堆分代占用"
+      ],
+      "caveats": [
+        "CPU 高可能是 GC 的原因，也可能是结果"
+      ],
+      "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

@@ -119,6 +119,94 @@ def test_explicit_java_process_name_binds_before_model_ranking(monkeypatch) -> N
     assert selected["binding_id"] == "binding-java"
 
 
+def test_duplicate_explicit_process_name_requires_clarification(monkeypatch):
+    monkeypatch.setattr("server.app.ai_provider.get_ai_settings", lambda: SimpleNamespace(nlp_enabled=True, api_key="test-only"))
+    calls = []
+    monkeypatch.setattr("server.app.drop_insight.diagnosis_agent.select_scope_with_diagnosis_agent",
+                        lambda **kwargs: calls.append(kwargs) or kwargs["candidates"][0])
+    rows = [_candidate(name, process="java", capabilities=["java_async"])
+            for name in ["control", "other"]]
+    assert _select_auto_scope_candidate("诊断进程名为 java 的延迟", {"candidates": rows},
+                                        diagnosis_id="ambiguous-java") is None
+    assert calls == []
+
+
+def _seed_java_host(agent, pid, *, age=0, count=1, generation=1):
+    from datetime import timedelta
+    repo = SqlRepository()
+    repo.register_agent(agent, agent, "127.0.0.1", capabilities=["sys_metrics", "java_async"])
+    repo.record_process_candidate_snapshot(agent, {
+        "generation": generation, "boot_id": "boot-" + agent, "observed_at_unix_ms": 1,
+        "complete": True, "truncated": False, "error": "",
+        "candidates": [dict(pid=pid+i, process_start_ticks=101+i,
+            pid_namespace_inode=202, namespace_pid=10+i, executable_identity="/usr/bin/java",
+            comm="java", cgroup="/lab", service_hint="", instance_hint="lab",
+            collector_capabilities=["sys_metrics", "java_async"]) for i in range(count)],
+    }, received_at=now_utc() - timedelta(seconds=age))
+
+
+@pytest.mark.parametrize("auto_scope", [False, True])
+def test_requested_agent_narrows_discovery_and_automatic_binding(auto_scope):
+    _seed_java_host("requested-host", 500)
+    _seed_java_host("other-host", 600)
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="诊断进程名为 java 的延迟", mode="AUTONOMOUS", auto_scope=auto_scope,
+        target={"agent_id": "requested-host"}))
+    if auto_scope:
+        assert diagnosis.target_json["process_binding"]["agent_id"] == "requested-host"
+        assert diagnosis.target_json["pid"] == 500
+    else:
+        discovery = service.discover_target_candidates(diagnosis.id)
+        assert discovery["status"] == "READY"
+        assert len(discovery["candidates"]) == 1
+
+
+@pytest.mark.parametrize("mode", ["absent", "stale", "ambiguous"])
+def test_unavailable_requested_instance_never_falls_back_to_other_host(mode):
+    _seed_java_host("other-host", 600)
+    if mode != "absent":
+        _seed_java_host("requested-host", 500, age=600 if mode == "stale" else 0,
+                        count=2 if mode == "ambiguous" else 1)
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="诊断进程名为 java 的延迟", mode="AUTONOMOUS", auto_scope=True,
+        target={"agent_id": "requested-host"}))
+    assert diagnosis.status == "NEEDS_CLARIFICATION"
+    assert not diagnosis.target_json.get("process_binding")
+    service.resolve_diagnosis_scope_autonomously(diagnosis.id)
+    assert not service.get_diagnosis(diagnosis.id).target_json.get("process_binding")
+
+
+def test_discovery_cannot_override_requested_agent():
+    _seed_java_host("requested-host", 500)
+    _seed_java_host("other-host", 600)
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="诊断进程名为 java 的延迟", target={"agent_id": "requested-host"}))
+    with pytest.raises(ValueError, match="agent"):
+        service.discover_target_candidates(diagnosis.id, agent_id="other-host")
+
+
+def test_requested_agent_survives_snapshot_replacement_during_binding(monkeypatch):
+    _seed_java_host("requested-host", 500)
+    _seed_java_host("other-host", 600)
+    clarify = service.clarify_diagnosis
+    calls = []
+
+    def replace_snapshot_once(diagnosis_id, payload, **kwargs):
+        calls.append(payload.target.binding_id)
+        if len(calls) == 1:
+            _seed_java_host("requested-host", 501, generation=2)
+        return clarify(diagnosis_id, payload, **kwargs)
+
+    monkeypatch.setattr(service, "clarify_diagnosis", replace_snapshot_once)
+    diagnosis = service.create_diagnosis(CreateDiagnosisRequestV2(
+        query="诊断进程名为 java 的延迟", mode="AUTONOMOUS", auto_scope=True,
+        target={"agent_id": "requested-host"}))
+    assert len(calls) == 2 and calls[0] != calls[1]
+    assert diagnosis.target_json["process_binding"]["agent_id"] == "requested-host"
+    assert diagnosis.target_json["process_binding"]["snapshot_generation"] == 2
+    assert diagnosis.target_json["pid"] == 501
+
+
 def test_go_target_cannot_dispatch_python_or_jvm_profilers() -> None:
     diagnosis = SimpleNamespace(
         target_json={

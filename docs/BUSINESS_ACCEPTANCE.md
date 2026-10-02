@@ -1,5 +1,17 @@
 # 业务观测与同负载验收
 
+## 2026-09-27 冻结源码复验与独立正确性检查
+
+重跑历史实际 RAG 修复：Windows 本机、600 分块、每秒 1 请求、每窗 30 次测量与 4 次预热，P95 正常/旧版/修复版为 35.27/271.13/37.99ms，固定问题质量和成功率均 100%，判 `IMPROVEMENT_VERIFIED`。新增 `scripts/verify_actual_rag_search.py --source <冻结源码> --output <新目录>`：在独立 SQLite 人工数据中验证独立评分预期、相同分数 id 排序、跨租户查询/删除隔离、空查询和 top-k、增删改即时可见；保存报告和 cProfile。必须分别启动进程检查两个版本，避免 import 缓存。
+
+这是对历史业务代码修复的新一轮复验，未改动冻结源。查询仍为 O(N) 扫描；不调用真实 LLM，也不代表生产吞吐或 AI 根因结论。原始数据、源码指纹、剖析与复现命令见 [本轮记录](../reports/architecture/test-engineering-ci-20260927.md)。
+
+## 2026-09-26 验收判定修复与统一执行入口（本地）
+
+阶段 P95 只使用含有该阶段观测的请求；不存在的观测不补 0，实测为 0 仍参与统计。新汇总中的 `stage_sample_counts` 给出每阶段分母，稀疏阶段不能拿总请求数冒充采样量。降级响应现在也须达到质量阈值且不低于基线；HTTP 成功但回答全部不合格会判 `REJECTED`，不再判 `DEGRADED_AVAILABLE`。总请求延迟仍包括所有发起请求的失败与排队。
+
+旧实际 RAG 报告缺少新增计数字段时，投影器允许该字段缺失并使用重算的完整汇总，但旧 P95、质量指标、结论和哈希仍需一致；原始报告不回写。新增稀疏阶段、零值、质量下降、历史兼容及篡改拒绝测试。可运行 `python scripts/run_quality_gate.py --profile business`，沿用本页三条真实 HTTP 案例，并额外生成总质量报告。测试工程合同、范围及开源对照见 [TEST_ENGINEERING.md](TEST_ENGINEERING.md)。
+
 > 2026-09-13 后续更正：本页记录的引擎适配器与测量页面属于实验，不等于完整业务服务接入。原办公助手完整后台现已单独常驻部署，并通过服务目录、实时 Agent 进程发现与真实模型问答接入 Mini-Drop，见 [真实后台服务接入](SERVICE_INTEGRATION.md)。历史 A/B 成绩不转移给新部署，实际服务的诊断结论以新会话为准。
 
 ## 实际 RAG 接入（2026-09-13 后续批次）
@@ -126,3 +138,47 @@ CI 的 business job 校验计划、检查生成合同、生成 PR 影响清单�
 ![业务结果桌面实拍](assets/learning-guide/20260913-business-acceptance/business-results-desktop.png)
 
 ![业务结果手机宽度实拍](assets/learning-guide/20260913-business-acceptance/business-results-mobile.png)
+
+## 阶梯负载与持续运行（2026-09-27）
+
+```powershell
+# 短 CI 回归，不能作为长时间稳定性成绩
+python scripts/run_quality_gate.py --profile endurance
+# 默认：5/20/40/80 请求每秒，各 15 秒；恢复 15 秒；同一进程持续 600 秒
+python scripts/run_load_endurance.py --output output/quality/endurance-new
+# 有界自定义：最长 3600 秒、每档最长 60 秒、速率最多 500、总请求最多 100000
+python scripts/run_load_endurance.py --output output/quality/endurance-custom --rates 5 10 20 --step-seconds 20 --soak-seconds 600
+```
+
+执行器只启动独立、临时、本机回环 HTTP 样例进程，SQLite 在内存，测试结束回收该子进程；不接受任意目标 URL，不向云端发压。依赖耗时固定为 10ms 的受控模拟，问答为固定语料本地摘录。阶梯、恢复和持续阶段使用同一 PID/语料/配置；运行前 4 次预热单独保留，不进入测量分母。压力结束后先等待客户端已发出的请求返回/超时，再低负载检查恢复，整个持续阶段不中途重建进程。
+
+默认判据：每阶段至少 30 个请求，成功率/固定引用质量均至少 99%，计划到达至响应结束的 P95 不超过 200ms，发压迟到不超过 250ms。短 CI P95 门槛 500ms，配置完整写进报告，不能与默认实验混用。只有至少 100 个实际发出样本才报告 P99。持续阶段按计划到达时刻分 30 秒窗口，短尾窗口样本不足也明确判 INVALID。窗口为到达队列，不把窗口成功数除以时长冒充完成吞吐；整阶段吞吐包含排空时间。
+
+每个到达槽位都写入独占 JSONL：在途上限已满时不继续向线程池无界堆积，也不隐式降速重试，而是保留 `CLIENT_INFLIGHT_LIMIT`。这类记录延迟为缺失，仍计入成功/质量分母；整个阶段 INVALID，不能据此宣布服务容量。发压迟到或样本不足同样 INVALID。有效发压但 P95/成功/质量不达标才是 SLO_FAILED。容量只给连续通过档位的最高速率及首个未通过档位；全部档位通过则 NOT_REACHED，不猜最大容量。
+
+整体 PASSED 表示测量有效、至少一个低负载档达标、卸载恢复与持续阶段每个窗口通过；高阶梯有效地触发 SLO_FAILED 是容量探索的预期结果，不等于生产缺陷。任意发压无效会让整体 INVALID，恢复或持续不达标则 FAILED，CLI 非零退出。错误、中断和源码变化保留 FAILED 报告；拒绝覆盖已有输出目录。
+
+原始请求、报告和源码哈希方便独立复算。最初 600 秒批次未采集资源；新增采样见下节，也不能证明无内存泄漏；压测端与服务仍共享本机，结果只能描述该配置和该次环境。与独立重复三窗实验、外部实际 RAG 引擎实验分开解释。
+
+本轮默认配置实测完成（代码 `be34ff5`）：5/20/40 请求每秒通过，80 档 P95 480.44ms 超过 200ms；全档无漏发，成功/引用检查均 100%。降载后 P95 40.82ms；600 秒持续阶段 3000 请求、P95 39.85ms，20 窗 P95 38.93–41.10ms 均通过。全部 5250 请求、原始报告、CI 版本与容量边界说明见 [实测记录](../reports/architecture/load-endurance-20260927.md)。
+
+## 资源增长筛查（2026-09-27）
+
+`run_load_endurance.py` 现在需要开发依赖中的 `psutil>=7.2,<8`。仅观察当前自己创建的目标进程，以 PID 和 create_time 检查进程身份；每秒采样到 `resources.jsonl`，CPU 是 CPU 秒增量 / 单调墙钟增量，100% 表示一个逻辑核，首个样本为 null。RSS 单位 bytes，线程计数；Windows handles 与 POSIX FD 明确标注，不跨平台混作同一数值。
+
+持续阶段比较首末三分之一样本中位数，固定预算 RSS 增长不超过 32MiB、线程不超过 8、句柄/FD 不超过 32；峰值仍保留，不把瞬时峰值自动称为泄漏。样本须至少覆盖计划数的 80% 且不少于 5 个，首次采样延迟或任意相邻样本间隔（包括跨阶段）超过预定值 5 倍，或任何读取失败会判 INVALID；增长超预算判 GROWTH_DETECTED 并让主报告 FAILED。该筛查只针对这次样例进程，不覆盖子进程树、内核泄漏或所有生产风险。
+
+30 分钟入口：`python scripts/run_load_endurance.py --soak-seconds 1800 --output output/quality/resources-new`。不得同时在本机跑 CPU 密集型对照；隔离 Linux CI 的短回归与本机实测分开计数。历史 600 秒报告没有资源数据，不回填数值。
+
+## 原始报告独立复核
+
+运行 `python scripts/verify_load_report.py <report.json> --require-pass`。复核器校验完整清单与每个 JSONL 哈希，检查请求槽位不缺失/不重复、计划速率和窗口时长、未发出请求不虚构延迟、排队时间进入延迟；从逐请求记录重算每阶段、每窗口和容量结论。资源记录还须属于报告指定 PID/启动时间，时间递增、计数有限且非负，不能把有资源采样的报告降级为“无资源数据”来跳过门禁。只有重算结论与报告一致且最终 PASSED 才允许 `--require-pass` 成功。
+
+不带 `--require-pass` 可检查完整 INVALID/FAILED 测量的可追溯性；运行中或缺少阶段的失败报告保持证据，但不算完整可复核测量。历史无资源版本可以复核，输出 `resources_present=false`，不补资源结论。哈希用于发现损坏或摘要篡改，不是对任意人整体伪造运行记录的密码学证明。`endurance` 质量配置现在在实际执行后再次调用复核器。
+
+## 可分享的图表报告
+
+安装可选报告依赖 `python -m pip install -e ".[dev,reports]"` 后，运行 `python scripts/render_load_report.py <report.json> --output <新的report.html>`。渲染前强制复核原始证据；HTML 自包含 PNG 图表、阶段表、资源增长表和完整机器报告，不访问 CDN。图表覆盖所有阶段 P95、持续窗口 P95、目标 RSS 和单核口径 CPU；缺失值显示缺失/断点，不补零。INVALID 和未发出请求显式保留，历史无资源报告显示“未采集”。CI 已生成短版图表制品，不能把它当成本机长版测量。
+
+
+本轮实际结果与原始证据已归档到 [资源与热点对照实测](../reports/architecture/resource-controls-20260927.md)：30 分钟持续及资源筛查通过，但原整轮因 80 RPS 发压饱和仍 INVALID；独立容量复测最高已测通过 60 RPS、70 RPS 延迟超标。代码 `3b6809c` 的远程 CI 13/13 作业通过，Python 780 passed / 7 skipped。Python/Go 对照仅为 CONTROL_VERIFIED，不改变云端历史 AI 根因 1/21。

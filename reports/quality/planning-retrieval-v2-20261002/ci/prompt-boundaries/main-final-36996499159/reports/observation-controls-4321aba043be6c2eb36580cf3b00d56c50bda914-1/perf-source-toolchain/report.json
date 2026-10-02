@@ -1,0 +1,83 @@
+{
+  "schema": "mini-drop.perf-source-toolchain-control.v1",
+  "scope": "TOOLCHAIN_SMOKE",
+  "started_at": "2026-10-02T10:38:17.827547+00:00",
+  "passed": true,
+  "live_perf_sampling": false,
+  "causal_root_cause_verified": false,
+  "runner_sha256": "1b0de3bbf8b21278bef999bfcf8c78c5e53bd1ae22e9b57bcd48016f079543c0",
+  "cleanup_verified": true,
+  "cpp_image": {
+    "name": "mini-drop-cpp-hotspot:ci",
+    "id": "sha256:4398f39fbb3a835b0ad5e3118f5f75ec99117c5cfe93145c79b62535378c4cff",
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "toolchain_image": {
+    "name": "mini-drop-analyzer-toolchain:ci",
+    "id": "sha256:26305ec4ee4bf307b7664199acfbf2ea3a43e1a3887c1041124a820fbd070ee6",
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "container_isolation": {
+    "readonly_rootfs": true,
+    "network_mode": "none",
+    "user": "mini-drop",
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges"
+    ],
+    "memory_bytes": 134217728,
+    "nano_cpus": 500000000,
+    "pids_limit": 32,
+    "bind_mounts": [
+      {
+        "destination": "/usr/local/bin/cpp-hotspot",
+        "rw": false
+      },
+      {
+        "destination": "/verify_perf_source_toolchain.py",
+        "rw": false
+      },
+      {
+        "destination": "/stackcollapse-perf.pl",
+        "rw": false
+      }
+    ]
+  },
+  "verification": {
+    "schema": "mini-drop.perf-source-toolchain-smoke.v1",
+    "scope": "TOOLCHAIN_SMOKE",
+    "passed": true,
+    "live_perf_sampling": false,
+    "causal_root_cause_verified": false,
+    "binary_sha256": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+    "stackcollapse_sha256": "74faa47a29d8df07cb06731dfd8bb94dc4c165b9d811ac6b4c9449eea2ac25d8",
+    "tools": {
+      "perf": "/usr/bin/perf",
+      "perl": "/usr/bin/perl",
+      "nm": "/usr/bin/nm",
+      "addr2line": "/usr/bin/addr2line",
+      "objdump": "/usr/bin/objdump"
+    },
+    "perf_version": "perf version 6.12.111",
+    "perl_version": "v5.40.1",
+    "debug_sections": [
+      ".debug_info",
+      ".debug_line"
+    ],
+    "nm_symbol_row": "0000000000467530 T cpp_cpu_hot_function",
+    "address": "0x0000000000467530",
+    "addr2line_stdout": "cpp_cpu_hot_function\n/src/main.cpp:34\n",
+    "source_file": "/src/main.cpp",
+    "source_line": 34,
+    "constructed_perf_script": "# TOOLCHAIN_SMOKE: constructed format fixture; NOT a live perf sample\ncpp-hotspot 1/1 1.000000: cycles:\n    0000000000467530 cpp_cpu_hot_function (/usr/local/bin/cpp-hotspot)\n    /src/main.cpp:34\n\n",
+    "constructed_fixture_samples": 1,
+    "collapsed_stdout": "cpp-hotspot;cpp_cpu_hot_function:/src/main.cpp:34 1\n",
+    "collapsed_stderr": "",
+    "boundary": "Actual ELF/toolchain mapping; timestamp, PID and one sample are constructed. No live diagnosis or RCA grade."
+  },
+  "finished_at": "2026-10-02T10:38:18.646833+00:00"
+}

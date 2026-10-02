@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
 import AIDiagnosis from "./AIDiagnosis";
 
 vi.mock("../api/client", () => ({
   advanceDropInsightOrchestrator: vi.fn(),
+  cancelDropInsightDiagnosis: vi.fn(),
   clarifyDropInsightDiagnosis: vi.fn(),
   createDropInsightDiagnosis: vi.fn(),
   createDiagnosticSkillCandidate: vi.fn(),
@@ -28,6 +30,7 @@ vi.mock("../api/client", () => ({
   runDropInsightPlanner: vi.fn(),
   submitDropInsightFeedback: vi.fn(),
   submitDropInsightIntervention: vi.fn(),
+  startManagedServiceDiagnosis: vi.fn(),
   updateDropInsightToolCall: vi.fn(),
 }));
 
@@ -67,6 +70,130 @@ describe("AIDiagnosis V2 workspace", () => {
   });
 
   afterEach(cleanup);
+
+  it("finishes a measured healthy check without a root report and offers fresh sampling", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightEvents.mockResolvedValue([{ event_type: "health_check.completed", payload: {
+      schema: "mini-drop.health-check.v1", diagnosis_id: "diag-1", service_id: "office",
+      code: "NORMAL_OBSERVED", title: "本次检查正常（已检查范围）", detail: "CPU 和 RSS 未超阈值",
+      checked: ["CPU", "RSS"], anomalies: [], unmeasured: ["业务正确性"], evidence_refs: ["ev"],
+      causal_root_cause_verified: false,
+    } }]);
+    api.startManagedServiceDiagnosis.mockResolvedValue({ diagnosis_id: "diag-2" });
+    render(<AIDiagnosis />);
+    const button = await screen.findByRole("button", { name: "再次检查" });
+    expect(screen.getByText("检查结果与下一步已生成")).toBeInTheDocument();
+    expect(screen.queryByText("未形成报告")).not.toBeInTheDocument();
+    expect(screen.queryByText("证据不足，暂不能确认根因")).not.toBeInTheDocument();
+    fireEvent.click(button);
+    await waitFor(() => expect(api.startManagedServiceDiagnosis).toHaveBeenCalledWith("office", {
+      query: "检查当前状态", mode: "AUTONOMOUS", health_check: true, follow_up_diagnosis_id: "diag-1",
+    }));
+  });
+
+  it("keeps a deep link available for retry after a transient list failure", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");
+    let rejectList;
+    api.listDropInsightDiagnoses.mockImplementationOnce(() => new Promise((_, reject) => { rejectList = reject; }));
+    render(<AIDiagnosis />);
+    await act(async () => rejectList(new Error("临时列表失败")));
+    expect(new URLSearchParams(window.location.search).get("case")).toBe("drop_insight_v2:diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    await act(async () => window.dispatchEvent(new Event("mini-drop:credentials-changed")));
+    await waitFor(() => expect(api.getDropInsightDiagnosis).toHaveBeenCalledWith("diag-1"));
+  });
+
+  it("retains the requested case while React replays asynchronous state updates", async () => {
+    const requested = { ...diagnosis, diagnosis_id: "diag-2", query: "网络等待案例" };
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-2");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis, requested]);
+    api.getDropInsightDiagnosis.mockImplementation(async id => id === requested.diagnosis_id ? requested : diagnosis);
+    render(<StrictMode><AIDiagnosis /></StrictMode>);
+    await waitFor(() => expect(api.getDropInsightDiagnosis).toHaveBeenCalledWith("diag-2"));
+    expect(new URLSearchParams(window.location.search).get("case")).toBe("drop_insight_v2:diag-2");
+    expect(await screen.findByText("网络等待案例")).toBeInTheDocument();
+  });
+
+  it("confirms cancellation with session version and refreshes the terminal record", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    const active = { ...diagnosis, status: "COLLECTING_EVIDENCE", version: 4 };
+    const cancelled = { ...active, status: "CANCELLED", version: 5 };
+    api.listDropInsightDiagnoses.mockResolvedValue([active]);
+    api.getDropInsightDiagnosis.mockResolvedValue(active);
+    api.cancelDropInsightDiagnosis.mockImplementation(async () => {
+      api.getDropInsightDiagnosis.mockResolvedValue(cancelled);
+      api.listDropInsightDiagnoses.mockResolvedValue([cancelled]);
+      return cancelled;
+    });
+    const view = render(<AIDiagnosis />);
+    const stopButton = await screen.findByRole("button", { name: "停止诊断" });
+    await waitFor(() => expect(stopButton).not.toBeDisabled());
+    fireEvent.click(stopButton);
+    const modal = await screen.findByRole("dialog");
+    expect(api.cancelDropInsightDiagnosis).not.toHaveBeenCalled();
+    fireEvent.click(within(modal).getByRole("button", { name: "停止诊断" }));
+    await waitFor(() => expect(api.cancelDropInsightDiagnosis).toHaveBeenCalledWith("diag-1", { expected_version: 4 }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "停止诊断" })).not.toBeInTheDocument());
+    expect(await screen.findByText("只读记录")).toBeInTheDocument();
+    await screen.findByText("诊断已停止，已有记录已保留");
+    view.unmount();
+    expect(screen.queryByText("诊断已停止，已有记录已保留")).not.toBeInTheDocument();
+  });
+
+  it("hides cancellation on completed records", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "completed-report", conclusion: "采集已完成", verification: { status: "INSUFFICIENT_EVIDENCE" } }]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    expect(screen.queryByRole("button", { name: "停止诊断" })).not.toBeInTheDocument();
+  });
+
+  it("does not automatically generate a skill from a bounded observation", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{
+      report_id: "observation-1", conclusion: "已验证观测：样本热点", evidence_refs: ["ev-1"],
+      verification: { status: "VERIFIED", claim_scope: "BOUNDED_OBSERVATION", causal_root_cause_verified: false },
+    }]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    await waitFor(() => expect(api.listDiagnosticSkills).toHaveBeenCalled());
+    expect(api.createDiagnosticSkillCandidate).not.toHaveBeenCalled();
+  });
+
+  it("does not use an earlier verified branch to generate a skill from a later insufficient report", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([
+      { report_id: "new", created_at: "2026-09-30T07:00:00Z", verification: { status: "INSUFFICIENT_EVIDENCE" } },
+      { report_id: "old", created_at: "2026-09-30T06:00:00Z", evidence_refs: ["ev-1"], verification: { status: "VERIFIED" } },
+    ]);
+    render(<AIDiagnosis />);
+    await screen.findByLabelText("当前诊断结论摘要");
+    await waitFor(() => expect(api.listDiagnosticSkills).toHaveBeenCalled());
+    expect(api.createDiagnosticSkillCandidate).not.toHaveBeenCalled();
+  });
+
+  it("still generates a candidate from a completed diagnosis with an eligible latest report", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "root-1", evidence_refs: ["ev-1"], verification: {
+      status: "VERIFIED", claim_scope: "CAUSAL_ROOT_CAUSE", causal_root_cause_verified: true,
+    } }]);
+    api.createDiagnosticSkillCandidate.mockResolvedValue({ skill_id: "skill-1", version: 1 });
+    api.evaluateDiagnosticSkill.mockResolvedValue({ skill_id: "skill-1", gate_metrics: { eligible: false } });
+    render(<AIDiagnosis />);
+    await waitFor(() => expect(api.createDiagnosticSkillCandidate).toHaveBeenCalledWith("diag-1"));
+    expect(api.evaluateDiagnosticSkill).toHaveBeenCalledWith("skill-1");
+  });
 
   it("preserves a same-session report on partial and core refresh failures, but clears it when switching sessions", async () => {
     window.history.replaceState({}, "", "/ai-diagnosis?case=diag-1");
@@ -137,13 +264,13 @@ describe("AIDiagnosis V2 workspace", () => {
 
     render(<AIDiagnosis />);
     expect(await screen.findByLabelText("Agent 可观测控制台")).toBeInTheDocument();
-    expect(document.querySelector(".diagnosis-workbench-grid.view-conversation")).not.toBeNull();
-    expect(screen.queryByLabelText("实时诊断探索树")).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("探索树"));
     expect(document.querySelector(".diagnosis-workbench-grid.view-tree")).not.toBeNull();
     expect(screen.getByLabelText("实时诊断探索树")).toBeInTheDocument();
     expect(screen.queryByLabelText("多轮诊断对话")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("调查记录"));
+    expect(document.querySelector(".diagnosis-workbench-grid.view-conversation")).not.toBeNull();
+    expect(screen.getByLabelText("多轮诊断对话")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("分屏"));
     expect(document.querySelector(".diagnosis-workbench-grid.view-split")).not.toBeNull();
@@ -153,6 +280,31 @@ describe("AIDiagnosis V2 workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "全屏查看探索树" }));
     const fullscreenTree = screen.getByRole("dialog", { name: "实时诊断探索树 · 全屏阅读" });
     expect(within(fullscreenTree).getByText("实时探索树")).toBeInTheDocument();
+  });
+
+  it("shows a measured normal window before the tree and keeps report limits available", async () => {
+    window.history.replaceState({}, "", "/ai-diagnosis?case=drop_insight_v2%3Adiag-1");
+    api.listDropInsightDiagnoses.mockResolvedValue([diagnosis]);
+    api.getDropInsightDiagnosis.mockResolvedValue({ ...diagnosis, target: { service: "orders-api", pid: 4201, agent_id: "worker-1", process_binding: { boot_id: "boot", process_start_ticks: 123 } } });
+    api.listDropInsightEvidence.mockResolvedValue([{
+      evidence_id: "ev-sys-1", role: "NEUTRAL",
+      envelope: { evidence_type: "SYS_METRICS_SYS_METRICS", source: { tool_name: "sys_metrics" },
+        scope: { agent_id: "worker-1", pid: 4201 },
+        quality: { schema_valid: true, analyzer_validated: true, target_match: true, time_overlap: true, degraded: false },
+        observation: { metadata: { sample_count: 15, window_duration_seconds: 14, process_identity: { pid: 4201, start_ticks: 123, verified: true }, summary: { process_cpu_core_usage: 2.4, vmrss_mb: 128, vmrss_mb_delta: 0, thread_count: 5, fd_count: 12 } } } },
+      classification: { decision: "ACCEPT_LIMITED", can_support_conclusion: false },
+    }]);
+    api.listDropInsightReports.mockResolvedValue([{ report_id: "r-normal", verification: { status: "INSUFFICIENT_EVIDENCE" }, evidence_refs: [] }]);
+    render(<AIDiagnosis />);
+
+    const assessment = await screen.findByText("本次检查正常（已检查范围）");
+    const tree = screen.getByLabelText("实时诊断探索树");
+    expect(assessment.compareDocumentPosition(tree) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText("2.4%")).toBeInTheDocument();
+    const report = (await screen.findByText("查看完整报告与证据限制")).closest("details");
+    expect(report).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("查看完整报告与证据限制"));
+    expect(report).toHaveAttribute("open");
   });
 
   it("lets the user review and edit a tree intervention before starting a new round", async () => {
@@ -181,7 +333,6 @@ describe("AIDiagnosis V2 workspace", () => {
 
     render(<AIDiagnosis />);
     await screen.findByLabelText("Agent 可观测控制台");
-    fireEvent.click(screen.getByText("探索树"));
     const tree = screen.getByLabelText("实时诊断探索树");
     fireEvent.click(within(tree).getByRole("button", { name: "寻找反证：用户态热点" }));
 
@@ -202,16 +353,18 @@ describe("AIDiagnosis V2 workspace", () => {
     ));
   });
 
-  it("creates a diagnosis through the retained V2 API", async () => {
+  it.each(["LATS", "REACT"])("creates a diagnosis with %s through the retained V2 API", async (strategy) => {
     api.createDropInsightDiagnosis.mockResolvedValue({ diagnosis_id: "diag-new" });
     api.runDropInsightPlanner.mockResolvedValue({});
     render(<AIDiagnosis />);
+    if (strategy === "REACT") fireEvent.click(screen.getByText("ReAct 顺序对照"));
     fireEvent.change(screen.getByPlaceholderText(/描述问题/), {
       target: { value: "定位订单服务 CPU" },
     });
     fireEvent.click(screen.getByText("开始诊断"));
     await waitFor(() => expect(api.createDropInsightDiagnosis).toHaveBeenCalledWith({
       query: "定位订单服务 CPU",
+      budget: { investigation_strategy: strategy },
       mode: "AUTONOMOUS",
       auto_scope: true,
     }));
@@ -223,12 +376,13 @@ describe("AIDiagnosis V2 workspace", () => {
     api.getDropInsightDiagnosis.mockResolvedValue(diagnosis);
     api.getDropInsightExplorationTree.mockResolvedValue({
       revision: 3,
-      stats: { rounds: 2, nodes: 0, pruned: 0 },
+      stats: { rounds: 2, current_round: 2, nodes: 0, pruned: 0 },
       nodes: [],
     });
 
     render(<AIDiagnosis />);
 
+    fireEvent.click(await screen.findByRole("button", { name: "诊断选项" }));
     const trigger = await screen.findByRole("button", { name: "打开当前复杂案例回放" });
     expect(screen.getByRole("heading", { name: /当前诊断 · 第/ })).toBeInTheDocument();
     expect(screen.queryByLabelText("Mini-Drop 诊断架构分层")).not.toBeInTheDocument();
@@ -327,7 +481,6 @@ describe("AIDiagnosis V2 workspace", () => {
     expect(input).toBeDisabled();
     expect(screen.getByRole("button", { name: "回放只读" })).toBeDisabled();
 
-    fireEvent.click(screen.getByText("探索树"));
     expect(screen.getByText("探索树将在规划后逐节点出现")).toBeInTheDocument();
     expect(api.runDropInsightPlanner).not.toHaveBeenCalled();
     expect(api.advanceDropInsightOrchestrator).not.toHaveBeenCalled();

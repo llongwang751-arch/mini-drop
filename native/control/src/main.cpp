@@ -469,7 +469,8 @@ class ServiceBase {
     if (!config_.auth_enabled) return grpc::Status::OK;
     const auto values = context->client_metadata().find("x-mini-drop-grpc-token");
     if (values == context->client_metadata().end() ||
-        std::string(values->second.data(), values->second.length()) != config_.grpc_token) {
+        !secure_equal(std::string(values->second.data(), values->second.length()),
+                      config_.grpc_token)) {
       return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "invalid gRPC token");
     }
     return grpc::Status::OK;

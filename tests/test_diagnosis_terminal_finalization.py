@@ -86,6 +86,21 @@ def _start_lats_search(diagnosis_id: str) -> None:
         session.commit()
 
 
+def test_deadline_stops_expansion_and_finalizes_without_claiming_root_cause(monkeypatch):
+    diagnosis_id = "insight-deadline-finalization"
+    hypothesis_id = _seed_diagnosis(diagnosis_id)
+    _start_lats_search(diagnosis_id)
+    monkeypatch.setattr(service, "_current_target_binding",
+                        lambda *_: pytest.fail("expired investigation must not start another probe"))
+    assert service._replan_after_insufficient_evidence(diagnosis_id, hypothesis_id, "deadline-report") is None
+    with new_session() as session:
+        diagnosis = session.get(DropInsightSessionModel, diagnosis_id)
+        assert diagnosis.status == "INSUFFICIENT_EVIDENCE"
+        event = session.query(DropInsightEventModel).filter_by(
+            diagnosis_id=diagnosis_id, event_type="lats.search_terminated").one()
+        assert event.payload_json["reason"] == "BUDGET_EXHAUSTED"
+
+
 def test_unverified_report_never_commits_a_transient_terminal_state(monkeypatch):
     diagnosis_id = "insight-nonterminal-report"
     hypothesis_id = _seed_diagnosis(diagnosis_id)

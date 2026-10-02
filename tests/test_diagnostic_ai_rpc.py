@@ -13,6 +13,24 @@ class AbortedRPC(RuntimeError):
     pass
 
 
+def test_cancellation_rpc_forwards_authenticated_principal(monkeypatch):
+    from types import SimpleNamespace
+    observed = []
+    def cancel(diagnosis_id, **kwargs):
+        observed.append((diagnosis_id, kwargs))
+        return SimpleNamespace(to_dict=lambda: {"diagnosis_id": diagnosis_id, "status": "CANCELLED"})
+    monkeypatch.setattr("server.app.diagnostic_ai_rpc.cancel_diagnosis", cancel)
+    result = dispatch("POST", "/diagnoses/diag-a/cancel", "", '{"reason":"stop", "expected_version":4}', "operator:alice")
+    assert result.status == 200
+    assert observed == [("diag-a", {"reason": "stop", "expected_version": 4, "cancelled_by": "operator:alice"})]
+
+
+@pytest.mark.parametrize("body", ['{"reason":"  "}', '{"reason":"stop","task_id":"foreign"}', '{"expected_version":0}'])
+def test_cancellation_rpc_rejects_invalid_input(body):
+    with pytest.raises(ValidationError):
+        dispatch("POST", "/diagnoses/diag-a/cancel", "", body, "operator:alice")
+
+
 class FakeContext:
     def __init__(self, metadata=()):
         self._metadata = metadata

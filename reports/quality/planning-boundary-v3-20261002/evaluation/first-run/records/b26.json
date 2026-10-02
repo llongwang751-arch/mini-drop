@@ -1,0 +1,212 @@
+{
+  "type": "result",
+  "case_id": "b26",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc97cda81c63ecbf4fcb790d7405",
+    "object": "chat.completion",
+    "created": 1790944202,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告JVM批处理工作线程在24秒窗口内测得平台线程CPU占用率为92%，且请求量稳定。这提出了一个明确的待验证性能异常（CPU热点）。授权了Java线程性能分析，且存在可执行的取证动作（start_jvm_profile）。因此选择调查。\",\n  \"tool_name\": \"start_jvm_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"本次诊断中，JVM进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\",\n      \"expected_observations\": [\"JVM async-profiler或类似工具采集中，一个具备源码位置的业务函数累计占比至少20%\"],\n      \"falsification_criteria\": [\"目标进程CPU占用率低于50%\"],\n      \"rationale\": \"观测到高线程CPU使用率（92%），表明可能存在CPU计算热点。需要结合系统级CPU指标和独立的JVM性能剖析来验证是否存在可归因于特定业务代码的CPU消耗。\",\n      \"prior_probability\": 0.7,\n      \"estimated_value\": 0.8\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划基于用户提供的合成观测，尚未执行实际数据采集。假设的验证依赖于后续工具执行的成功与返回的数据。JVM剖析需要符号映射才能准确定位源码。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 5342,
+      "completion_tokens": 345,
+      "total_tokens": 5687,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 2142
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc97cda81c63ecbf4fcb790d7405\",\"object\":\"chat.completion\",\"created\":1790944202,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告JVM批处理工作线程在24秒窗口内测得平台线程CPU占用率为92%，且请求量稳定。这提出了一个明确的待验证性能异常（CPU热点）。授权了Java线程性能分析，且存在可执行的取证动作（start_jvm_profile）。因此选择调查。\\\",\\n  \\\"tool_name\\\": \\\"start_jvm_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"本次诊断中，JVM进程在系统指标采集窗口的CPU占用率至少50%（单核口径），另一次独立采样观察到可归属的执行路径\\\",\\n      \\\"expected_observations\\\": [\\\"JVM async-profiler或类似工具采集中，一个具备源码位置的业务函数累计占比至少20%\\\"],\\n      \\\"falsification_criteria\\\": [\\\"目标进程CPU占用率低于50%\\\"],\\n      \\\"rationale\\\": \\\"观测到高线程CPU使用率（92%），表明可能存在CPU计算热点。需要结合系统级CPU指标和独立的JVM性能剖析来验证是否存在可归因于特定业务代码的CPU消耗。\\\",\\n      \\\"prior_probability\\\": 0.7,\\n      \\\"estimated_value\\\": 0.8\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划基于用户提供的合成观测，尚未执行实际数据采集。假设的验证依赖于后续工具执行的成功与返回的数据。JVM剖析需要符号映射才能准确定位源码。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":5342,\"completion_tokens\":345,\"total_tokens\":5687,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":2142},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "96bd32e76a93dfbe040a878ab980213136b21beded51ceb86485afc27123df0c",
+  "seconds": 17.425322,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "jvm.cpu.thread_observation",
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable. Java thread profiling is authorized; choose that evidence action to test a hotspot hypothesis.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Java thread profiling is authorized"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "choose that evidence action to test a hotspot hypothesis"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "jvm.cpu.thread_observation",
+        "title": "Java JVM 线程 CPU 时间与有界正常观测",
+        "document": "knowledge/java_thread_cpu.md",
+        "content_hash": "959be33df5e7147f311f795d95e477473cfce40e5d639769928de741693e280c",
+        "chunk_id": "089438d3a91a4647149855a671b48dac7ba4de2181a734e5f154c60904fbf606",
+        "score": 18.815938,
+        "matched_terms": [
+          "evidence",
+          "thread",
+          "worker",
+          "java",
+          "cpu",
+          "jvm"
+        ],
+        "required_evidence": [
+          "JVM/PID 与线程生命周期",
+          "ThreadMXBean CPU 测量支持和启用状态",
+          "同一窗口两端的有效线程 CPU 时间及墙钟时间"
+        ],
+        "caveats": [
+          "知识不是当前事故证据，也不增加采集权限",
+          "-1、未启用及不支持不能等同零 CPU",
+          "平台线程统计不能直接归于虚拟线程",
+          "低 CPU 不反驳锁、I/O 或依赖等待"
+        ],
+        "excerpt": "# Java JVM 线程 CPU 与正常／缺测边界\n\nThreadMXBean 可报告平台线程累计 CPU 时间；先检查 isThreadCpuTimeSupported 和 isThreadCpuTimeEnabled。getThreadCpuTime 返回 -1、线程已结束、测量未启用或实现不支持都属于无有效观测，不能解释成零 CPU。Java 21 的接口不提供虚拟线程 CPU 归属；线程 ID 只在该线程生命周期内有效。\n\n用同一 JVM/PID、同一存活线程、同一时间窗两端的有效 CPU 时间差除以墙钟时间描述线程 CPU usage。纳秒精度不保证纳秒准确度。低 CPU 或 normal CPU 只能描述该窗口，不能据此说业务全局健康，也不能反驳锁、同步写、GC 或依赖等待。\n\n只描述输入范围且未提出异常/健康判定时，可以有界停止；要求“确认当前健康”却缺少有效观测时应明确缺测。知识是规划先验，不是当前 Evidence，不提供额外工具权限；若连接器不支持 ThreadMXBean，列出缺口而不要伪造数据或自由执行 JVM 命令。\n\n来源：[Oracle Java SE 21 ThreadMXBean 官方 API](https://docs.oracle.com/en/java/javase/21/docs/api/java.management/java/lang/management/ThreadMXBean.html)。"
+      },
+      {
+        "query": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable. Java thread profiling is authorized; choose that evidence action to test a hotspot hypothesis.",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable",
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "recovery",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "cpu"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "A JVM batch worker shows 92% measured platform-thread CPU across 24 seconds while request volume is stable"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "sampling"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "Java thread profiling is authorized"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [],
+              "matched_anchors": [
+                "hotspot"
+              ],
+              "unsupported_subjects": [],
+              "clause": "choose that evidence action to test a hotspot hypothesis"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+        "score": 16.35992,
+        "matched_terms": [
+          "hotspot",
+          "thread",
+          "worker",
+          "java",
+          "cpu",
+          "jvm"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比",
+          "采样起止时间与 CPU 时间增量",
+          "核数/配额及 CPU 百分比口径"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足",
+          "低 CPU 不证明全局健康；缺少窗口或有效计数不能当作正常观测"
+        ],
+        "excerpt": "## 低 CPU、正常描述和缺测\n\n进程或线程 CPU usage / CPU utilization 要写明同一采样窗口、CPU 时间增量、墙钟时长和百分比的单核/多核口径。线程或 worker 的低 CPU 可以反驳该窗口持续计算饱和，不能反驳锁、I/O、依赖等待，也不代表业务全局健康。只有进程身份而没有有效计数时是缺测；用户只要求描述现有输入、未要求健康判定时，可说明描述范围并停止，不制造异常假设。\n\nLinux `/proc/<pid>/stat` 的 utime/stime 是进程用户态/系统态 CPU 时间计数，需按时钟 tick 单位和采样间隔求增量。进程重启、窗口不完整、采集失败不能当作零 CPU。知识本身不能授权新探针或成为当前证据。\n\n来源：[Linux /proc 官方文档](https://docs.kernel.org/filesystems/proc.html)；JVM 线程测量见 [Java 线程 CPU 指南](java_thread_cpu.md)。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

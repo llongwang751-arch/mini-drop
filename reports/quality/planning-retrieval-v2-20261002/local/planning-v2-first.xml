@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="63" time="1.752" timestamp="2026-10-02T16:19:15.028946+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_planning_output_v2" name="test_noninvestigation_is_valid_without_probe_or_anomaly[NORMAL]" time="0.001" /><testcase classname="tests.test_planning_output_v2" name="test_noninvestigation_is_valid_without_probe_or_anomaly[INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_noninvestigation_is_valid_without_probe_or_anomaly[REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[tool-NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[tool-INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[tool-REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[hypothesis-NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[hypothesis-INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[hypothesis-REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[causal-NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[causal-INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[causal-REFUSED]" time="0.001" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[scope-NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[scope-INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[scope-REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[unknown-field-NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[unknown-field-INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_contract_rejects_hidden_action_or_unbounded_claim[unknown-field-REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[empty]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[counter-empty]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[failed]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[whitelist]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[cpu-contract]" time="0.001" /><testcase classname="tests.test_planning_output_v2" name="test_investigation_keeps_falsification_numeric_and_authorization_gates[whitespace]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_legacy_probe_normalizes_to_v2_without_rewriting_criteria" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_legacy_advertised_schema_allows_nullable_tool_and_empty_hypotheses" time="0.002" /><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[legacy-NORMAL]" time="0.009" /><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[legacy-INSUFFICIENT_EVIDENCE]" time="0.009" /><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[legacy-REFUSED]" time="0.009" /><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[langgraph-NORMAL]" time="0.001"><failure message="assert 0 == 1&#10; +  where 0 = len([])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027AF10128B0&gt;
+disposition = 'NORMAL', framework = 'langgraph'
+
+    @pytest.mark.parametrize("disposition", ["NORMAL", "INSUFFICIENT_EVIDENCE", "REFUSED"])
+    @pytest.mark.parametrize("framework", ["legacy", "langgraph"])
+    def test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure(monkeypatch, disposition, framework):
+        proposal = output(disposition)
+        monkeypatch.setattr(adaptive_planner, "is_feature_enabled", lambda _: True)
+        settings = AISettings("full", "test", "https://example.invalid", "test", "test", True, True, True)
+        monkeypatch.setattr(adaptive_planner, "get_ai_settings", lambda: settings)
+        monkeypatch.setenv("MINI_DROP_AGENT_FRAMEWORK", framework)
+        captured = []
+        if framework == "legacy":
+            def transport(payload, timeout):
+                captured.append(payload)
+                return SimpleNamespace(status_code=200, json=lambda: {"choices": [{"message": {"tool_calls": [
+                    {"function": {"name": "emit_diagnosis_plan", "arguments": json.dumps(proposal)}}]}}]})
+            monkeypatch.setattr(adaptive_planner, "chat_completions", transport)
+        else:
+            class FakeAgent:
+                def invoke(self, *args, **kwargs):
+                    captured.append(kwargs)
+                    response = diagnosis_agent.finish_diagnosis_plan.func(
+                        output=PlanningOutput.model_validate(proposal), runtime=SimpleNamespace(context=kwargs["context"]),
+                    )
+                    return {"messages": [
+                        AIMessage(content="", tool_calls=[{"name": "finish_diagnosis_plan", "args": {"output": proposal},
+                                                            "id": "real-tool-result", "type": "tool_call"}]),
+                        ToolMessage(content=response, tool_call_id="real-tool-result", name="finish_diagnosis_plan"),
+                    ]}
+            monkeypatch.setattr(diagnosis_agent, "_agent_for", lambda _: FakeAgent())
+            monkeypatch.setattr(diagnosis_agent, "get_agent_runtime_status", lambda: {"actual_backend": "memory"})
+        result = adaptive_planner.propose_hypothesis_plan(
+            diagnosis_id="test-planning-v2", query="只阅读当前服务描述", target={}, category="UNKNOWN",
+            rule_plan={}, allowed_tools=[], retrieval_trace={"scope": "public-only"}, user_preferences={},
+        )
+&gt;       assert len(captured) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\test_planning_output_v2.py:144: AssertionError</failure></testcase><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[langgraph-INSUFFICIENT_EVIDENCE]" time="0.001"><failure message="assert 0 == 1&#10; +  where 0 = len([])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027AF1125AE0&gt;
+disposition = 'INSUFFICIENT_EVIDENCE', framework = 'langgraph'
+
+    @pytest.mark.parametrize("disposition", ["NORMAL", "INSUFFICIENT_EVIDENCE", "REFUSED"])
+    @pytest.mark.parametrize("framework", ["legacy", "langgraph"])
+    def test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure(monkeypatch, disposition, framework):
+        proposal = output(disposition)
+        monkeypatch.setattr(adaptive_planner, "is_feature_enabled", lambda _: True)
+        settings = AISettings("full", "test", "https://example.invalid", "test", "test", True, True, True)
+        monkeypatch.setattr(adaptive_planner, "get_ai_settings", lambda: settings)
+        monkeypatch.setenv("MINI_DROP_AGENT_FRAMEWORK", framework)
+        captured = []
+        if framework == "legacy":
+            def transport(payload, timeout):
+                captured.append(payload)
+                return SimpleNamespace(status_code=200, json=lambda: {"choices": [{"message": {"tool_calls": [
+                    {"function": {"name": "emit_diagnosis_plan", "arguments": json.dumps(proposal)}}]}}]})
+            monkeypatch.setattr(adaptive_planner, "chat_completions", transport)
+        else:
+            class FakeAgent:
+                def invoke(self, *args, **kwargs):
+                    captured.append(kwargs)
+                    response = diagnosis_agent.finish_diagnosis_plan.func(
+                        output=PlanningOutput.model_validate(proposal), runtime=SimpleNamespace(context=kwargs["context"]),
+                    )
+                    return {"messages": [
+                        AIMessage(content="", tool_calls=[{"name": "finish_diagnosis_plan", "args": {"output": proposal},
+                                                            "id": "real-tool-result", "type": "tool_call"}]),
+                        ToolMessage(content=response, tool_call_id="real-tool-result", name="finish_diagnosis_plan"),
+                    ]}
+            monkeypatch.setattr(diagnosis_agent, "_agent_for", lambda _: FakeAgent())
+            monkeypatch.setattr(diagnosis_agent, "get_agent_runtime_status", lambda: {"actual_backend": "memory"})
+        result = adaptive_planner.propose_hypothesis_plan(
+            diagnosis_id="test-planning-v2", query="只阅读当前服务描述", target={}, category="UNKNOWN",
+            rule_plan={}, allowed_tools=[], retrieval_trace={"scope": "public-only"}, user_preferences={},
+        )
+&gt;       assert len(captured) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\test_planning_output_v2.py:144: AssertionError</failure></testcase><testcase classname="tests.test_planning_output_v2" name="test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure[langgraph-REFUSED]" time="0.001"><failure message="assert 0 == 1&#10; +  where 0 = len([])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027AF1151850&gt;
+disposition = 'REFUSED', framework = 'langgraph'
+
+    @pytest.mark.parametrize("disposition", ["NORMAL", "INSUFFICIENT_EVIDENCE", "REFUSED"])
+    @pytest.mark.parametrize("framework", ["legacy", "langgraph"])
+    def test_actual_runtime_returns_valid_no_probe_as_result_not_provider_failure(monkeypatch, disposition, framework):
+        proposal = output(disposition)
+        monkeypatch.setattr(adaptive_planner, "is_feature_enabled", lambda _: True)
+        settings = AISettings("full", "test", "https://example.invalid", "test", "test", True, True, True)
+        monkeypatch.setattr(adaptive_planner, "get_ai_settings", lambda: settings)
+        monkeypatch.setenv("MINI_DROP_AGENT_FRAMEWORK", framework)
+        captured = []
+        if framework == "legacy":
+            def transport(payload, timeout):
+                captured.append(payload)
+                return SimpleNamespace(status_code=200, json=lambda: {"choices": [{"message": {"tool_calls": [
+                    {"function": {"name": "emit_diagnosis_plan", "arguments": json.dumps(proposal)}}]}}]})
+            monkeypatch.setattr(adaptive_planner, "chat_completions", transport)
+        else:
+            class FakeAgent:
+                def invoke(self, *args, **kwargs):
+                    captured.append(kwargs)
+                    response = diagnosis_agent.finish_diagnosis_plan.func(
+                        output=PlanningOutput.model_validate(proposal), runtime=SimpleNamespace(context=kwargs["context"]),
+                    )
+                    return {"messages": [
+                        AIMessage(content="", tool_calls=[{"name": "finish_diagnosis_plan", "args": {"output": proposal},
+                                                            "id": "real-tool-result", "type": "tool_call"}]),
+                        ToolMessage(content=response, tool_call_id="real-tool-result", name="finish_diagnosis_plan"),
+                    ]}
+            monkeypatch.setattr(diagnosis_agent, "_agent_for", lambda _: FakeAgent())
+            monkeypatch.setattr(diagnosis_agent, "get_agent_runtime_status", lambda: {"actual_backend": "memory"})
+        result = adaptive_planner.propose_hypothesis_plan(
+            diagnosis_id="test-planning-v2", query="只阅读当前服务描述", target={}, category="UNKNOWN",
+            rule_plan={}, allowed_tools=[], retrieval_trace={"scope": "public-only"}, user_preferences={},
+        )
+&gt;       assert len(captured) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\test_planning_output_v2.py:144: AssertionError</failure></testcase><testcase classname="tests.test_planning_output_v2" name="test_agent_completion_needs_matching_executed_tool_and_cannot_accept_unexecuted_prose[no-tool-result]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_agent_completion_needs_matching_executed_tool_and_cannot_accept_unexecuted_prose[wrong-id]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_agent_completion_needs_matching_executed_tool_and_cannot_accept_unexecuted_prose[different-output]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_agent_completion_needs_matching_executed_tool_and_cannot_accept_unexecuted_prose[later-rejection]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_agent_completion_needs_matching_executed_tool_and_cannot_accept_unexecuted_prose[retroactive-ai]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_english_no_probe_display_never_invents_chinese_rule_anomaly[NORMAL]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_english_no_probe_display_never_invents_chinese_rule_anomaly[INSUFFICIENT_EVIDENCE]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_english_no_probe_display_never_invents_chinese_rule_anomaly[REFUSED]" time="0.000" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[initial-NORMAL]" time="0.080" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[initial-INSUFFICIENT_EVIDENCE]" time="0.036" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[initial-REFUSED]" time="0.036" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[intervention-NORMAL]" time="0.038" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[intervention-INSUFFICIENT_EVIDENCE]" time="0.038" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[intervention-REFUSED]" time="0.038" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[feedback-NORMAL]" time="0.037" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[feedback-INSUFFICIENT_EVIDENCE]" time="0.035" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[feedback-REFUSED]" time="0.037" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[counter-NORMAL]" time="0.037" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[counter-INSUFFICIENT_EVIDENCE]" time="0.037" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[counter-REFUSED]" time="0.038" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[insufficient-NORMAL]" time="0.038" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[insufficient-INSUFFICIENT_EVIDENCE]" time="0.039" /><testcase classname="tests.test_planning_output_v2" name="test_all_five_persisted_planner_callers_stop_before_creating_anomaly_or_probe[insufficient-REFUSED]" time="0.055" /><testcase classname="tests.test_planning_output_v2" name="test_unknown_authorized_target_can_return_no_probe_without_forcing_clarification[NORMAL]" time="0.032" /><testcase classname="tests.test_planning_output_v2" name="test_unknown_authorized_target_can_return_no_probe_without_forcing_clarification[INSUFFICIENT_EVIDENCE]" time="0.031" /><testcase classname="tests.test_planning_output_v2" name="test_unknown_authorized_target_can_return_no_probe_without_forcing_clarification[REFUSED]" time="0.031" /><testcase classname="tests.test_planning_output_v2" name="test_unknown_with_failed_model_or_investigation_keeps_original_clarification_gate[None]" time="0.025"><failure message="ValueError: illegal diagnosis status transition: COLLECTING_EVIDENCE-&gt;NEEDS_CLARIFICATION">planning = &lt;function planning.&lt;locals&gt;.configure at 0x0000027AF2459220&gt;
+proposal = None
+
+    @pytest.mark.parametrize("proposal", [None, investigate()])
+    def test_unknown_with_failed_model_or_investigation_keeps_original_clarification_gate(planning, proposal):
+        dispatches = planning("只描述服务现在的情况", "PYTHON", proposal)
+&gt;       result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_planning_output_v2.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+server\app\drop_insight\service.py:8393: in run_diagnosis_planner
+    _cas_session_update(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = &lt;sqlalchemy.orm.session.Session object at 0x0000027AF2439D00&gt;
+diagnosis = &lt;server.app.models.DropInsightSessionModel object at 0x0000027AF23CA5D0&gt;
+
+    def _cas_session_update(session, diagnosis, *, status: str, timestamp) -&gt; None:
+        allowed = _SESSION_TRANSITIONS.get(diagnosis.status, set())
+        if status not in allowed:
+&gt;           raise ValueError(
+                f"illegal diagnosis status transition: {diagnosis.status}-&gt;{status}"
+            )
+E           ValueError: illegal diagnosis status transition: COLLECTING_EVIDENCE-&gt;NEEDS_CLARIFICATION
+
+server\app\drop_insight\event_store.py:233: ValueError</failure></testcase><testcase classname="tests.test_planning_output_v2" name="test_unknown_with_failed_model_or_investigation_keeps_original_clarification_gate[proposal1]" time="0.025"><failure message="ValueError: illegal diagnosis status transition: COLLECTING_EVIDENCE-&gt;NEEDS_CLARIFICATION">planning = &lt;function planning.&lt;locals&gt;.configure at 0x0000027AF25000F0&gt;
+proposal = {'causal_root_cause_verified': False, 'disposition': 'INVESTIGATE', 'hypotheses': [{'expected_observations': ['Python ... '本次诊断中，Python 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径'}], 'limitations': ['仅判断用户描述或规划范围，不确认真实健康或根因'], ...}
+
+    @pytest.mark.parametrize("proposal", [None, investigate()])
+    def test_unknown_with_failed_model_or_investigation_keeps_original_clarification_gate(planning, proposal):
+        dispatches = planning("只描述服务现在的情况", "PYTHON", proposal)
+&gt;       result = service.run_diagnosis_planner("diag", RunPlannerRequest())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_planning_output_v2.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+server\app\drop_insight\service.py:8393: in run_diagnosis_planner
+    _cas_session_update(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = &lt;sqlalchemy.orm.session.Session object at 0x0000027AF2504F30&gt;
+diagnosis = &lt;server.app.models.DropInsightSessionModel object at 0x0000027AF24FA210&gt;
+
+    def _cas_session_update(session, diagnosis, *, status: str, timestamp) -&gt; None:
+        allowed = _SESSION_TRANSITIONS.get(diagnosis.status, set())
+        if status not in allowed:
+&gt;           raise ValueError(
+                f"illegal diagnosis status transition: {diagnosis.status}-&gt;{status}"
+            )
+E           ValueError: illegal diagnosis status transition: COLLECTING_EVIDENCE-&gt;NEEDS_CLARIFICATION
+
+server\app\drop_insight\event_store.py:233: ValueError</failure></testcase><testcase classname="tests.test_planning_output_v2" name="test_late_no_probe_never_reopens_cancelled_or_failed_session[CANCELLED]" time="0.023" /><testcase classname="tests.test_planning_output_v2" name="test_late_no_probe_never_reopens_cancelled_or_failed_session[FAILED]" time="0.022" /><testcase classname="tests.test_planning_output_v2" name="test_no_probe_keeps_active_real_collection_and_its_reservation" time="0.029" /></testsuite></testsuites>

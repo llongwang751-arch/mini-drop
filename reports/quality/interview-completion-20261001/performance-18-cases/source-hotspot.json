@@ -1,0 +1,3996 @@
+{
+  "scenario_id": "source-hotspot",
+  "title": "Python 源码热点",
+  "started_at": "2026-10-01T15:23:59.088775+00:00",
+  "windows": {
+    "baseline": {
+      "first": {
+        "observed_at": "2026-10-01T15:23:59.163929+00:00",
+        "snapshot": {
+          "timestamp": 1790868253.9592981,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.61,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.98,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:24:03.601978+00:00",
+        "snapshot": {
+          "timestamp": 1790868258.649685,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.08,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 34939,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 34810,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.98,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.147093799998402
+    },
+    "fault": {
+      "first": {
+        "observed_at": "2026-10-01T15:24:07.363406+00:00",
+        "snapshot": {
+          "timestamp": 1790868262.235374,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 98.83,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": true,
+          "source_profile_samples": 540,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 535,
+          "source_auto_stop_remaining_seconds": 296.52,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.99,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:24:11.912043+00:00",
+        "snapshot": {
+          "timestamp": 1790868266.895212,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 88.83,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": true,
+          "source_profile_samples": 1330,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 1322,
+          "source_auto_stop_remaining_seconds": 291.86,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.99,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.201845100003993
+    },
+    "recovery": {
+      "first": {
+        "observed_at": "2026-10-01T15:26:32.752276+00:00",
+        "snapshot": {
+          "timestamp": 1790868407.6072912,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 0.91,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 24042,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 23931,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.99,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "last": {
+        "observed_at": "2026-10-01T15:26:37.251137+00:00",
+        "snapshot": {
+          "timestamp": 1790868412.1557627,
+          "fault": "CPU_HOTSPOT",
+          "fault_active": false,
+          "process_cpu_percent": 1.33,
+          "operation_count": 2087112600,
+          "pid": 1,
+          "host_pid": 1,
+          "started_at": 1790753023.6424232,
+          "auto_stop_remaining_seconds": null,
+          "source_fault_active": false,
+          "source_profile_samples": 24042,
+          "hot_function": "source_hot_function",
+          "source_file": "app.py",
+          "source_line": 173,
+          "hot_function_samples": 23931,
+          "source_auto_stop_remaining_seconds": null,
+          "memory_fault_active": false,
+          "process_rss_mb": 23.99,
+          "retained_memory_mb": 0.0,
+          "memory_auto_stop_remaining_seconds": null,
+          "io_fault_active": false,
+          "io_workload_bytes": 1109065728,
+          "process_write_bytes": 0,
+          "io_auto_stop_remaining_seconds": null,
+          "noisy_neighbor_active": false,
+          "peer_pid": null,
+          "peer_cpu_ticks": 0,
+          "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "same_host_verified": false,
+          "noisy_auto_stop_remaining_seconds": null,
+          "load_fault_active": false,
+          "load_offered_rps": 0.0,
+          "load_completed_rps": 0.0,
+          "load_rejected_requests": 0,
+          "load_queue_depth": 0,
+          "load_latency_ms": 673.09,
+          "load_auto_stop_remaining_seconds": null,
+          "queue_fault_active": false,
+          "queue_offered_rps": 0.0,
+          "queue_completed_rps": 0.0,
+          "queue_rejected_requests": 0,
+          "queue_queue_depth": 0,
+          "queue_latency_ms": 3376.74,
+          "queue_auto_stop_remaining_seconds": null,
+          "producer_rate": 0.0,
+          "consumer_rate": 0.0,
+          "queue_lag": 0,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "acceptance_process_identity": {
+            "source": "host_proc_and_docker_inspect",
+            "host_pid": 906287,
+            "namespace_pid": 1,
+            "start_ticks": 14403834,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+            "container_started_at": "2026-09-08T05:27:43.229759068Z"
+          }
+        }
+      },
+      "elapsed_seconds": 5.057514100000844
+    }
+  },
+  "cleanup_verified": true,
+  "session_drained": true,
+  "acceptance_profile": "engineering-diagnosis.v1",
+  "fresh_live_run": true,
+  "target": {
+    "agent_id": "control-interview-demo-agent",
+    "pid": 906287,
+    "comm": "python-hotspot"
+  },
+  "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+  "fault_before_stop": {
+    "observed_at": "2026-10-01T15:26:28.616651+00:00",
+    "snapshot": {
+      "timestamp": 1790868403.9072058,
+      "fault": "CPU_HOTSPOT",
+      "fault_active": false,
+      "process_cpu_percent": 63.5,
+      "operation_count": 2087112600,
+      "pid": 1,
+      "host_pid": 1,
+      "started_at": 1790753023.6424232,
+      "auto_stop_remaining_seconds": null,
+      "source_fault_active": true,
+      "source_profile_samples": 24020,
+      "hot_function": "source_hot_function",
+      "source_file": "app.py",
+      "source_line": 173,
+      "hot_function_samples": 23909,
+      "source_auto_stop_remaining_seconds": 154.84,
+      "memory_fault_active": false,
+      "process_rss_mb": 23.99,
+      "retained_memory_mb": 0.0,
+      "memory_auto_stop_remaining_seconds": null,
+      "io_fault_active": false,
+      "io_workload_bytes": 1109065728,
+      "process_write_bytes": 0,
+      "io_auto_stop_remaining_seconds": null,
+      "noisy_neighbor_active": false,
+      "peer_pid": null,
+      "peer_cpu_ticks": 0,
+      "peer_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "target_boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "same_host_verified": false,
+      "noisy_auto_stop_remaining_seconds": null,
+      "load_fault_active": false,
+      "load_offered_rps": 0.0,
+      "load_completed_rps": 0.0,
+      "load_rejected_requests": 0,
+      "load_queue_depth": 0,
+      "load_latency_ms": 673.09,
+      "load_auto_stop_remaining_seconds": null,
+      "queue_fault_active": false,
+      "queue_offered_rps": 0.0,
+      "queue_completed_rps": 0.0,
+      "queue_rejected_requests": 0,
+      "queue_queue_depth": 0,
+      "queue_latency_ms": 3376.74,
+      "queue_auto_stop_remaining_seconds": null,
+      "producer_rate": 0.0,
+      "consumer_rate": 0.0,
+      "queue_lag": 0,
+      "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+      "acceptance_process_identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906287,
+        "namespace_pid": 1,
+        "start_ticks": 14403834,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+        "container_started_at": "2026-09-08T05:27:43.229759068Z"
+      }
+    }
+  },
+  "records": {
+    "diagnosis": {
+      "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+      "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "target": {
+        "service": "python-hotspot",
+        "environment": "docker-2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79b",
+        "agent_id": "control-interview-demo-agent",
+        "pid": 906287,
+        "process_binding": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906287,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "process_start_ticks": 14403834,
+          "pid_namespace_inode": 4026532805,
+          "namespace_pid": 1,
+          "executable_identity": "python3.12",
+          "process_snapshot_id": "psnap_813f86fe4f5f542b",
+          "snapshot_generation": 306489,
+          "snapshot_received_at": "2026-10-01T15:24:24.571341+00:00"
+        }
+      },
+      "time_range": {
+        "start": "2026-10-01T15:24:27.068837Z",
+        "end": "2026-10-01T15:29:27.068837Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "requested_time_range": {
+        "start": "2026-10-01T15:24:27.068837Z",
+        "end": "2026-10-01T15:29:27.068837Z",
+        "timezone": "Asia/Shanghai"
+      },
+      "effective_time_range": {},
+      "mode": "AUTONOMOUS",
+      "skill_policy": "AUTO",
+      "created_by": "legacy_admin",
+      "budget": {
+        "investigation_strategy": "LATS",
+        "max_duration_seconds": 180,
+        "max_tool_calls": 6,
+        "min_diagnosis_rounds": 1,
+        "max_diagnosis_rounds": 2,
+        "max_concurrent_tasks": 3,
+        "max_hosts": 1,
+        "max_artifact_bytes": 524288000,
+        "max_risk_level": "R2",
+        "lats_top_k": 3,
+        "max_lats_iterations": null,
+        "lats_exploration_constant": 1.4142135623730951,
+        "lats_selection_policy": "UCT",
+        "lats_value_lambda": 0.5
+      },
+      "status": "INSUFFICIENT_EVIDENCE",
+      "version": 14,
+      "clarification_questions": [],
+      "created_at": "2026-10-01 15:24:27.044692+00:00",
+      "updated_at": "2026-10-01 15:26:42.172977+00:00",
+      "deleted_at": null,
+      "deleted_by": null
+    },
+    "reports": [
+      {
+        "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标 Python 进程可能存在用户态热点函数或 GIL 竞争”仍待验证。",
+        "confidence": 0.0,
+        "evidence_refs": [],
+        "counter_evidence_refs": [],
+        "assumptions": [
+          "结论仅适用于当前诊断目标与时间窗口"
+        ],
+        "limitations": [
+          "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+        ],
+        "next_actions": [
+          "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+        ],
+        "claims": [],
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "claims": [],
+          "rejected_claims": [],
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "has_independent_counter_or_control": false,
+          "control_claim_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          },
+          "verification": {
+            "status": "INSUFFICIENT_EVIDENCE",
+            "has_independent_counter_or_control": false,
+            "support_claim_count": 0,
+            "counter_claim_count": 0,
+            "control_claim_count": 0,
+            "coverage_ratio": 0.0,
+            "covered_expected": [],
+            "covered_falsification": [],
+            "missing_expected": [
+              0
+            ],
+            "missing_falsification": [
+              0
+            ],
+            "needs_independent_counter_or_control": true,
+            "rejected_count": 0,
+            "remediation": {
+              "schema_version": 2,
+              "mitigations": [
+                {
+                  "title": "补齐证据与同负载对照",
+                  "urgency": "LOW",
+                  "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+                }
+              ],
+              "root_cause_fixes": []
+            },
+            "observation_verification": {
+              "schema_version": "performance-observation-verification.v1",
+              "status": "UNSUPPORTED_PLAN",
+              "checked_ratio": 0.0,
+              "criteria": [],
+              "evidence_refs": [],
+              "independent_control_verified": false,
+              "claim_scope": "BOUNDED_OBSERVATION",
+              "causal_root_cause_verified": false
+            }
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "UNSUPPORTED_PLAN",
+            "checked_ratio": 0.0,
+            "criteria": [],
+            "evidence_refs": [],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          },
+          "source_context": {
+            "configured_roots": 7,
+            "language_filter": "python",
+            "scanned_files": 0,
+            "scanned_by_language": {
+              "python": 0,
+              "go": 0,
+              "java": 0,
+              "ruby": 0,
+              "cpp": 0
+            },
+            "mappings": [],
+            "unresolved_symbols": []
+          },
+          "bottleneck_localization": {
+            "schema_version": "bottleneck-localization.v1",
+            "status": "NOT_LOCALIZED",
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false,
+            "same_load_fix_verified": false,
+            "evidence_refs": []
+          }
+        },
+        "effects_status": "APPLIED",
+        "effects_phase": "EFFECTS_COMPLETED",
+        "effects_owner": null,
+        "effects_lease_expires_at": null,
+        "effects_fencing_token": 1,
+        "effects_applied_at": "2026-10-01 15:26:42.191651+00:00",
+        "created_at": "2026-10-01 15:25:52.917162+00:00"
+      }
+    ],
+    "evidence": [
+      {
+        "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4567",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4567",
+          "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+          "evidence_type": "PYSPY_RAW",
+          "source": {
+            "tool_name": "pyspy",
+            "task_id": "task_20261001_152529_3a1dd1",
+            "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+            "artifact_id": "4567",
+            "artifact_sha256": "4abe324e4ec7d229d069831cc481c31bc1ebbd67a071c78d6ed8413415d6fee2",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:25:30.759962Z",
+            "end": "2026-10-01T15:25:52.092766Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "raw",
+            "object_key": "tasks/task_20261001_152529_3a1dd1/attempts/attempt_23df6dd349334a2b9f135ba69d4cfce7/raw/pyspy-speedscope.json",
+            "content_type": "application/json",
+            "size_bytes": 145585,
+            "metadata": {
+              "collector_plugin": "pyspy",
+              "collector_runtime": "native-cpp",
+              "contract_version": "1.0.0"
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 50
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:25:52.878624+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4568",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4568",
+          "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+          "evidence_type": "PYSPY_MANIFEST",
+          "source": {
+            "tool_name": "pyspy",
+            "task_id": "task_20261001_152529_3a1dd1",
+            "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+            "artifact_id": "4568",
+            "artifact_sha256": "c37b8d83cd81dc65ba37148161c5d546b6d93031193d3b09a79350366a3e84e8",
+            "analysis_job_id": "",
+            "analyzer_type": "",
+            "analyzer_version": "unknown",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:25:30.759962Z",
+            "end": "2026-10-01T15:25:52.092766Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "manifest",
+            "object_key": "tasks/task_20261001_152529_3a1dd1/attempts/attempt_23df6dd349334a2b9f135ba69d4cfce7/manifest.json",
+            "content_type": "application/json",
+            "size_bytes": 1104,
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            }
+          },
+          "quality": {
+            "level": "LOW",
+            "sample_count": 0,
+            "sample_count_known": false,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": false,
+            "analyzer_validated": false,
+            "minimum_samples": 50
+          },
+          "limitations": [
+            "该产物是原始文件或不属于已注册的诊断证据类型",
+            "产物未经过成功的版本化 Analyzer Job 验证",
+            "采集器未提供可核验的样本数量"
+          ]
+        },
+        "classification": {
+          "decision": "REJECT",
+          "can_support_conclusion": false,
+          "reasons": [
+            "产物不属于已注册的诊断证据契约",
+            "产物未经过 Analyzer Job 验证",
+            "缺少 AnalysisJob 引用"
+          ]
+        },
+        "created_at": "2026-10-01 15:25:52.878624+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4569",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4569",
+          "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+          "evidence_type": "PYSPY_FLAMEGRAPH_JSON",
+          "source": {
+            "tool_name": "pyspy",
+            "task_id": "task_20261001_152529_3a1dd1",
+            "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+            "artifact_id": "4569",
+            "artifact_sha256": "f0fb831270ab81c54520228c560a794a7441c35b78d24ea8eaa593c9b6c19909",
+            "analysis_job_id": "analysis_ff370e751073b35c",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:25:30.759962Z",
+            "end": "2026-10-01T15:25:52.092766Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "flamegraph_json",
+            "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/flamegraph.json",
+            "content_type": "application/json",
+            "size_bytes": 4002,
+            "metadata": {
+              "schema_version": "pyspy_analysis.v1",
+              "sample_count": 4451,
+              "top_functions": [
+                {
+                  "name": "_sample",
+                  "samples": 1482,
+                  "percent": 33.3,
+                  "file": "/app/app.py",
+                  "line": 254
+                },
+                {
+                  "name": "_publish_application_metrics",
+                  "samples": 1439,
+                  "percent": 32.3,
+                  "file": "/app/app.py",
+                  "line": 714
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 934,
+                  "percent": 21.0,
+                  "file": "/app/app.py",
+                  "line": 171
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 209,
+                  "percent": 4.7,
+                  "file": "/app/app.py",
+                  "line": 172
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 180,
+                  "percent": 4.0,
+                  "file": "/app/app.py",
+                  "line": 170
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 160,
+                  "percent": 3.6,
+                  "file": "/app/app.py",
+                  "line": 173
+                },
+                {
+                  "name": "_boot_id",
+                  "samples": 12,
+                  "percent": 0.3,
+                  "file": "/app/app.py",
+                  "line": 416
+                },
+                {
+                  "name": "open",
+                  "samples": 11,
+                  "percent": 0.2,
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1013
+                },
+                {
+                  "name": "_host_pid",
+                  "samples": 8,
+                  "percent": 0.2,
+                  "file": "/app/app.py",
+                  "line": 154
+                },
+                {
+                  "name": "_process_write_bytes",
+                  "samples": 7,
+                  "percent": 0.2,
+                  "file": "/app/app.py",
+                  "line": 403
+                },
+                {
+                  "name": "_current_rss_mb",
+                  "samples": 2,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 327
+                },
+                {
+                  "name": "write_text",
+                  "samples": 2,
+                  "percent": 0.0,
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1047
+                },
+                {
+                  "name": "_publish_application_metrics",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 709
+                },
+                {
+                  "name": "_host_pid",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 157
+                },
+                {
+                  "name": "_process_write_bytes",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 405
+                },
+                {
+                  "name": "write",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/usr/local/lib/python3.12/socketserver.py",
+                  "line": 845
+                },
+                {
+                  "name": "basename",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "<frozen posixpath>",
+                  "line": 174
+                }
+              ],
+              "profile_quality": {
+                "status": "USABLE",
+                "reason_code": "OK",
+                "sample_count": 4451,
+                "renderable_function_count": 17
+              },
+              "collector_type": "pyspy",
+              "analyzer_type": "collector.pyspy",
+              "analyzer_version": "1.0.0",
+              "hypothesis_predicate": {
+                "outcome": "NEUTRAL",
+                "version": "hypothesis-predicate-v3",
+                "reason": "Unregistered profile observation cannot cover a free-text expected condition",
+                "criterion_indexes": [],
+                "metrics": {}
+              }
+            }
+          },
+          "quality": {
+            "level": "HIGH",
+            "sample_count": 4451,
+            "sample_count_known": true,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": true,
+            "analyzer_validated": true,
+            "minimum_samples": 50
+          },
+          "limitations": []
+        },
+        "classification": {
+          "decision": "ACCEPT_NEUTRAL",
+          "can_support_conclusion": false,
+          "reasons": [
+            "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+          ]
+        },
+        "created_at": "2026-10-01 15:25:52.878624+00:00"
+      },
+      {
+        "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4570",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "role": "NEUTRAL",
+        "envelope": {
+          "evidence_id": "ev_task_task_20261001_152529_3a1dd1_4570",
+          "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+          "evidence_type": "PYSPY_TOP_JSON",
+          "source": {
+            "tool_name": "pyspy",
+            "task_id": "task_20261001_152529_3a1dd1",
+            "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+            "artifact_id": "4570",
+            "artifact_sha256": "3f8a522ba0d34291bfc9c5a2ab88e64524923975e9cb092bd87087127376a6c1",
+            "analysis_job_id": "analysis_ff370e751073b35c",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "analyzer_output_schema_version": "1.0.0",
+            "observation_json_pointer": "/metadata"
+          },
+          "scope": {
+            "agent_id": "control-interview-demo-agent",
+            "service": "python-hotspot",
+            "host_id": null,
+            "instance_id": null,
+            "container_id": null,
+            "pid": 906287
+          },
+          "time_range": {
+            "start": "2026-10-01T15:25:30.759962Z",
+            "end": "2026-10-01T15:25:52.092766Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "observation": {
+            "artifact_type": "top_json",
+            "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/top.json",
+            "content_type": "application/json",
+            "size_bytes": 2159,
+            "metadata": {
+              "schema_version": "pyspy_analysis.v1",
+              "sample_count": 4451,
+              "top_functions": [
+                {
+                  "name": "_sample",
+                  "samples": 1482,
+                  "percent": 33.3,
+                  "file": "/app/app.py",
+                  "line": 254
+                },
+                {
+                  "name": "_publish_application_metrics",
+                  "samples": 1439,
+                  "percent": 32.3,
+                  "file": "/app/app.py",
+                  "line": 714
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 934,
+                  "percent": 21.0,
+                  "file": "/app/app.py",
+                  "line": 171
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 209,
+                  "percent": 4.7,
+                  "file": "/app/app.py",
+                  "line": 172
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 180,
+                  "percent": 4.0,
+                  "file": "/app/app.py",
+                  "line": 170
+                },
+                {
+                  "name": "source_hot_function",
+                  "samples": 160,
+                  "percent": 3.6,
+                  "file": "/app/app.py",
+                  "line": 173
+                },
+                {
+                  "name": "_boot_id",
+                  "samples": 12,
+                  "percent": 0.3,
+                  "file": "/app/app.py",
+                  "line": 416
+                },
+                {
+                  "name": "open",
+                  "samples": 11,
+                  "percent": 0.2,
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1013
+                },
+                {
+                  "name": "_host_pid",
+                  "samples": 8,
+                  "percent": 0.2,
+                  "file": "/app/app.py",
+                  "line": 154
+                },
+                {
+                  "name": "_process_write_bytes",
+                  "samples": 7,
+                  "percent": 0.2,
+                  "file": "/app/app.py",
+                  "line": 403
+                },
+                {
+                  "name": "_current_rss_mb",
+                  "samples": 2,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 327
+                },
+                {
+                  "name": "write_text",
+                  "samples": 2,
+                  "percent": 0.0,
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1047
+                },
+                {
+                  "name": "_publish_application_metrics",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 709
+                },
+                {
+                  "name": "_host_pid",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 157
+                },
+                {
+                  "name": "_process_write_bytes",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/app/app.py",
+                  "line": 405
+                },
+                {
+                  "name": "write",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "/usr/local/lib/python3.12/socketserver.py",
+                  "line": 845
+                },
+                {
+                  "name": "basename",
+                  "samples": 1,
+                  "percent": 0.0,
+                  "file": "<frozen posixpath>",
+                  "line": 174
+                }
+              ],
+              "profile_quality": {
+                "status": "USABLE",
+                "reason_code": "OK",
+                "sample_count": 4451,
+                "renderable_function_count": 17
+              },
+              "collector_type": "pyspy",
+              "analyzer_type": "collector.pyspy",
+              "analyzer_version": "1.0.0",
+              "hypothesis_predicate": {
+                "outcome": "NEUTRAL",
+                "version": "hypothesis-predicate-v3",
+                "reason": "Unregistered profile observation cannot cover a free-text expected condition",
+                "criterion_indexes": [],
+                "metrics": {}
+              }
+            }
+          },
+          "quality": {
+            "level": "HIGH",
+            "sample_count": 4451,
+            "sample_count_known": true,
+            "degraded": false,
+            "target_match": true,
+            "time_overlap": true,
+            "schema_valid": true,
+            "analyzer_validated": true,
+            "minimum_samples": 50
+          },
+          "limitations": []
+        },
+        "classification": {
+          "decision": "ACCEPT_NEUTRAL",
+          "can_support_conclusion": false,
+          "reasons": [
+            "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+          ]
+        },
+        "created_at": "2026-10-01 15:25:52.878624+00:00"
+      }
+    ],
+    "tool-calls": [
+      {
+        "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "tool_name": "start_pyspy_profile",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906287,
+          "duration_seconds": 15,
+          "sample_rate": 99
+        },
+        "policy_decision": "ALLOW",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "SESSION_PREAUTHORIZED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "PASS",
+            "remaining_seconds": 117.091053,
+            "required_seconds": 45
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 15,
+            "limit": 180
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 1
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 16777216,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "自主会话已在创建时预授权；目标、能力、风险和预算检查通过",
+        "status": "COMPLETED",
+        "task_id": "task_20261001_152529_3a1dd1",
+        "result": {
+          "task_status": "DONE",
+          "task_id": "task_20261001_152529_3a1dd1"
+        },
+        "budget_reservation": {
+          "duration_seconds": 15,
+          "artifact_bytes": 16777216,
+          "agent_id": "control-interview-demo-agent",
+          "concurrent_tasks": 1
+        },
+        "budget_settlement": {
+          "duration_seconds": 15,
+          "artifact_bytes": 152850,
+          "agent_id": "control-interview-demo-agent",
+          "settled_at": "2026-10-01T15:25:52.855417+00:00"
+        },
+        "budget_reservation_status": "SETTLED",
+        "terminal_processing_status": "REPORT_EFFECTS_DONE",
+        "terminal_processed_at": "2026-10-01 15:26:42.197386+00:00",
+        "requested_by": "system:autonomous-worker",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-10-01 15:25:29.953659+00:00",
+        "decided_at": null,
+        "executed_at": "2026-10-01 15:25:29.973229+00:00"
+      },
+      {
+        "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+        "tool_name": "collect_sys_metrics",
+        "arguments": {
+          "agent_id": "control-interview-demo-agent",
+          "pid": 906287,
+          "duration_seconds": 15
+        },
+        "policy_decision": "DENY",
+        "policy_checks": [
+          {
+            "name": "SCHEMA",
+            "result": "PASS"
+          },
+          {
+            "name": "TARGET_SCOPE",
+            "result": "PASS"
+          },
+          {
+            "name": "AGENT_CAPABILITY",
+            "result": "PASS"
+          },
+          {
+            "name": "BUDGET",
+            "result": "PASS"
+          },
+          {
+            "name": "RISK_LIMIT",
+            "result": "PASS"
+          },
+          {
+            "name": "HUMAN_APPROVAL",
+            "result": "NOT_REQUIRED"
+          },
+          {
+            "name": "BUDGET_WALL_CLOCK",
+            "result": "FAIL",
+            "remaining_seconds": 44.90869799999999,
+            "required_seconds": 45
+          },
+          {
+            "name": "BUDGET_DURATION",
+            "result": "PASS",
+            "reserved": 30,
+            "limit": 180
+          },
+          {
+            "name": "BUDGET_CONCURRENCY",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 3
+          },
+          {
+            "name": "BUDGET_HOSTS",
+            "result": "PASS",
+            "reserved": 1,
+            "limit": 1
+          },
+          {
+            "name": "BUDGET_ARTIFACT_BYTES",
+            "result": "PASS",
+            "reserved": 2250002,
+            "limit": 524288000
+          }
+        ],
+        "policy_reason": "资源预算预留失败: BUDGET_WALL_CLOCK insufficient finalization reserve",
+        "status": "DENIED",
+        "task_id": null,
+        "result": {},
+        "budget_reservation": {},
+        "budget_settlement": {},
+        "budget_reservation_status": "NONE",
+        "terminal_processing_status": "NONE",
+        "terminal_processed_at": null,
+        "requested_by": "system:insufficient-evidence-replanner",
+        "approved_by": null,
+        "approval_reason": null,
+        "created_at": "2026-10-01 15:26:42.136016+00:00",
+        "decided_at": "2026-10-01 15:26:42.136016+00:00",
+        "executed_at": null
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "目标 Python 进程可能存在用户态热点函数或 GIL 竞争",
+        "expected_observations": [
+          "py-spy 样本集中在少数 Python 函数或线程"
+        ],
+        "falsification_criteria": [
+          "Python 栈样本均匀且无明显热点"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:25:29.867426+00:00",
+        "updated_at": "2026-10-01 15:25:52.917162+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_88dc243dca3b4695ae46cba0094d67df",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "GIL 竞争限制多线程并发能力",
+        "expected_observations": [
+          "多线程 CPU 密集但并行度受限"
+        ],
+        "falsification_criteria": [
+          "单线程热点明确且 GIL 非瓶颈"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:25:29.881720+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_5dda5d952b654a38b6c22711b975c821",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "等待或 I/O 阻塞被误判为用户态热点",
+        "expected_observations": [
+          "系统调用或等待占比偏高"
+        ],
+        "falsification_criteria": [
+          "用户态函数独占热点"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:25:29.899608+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "其他未知原因（OTHER/UNKNOWN）",
+        "expected_observations": [
+          "存在尚未被既有候选假设充分解释的观测现象"
+        ],
+        "falsification_criteria": [
+          "所有观测现象均能被既有候选假设充分解释"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "generation_reason": "",
+        "created_at": "2026-10-01 15:25:29.910337+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "第 2 轮：异常可能来自主机资源基线或共享资源争抢，而非单一运行时路径",
+        "expected_observations": [
+          "CPU、内存、磁盘 I/O 或网络指标至少一项与故障时间窗同步异常"
+        ],
+        "falsification_criteria": [
+          "系统基线在故障时间窗内保持平稳，且与异常没有相关性"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证SYSTEM_BASELINE 证据域。",
+        "created_at": "2026-10-01 15:26:42.071059+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_0993e935d2074794b3fbf90fdabf4e64",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+        "expected_observations": [
+          "CPU 样本稳定集中在可归属的调用路径或等待路径"
+        ],
+        "falsification_criteria": [
+          "调用栈样本分散，未出现稳定热点或等待路径"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+        "created_at": "2026-10-01 15:26:42.082193+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "statement": "第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+        "expected_observations": [
+          "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+        ],
+        "falsification_criteria": [
+          "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+        ],
+        "status": "INCONCLUSIVE",
+        "source": "AUTONOMOUS_RULE_FALLBACK",
+        "round_index": 2,
+        "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+        "generation_reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+        "created_at": "2026-10-01 15:26:42.093978+00:00",
+        "updated_at": "2026-10-01 15:26:42.202276+00:00"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "event_c9afe8ec799d42f3a666a86f33ff84a4",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 1,
+        "event_type": "diagnosis.created",
+        "actor": "USER",
+        "payload": {
+          "status": "NEEDS_CLARIFICATION",
+          "skill_policy": "AUTO",
+          "created_by": "legacy_admin",
+          "auto_scope": true,
+          "health_check": false
+        },
+        "occurred_at": "2026-10-01 15:24:27.044692+00:00"
+      },
+      {
+        "event_id": "event_e862ed5aabf0456cbf66cc60d71e2d96",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 2,
+        "event_type": "diagnosis.clarified",
+        "actor": "AI_SCOPE_RESOLVER",
+        "payload": {
+          "target": {
+            "service": "python-hotspot",
+            "environment": "docker-2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79b",
+            "agent_id": "control-interview-demo-agent",
+            "pid": 906287,
+            "process_binding": {
+              "agent_id": "control-interview-demo-agent",
+              "pid": 906287,
+              "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+              "process_start_ticks": 14403834,
+              "pid_namespace_inode": 4026532805,
+              "namespace_pid": 1,
+              "executable_identity": "python3.12",
+              "process_snapshot_id": "psnap_813f86fe4f5f542b",
+              "snapshot_generation": 306489,
+              "snapshot_received_at": "2026-10-01T15:24:24.571341+00:00"
+            }
+          },
+          "time_range": {
+            "start": "2026-10-01T15:24:27.068837Z",
+            "end": "2026-10-01T15:29:27.068837Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "requested_time_range": {
+            "start": "2026-10-01T15:24:27.068837Z",
+            "end": "2026-10-01T15:29:27.068837Z",
+            "timezone": "Asia/Shanghai"
+          },
+          "effective_time_range": {}
+        },
+        "occurred_at": "2026-10-01 15:24:27.070886+00:00"
+      },
+      {
+        "event_id": "event_098ebd73fdf241858b67d615697d5791",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 3,
+        "event_type": "skill.route_activated",
+        "actor": "SYSTEM",
+        "payload": {
+          "applied": true,
+          "state": "ACTIVATED",
+          "skill_id": "builtin_python_runtime_diagnosis_4efd3323868f",
+          "skill_name": "python-runtime-diagnosis",
+          "version": 3,
+          "category": "PYTHON_RUNTIME",
+          "skill_category": "PYTHON_RUNTIME",
+          "baseline_category": "PYTHON_RUNTIME",
+          "selected_category": "PYTHON_RUNTIME",
+          "match_score": 0.729,
+          "baseline_tool": "start_pyspy_profile",
+          "selected_tool": "start_pyspy_profile",
+          "reuse_step": {
+            "trace_key": "1:INITIAL_PLAN",
+            "round_index": 1,
+            "phase": "INITIAL_PLAN",
+            "state": "ACTIVATED",
+            "baseline_tool": "start_pyspy_profile",
+            "selected_tool": "start_pyspy_profile",
+            "selected_route_index": 1,
+            "route_length": 3,
+            "completed_route_tools": [],
+            "attempted_tools": [],
+            "category_before": "PYTHON_RUNTIME",
+            "category_after": "PYTHON_RUNTIME",
+            "category_corrected": false,
+            "applied_at": "2026-10-01T15:24:28.833651+00:00"
+          },
+          "load_mode": "FULL_SKILL_MD",
+          "content_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+          "source_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+          "source_path": "skills/python-runtime-diagnosis/SKILL.md",
+          "loaded_sections": [
+            "目标",
+            "输入契约",
+            "适用与停止条件",
+            "取证顺序",
+            "结论门槛",
+            "必需证据与反证",
+            "安全边界",
+            "输出契约",
+            "回归门禁"
+          ],
+          "round_index": 1,
+          "phase": "INITIAL_PLAN",
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:24:28.837622+00:00"
+      },
+      {
+        "event_id": "event_6661dc4293fe4324abb7bea5bdd4eb9d",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 4,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "INITIAL_PLAN",
+          "round_index": 1,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                  "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 5,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nPYTHON_RUNTIME",
+            "query_hash": "7d0f1a3b9c5185de759c59a99873952299cd3951058bccd3f789011f395a0181",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "knowledge_id": "linux.cpu.process_pressure",
+                "title": "Linux 进程用户态 CPU 热点",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU user/system 比例",
+                  "Profile TopN",
+                  "同宿主资源对比"
+                ],
+                "caveats": [
+                  "单次 CPU 高不能证明代码回归",
+                  "缺少符号时应返回证据不足"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nPYTHON_RUNTIME",
+                "score": 0.998087,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "knowledge_id": "linux.cpu.kernel_overhead",
+                "title": "Linux 系统态 CPU 偏高",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU system 比例",
+                  "内核栈或系统调用分布"
+                ],
+                "caveats": [
+                  "不能仅凭 system% 判断具体内核模块"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nPYTHON_RUNTIME",
+                "score": 0.998087,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "knowledge_id": "python.sampling.attribution",
+                "title": "Python 采样归因与空闲线程",
+                "document": "knowledge/python_sampling.md",
+                "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+                "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nPYTHON_RUNTIME",
+                "score": 0.997599,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            }
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:24:29.781949+00:00"
+      },
+      {
+        "event_id": "event_c877f11a51f24b56a604c7ca6a2a56ae",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 5,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "AGENT_LOOKUP",
+          "round_index": null,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 17,
+                "chunk_ids": [
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 5,
+                "chunk_ids": [
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+                  "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "Python CPU 热点诊断 py-spy 采样 系统指标",
+            "query_hash": "03beb308439d5e9e1e6b2cb2903be9a8e9dd770c593c3b9dd0b4c2b96a372e3b",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "knowledge_id": "python.sampling.attribution",
+                "title": "Python 采样归因与空闲线程",
+                "document": "knowledge/python_sampling.md",
+                "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+                "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "query": "Python CPU 热点诊断 py-spy 采样 系统指标",
+                "score": 0.999176,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "knowledge_id": "linux.cpu.process_pressure",
+                "title": "Linux 进程用户态 CPU 热点",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU user/system 比例",
+                  "Profile TopN",
+                  "同宿主资源对比"
+                ],
+                "caveats": [
+                  "单次 CPU 高不能证明代码回归",
+                  "缺少符号时应返回证据不足"
+                ],
+                "query": "Python CPU 热点诊断 py-spy 采样 系统指标",
+                "score": 0.984203,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "knowledge_id": "linux.cpu.kernel_overhead",
+                "title": "Linux 系统态 CPU 偏高",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU system 比例",
+                  "内核栈或系统调用分布"
+                ],
+                "caveats": [
+                  "不能仅凭 system% 判断具体内核模块"
+                ],
+                "query": "Python CPU 热点诊断 py-spy 采样 系统指标",
+                "score": 0.984203,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            },
+            "is_evidence": false,
+            "trust": "UNTRUSTED_REFERENCE_ONLY",
+            "tool": "search_knowledge"
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:25:29.840057+00:00"
+      },
+      {
+        "event_id": "event_6f90ffac244145a9b5a06d9aac08fdf2",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 6,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "AGENT_LOOKUP",
+          "round_index": null,
+          "retrieval_trace": {
+            "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+            "knowledge_id": "python.sampling.attribution",
+            "title": "Python 采样归因与空闲线程",
+            "document": "knowledge/python_sampling.md",
+            "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+            "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+            "recall_anchors": [
+              "GIL",
+              "py-spy",
+              "python",
+              "python.sampling.attribution",
+              "speedscope",
+              "热点",
+              "空闲线程",
+              "采样"
+            ],
+            "required_evidence": [
+              "当前目标身份与时间窗",
+              "与问题对应的原始观测",
+              "独立对照或反证"
+            ],
+            "caveats": [
+              "知识只能指导调查，不是当前事故证据",
+              "缺少所需连接器时明确报告观测缺口"
+            ],
+            "is_evidence": false,
+            "trust": "UNTRUSTED_REFERENCE_ONLY",
+            "tool": "read_knowledge_chunk",
+            "query": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+            "retriever": "read_knowledge_chunk",
+            "query_hash": "a3c1fb8bcb8919444df6f5ff52f0ae7bf8b93bf71151ae98e40b3598d67c776a",
+            "matches": [
+              {
+                "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "knowledge_id": "python.sampling.attribution",
+                "title": "Python 采样归因与空闲线程",
+                "document": "knowledge/python_sampling.md",
+                "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+                "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。",
+                "recall_anchors": [
+                  "GIL",
+                  "py-spy",
+                  "python",
+                  "python.sampling.attribution",
+                  "speedscope",
+                  "热点",
+                  "空闲线程",
+                  "采样"
+                ],
+                "required_evidence": [
+                  "当前目标身份与时间窗",
+                  "与问题对应的原始观测",
+                  "独立对照或反证"
+                ],
+                "caveats": [
+                  "知识只能指导调查，不是当前事故证据",
+                  "缺少所需连接器时明确报告观测缺口"
+                ],
+                "is_evidence": false,
+                "query": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                "retriever": "read_knowledge_chunk",
+                "query_hash": "a3c1fb8bcb8919444df6f5ff52f0ae7bf8b93bf71151ae98e40b3598d67c776a"
+              }
+            ]
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:25:29.848392+00:00"
+      },
+      {
+        "event_id": "event_5dec218cd62648a58d307c76758a35e8",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 7,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:25:29.867426+00:00"
+      },
+      {
+        "event_id": "event_b2c869c6e9834e739d408a8ee185ccd0",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 8,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_88dc243dca3b4695ae46cba0094d67df",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:25:29.881720+00:00"
+      },
+      {
+        "event_id": "event_95c8a3747c874e5dbdc8a38863f215ec",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 9,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_5dda5d952b654a38b6c22711b975c821",
+          "source": "DETERMINISTIC_RULE",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:25:29.899608+00:00"
+      },
+      {
+        "event_id": "event_7281f6b3909848baae5af213cc7362fa",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 10,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+          "source": "SYSTEM_FALLBACK",
+          "round_index": 1,
+          "parent_hypothesis_id": null
+        },
+        "occurred_at": "2026-10-01 15:25:29.910337+00:00"
+      },
+      {
+        "event_id": "event_28b8a40b08cf4e9898d84bfcbcd41507",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 11,
+        "event_type": "lats.search_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "algorithm": "LATS-UCT",
+          "algorithm_version": "drop-insight-lats-v1",
+          "semantics": {
+            "execution_mode": "BUDGETED_LATS",
+            "environment_semantics": "LIVE_PROGRESSIVE",
+            "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+            "strict_environment_reversibility": false,
+            "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+          },
+          "config": {
+            "investigation_strategy": "LATS",
+            "top_k": 3,
+            "exploration_constant": 1.4142135623730951,
+            "max_iterations": 2,
+            "max_tool_calls": 6,
+            "selection_policy": "UCT",
+            "value_lambda": 0.5,
+            "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+            "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+          },
+          "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+          "model_has_shell_access": false
+        },
+        "occurred_at": "2026-10-01 15:25:29.918788+00:00"
+      },
+      {
+        "event_id": "event_fad8e7d53f494ac6b42c0226aca8b090",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 12,
+        "event_type": "lats.candidates_expanded",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "candidates": [
+            {
+              "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+              "statement": "目标 Python 进程可能存在用户态热点函数或 GIL 竞争",
+              "expected_observations": [
+                "py-spy 样本集中在少数 Python 函数或线程"
+              ],
+              "falsification_criteria": [
+                "Python 栈样本均匀且无明显热点"
+              ],
+              "reason": "",
+              "recommended_tool": "start_pyspy_profile",
+              "evidence_domain": null,
+              "prior": 0.522648,
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 0,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+              "hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:2f2b4c3aa3646a5dd780",
+              "statement": "GIL 竞争限制多线程并发能力",
+              "expected_observations": [
+                "多线程 CPU 密集但并行度受限"
+              ],
+              "falsification_criteria": [
+                "单线程热点明确且 GIL 非瓶颈"
+              ],
+              "reason": "",
+              "recommended_tool": "start_pyspy_profile",
+              "evidence_domain": null,
+              "prior": 0.261324,
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 1,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_88dc243dca3b4695ae46cba0094d67df",
+              "hypothesis_id": "hyp_88dc243dca3b4695ae46cba0094d67df",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:f6a6ffa89bf4a487fb40",
+              "statement": "等待或 I/O 阻塞被误判为用户态热点",
+              "expected_observations": [
+                "系统调用或等待占比偏高"
+              ],
+              "falsification_criteria": [
+                "用户态函数独占热点"
+              ],
+              "reason": "",
+              "recommended_tool": "start_pyspy_profile",
+              "evidence_domain": null,
+              "prior": 0.174216,
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 2,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_5dda5d952b654a38b6c22711b975c821",
+              "hypothesis_id": "hyp_5dda5d952b654a38b6c22711b975c821",
+              "depth": 0,
+              "parent_node_id": null
+            },
+            {
+              "candidate_key": "candidate:other-unknown",
+              "statement": "其他未知原因（OTHER/UNKNOWN）",
+              "expected_observations": [
+                "存在尚未被既有候选假设充分解释的观测现象"
+              ],
+              "falsification_criteria": [
+                "所有观测现象均能被既有候选假设充分解释"
+              ],
+              "reason": "",
+              "recommended_tool": "start_pyspy_profile",
+              "evidence_domain": null,
+              "prior": 0.041812,
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 3,
+              "is_open_world_sentinel": true,
+              "node_id": "hypothesis:hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+              "hypothesis_id": "hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+              "depth": 0,
+              "parent_node_id": null
+            }
+          ],
+          "progressive_widening": true
+        },
+        "occurred_at": "2026-10-01 15:25:29.918788+00:00"
+      },
+      {
+        "event_id": "event_66ac72b11f11479390c5faa80d01bac4",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 13,
+        "event_type": "lats.candidates_evaluated",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "evaluations": [
+            {
+              "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_88dc243dca3b4695ae46cba0094d67df",
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_5dda5d952b654a38b6c22711b975c821",
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+              "initial_value": -0.05,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": -0.05,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            }
+          ],
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+          "evidence_gate_is_separate": true
+        },
+        "occurred_at": "2026-10-01 15:25:29.918788+00:00"
+      },
+      {
+        "event_id": "event_43b7190463e1447abb0d460a549443b7",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 14,
+        "event_type": "lats.node_selected",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+          "score": 1000000.0,
+          "components": {
+            "q": 0.68,
+            "exploration": 1000000.0,
+            "prior_bonus": 0.0,
+            "prior": 0.522648,
+            "visits": 0,
+            "virtual_loss": 0.0,
+            "unvisited": true
+          },
+          "rank": 0,
+          "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+          "selection_policy": "UCT",
+          "scores": [
+            {
+              "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+              "candidate_key": "candidate:c1caa5fec0eb1d54a743",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.68,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.522648,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 0
+            },
+            {
+              "node_id": "hypothesis:hyp_88dc243dca3b4695ae46cba0094d67df",
+              "candidate_key": "candidate:2f2b4c3aa3646a5dd780",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.57,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.261324,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 1
+            },
+            {
+              "node_id": "hypothesis:hyp_5dda5d952b654a38b6c22711b975c821",
+              "candidate_key": "candidate:f6a6ffa89bf4a487fb40",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.46,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.174216,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 2
+            },
+            {
+              "node_id": "hypothesis:hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+              "candidate_key": "candidate:other-unknown",
+              "score": 1000000.0,
+              "components": {
+                "q": -0.05,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.041812,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 3
+            }
+          ],
+          "phase": "INITIAL_EXPANSION",
+          "iteration": 1,
+          "round_index": 1,
+          "tree_depth": 1,
+          "parent_node_id": null,
+          "candidate_count": 4,
+          "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+        },
+        "occurred_at": "2026-10-01 15:25:29.918788+00:00"
+      },
+      {
+        "event_id": "event_0f129984f1bb4334bf682d71ebd2cd84",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 15,
+        "event_type": "tool_call.requested",
+        "actor": "PLANNER",
+        "payload": {
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "tool_name": "start_pyspy_profile",
+          "policy_decision": "ALLOW",
+          "status": "APPROVED"
+        },
+        "occurred_at": "2026-10-01 15:25:29.953659+00:00"
+      },
+      {
+        "event_id": "event_ce2758789eb54dc9966636c1e999a1e2",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 16,
+        "event_type": "tool_call.task_created",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1"
+        },
+        "occurred_at": "2026-10-01 15:25:29.973229+00:00"
+      },
+      {
+        "event_id": "event_271ea011bbae4df395ab9e595e8eb753",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 17,
+        "event_type": "lats.action_proposed",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1",
+          "tool_name": "start_pyspy_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "TASK_CREATED",
+          "proposal_only": false
+        },
+        "occurred_at": "2026-10-01 15:25:29.981739+00:00"
+      },
+      {
+        "event_id": "event_d030107eccac4ce586008b83386df66b",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 18,
+        "event_type": "lats.simulation_started",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1",
+          "tool_name": "start_pyspy_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+          "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+        },
+        "occurred_at": "2026-10-01 15:25:29.981739+00:00"
+      },
+      {
+        "event_id": "event_3e78e1b7a65d4bfcacd5f4f25a7a9221",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 19,
+        "event_type": "lats.action_dispatched",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1",
+          "tool_name": "start_pyspy_profile",
+          "policy_decision": "ALLOW",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:25:29.981739+00:00"
+      },
+      {
+        "event_id": "event_b34f8a087e3e4a63a4c77231de458d5f",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 20,
+        "event_type": "tool_call.progress",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1",
+          "task_status": "RUNNING",
+          "status": "RUNNING"
+        },
+        "occurred_at": "2026-10-01 15:25:32.138662+00:00"
+      },
+      {
+        "event_id": "event_9434fb801f24485a9de124ec138d0176",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 21,
+        "event_type": "tool_call.task_terminal",
+        "actor": "SYSTEM",
+        "payload": {
+          "tool_call_id": "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8",
+          "task_id": "task_20261001_152529_3a1dd1",
+          "task_status": "DONE"
+        },
+        "occurred_at": "2026-10-01 15:25:52.855417+00:00"
+      },
+      {
+        "event_id": "event_e57e93fc6bd7468087a8cbbcd0948b19",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 22,
+        "event_type": "task_evidence.imported",
+        "actor": "SYSTEM",
+        "payload": {
+          "task_id": "task_20261001_152529_3a1dd1",
+          "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+          "evidence_refs": [
+            "ev_task_task_20261001_152529_3a1dd1_4567",
+            "ev_task_task_20261001_152529_3a1dd1_4568",
+            "ev_task_task_20261001_152529_3a1dd1_4569",
+            "ev_task_task_20261001_152529_3a1dd1_4570"
+          ]
+        },
+        "occurred_at": "2026-10-01 15:25:52.878624+00:00"
+      },
+      {
+        "event_id": "event_13da6ef4fd074b6796b5be9004468dc9",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 23,
+        "event_type": "report.generated",
+        "actor": "SYSTEM",
+        "payload": {
+          "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "confidence": 0.0,
+          "coverage_ratio": 0.0,
+          "evidence_refs": [],
+          "verification_status": "INSUFFICIENT_EVIDENCE",
+          "verified_claim_count": 0,
+          "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 1,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:25:52.917162+00:00"
+      },
+      {
+        "event_id": "event_fe51cbabc8e945c587861ae277ddd4bd",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 24,
+        "event_type": "lats.observation_recorded",
+        "actor": "ENVIRONMENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "observation_id": "report:report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+          "summary": "真实采集完成：支持 0 条、反证 0 条、质量拒绝 2 条；门禁=INSUFFICIENT_EVIDENCE。",
+          "tool_call_ids": [
+            "toolcall_f7fd9ab5b13c44b4815121343e7ab4c8"
+          ],
+          "task_ids": [
+            "task_20261001_152529_3a1dd1"
+          ],
+          "evidence_ids": [
+            "ev_task_task_20261001_152529_3a1dd1_4567",
+            "ev_task_task_20261001_152529_3a1dd1_4568",
+            "ev_task_task_20261001_152529_3a1dd1_4569",
+            "ev_task_task_20261001_152529_3a1dd1_4570"
+          ],
+          "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "external_observation": true,
+          "cached_observation": true,
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false
+        },
+        "occurred_at": "2026-10-01 15:25:52.940586+00:00"
+      },
+      {
+        "event_id": "event_b698561bee0349418663b74d8630d882",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 25,
+        "event_type": "lats.reflection_recorded",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "decision": "PROGRESSIVE_WIDEN",
+          "summary": "当前证据区分力不足；缓存本次真实观测并在预算内扩展新的证据域。",
+          "grounded_in_observation": "report:report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "reflection_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:25:52.940586+00:00"
+      },
+      {
+        "event_id": "event_ffef6845d4ed4b31b60d14ff1fed4bd6",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 26,
+        "event_type": "lats.backpropagated",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+          "path_node_ids": [
+            "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b"
+          ],
+          "reward": -0.53,
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "components": {
+            "evidence_gate": -0.35,
+            "confidence": -0.1,
+            "quality_penalty": 0.08,
+            "support_count": 0,
+            "counter_count": 0,
+            "rejected_count": 2
+          }
+        },
+        "occurred_at": "2026-10-01 15:25:52.940586+00:00"
+      },
+      {
+        "event_id": "event_df9bc68948e94160a0e4a97c8403e58a",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 27,
+        "event_type": "skill.route_reused",
+        "actor": "SYSTEM",
+        "payload": {
+          "applied": true,
+          "state": "REUSED",
+          "skill_id": "builtin_python_runtime_diagnosis_4efd3323868f",
+          "skill_name": "python-runtime-diagnosis",
+          "version": 3,
+          "category": "PYTHON_RUNTIME",
+          "skill_category": "PYTHON_RUNTIME",
+          "baseline_category": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "selected_category": "PYTHON_RUNTIME",
+          "match_score": 0.73,
+          "baseline_tool": "collect_sys_metrics",
+          "selected_tool": "collect_sys_metrics",
+          "reuse_step": {
+            "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+            "round_index": 2,
+            "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "state": "REUSED",
+            "baseline_tool": "collect_sys_metrics",
+            "selected_tool": "collect_sys_metrics",
+            "selected_route_index": 2,
+            "route_length": 3,
+            "completed_route_tools": [
+              "start_pyspy_profile"
+            ],
+            "attempted_tools": [
+              "start_pyspy_profile"
+            ],
+            "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "category_after": "PYTHON_RUNTIME",
+            "category_corrected": true,
+            "applied_at": "2026-10-01T15:25:52.975051+00:00"
+          },
+          "load_mode": "FULL_SKILL_MD",
+          "content_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+          "source_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+          "source_path": "skills/python-runtime-diagnosis/SKILL.md",
+          "loaded_sections": [
+            "目标",
+            "输入契约",
+            "适用与停止条件",
+            "取证顺序",
+            "结论门槛",
+            "必需证据与反证",
+            "安全边界",
+            "输出契约",
+            "回归门禁"
+          ],
+          "round_index": 2,
+          "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:25:52.981111+00:00"
+      },
+      {
+        "event_id": "event_8ec7b2fb5e3f42e89b96f69d6ba88720",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 28,
+        "event_type": "planner.knowledge_retrieved",
+        "actor": "SYSTEM",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+          "round_index": 2,
+          "retrieval_trace": {
+            "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+            "requested_backend": "HYBRID",
+            "recall_channels": {
+              "BM25": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "ff1ea5f5e42231247074ff4ff7404636addc433c11bea15256c51d2ccebf426d",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+                  "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+                  "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+                  "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                  "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+                  "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc"
+                ]
+              },
+              "ENTITY": {
+                "available": true,
+                "candidate_count": 5,
+                "chunk_ids": [
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+                ]
+              },
+              "DENSE": {
+                "available": true,
+                "candidate_count": 20,
+                "chunk_ids": [
+                  "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+                  "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                  "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+                  "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                  "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+                  "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+                  "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+                  "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+                  "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+                  "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+                  "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+                  "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+                  "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+                  "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+                  "2f9d5d08d9be1c84eddc65d772490edff5e479f130621813037a536bf79f8c2f",
+                  "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+                  "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                  "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+                  "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+                  "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a"
+                ]
+              }
+            },
+            "degraded_reasons": [],
+            "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+            "embedding_model": "Qwen/Qwen3-Embedding-4B",
+            "dimensions": 1024,
+            "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+            "query_hash": "53f8acab63307c8f3d76311a7bdf95c4c5b068ac088e7df222bf7ffd21a309c7",
+            "retriever": "knowledge-hybrid-v3-three-route",
+            "catalog": "knowledge/catalog.json",
+            "top_k": 3,
+            "matched_count": 3,
+            "matches": [
+              {
+                "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+                "knowledge_id": "linux.cpu.process_pressure",
+                "title": "Linux 进程用户态 CPU 热点",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU user/system 比例",
+                  "Profile TopN",
+                  "同宿主资源对比"
+                ],
+                "caveats": [
+                  "单次 CPU 高不能证明代码回归",
+                  "缺少符号时应返回证据不足"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.998896,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+                "knowledge_id": "linux.cpu.kernel_overhead",
+                "title": "Linux 系统态 CPU 偏高",
+                "document": "knowledge/linux_cpu.md",
+                "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+                "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+                "required_evidence": [
+                  "CPU system 比例",
+                  "内核栈或系统调用分布"
+                ],
+                "caveats": [
+                  "不能仅凭 system% 判断具体内核模块"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.998896,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "ENTITY",
+                  "DENSE"
+                ]
+              },
+              {
+                "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+                "knowledge_id": "linux.iowait.shared_block_device",
+                "title": "共享块设备与 I/O wait 争抢",
+                "document": "knowledge/linux_iowait.md",
+                "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+                "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+                "required_evidence": [
+                  "目标与邻居 iowait",
+                  "块设备延迟直方图",
+                  "设备队列深度"
+                ],
+                "caveats": [
+                  "相关性不等于噪声邻居导致",
+                  "虚拟磁盘可能共享宿主物理设备"
+                ],
+                "query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。\nINSUFFICIENT_EVIDENCE_REPLAN\n上一证据域不足以建立结论",
+                "score": 0.996111,
+                "score_kind": "RERANK_RELEVANCE",
+                "matched_terms": [],
+                "recall_channels": [
+                  "BM25",
+                  "DENSE"
+                ]
+              }
+            ],
+            "evidence_contract": {
+              "is_evidence": false,
+              "status": "KNOWLEDGE_PRIOR_ONLY",
+              "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+            }
+          },
+          "knowledge_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:25:53.841020+00:00"
+      },
+      {
+        "event_id": "event_2491941906634a8e8ec1826abf061549",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 29,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b"
+        },
+        "occurred_at": "2026-10-01 15:26:42.071059+00:00"
+      },
+      {
+        "event_id": "event_56fbee6d0b504dc89ab3ea4363973b32",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 30,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_0993e935d2074794b3fbf90fdabf4e64",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b"
+        },
+        "occurred_at": "2026-10-01 15:26:42.082193+00:00"
+      },
+      {
+        "event_id": "event_a90998dc05644d67a843bfbb163e3371",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 31,
+        "event_type": "hypothesis.created",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypothesis_id": "hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+          "source": "AUTONOMOUS_RULE_FALLBACK",
+          "round_index": 2,
+          "parent_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b"
+        },
+        "occurred_at": "2026-10-01 15:26:42.093978+00:00"
+      },
+      {
+        "event_id": "event_1658d7688eaf4a51a73b2bc3b0488e2d",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 32,
+        "event_type": "lats.candidates_expanded",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "round_index": 2,
+          "tree_depth": 2,
+          "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "candidate_count": 3,
+          "candidates": [
+            {
+              "candidate_key": "candidate:71caf4042c71399680d5",
+              "statement": "第 2 轮：异常可能来自主机资源基线或共享资源争抢，而非单一运行时路径",
+              "expected_observations": [
+                "CPU、内存、磁盘 I/O 或网络指标至少一项与故障时间窗同步异常"
+              ],
+              "falsification_criteria": [
+                "系统基线在故障时间窗内保持平稳，且与异常没有相关性"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证SYSTEM_BASELINE 证据域。",
+              "recommended_tool": "collect_sys_metrics",
+              "evidence_domain": "SYSTEM_BASELINE",
+              "prior": 0.545455,
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 0,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+              "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 0,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b"
+            },
+            {
+              "candidate_key": "candidate:14d62a5ca1110b690d9f",
+              "statement": "第 2 轮：目标进程可能存在原生调用栈热点、锁竞争或系统调用开销",
+              "expected_observations": [
+                "CPU 样本稳定集中在可归属的调用路径或等待路径"
+              ],
+              "falsification_criteria": [
+                "调用栈样本分散，未出现稳定热点或等待路径"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+              "recommended_tool": "start_perf_profile",
+              "evidence_domain": "NATIVE_CPU_STACK",
+              "prior": 0.272727,
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 1,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_0993e935d2074794b3fbf90fdabf4e64",
+              "hypothesis_id": "hyp_0993e935d2074794b3fbf90fdabf4e64",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 1,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b"
+            },
+            {
+              "candidate_key": "candidate:7d881da258e7e0477cdf",
+              "statement": "第 2 轮：异常可能来自块设备延迟或 I/O 队列，而非用户态计算热点",
+              "expected_observations": [
+                "eBPF 观测到与故障同窗的 I/O 延迟、队列或阻塞分布异常"
+              ],
+              "falsification_criteria": [
+                "块设备延迟与 I/O 队列平稳，且没有同窗阻塞"
+              ],
+              "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。",
+              "recommended_tool": "start_ebpf_io_profile",
+              "evidence_domain": "KERNEL_IO",
+              "prior": 0.181818,
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK",
+              "prior_source": "DETERMINISTIC_FALLBACK",
+              "rank": 2,
+              "is_open_world_sentinel": false,
+              "node_id": "hypothesis:hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+              "hypothesis_id": "hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+              "expansion_origin": "NEW_CHILD",
+              "generation_rank": 2,
+              "depth": 1,
+              "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b"
+            }
+          ],
+          "progressive_widening": true
+        },
+        "occurred_at": "2026-10-01 15:26:42.108659+00:00"
+      },
+      {
+        "event_id": "event_7b323cfac98c41d396d186d46a734cde",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 33,
+        "event_type": "lats.candidates_evaluated",
+        "actor": "AGENT",
+        "payload": {
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "evaluations": [
+            {
+              "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+              "initial_value": 0.68,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.68,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_0993e935d2074794b3fbf90fdabf4e64",
+              "initial_value": 0.57,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.57,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            },
+            {
+              "node_id": "hypothesis:hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+              "initial_value": 0.46,
+              "lm_value": null,
+              "self_consistency": null,
+              "heuristic_value": 0.46,
+              "value_lambda": 0.5,
+              "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+              "value_source": "DETERMINISTIC_FALLBACK"
+            }
+          ],
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+          "evidence_gate_is_separate": true
+        },
+        "occurred_at": "2026-10-01 15:26:42.108659+00:00"
+      },
+      {
+        "event_id": "event_ea6d0c2725e242bc90acfcad876d7c63",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 34,
+        "event_type": "lats.node_selected",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "candidate_key": "candidate:71caf4042c71399680d5",
+          "score": 1000000.0,
+          "components": {
+            "q": 0.68,
+            "exploration": 1000000.0,
+            "prior_bonus": 0.0,
+            "prior": 0.545455,
+            "visits": 0,
+            "virtual_loss": 0.0,
+            "unvisited": true
+          },
+          "rank": 0,
+          "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+          "selection_policy": "UCT",
+          "scores": [
+            {
+              "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+              "candidate_key": "candidate:71caf4042c71399680d5",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.68,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.545455,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 0
+            },
+            {
+              "node_id": "hypothesis:hyp_0993e935d2074794b3fbf90fdabf4e64",
+              "candidate_key": "candidate:14d62a5ca1110b690d9f",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.57,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.272727,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 1
+            },
+            {
+              "node_id": "hypothesis:hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+              "candidate_key": "candidate:7d881da258e7e0477cdf",
+              "score": 1000000.0,
+              "components": {
+                "q": 0.46,
+                "exploration": 1000000.0,
+                "prior_bonus": 0.0,
+                "prior": 0.181818,
+                "visits": 0,
+                "virtual_loss": 0.0,
+                "unvisited": true
+              },
+              "rank": 2
+            }
+          ],
+          "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+          "iteration": 2,
+          "round_index": 2,
+          "tree_depth": 2,
+          "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+          "candidate_count": 3,
+          "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+        },
+        "occurred_at": "2026-10-01 15:26:42.108659+00:00"
+      },
+      {
+        "event_id": "event_3f559bf1758b42a9badc01be14e75463",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 35,
+        "event_type": "tool_call.requested",
+        "actor": "PLANNER",
+        "payload": {
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "DENY",
+          "status": "DENIED"
+        },
+        "occurred_at": "2026-10-01 15:26:42.136016+00:00"
+      },
+      {
+        "event_id": "event_0989bd1c8cda48efb21df1b0a79c2d56",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 36,
+        "event_type": "lats.action_proposed",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "task_id": null,
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "DENY",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "DENIED",
+          "proposal_only": true
+        },
+        "occurred_at": "2026-10-01 15:26:42.145641+00:00"
+      },
+      {
+        "event_id": "event_dbba59a539834287b9360290f6878ee7",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 37,
+        "event_type": "lats.action_blocked",
+        "actor": "POLICY",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "task_id": null,
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "DENY",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "status": "DENIED"
+        },
+        "occurred_at": "2026-10-01 15:26:42.145641+00:00"
+      },
+      {
+        "event_id": "event_09f37888a4354b59bf721f9aff815d1c",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 38,
+        "event_type": "lats.observation_recorded",
+        "actor": "POLICY",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "task_id": null,
+          "tool_name": "collect_sys_metrics",
+          "policy_decision": "DENY",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "equivalent_sibling_rollback": false,
+          "observation_id": "policy:toolcall_85dba64fe5e54224aded3c60c991b310",
+          "observation_source": "POLICY_GATE",
+          "summary": "当前动作被策略或人工门禁拒绝，未执行真实采集。",
+          "evidence_ids": [],
+          "external_observation": false,
+          "failure_is_counter_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:26:42.145641+00:00"
+      },
+      {
+        "event_id": "event_13a3c21ffb3247c3b534b48907ff5f6e",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 39,
+        "event_type": "lats.reflection_recorded",
+        "actor": "AGENT",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "decision": "SWITCH_DIRECTION",
+          "summary": "当前动作被策略或人工门禁拒绝；不生成事故反证，改选允许的证据域。",
+          "grounded_in_observation": "policy:toolcall_85dba64fe5e54224aded3c60c991b310",
+          "reflection_is_evidence": false
+        },
+        "occurred_at": "2026-10-01 15:26:42.145641+00:00"
+      },
+      {
+        "event_id": "event_6ad2377d025c4765b662061e9dd68b12",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 40,
+        "event_type": "lats.backpropagated",
+        "actor": "SYSTEM",
+        "payload": {
+          "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_call_id": "toolcall_85dba64fe5e54224aded3c60c991b310",
+          "path_node_ids": [
+            "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+            "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027"
+          ],
+          "reward": -0.55,
+          "outcome": "POLICY_BLOCKED",
+          "components": {
+            "evidence_gate": -0.45,
+            "confidence": -0.1,
+            "quality_penalty": 0.0,
+            "support_count": 0,
+            "counter_count": 0,
+            "rejected_count": 0
+          }
+        },
+        "occurred_at": "2026-10-01 15:26:42.145641+00:00"
+      },
+      {
+        "event_id": "event_c9f2312ceb724211af5ff9eb68c53989",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 41,
+        "event_type": "diagnosis.insufficient_evidence_finalized",
+        "actor": "SYSTEM",
+        "payload": {
+          "termination_reason": "BUDGET_EXHAUSTED",
+          "termination_detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+          "accepted_support_report": false,
+          "best_supported_report_id": null,
+          "minimum_diagnosis_rounds": 1,
+          "observed_diagnosis_rounds": 1,
+          "minimum_rounds_satisfied": true
+        },
+        "occurred_at": "2026-10-01 15:26:42.172977+00:00"
+      },
+      {
+        "event_id": "event_c82a77dffed1455081bcdec2c787656c",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 42,
+        "event_type": "lats.search_terminated",
+        "actor": "SYSTEM",
+        "payload": {
+          "reason": "BUDGET_EXHAUSTED",
+          "detail": "剩余会话时间不足以完成下一轮采集及报告，保留现有证据和未验证结论。",
+          "final_status": "INSUFFICIENT_EVIDENCE",
+          "best_report_id": null
+        },
+        "occurred_at": "2026-10-01 15:26:42.178524+00:00"
+      },
+      {
+        "event_id": "event_16ca3732d7884be8a2be61aaf08b085e",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 43,
+        "event_type": "planner.insufficient_replanned",
+        "actor": "SYSTEM",
+        "payload": {
+          "round_index": 2,
+          "previous_hypothesis_id": "hyp_c89555b0462146eba96cf93d8134a52b",
+          "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+          "tool_name": "collect_sys_metrics",
+          "planner_kind": "DETERMINISTIC_FALLBACK",
+          "reason": "上一证据域不足以建立结论，按剩余注册工具和历史成功路线切换取证方向。；当前复用 Skill 的下一步需要验证SYSTEM_BASELINE 证据域。",
+          "requires_approval": false,
+          "lats_selection": {
+            "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+            "candidate_key": "candidate:71caf4042c71399680d5",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.68,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.545455,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 0,
+            "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+            "selection_policy": "UCT",
+            "scores": [
+              {
+                "node_id": "hypothesis:hyp_a433f4d7a315427ab4e83775e0485027",
+                "candidate_key": "candidate:71caf4042c71399680d5",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.68,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.545455,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 0
+              },
+              {
+                "node_id": "hypothesis:hyp_0993e935d2074794b3fbf90fdabf4e64",
+                "candidate_key": "candidate:14d62a5ca1110b690d9f",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.57,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.272727,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 1
+              },
+              {
+                "node_id": "hypothesis:hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+                "candidate_key": "candidate:7d881da258e7e0477cdf",
+                "score": 1000000.0,
+                "components": {
+                  "q": 0.46,
+                  "exploration": 1000000.0,
+                  "prior_bonus": 0.0,
+                  "prior": 0.181818,
+                  "visits": 0,
+                  "virtual_loss": 0.0,
+                  "unvisited": true
+                },
+                "rank": 2
+              }
+            ],
+            "phase": "INSUFFICIENT_EVIDENCE_EXPANSION",
+            "iteration": 2,
+            "round_index": 2,
+            "tree_depth": 2,
+            "parent_node_id": "hypothesis:hyp_c89555b0462146eba96cf93d8134a52b",
+            "candidate_count": 3,
+            "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+          },
+          "skill_reuse": {
+            "applied": true,
+            "state": "REUSED",
+            "skill_id": "builtin_python_runtime_diagnosis_4efd3323868f",
+            "skill_name": "python-runtime-diagnosis",
+            "version": 3,
+            "category": "PYTHON_RUNTIME",
+            "skill_category": "PYTHON_RUNTIME",
+            "baseline_category": "INSUFFICIENT_EVIDENCE_REPLAN",
+            "selected_category": "PYTHON_RUNTIME",
+            "match_score": 0.73,
+            "baseline_tool": "collect_sys_metrics",
+            "selected_tool": "collect_sys_metrics",
+            "reuse_step": {
+              "trace_key": "2:INSUFFICIENT_EVIDENCE_REPLAN",
+              "round_index": 2,
+              "phase": "INSUFFICIENT_EVIDENCE_REPLAN",
+              "state": "REUSED",
+              "baseline_tool": "collect_sys_metrics",
+              "selected_tool": "collect_sys_metrics",
+              "selected_route_index": 2,
+              "route_length": 3,
+              "completed_route_tools": [
+                "start_pyspy_profile"
+              ],
+              "attempted_tools": [
+                "start_pyspy_profile"
+              ],
+              "category_before": "INSUFFICIENT_EVIDENCE_REPLAN",
+              "category_after": "PYTHON_RUNTIME",
+              "category_corrected": true,
+              "applied_at": "2026-10-01T15:25:52.975051+00:00"
+            },
+            "load_mode": "FULL_SKILL_MD",
+            "content_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+            "source_sha256": "fdfb85f5262e961d56a30ae9271370bcffa4a992778bfa83346337a1030aa797",
+            "source_path": "skills/python-runtime-diagnosis/SKILL.md",
+            "loaded_sections": [
+              "目标",
+              "输入契约",
+              "适用与停止条件",
+              "取证顺序",
+              "结论门槛",
+              "必需证据与反证",
+              "安全边界",
+              "输出契约",
+              "回归门禁"
+            ]
+          }
+        },
+        "occurred_at": "2026-10-01 15:26:42.182739+00:00"
+      },
+      {
+        "event_id": "event_5dfb6307e07749d2877ac28a9227c5f2",
+        "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+        "sequence": 44,
+        "event_type": "hypotheses.scored",
+        "actor": "SYSTEM",
+        "payload": {
+          "hypotheses": [
+            {
+              "hypothesis_id": "hyp_3a5dd5eee7ff4d55ae92960839c14e6d",
+              "round_index": 1,
+              "status": "INCONCLUSIVE"
+            },
+            {
+              "hypothesis_id": "hyp_5dda5d952b654a38b6c22711b975c821",
+              "round_index": 1,
+              "status": "INCONCLUSIVE"
+            },
+            {
+              "hypothesis_id": "hyp_88dc243dca3b4695ae46cba0094d67df",
+              "round_index": 1,
+              "status": "INCONCLUSIVE"
+            },
+            {
+              "hypothesis_id": "hyp_0993e935d2074794b3fbf90fdabf4e64",
+              "round_index": 2,
+              "status": "INCONCLUSIVE"
+            },
+            {
+              "hypothesis_id": "hyp_4066cfa4fd6b4a49bc0205ba2404c379",
+              "round_index": 2,
+              "status": "INCONCLUSIVE"
+            },
+            {
+              "hypothesis_id": "hyp_a433f4d7a315427ab4e83775e0485027",
+              "round_index": 2,
+              "status": "INCONCLUSIVE"
+            }
+          ]
+        },
+        "occurred_at": "2026-10-01 15:26:42.202276+00:00"
+      }
+    ],
+    "tasks": [
+      {
+        "task_id": "task_20261001_152529_3a1dd1",
+        "collector_type": "pyspy",
+        "status": "DONE",
+        "status_reason": "pyspy 原始栈已生成火焰图与 TopN 热点",
+        "error_code": null,
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "event_count": 5,
+        "attempts": [
+          {
+            "id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+            "status": "SUCCEEDED",
+            "started_at": "2026-10-01T15:25:30.759962Z",
+            "finished_at": "2026-10-01T15:25:51.35654Z"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": 4567,
+            "artifact_type": "raw",
+            "size_bytes": 145585,
+            "sha256": "4abe324e4ec7d229d069831cc481c31bc1ebbd67a071c78d6ed8413415d6fee2",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          },
+          {
+            "id": 4568,
+            "artifact_type": "manifest",
+            "size_bytes": 1104,
+            "sha256": "c37b8d83cd81dc65ba37148161c5d546b6d93031193d3b09a79350366a3e84e8",
+            "integrity_status": "VERIFIED",
+            "sample_count": 0
+          },
+          {
+            "id": 4569,
+            "artifact_type": "flamegraph_json",
+            "size_bytes": 4002,
+            "sha256": "f0fb831270ab81c54520228c560a794a7441c35b78d24ea8eaa593c9b6c19909",
+            "integrity_status": "VERIFIED",
+            "sample_count": 4451
+          },
+          {
+            "id": 4570,
+            "artifact_type": "top_json",
+            "size_bytes": 2159,
+            "sha256": "3f8a522ba0d34291bfc9c5a2ab88e64524923975e9cb092bd87087127376a6c1",
+            "integrity_status": "VERIFIED",
+            "sample_count": 4451
+          }
+        ],
+        "_raw_artifacts": [
+          {
+            "artifact_type": "raw",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:25:51.35654Z",
+            "filename": "pyspy-speedscope.json",
+            "id": 4567,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "raw",
+              "content_type": "application/json",
+              "object_key": "tasks/task_20261001_152529_3a1dd1/attempts/attempt_23df6dd349334a2b9f135ba69d4cfce7/raw/pyspy-speedscope.json",
+              "schema_version": "mini-drop.artifact.v1",
+              "sha256": "4abe324e4ec7d229d069831cc481c31bc1ebbd67a071c78d6ed8413415d6fee2",
+              "size_bytes": 145585,
+              "task_attempt_id": "attempt_23df6dd349334a2b9f135ba69d4cfce7",
+              "task_id": "task_20261001_152529_3a1dd1"
+            },
+            "metadata": {
+              "collector_plugin": "pyspy",
+              "collector_runtime": "native-cpp",
+              "contract_version": "1.0.0"
+            },
+            "object_key": "tasks/task_20261001_152529_3a1dd1/attempts/attempt_23df6dd349334a2b9f135ba69d4cfce7/raw/pyspy-speedscope.json",
+            "sha256": "4abe324e4ec7d229d069831cc481c31bc1ebbd67a071c78d6ed8413415d6fee2",
+            "size_bytes": 145585,
+            "task_id": "task_20261001_152529_3a1dd1"
+          },
+          {
+            "artifact_type": "manifest",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:25:51.35654Z",
+            "filename": "manifest.json",
+            "id": 4568,
+            "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "manifest_version": "mini-drop.artifact.v1",
+              "producer": "native-cpp"
+            },
+            "metadata": {
+              "schema_version": "mini-drop.attempt-manifest.v1",
+              "trace_id": "",
+              "traceparent": ""
+            },
+            "object_key": "tasks/task_20261001_152529_3a1dd1/attempts/attempt_23df6dd349334a2b9f135ba69d4cfce7/manifest.json",
+            "sha256": "c37b8d83cd81dc65ba37148161c5d546b6d93031193d3b09a79350366a3e84e8",
+            "size_bytes": 1104,
+            "task_id": "task_20261001_152529_3a1dd1"
+          },
+          {
+            "artifact_type": "flamegraph_json",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:25:52.088536Z",
+            "filename": "flamegraph.json",
+            "id": 4569,
+            "integrity_reason": "Analyzer verified local bytes before temporary workspace cleanup",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "flamegraph_json",
+              "bucket": "mini-drop",
+              "content_type": "application/json",
+              "filename": "flamegraph.json",
+              "manifest_version": "mini-drop.artifact.v1",
+              "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/flamegraph.json",
+              "sha256": "f0fb831270ab81c54520228c560a794a7441c35b78d24ea8eaa593c9b6c19909",
+              "size_bytes": 4002,
+              "task_id": "task_20261001_152529_3a1dd1"
+            },
+            "metadata": {
+              "analyzer_type": "collector.pyspy",
+              "analyzer_version": "1.0.0",
+              "collector_type": "pyspy",
+              "profile_quality": {
+                "reason_code": "OK",
+                "renderable_function_count": 17,
+                "sample_count": 4451,
+                "status": "USABLE"
+              },
+              "sample_count": 4451,
+              "schema_version": "pyspy_analysis.v1",
+              "top_functions": [
+                {
+                  "file": "/app/app.py",
+                  "line": 254,
+                  "name": "_sample",
+                  "percent": 33.3,
+                  "samples": 1482
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 714,
+                  "name": "_publish_application_metrics",
+                  "percent": 32.3,
+                  "samples": 1439
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 171,
+                  "name": "source_hot_function",
+                  "percent": 21,
+                  "samples": 934
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 172,
+                  "name": "source_hot_function",
+                  "percent": 4.7,
+                  "samples": 209
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 170,
+                  "name": "source_hot_function",
+                  "percent": 4,
+                  "samples": 180
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 173,
+                  "name": "source_hot_function",
+                  "percent": 3.6,
+                  "samples": 160
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 416,
+                  "name": "_boot_id",
+                  "percent": 0.3,
+                  "samples": 12
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1013,
+                  "name": "open",
+                  "percent": 0.2,
+                  "samples": 11
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 154,
+                  "name": "_host_pid",
+                  "percent": 0.2,
+                  "samples": 8
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 403,
+                  "name": "_process_write_bytes",
+                  "percent": 0.2,
+                  "samples": 7
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 327,
+                  "name": "_current_rss_mb",
+                  "percent": 0,
+                  "samples": 2
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1047,
+                  "name": "write_text",
+                  "percent": 0,
+                  "samples": 2
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 709,
+                  "name": "_publish_application_metrics",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 157,
+                  "name": "_host_pid",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 405,
+                  "name": "_process_write_bytes",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/socketserver.py",
+                  "line": 845,
+                  "name": "write",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "<frozen posixpath>",
+                  "line": 174,
+                  "name": "basename",
+                  "percent": 0,
+                  "samples": 1
+                }
+              ]
+            },
+            "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/flamegraph.json",
+            "sha256": "f0fb831270ab81c54520228c560a794a7441c35b78d24ea8eaa593c9b6c19909",
+            "size_bytes": 4002,
+            "task_id": "task_20261001_152529_3a1dd1"
+          },
+          {
+            "artifact_type": "top_json",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "created_at": "2026-10-01T15:25:52.088536Z",
+            "filename": "top.json",
+            "id": 4570,
+            "integrity_reason": "Analyzer verified local bytes before temporary workspace cleanup",
+            "integrity_status": "VERIFIED",
+            "local_path": null,
+            "manifest": {
+              "artifact_type": "top_json",
+              "bucket": "mini-drop",
+              "content_type": "application/json",
+              "filename": "top.json",
+              "manifest_version": "mini-drop.artifact.v1",
+              "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/top.json",
+              "sha256": "3f8a522ba0d34291bfc9c5a2ab88e64524923975e9cb092bd87087127376a6c1",
+              "size_bytes": 2159,
+              "task_id": "task_20261001_152529_3a1dd1"
+            },
+            "metadata": {
+              "analyzer_type": "collector.pyspy",
+              "analyzer_version": "1.0.0",
+              "collector_type": "pyspy",
+              "profile_quality": {
+                "reason_code": "OK",
+                "renderable_function_count": 17,
+                "sample_count": 4451,
+                "status": "USABLE"
+              },
+              "sample_count": 4451,
+              "schema_version": "pyspy_analysis.v1",
+              "top_functions": [
+                {
+                  "file": "/app/app.py",
+                  "line": 254,
+                  "name": "_sample",
+                  "percent": 33.3,
+                  "samples": 1482
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 714,
+                  "name": "_publish_application_metrics",
+                  "percent": 32.3,
+                  "samples": 1439
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 171,
+                  "name": "source_hot_function",
+                  "percent": 21,
+                  "samples": 934
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 172,
+                  "name": "source_hot_function",
+                  "percent": 4.7,
+                  "samples": 209
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 170,
+                  "name": "source_hot_function",
+                  "percent": 4,
+                  "samples": 180
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 173,
+                  "name": "source_hot_function",
+                  "percent": 3.6,
+                  "samples": 160
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 416,
+                  "name": "_boot_id",
+                  "percent": 0.3,
+                  "samples": 12
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1013,
+                  "name": "open",
+                  "percent": 0.2,
+                  "samples": 11
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 154,
+                  "name": "_host_pid",
+                  "percent": 0.2,
+                  "samples": 8
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 403,
+                  "name": "_process_write_bytes",
+                  "percent": 0.2,
+                  "samples": 7
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 327,
+                  "name": "_current_rss_mb",
+                  "percent": 0,
+                  "samples": 2
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/pathlib.py",
+                  "line": 1047,
+                  "name": "write_text",
+                  "percent": 0,
+                  "samples": 2
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 709,
+                  "name": "_publish_application_metrics",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 157,
+                  "name": "_host_pid",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/app/app.py",
+                  "line": 405,
+                  "name": "_process_write_bytes",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "/usr/local/lib/python3.12/socketserver.py",
+                  "line": 845,
+                  "name": "write",
+                  "percent": 0,
+                  "samples": 1
+                },
+                {
+                  "file": "<frozen posixpath>",
+                  "line": 174,
+                  "name": "basename",
+                  "percent": 0,
+                  "samples": 1
+                }
+              ]
+            },
+            "object_key": "tasks/task_20261001_152529_3a1dd1/analysis/top.json",
+            "sha256": "3f8a522ba0d34291bfc9c5a2ab88e64524923975e9cb092bd87087127376a6c1",
+            "size_bytes": 2159,
+            "task_id": "task_20261001_152529_3a1dd1"
+          }
+        ]
+      }
+    ]
+  },
+  "downloads": [
+    {
+      "task_id": "task_20261001_152529_3a1dd1",
+      "artifact_id": 4567,
+      "artifact_type": "raw",
+      "file": "task_20261001_152529_3a1dd1-raw.raw",
+      "sha256": "4abe324e4ec7d229d069831cc481c31bc1ebbd67a071c78d6ed8413415d6fee2"
+    },
+    {
+      "task_id": "task_20261001_152529_3a1dd1",
+      "artifact_id": 4568,
+      "artifact_type": "manifest",
+      "file": "task_20261001_152529_3a1dd1-manifest.raw",
+      "sha256": "c37b8d83cd81dc65ba37148161c5d546b6d93031193d3b09a79350366a3e84e8"
+    },
+    {
+      "task_id": "task_20261001_152529_3a1dd1",
+      "artifact_id": 4569,
+      "artifact_type": "flamegraph_json",
+      "file": "task_20261001_152529_3a1dd1-flamegraph_json.raw",
+      "sha256": "f0fb831270ab81c54520228c560a794a7441c35b78d24ea8eaa593c9b6c19909"
+    },
+    {
+      "task_id": "task_20261001_152529_3a1dd1",
+      "artifact_id": 4570,
+      "artifact_type": "top_json",
+      "file": "task_20261001_152529_3a1dd1-top_json.raw",
+      "sha256": "3f8a522ba0d34291bfc9c5a2ab88e64524923975e9cb092bd87087127376a6c1"
+    }
+  ],
+  "intervention": {
+    "field": "source_profile_samples",
+    "mode": "counter",
+    "values": {
+      "baseline": 0.0,
+      "fault": 151.86918964568812,
+      "recovery": 0.0
+    },
+    "process_identity": {
+      "verified": true,
+      "identity": {
+        "source": "host_proc_and_docker_inspect",
+        "host_pid": 906287,
+        "namespace_pid": 1,
+        "start_ticks": 14403834,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "container_id": "2d3d0a08cf134a25e54eff494b828640bac49e86d46333911af5df79bf66473f",
+        "container_started_at": "2026-09-08T05:27:43.229759068Z"
+      },
+      "snapshot_count": 6
+    },
+    "injection_observed": true,
+    "recovery_observed": true,
+    "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+  },
+  "lineage_evaluation": {
+    "recorded_chain_consistent": true,
+    "matched_evidence_ids": [
+      "ev_task_task_20261001_152529_3a1dd1_4569",
+      "ev_task_task_20261001_152529_3a1dd1_4570"
+    ],
+    "unmatched_evidence_ids": [
+      "ev_task_task_20261001_152529_3a1dd1_4567",
+      "ev_task_task_20261001_152529_3a1dd1_4568"
+    ],
+    "problems": [],
+    "scope": "RECORDED_SERVER_ATTESTATIONS; NO_FRESH_OBJECT_DOWNLOAD; NO_ROOT_CAUSE_GRADE"
+  },
+  "engineering_evaluation": {
+    "scenario_id": "source-hotspot",
+    "diagnosis_id": "insight_c6e9103a239f457593c706b77132a5c1",
+    "diagnosis_accepted": false,
+    "localization_accepted": false,
+    "outcome": "INSUFFICIENT_EVIDENCE",
+    "location": null,
+    "causal_root_cause_verified": false,
+    "same_load_fix_verified": false,
+    "recorded_chain_verified": true,
+    "cleanup_and_recovery_verified": true,
+    "reports": [
+      {
+        "report_id": "report_1c4c82c47b61f56d2e881cfd793a7ffd",
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "location": null,
+        "independent_control_required": false
+      }
+    ],
+    "profile": "engineering-diagnosis.v1"
+  },
+  "finished_at": "2026-10-01T15:26:38.695172+00:00"
+}

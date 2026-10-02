@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="26" time="0.512" timestamp="2026-10-02T00:43:51.671360+08:00" hostname="LAPTOP-BTHCSF99"><testcase classname="tests.test_seven_gap_telemetry" name="test_native_shared_quota_window_observes_two_consumers_and_actual_throttling" time="0.001" /><testcase classname="tests.test_seven_gap_telemetry" name="test_complete_zero_throttling_is_a_measurement_and_not_missing" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;0]" time="0.001" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;1]" time="0.001" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;2]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;3]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;4]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;5]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;6]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;7]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;8]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;9]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;10]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_missing_changed_reset_or_different_cgroup_is_unknown[&lt;lambda&gt;11]" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_application_peer_active_cpu_ticks_cannot_claim_resource_competition" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_acquisition_wait_mean_uses_new_counter_window_and_keeps_zero_known" time="0.000" /><testcase classname="tests.test_seven_gap_telemetry" name="test_python_sync_io_counts_close_duration_but_excludes_pacing_and_rotates" time="0.072"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'process_time'">tmp_path = WindowsPath('D:/tx/mini-drop/.pytest-work/test_python_sync_io_counts_clo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001921EC86FD0&gt;
+
+    def test_python_sync_io_counts_close_duration_but_excludes_pacing_and_rotates(tmp_path, monkeypatch):
+        monkeypatch.setenv("CPU_HOTSPOT_ACTIVE", "0")
+        root = Path(__file__).parents[1]
+        path = Path(os.getenv("MINI_DROP_TEST_PYTHON_HOTSPOT_SOURCE", root / "demo/python-hotspot/app.py"))
+        spec = spec_from_file_location("seven_gap_python_demo", path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        # Windows lacks fdatasync; fsync still performs an actual file flush.
+        monkeypatch.setattr(module.os, "fdatasync", os.fsync, raising=False)
+        ticks = iter(range(0, 10**12, 5_000_000))
+        monkeypatch.setattr(module, "time", SimpleNamespace(
+            monotonic=time.monotonic, time=time.time, sleep=time.sleep,
+            perf_counter_ns=lambda: next(ticks),
+        ))
+        fault = module.IoFault()
+        fault._path = str(tmp_path / "isolated-sync-io.bin")
+        Path(fault._path).write_bytes(b"x" * (8 * 1024 * 1024 - 1))
+        try:
+            fault.start(15)
+            deadline = time.monotonic() + 5
+            while fault.snapshot().get("io_operations", 0) &lt; 3 and time.monotonic() &lt; deadline:
+                time.sleep(.01)
+            snapshot = fault.snapshot()
+            assert snapshot["io_operations"] &gt;= 3
+            assert snapshot["io_operation_duration_ms_total"] == snapshot["io_operations"] * 5
+            assert snapshot["io_bytes_written"] == snapshot["io_operations"] * len(b"mini-drop-io" * 8192)
+            assert snapshot["io_failures"] == 0
+            assert Path(fault._path).stat().st_size &lt; 1024 * 1024
+&gt;           app = module._application_metrics_snapshot()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_seven_gap_telemetry.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+demo\python-hotspot\app.py:751: in _application_metrics_snapshot
+    snapshot = _snapshot()
+               ^^^^^^^^^^^
+demo\python-hotspot\app.py:699: in _snapshot
+    **FAULT.snapshot(),
+      ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;seven_gap_python_demo.CpuFault object at 0x000001921EDCDA90&gt;
+
+    def snapshot(self) -&gt; dict[str, object]:
+        now_wall = time.monotonic()
+&gt;       now_cpu = time.process_time()
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'process_time'
+
+demo\python-hotspot\app.py:109: AttributeError</failure></testcase><testcase classname="tests.test_metric_analyzers" name="test_sys_metrics_v2_derives_measured_signals_without_oracle_fields" time="0.004" /><testcase classname="tests.test_metric_analyzers" name="test_http_business_metrics_are_identity_checked_and_derive_degradation" time="0.000" /><testcase classname="tests.test_metric_analyzers" name="test_sys_metrics_v2_rejects_pid_reuse" time="0.006" /><testcase classname="tests.test_metric_analyzers" name="test_sys_metrics_correlates_container_namespace_pid" time="0.005" /><testcase classname="tests.test_metric_analyzers" name="test_memory_v2_derives_memory_growth_from_same_target" time="0.004" /><testcase classname="tests.test_metric_analyzers" name="test_ebpf_latency_is_explicitly_host_scoped" time="0.004" /><testcase classname="tests.test_metric_analyzers" name="test_application_window_strips_control_plane_oracle_fields" time="0.000" /><testcase classname="tests.test_python_hotspot_memory_cleanup" name="test_memory_stop_releases_buffers_and_trims_linux_heap" time="0.043" /><testcase classname="tests.test_python_hotspot_memory_cleanup" name="test_demo_sets_a_stable_linux_process_name_for_agent_discovery" time="0.003" /></testsuite></testsuites>

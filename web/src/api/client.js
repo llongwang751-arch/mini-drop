@@ -309,7 +309,7 @@ export function createDiagnosisEventSource(
   diagnosisId = "",
   afterSequence = 0,
 ) {
-  if (!diagnosisId) return new EventSource("/api/v2/events/stream");
+  if (!diagnosisId) throw new Error("A diagnosis ID is required for its event stream");
   const after = Math.max(0, Number(afterSequence) || 0);
   return new EventSource(
     `/api/v2/diagnoses/${encodeURIComponent(diagnosisId)}/events/stream?after=${after}`,
@@ -334,6 +334,10 @@ export function createDropInsightDiagnosis(payload) {
 
 export function deleteDropInsightDiagnosis(diagnosisId) {
   return api.delete(`/v2/diagnoses/${diagnosisId}`);
+}
+
+export function cancelDropInsightDiagnosis(diagnosisId, payload = {}) {
+  return api.post(`/v2/diagnoses/${encodeURIComponent(diagnosisId)}/cancel`, payload);
 }
 
 export function listDropInsightDiagnoses() {

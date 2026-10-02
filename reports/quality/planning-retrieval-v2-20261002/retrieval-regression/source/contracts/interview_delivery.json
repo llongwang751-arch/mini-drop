@@ -1,0 +1,84 @@
+{
+  "schema": "mini-drop.interview-delivery.v1",
+  "sources": {
+    "engineering": {
+      "path": "web/public/report-assets/engineering-diagnosis/index.json",
+      "sha256": "a478557961528f01f738d7f2f15dd2f8829e59c095cadc1adf6336a3807e5205",
+      "normalization": "LF_TEXT"
+    },
+    "engineering_cases": {
+      "path": "web/public/report-assets/engineering-cases/index.json",
+      "sha256": "60abf9e0710302fb266bd2139666dd048dd5ee95e3a601b86ef6cb392fca4a43"
+    },
+    "production_release": {
+      "path": "reports/quality/engineering-score-only-20261002/release/manifest.json",
+      "sha256": "929bb4cafa1fd70402f9d6dc6b6a273b9bb3b6f354f34f3452e45c3ddcae7098"
+    },
+    "production_ci": {
+      "path": "reports/quality/engineering-score-only-20261002/ci/summary.json",
+      "sha256": "7081a79a3319b84370091fd3a3d867fb22208e3e75bc7350c6edb87111147bc9"
+    },
+    "production_verification": {
+      "path": "reports/quality/engineering-score-only-20261002/publication/final-publication-verification.json",
+      "sha256": "7311fccdb4bbc394990cd5049cf278c7a985d6cf60c15714d932d2b4e59a531d"
+    },
+    "production_browser": {
+      "path": "reports/quality/engineering-score-only-20261002/browser/result.json",
+      "sha256": "7eed817ceaff8f989fe1f2e1946a39dd057541fbd1de25b641ebdbecbe727a4c"
+    }
+  },
+  "additional_acceptances": [
+    {
+      "title": "干净 Linux 核心平台复刻",
+      "status": "PASSED",
+      "scope": "从全新 Ubuntu 22.04 Runner、精确源码 34b74e7b 构建七个镜像；10 个阶段全部通过，真实 Agent→Task→S3 Artifact→Analyzer 与 SQL 身份绑定、HTTP 401、清理均验证。87 项门禁测试（含负向用例）零跳过；范围限核心平台及 sys_metrics。",
+      "report": {
+        "path": "reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/report.json",
+        "sha256": "7624429cbdd89bd9e18973fc58b4d972478913a0357d3a53da414beb5cda46b6"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "PASSED"
+      }
+    },
+    {
+      "title": "新题规划与检索盲测",
+      "status": "COMPLETED",
+      "scope": "24 题预先冻结，真实模型零重试，22 响应/2 超时；结构与分类 15/24、判断 11/24、下一工具 13/24。BM25 Recall@3 75.83%、MRR 0.80、无答案误召回 3/4。部分指标命中，效果仍有缺口；干净 Git 独立复算一致，不计为现场因果准确率。",
+      "report": {
+        "path": "reports/quality/interview-release-20261002/heldout/independent-review-r2/audit.json",
+        "sha256": "00f649814ae6e898ef9fc949d6c749c2c0b8751c936b1046d9b4340f1aa92481"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "VERIFIED"
+      }
+    },
+    {
+      "title": "文档与求职材料统一",
+      "status": "COMPLETED",
+      "scope": "六份当前设计与求职文档、既有本地简历段落和五分钟讲稿已统一，保留真实参与边界；个人简历未提交，用户本人学习和彩排仍须完成。",
+      "report": {
+        "path": "reports/quality/interview-release-20261002/materials/doc-final-review-public.json",
+        "sha256": "56d71389f61847d661d5df582816a32d3e96ab5e25966b1c5be13f4c806d60ee"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "VERIFIED"
+      }
+    },
+    {
+      "title": "本轮源码主 CI",
+      "status": "PASSED",
+      "scope": "源码 34b74e7b 的官方 CI 36975451853 实际 14/14；Python 1827 通过/16 登记跳过、Web 317、真实 PostgreSQL 14 零跳过、Native CTest 5、Chromium 8 固定数据。与上方现有线上 de094fff 发布 CI 分开。",
+      "report": {
+        "path": "reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json",
+        "sha256": "acef3e041e1bf0622e6b32452b327d5fb0c8a9959f2cc6d95bddd5bf28697a1a"
+      },
+      "required_result": {
+        "field": "status",
+        "value": "VERIFIED"
+      }
+    }
+  ]
+}

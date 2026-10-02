@@ -1,0 +1,635 @@
+{
+  "diagnosis": {
+    "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+    "query": "检查 Go go-hotspot 当前状态",
+    "target": {
+      "service": "go-hotspot",
+      "environment": "docker-45d5575cc79a32961a6fd732f6f77e7b4bbef0d64dcfcb2a3464419d9",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 1862439,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1862439,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 214713532,
+        "pid_namespace_inode": 4026532497,
+        "namespace_pid": 1,
+        "executable_identity": "go-hotspot",
+        "process_snapshot_id": "psnap_8b2ba2ef430670b6",
+        "snapshot_generation": 306208,
+        "snapshot_received_at": "2026-10-01T15:00:40.827757+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-10-01T15:00:43.644327Z",
+      "end": "2026-10-01T15:05:43.644327Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-10-01T15:00:43.644327Z",
+      "end": "2026-10-01T15:05:43.644327Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 120,
+      "max_tool_calls": 1,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 7,
+    "clarification_questions": [],
+    "created_at": "2026-10-01 15:00:43.319615+00:00",
+    "updated_at": "2026-10-01 15:00:47.949387+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "reports": [],
+  "evidence": [],
+  "tool-calls": [
+    {
+      "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "hypothesis_id": "hyp_58d41387c033421c8ff7eeef9513f909",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1862439,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 117.612004,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 120
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 2097152,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "CANCELLED",
+      "task_id": "task_20261001_150045_dab36c",
+      "result": {
+        "task_status": "CANCELLED",
+        "reason": "isolated acceptance: interrupt only this check"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 2097152,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 0,
+        "artifact_bytes": 0,
+        "released_at": "2026-10-01T15:00:47.938760+00:00",
+        "reason": "task_cancelled"
+      },
+      "budget_reservation_status": "RELEASED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-10-01 15:00:47.949387+00:00",
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-10-01 15:00:45.707637+00:00",
+      "decided_at": null,
+      "executed_at": "2026-10-01 15:00:45.780146+00:00"
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "hyp_58d41387c033421c8ff7eeef9513f909",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "statement": "目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线",
+      "expected_observations": [
+        "采到目标进程 CPU、RSS、线程和文件描述符的当前窗口指标"
+      ],
+      "falsification_criteria": [
+        "当前窗口指标不支持资源异常，或没有取得可信系统指标"
+      ],
+      "status": "OPEN",
+      "source": "DETERMINISTIC_RULE",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:00:45.640418+00:00",
+      "updated_at": "2026-10-01 15:00:45.640418+00:00"
+    },
+    {
+      "hypothesis_id": "hyp_2fc0690b7e324d5499415d2a3762c348",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "statement": "其他未知原因（OTHER/UNKNOWN）",
+      "expected_observations": [
+        "存在尚未被既有候选假设充分解释的观测现象"
+      ],
+      "falsification_criteria": [
+        "所有观测现象均能被既有候选假设充分解释"
+      ],
+      "status": "OPEN",
+      "source": "SYSTEM_FALLBACK",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:00:45.655634+00:00",
+      "updated_at": "2026-10-01 15:00:45.655634+00:00"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event_693535ab6eab492c97c7c066c87e739a",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "AUTO",
+        "created_by": "legacy_admin",
+        "auto_scope": true,
+        "health_check": true
+      },
+      "occurred_at": "2026-10-01 15:00:43.319615+00:00"
+    },
+    {
+      "event_id": "event_971586c7607f4131905dc2b4f64c0756",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 2,
+      "event_type": "diagnosis.clarified",
+      "actor": "AI_SCOPE_RESOLVER",
+      "payload": {
+        "target": {
+          "service": "go-hotspot",
+          "environment": "docker-45d5575cc79a32961a6fd732f6f77e7b4bbef0d64dcfcb2a3464419d9",
+          "agent_id": "control-interview-demo-agent",
+          "pid": 1862439,
+          "process_binding": {
+            "agent_id": "control-interview-demo-agent",
+            "pid": 1862439,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "process_start_ticks": 214713532,
+            "pid_namespace_inode": 4026532497,
+            "namespace_pid": 1,
+            "executable_identity": "go-hotspot",
+            "process_snapshot_id": "psnap_8b2ba2ef430670b6",
+            "snapshot_generation": 306208,
+            "snapshot_received_at": "2026-10-01T15:00:40.827757+00:00"
+          }
+        },
+        "time_range": {
+          "start": "2026-10-01T15:00:43.644327Z",
+          "end": "2026-10-01T15:05:43.644327Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "requested_time_range": {
+          "start": "2026-10-01T15:00:43.644327Z",
+          "end": "2026-10-01T15:05:43.644327Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "effective_time_range": {}
+      },
+      "occurred_at": "2026-10-01 15:00:43.646628+00:00"
+    },
+    {
+      "event_id": "event_9bc6e421858b42148aa272abea47317b",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 3,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_58d41387c033421c8ff7eeef9513f909",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:00:45.640418+00:00"
+    },
+    {
+      "event_id": "event_81e1a56cf2234d5dbc7bb12e1b8d89e3",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 4,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_2fc0690b7e324d5499415d2a3762c348",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 15:00:45.655634+00:00"
+    },
+    {
+      "event_id": "event_6cfa71e7229d43028b3c97a8f20b4272",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 5,
+      "event_type": "lats.search_started",
+      "actor": "SYSTEM",
+      "payload": {
+        "algorithm": "LATS-UCT",
+        "algorithm_version": "drop-insight-lats-v1",
+        "semantics": {
+          "execution_mode": "BUDGETED_LATS",
+          "environment_semantics": "LIVE_PROGRESSIVE",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "strict_environment_reversibility": false,
+          "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+        },
+        "config": {
+          "investigation_strategy": "LATS",
+          "top_k": 3,
+          "exploration_constant": 1.4142135623730951,
+          "max_iterations": 1,
+          "max_tool_calls": 1,
+          "selection_policy": "UCT",
+          "value_lambda": 0.5,
+          "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+        },
+        "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+        "model_has_shell_access": false
+      },
+      "occurred_at": "2026-10-01 15:00:45.666548+00:00"
+    },
+    {
+      "event_id": "event_234c4a23936c4889bab77bfb19faf805",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 6,
+      "event_type": "lats.candidates_expanded",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 2,
+        "candidates": [
+          {
+            "candidate_key": "candidate:483478c4da174fe1776f",
+            "statement": "目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线",
+            "expected_observations": [
+              "采到目标进程 CPU、RSS、线程和文件描述符的当前窗口指标"
+            ],
+            "falsification_criteria": [
+              "当前窗口指标不支持资源异常，或没有取得可信系统指标"
+            ],
+            "reason": "",
+            "recommended_tool": "collect_sys_metrics",
+            "evidence_domain": null,
+            "prior": 0.925926,
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 0,
+            "is_open_world_sentinel": false,
+            "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+            "hypothesis_id": "hyp_58d41387c033421c8ff7eeef9513f909",
+            "depth": 0,
+            "parent_node_id": null
+          },
+          {
+            "candidate_key": "candidate:other-unknown",
+            "statement": "其他未知原因（OTHER/UNKNOWN）",
+            "expected_observations": [
+              "存在尚未被既有候选假设充分解释的观测现象"
+            ],
+            "falsification_criteria": [
+              "所有观测现象均能被既有候选假设充分解释"
+            ],
+            "reason": "",
+            "recommended_tool": "collect_sys_metrics",
+            "evidence_domain": null,
+            "prior": 0.074074,
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 1,
+            "is_open_world_sentinel": true,
+            "node_id": "hypothesis:hyp_2fc0690b7e324d5499415d2a3762c348",
+            "hypothesis_id": "hyp_2fc0690b7e324d5499415d2a3762c348",
+            "depth": 0,
+            "parent_node_id": null
+          }
+        ],
+        "progressive_widening": true
+      },
+      "occurred_at": "2026-10-01 15:00:45.666548+00:00"
+    },
+    {
+      "event_id": "event_25187f8bc67046c587038b1ad1de1011",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 7,
+      "event_type": "lats.candidates_evaluated",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "evaluations": [
+          {
+            "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          },
+          {
+            "node_id": "hypothesis:hyp_2fc0690b7e324d5499415d2a3762c348",
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          }
+        ],
+        "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+        "evidence_gate_is_separate": true
+      },
+      "occurred_at": "2026-10-01 15:00:45.666548+00:00"
+    },
+    {
+      "event_id": "event_c05d9bf0bac44625a8f3e064b148ca1f",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 8,
+      "event_type": "lats.node_selected",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+        "candidate_key": "candidate:483478c4da174fe1776f",
+        "score": 1000000.0,
+        "components": {
+          "q": 0.68,
+          "exploration": 1000000.0,
+          "prior_bonus": 0.0,
+          "prior": 0.925926,
+          "visits": 0,
+          "virtual_loss": 0.0,
+          "unvisited": true
+        },
+        "rank": 0,
+        "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+        "selection_policy": "UCT",
+        "scores": [
+          {
+            "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+            "candidate_key": "candidate:483478c4da174fe1776f",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.68,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.925926,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 0
+          },
+          {
+            "node_id": "hypothesis:hyp_2fc0690b7e324d5499415d2a3762c348",
+            "candidate_key": "candidate:other-unknown",
+            "score": 1000000.0,
+            "components": {
+              "q": -0.05,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.074074,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 1
+          }
+        ],
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 2,
+        "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+      },
+      "occurred_at": "2026-10-01 15:00:45.666548+00:00"
+    },
+    {
+      "event_id": "event_40dff4034b664d08aa9c13e37637ce29",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 9,
+      "event_type": "tool_call.requested",
+      "actor": "PLANNER",
+      "payload": {
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "status": "APPROVED"
+      },
+      "occurred_at": "2026-10-01 15:00:45.707637+00:00"
+    },
+    {
+      "event_id": "event_ab74802bce8a490c81b7551d2a8e092a",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 10,
+      "event_type": "tool_call.task_created",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_id": "task_20261001_150045_dab36c"
+      },
+      "occurred_at": "2026-10-01 15:00:45.780146+00:00"
+    },
+    {
+      "event_id": "event_05b13d237f9c4a209cef001ddd8f8dea",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 11,
+      "event_type": "lats.action_proposed",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_id": "task_20261001_150045_dab36c",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "status": "TASK_CREATED",
+        "proposal_only": false
+      },
+      "occurred_at": "2026-10-01 15:00:45.791307+00:00"
+    },
+    {
+      "event_id": "event_b91472184f4d4db4ac3ef077d8d6aa41",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 12,
+      "event_type": "lats.simulation_started",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_id": "task_20261001_150045_dab36c",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+        "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+      },
+      "occurred_at": "2026-10-01 15:00:45.791307+00:00"
+    },
+    {
+      "event_id": "event_26efcbb4daf74268b59bf4e6dbfad8ea",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 13,
+      "event_type": "lats.action_dispatched",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_58d41387c033421c8ff7eeef9513f909",
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_id": "task_20261001_150045_dab36c",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false
+      },
+      "occurred_at": "2026-10-01 15:00:45.791307+00:00"
+    },
+    {
+      "event_id": "event_59c24125df584a9594e515d8dc7bd89d",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 14,
+      "event_type": "tool_call.task_terminal",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_id": "task_20261001_150045_dab36c",
+        "task_status": "CANCELLED"
+      },
+      "occurred_at": "2026-10-01 15:00:47.938760+00:00"
+    },
+    {
+      "event_id": "event_fe784b2254164fba98ae31bf6caa4985",
+      "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+      "sequence": 15,
+      "event_type": "health_check.completed",
+      "actor": "SYSTEM",
+      "payload": {
+        "schema": "mini-drop.health-check.v1",
+        "code": "INSUFFICIENT_OBSERVABILITY",
+        "title": "无法判断，请补充采集数据",
+        "checked": [],
+        "anomalies": [],
+        "evidence_refs": [],
+        "causal_root_cause_verified": false,
+        "unmeasured": [
+          "磁盘操作延迟",
+          "丢包/重传",
+          "内存限额",
+          "全部业务接口和业务正确性"
+        ],
+        "detail": "系统采集未完成，请检查采集失败原因后重新采集。",
+        "diagnosis_id": "insight_9655a7bce3e74b58af7ff18e7695be68",
+        "service_id": null,
+        "task_id": "task_20261001_150045_dab36c",
+        "tool_call_id": "toolcall_e49b14c7c3a440dc8341258a24ceba29",
+        "task_status": "CANCELLED"
+      },
+      "occurred_at": "2026-10-01 15:00:47.949387+00:00"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task_20261001_150045_dab36c",
+      "collector_type": "sys_metrics",
+      "status": "CANCELLED",
+      "status_reason": "isolated acceptance: interrupt only this check",
+      "error_code": "TASK_CANCELED",
+      "collection_status": "CANCELED",
+      "analysis_status": "CANCELED",
+      "event_count": 3,
+      "attempts": [
+        {
+          "id": "attempt_9170394d7c644c55917bc39c5bba9454",
+          "status": "CANCELLED",
+          "started_at": "2026-10-01T15:00:45.901962Z",
+          "finished_at": "2026-10-01T15:00:46.059738Z"
+        }
+      ],
+      "artifacts": [],
+      "_raw_artifacts": []
+    }
+  ]
+}

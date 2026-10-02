@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from server.app.drop_insight.evidence import (
     EvidenceEnvelope,
     EvidenceQuality,
@@ -7,6 +9,7 @@ from server.app.drop_insight.evidence import (
     EvidenceSource,
     EvidenceTimeRange,
 )
+from server.app.drop_insight.report_conclusion import _concrete_report_finding, _derive_next_actions
 from server.app.drop_insight.service import _derive_report_conclusion
 
 
@@ -70,7 +73,7 @@ def test_java_alloc_report_names_observed_function_and_boundary():
         verification_status="PARTIAL_WITHOUT_COUNTER",
     )
 
-    assert conclusion.startswith("阶段性根因：")
+    assert conclusion.startswith("阶段性观测：")
     assert "Hotspot.lambda$startWorkers$1" in conclusion
     assert "2842 个有效样本" in conclusion
     assert "byte[]" in conclusion
@@ -113,13 +116,13 @@ def test_java_alloc_report_renders_independent_gc_counter_window():
         verification_status="VERIFIED",
     )
 
-    assert conclusion.startswith("根因结论：")
+    assert conclusion.startswith("已验证观测：")
     assert "GC 11 次" in conclusion
     assert "GC 耗时增加 83 ms" in conclusion
     assert "不能冒充 Full GC 次数" in conclusion
 
 
-def test_verified_profile_uses_final_root_cause_title():
+def test_verified_profile_without_intervention_stays_an_observation():
     evidence = _profile_evidence({
         "schema_version": "go_pprof_analysis.v1",
         "top_functions": [{"name": "main.goCPUHotFunction", "percent": 82.5}],
@@ -140,7 +143,7 @@ def test_verified_profile_uses_final_root_cause_title():
         verification_status="VERIFIED",
     )
 
-    assert conclusion.startswith("根因结论：")
+    assert conclusion.startswith("已验证观测：")
     assert "main.goCPUHotFunction" in conclusion
     assert "82.5%" in conclusion
 
@@ -157,3 +160,196 @@ def test_support_without_specific_finding_is_not_promoted_to_root_cause():
     assert conclusion.startswith("阶段性判断：")
     assert "尚未定位到具体函数、资源或依赖" in conclusion
     assert "最终根因" in conclusion
+
+
+@pytest.mark.parametrize("signal,metric,value,boundary", [
+    ("network_latency", "average_latency_ms", 240, "尚未区分服务处理与传输等待"),
+    ("io_activity", "io_bytes_written_delta", 65536, "不是磁盘延迟"),
+    ("memory_retention", "retained_memory_mb", 96, "不是持续增长或泄漏证明"),
+    ("lock_contention", "lock_wait_ms_delta", 125, "锁等待计数"),
+    ("queue_backlog", "queue_lag", 100, "队列速率与积压"),
+])
+def test_numeric_performance_findings_render_actual_measurements_with_scope(signal, metric, value, boundary):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "version": "performance-criterion-v1", "signal": signal, "metrics": {metric: value}}})
+    conclusion = _derive_report_conclusion("性能存在异常", support_refs=[evidence.evidence_id],
+        counter_refs=[], supporting=[evidence], verification_status="PARTIAL_WITHOUT_COUNTER")
+    assert conclusion.startswith("阶段性观测：")
+    assert boundary in conclusion and f"{metric}={value}" in conclusion
+    assert "根因结论" not in conclusion
+
+
+
+def _finding(metrics, **metadata):
+    return _concrete_report_finding([_profile_evidence({
+        **metadata, "hypothesis_predicate": {"outcome": "SUPPORT", "metrics": metrics},
+    })])
+
+
+def test_java_relabelled_frame_uses_its_own_percentage():
+    text = _finding({"dominant_function": "App$$Lambda.run", "dominant_percent": 99},
+                    schema_version="java_async_profile.v1", profile_event="cpu",
+                    top_functions=[{"name": "App$$Lambda.run", "percent": 99},
+                                   {"name": "App.calculate", "percent": 24}])
+    assert "App.calculate" in text
+    assert "24.0%" in text
+    assert "99.0%" not in text
+
+
+@pytest.mark.parametrize("value", [None, "bad", float("nan"), float("inf"), -1, 101, True])
+def test_unknown_or_invalid_percent_does_not_crash_or_invent_a_ratio(value):
+    text = _finding({"dominant_function": "calculate", "dominant_percent": value})
+    assert "calculate" in text
+    assert "%" not in text
+
+
+def test_java_relabelled_frame_does_not_inherit_missing_ratio():
+    text = _finding({"dominant_function": "App$$Lambda.run", "dominant_percent": 99},
+                    schema_version="java_async_profile.v1", profile_event="cpu",
+                    top_functions=[{"name": "App.calculate"}])
+    assert "App.calculate" in text
+    assert "%" not in text
+
+
+@pytest.mark.parametrize("field", ["gc_count", "gc_time_ms", "allocated_bytes"])
+def test_missing_gc_counters_are_not_rendered_as_observed_zero(field):
+    delta = {"gc_count": 3, "gc_time_ms": 4, "allocated_bytes": 1024}
+    del delta[field]
+    text = _finding({"dominant_function": "allocate", "dominant_percent": 70},
+                    schema_version="java_async_profile.v1", profile_event="alloc",
+                    jvm_gc_counters={"delta": delta})
+    assert "独立 JVM 计数器同时记录" not in text
+
+
+@pytest.mark.parametrize("metrics", [{"lock_wait_count": 2},
+    {"lock_wait_count": "bad", "blocker_count": 1},
+    {"lock_wait_count": -1, "blocker_count": 1}])
+def test_incomplete_lock_counts_do_not_claim_a_confirmed_chain(metrics):
+    assert _finding(metrics) is None
+
+
+@pytest.mark.parametrize("event,label", [("cpu", "CPU 执行"), ("wall", "阻塞/等待"),
+    ("lock", "锁等待"), ("unknown", "性能")])
+def test_java_profile_event_keeps_observation_scope(event, label):
+    text = _finding({"dominant_function": "App.work", "dominant_percent": 25},
+                    schema_version="java_async_profile.v1", profile_event=event,
+                    top_functions=[None, {}, {"name": "java/lang/Thread.run"},
+                                   {"name": "jdk/internal/Runner.run"}])
+    assert label in text and "App.work" in text
+    assert "仍需" in text
+
+
+@pytest.mark.parametrize("schema,label", [("pyspy_analysis.v1", "Python 源码"),
+    ("go_pprof_analysis.v1", "Go CPU"), ("other.v1", "性能")])
+def test_profile_labels_and_zero_percent_preserve_runtime(schema, label):
+    text = _finding({"dominant_function": "work", "dominant_percent": 0}, schema_version=schema)
+    assert label in text and "0.0%" in text
+
+
+def test_unknown_sample_count_is_not_printed_as_known():
+    e = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {"dominant_function": "work"}}})
+    e.quality.sample_count_known = False
+    assert "个有效样本" not in _concrete_report_finding([e])
+
+
+@pytest.mark.parametrize("metadata", [{}, {"hypothesis_predicate": []},
+    {"hypothesis_predicate": {"outcome": "COUNTER"}},
+    {"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": []}}])
+def test_non_support_or_unstructured_metadata_has_no_concrete_claim(metadata):
+    assert _concrete_report_finding([_profile_evidence(metadata)]) is None
+
+
+def test_observation_without_metadata_has_no_concrete_claim():
+    e = _profile_evidence({}); e.observation = {}
+    assert _concrete_report_finding([e]) is None
+
+
+def test_valid_lock_counts_render_exact_sessions():
+    text = _finding({"lock_wait_count": "2", "blocker_count": 1})
+    assert "等待会话 2 个" in text and "阻塞会话 1 个" in text
+
+
+@pytest.mark.parametrize("support,counter,prefix", [([], [], "本轮判断"),
+    ([], ["c"], "本轮判断"), (["s"], ["c"], "本轮判断"),
+    (["s"], [], "阶段性判断")])
+def test_status_alone_cannot_fabricate_a_final_finding(support, counter, prefix):
+    text = _derive_report_conclusion("hypothesis", support_refs=support, counter_refs=counter,
+                                     verification_status="VERIFIED")
+    assert text.startswith(prefix) and not text.startswith("根因结论")
+
+
+def test_counter_evidence_prevents_final_title_even_with_verified_flag():
+    e = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {"dominant_function": "work"}}})
+    text = _derive_report_conclusion("hypothesis", support_refs=["s"], counter_refs=["c"],
+                                     supporting=[e], verification_status="VERIFIED")
+    assert text.startswith("阶段性观测") and "反证" in text
+
+
+def test_concrete_database_wait_chain_keeps_conflicting_evidence_visible():
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "metrics": {"lock_wait_count": 2, "blocker_count": 1}}})
+    final = _derive_report_conclusion("数据库阻塞", support_refs=["s"], counter_refs=[],
+        supporting=[evidence], verification_status="VERIFIED")
+    assert final.startswith("根因结论：") and "等待会话 2 个" in final
+    conflict = _derive_report_conclusion("数据库阻塞", support_refs=["s"], counter_refs=["c"],
+        supporting=[evidence], verification_status="VERIFIED")
+    assert conflict.startswith("阶段性根因：") and "反证" in conflict
+
+
+@pytest.mark.parametrize("signal,metrics", [("io_activity", {"io_bytes_written_delta": None}),
+    ("unregistered", {"invented": 999}), ("io_activity", {"invented": 999})])
+def test_invalid_numeric_signal_cannot_render_a_specific_finding(signal, metrics):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT",
+        "version": "performance-criterion-v1", "signal": signal, "metrics": metrics}})
+    assert _concrete_report_finding([evidence]) is None
+
+
+@pytest.mark.parametrize("support,counter,expected", [([], [], "补充"),
+    (["s"], ["c"], "证伪"), (["s"], [], "相同负载")])
+def test_next_actions_follow_evidence_state(support, counter, expected):
+    assert expected in _derive_next_actions(support_refs=support, counter_refs=counter)[0]
+
+
+def test_allocated_types_are_distinct_and_bounded():
+    text = _finding({"dominant_function": "App.allocate", "dominant_percent": 50},
+                    schema_version="java_async_profile.v1", profile_event="alloc",
+                    top_functions=[None, {"name": "a[]"}, {"name": "a[]"},
+                                   {"name": "b[]"}, {"name": "c[]"}, {"name": "d[]"}])
+    assert "a[]、b[]、c[]" in text and "d[]" not in text
+
+
+def test_stronger_valid_finding_is_selected_without_invalid_ratio_dominance():
+    def evidence(name, ratio):
+        return _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {
+            "dominant_function": name, "dominant_percent": ratio}}})
+    text = _concrete_report_finding([evidence("bad", float("inf")), evidence("real", "75")])
+    assert "real" in text and "75.0%" in text and "bad" not in text
+
+
+@pytest.mark.parametrize("contract,percent,label", [
+    ("go-profile-and-os-cpu.v1", 25, "累计采样占比 25.0%"),
+    ("python-profile-and-os-cpu.v1", 33.3, "按函数归并的采样占比 33.3%"),
+    ("go-profile-and-os-cpu.v1", None, None),
+])
+def test_registered_profile_observation_does_not_claim_dominance_or_causation(contract, percent, label):
+    evidence = _profile_evidence({"schema_version": "go_pprof_analysis.v1", "hypothesis_predicate": {
+        "outcome": "SUPPORT", "metrics": {"dominant_function": "observed_path", "dominant_percent": percent,
+                                              "observation_contract": contract}}})
+    result = _concrete_report_finding([evidence])
+    assert "观察到可归属路径 `observed_path`" in result
+    assert "最集中" not in result
+    assert "不证明同窗一致、跨窗稳定" in result
+    if label:
+        assert label in result
+    else:
+        assert "%" not in result
+
+
+@pytest.mark.parametrize("status,counter,title", [("VERIFIED", [], "已验证观测"), ("PARTIAL", [], "阶段性观测"), ("VERIFIED", ["counter"], "阶段性观测")])
+def test_registered_observation_outer_title_never_claims_root_cause(status, counter, title):
+    evidence = _profile_evidence({"hypothesis_predicate": {"outcome": "SUPPORT", "metrics": {
+        "dominant_function": "work", "dominant_percent": 25, "observation_contract": "go-profile-and-os-cpu.v1"}}})
+    text = _derive_report_conclusion("observation", support_refs=["s"], counter_refs=counter, supporting=[evidence], verification_status=status)
+    assert text.startswith(title)
+    assert "根因" not in text
+    assert "不证明同窗一致、跨窗稳定" in text

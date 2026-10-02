@@ -4,7 +4,7 @@ from threading import Event
 
 import pytest
 
-from tests.test_drop_insight_report_effects_postgres import postgres_sessions, NOW
+from tests.conftest import NOW
 from server.app import sql_repository
 from server.app.models import OutboxMessageModel
 from server.app.sql_repository import SqlRepository

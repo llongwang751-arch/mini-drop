@@ -1,0 +1,153 @@
+{
+  "scope": "Deterministic in-process replay of historical and current leaf functions; no deployment or cloud diagnosis",
+  "before_commit": "2775aac",
+  "after_commit": "6fb7124",
+  "source_hashes": {
+    "server/app/drop_insight/report_conclusion.py": {
+      "before_git_blob_sha256": "80ae4fa29e13c41778dd2c7cc8665f120a64714bb8ff989f851ee1d5f99a3c96",
+      "after_working_bytes_sha256": "e0166e0ceb0fa71040a7a2a0a6dde84dea8aedc9c31a739949b2f68c293e5d6b"
+    },
+    "server/app/drop_insight/hypothesis_predicate.py": {
+      "before_git_blob_sha256": "2e5d585ed425d1ab24b8d3e58dc06c0d2f16c79505b6836b23661fdae4f5cf69",
+      "after_working_bytes_sha256": "bcf28c36cae916c8e1613523fad11bb763bf28f3ee5aeb763d3cce60d5ad835a"
+    }
+  },
+  "cases": [
+    {
+      "case": "JAVA_FRAME_RATIO",
+      "input": {
+        "schema_version": "java_async_profile.v1",
+        "profile_event": "cpu",
+        "top_functions": [
+          {
+            "name": "App$$Lambda.run",
+            "percent": 99
+          },
+          {
+            "name": "App.calculate",
+            "percent": 24
+          }
+        ],
+        "hypothesis_predicate": {
+          "outcome": "SUPPORT",
+          "metrics": {
+            "dominant_function": "App$$Lambda.run",
+            "dominant_percent": 99
+          }
+        }
+      },
+      "before": {
+        "result": "在 2842 个有效样本中，Java CPU 执行热点定位在业务调用路径 `App.calculate`，占有效样本的 99.0%。该证据确认了 CPU 热路径，但仍需修复前后对照确认其因果贡献。"
+      },
+      "after": {
+        "result": "在 2842 个有效样本中，Java CPU 执行热点定位在业务调用路径 `App.calculate`，占有效样本的 24.0%。该证据确认了 CPU 热路径，但仍需修复前后对照确认其因果贡献。"
+      }
+    },
+    {
+      "case": "MISSING_COUNTERS_jvm_gc_metrics.v1",
+      "input": {
+        "schema_version": "jvm_gc_metrics.v1"
+      },
+      "before": {
+        "result": {
+          "outcome": "COUNTER",
+          "version": "hypothesis-predicate-v2",
+          "reason": "same-window JVM counters did not observe GC activity under allocation profiling",
+          "criterion_indexes": [],
+          "metrics": {
+            "gc_count_delta": 0,
+            "gc_time_ms_delta": 0,
+            "allocated_bytes_delta": 0,
+            "window_duration_ms": 0
+          }
+        }
+      },
+      "after": {
+        "result": {
+          "outcome": "NEUTRAL",
+          "version": "hypothesis-predicate-v3",
+          "reason": "Required numeric observation is missing, invalid or outside its domain",
+          "criterion_indexes": [],
+          "metrics": {}
+        }
+      }
+    },
+    {
+      "case": "MISSING_COUNTERS_database_lock.v1",
+      "input": {
+        "schema_version": "database_lock.v1"
+      },
+      "before": {
+        "result": {
+          "outcome": "COUNTER",
+          "version": "hypothesis-predicate-v2",
+          "reason": "bounded database snapshots contained no lock-waiting sessions",
+          "criterion_indexes": [],
+          "metrics": {
+            "lock_wait_count": 0,
+            "blocker_count": 0,
+            "lock_wait_ms": 0.0
+          }
+        }
+      },
+      "after": {
+        "result": {
+          "outcome": "NEUTRAL",
+          "version": "hypothesis-predicate-v3",
+          "reason": "Required numeric observation is missing, invalid or outside its domain",
+          "criterion_indexes": [],
+          "metrics": {}
+        }
+      }
+    },
+    {
+      "case": "NONFINITE_RATIO_REPORT",
+      "input": {
+        "hypothesis_predicate": {
+          "outcome": "SUPPORT",
+          "metrics": {
+            "dominant_function": "calculate",
+            "dominant_percent": "NaN"
+          }
+        }
+      },
+      "before": {
+        "error": "ValueError",
+        "message": "cannot convert float NaN to integer"
+      },
+      "after": {
+        "result": "在 2842 个有效样本中，性能热点定位在 `calculate`。该函数是当前证据窗口内最集中的执行路径；仍需修复前后对照确认因果贡献。"
+      }
+    },
+    {
+      "case": "NONFINITE_RATIO_PREDICATE",
+      "input": {
+        "top_functions": [
+          {
+            "name": "calculate_price",
+            "percent": "NaN"
+          }
+        ]
+      },
+      "before": {
+        "result": {
+          "outcome": "SUPPORT",
+          "version": "hypothesis-predicate-v2",
+          "reason": "top function calculate_price matches an expected observation",
+          "criterion_indexes": [
+            0
+          ]
+        }
+      },
+      "after": {
+        "result": {
+          "outcome": "NEUTRAL",
+          "version": "hypothesis-predicate-v3",
+          "reason": "Required numeric observation is missing, invalid or outside its domain",
+          "criterion_indexes": [],
+          "metrics": {}
+        }
+      }
+    }
+  ]
+}

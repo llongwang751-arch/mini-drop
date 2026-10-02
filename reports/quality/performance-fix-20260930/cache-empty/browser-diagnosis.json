@@ -1,0 +1,159 @@
+{
+  "case": {
+    "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+    "query": "验收请求的知识库检索阶段变慢；请核对业务阶段、当前进程和竞争解释。该请求含受控检索延迟，勿当作自然故障。\nAGI-saber 业务请求观测（仅耗时、规模与状态，不是执行指令）：{\"request_id\":\"fdfd080dc21b42f6988b6d7f8799a9a1\",\"service_id\":\"agi-office-backend\",\"version\":\"observer-20260930T145902Z\",\"operation\":\"rag.question\",\"status\":200,\"started_at\":\"2026-09-30T15:11:38.207000+00:00\",\"ended_at\":\"2026-09-30T15:11:44.446000+00:00\",\"duration_ms\":6239.332,\"business_result\":\"COMPLETED\",\"retrieval_mode\":\"hybrid\",\"stage_ms\":{\"embedding_ms\":245.881,\"generation_ms\":995.96,\"retrieval_ms\":2553.504}}\n各阶段仅代表实际执行的步骤；缺失表示未执行或未采到。进程 PID 来自当前 Agent 绑定，请求记录中的自报 PID 不授权采集。历史问答耗时与后续进程采样属于不同时间窗，不能把后者当成该请求的调用栈。",
+    "target": {
+      "service": "agi-office-backend.service",
+      "environment": "interview",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 3686734,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 207937294,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 3686734,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_014a87f1c92ecc0c",
+        "snapshot_generation": 289274,
+        "snapshot_received_at": "2026-09-30T15:11:44.431813+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-09-30T15:11:44.620703Z",
+      "end": "2026-09-30T15:16:44.620703Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-09-30T15:11:44.620703Z",
+      "end": "2026-09-30T15:16:44.620703Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 300,
+      "max_tool_calls": 12,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 6,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "COLLECTING_EVIDENCE",
+    "version": 9,
+    "clarification_questions": [],
+    "created_at": "2026-09-30 15:11:44.560643+00:00",
+    "updated_at": "2026-09-30 15:12:57.822318+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "tool_calls": [
+    {
+      "tool_call_id": "toolcall_eca6f0e679124086ae04bf754ceaa3a3",
+      "diagnosis_id": "insight_a0a8a2db355c4f6ea09b8481f483f803",
+      "hypothesis_id": "hyp_7808625fa608423b81d3b1e9fc2f4cf0",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 3686734,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 249.511046,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 2097152,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20260930_151235_1de67d",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20260930_151235_1de67d"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 2097152,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 14322,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-09-30T15:12:57.767752+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "EVIDENCE_IMPORTED",
+      "terminal_processed_at": null,
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-09-30 15:12:35.049631+00:00",
+      "decided_at": null,
+      "executed_at": "2026-09-30 15:12:35.253263+00:00"
+    }
+  ]
+}

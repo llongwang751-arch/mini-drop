@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "v11",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe59857385bbcb719cef0048e7b",
+    "object": "chat.completion",
+    "created": 1790932523,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"REFUSED\",\n  \"reasoning_summary\": \"用户请求包含两个不相关的任务：预测商品价格和共享家庭收纳技巧。这些任务均不属于性能诊断范畴，且预测功能超出平台能力。平台仅支持基于观测数据的性能问题分析与假设规划。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"平台能力仅限于性能诊断与观测分析，不支持商品价格预测或生活技巧分享。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3094,
+      "completion_tokens": 138,
+      "total_tokens": 3232,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 150
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe59857385bbcb719cef0048e7b\",\"object\":\"chat.completion\",\"created\":1790932523,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"REFUSED\\\",\\n  \\\"reasoning_summary\\\": \\\"用户请求包含两个不相关的任务：预测商品价格和共享家庭收纳技巧。这些任务均不属于性能诊断范畴，且预测功能超出平台能力。平台仅支持基于观测数据的性能问题分析与假设规划。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"平台能力仅限于性能诊断与观测分析，不支持商品价格预测或生活技巧分享。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3094,\"completion_tokens\":138,\"total_tokens\":3232,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":150},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "d6715b2d1d23be6b25ff33d5259bb3f8394edb499d6a4ad59204f77211d47d0a",
+  "seconds": 7.317341,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

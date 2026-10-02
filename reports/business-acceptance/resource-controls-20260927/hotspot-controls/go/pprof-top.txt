@@ -1,0 +1,117 @@
+File: go-hotspot
+Type: cpu
+Time: Sep 27, 2026 at 6:59am (UTC)
+Duration: 5.13s, Total samples = 5.24s (102.16%)
+Showing nodes accounting for 5.24s, 100% of 5.24s total
+      flat  flat%   sum%        cum   cum%
+     1.76s 33.59% 33.59%      1.76s 33.59%  crypto/sha256.block
+     0.61s 11.64% 45.23%      3.20s 61.07%  crypto/sha256.(*digest).checkSum
+     0.50s  9.54% 54.77%      0.50s  9.54%  runtime.memmove
+     0.46s  8.78% 63.55%      0.80s 15.27%  runtime.mallocgc
+     0.31s  5.92% 69.47%      2.66s 50.76%  crypto/sha256.(*digest).Write
+     0.30s  5.73% 75.19%      3.94s 75.19%  crypto/sha256.Sum256
+     0.21s  4.01% 79.20%      0.21s  4.01%  crypto/sha256.(*digest).Reset
+     0.19s  3.63% 82.82%      4.98s 95.04%  main.goCPUHotFunction
+     0.11s  2.10% 84.92%      0.11s  2.10%  internal/byteorder.BePutUint32 (inline)
+     0.08s  1.53% 86.45%      0.08s  1.53%  runtime.memclrNoHeapPointers
+     0.08s  1.53% 87.98%      0.08s  1.53%  runtime.nextFreeFast (inline)
+     0.07s  1.34% 89.31%      0.07s  1.34%  runtime.futex
+     0.05s  0.95% 90.27%      0.85s 16.22%  runtime.newobject
+     0.05s  0.95% 91.22%      0.05s  0.95%  runtime.scanblock
+     0.04s  0.76% 91.98%      0.09s  1.72%  crypto/internal/boring.Unreachable (inline)
+     0.04s  0.76% 92.75%      0.04s  0.76%  crypto/internal/boring/sig.StandardCrypto
+     0.04s  0.76% 93.51%      0.04s  0.76%  runtime.duffzero
+     0.03s  0.57% 94.08%      0.03s  0.57%  runtime.getMCache (inline)
+     0.03s  0.57% 94.66%      0.04s  0.76%  runtime.typePointers.next
+     0.02s  0.38% 95.04%      0.07s  1.34%  runtime.deductAssistCredit
+     0.02s  0.38% 95.42%      0.02s  0.38%  runtime.typePointers.nextFast (inline)
+     0.01s  0.19% 95.61%      0.01s  0.19%  crypto/sha256.init
+     0.01s  0.19% 95.80%      0.01s  0.19%  internal/runtime/atomic.(*Uint32).Add (inline)
+     0.01s  0.19% 95.99%      0.01s  0.19%  internal/runtime/atomic.(*Uint32).CompareAndSwap (inline)
+     0.01s  0.19% 96.18%      0.01s  0.19%  internal/runtime/atomic.(*Uint64).Add (inline)
+     0.01s  0.19% 96.37%      0.01s  0.19%  internal/runtime/atomic.(*Uint8).Store (inline)
+     0.01s  0.19% 96.56%      0.03s  0.57%  runtime.(*mheap).freeSpanLocked
+     0.01s  0.19% 96.76%      0.01s  0.19%  runtime.(*mspan).base (inline)
+     0.01s  0.19% 96.95%      0.02s  0.38%  runtime.(*pageAlloc).update
+     0.01s  0.19% 97.14%      0.01s  0.19%  runtime.(*pallocBits).summarize
+     0.01s  0.19% 97.33%      0.01s  0.19%  runtime.(*scavengeIndex).free
+     0.01s  0.19% 97.52%      0.01s  0.19%  runtime.(*timers).check
+     0.01s  0.19% 97.71%      0.01s  0.19%  runtime.acquirem (inline)
+     0.01s  0.19% 97.90%      0.01s  0.19%  runtime.add (inline)
+     0.01s  0.19% 98.09%      0.01s  0.19%  runtime.asyncPreempt
+     0.01s  0.19% 98.28%      0.05s  0.95%  runtime.bgsweep
+     0.01s  0.19% 98.47%      0.02s  0.38%  runtime.findObject
+     0.01s  0.19% 98.66%      0.01s  0.19%  runtime.handoff
+     0.01s  0.19% 98.85%      0.01s  0.19%  runtime.makeSpanClass (inline)
+     0.01s  0.19% 99.05%      0.01s  0.19%  runtime.nanotime (inline)
+     0.01s  0.19% 99.24%      0.01s  0.19%  runtime.procyield
+     0.01s  0.19% 99.43%      0.01s  0.19%  runtime.publicationBarrier
+     0.01s  0.19% 99.62%      0.01s  0.19%  runtime.releasem (inline)
+     0.01s  0.19% 99.81%      0.08s  1.53%  runtime.scanobject
+     0.01s  0.19%   100%      0.01s  0.19%  runtime.spanOf (inline)
+         0     0%   100%      4.98s 95.04%  main.runCPUFault
+         0     0%   100%      0.01s  0.19%  runtime.(*activeSweep).end
+         0     0%   100%      0.01s  0.19%  runtime.(*consistentHeapStats).acquire
+         0     0%   100%      0.01s  0.19%  runtime.(*gcControllerState).update
+         0     0%   100%      0.01s  0.19%  runtime.(*gcWork).balance
+         0     0%   100%      0.01s  0.19%  runtime.(*mSpanStateBox).set (inline)
+         0     0%   100%      0.03s  0.57%  runtime.(*mcache).nextFree
+         0     0%   100%      0.03s  0.57%  runtime.(*mcache).refill
+         0     0%   100%      0.01s  0.19%  runtime.(*mcentral).cacheSpan
+         0     0%   100%      0.01s  0.19%  runtime.(*mcentral).grow
+         0     0%   100%      0.01s  0.19%  runtime.(*mheap).alloc
+         0     0%   100%      0.01s  0.19%  runtime.(*mheap).alloc.func1
+         0     0%   100%      0.01s  0.19%  runtime.(*mheap).allocSpan
+         0     0%   100%      0.03s  0.57%  runtime.(*mheap).freeSpan (inline)
+         0     0%   100%      0.01s  0.19%  runtime.(*mheap).initSpan
+         0     0%   100%      0.01s  0.19%  runtime.(*mspan).init
+         0     0%   100%      0.02s  0.38%  runtime.(*pageAlloc).free
+         0     0%   100%      0.01s  0.19%  runtime.(*pageCache).flush
+         0     0%   100%      0.03s  0.57%  runtime.(*sweepLocked).sweep
+         0     0%   100%      0.03s  0.57%  runtime.(*sweepLocked).sweep.(*mheap).freeSpan.func3
+         0     0%   100%      0.03s  0.57%  runtime.findRunnable
+         0     0%   100%      0.02s  0.38%  runtime.forEachP (inline)
+         0     0%   100%      0.02s  0.38%  runtime.forEachPInternal
+         0     0%   100%      0.01s  0.19%  runtime.futexsleep
+         0     0%   100%      0.06s  1.15%  runtime.futexwakeup
+         0     0%   100%      0.05s  0.95%  runtime.gcAssistAlloc
+         0     0%   100%      0.05s  0.95%  runtime.gcAssistAlloc.func1
+         0     0%   100%      0.05s  0.95%  runtime.gcAssistAlloc1
+         0     0%   100%      0.15s  2.86%  runtime.gcBgMarkWorker
+         0     0%   100%      0.09s  1.72%  runtime.gcBgMarkWorker.func2
+         0     0%   100%      0.09s  1.72%  runtime.gcDrain
+         0     0%   100%      0.07s  1.34%  runtime.gcDrainMarkWorkerDedicated (inline)
+         0     0%   100%      0.02s  0.38%  runtime.gcDrainMarkWorkerIdle (inline)
+         0     0%   100%      0.05s  0.95%  runtime.gcDrainN
+         0     0%   100%      0.06s  1.15%  runtime.gcMarkDone
+         0     0%   100%      0.01s  0.19%  runtime.gcMarkDone.forEachP.func5
+         0     0%   100%      0.01s  0.19%  runtime.gcMarkDone.func3
+         0     0%   100%      0.04s  0.76%  runtime.gcMarkTermination
+         0     0%   100%      0.01s  0.19%  runtime.gcMarkTermination.forEachP.func6
+         0     0%   100%      0.03s  0.57%  runtime.gcMarkTermination.func3
+         0     0%   100%      0.01s  0.19%  runtime.gcMarkTermination.func4
+         0     0%   100%      0.01s  0.19%  runtime.gcMarkTermination.func4.1
+         0     0%   100%      0.05s  0.95%  runtime.gopreempt_m (inline)
+         0     0%   100%      0.05s  0.95%  runtime.goschedImpl
+         0     0%   100%      0.01s  0.19%  runtime.greyobject
+         0     0%   100%      0.01s  0.19%  runtime.lock (inline)
+         0     0%   100%      0.01s  0.19%  runtime.lock2
+         0     0%   100%      0.01s  0.19%  runtime.lockWithRank (inline)
+         0     0%   100%      0.05s  0.95%  runtime.markroot
+         0     0%   100%      0.05s  0.95%  runtime.markrootBlock
+         0     0%   100%      0.01s  0.19%  runtime.mcall
+         0     0%   100%      0.05s  0.95%  runtime.morestack
+         0     0%   100%      0.05s  0.95%  runtime.newstack
+         0     0%   100%      0.01s  0.19%  runtime.notetsleep
+         0     0%   100%      0.01s  0.19%  runtime.notetsleep_internal
+         0     0%   100%      0.06s  1.15%  runtime.notewakeup
+         0     0%   100%      0.01s  0.19%  runtime.park_m
+         0     0%   100%      0.01s  0.19%  runtime.procresize
+         0     0%   100%      0.02s  0.38%  runtime.runSafePointFn
+         0     0%   100%      0.03s  0.57%  runtime.schedule
+         0     0%   100%      0.03s  0.57%  runtime.startTheWorldWithSema
+         0     0%   100%      0.04s  0.76%  runtime.startm
+         0     0%   100%      0.04s  0.76%  runtime.sweepone
+         0     0%   100%      0.24s  4.58%  runtime.systemstack
+         0     0%   100%      0.04s  0.76%  runtime.wakep
+         0     0%   100%      0.01s  0.19%  runtime.wbBufFlush1

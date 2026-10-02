@@ -1,0 +1,421 @@
+﻿2026-10-01T12:27:49.0677833Z Current runner version: '2.337.0'
+2026-10-01T12:27:49.0703903Z ##[group]Runner Image Provisioner
+2026-10-01T12:27:49.0704776Z Hosted Compute Agent
+2026-10-01T12:27:49.0705530Z Version: 20260901.588
+2026-10-01T12:27:49.0706196Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-01T12:27:49.0707002Z Build Date: 2026-09-01T19:56:44Z
+2026-10-01T12:27:49.0707798Z Worker ID: {9908cc94-fb1b-41ee-9c67-f6661f8166f4}
+2026-10-01T12:27:49.0708530Z Azure Region: westus
+2026-10-01T12:27:49.0709236Z ##[endgroup]
+2026-10-01T12:27:49.0710813Z ##[group]Operating System
+2026-10-01T12:27:49.0711570Z Ubuntu
+2026-10-01T12:27:49.0712156Z 22.04.5
+2026-10-01T12:27:49.0712908Z LTS
+2026-10-01T12:27:49.0713556Z ##[endgroup]
+2026-10-01T12:27:49.0714140Z ##[group]Runner Image
+2026-10-01T12:27:49.0714747Z Image: ubuntu-22.04
+2026-10-01T12:27:49.0715510Z Version: 20260927.309.1
+2026-10-01T12:27:49.0716767Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-01T12:27:49.0718514Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-01T12:27:49.0719671Z ##[endgroup]
+2026-10-01T12:27:49.0720975Z ##[group]GITHUB_TOKEN Permissions
+2026-10-01T12:27:49.0723335Z Contents: read
+2026-10-01T12:27:49.0723998Z Metadata: read
+2026-10-01T12:27:49.0724605Z Packages: read
+2026-10-01T12:27:49.0725254Z ##[endgroup]
+2026-10-01T12:27:49.0727334Z Secret source: Actions
+2026-10-01T12:27:49.0728464Z Cache mode: write
+2026-10-01T12:27:49.0729207Z Prepare workflow directory
+2026-10-01T12:27:49.1070198Z Prepare all required actions
+2026-10-01T12:27:49.1119586Z Getting action download info
+2026-10-01T12:27:49.5170853Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-01T12:27:49.6396236Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-01T12:27:49.8549192Z Download action repository 'actions/setup-go@v5' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-10-01T12:27:50.2677575Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-01T12:27:50.4880700Z Complete job name: Python and Go independent CPU controls
+2026-10-01T12:27:50.5723571Z ##[group]Run actions/checkout@v4
+2026-10-01T12:27:50.5724571Z with:
+2026-10-01T12:27:50.5725078Z   repository: llongwang751-arch/mini-drop
+2026-10-01T12:27:50.5729094Z   token: ***
+2026-10-01T12:27:50.5729584Z   ssh-strict: true
+2026-10-01T12:27:50.5730063Z   ssh-user: git
+2026-10-01T12:27:50.5730558Z   persist-credentials: true
+2026-10-01T12:27:50.5731098Z   clean: true
+2026-10-01T12:27:50.5731586Z   sparse-checkout-cone-mode: true
+2026-10-01T12:27:50.5732170Z   fetch-depth: 1
+2026-10-01T12:27:50.5732862Z   fetch-tags: false
+2026-10-01T12:27:50.5733355Z   show-progress: true
+2026-10-01T12:27:50.5733853Z   lfs: false
+2026-10-01T12:27:50.5734298Z   submodules: false
+2026-10-01T12:27:50.5734788Z   set-safe-directory: true
+2026-10-01T12:27:50.5735365Z   allow-unsafe-pr-checkout: false
+2026-10-01T12:27:50.5736228Z ##[endgroup]
+2026-10-01T12:27:50.6804017Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-01T12:27:50.6806978Z ##[group]Getting Git version info
+2026-10-01T12:27:50.6808181Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T12:27:50.6809353Z [command]/usr/bin/git version
+2026-10-01T12:27:50.6888120Z git version 2.55.0
+2026-10-01T12:27:50.6913143Z ##[endgroup]
+2026-10-01T12:27:50.6927754Z Temporarily overriding HOME='/home/runner/work/_temp/04d3d2f9-9eea-4a7c-b029-3c79d740636d' before making global git config changes
+2026-10-01T12:27:50.6930348Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T12:27:50.6933556Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T12:27:50.6974671Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-01T12:27:50.6994134Z ##[group]Initializing the repository
+2026-10-01T12:27:50.6996574Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-01T12:27:50.7135499Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-01T12:27:50.7137937Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-01T12:27:50.7140652Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-01T12:27:50.7143095Z hint: call:
+2026-10-01T12:27:50.7144453Z hint:
+2026-10-01T12:27:50.7146047Z hint: 	git config --global init.defaultBranch <name>
+2026-10-01T12:27:50.7147660Z hint:
+2026-10-01T12:27:50.7149279Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-01T12:27:50.7151886Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-01T12:27:50.7154334Z hint:
+2026-10-01T12:27:50.7155562Z hint: 	git branch -m <name>
+2026-10-01T12:27:50.7156799Z hint:
+2026-10-01T12:27:50.7158316Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-01T12:27:50.7160663Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-01T12:27:50.7164840Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-01T12:27:50.7201865Z ##[endgroup]
+2026-10-01T12:27:50.7203490Z ##[group]Disabling automatic garbage collection
+2026-10-01T12:27:50.7205768Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-01T12:27:50.7256499Z ##[endgroup]
+2026-10-01T12:27:50.7257779Z ##[group]Setting up auth
+2026-10-01T12:27:50.7260957Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T12:27:50.7304231Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T12:27:50.7794954Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T12:27:50.7837800Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T12:27:50.8114345Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T12:27:50.8155987Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T12:27:50.8420677Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-01T12:27:50.8467149Z ##[endgroup]
+2026-10-01T12:27:50.8468013Z ##[group]Fetching the repository
+2026-10-01T12:27:50.8477001Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d44ec6de1951d45471ca129f0a90c2df964ca219:refs/remotes/pull/1/merge
+2026-10-01T12:27:59.4887581Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-01T12:27:59.4889399Z  * [new ref]         d44ec6de1951d45471ca129f0a90c2df964ca219 -> pull/1/merge
+2026-10-01T12:27:59.4892992Z ##[endgroup]
+2026-10-01T12:27:59.4894201Z ##[group]Determining the checkout info
+2026-10-01T12:27:59.4895632Z ##[endgroup]
+2026-10-01T12:27:59.4902555Z [command]/usr/bin/git sparse-checkout disable
+2026-10-01T12:27:59.4967206Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-01T12:27:59.5006073Z ##[group]Checking out the ref
+2026-10-01T12:27:59.5006642Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-01T12:28:00.3291202Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-01T12:28:00.3292761Z 
+2026-10-01T12:28:00.3293188Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-01T12:28:00.3294145Z changes and commit them, and you can discard any commits you make in this
+2026-10-01T12:28:00.3295201Z state without impacting any branches by switching back to a branch.
+2026-10-01T12:28:00.3296307Z 
+2026-10-01T12:28:00.3296714Z If you want to create a new branch to retain commits you create, you may
+2026-10-01T12:28:00.3297612Z do so (now or later) by using -c with the switch command. Example:
+2026-10-01T12:28:00.3298109Z 
+2026-10-01T12:28:00.3298351Z   git switch -c <new-branch-name>
+2026-10-01T12:28:00.3298701Z 
+2026-10-01T12:28:00.3298923Z Or undo this operation with:
+2026-10-01T12:28:00.3299248Z 
+2026-10-01T12:28:00.3299438Z   git switch -
+2026-10-01T12:28:00.3299730Z 
+2026-10-01T12:28:00.3300149Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-01T12:28:00.3300782Z 
+2026-10-01T12:28:00.3301453Z HEAD is now at d44ec6d Merge 0fa79f15f86e4fb0b6a8ab8a8776a63c02297ca9 into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-01T12:28:00.3378320Z ##[endgroup]
+2026-10-01T12:28:00.3425648Z [command]/usr/bin/git log -1 --format=%H
+2026-10-01T12:28:00.3457624Z d44ec6de1951d45471ca129f0a90c2df964ca219
+2026-10-01T12:28:00.3747373Z ##[group]Run actions/setup-python@v5
+2026-10-01T12:28:00.3747747Z with:
+2026-10-01T12:28:00.3748001Z   python-version: 3.11
+2026-10-01T12:28:00.3748285Z   check-latest: false
+2026-10-01T12:28:00.3750741Z   token: ***
+2026-10-01T12:28:00.3751008Z   update-environment: true
+2026-10-01T12:28:00.3751302Z   allow-prereleases: false
+2026-10-01T12:28:00.3751598Z   freethreaded: false
+2026-10-01T12:28:00.3751858Z ##[endgroup]
+2026-10-01T12:28:00.5221873Z ##[group]Installed versions
+2026-10-01T12:28:00.6213637Z (node:2132) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:28:00.6214583Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:28:00.6215545Z Successfully set up CPython (3.11.16)
+2026-10-01T12:28:00.6216504Z ##[endgroup]
+2026-10-01T12:28:00.6403189Z ##[group]Run actions/setup-go@v5
+2026-10-01T12:28:00.6403556Z with:
+2026-10-01T12:28:00.6403821Z   go-version-file: demo/go-hotspot/go.mod
+2026-10-01T12:28:00.6404150Z   check-latest: false
+2026-10-01T12:28:00.6406621Z   token: ***
+2026-10-01T12:28:00.6406862Z   cache: true
+2026-10-01T12:28:00.6407093Z env:
+2026-10-01T12:28:00.6407391Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:00.6407905Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:28:00.6408381Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:00.6408806Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:00.6409231Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:00.6409670Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:28:00.6410042Z ##[endgroup]
+2026-10-01T12:28:00.8009103Z Setup go version spec 1.26.8
+2026-10-01T12:28:00.8122667Z Found in cache @ /opt/hostedtoolcache/go/1.26.8/x64
+2026-10-01T12:28:00.8128245Z Added go to the path
+2026-10-01T12:28:00.8132673Z Successfully set up Go version 1.26.8
+2026-10-01T12:28:00.8142666Z (node:2140) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:28:00.8143672Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:28:01.9989706Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-01T12:28:02.0061513Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-01T12:28:02.0090894Z /home/runner/go/pkg/mod
+2026-10-01T12:28:02.0114679Z /home/runner/.cache/go-build
+2026-10-01T12:28:02.0143396Z ##[warning]Restore cache failed: Dependencies file is not found in /home/runner/work/mini-drop/mini-drop. Supported file pattern: go.sum
+2026-10-01T12:28:02.0164193Z go version go1.26.8 linux/amd64
+2026-10-01T12:28:02.0164521Z 
+2026-10-01T12:28:02.0164991Z ##[group]go env
+2026-10-01T12:28:02.7452726Z AR='ar'
+2026-10-01T12:28:02.7453202Z CC='gcc'
+2026-10-01T12:28:02.7453723Z CGO_CFLAGS='-O2 -g'
+2026-10-01T12:28:02.7454106Z CGO_CPPFLAGS=''
+2026-10-01T12:28:02.7454478Z CGO_CXXFLAGS='-O2 -g'
+2026-10-01T12:28:02.7455191Z CGO_ENABLED='1'
+2026-10-01T12:28:02.7455561Z CGO_FFLAGS='-O2 -g'
+2026-10-01T12:28:02.7455930Z CGO_LDFLAGS='-O2 -g'
+2026-10-01T12:28:02.7456283Z CXX='g++'
+2026-10-01T12:28:02.7456596Z GCCGO='gccgo'
+2026-10-01T12:28:02.7456995Z GO111MODULE=''
+2026-10-01T12:28:02.7457339Z GOAMD64='v1'
+2026-10-01T12:28:02.7457687Z GOARCH='amd64'
+2026-10-01T12:28:02.7458014Z GOAUTH='netrc'
+2026-10-01T12:28:02.7458342Z GOBIN=''
+2026-10-01T12:28:02.7458739Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-01T12:28:02.7459245Z GOCACHEPROG=''
+2026-10-01T12:28:02.7459579Z GODEBUG=''
+2026-10-01T12:28:02.7459934Z GOENV='/home/runner/.config/go/env'
+2026-10-01T12:28:02.7460347Z GOEXE=''
+2026-10-01T12:28:02.7460662Z GOEXPERIMENT=''
+2026-10-01T12:28:02.7461020Z GOFIPS140='off'
+2026-10-01T12:28:02.7461378Z GOFLAGS=''
+2026-10-01T12:28:02.7462808Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build2012902645=/tmp/go-build -gno-record-gcc-switches'
+2026-10-01T12:28:02.7463950Z GOHOSTARCH='amd64'
+2026-10-01T12:28:02.7464315Z GOHOSTOS='linux'
+2026-10-01T12:28:02.7464674Z GOINSECURE=''
+2026-10-01T12:28:02.7465026Z GOMOD='/dev/null'
+2026-10-01T12:28:02.7465444Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-01T12:28:02.7465915Z GONOPROXY=''
+2026-10-01T12:28:02.7466257Z GONOSUMDB=''
+2026-10-01T12:28:02.7466594Z GOOS='linux'
+2026-10-01T12:28:02.7466953Z GOPATH='/home/runner/go'
+2026-10-01T12:28:02.7467352Z GOPRIVATE=''
+2026-10-01T12:28:02.7467784Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-01T12:28:02.7468356Z GOROOT='/opt/hostedtoolcache/go/1.26.8/x64'
+2026-10-01T12:28:02.7468888Z GOSUMDB='sum.golang.org'
+2026-10-01T12:28:02.7469301Z GOTELEMETRY='local'
+2026-10-01T12:28:02.7469780Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-01T12:28:02.7470669Z GOTMPDIR=''
+2026-10-01T12:28:02.7471007Z GOTOOLCHAIN='auto'
+2026-10-01T12:28:02.7471535Z GOTOOLDIR='/opt/hostedtoolcache/go/1.26.8/x64/pkg/tool/linux_amd64'
+2026-10-01T12:28:02.7472132Z GOVCS=''
+2026-10-01T12:28:02.7472798Z GOVERSION='go1.26.8'
+2026-10-01T12:28:02.7473186Z GOWORK=''
+2026-10-01T12:28:02.7473548Z PKG_CONFIG='pkg-config'
+2026-10-01T12:28:02.7473802Z 
+2026-10-01T12:28:02.7474391Z ##[endgroup]
+2026-10-01T12:28:02.7610416Z ##[group]Run python -m pip install "psutil>=7.2,<8"
+2026-10-01T12:28:02.7610866Z [36;1mpython -m pip install "psutil>=7.2,<8"[0m
+2026-10-01T12:28:02.8293101Z shell: /usr/bin/bash -e {0}
+2026-10-01T12:28:02.8293395Z env:
+2026-10-01T12:28:02.8293683Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:02.8294149Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:28:02.8294601Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:02.8295015Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:02.8295426Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:02.8295824Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:28:02.8296153Z ##[endgroup]
+2026-10-01T12:28:07.2444367Z Collecting psutil<8,>=7.2
+2026-10-01T12:28:07.2775457Z   Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+2026-10-01T12:28:07.2926089Z Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+2026-10-01T12:28:07.5939435Z Installing collected packages: psutil
+2026-10-01T12:28:07.6528977Z Successfully installed psutil-7.2.2
+2026-10-01T12:28:07.6972050Z ##[group]Run python scripts/run_quality_gate.py --profile hotspot-controls --output output/quality-hotspot-controls
+2026-10-01T12:28:07.6973277Z [36;1mpython scripts/run_quality_gate.py --profile hotspot-controls --output output/quality-hotspot-controls[0m
+2026-10-01T12:28:07.7045818Z shell: /usr/bin/bash -e {0}
+2026-10-01T12:28:07.7046081Z env:
+2026-10-01T12:28:07.7046363Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:07.7046841Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:28:07.7047475Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:07.7047894Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:07.7048305Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:28:07.7048721Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:28:07.7049075Z ##[endgroup]
+2026-10-01T12:28:08.6730143Z [quality] hotspot-controls: RUNNING
+2026-10-01T12:29:08.9284998Z [quality] hotspot-controls: PASSED
+2026-10-01T12:29:08.9704881Z [quality] PASSED: /home/runner/work/mini-drop/mini-drop/output/quality-hotspot-controls/report.html
+2026-10-01T12:29:08.9856845Z ##[group]Run go test -race -count=1 ./...
+2026-10-01T12:29:08.9857214Z [36;1mgo test -race -count=1 ./...[0m
+2026-10-01T12:29:08.9928773Z shell: /usr/bin/bash -e {0}
+2026-10-01T12:29:08.9929055Z env:
+2026-10-01T12:29:08.9929361Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:08.9929885Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:29:08.9930404Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:08.9930856Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:08.9931307Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:08.9931757Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:29:08.9932139Z ##[endgroup]
+2026-10-01T12:29:31.4507855Z ok  	mini-drop/demo/go-hotspot	1.016s
+2026-10-01T12:29:31.5169389Z ##[group]Run docker build -t mini-drop-go-hotspot:ci demo/go-hotspot
+2026-10-01T12:29:31.5169942Z [36;1mdocker build -t mini-drop-go-hotspot:ci demo/go-hotspot[0m
+2026-10-01T12:29:31.5241279Z shell: /usr/bin/bash -e {0}
+2026-10-01T12:29:31.5241535Z env:
+2026-10-01T12:29:31.5241809Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:31.5242399Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:29:31.5242877Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:31.5243279Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:31.5243678Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:31.5244074Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:29:31.5244411Z ##[endgroup]
+2026-10-01T12:29:32.1947519Z #0 building with "default" instance using docker driver
+2026-10-01T12:29:32.1948037Z 
+2026-10-01T12:29:32.1948346Z #1 [internal] load build definition from Dockerfile
+2026-10-01T12:29:32.1948773Z #1 transferring dockerfile: 318B done
+2026-10-01T12:29:32.1949108Z #1 DONE 0.0s
+2026-10-01T12:29:32.1949251Z 
+2026-10-01T12:29:32.1949531Z #2 [internal] load metadata for docker.io/library/golang:1.26.8-alpine
+2026-10-01T12:29:32.4286487Z #2 ...
+2026-10-01T12:29:32.4288156Z 
+2026-10-01T12:29:32.4288827Z #3 [auth] library/alpine:pull token for registry-1.docker.io
+2026-10-01T12:29:32.4289278Z #3 DONE 0.0s
+2026-10-01T12:29:32.4289455Z 
+2026-10-01T12:29:32.4289674Z #4 [auth] library/golang:pull token for registry-1.docker.io
+2026-10-01T12:29:32.4290090Z #4 DONE 0.0s
+2026-10-01T12:29:32.5788521Z 
+2026-10-01T12:29:32.5788893Z #5 [internal] load metadata for docker.io/library/alpine:3.24.1
+2026-10-01T12:29:32.8964984Z #5 ...
+2026-10-01T12:29:32.8965268Z 
+2026-10-01T12:29:32.8965555Z #2 [internal] load metadata for docker.io/library/golang:1.26.8-alpine
+2026-10-01T12:29:32.8966019Z #2 DONE 0.9s
+2026-10-01T12:29:33.0677394Z 
+2026-10-01T12:29:33.0681251Z #5 [internal] load metadata for docker.io/library/alpine:3.24.1
+2026-10-01T12:29:33.0681855Z #5 DONE 0.9s
+2026-10-01T12:29:33.0682043Z 
+2026-10-01T12:29:33.0682219Z #6 [internal] load .dockerignore
+2026-10-01T12:29:33.0682953Z #6 transferring context: 2B done
+2026-10-01T12:29:33.0683385Z #6 DONE 0.0s
+2026-10-01T12:29:33.0683588Z 
+2026-10-01T12:29:33.0683766Z #7 [internal] load build context
+2026-10-01T12:29:33.0684252Z #7 transferring context: 13.69kB done
+2026-10-01T12:29:33.0685143Z #7 DONE 0.0s
+2026-10-01T12:29:33.0685348Z 
+2026-10-01T12:29:33.0686075Z #8 [stage-1 1/2] FROM docker.io/library/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+2026-10-01T12:29:33.0687587Z #8 resolve docker.io/library/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b done
+2026-10-01T12:29:33.0688922Z #8 sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b 9.22kB / 9.22kB done
+2026-10-01T12:29:33.0690219Z #8 sha256:79ff19e9084a00eece421b2523fb93e22d730e2c0e525905de047e848e56d95f 1.02kB / 1.02kB done
+2026-10-01T12:29:33.0691489Z #8 sha256:d529dd0c6e5597ac7e4a3e2dea65c3fcc6173f4cae713c409265c1dd9914a11b 611B / 611B done
+2026-10-01T12:29:33.0693094Z #8 sha256:55afa1ecc21d2bb5e5045f32dafee56272ffd89860bac26f6c32123439af26a4 3.85MB / 3.85MB 0.1s done
+2026-10-01T12:29:33.1716059Z #8 extracting sha256:55afa1ecc21d2bb5e5045f32dafee56272ffd89860bac26f6c32123439af26a4 0.1s
+2026-10-01T12:29:33.2867611Z #8 extracting sha256:55afa1ecc21d2bb5e5045f32dafee56272ffd89860bac26f6c32123439af26a4 0.1s done
+2026-10-01T12:29:33.2869170Z #8 DONE 0.3s
+2026-10-01T12:29:33.2870861Z 
+2026-10-01T12:29:33.2871946Z #9 [build 1/4] FROM docker.io/library/golang:1.26.8-alpine@sha256:8ac98ca534ac3f51e1f420a1dd2c15e74c75cfa0f23f3ad27eb5d7236c349a0c
+2026-10-01T12:29:33.2874325Z #9 resolve docker.io/library/golang:1.26.8-alpine@sha256:8ac98ca534ac3f51e1f420a1dd2c15e74c75cfa0f23f3ad27eb5d7236c349a0c done
+2026-10-01T12:29:33.2876860Z #9 sha256:66f9a494af2b76ecb3eab75ff47166df61caec6d200c59d556b77327493d83a8 1.92kB / 1.92kB done
+2026-10-01T12:29:33.2878282Z #9 sha256:c5fe2bbc8331458475b45686d82e0c28b1161addfe33f1ebac0a715a29587701 2.19kB / 2.19kB done
+2026-10-01T12:29:33.2879867Z #9 sha256:e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5 3.85MB / 3.85MB 0.1s done
+2026-10-01T12:29:33.2884646Z #9 sha256:4009a0783f338ed55a73885b00ecad4c761c55b29337bc83f4ba5893b456a80c 247.52kB / 247.52kB 0.2s done
+2026-10-01T12:29:33.2886397Z #9 sha256:8ac98ca534ac3f51e1f420a1dd2c15e74c75cfa0f23f3ad27eb5d7236c349a0c 10.29kB / 10.29kB done
+2026-10-01T12:29:33.2887521Z #9 extracting sha256:e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5 0.1s done
+2026-10-01T12:29:33.2888366Z #9 sha256:68ed9cc945387f62e6993f95484c65db531f4a4c6c076363d90fd1d575e36633 0B / 126B 0.2s
+2026-10-01T12:29:33.2889574Z #9 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B 0.3s done
+2026-10-01T12:29:33.2890845Z #9 sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49 6.29MB / 67.31MB 0.3s
+2026-10-01T12:29:33.2892070Z #9 extracting sha256:4009a0783f338ed55a73885b00ecad4c761c55b29337bc83f4ba5893b456a80c 0.0s done
+2026-10-01T12:29:33.4643778Z #9 sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49 39.85MB / 67.31MB 0.5s
+2026-10-01T12:29:33.5648967Z #9 sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49 67.31MB / 67.31MB 0.6s
+2026-10-01T12:29:33.7024055Z #9 extracting sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49
+2026-10-01T12:29:33.8059555Z #9 sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49 67.31MB / 67.31MB 0.7s done
+2026-10-01T12:29:38.2805644Z #9 extracting sha256:2cb3e687d353c47479f7eb82d6cc1b230f1d252bfefaddbeec9d3de57edf5d49 4.6s done
+2026-10-01T12:29:38.9867483Z #9 extracting sha256:68ed9cc945387f62e6993f95484c65db531f4a4c6c076363d90fd1d575e36633
+2026-10-01T12:29:39.1848328Z #9 extracting sha256:68ed9cc945387f62e6993f95484c65db531f4a4c6c076363d90fd1d575e36633 done
+2026-10-01T12:29:39.1850332Z #9 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 done
+2026-10-01T12:29:39.1851959Z #9 DONE 6.1s
+2026-10-01T12:29:39.1853883Z 
+2026-10-01T12:29:39.1854903Z #10 [build 2/4] WORKDIR /src
+2026-10-01T12:29:39.1856004Z #10 DONE 0.0s
+2026-10-01T12:29:39.1857807Z 
+2026-10-01T12:29:39.1858303Z #11 [build 3/4] COPY go.mod main.go ./
+2026-10-01T12:29:39.1859087Z #11 DONE 0.0s
+2026-10-01T12:29:39.1859545Z 
+2026-10-01T12:29:39.1860664Z #12 [build 4/4] RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/go-hotspot .
+2026-10-01T12:29:52.1204769Z #12 DONE 13.1s
+2026-10-01T12:29:52.3014885Z 
+2026-10-01T12:29:52.3015495Z #13 [stage-1 2/2] COPY --from=build /out/go-hotspot /usr/local/bin/go-hotspot
+2026-10-01T12:29:52.3016030Z #13 DONE 0.0s
+2026-10-01T12:29:52.3016182Z 
+2026-10-01T12:29:52.3016302Z #14 exporting to image
+2026-10-01T12:29:52.3016592Z #14 exporting layers
+2026-10-01T12:29:53.0049012Z #14 exporting layers 0.9s done
+2026-10-01T12:29:53.0050104Z #14 writing image sha256:a7952f2691afa2d1914a0a619824a5b1ae8f8051a42c23cf33f5163aa854936d
+2026-10-01T12:29:53.0220221Z #14 writing image sha256:a7952f2691afa2d1914a0a619824a5b1ae8f8051a42c23cf33f5163aa854936d done
+2026-10-01T12:29:53.0221301Z #14 naming to docker.io/library/mini-drop-go-hotspot:ci done
+2026-10-01T12:29:53.0221989Z #14 DONE 0.9s
+2026-10-01T12:29:53.0322162Z ##[group]Run python scripts/verify_go_io_window.py --image mini-drop-go-hotspot:ci --output output/quality-hotspot-controls/go-io-window
+2026-10-01T12:29:53.0323465Z [36;1mpython scripts/verify_go_io_window.py --image mini-drop-go-hotspot:ci --output output/quality-hotspot-controls/go-io-window[0m
+2026-10-01T12:29:53.0395458Z shell: /usr/bin/bash -e {0}
+2026-10-01T12:29:53.0395713Z env:
+2026-10-01T12:29:53.0395993Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:53.0396456Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:29:53.0396915Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:53.0397302Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:53.0397684Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:29:53.0398074Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:29:53.0398416Z ##[endgroup]
+2026-10-01T12:30:08.2280419Z {"passed": true, "cleanup": true, "operations": 721}
+2026-10-01T12:30:08.2434013Z ##[group]Run actions/upload-artifact@v4
+2026-10-01T12:30:08.2434332Z with:
+2026-10-01T12:30:08.2434637Z   name: hotspot-controls-d44ec6de1951d45471ca129f0a90c2df964ca219-1
+2026-10-01T12:30:08.2435039Z   path: output/quality-hotspot-controls/
+2026-10-01T12:30:08.2435332Z   if-no-files-found: error
+2026-10-01T12:30:08.2435573Z   retention-days: 14
+2026-10-01T12:30:08.2435796Z   compression-level: 6
+2026-10-01T12:30:08.2436022Z   overwrite: false
+2026-10-01T12:30:08.2436243Z   include-hidden-files: false
+2026-10-01T12:30:08.2436478Z env:
+2026-10-01T12:30:08.2436738Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:30:08.2437188Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-01T12:30:08.2437613Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:30:08.2438001Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:30:08.2438416Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-01T12:30:08.2438813Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-01T12:30:08.2439148Z ##[endgroup]
+2026-10-01T12:30:08.4286902Z (node:9280) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:30:08.4287814Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:30:08.4463858Z With the provided path, there will be 19 files uploaded
+2026-10-01T12:30:08.4513430Z Artifact name is valid!
+2026-10-01T12:30:08.4513954Z Root directory input is valid!
+2026-10-01T12:30:08.8141078Z Beginning upload of artifact content to blob storage
+2026-10-01T12:30:09.2094492Z (node:9280) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-01T12:30:10.0962987Z Uploaded bytes 5755303
+2026-10-01T12:30:10.1759688Z Finished uploading artifact content to blob storage!
+2026-10-01T12:30:10.1761940Z SHA256 digest of uploaded artifact zip is 3553049ad6169162c4e3aa4e572e0b69682e1a2e456769f6b2c56da97c49bf55
+2026-10-01T12:30:10.1763485Z Finalizing artifact upload
+2026-10-01T12:30:10.4443823Z Artifact hotspot-controls-d44ec6de1951d45471ca129f0a90c2df964ca219-1.zip successfully finalized. Artifact ID 11162605257
+2026-10-01T12:30:10.4446217Z Artifact hotspot-controls-d44ec6de1951d45471ca129f0a90c2df964ca219-1 has been successfully uploaded! Final size is 5755303 bytes. Artifact ID is 11162605257
+2026-10-01T12:30:10.4450301Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/36861902293/artifacts/11162605257
+2026-10-01T12:30:10.4648154Z Post job cleanup.
+2026-10-01T12:30:10.5962456Z (node:9293) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:30:10.5963512Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:30:10.6039304Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-01T12:30:10.6087558Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-01T12:30:10.6121652Z /home/runner/go/pkg/mod
+2026-10-01T12:30:10.6155920Z /home/runner/.cache/go-build
+2026-10-01T12:30:10.6161344Z [warning]Cache folder path is retrieved but doesn't exist on disk: /home/runner/go/pkg/mod
+2026-10-01T12:30:10.6163007Z Primary key was not generated. Please check the log messages above for more errors or information
+2026-10-01T12:30:10.6346455Z Post job cleanup.
+2026-10-01T12:30:10.7741214Z (node:9314) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:30:10.7742966Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:30:10.7990080Z Post job cleanup.
+2026-10-01T12:30:10.8951441Z [command]/usr/bin/git version
+2026-10-01T12:30:10.9000784Z git version 2.55.0
+2026-10-01T12:30:10.9042475Z Temporarily overriding HOME='/home/runner/work/_temp/cb1315a5-be9a-4d22-9b8f-82f0cd7b9c39' before making global git config changes
+2026-10-01T12:30:10.9044349Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T12:30:10.9048341Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-01T12:30:10.9093953Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T12:30:10.9136237Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-01T12:30:10.9458360Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T12:30:10.9489711Z http.https://github.com/.extraheader
+2026-10-01T12:30:10.9507175Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-01T12:30:10.9543646Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-01T12:30:10.9848895Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T12:30:10.9943732Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-01T12:30:11.0346991Z Cleaning up orphan processes
+2026-10-01T12:30:11.0684658Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-go@v5, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

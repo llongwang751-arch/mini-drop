@@ -1,0 +1,89 @@
+{
+  "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+  "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+  "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+  "tool_name": "start_pyspy_profile",
+  "arguments": {
+    "agent_id": "tencent-cvm-worker-1",
+    "pid": 701154,
+    "duration_seconds": 20,
+    "sample_rate": 99
+  },
+  "policy_decision": "REQUIRE_APPROVAL",
+  "policy_checks": [
+    {
+      "name": "SCHEMA",
+      "result": "PASS"
+    },
+    {
+      "name": "TARGET_SCOPE",
+      "result": "PASS"
+    },
+    {
+      "name": "AGENT_CAPABILITY",
+      "result": "PASS"
+    },
+    {
+      "name": "BUDGET",
+      "result": "PASS"
+    },
+    {
+      "name": "RISK_LIMIT",
+      "result": "PASS"
+    },
+    {
+      "name": "HUMAN_APPROVAL",
+      "result": "REQUIRE_APPROVAL"
+    },
+    {
+      "name": "BUDGET_WALL_CLOCK",
+      "result": "PASS",
+      "remaining_seconds": null,
+      "required_seconds": 50
+    },
+    {
+      "name": "BUDGET_DURATION",
+      "result": "PASS",
+      "reserved": 20,
+      "limit": 300
+    },
+    {
+      "name": "BUDGET_CONCURRENCY",
+      "result": "PASS",
+      "reserved": 1,
+      "limit": 3
+    },
+    {
+      "name": "BUDGET_HOSTS",
+      "result": "PASS",
+      "reserved": 1,
+      "limit": 5
+    },
+    {
+      "name": "BUDGET_ARTIFACT_BYTES",
+      "result": "PASS",
+      "reserved": 16777216,
+      "limit": 524288000
+    }
+  ],
+  "policy_reason": "start_pyspy_profile 需要人工批准",
+  "status": "TASK_CREATED",
+  "task_id": "task_20261001_154358_6e8a30",
+  "result": {},
+  "budget_reservation": {
+    "duration_seconds": 20,
+    "artifact_bytes": 16777216,
+    "agent_id": "tencent-cvm-worker-1",
+    "concurrent_tasks": 1
+  },
+  "budget_settlement": {},
+  "budget_reservation_status": "RESERVED",
+  "terminal_processing_status": "NONE",
+  "terminal_processed_at": null,
+  "requested_by": "legacy_admin",
+  "approved_by": "legacy_admin",
+  "approval_reason": "用户已授权隔离业务的真实诊断及同负载修复验收",
+  "created_at": "2026-10-01 15:43:58.716410+00:00",
+  "decided_at": "2026-10-01 15:43:58.768506+00:00",
+  "executed_at": "2026-10-01 15:43:58.785798+00:00"
+}

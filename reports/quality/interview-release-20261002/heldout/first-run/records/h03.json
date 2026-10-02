@@ -1,0 +1,98 @@
+{
+  "type": "result",
+  "case_id": "h03",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2d24209732d6851fc2cd559c52",
+    "object": "chat.completion",
+    "created": 1790920435,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"CPU\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"start_perf_profile\",\n  \"reasoning_summary\": \"合成数据表明目标 C++ 进程 CPU 占用率高达 93%（单核口径），且主要为用户态计算（用户态 89%）。这支持了“一个核心长期接近满载”的现象。根据知识库要求，用户态 CPU 高需要 Profile 来定位热点代码位置。\",\n  \"expected_observations\": [\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\"],\n  \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3140,
+      "completion_tokens": 166,
+      "total_tokens": 3306,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 836
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2d24209732d6851fc2cd559c52\",\"object\":\"chat.completion\",\"created\":1790920435,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"CPU\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"start_perf_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成数据表明目标 C++ 进程 CPU 占用率高达 93%（单核口径），且主要为用户态计算（用户态 89%）。这支持了“一个核心长期接近满载”的现象。根据知识库要求，用户态 CPU 高需要 Profile 来定位热点代码位置。\\\",\\n  \\\"expected_observations\\\": [\\\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\\\"],\\n  \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3140,\"completion_tokens\":166,\"total_tokens\":3306,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":836},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "d05d0db117224c3ebddf2fda232af1af297b1da1aac1faf38ee00f8b3b1ecc4b",
+  "seconds": 12.295405,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.process_pressure",
+      "mysql.lock_wait"
+    ],
+    "matches": [
+      {
+        "query": "C++ 定价计算让一个核心长期接近满载，现有数据能说明什么，该采哪个剖面？",
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "score": 12.655356,
+        "matched_terms": [
+          "能说明",
+          "能说",
+          "计算",
+          "说明"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "C++ 定价计算让一个核心长期接近满载，现有数据能说明什么，该采哪个剖面？",
+        "knowledge_id": "mysql.lock_wait",
+        "title": "MySQL 锁等待诊断",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+        "chunk_id": "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+        "score": 1.987308,
+        "matched_terms": [
+          "数据"
+        ],
+        "required_evidence": [
+          "锁等待数与时长",
+          "阻塞会话",
+          "事务持续时间"
+        ],
+        "caveats": [
+          "慢查询不一定由锁等待造成"
+        ],
+        "excerpt": "# MySQL 锁等待\n\n锁等待分析需要建立阻塞事务到被阻塞事务的关系，并检查事务持续时间、访问顺序、隔离级别和慢 SQL。仅观察查询延迟不能断言锁等待。"
+      }
+    ],
+    "seconds": 0.013804
+  }
+}

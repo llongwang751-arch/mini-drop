@@ -1,0 +1,200 @@
+--- a/internal/application/local_repos.py
++++ b/internal/application/local_repos.py
+@@ -676,6 +676,50 @@
+             self._enqueue_upserts(session, record)
+             return int(record.id)
+ 
++    def save_many_with_parents(
++        self,
++        doc_hash: str,
++        contents: list[str],
++        parents: list[str],
++        embedding_jsons: list[str],
++        *,
++        user_id: str = "default_user",
++        document_id: str = "",
++        version_id: str = "",
++        section: str = "",
++        start_index: int = 0,
++    ) -> list[int]:
++        """Persist long documents in bounded transactions instead of one commit per chunk."""
++        if len(contents) != len(parents) or len(contents) != len(embedding_jsons):
++            raise ValueError("RAG batch fields have different lengths")
++        ids: list[int] = []
++        for start in range(0, len(contents), 100):
++            with self.store.transaction() as session:
++                for idx in range(start, min(start + 100, len(contents))):
++                    record = session.scalar(
++                        select(AgentRagChunkRecord).where(
++                            AgentRagChunkRecord.user_id == user_id,
++                            AgentRagChunkRecord.doc_hash == doc_hash,
++                            AgentRagChunkRecord.chunk_idx == start_index + idx,
++                        )
++                    )
++                    if record is None:
++                        record = AgentRagChunkRecord(
++                            user_id=user_id, doc_hash=doc_hash,
++                            chunk_idx=start_index + idx, content=contents[idx],
++                        )
++                        session.add(record)
++                    record.content = contents[idx]
++                    record.parent_content = parents[idx] or ""
++                    record.embedding = [float(value) for value in _json_list(embedding_jsons[idx])]
++                    record.document_id = document_id or record.document_id or ""
++                    record.version_id = version_id or record.version_id or ""
++                    record.section = section or record.section or ""
++                    session.flush()
++                    self._enqueue_upserts(session, record)
++                    ids.append(int(record.id))
++        return ids
++
+     @staticmethod
+     def _enqueue_upserts(session, record: AgentRagChunkRecord) -> None:
+         payload = {
+@@ -688,7 +732,7 @@
+         revision = hashlib.sha256(
+             json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+         ).hexdigest()
+-        for target in ("elasticsearch", "milvus"):
++        for target in (("elasticsearch", "milvus") if payload["embedding"] else ("elasticsearch",)):
+             dedupe_key = f"upsert:{target}:{record.user_id}:{record.id}:{revision}"
+             exists = session.scalar(
+                 select(RagProjectionJobRecord.id).where(RagProjectionJobRecord.dedupe_key == dedupe_key)
+@@ -1149,6 +1193,7 @@
+             "retrying": sum(record.status == "pending" and record.attempts > 0 for record in records),
+             "dead": sum(record.status == "dead" for record in records),
+             "processed": sum(record.status == "processed" for record in records),
++            "skipped": sum(record.status == "skipped" for record in records),
+         }
+ 
+     def retry_dead(self, user_id: str) -> int:
+@@ -1181,6 +1226,13 @@
+             ).all()
+             processed = 0
+             for job in jobs:
++                if (job.target == "milvus" and job.operation == "upsert"
++                        and not (job.payload or {}).get("embedding")):
++                    job.status = "skipped"
++                    job.last_error = "NO_EMBEDDING"
++                    job.processed_at = utcnow()
++                    processed += 1
++                    continue
+                 if not self._target_ready(job.target):
+                     continue
+                 try:
+--- a/internal/rag/hybrid.py
++++ b/internal/rag/hybrid.py
+@@ -103,6 +103,7 @@
+         document_id: str = "",
+         version_id: str = "",
+         section: str = "",
++        chunk_start: int = 0,
+     ) -> List[int]:
+         """把 PG / ES / Milvus / KG 写入收敛到 HybridStore。
+ 
+@@ -114,20 +115,29 @@
+         valid_embeddings: List[List[float]] = []
+         valid_chunk_idxs: List[int] = []
+ 
++        if callable(getattr(self.inf.repo.ragchunk, "save_many_with_parents", None)):
++            saved_ids = self._repo_call(
++                "save_many_with_parents", doc_hash, contents, parents,
++                [json.dumps(value) for value in embeddings],
++                document_id=document_id, version_id=version_id, section=section,
++                start_index=chunk_start,
++            )
++            if len(saved_ids) != len(contents):
++                raise RuntimeError("RAG batch did not return one ID per chunk")
++        else:
++            saved_ids = []
++            for idx, content in enumerate(contents):
++                embedding = embeddings[idx] if idx < len(embeddings) else []
++                parent_content = parents[idx] if idx < len(parents) else ""
++                saved_ids.append(self._repo_call(
++                    "save_pg_with_parent", doc_hash, chunk_start + idx, content, parent_content,
++                    json.dumps(embedding), document_id=document_id,
++                    version_id=version_id, section=section,
++                ))
++
+         for idx, content in enumerate(contents):
+             embedding = embeddings[idx] if idx < len(embeddings) else []
+-            parent_content = parents[idx] if idx < len(parents) else ""
+-            pg_id = self._repo_call(
+-                "save_pg_with_parent",
+-                doc_hash,
+-                idx,
+-                content,
+-                parent_content,
+-                json.dumps(embedding),
+-                document_id=document_id,
+-                version_id=version_id,
+-                section=section,
+-            )
++            pg_id = saved_ids[idx]
+             if pg_id <= 0:
+                 continue
+             pg_ids.append(pg_id)
+@@ -138,9 +148,9 @@
+                 self._write_index_with_retry(
+                     "elasticsearch",
+                     lambda pg_id=pg_id, content=content, idx=idx: self._repo_call(
+-                        "index_es", pg_id, content, doc_hash, idx
++                        "index_es", pg_id, content, doc_hash, chunk_start + idx
+                     ),
+-                    {"pg_id": pg_id, "doc_hash": doc_hash, "chunk_idx": idx},
++                    {"pg_id": pg_id, "doc_hash": doc_hash, "chunk_idx": chunk_start + idx},
+                 )
+ 
+         milvus_ids: List[int] = []
+@@ -163,7 +173,7 @@
+ 
+         if self._kg is not None and self._kg.available() and pg_ids:
+             refs = [
+-                ChunkRef(id=idx, pg_id=pg_id, content=content)
++                ChunkRef(id=chunk_start + idx, pg_id=pg_id, content=content)
+                 for idx, pg_id, content in zip(valid_chunk_idxs, pg_ids, valid_contents)
+             ]
+             threading.Thread(
+--- a/internal/rag/rag.py
++++ b/internal/rag/rag.py
+@@ -104,8 +104,39 @@
+ 
+         doc_hash = hashlib.sha256(doc.encode("utf-8")).hexdigest()[:16]
+         contents = [chunk.content for chunk in chunks]
++        embed_batch = getattr(self._llm, "embed_batch", None)
++        if self._hybrid is not None and callable(embed_batch):
++            # Keep at most one batch of 1024-dimensional vectors in Python
++            # memory. A million-character document contains thousands of
++            # chunks and retaining every embedding exceeds the service limit.
++            batch_size = max(1, min(64, int(os.getenv("AGI_EMBEDDING_BATCH_SIZE", "32"))))
++            for start in range(0, len(chunks), batch_size):
++                end = min(len(chunks), start + batch_size)
++                vectors: List[List[float]] = [[] for _ in range(end - start)]
++                try:
++                    batch = embed_batch(contents[start:end])
++                    if len(batch) != end - start:
++                        raise RuntimeError(
++                            f"embedding batch size mismatch: expected={end - start}, actual={len(batch)}"
++                        )
++                    vectors = batch
++                except Exception as e:
++                    logger.warning(
++                        "⚠️  RAG 批量向量化失败，当前批次降级为关键词索引 (range=%d:%d): %s",
++                        start, end, e,
++                    )
++                self._hybrid.index_with_parents(
++                    doc_hash, contents[start:end], child_parents[start:end], vectors,
++                    document_id=document_id, version_id=version_id,
++                    section=section, chunk_start=start,
++                )
++            self.loaded = True
++            self.inf.repo.events.publish("rag.ingest", json.dumps({
++                "chunk_count": len(chunks), "parent_count": len(parents), "doc_hash": doc_hash,
++            }))
++            return len(chunks)
++
+         embeddings: List[List[float]] = [[] for _ in chunks]
+-        embed_batch = getattr(self._llm, "embed_batch", None)
+         if callable(embed_batch):
+             batch_size = max(1, min(256, int(os.getenv("AGI_EMBEDDING_BATCH_SIZE", "64"))))
+             for start in range(0, len(chunks), batch_size):

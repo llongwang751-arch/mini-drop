@@ -1,5 +1,98 @@
 # 基础复刻
 
+单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。干净 CI 36975451670 已验证该同版本源码镜像与真实 S3 链路；原拉取失败与三次独立失败记录保留。线上既有容器、镜像和数据不因此替换。
+
+单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。
+
+## 2026-10-02 当前版本复刻入口
+
+当前线上版本及成绩先看 [CURRENT_DELIVERY](CURRENT_DELIVERY.md)。本轮新增干净 Linux 核心平台复刻协议和独立 CI，按精确 Git 源码构建、迁移及真实系统采集/产物分析链路验证，已在独立 CI 36975451670 从源码 34b74e7b 完成 10 个阶段验收，87 项门禁测试（含负向用例）零跳过；精确范围及原始回执见 [CLEAN_STACK_ACCEPTANCE](CLEAN_STACK_ACCEPTANCE.md)。正式源码固定标签为 `interview-20261002-rc1`。该复刻不包含外部 Office 业务、全部性能采集器或实时模型质量评估；下面带日期的部署和本机镜像复用段落属于历史环境记录。
+
+## 2026-09-30 安全门禁与诊断取消已部署
+
+当前线上 API 使用 Go 1.26.8，pgx 5.9.2、gRPC 1.83.2、x/crypto 0.56.0、x/net 0.58.0 等。CI 使用 go.mod 工具链，固定 govulncheck 1.8.0，源码调用图和 Linux 二进制扫描均阻断；golangci-lint 2.14.0 的 13 条存量告警清理后改为阻断。Trivy 全仓扫描仍是报告模式，不代表整个镜像与其他语言依赖无漏洞。部署二进制保留符号表，仅移除 DWARF，避免 stripped 二进制扫描退化为模块级精度。
+
+新增 `POST /api/v2/diagnoses/{id}/cancel` 与“停止诊断”确认入口。父会话、关联工具、AnalysisJob 和 Task 在一个事务中取消；记录操作者、原因、原状态与任务ID，重复请求（包括原版本）返回同一终态。完成/失败历史不会改为取消；归档/缺失404，非取消终态或首次版本冲突409。Agent 经原有心跳终止采集进程，HTTP成功表示状态已提交，不表示进程已立即退出。取消不自动撤销故障注入，仍须在故障广场停止并恢复。迟到规划、审批、报告导入和 Analyzer 提交不得复活会话。原始失败与复验材料已归档到 `reports/quality/security-cancel-20260930/`，线上四服务为发布 `20260930T115734Z` / `f9b143ae3dfa4409ed621d34b5d2971e90c0a972`；Worker/Analyzer各184文件、Web45文件、API二进制SHA一致，其余9容器未重建。CI36710634578成功13/13；Python1217通过/10登记跳过、真实PG8通过零跳过、Web226通过，Go race及新安全/lint阻断通过。首次包丢执行位的失败自动回滚后，0755与镜像可执行预检修复，重发成功，旧发布均保留。
+
+
+真机取消：真实页面确认后成为只读，重复原版本请求仅一条取消事件；运行中60秒采集取消后10.293秒内Agent领取后续5秒采集并完成，作为采集退出的上界证明，非精确退出耗时。正常AGI问答答案符合测试文档，request_id `8a85fc5af55c47cb9499f9e2279216d2`关联Diagnosis `insight_2a97fc90606d4379821e4c9ddaf75ac6`，采集/报告完成，两份下载SHA验证；报告仍为INSUFFICIENT_EVIDENCE。真实页面与备用报告/树短录屏通过。额外三段延迟彩排失败（baseline检索7304.892ms、fault7616.624ms、recovery1987.783ms，fault-baseline未达+2000ms），不改阈值，不计为恢复性能通过。详情见[收尾报告](../reports/architecture/security-cancel-delivery-20260930.md)。
+
+## 当前运行版本（2026-09-30）
+
+后端`20260930T100034Z`/`d26bc2c`已部署，Worker/Analyzer各183源码文件一致，其他11容器不变；Web保持`20260930T084451Z`/`c9b9964`。本轮没有数据库迁移、数据卷清理或镜像删除。回滚配置为`/opt/mini-drop-releases/20260930T100034Z/private/rollback.compose.json`，含前版实际环境；完整证据见[本轮报告](../reports/architecture/instance-scope-fix-20260930.md)。下方旧日期记录保留当时状态。
+
+## 受控实验室的实例登记
+
+启用故障注入时，必须配置`MINI_DROP_FAULT_LAB_AGENT_ID`为负责四个实验室的已注册Agent ID。Control示例在`deploy/env/interview-demo.env`，单机默认跟随`NATIVE_AGENT_ID`。未配置时启动故障被拒绝；该值仅缩小发现范围，仍必须有新鲜可信进程快照。不要填实验室返回的PID或借用其他主机身份。部署脚本沿用实际运行环境时须显式带入此新增变量，并为前版保留不含该变更的回滚配置。
+
+## 2026-09-30 最新交付
+
+后端及Web新代码已部署并复核；完整21场景严格根因0/21、已验证观测4/21，撤销/清理21/21；一小时请求19,950全成功，但60RPS与9个持续窗口延迟超限，整体未通过。Web观测范围误标及HTTP409已修复，224项测试与CI13/13通过，云端同会话复验通过。详情和能力边界见[本次部署验收](../reports/architecture/deployment-validation-20260930.md)。下方带日期记录保留当时状态。
+
+## 2026-09-30 新代码发布与独立复验（进行中）
+
+用户已明确恢复部署、历史21故障验收与一小时压测。已发布 `20260930T071955Z`，源码 `3d8e41437de80a9fc5cd831c8e1d62ae0718e9e4`（CI 36596317523成功）；仅更新Diagnosis Worker与Analyzer，两容器各183文件SHA核对通过，其他11个运行容器不变，API三依赖healthy。回滚保留 `/opt/mini-drop-releases/20260930T071955Z/private/rollback.compose.json`，前版 `20260928T142312Z` 不删除。
+
+新批次 `reports/ai-diagnosis/fault-plaza-strict-21-deployed-20260930.json` 在Control串行执行；小时实验在独立Worker1运行，输出 `output/quality/distributed-hour-20260930/`。短测315/315通过，身份/源码/清理复核通过。二者未完成前不宣布通过；历史停止批次和失败小时报告均保留。测量源码运行期间冻结，不修改门槛或回写历史成绩。部署元数据与日志：`output/acceptance/deployment-20260930/`。
+
+## 2026-09-28 Python 服务增量发布
+
+当前发布 `20260928T142312Z` 已激活，源码 `2400190`，Diagnosis Worker 与 Analyzer 健康，其他11个运行容器未重建。回滚配置位于本发布目录的 `private/rollback.compose.json`（含运行凭据，不能提交）；逐服务恢复并通过健康检查后，将 `/opt/mini-drop-current` 恢复到 `/opt/mini-drop-releases/20260928T140102Z`；该首版及更早的 `20260923T163300Z` 均保留。
+
+本轮复用既有 Control 与两个 Worker，不启动 Windows Docker。只对 Diagnosis Worker 和 Analyzer 做现有镜像上的源码覆盖层；分别保留旧镜像标签与实际运行环境生成的私有 rollback.compose.json，在新版本导入与健康探针通过后切换 current。数据库、对象存储、办公助手、原生 Agent 与 Web 不迁移、不重建。候选版本与部署状态以 PROJECT_CONTEXT 顶部及实际 deployment 元数据为准。
+
+独立 Worker1 的专用回环检索 fixture 通过 SSH 隧道供 Windows 发压，安装在隔离目录与 venv，使用不同于 Control 故障注入的主机。完整命令与清理协议见 [双机负载](DISTRIBUTED_LOAD.md)。
+
+## 2026-09-19 预算与验证缺口发布
+
+当前发布 `20260919T141800Z`，Worker 镜像 `mini-drop-knowledge:20260919T141800Z`。增量脚本 `--runtime` 的固定清单现为九个文件，新增 deadlines、service、claim_verifier；仅替换 Diagnosis Worker，其余服务不重建，无 schema 迁移。实际 Chroma 检索门禁通过，39 块索引复用。回滚使用本版 `private/rollback.compose.json` 恢复 diagnosis-worker，确认健康后将 current 指向 `20260919T141100Z`；该首轮预算版链路成功但模型全超时，之前 133900Z 镜像也保留。本次真实 LATS 回归及 HTTP timeout 限制见 [预算改进记录](../reports/architecture/agent-deadline-20260919.md)。
+
+## 2026-09-19 Agent Runtime 增量
+
+当前发布 `20260919T133900Z`。`release_knowledge_cloud.py --runtime` 额外复制固定的六个 Runtime/Planner 源文件，用于三路检索和工作记忆；默认不带此参数仍只更新知识。构建、建索引和检索门禁在切换前执行。本批仅更新 Diagnosis Worker，无 schema 迁移。回滚使用本目录 `private/rollback.compose.json` 仅恢复 diagnosis-worker，健康后指针回到 `20260919T132400Z`。
+
+## 2026-09-19 知识增量发布
+
+最新知识发布 `20260919T132400Z` 基于上一 Python 镜像增加知识文件，不重复安装依赖。`scripts/release_knowledge_cloud.py` 在新 release 目录构建层、建立不可变 Chroma 索引、运行实际混合检索评测，再仅替换 Diagnosis Worker，健康通过后切换 current。评测使用独立一次性容器，不改生产数据。两个初始尝试因容器入口降权后无法写结果目录而停止；通过仅对评测容器指定 Python entrypoint 修复，日志保留。
+
+回滚配置在该目录 `private/rollback.compose.json`，含凭据，不得输出或提交。仅执行 `docker compose -p mini-drop-control -f <该回滚文件> up -d --no-deps diagnosis-worker` 并验证健康，再恢复旧 current 指针。其他服务和知识快照保留，不使用 remove-orphans、down -v 或 prune。详情见 [质量记录](../reports/architecture/sre-quality-roadmap-20260919.md)。
+
+## 2026-09-19 v5 云端运行（最新）
+
+已发布 `20260919T123800Z`，运行入口仍为 `https://120.24.187.205/ai-diagnosis`。本批沿用旧原生/Go/存储服务，更新两个 Python Worker 和 Web，并增加内网 Chroma。当前 runtime Compose、离线依赖构建、真实验收结果、回滚命令统一见 [云端发布记录](../reports/architecture/cloud-release-20260919.md)。不要把下面本地无鉴权 Compose 用于云端，也不要清除旧卷或旧镜像。
+
+## 2026-09-19 云端恢复后的运行选择
+
+用户已恢复云服务器，当前使用 `https://120.24.187.205/ai-diagnosis`，不依赖 Windows Docker Desktop。云端沿用原容器部署，不把“不用本机 Docker”解释为卸载云端容器运行时。当前发布仍为 `20260914T073540Z`；本地通过的 Agent v5、Chroma 混合检索和 ReAct 选项尚未发布，见 [恢复与待发布范围](../reports/architecture/cloud-recovery-20260919.md)。
+
+恢复时两台 Worker 的 `mini-drop-control-tunnel.service` 显示 active，但 Native Agent 无法连接且心跳离线。重启该隧道与 `mini-drop-worker-agent-1` 后，三台 Agent ONLINE；原业务服务、镜像和数据卷均保留。以后以 API 新心跳为准，不能仅凭 systemd active 判断链路健康。
+
+## 2026-09-19 Windows 本地 SRE 环境
+
+本机使用桌面的 Docker Desktop“修复启动”快捷方式，其脚本 `D:\DockerRuntime\Start-Docker-Desktop.ps1` 将运行目录指向 `D:\DockerRuntime\LocalAppData`。这是本机环境修复，不是通用安装路径。不要使用 factory reset 或删除数据卷排障。
+
+入口为 `http://127.0.0.1:18080/ai-diagnosis`，仅绑定回环地址。独立项目 `mini-drop-local-sre` 包含 PostgreSQL、MinIO、Chroma、C++ Control/Agent、Go API、两个 Python Worker、Web 和 Python 受控故障服务。本地关闭 API/mTLS 鉴权，不可将此配置直接用于公网。Go/Java/C++ 演示故障服务本批未启动。
+
+```powershell
+python scripts/setup_local_sre.py  # 仅首次：隐藏输入密钥，已有配置不覆盖
+./scripts/local_sre.ps1 Build
+./scripts/local_sre.ps1 Start
+./scripts/local_sre.ps1 Index
+./scripts/local_sre.ps1 Status
+./scripts/local_sre.ps1 Stop       # 保留容器和卷
+```
+
+本地构建复用机器已有的 `mini-drop-python-worker:local`、`mini-drop-native-control:local`、`mini-drop-native-agent:local`、`mini-drop-apiserver:latest`、`mini-drop-web:latest` 基础镜像，不能视为全新机器的零依赖安装包。`Build` 重建当前 Web、Go API、Python Worker 和演示服务，未修改的原生组件复用现有镜像。构建中断曾留下空文件镜像，本批已无缓存重建并检查源码大小与依赖导入；数据库和对象卷没有清除。MinIO 本地健康检查直接请求 live 端点，避开缓存镜像损坏的 mc 配置。
+
+聊天模型使用 SiliconFlow DeepSeek-V3.2，Embedding/Reranker 使用 Qwen3-4B，知识索引与 Worker 共用 Chroma。设置 `MINI_DROP_AGENT_MODEL_TIMEOUT_SEC=90`、`MINI_DROP_SILICONFLOW_ENABLE_THINKING=false`；每请求无自动重试，超时最大允许 120 秒。这是单次模型请求超时，不是诊断总墙钟保证。修改模型配置后重启 Worker。前端构建使用单个 Rayon 线程降低本机内存峰值。
+
+```powershell
+python scripts/verify_local_sre.py --output reports/local-sre/<新的报告名>.json
+node scripts/verify_local_sre_browser.mjs <diagnosis_id>
+```
+
+验证脚本仅允许回环地址，临时注入 Python 源码热点，最多 300 秒自动撤销，并在 finally 再次停止。链路通过与报告证据门禁分别记录；`COMPLETED` 不代表根因已 VERIFIED，更不代表修复已验证。首次模型规划超时走规则兜底的报告保留为 `reports/local-sre/real-diagnosis-20260919-r1.json`。
+
 ## 2026-09-14 清理版本已发布
 
 已发布 `/opt/mini-drop-releases/20260914T073540Z`，更新 Web、Diagnosis Worker、Analyzer。三个 Agent 在线，五个业务被发现；四个轻量业务网页返回 200，34 个公网静态文件与本机构建哈希一致。删除旧组件和死代码、精简文档；采集、数据库 schema 与业务数据不变。发布镜像、回滚版本和检查见 [发布记录](../reports/cleanup-release-20260914.json)。下方带日期的记录属于历史批次，21 场景严格成绩仍为 1 项通过、20 项未通过。

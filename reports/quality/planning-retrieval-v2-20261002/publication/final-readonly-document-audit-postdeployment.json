@@ -1,0 +1,545 @@
+{
+  "schema": "mini-drop.final-readonly-document-audit-postdeployment.v1",
+  "status": "POSTDEPLOYMENT_FACTS_VERIFIED_DOCUMENTS_UPDATED",
+  "audited_at_utc": "2026-10-02T11:03:36.296259+00:00",
+  "supersedes_operational_facts_in": "output/acceptance/planning-retrieval-v2-20261002/final-readonly-document-audit.json",
+  "original_audit_sha256_preserved": "733d46de0731309a99b5b2643f18a137dca58f61aab5ac0faab7336d5302f786",
+  "original_audit_correction": {
+    "reason": "The original audit used an older task-message source baseline, not the actual deployment/CI archives already available when it was written.",
+    "original_audited_at_utc": "2026-10-02T10:52:33.048689+00:00",
+    "original_prepared_and_running_labels_are_not_verified_remote_state_at_that_timestamp": true,
+    "actual_r7_verified_at_utc": "2026-10-02T10:51:38.060896+00:00",
+    "new_basis": "Local archived actual r7 publication verification, final main/core CI summaries and raw pinned evidence; no new remote call."
+  },
+  "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+  "release_tag": "20261002T103825Z",
+  "deployment_receipt": {
+    "services": {
+      "diagnosis-worker": {
+        "files_verified": 219,
+        "image": "sha256:3d12655bc8fb6f5821e6d42d496d1bd7deefac3b2b728a972534cec343ea4404",
+        "health": "healthy"
+      },
+      "analyzer": {
+        "files_verified": 219,
+        "image": "sha256:e63d649924759d695ac43ac04f4ba65329821ada1b5a8c05dc1587fc9f1574be",
+        "health": "healthy"
+      },
+      "web": {
+        "files_verified": 58,
+        "image": "sha256:75ccd20ed733035bb62064a08c9cccc70ad6d03c863e425a774268e4db261cd2",
+        "health": "healthy"
+      }
+    },
+    "web_files_verified": 58,
+    "deployed_manifest_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+    "health": {
+      "dependencies": {
+        "control_plane": "healthy",
+        "database": "healthy",
+        "diagnostic_ai": "healthy"
+      },
+      "language": "go",
+      "service": "mini-drop-apiserver"
+    },
+    "inactive_faults": 21,
+    "retired_score_fields_checked": true,
+    "invalid_business_records": 0,
+    "tls_ca_verified": true,
+    "tls_hostname_verified": true,
+    "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+    "release": "/opt/mini-drop-releases/20261002T103825Z",
+    "healthy_containers": 13,
+    "untouched_containers": 11,
+    "changed_services": [
+      "diagnosis-worker",
+      "analyzer"
+    ],
+    "all_container_env_hashes_verified": true,
+    "all_container_mounts_verified": true,
+    "web_source_kind": "EXACT_GIT_HEAD",
+    "public_web_sha_verified": 58,
+    "native_source_equivalence": {
+      "producer_source_head": "b7a545abd9d5a64e8899f8508941d46ce47e4605",
+      "current_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+      "subtrees": [
+        "native",
+        "proto",
+        "demo"
+      ],
+      "native_proto_demo_tree_sha256": "a9fcf166ed0995289fc1894135e05316e89a214276fa301a43762bef55f808fd"
+    },
+    "native_binary_sha256": "f8e693362a86556013eae52b60d776869c3dbdb07b80fe48c609dd1240efd0ce",
+    "cpp_binary_sha256": {
+      "cpp-hotspot": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+      "diagnosis-worker": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba",
+      "analyzer": "f652bbaa3292b44e911aae18c96b222714bd5540376c1cfbaf1850e8901235ba"
+    },
+    "api_binary_sha256": "ffb7bc11e5c7dbaa7165c717af90ecd726cd4cad6ebf1794f75602630128d2b3",
+    "toolchain": {
+      "diagnosis-worker": "/usr/bin/addr2line",
+      "analyzer": "/usr/bin/addr2line"
+    },
+    "agent_receipt": {
+      "agent_id": "control-interview-demo-agent",
+      "heartbeat": "2026-10-02T10:51:33.080785+00:00",
+      "snapshot": "2026-10-02T10:51:33.080785+00:00",
+      "complete": true,
+      "pids": [
+        1,
+        847,
+        851,
+        858,
+        868,
+        893,
+        914,
+        922,
+        965,
+        1198,
+        1302,
+        1822,
+        1842,
+        2011,
+        2054,
+        2549,
+        2608,
+        3121,
+        3122,
+        3173,
+        3174,
+        3175,
+        3407,
+        484113,
+        484125,
+        484126,
+        484133,
+        484134,
+        484136,
+        484139,
+        484143,
+        484153,
+        484181,
+        540450,
+        557500,
+        750084,
+        750109,
+        750149,
+        750161,
+        750174,
+        750187,
+        750199,
+        750213,
+        750247,
+        750248,
+        821024,
+        840602,
+        840603,
+        852515,
+        852559,
+        852615,
+        853498,
+        853528,
+        853666,
+        854517,
+        1170705,
+        1170771,
+        1170870,
+        1534891,
+        1862408,
+        1862439,
+        1862479,
+        2165914,
+        2165987,
+        2727901,
+        2728652,
+        2849524,
+        2849549,
+        2849987,
+        2850011,
+        2850775,
+        2850799,
+        2851147,
+        2988679,
+        2988683,
+        2988685,
+        2988793,
+        2992082,
+        2992185,
+        3014070,
+        3014094,
+        3291278,
+        3291302,
+        3292937,
+        3292949,
+        3292953,
+        3292978,
+        3292980
+      ]
+    },
+    "current_demo_pids": [
+      2850799,
+      2850011,
+      2849549
+    ],
+    "office_state": "MainPID=557500\nNRestarts=0\nActiveState=active",
+    "office_release": "/opt/agi-office/releases/jev-integration-20261002T083253Z",
+    "ci_run": 36996499159,
+    "ci_jobs_succeeded": 14,
+    "engineering_summary": {
+      "accepted": 21,
+      "localized": 6,
+      "refuted": 8,
+      "current_campaign": 7,
+      "historical": 14
+    },
+    "causal_root_cause_verified": false,
+    "same_load_fix_verified": false,
+    "verified_at": "2026-10-02T10:51:38.060896+00:00",
+    "retired_score_asset_verified": true,
+    "retired_score_asset": {
+      "schema": "mini-drop.retired-performance-index.v1",
+      "status": "RETIRED",
+      "replacement_profile": "engineering-diagnosis.v1",
+      "replacement_url": "/report-assets/engineering-diagnosis/index.json"
+    },
+    "public_fault_catalog_score_fields_omitted": true
+  },
+  "main_ci": {
+    "run_id": 36996499159,
+    "successful_jobs": 14,
+    "job_count": 14,
+    "main_suite_counts": {
+      "python": {
+        "executed": 2035,
+        "passed": 2019,
+        "skipped": 16,
+        "failed": 0,
+        "report": "reports/python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python-all/junit.xml",
+        "report_sha256": "f5483b9adaf7aca5e4871d434d0f42fcdb9089771dcccc61f26746bbbb71895f"
+      },
+      "postgres_python": {
+        "executed": 14,
+        "passed": 14,
+        "skipped": 0,
+        "failed": 0,
+        "report": "reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python.junit.xml",
+        "report_sha256": "1fd0cad66e599aac4a16cfc9c7729eade97ddf03ac019bdc39f8844d355a2e6d"
+      },
+      "native_ctest": {
+        "executed": 5,
+        "passed": 5,
+        "skipped": 0,
+        "failed": 0,
+        "report": "reports/native-agent-binary-4321aba043be6c2eb36580cf3b00d56c50bda914-1/ctest.xml",
+        "report_sha256": "4cb361887139e86395c3504a72cd403c71f1d07f18b198ba7cb2f02980e7f1fa"
+      },
+      "web_vitest": {
+        "executed": 330,
+        "passed": 330,
+        "skipped": 0,
+        "failed": 0,
+        "test_files": 52,
+        "source": "logs/job-110804324567.log",
+        "source_sha256": "0fe81e7784eacacbb9cebab027b7dc35c8600de7bb31f1c106c6122068dcb946",
+        "terminal_summary": "2026-10-02T10:39:39.5681150Z       Tests  330 passed (330)",
+        "source_kind": "OFFICIAL_JOB_LOG_VITEST_TERMINAL_SUMMARY"
+      },
+      "chromium": {
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "browser_exceptions": 0,
+        "legacy_score_requests": 0,
+        "scope": "LOCAL_SYNTHETIC_UI_FIXTURES",
+        "report": "reports/web-browser-4321aba043be6c2eb36580cf3b00d56c50bda914-1/result.json"
+      }
+    },
+    "source_equivalence": {
+      "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+      "source_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "ci_merge_head": "4321aba043be6c2eb36580cf3b00d56c50bda914",
+      "ci_merge_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "ci_parent_heads": [
+        "609ea8a73f845b496b59b5cae181f515c5919850",
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f"
+      ],
+      "local_source_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "same_git_tree": true
+    }
+  },
+  "core_ci": {
+    "run_id": 36996499257,
+    "gate_counts": {
+      "executed": 87,
+      "passed": 87,
+      "failed": 0,
+      "skipped": 0
+    },
+    "status": "PASSED",
+    "source_equivalence": {
+      "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+      "source_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "checkout_head": "4321aba043be6c2eb36580cf3b00d56c50bda914",
+      "checkout_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "report_tree": "dd59933e7e03580637b1bd891675ce9813db69bb",
+      "checkout_parents": [
+        "609ea8a73f845b496b59b5cae181f515c5919850",
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f"
+      ],
+      "same_git_tree": true
+    }
+  },
+  "actual_normal_smoke": {
+    "status": "FAILED",
+    "expected": "NORMAL",
+    "actual": "INSUFFICIENT_EVIDENCE",
+    "passed": 0,
+    "total": 1,
+    "output_contract_valid": true,
+    "supplier_timeout_observed": false,
+    "new_persisted_tasks": 0,
+    "meaning": "Only process identity was supplied; performance observations/window were absent and collection was prohibited. Legal conservative stop is proven; the expected NORMAL label remains unpassed.",
+    "planner_invocations": 1,
+    "provider_http_call_count": null,
+    "health_check_performed": false,
+    "causal_root_cause_verified": false
+  },
+  "first_evaluation_source": "df0d3ef00a945e7d909f73868819799b2b7cc7f7",
+  "first_v2_metrics": {
+    "case_count": 24,
+    "retrieval_positive_cases": 16,
+    "retrieval_no_answer_cases": 8,
+    "recall_at_3": 0.96875,
+    "mrr_at_3": 0.875,
+    "no_answer_false_positive_count": 5,
+    "no_answer_false_positive_rate": 0.625,
+    "timeouts": 3,
+    "http_successes": 21,
+    "api_errors": 0,
+    "usage_case_count": 21,
+    "all_cases_token_usage_known": false,
+    "tokens_from_available_usage": {
+      "prompt_tokens": 84120,
+      "completion_tokens": 6463,
+      "total_tokens": 90583
+    },
+    "cost_usd": null,
+    "cost_reason": "NO_PINNED_PROVIDER_PRICE_EVIDENCE",
+    "structure_valid_count": 21,
+    "structure_valid_rate": 0.875,
+    "disposition_correct_count": 21,
+    "disposition_correct_rate": 0.875,
+    "tool_choice_expected_count": 21,
+    "tool_choice_expected_rate": 0.875
+  },
+  "first_hybrid_metrics": {
+    "case_count": 24,
+    "positive_cases": 16,
+    "no_answer_cases": 8,
+    "recall_at_3": 0.90625,
+    "mrr_at_3": 0.9375,
+    "no_answer_false_positive_count": 1,
+    "no_answer_false_positive_rate": 0.125
+  },
+  "exposed_regression_source": "a6a3626094b8edbb5b9a48bef317153035ccca16",
+  "exposed_regression_metrics": {
+    "bm25": {
+      "case_count": 24,
+      "positive_cases": 16,
+      "no_answer_cases": 8,
+      "recall_at_3": 0.875,
+      "mrr_at_3": 0.90625,
+      "no_answer_false_positive_count": 0,
+      "no_answer_false_positive_rate": 0.0
+    },
+    "hybrid": {
+      "case_count": 24,
+      "positive_cases": 16,
+      "no_answer_cases": 8,
+      "recall_at_3": 0.875,
+      "mrr_at_3": 0.875,
+      "no_answer_false_positive_count": 0,
+      "no_answer_false_positive_rate": 0.0
+    }
+  },
+  "exposure_scope": "REGRESSION_ON_EXPOSED_V2_QUESTIONS_NOT_NEW_BLIND",
+  "immutable_checks": [
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/evaluation/archive-manifest.json",
+      "sha256": "3126374b0008a19e73cbd0d4a9d359df52a787cd73683a17a0786a0a61d76c75",
+      "pinned_file_count": 361,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/retrieval-regression/archive-manifest.json",
+      "sha256": "aebde8336637b0a4107a66a155769d38150d378d71449383dfc61482c92b8e29",
+      "pinned_file_count": 324,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/ci/manifest.json",
+      "sha256": "eec26cd0e2bfd53cfd68b0d9c47b2c5aa42742293f1624e9f3b13f80522c0906",
+      "pinned_file_count": 315,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/local/manifest.json",
+      "sha256": "30be86ea0f38ca70a64b48b008481af43b5eee9ea96a3cad00e2c179d8f00720",
+      "pinned_file_count": 25,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/manifest.json",
+      "sha256": "6068f1202fc21103f06e92da5b928cc74f7b0c29288a31f812ac348a5fb5ff34",
+      "pinned_file_count": 210,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/archive-manifest.json",
+      "sha256": "10a3a32d50435afbf5dd341644f8a4ebf65bbb583ef9fac6e2b37c0c9f459f45",
+      "pinned_file_count": 22,
+      "status": "VERIFIED_EXACT_BYTES"
+    },
+    {
+      "manifest": "reports/quality/planning-retrieval-v2-20261002/live/post-prompt/manifest.json",
+      "sha256": "1cffa310f24a2ac258bcfd1c3ac098e1861ceada9ac32e5d77a7f7b536c8f8a8",
+      "pinned_file_count": 48,
+      "status": "VERIFIED_EXACT_BYTES"
+    }
+  ],
+  "first_evaluation_pinned_file_count": 361,
+  "original_ci_local_pinned_file_count": 340,
+  "exposed_regression_pinned_file_count": 324,
+  "archived_exact_git_blob_count": 508,
+  "exact_git_blob_comparison_scope": "508 comparisons established in the preserved original audit; not repeated in this postdeployment audit.",
+  "historical_source_command": "python -B reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_planning_retrieval_v2.py --verify-report reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/report.json",
+  "current_document_snapshots": [
+    {
+      "path": "docs/PLANNING_RETRIEVAL_V2.md",
+      "sha256": "2dfb105cef3d7c04157afbdba9d8973f20ca9940f34aafd5444f55b2368e2452",
+      "bytes": 13259,
+      "current_fact_markers": {
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f": {
+          "line": 75
+        },
+        "21/24": {
+          "line": 60
+        },
+        "0/8": {
+          "line": 73
+        },
+        "0.875": {
+          "line": 64
+        },
+        "INSUFFICIENT_EVIDENCE": {
+          "line": 15
+        }
+      },
+      "changed_since_original_audit": true
+    },
+    {
+      "path": "docs/REMAINING_WORK_20260930.md",
+      "sha256": "4582abf10ab3010aad13e4a5526fd76a6d06aa92c7cb25c31ad0d15208e36acc",
+      "bytes": 20063,
+      "current_fact_markers": {
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f": {
+          "line": 5
+        },
+        "21/24": {
+          "line": 11
+        },
+        "0/8": {
+          "line": 11
+        },
+        "0.875": {
+          "line": 11
+        },
+        "INSUFFICIENT_EVIDENCE": {
+          "line": 9
+        }
+      },
+      "changed_since_original_audit": true
+    },
+    {
+      "path": "docs/INTERVIEW_DEMO_GUIDE.md",
+      "sha256": "0eaac887b798dab0ff10bfa78cabfd872f27d85e9f55a1af66b61b0cc85d119f",
+      "bytes": 60450,
+      "current_fact_markers": {
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f": {
+          "line": 5
+        },
+        "21/24": {
+          "line": 11
+        },
+        "0/8": {
+          "line": 11
+        },
+        "0.875": {
+          "line": 11
+        },
+        "INSUFFICIENT_EVIDENCE": {
+          "line": 9
+        }
+      },
+      "changed_since_original_audit": true
+    },
+    {
+      "path": "docs/TEST_ENGINEERING.md",
+      "sha256": "8198f3c52773799096123facae6a1b428753c9a5b31da48bd7f6d56f398e4fbf",
+      "bytes": 44753,
+      "current_fact_markers": {
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f": {
+          "line": 7
+        },
+        "21/24": {
+          "line": 13
+        },
+        "0/8": {
+          "line": 13
+        },
+        "0.875": {
+          "line": 13
+        },
+        "INSUFFICIENT_EVIDENCE": {
+          "line": 11
+        }
+      },
+      "changed_since_original_audit": true
+    },
+    {
+      "path": "docs/RESTART_HANDOFF.md",
+      "sha256": "d3c0e60da16e6b51695ae6da2a7d53db2952902d8a082f3ef86694258cbc5cdd",
+      "bytes": 85870,
+      "current_fact_markers": {
+        "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f": {
+          "line": 5
+        },
+        "21/24": {
+          "line": 9
+        },
+        "0/8": {
+          "line": 9
+        },
+        "0.875": {
+          "line": 9
+        },
+        "INSUFFICIENT_EVIDENCE": {
+          "line": 11
+        }
+      },
+      "changed_since_original_audit": true
+    }
+  ],
+  "required_paragraph_replacements_after_root_update": [],
+  "next_steps": [
+    "Freeze final aggregate archive manifest without rewriting child manifests; run source-contract generation/check and scoped Git delivery.",
+    "Keep the NORMAL expectation failure and prior timeouts separate from legal stopping/output validity.",
+    "For genuine NORMAL demonstration use an explicit bounded performance-observation window; user learning/rehearsal remains separately unverified.",
+    "Future general retrieval-coverage improvements require new unexposed frozen questions, not rewriting these 24 truths."
+  ],
+  "canonical_documents_modified": false,
+  "model_calls_attempted": 0,
+  "retrieval_queries_attempted": 0,
+  "network_requests_attempted": 0,
+  "deployment_attempted": false
+}

@@ -21,11 +21,10 @@ import {
 } from "@ant-design/icons";
 import ActualExplorationTree from "./ActualExplorationTree";
 import DiagnosisSkillOutcomeCard from "./DiagnosisSkillOutcomeCard";
+import { TERMINAL_DIAGNOSIS_STATUSES as TERMINAL } from "../utils/diagnosisDisplay";
 import "./MentorComplexShowcase.css";
 
 const { Paragraph, Text } = Typography;
-
-const TERMINAL = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
 
 const STATUS_META = {
   COMPLETED: { color: "green", label: "诊断完成" },
@@ -35,8 +34,10 @@ const STATUS_META = {
 };
 
 function reportConfidence(report) {
-  const value = Number(report?.confidence ?? report?.final_confidence ?? 0);
-  return Number.isFinite(value) ? Math.round(value * 100) : 0;
+  const raw = report?.confidence ?? report?.final_confidence;
+  if (raw === null || raw === undefined) return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? Math.round(value * 100) : null;
 }
 
 function targetText(detail) {
@@ -193,7 +194,7 @@ export default function MentorComplexShowcase({
               <Descriptions size="small" column={{ xs: 1, md: 3 }} className="case-replay-metadata">
                 <Descriptions.Item label="当前案例 ID"><Text code copyable>{caseId}</Text></Descriptions.Item>
                 <Descriptions.Item label="报告版本">{reports.length || 0}</Descriptions.Item>
-                <Descriptions.Item label="最新置信度">{reportConfidence(latestReport)}%</Descriptions.Item>
+                <Descriptions.Item label="最新置信度">{reportConfidence(latestReport) == null ? "未记录" : `${reportConfidence(latestReport)}%`}</Descriptions.Item>
               </Descriptions>
             </Card>
 

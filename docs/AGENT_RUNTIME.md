@@ -1,6 +1,64 @@
 # Agent Runtime 设计
 
+## 2026-10-02 信息描述分类边界与知识覆盖已部署
+
+线上已发布 `20261002T120042Z`，应用源码 `cfea6744fc2395d5392440b2404ee275ada0a69f`；Worker/Analyzer各222个源码SHA和19篇公共知识对应的文件SHA通过，13个容器健康、11个容器未替换，Web/native/API/办公服务状态及数据保留。新Chroma快照44个chunk READY，旧39个chunk仍READY且未改。
+
+精确源码主CI14/14：Python 2163通过/16登记跳过，Web 330、真实PostgreSQL 14零跳过、Chromium固定数据8；Chroma专项通过。干净Linux核心栈87/87和10个实际阶段通过。
+
+原明确纯描述问题的新真实会话返回NORMAL，来源SERVER_REQUEST_INTENT、诊断chat model_invocations=0；信息分支不创建PG检查点，不生成Task/Tool/Evidence/Report或健康事实。上游服务仍进行HYBRID查询embedding，不能宣称全链路AI调用为0。拒绝会话实际返回REFUSED，但原smoke因读取旧模型事件没有承诺的planner_kind字段报KeyError；独立只读核验确认输出和来源，原FAILED不改。缺测会话一次OpenAITimeoutError未产生输出，0重试且无新增采集任务。浏览器实际呈现2/3张规划卡、24次布局检查通过；这三次现场尝试独立于32题实评。NORMAL只描述当前请求范围，真实体检仍需观测。
+
+32新题通过当前公共生产schema的JSON DTO适配器执行离线规划实评，未运行LangGraph Agent、未派发采集任务或注入故障；维护者出题、独立代码复算，非第三方盲测。32新题零重试真实chat：HTTP成功30/32、超时2，结构29/32，四态分类28/32，下一工具29/32。NORMAL与INSUFFICIENT_EVIDENCE各8/8、REFUSED7/8、INVESTIGATE5/8；四个未通过项为2超时、1拒绝误判NORMAL、1调查计划含不可执行判据，被DTO门禁拒绝。BM25 Recall@3 0.90625/MRR 0.93750，无答案误召回2/16；HYBRID Recall@3 0.84375/MRR 0.78125，无答案误召回1/16，实际后端{'BM25_ENTITY_CHROMA_RRF': 15, 'BM25_ENTITY_CHROMA_RRF_RERANK': 17}。原始错误/超时保留分母，服务器0诊断chat不计模型准确率；合成规划不是实际因果根因成绩。
+
+公共请求意图规则不按题ID实现；双重否定、数字性能观测、明确症状、未完调查及真实动作请求不能走信息收束。流程描述和动作授权分别判断。Java线程CPU、同宿主块设备争用、同步写反证由public catalog与官方来源支持；未知主体、否定、运行时与候选主能力准入保持。旧模型题/真值/分数与失败CI不改，新语料不回填旧模型成绩。
+
+本次只更换两个Python后端的源码覆盖层；预部署磁盘实际测量按1GiB保留空间、8倍两服务覆盖层/发布文件/压缩包、16MiB新索引上界及精确旧发布拷贝计算，不删除镜像或数据。评测只读发布来源接口使用manifest.json；新发布按旧兼容路径建立指向source-manifest-20260930.json的相对软链接，canonical原字节未改。容量、来源兼容与旧快照保留均有独立回执。
+
+剩余改进优先级：供应商超时的稳定收束、模型拒绝边界和可执行计划表达、知识漏召回及无答案误召回。按本次公开失败类别改进通用规则后，使用新未曝光题验收；不能重试原题或改真值宣称新成绩。继续扩大有官方能力声明、能取得真实观测的知识覆盖。检索命中不能当Evidence，无答案不能当健康；当前项目已具备测开、后端和Agent面试演示链路，用户本人仍须读源码并彩排。
+
+[当前固定SHA交付](CURRENT_DELIVERY.md)，[本次交付报告](../reports/architecture/planning-boundary-v3-20261002.md)。
+
+## 历史实施快照：分类边界与知识覆盖
+
+明确只描述已有信息、同时拒绝检查/采集，且没有当前症状、健康判断、越权动作或未完成调查的请求，按 `mini-drop.planning-request-intent.v1` 收束为规划 NORMAL。这是服务器的请求意图合同，不是模型健康判定：`planner_kind=SERVER_REQUEST_INTENT`、`model_invocations=0`，claim_scope 为 PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION，is_evidence/health_check_performed/causal_root_cause_verified/new_tool_requested 均 false。公共 helper 在 legacy/adaptive 和 LangGraph 的 provider 创建之前执行；请求规则、摘要及请求 digest 可审计。服务共享持久化点只投影严格校验的服务器 metadata，模型输出不能伪装服务器来源。
+
+要求判断服务是否正常、排查当前症状、处理采集失败或已有调查的请求继续使用原健康/调查流程；缺测不补零，权限、数值、Evidence、预算、取消保护不降低。v2 DTO 保持兼容，Agent 使用 v8 物理 thread 隔离，新旧 SQL 业务记录和检查点保留。纯描述 NORMAL 不替代真实体检 NORMAL_OBSERVED。
+
+公开知识补 Java/JVM 线程 CPU、有界低 CPU 观测、同节点/同主机块设备争用、同步写低延迟反证。能力由 catalog 主元数据与官方来源指南声明；准入策略升级为 knowledge-subject-admission-v3-coverage，候选自身主体、运行时、否定和 ACL 门禁保留。generic worker/thread 和日常 TCP 同名词不能旁路技术语境。线上更新将创建新的不可变 Chroma 快照，验证 ready/count 后才激活 Worker/Analyzer，旧快照保留；Web/native/demo/API 和已有工程成绩保持。
+
+新 32 题于 2026-10-02 11:17:23.634 UTC 冻结，四态各 8、检索 16 有答案/16 无答案，与旧题归一化无重复；由维护者编写，开发只取得公共能力定义、不取得私有 oracle。预算 32 次真实 chat、2 并发、48 秒读取超时、1400 tokens、零重试；模型 DTO 评估与服务器信息描述/实际 LangGraph smoke 分开。旧题、真值、成绩与原失败不改，新知识源码与语料在调用前另固定。当前实现不等于部署成功，最终来源以精确 CI/发布/原始实评回执为准。
+
+详细合同见 [分类边界与知识覆盖 v3](PLANNING_BOUNDARY_V3.md)。
+
+## 2026-10-02 规划输出与检索准入
+
+共享 `agent_runtime/planning_output.py` 为 legacy function schema 与 LangGraph `finish_diagnosis_plan` 提供相同四态 DTO/校验器。INVESTIGATE 仍要求允许工具及 1–3 个非空支持/证伪条件；NORMAL、INSUFFICIENT_EVIDENCE、REFUSED 必须空工具/假设，并说明范围或缺口。模型不可用/无效的 None 与合法停止结果分别处理。主题 v4 与 Agent v7 使用显式版本化的物理 thread_id（`diagnosis-agent-v7-four-state-prompts:<diagnosis_id>`）分隔旧 Checkpoint；范围选择使用 `scope-agent-v1:<diagnosis_id>`。LangGraph 顶层存储的 checkpoint_ns 可能为空，不能靠传入 namespace 声称隔离。业务 Diagnosis ID、SQL 证据和事件不变；新版本重新投影这些事实，不迁移或删除旧消息历史。v7 先选择四态，仅 INVESTIGATE 要求假设、数值判据、扩展候选与切换证据域；合法非调查结果直接 finish 并停止查询和探针请求。非法计划被门禁拒绝只代表计划无效，不制造业务异常；用户声称正常不构成健康证据。四态 DTO、权限、数值证据门禁和独立健康检查均不变。
+
+`agent_runtime/relevance.py` 以 `knowledge-subject-admission-v2` 统一 BM25、实体、Dense、RRF、Rerank 及降级候选准入，排名分数不能绕过门禁。能力范围仅从 primary `title`、`keywords`、`applies_to` 判断；summary 与正文中的对照、限制或其他技术提及仍可用于排名，但不能扩展文档能力。命名技术主体须在当前候选条目的公开主能力或审核词汇中获得覆盖；其他条目中的同名主体不能扩展当前候选范围，普通资源词不能替代未支持的主体；明确要求排除、不要替代或比较中的否定部分不能制造相关性。服务传入原问题/纠错作为 relevance_query，推测分类可排序但不能创造命中。trace 保存策略、查询画像、准入/拒绝原因、NO_RELEVANT_KNOWLEDGE 和检索后端 HEALTHY/DEGRADED；知识始终只作规划先验。[新冻结评估与边界](PLANNING_RETRIEVAL_V2.md)。
+
+## 2026-09-19 规划截止时间与显式证据缺口
+
+`agent_runtime/deadlines.py` 以 Autonomous 会话创建时间和 max_duration_seconds 计算剩余时间，与过期扫描的 10–1800 秒钳制一致。范围选择上限 25 秒、每轮规划上限 60 秒，另扣除至少 15 秒探针与 30 秒分析/报告余量。每次模型调用通过 LangChain ModelRequest.model_settings 传递剩余 timeout（单次最多 45 秒），RAG 与语义纠错共用上下文截止时间。计划输出上限 1000 tokens，并将剩余时间提供给模型以减少临近截止时的查询。摘要中间件使用每次调用的副本绑定 timeout（最多 10 秒），避免绕过主模型包装器或污染并发会话。预算停止不计入模型供应商熔断。
+
+持久化工具准入及审批后真实 dispatch 均检查 duration_seconds + 30 秒是否足够；晚到审批释放预留且不创建 Task。证据不足/反证重规划在无时间启动最短探针时停止扩展。该余量是准入策略，HTTP/数据库/队列仍不具备硬实时取消保证，现有会话过期扫描继续作为最后边界。
+
+Verifier 在原 verification 中额外输出 missing_expected、missing_falsification（从零开始的原条件索引）与 needs_independent_counter_or_control。报告 API 的具体路径为 report.verification.verification 内，工作记忆原样带入，提示模型先说明待补缺口再选择可观测的允许工具。字段不改变证据门槛；换工具本身不构成独立对照，旧报告缺字段不猜测。LATS 当前仍是单步真实工具分支，不是完整嵌套多步 ReAct。此次测试 156 passed、2 skipped；真实回归见 [预算记录](../reports/architecture/agent-deadline-20260919.md)。
+
+## 2026-09-19 SRE 诊断 Agent 主线明确
+
+产品主线是在现有采集与 Analyzer 链路上增加 SRE 诊断助手。循证诊断与性能诊断树为固定要求；ReAct/LATS 是可替换的分支/行动选择策略，不能代替树与证据门禁。推荐外层假设树调度、内层观察行动循环，当前尚未完成独立节点多步 ReAct 子回合，不宣称完整论文 LATS。
+
+本批实现三路 RAG（BM25、Chroma 语义、目录实体精确召回，经 RRF 与重排）及从 SQL 读取的当前调查工作记忆；工作记忆保留证据引用、拒绝状态和最新验证缺口，不能生成新事实。开源源码对照、实际集成边界和后续计划见 [诊断 Agent 设计](../reports/architecture/sre-diagnosis-agent-design-20260919.md)。
+
+## 2026-09-19 知识质量与发布补充
+
+当前云端知识为 19 条目录、17 份 Markdown、39 个块；新 Chroma 快照 `md-knowledge-98e462e61a3ffd4164df07b5c62c248c`。新增官方来源调查指南与项目治理协议，公共索引不包含事故真值或私有观测。`scripts/evaluate_sre_retrieval.py` 支持词法/真实混合对照，保存实际后端、降级原因、逐例排名和语料 hash；15 条是开发集，尚未盲测。开源集成边界和下一阶段合同见 [质量记录](../reports/architecture/sre-quality-roadmap-20260919.md)。
+
+2026-09-19 已在云端发布 `diagnosis-agent-v5-retrieval`。实际 ReAct/LATS 两轮模型规划、Chroma 混合检索和采集报告通过，PostgreSQL Checkpoint 正常；两轮均未达到 VERIFIED 根因，不作为准确率比较。部署和边界见 [发布记录](../reports/architecture/cloud-release-20260919.md)。下文同日“尚未发布”描述的是实现时状态。
+
 ## 框架决策
+
+2026-09-19 本地运行补充：单次聊天请求可用 `MINI_DROP_AGENT_MODEL_TIMEOUT_SEC` 覆盖（限制 5～120 秒，默认沿用调用方 20/30 秒），SiliconFlow 可显式设置 `MINI_DROP_SILICONFLOW_ENABLE_THINKING=false`。参考 [官方非思考模式示例](https://www.siliconflow.com/zh/blog/deepseek-v3-2-now-on-siliconflow-reasoning-first-model-built-for-agents)。配置变更需重启 Worker。诊断图 superstep 上限改为 64，因为 middleware 也占用图步数；主模型调用仍最多 6 次，参考查询仍最多 4 次。真实本地验证见 `reports/local-sre/`；不视为云端发布或效果 Benchmark。
 
 生产运行时使用 `LangChain create_agent + LangGraph`。
 
@@ -33,9 +91,54 @@ server/app/drop_insight/
 
 Harness 不提供 shell。它把数据库对象转换成 JSON 原生值，只向 Scope Agent 暴露允许显示的候选字段，并验证模型返回的 `binding_id` 仍属于原候选集合。Diagnosis Agent 只能调用语义工具；服务端再把语义工具映射为实际 Collector。
 
+## 2026-09-19 检索、记忆与外部观察扩展（尚未发布）
+
+沿用现有 Runtime，不引入第二套调度器。实现借鉴 HolmesGPT 的工具循环与边界、Redis SRE 的记忆分层、RunbookAI 的混合召回思路，没有复制受限许可证代码。版本、源码链接和选型理由见 [开源调研](../reports/architecture/performance-sre-agent-research-20260919.md)。
+
+| 模块 | 当前实现与边界 |
+|---|---|
+| 按需检索 | 模型可调用 `search_knowledge`、`read_knowledge_chunk`；每次规划最多 4 次参考查询，共享去重与 45 秒准入期限。另有每次 Agent invoke 6 次主模型调用上限；压缩模型调用不计入该上限。这不是整个诊断的硬实时期限。 |
+| 混合召回 | `semantic_retrieval.py` 使用 Qwen3-Embedding-4B（1024 维）、Chroma cosine、BM25、RRF、Qwen3-Reranker-4B。默认仍为 lexical；显式开启 hybrid。cosine 距离 0.65、rerank 0.1 是待标定阈值，不是概率。 |
+| 索引治理 | 只导入 catalog 白名单的公共仓库文档；拒绝私有/租户/ACL 条目、越界路径、超大文件。分块带源 hash，集合名由全部文档及模型/维度决定。显式离线构建，完成后发布 ready；源变化而未重建时降级，不读旧集合。旧集合保留，不自动清理。 |
+| 失败与审计 | 缺配置、索引不可用、Embedding 失败降级 BM25，Reranker 失败保留融合排序，记录 actual/requested backend 和固定错误码。score_kind 区分 BM25/RRF/rerank，不混为诊断置信度。SDK HTTP I/O 通过版本约束适配器限时。 |
+| 历史事故记忆 | `incident_memory.py` 从 PostgreSQL 报告读取同 created_by、service、environment 的最近 30 天记录，最多扫描 100 条；要求 VERIFIED、完整覆盖、独立反证/对照、引用非空，排除归档和当前会话。runtime/version 存在时必须一致。标为 HISTORICAL_REPORT_NOT_REVALIDATED；归档立即撤销召回，无模型自由写回。 |
+| 外部观察 | `grafana_observations.py` 对接 Grafana 官方 datasource proxy 的 Prometheus query_range；仅两个固定模板 request_rate/latency_p95。服务、环境、时间窗由已存诊断绑定；窗口最长 30 分钟，步长 15 秒，响应最大 32 KiB，禁止跳转。保留查询、窗口、资源、时间、单位、规范化 JSON hash。不是通用 MCP 客户端，也不是原生 Evidence。 |
+| 模型兼容 | `model_factory.py` 分离聊天与检索模型；DeepSeek 用原集成，其他 OpenAI 兼容端点用 ChatOpenAI。现有聊天配置不被 Embedding 配置覆盖。硅基流动已用于本地真实工具查询、模型重规划和采集报告；首轮超时与图步数不足的失败记录保留于 `reports/local-sre/`，不代表稳定性或根因准确率已验收。 |
+| 策略对照 | 新建诊断选择 `budget.investigation_strategy=REACT` 或默认 LATS。ReAct 按最新规划次序选未访问候选，沿用全部取证门禁；共用事件仍叫 lats.*，实际 algorithm 为 REACT。候选生成和审计统计仍复用现有路径，因此不是论文原版 ReAct/LATS 复现实验。 |
+
+参考查询结果均带 `is_evidence=false`，通过现有 `planner.knowledge_retrieved` 事件保存。知识、历史文本及外部观察都不能授权工具、绑定新 PID 或作为当前根因事实。工具拒绝/重复请求由 Agent checkpoint 留痕；已执行参考查询另有领域事件。没有自由 shell、自动修复执行、自动记忆晋升，也没有跨服务事故共享。
+
+### 本地配置与重建
+
+安装 `python -m pip install -e ".[retrieval]"`，通过私有进程环境加载 `deploy/env/retrieval.env.example` 的配置。凭据不进入仓库；`SILICONFLOW_API_KEY` 与聊天模型密钥独立。单进程开发设 `MINI_DROP_CHROMA_PATH` 到持久目录；服务部署设 `MINI_DROP_CHROMA_HOST/PORT`，远程 TLS 可设 `MINI_DROP_CHROMA_SSL=true`。索引构建与在线 Worker 必须使用同一模型、维度、知识版本和 Chroma 位置。
+
+```text
+python scripts/build_knowledge_index.py
+python scripts/verify_semantic_retrieval.py --prompt-key --output <新的报告路径.json>
+```
+
+`verify_semantic_retrieval.py` 只上传两篇合成技术文档和一条查询，不访问业务数据，不测试事故准确率。正常查询 hybrid 会将查询和公共知识候选发给配置的模型服务；默认 lexical 不产生这种外发。
+
+### 可选容器配置
+
+`docker-compose.retrieval.yml` 是 control compose 的可选叠加层，Chroma 1.5.9 不发布宿主机端口，使用独立 `knowledge_chroma` 卷。先使用现有私有 control 环境与检索环境，再执行：
+
+```text
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml build migrate
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml up -d chroma
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml run --rm knowledge-index
+docker compose -f docker-compose.control.yml -f docker-compose.retrieval.yml up -d diagnosis-worker
+```
+
+处置建议使用 `schema_version=2`；旧无目标绑定的命令建议保留在原始报告中，前端不再将其显示为当前可执行预案。
+
+源代码 overlay 不安装新依赖，本轮需要完整重建 Python 镜像。索引命令失败时 Worker 会降级词法，不应宣称向量检索已启用。本机 Docker daemon 未运行，以上配置只做静态检查，容器启动与云端发布未验收。Chroma HTTP 限于可信内部网络；生产身份认证、备份容量和多副本压力验证仍待实施。
+
+Grafana 连接器另需 `MINI_DROP_GRAFANA_URL/TOKEN/PROMETHEUS_UID/ENVIRONMENT`；token 应由 Grafana 授予只读数据源权限。当前固定指标名称 `http_server_request_duration_seconds` 与 `service_name` 标签，接入其他仪表口径要新增经测试的模板。没有配置真实 Grafana，当前只有模拟适配测试。
+
 ## Agentic RAG
 
-Diagnosis Planner 会在每个初始计划或重规划轮次读取 `knowledge/catalog.json` 及其关联 Markdown，按中英文 token、中文 n-gram 和 BM25 做确定性检索。无需向量数据库或第二套 Agent Runtime。Top-K 结果包含知识 ID、标题、源文件、正文 SHA-256、匹配词、所需证据、限制和短摘录，并进入 LangGraph 的只读规划上下文。
+Diagnosis Planner 会在每个初始计划或重规划轮次读取 `knowledge/catalog.json` 及其关联 Markdown，按中英文 token、中文 n-gram 和 BM25 做确定性检索。默认不依赖向量数据库；可选混合模式见上节，仍使用同一 Agent Runtime。Top-K 结果包含知识 ID、标题、源文件、正文 SHA-256、匹配词、所需证据、限制和短摘录，并进入 LangGraph 的只读规划上下文。
 
 检索结果会以 `planner.knowledge_retrieved` 事件按 Diagnosis 隔离持久化，`GET /api/v2/diagnoses/{id}/retrievals` 可回放当时输入。事件和响应都显式标记 `KNOWLEDGE_PRIOR_ONLY` / `is_evidence=false`：知识只能提示“下一步采什么”，不能生成 `DropInsightEvidence`，也不能替代本次 Task/Artifact 事实。原始用户 query 留在审计轨迹中，但不会被提升到 system prompt 的可信知识块；Markdown 中的指令性文字同样不具备控制权。
 
@@ -54,20 +157,22 @@ Skill 检索与 Knowledge RAG 是两条相邻但不同的路线先验。Skill �
 Theme 是版本化行为合同，不是颜色主题：
 
 - `safe-autonomous-scope-v1`：只选已签发目标，优先精确语义与采集能力匹配。
-- `evidence-first-diagnosis-v1`：先提出可证伪假设，再取证；禁止把采集失败当反证。
+- `evidence-first-diagnosis-v2-retrieval`：先提出可证伪假设，再取证；禁止把采集失败当反证。
 
 Theme 变更必须升级版本并通过测试，避免历史 Checkpoint 在无标记情况下改变含义。
 
 ## 上下文与记忆
 
-记忆分四层，其中只有第一层属于当前事故的权威事实：
+记忆分五层，其中只有第一层属于当前事故的权威事实：
 
 1. 业务状态：诊断、假设、工具调用、Evidence、报告，存 PostgreSQL，是事实来源。
 2. 线程短期记忆：LangGraph Checkpoint，按 diagnosis ID 隔离；超出窗口后摘要并保留最近消息。
 3. 用户显式偏好记忆：按认证 principal 隔离并存 PostgreSQL，目前只允许语言、解释详略、时区和“低风险工具优先”四类白名单字段；它是可删除的提示上下文，不能保存查询、PID、旧根因、工具权限或目标绑定。
 4. 长期路线记忆：通过验证并发布的 Skill；它只影响检索和探针顺序，不携带旧案例结论。
 
-Knowledge/RAG 不属于上述四类记忆：它是版本化仓库材料的按需读取。Skill 记录“验证过的路线”，Knowledge 解释“某类现象通常需要哪些证据”，两者都不能成为当前事故事实。
+5. 历史事故参考：从同用户、服务、环境的近期严格 VERIFIED 报告召回，随归档撤销；不重新验证历史事实，也不成为当前证据。
+
+Knowledge/RAG 不属于上述五类记忆：它是版本化仓库材料的按需读取。Skill 记录“验证过的路线”，Knowledge 解释“某类现象通常需要哪些证据”，两者都不能成为当前事故事实。
 
 默认窗口由 `MINI_DROP_AGENT_MEMORY_MAX_MESSAGES`、`MINI_DROP_AGENT_MEMORY_MAX_TOKENS`、`MINI_DROP_AGENT_MEMORY_KEEP_TOKENS` 控制。范围发现重试由 `MINI_DROP_AUTO_SCOPE_RETRY_SEC` 限频。
 

@@ -1,0 +1,101 @@
+{
+  "schema": "mini-drop.live-planning-output-smoke.v1",
+  "status": "FAILED",
+  "source_head": "cfea6744fc2395d5392440b2404ee275ada0a69f",
+  "release": "/opt/mini-drop-releases/20261002T120042Z",
+  "cases": [
+    {
+      "name": "normal",
+      "expected_disposition": "NORMAL",
+      "passed": true,
+      "planner_invocations": 1,
+      "provider_http_call_count": 0,
+      "provider_http_count_scope": "Audited server branch exits before provider creation",
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "model_invocations": 0,
+      "planner_kind": "SERVER_REQUEST_INTENT",
+      "planner_version": "mini-drop.planning-request-intent.v1",
+      "planning_request_intent": {
+        "policy_version": "mini-drop.planning-request-intent.v1",
+        "intent": "INFORMATION_ONLY",
+        "required_disposition": "NORMAL",
+        "request_digest": "3e94f90dc89550a4c2b2e8a3b98aac4a57d902e83414bb034cbc6f760c033790",
+        "matched_rules": [
+          "EXPLICIT_BOUNDED_DESCRIPTION",
+          "EXPLICIT_NO_OBSERVATION_ACTION"
+        ],
+        "blocking_reasons": [],
+        "claim_scope": "PLANNING_ONLY_NOT_HEALTH_OR_CAUSATION",
+        "is_evidence": false,
+        "health_check_performed": false,
+        "causal_root_cause_verified": false
+      },
+      "actual_disposition": "NORMAL",
+      "new_tool_calls": 0,
+      "new_tasks": 0,
+      "new_evidence": 0,
+      "new_reports": 0,
+      "actual_persisted_tasks": 0
+    },
+    {
+      "name": "missing",
+      "expected_disposition": "INSUFFICIENT_EVIDENCE",
+      "passed": false,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "LangGraph internal model calls are not equated to planner invocations",
+      "diagnosis_id": "insight_68dfa632dab44ca1967e53ce09bf8968",
+      "failure_type": "AssertionError",
+      "failure_reason": "planner did not persist exactly one no-probe decision",
+      "actual_persisted_tasks": 0
+    },
+    {
+      "name": "refused",
+      "expected_disposition": "REFUSED",
+      "passed": false,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "LangGraph internal model calls are not equated to planner invocations",
+      "diagnosis_id": "insight_e5f7096d30f74f07a4472ad5bc6d5faf",
+      "failure_type": "KeyError",
+      "failure_reason": "'planner_kind'",
+      "actual_persisted_tasks": 0
+    }
+  ],
+  "scope": "Real production planner: explicit INFORMATION_ONLY server branch uses zero model calls; other states use Agent. Signed target and persistent no-probe events, no health/causal claims",
+  "heldout_evaluation": false,
+  "provider_chat_budget": 2,
+  "normal_server_model_calls": 0,
+  "mutation_retries": 0,
+  "selected_cases": [
+    "normal",
+    "missing",
+    "refused"
+  ],
+  "planner_invocations": 3,
+  "persisted_task_counts": [
+    {
+      "diagnosis_id": "insight_48e402e4488b462383177832364cf38a",
+      "persisted_tool_calls": 0,
+      "persisted_tasks": 0,
+      "task_ids": []
+    },
+    {
+      "diagnosis_id": "insight_68dfa632dab44ca1967e53ce09bf8968",
+      "persisted_tool_calls": 0,
+      "persisted_tasks": 0,
+      "task_ids": []
+    },
+    {
+      "diagnosis_id": "insight_e5f7096d30f74f07a4472ad5bc6d5faf",
+      "persisted_tool_calls": 0,
+      "persisted_tasks": 0,
+      "task_ids": []
+    }
+  ],
+  "faults_active_before_after": 0,
+  "target_lifetime_and_source_preserved": true,
+  "causal_root_cause_verified": false,
+  "health_check_performed": false,
+  "completed_at": "2026-10-02T12:19:04.898605+00:00"
+}

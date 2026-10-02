@@ -1,0 +1,678 @@
+{
+  "case_id": "v14",
+  "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+  "trace": {
+    "relevance_policy": "knowledge-domain-admission-v1",
+    "relevance_query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+    "query_profile": {
+      "concepts": [
+        "cpu",
+        "sampling"
+      ],
+      "runtime_scopes": [
+        "CPP"
+      ],
+      "database_scopes": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "score": 0.817773,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "cpu",
+          "sampling"
+        ],
+        "matched_anchors": [
+          "hotspot",
+          "userland"
+        ],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "gc",
+            "host_contention",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "score": 0.817773,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "kernel",
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.031281,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.030579,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "score": 0.029418,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "gc",
+            "latency_measurement"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.028992,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.015385,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.015152,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.014925,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "RUNTIME_SCOPE_CONFLICT",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.014493,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        }
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.013699,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.013514,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.013158,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 0.012658,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.0125,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "linux.memory.process_growth",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "sampling"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "score": 0.007074
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "score": 0.003328
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "score": 0.001153
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "score": 0.001141
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 10,
+        "chunk_ids": [
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 2,
+        "chunk_ids": [
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+          "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+          "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+    "query_hash": "127fcc44881674ef95294fb751925febdc2e70b76eafc153f9e89d074d9e450b",
+    "relevance_query_hash": "127fcc44881674ef95294fb751925febdc2e70b76eafc153f9e89d074d9e450b",
+    "retriever": "knowledge-hybrid-v4-domain-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 2,
+    "matches": [
+      {
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "matched_anchors": [
+            "hotspot",
+            "userland"
+          ],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.817773,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      },
+      {
+        "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。",
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "query": "A C++ image encoder burns 91% userland CPU with unchanged load; no stack sample is available. Plan a symbolized native hotspot profile.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.817773,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.cpu.process_pressure",
+    "linux.cpu.kernel_overhead"
+  ]
+}

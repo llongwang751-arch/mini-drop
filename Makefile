@@ -1,6 +1,22 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,$(if $(wildcard .venv/Scripts/python.exe),.venv/Scripts/python.exe,python))
 
 .PHONY: proto contracts diagnosis-worker analyzer-worker test coverage lint fmt demo-target native-agent gperftools-bridge diagnosis-benchmark-v2 profile-aggregation-benchmark deploy deploy-down db-upgrade db-current db-downgrade accept-ebpf accept-backup accept-replicas
+.PHONY: quality quality-local quality-business quality-browser quality-stability
+
+quality:
+	$(PYTHON) scripts/run_quality_gate.py --profile smoke
+
+quality-local:
+	$(PYTHON) scripts/run_quality_gate.py --profile local
+
+quality-business:
+	$(PYTHON) scripts/run_quality_gate.py --profile business
+
+quality-browser:
+	$(PYTHON) scripts/run_quality_gate.py --profile browser
+
+quality-stability:
+	$(PYTHON) scripts/run_quality_gate.py --profile stability
 
 proto:
 	$(PYTHON) proto/compile.py
@@ -25,7 +41,8 @@ coverage:
 lint:
 	$(PYTHON) -m compileall -q server analyzer scripts
 	@echo "[lint] compileall passed"
-	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff check server analyzer scripts || echo "[lint] ruff not installed, skipping"
+	@$(PYTHON) -m ruff --version >/dev/null 2>&1 || { echo "[lint] ruff missing: pip install -e \".[dev]\""; exit 1; }
+	$(PYTHON) -m ruff check server analyzer scripts tests
 
 fmt:
 	@which ruff >/dev/null 2>&1 && $(PYTHON) -m ruff format server analyzer scripts tests || echo "[fmt] ruff not installed, skipping"

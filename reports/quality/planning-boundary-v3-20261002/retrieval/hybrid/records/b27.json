@@ -1,0 +1,2861 @@
+{
+  "case_id": "b27",
+  "query": "C++ 目标和 same-host 邻居的 I/O wait 同时升至 35%，共用块设备队列升高，现有 40 秒窗口齐全。批准短时块 I/O 追踪，区分共享压力与目标自身慢写，不能把共振当因果。",
+  "trace": {
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "C++ 目标和 same-host 邻居的 I/O wait 同时升至 35%，共用块设备队列升高，现有 40 秒窗口齐全。批准短时块 I/O 追踪，区分共享压力与目标自身慢写，不能把共振当因果。",
+    "query_profile": {
+      "concepts": [
+        "block_io",
+        "host_contention"
+      ],
+      "runtime_scopes": [
+        "CPP"
+      ],
+      "database_scopes": [],
+      "technical_subjects": [
+        "c++",
+        "host",
+        "same",
+        "wait"
+      ],
+      "active_clauses": [
+        "C++ 目标和 same-host 邻居的 I/O wait",
+        "升至 35%",
+        "共用块设备队列升高",
+        "现有 40 秒窗口齐全",
+        "批准短时块 I/O 追踪",
+        "区分共享压力与目标自身慢写"
+      ],
+      "excluded_mentions": [
+        "不能把共振当因果"
+      ]
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "chunk_id": "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "score": 0.999022,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "block_io",
+          "host_contention"
+        ],
+        "matched_anchors": [
+          "same-host"
+        ],
+        "unsupported_subjects": [],
+        "clause": "C++ 目标和 same-host 邻居的 I/O wait",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io",
+              "host_contention"
+            ],
+            "matched_anchors": [
+              "same-host"
+            ],
+            "unsupported_subjects": [],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [
+              "设备队列"
+            ],
+            "unsupported_subjects": [],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "chunk_id": "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 0.976817,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "host_contention"
+        ],
+        "matched_anchors": [
+          "same_host"
+        ],
+        "unsupported_subjects": [],
+        "clause": "C++ 目标和 same-host 邻居的 I/O wait",
+        "source_profile": {
+          "concepts": [
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "host_contention"
+            ],
+            "matched_anchors": [
+              "same_host"
+            ],
+            "unsupported_subjects": [],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.029857,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.02971,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.029572,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.028814,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.028382,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.02837,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "mysql.lock_wait",
+        "chunk_id": "facf811658c648a508d52c7a26421b411400b16039fb164e98c1b0ad6fa7f2f0",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "b1fafaf760892951df2a34767920ae404a4627d440b9948923691bb5262308da",
+        "score": 0.026671,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "MYSQL"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.026014,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.downstream_pressure",
+        "chunk_id": "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "score": 0.015625,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "dependency"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.015152,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.014925,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.014706,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.014493,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.014286,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.013699,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.013333,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.013333,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.012987,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.012658,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "chunk_id": "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "79c8eaf0d4cc667f924d5c6d1fc307c6d99703bab0efd99e53cf8015decefdc8",
+        "score": 0.012658,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.0125,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.io.synchronous_write",
+        "chunk_id": "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+        "document": "knowledge/synchronous_io.md",
+        "content_hash": "6556470f70e845221e2387db1b377e1e29692db3ac88b49e56169956e6d3fe2c",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [
+          "host",
+          "same"
+        ],
+        "clause": "共用块设备队列升高",
+        "source_profile": {
+          "concepts": [
+            "block_io"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": [],
+        "score": 0.001066
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [
+          "host",
+          "same"
+        ],
+        "clause": "共用块设备队列升高",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "升至 35%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "共用块设备队列升高"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "现有 40 秒窗口齐全"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "批准短时块 I/O 追踪"
+          },
+          {
+            "accepted": false,
+            "reason": "TECHNICAL_SUBJECT_NOT_COVERED",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [
+              "host",
+              "same"
+            ],
+            "clause": "区分共享压力与目标自身慢写"
+          }
+        ],
+        "unregistered_subjects": [],
+        "score": 0.0004
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+          "2256c98c65593af573a26d1fc1681338ef28950151ef4a04509e371772556e69",
+          "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+          "d195603c493adfc4772f5ecfc79438be1b01f208f663649958ad130f21e50ad7",
+          "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+          "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+          "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+          "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+          "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+          "facf811658c648a508d52c7a26421b411400b16039fb164e98c1b0ad6fa7f2f0",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+          "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+          "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 2,
+        "chunk_ids": [
+          "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+          "2256c98c65593af573a26d1fc1681338ef28950151ef4a04509e371772556e69"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+          "2256c98c65593af573a26d1fc1681338ef28950151ef4a04509e371772556e69",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "adbec33e6e84778925f01ced4581fede5a80de39f6e34daf3a85bae63edba760",
+          "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "4a56e390bdfa6db7760982a9af2c6f4e4a45339d365ab224ad4aada1bfa5596f",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "facf811658c648a508d52c7a26421b411400b16039fb164e98c1b0ad6fa7f2f0",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "fd26488e3887a3d9445c3b0649926e321dcdeb50646c1c3346bc0883f7c53429",
+          "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "C++ 目标和 same-host 邻居的 I/O wait 同时升至 35%，共用块设备队列升高，现有 40 秒窗口齐全。批准短时块 I/O 追踪，区分共享压力与目标自身慢写，不能把共振当因果。",
+    "query_hash": "ef67720e548544691c4db990140c39a493de613b0f424a7fed726af286bb1312",
+    "relevance_query_hash": "ef67720e548544691c4db990140c39a493de613b0f424a7fed726af286bb1312",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 2,
+    "matches": [
+      {
+        "chunk_id": "19ff24a3b9fa21ee52a5afc8a2d7e2e04b85a1375fb823ffb4fadf96d26655e8",
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "0078b5739a6b93145bd5628a2fb5eb80faa517dec5991dc01b71057c9e89766f",
+        "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "query": "C++ 目标和 same-host 邻居的 I/O wait 同时升至 35%，共用块设备队列升高，现有 40 秒窗口齐全。批准短时块 I/O 追踪，区分共享压力与目标自身慢写，不能把共振当因果。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io",
+            "host_contention"
+          ],
+          "matched_anchors": [
+            "same-host"
+          ],
+          "unsupported_subjects": [],
+          "clause": "C++ 目标和 same-host 邻居的 I/O wait",
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "host_contention"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io",
+                "host_contention"
+              ],
+              "matched_anchors": [
+                "same-host"
+              ],
+              "unsupported_subjects": [],
+              "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "升至 35%"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [
+                "设备队列"
+              ],
+              "unsupported_subjects": [],
+              "clause": "共用块设备队列升高"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "现有 40 秒窗口齐全"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "批准短时块 I/O 追踪"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "区分共享压力与目标自身慢写"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "score": 0.999022,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      },
+      {
+        "chunk_id": "82be02f113d5994d9521304f22a5bfd7d69f40fabd0e84ab01a15fba042f51a6",
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "title": "同宿主噪声邻居",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "a60b57f992d39cde4fcb0c9e4f56a42f3685e34b1ffb7f10b49480dbb8f14cb0",
+        "excerpt": "# 跨节点归因\n\n跨节点归因必须绑定诊断时间窗内有效的拓扑。分别比较目标自身、同宿主实例和一跳下游，并保留替代假设、反证和缺失证据。最先告警节点不一定是根因节点。\n\nsame-host / same-node、co-located / colocated、同主机 / 同节点均描述共同部署位置，不自动证明共享物理设备。先核对目标和邻居的当前身份、宿主标识、挂载/设备映射，再比较同窗资源饱和与服务延迟；独立控制或可归属反证仍是因果判断所需条件。位置和知识先验不能替代本次采集证据。",
+        "required_evidence": [
+          "目标压力",
+          "邻居压力",
+          "共享资源饱和度"
+        ],
+        "caveats": [
+          "共同流量上涨可能同时推高多个实例"
+        ],
+        "query": "C++ 目标和 same-host 邻居的 I/O wait 同时升至 35%，共用块设备队列升高，现有 40 秒窗口齐全。批准短时块 I/O 追踪，区分共享压力与目标自身慢写，不能把共振当因果。",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "host_contention"
+          ],
+          "matched_anchors": [
+            "same_host"
+          ],
+          "unsupported_subjects": [],
+          "clause": "C++ 目标和 same-host 邻居的 I/O wait",
+          "source_profile": {
+            "concepts": [
+              "host_contention"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "host_contention"
+              ],
+              "matched_anchors": [
+                "same_host"
+              ],
+              "unsupported_subjects": [],
+              "clause": "C++ 目标和 same-host 邻居的 I/O wait"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "升至 35%"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "共用块设备队列升高"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "现有 40 秒窗口齐全"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "批准短时块 I/O 追踪"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "区分共享压力与目标自身慢写"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "score": 0.976817,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.iowait.shared_block_device",
+    "distributed.same_host_noisy_neighbor"
+  ]
+}

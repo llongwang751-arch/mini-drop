@@ -1,0 +1,124 @@
+{
+  "type": "result",
+  "case_id": "h04",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2ded3818e2ed1aee0ae279b322",
+    "object": "chat.completion",
+    "created": 1790920486,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"CPU\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"start_perf_profile\",\n  \"reasoning_summary\": \"合成观测显示系统态CPU占比异常高（67%），用户态很低（4%），符合内核开销特征。根据知识库，需要内核栈或系统调用分布证据。\",\n  \"expected_observations\": [\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\"],\n  \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3471,
+      "completion_tokens": 141,
+      "total_tokens": 3612,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1167
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2ded3818e2ed1aee0ae279b322\",\"object\":\"chat.completion\",\"created\":1790920486,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"CPU\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"start_perf_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示系统态CPU占比异常高（67%），用户态很低（4%），符合内核开销特征。根据知识库，需要内核栈或系统调用分布证据。\\\",\\n  \\\"expected_observations\\\": [\\\"C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%\\\"],\\n  \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3471,\"completion_tokens\":141,\"total_tokens\":3612,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1167},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "ff533c7e38653e413ff0abf966088f3417f98e22127d64f7630950d7a065226f",
+  "seconds": 19.588612,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.kernel_overhead",
+      "linux.cpu.process_pressure",
+      "linux.network.retransmit"
+    ],
+    "matches": [
+      {
+        "query": "请求没变，用户态很低而sys时间抬升，是否先观察内核调用路径？",
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+        "score": 19.846476,
+        "matched_terms": [
+          "用户态",
+          "内核",
+          "户态",
+          "调用",
+          "路径"
+        ],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "请求没变，用户态很低而sys时间抬升，是否先观察内核调用路径？",
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "score": 15.248948,
+        "matched_terms": [
+          "用户态",
+          "内核",
+          "户态",
+          "调用"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "请求没变，用户态很低而sys时间抬升，是否先观察内核调用路径？",
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 4.735594,
+        "matched_terms": [
+          "时间",
+          "路径"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      }
+    ],
+    "seconds": 0.013849
+  }
+}

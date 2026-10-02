@@ -1,0 +1,3825 @@
+{
+  "diagnosis": {
+    "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+    "query": "Python rag-fix-case 知识检索查询耗时升高，重排阶段慢，请检查进程CPU和调用路径；实际慢请求 trace_id=70700e8ca531430c97fc94e4a40c03a2",
+    "target": {
+      "service": "rag-fix-case",
+      "environment": "session-53182.scope",
+      "agent_id": "tencent-cvm-worker-1",
+      "pid": 701154,
+      "process_binding": {
+        "agent_id": "tencent-cvm-worker-1",
+        "pid": 701154,
+        "boot_id": "1c90a702-e68a-4193-b533-0b5af38e1418",
+        "process_start_ticks": 234383085,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 701154,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_016365d7d777286a",
+        "snapshot_generation": 207011,
+        "snapshot_received_at": "2026-10-01T15:43:55.181306+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-10-01T15:43:58.592777Z",
+      "end": "2026-10-01T15:48:58.592777Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-10-01T15:43:58.592777Z",
+      "end": "2026-10-01T15:48:58.592777Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "ASSISTED",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 300,
+      "max_tool_calls": 3,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "COMPLETED",
+    "version": 8,
+    "clarification_questions": [],
+    "created_at": "2026-10-01 15:43:58.481598+00:00",
+    "updated_at": "2026-10-01 15:45:01.571554+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "reports": [
+    {
+      "report_id": "report_6719ee4921d31321dcdd711ec18466ca",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "conclusion": "阶段性观测：在 527 个有效样本中，在 Profile 采集窗口观察到可归属路径 `find_longest_match`，按函数归并的采样占比 69.8%。这项采样占比不等于进程 CPU 利用率；CPU 条件需查看独立系统指标窗口。分别采集的观察不证明同窗一致、跨窗稳定或该函数对请求延迟的因果贡献。本次诊断另有反证，完整观察合同尚未成立。",
+      "confidence": 0.65,
+      "evidence_refs": [
+        "ev_task_task_20261001_154358_6e8a30_4607",
+        "ev_task_task_20261001_154358_6e8a30_4608"
+      ],
+      "counter_evidence_refs": [
+        "ev_task_task_20261001_154358_b600d6_4609"
+      ],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [],
+      "next_actions": [
+        "针对冲突证据执行独立的证伪采集，并比较同窗口结果"
+      ],
+      "claims": [
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "HYPOTHESIS_PREDICATE",
+          "statement": "Independent Linux process CPU counters measured 23.916% of one core over 13.004s; the specified low-CPU falsification was observed",
+          "json_pointer": "/metadata/hypothesis_predicate/outcome",
+          "claimed_value": "COUNTER",
+          "criterion": {
+            "kind": "falsification",
+            "index": 0
+          }
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+          "statement": "用户态 CPU 占比: 12.674",
+          "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+          "claimed_value": 12.674,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+          "statement": "系统态 CPU 占比: 0.966",
+          "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+          "claimed_value": 0.966,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+          "statement": "I/O wait 占比: 0.077",
+          "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+          "claimed_value": 0.077,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+          "statement": "进程 CPU 核占用: 23.916",
+          "json_pointer": "/metadata/summary/process_cpu_core_usage",
+          "claimed_value": 23.916,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+          "statement": "系统一分钟负载: 0.446",
+          "json_pointer": "/metadata/summary/load1m",
+          "claimed_value": 0.446,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_PROCESS_RSS",
+          "statement": "进程 RSS: 30.754",
+          "json_pointer": "/metadata/summary/vmrss_mb",
+          "claimed_value": 30.754,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+          "statement": "进程 RSS 峰值: 30.754",
+          "json_pointer": "/metadata/summary/vmrss_mb_max",
+          "claimed_value": 30.754,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_FD_COUNT",
+          "statement": "文件描述符数量: 4.0",
+          "json_pointer": "/metadata/summary/fd_count",
+          "claimed_value": 4.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_FD_TREND",
+          "statement": "文件描述符趋势: 0.0",
+          "json_pointer": "/metadata/summary/fd_trend",
+          "claimed_value": 0.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_THREAD_COUNT",
+          "statement": "线程数量: 5.0",
+          "json_pointer": "/metadata/summary/thread_count",
+          "claimed_value": 5.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_THREAD_TREND",
+          "statement": "线程数量趋势: 0.0",
+          "json_pointer": "/metadata/summary/thread_trend",
+          "claimed_value": 0.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+          "statement": "非自愿上下文切换速率: 0.0",
+          "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+          "claimed_value": 0.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+          "statement": "磁盘读取吞吐: 0.0",
+          "json_pointer": "/metadata/summary/disk_read_kbps",
+          "claimed_value": 0.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "direction": "COUNTER",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+          "statement": "磁盘写入吞吐: 0.0",
+          "json_pointer": "/metadata/summary/disk_write_kbps",
+          "claimed_value": 0.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "HYPOTHESIS_PREDICATE",
+          "statement": "Registered Python source-profile concentration was observed in its own collection window",
+          "json_pointer": "/metadata/hypothesis_predicate/outcome",
+          "claimed_value": "SUPPORT",
+          "criterion": {
+            "kind": "expected",
+            "index": 0
+          }
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 57.7% 样本",
+          "json_pointer": "/metadata/top_functions/0/percent",
+          "claimed_value": 57.7,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 13.0% 样本",
+          "json_pointer": "/metadata/top_functions/1/percent",
+          "claimed_value": 13.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 6.4% 样本",
+          "json_pointer": "/metadata/top_functions/2/percent",
+          "claimed_value": 6.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 4.0% 样本",
+          "json_pointer": "/metadata/top_functions/3/percent",
+          "claimed_value": 4.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 3.6% 样本",
+          "json_pointer": "/metadata/top_functions/4/percent",
+          "claimed_value": 3.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 3.0% 样本",
+          "json_pointer": "/metadata/top_functions/5/percent",
+          "claimed_value": 3.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "<lambda> 占 2.8% 样本",
+          "json_pointer": "/metadata/top_functions/6/percent",
+          "claimed_value": 2.8,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.3% 样本",
+          "json_pointer": "/metadata/top_functions/7/percent",
+          "claimed_value": 1.3,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.3% 样本",
+          "json_pointer": "/metadata/top_functions/8/percent",
+          "claimed_value": 1.3,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.1% 样本",
+          "json_pointer": "/metadata/top_functions/9/percent",
+          "claimed_value": 1.1,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "_worker 占 0.6% 样本",
+          "json_pointer": "/metadata/top_functions/10/percent",
+          "claimed_value": 0.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "_query 占 0.6% 样本",
+          "json_pointer": "/metadata/top_functions/11/percent",
+          "claimed_value": 0.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "measure 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/12/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/13/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/14/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "<genexpr> 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/15/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/16/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "readinto 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/17/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "ratio 占 0.2% 样本",
+          "json_pointer": "/metadata/top_functions/18/percent",
+          "claimed_value": 0.2,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.2% 样本",
+          "json_pointer": "/metadata/top_functions/19/percent",
+          "claimed_value": 0.2,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "HYPOTHESIS_PREDICATE",
+          "statement": "Registered Python source-profile concentration was observed in its own collection window",
+          "json_pointer": "/metadata/hypothesis_predicate/outcome",
+          "claimed_value": "SUPPORT",
+          "criterion": {
+            "kind": "expected",
+            "index": 0
+          }
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 57.7% 样本",
+          "json_pointer": "/metadata/top_functions/0/percent",
+          "claimed_value": 57.7,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 13.0% 样本",
+          "json_pointer": "/metadata/top_functions/1/percent",
+          "claimed_value": 13.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 6.4% 样本",
+          "json_pointer": "/metadata/top_functions/2/percent",
+          "claimed_value": 6.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 4.0% 样本",
+          "json_pointer": "/metadata/top_functions/3/percent",
+          "claimed_value": 4.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "__chain_b 占 3.6% 样本",
+          "json_pointer": "/metadata/top_functions/4/percent",
+          "claimed_value": 3.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 3.0% 样本",
+          "json_pointer": "/metadata/top_functions/5/percent",
+          "claimed_value": 3.0,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "<lambda> 占 2.8% 样本",
+          "json_pointer": "/metadata/top_functions/6/percent",
+          "claimed_value": 2.8,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.3% 样本",
+          "json_pointer": "/metadata/top_functions/7/percent",
+          "claimed_value": 1.3,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.3% 样本",
+          "json_pointer": "/metadata/top_functions/8/percent",
+          "claimed_value": 1.3,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 1.1% 样本",
+          "json_pointer": "/metadata/top_functions/9/percent",
+          "claimed_value": 1.1,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "_worker 占 0.6% 样本",
+          "json_pointer": "/metadata/top_functions/10/percent",
+          "claimed_value": 0.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "_query 占 0.6% 样本",
+          "json_pointer": "/metadata/top_functions/11/percent",
+          "claimed_value": 0.6,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "measure 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/12/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/13/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/14/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "<genexpr> 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/15/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/16/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "readinto 占 0.4% 样本",
+          "json_pointer": "/metadata/top_functions/17/percent",
+          "claimed_value": 0.4,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "ratio 占 0.2% 样本",
+          "json_pointer": "/metadata/top_functions/18/percent",
+          "claimed_value": 0.2,
+          "criterion": null
+        },
+        {
+          "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "direction": "SUPPORT",
+          "valid": true,
+          "reasons": [],
+          "claim_type": "TOP_FUNCTION_PERCENT",
+          "statement": "find_longest_match 占 0.2% 样本",
+          "json_pointer": "/metadata/top_functions/19/percent",
+          "claimed_value": 0.2,
+          "criterion": null
+        }
+      ],
+      "verification": {
+        "status": "VERIFIED",
+        "claims": [
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "HYPOTHESIS_PREDICATE",
+            "statement": "Independent Linux process CPU counters measured 23.916% of one core over 13.004s; the specified low-CPU falsification was observed",
+            "json_pointer": "/metadata/hypothesis_predicate/outcome",
+            "claimed_value": "COUNTER",
+            "criterion": {
+              "kind": "falsification",
+              "index": 0
+            }
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CPU_USER_PERCENT",
+            "statement": "用户态 CPU 占比: 12.674",
+            "json_pointer": "/metadata/summary/avg_cpu_user_pct",
+            "claimed_value": 12.674,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CPU_SYSTEM_PERCENT",
+            "statement": "系统态 CPU 占比: 0.966",
+            "json_pointer": "/metadata/summary/avg_cpu_sys_pct",
+            "claimed_value": 0.966,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_IO_WAIT_PERCENT",
+            "statement": "I/O wait 占比: 0.077",
+            "json_pointer": "/metadata/summary/avg_cpu_iowait_pct",
+            "claimed_value": 0.077,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_CPU_USAGE",
+            "statement": "进程 CPU 核占用: 23.916",
+            "json_pointer": "/metadata/summary/process_cpu_core_usage",
+            "claimed_value": 23.916,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_SYSTEM_LOAD",
+            "statement": "系统一分钟负载: 0.446",
+            "json_pointer": "/metadata/summary/load1m",
+            "claimed_value": 0.446,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_RSS",
+            "statement": "进程 RSS: 30.754",
+            "json_pointer": "/metadata/summary/vmrss_mb",
+            "claimed_value": 30.754,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_PROCESS_RSS_MAX",
+            "statement": "进程 RSS 峰值: 30.754",
+            "json_pointer": "/metadata/summary/vmrss_mb_max",
+            "claimed_value": 30.754,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_FD_COUNT",
+            "statement": "文件描述符数量: 4.0",
+            "json_pointer": "/metadata/summary/fd_count",
+            "claimed_value": 4.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_FD_TREND",
+            "statement": "文件描述符趋势: 0.0",
+            "json_pointer": "/metadata/summary/fd_trend",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_THREAD_COUNT",
+            "statement": "线程数量: 5.0",
+            "json_pointer": "/metadata/summary/thread_count",
+            "claimed_value": 5.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_THREAD_TREND",
+            "statement": "线程数量趋势: 0.0",
+            "json_pointer": "/metadata/summary/thread_trend",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_CONTEXT_SWITCH_RATE",
+            "statement": "非自愿上下文切换速率: 0.0",
+            "json_pointer": "/metadata/summary/ctx_nonvoluntary_rate",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_DISK_READ_THROUGHPUT",
+            "statement": "磁盘读取吞吐: 0.0",
+            "json_pointer": "/metadata/summary/disk_read_kbps",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+            "artifact_id": "4609",
+            "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "direction": "COUNTER",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "SYS_METRIC_DISK_WRITE_THROUGHPUT",
+            "statement": "磁盘写入吞吐: 0.0",
+            "json_pointer": "/metadata/summary/disk_write_kbps",
+            "claimed_value": 0.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "HYPOTHESIS_PREDICATE",
+            "statement": "Registered Python source-profile concentration was observed in its own collection window",
+            "json_pointer": "/metadata/hypothesis_predicate/outcome",
+            "claimed_value": "SUPPORT",
+            "criterion": {
+              "kind": "expected",
+              "index": 0
+            }
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 57.7% 样本",
+            "json_pointer": "/metadata/top_functions/0/percent",
+            "claimed_value": 57.7,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 13.0% 样本",
+            "json_pointer": "/metadata/top_functions/1/percent",
+            "claimed_value": 13.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 6.4% 样本",
+            "json_pointer": "/metadata/top_functions/2/percent",
+            "claimed_value": 6.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 4.0% 样本",
+            "json_pointer": "/metadata/top_functions/3/percent",
+            "claimed_value": 4.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 3.6% 样本",
+            "json_pointer": "/metadata/top_functions/4/percent",
+            "claimed_value": 3.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 3.0% 样本",
+            "json_pointer": "/metadata/top_functions/5/percent",
+            "claimed_value": 3.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "<lambda> 占 2.8% 样本",
+            "json_pointer": "/metadata/top_functions/6/percent",
+            "claimed_value": 2.8,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.3% 样本",
+            "json_pointer": "/metadata/top_functions/7/percent",
+            "claimed_value": 1.3,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.3% 样本",
+            "json_pointer": "/metadata/top_functions/8/percent",
+            "claimed_value": 1.3,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.1% 样本",
+            "json_pointer": "/metadata/top_functions/9/percent",
+            "claimed_value": 1.1,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "_worker 占 0.6% 样本",
+            "json_pointer": "/metadata/top_functions/10/percent",
+            "claimed_value": 0.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "_query 占 0.6% 样本",
+            "json_pointer": "/metadata/top_functions/11/percent",
+            "claimed_value": 0.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "measure 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/12/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/13/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/14/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "<genexpr> 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/15/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/16/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "readinto 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/17/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "ratio 占 0.2% 样本",
+            "json_pointer": "/metadata/top_functions/18/percent",
+            "claimed_value": 0.2,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+            "artifact_id": "4607",
+            "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.2% 样本",
+            "json_pointer": "/metadata/top_functions/19/percent",
+            "claimed_value": 0.2,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "HYPOTHESIS_PREDICATE",
+            "statement": "Registered Python source-profile concentration was observed in its own collection window",
+            "json_pointer": "/metadata/hypothesis_predicate/outcome",
+            "claimed_value": "SUPPORT",
+            "criterion": {
+              "kind": "expected",
+              "index": 0
+            }
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 57.7% 样本",
+            "json_pointer": "/metadata/top_functions/0/percent",
+            "claimed_value": 57.7,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 13.0% 样本",
+            "json_pointer": "/metadata/top_functions/1/percent",
+            "claimed_value": 13.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 6.4% 样本",
+            "json_pointer": "/metadata/top_functions/2/percent",
+            "claimed_value": 6.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 4.0% 样本",
+            "json_pointer": "/metadata/top_functions/3/percent",
+            "claimed_value": 4.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "__chain_b 占 3.6% 样本",
+            "json_pointer": "/metadata/top_functions/4/percent",
+            "claimed_value": 3.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 3.0% 样本",
+            "json_pointer": "/metadata/top_functions/5/percent",
+            "claimed_value": 3.0,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "<lambda> 占 2.8% 样本",
+            "json_pointer": "/metadata/top_functions/6/percent",
+            "claimed_value": 2.8,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.3% 样本",
+            "json_pointer": "/metadata/top_functions/7/percent",
+            "claimed_value": 1.3,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.3% 样本",
+            "json_pointer": "/metadata/top_functions/8/percent",
+            "claimed_value": 1.3,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 1.1% 样本",
+            "json_pointer": "/metadata/top_functions/9/percent",
+            "claimed_value": 1.1,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "_worker 占 0.6% 样本",
+            "json_pointer": "/metadata/top_functions/10/percent",
+            "claimed_value": 0.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "_query 占 0.6% 样本",
+            "json_pointer": "/metadata/top_functions/11/percent",
+            "claimed_value": 0.6,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "measure 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/12/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/13/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/14/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "<genexpr> 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/15/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/16/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "readinto 占 0.4% 样本",
+            "json_pointer": "/metadata/top_functions/17/percent",
+            "claimed_value": 0.4,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "ratio 占 0.2% 样本",
+            "json_pointer": "/metadata/top_functions/18/percent",
+            "claimed_value": 0.2,
+            "criterion": null
+          },
+          {
+            "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+            "artifact_id": "4608",
+            "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "direction": "SUPPORT",
+            "valid": true,
+            "reasons": [],
+            "claim_type": "TOP_FUNCTION_PERCENT",
+            "statement": "find_longest_match 占 0.2% 样本",
+            "json_pointer": "/metadata/top_functions/19/percent",
+            "claimed_value": 0.2,
+            "criterion": null
+          }
+        ],
+        "rejected_claims": [],
+        "support_claim_count": 42,
+        "counter_claim_count": 15,
+        "coverage_ratio": 1.0,
+        "has_independent_counter_or_control": true,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "制定受控变更计划",
+              "urgency": "LOW",
+              "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "VERIFIED",
+          "has_independent_counter_or_control": true,
+          "support_claim_count": 42,
+          "counter_claim_count": 15,
+          "control_claim_count": 0,
+          "coverage_ratio": 1.0,
+          "covered_expected": [
+            0
+          ],
+          "covered_falsification": [
+            0
+          ],
+          "missing_expected": [],
+          "missing_falsification": [],
+          "needs_independent_counter_or_control": false,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "制定受控变更计划",
+                "urgency": "LOW",
+                "action": "依据已验证观察选择处置，明确前置条件、影响范围、回滚和复测指标；此处不执行变更。"
+              }
+            ],
+            "root_cause_fixes": []
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "UNSUPPORTED_PLAN",
+            "checked_ratio": 0.0,
+            "criteria": [],
+            "evidence_refs": [],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          }
+        },
+        "observation_verification": {
+          "schema_version": "performance-observation-verification.v1",
+          "status": "UNSUPPORTED_PLAN",
+          "checked_ratio": 0.0,
+          "criteria": [],
+          "evidence_refs": [],
+          "independent_control_verified": false,
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "causal_root_cause_verified": false
+        },
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false,
+        "observation_contract": {
+          "contract_id": "python-profile-and-os-cpu.v1",
+          "runtime": "PYTHON",
+          "cpu_threshold": 50.0,
+          "profile_threshold": 70.0,
+          "temporal_relationship": "SEPARATE_COLLECTION_WINDOWS"
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 288,
+          "scanned_by_language": {
+            "python": 288,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": [
+            "<genexpr>",
+            "<lambda>",
+            "__chain_b",
+            "_query",
+            "_worker",
+            "find_longest_match",
+            "measure",
+            "ratio",
+            "readinto"
+          ]
+        },
+        "bottleneck_localization": {
+          "schema_version": "bottleneck-localization.v1",
+          "status": "NOT_LOCALIZED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "causal_root_cause_verified": false,
+          "same_load_fix_verified": false,
+          "evidence_refs": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-10-01 15:45:01.610854+00:00",
+      "created_at": "2026-10-01 15:45:01.571554+00:00"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_task_task_20261001_154358_6e8a30_4605",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_6e8a30_4605",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "PYSPY_RAW",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20261001_154358_6e8a30",
+          "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+          "artifact_id": "4605",
+          "artifact_sha256": "db73cb270d30fdda9cd899e003bce5399d3276603293462215e2f425ba0ea38f",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:00.240755Z",
+          "end": "2026-10-01T15:44:21.789386Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "raw",
+          "object_key": "tasks/task_20261001_154358_6e8a30/attempts/attempt_e78acc069216491ca3cb4ba71edc4225/raw/pyspy-speedscope.json",
+          "content_type": "application/json",
+          "size_bytes": 31288,
+          "metadata": {
+            "collector_plugin": "pyspy",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v3",
+              "reason": "This artifact does not implement the registered CPU observation domain",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-10-01 15:44:58.383022+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_154358_6e8a30_4606",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_6e8a30_4606",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "PYSPY_MANIFEST",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20261001_154358_6e8a30",
+          "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+          "artifact_id": "4606",
+          "artifact_sha256": "09ac903a9998f97f780ea4c39a8de95df19e2137a7ce7589f47eff8d3d99dacd",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:00.240755Z",
+          "end": "2026-10-01T15:44:21.789386Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20261001_154358_6e8a30/attempts/attempt_e78acc069216491ca3cb4ba71edc4225/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1102,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": "",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v3",
+              "reason": "This artifact does not implement the registered CPU observation domain",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 50
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-10-01 15:44:58.383022+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "SUPPORT",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_6e8a30_4607",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "PYSPY_FLAMEGRAPH_JSON",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20261001_154358_6e8a30",
+          "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+          "artifact_id": "4607",
+          "artifact_sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "analysis_job_id": "analysis_3084eced023fdec2",
+          "analyzer_type": "collector.pyspy",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:00.240755Z",
+          "end": "2026-10-01T15:44:21.789386Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "flamegraph_json",
+          "object_key": "tasks/task_20261001_154358_6e8a30/analysis/flamegraph.json",
+          "content_type": "application/json",
+          "size_bytes": 8327,
+          "metadata": {
+            "schema_version": "pyspy_analysis.v1",
+            "sample_count": 527,
+            "top_functions": [
+              {
+                "name": "find_longest_match",
+                "samples": 305,
+                "percent": 57.7,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 385
+              },
+              {
+                "name": "__chain_b",
+                "samples": 69,
+                "percent": 13.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 281
+              },
+              {
+                "name": "__chain_b",
+                "samples": 34,
+                "percent": 6.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 280
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 21,
+                "percent": 4.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 386
+              },
+              {
+                "name": "__chain_b",
+                "samples": 19,
+                "percent": 3.6,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 282
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 16,
+                "percent": 3.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 379
+              },
+              {
+                "name": "<lambda>",
+                "samples": 15,
+                "percent": 2.8,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 73
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 7,
+                "percent": 1.3,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 383
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 7,
+                "percent": 1.3,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 377
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 6,
+                "percent": 1.1,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 381
+              },
+              {
+                "name": "_worker",
+                "samples": 3,
+                "percent": 0.6,
+                "file": "/usr/lib/python3.12/concurrent/futures/thread.py",
+                "line": 89
+              },
+              {
+                "name": "_query",
+                "samples": 3,
+                "percent": 0.6,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 70
+              },
+              {
+                "name": "measure",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/fixture.py",
+                "line": 70
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 387
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 419
+              },
+              {
+                "name": "<genexpr>",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 619
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 382
+              },
+              {
+                "name": "readinto",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/socket.py",
+                "line": 707
+              },
+              {
+                "name": "ratio",
+                "samples": 1,
+                "percent": 0.2,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 620
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 1,
+                "percent": 0.2,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 374
+              }
+            ],
+            "profile_quality": {
+              "status": "USABLE",
+              "reason_code": "OK",
+              "sample_count": 527,
+              "renderable_function_count": 20
+            },
+            "collector_type": "pyspy",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "SUPPORT",
+              "version": "hypothesis-predicate-v2",
+              "reason": "Registered Python source-profile concentration was observed in its own collection window",
+              "criterion_indexes": [
+                0
+              ],
+              "metrics": {
+                "dominant_function": "find_longest_match",
+                "dominant_percent": 69.80000000000001,
+                "concentrated_percent": 92.80000000000001,
+                "concentrated_functions": [
+                  {
+                    "name": "find_longest_match",
+                    "percent": 69.80000000000001,
+                    "locations": [
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 385,
+                        "percent": 57.7
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 386,
+                        "percent": 4.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 379,
+                        "percent": 3.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 383,
+                        "percent": 1.3
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 377,
+                        "percent": 1.3
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 381,
+                        "percent": 1.1
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 387,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 419,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 382,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 374,
+                        "percent": 0.2
+                      }
+                    ]
+                  },
+                  {
+                    "name": "__chain_b",
+                    "percent": 23.0,
+                    "locations": [
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 281,
+                        "percent": 13.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 280,
+                        "percent": 6.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 282,
+                        "percent": 3.6
+                      }
+                    ]
+                  }
+                ],
+                "profile_semantics": "source_function_share",
+                "observation_contract": "python-profile-and-os-cpu.v1"
+              }
+            }
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 527,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 50
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_SUPPORT",
+        "can_support_conclusion": true,
+        "reasons": []
+      },
+      "created_at": "2026-10-01 15:44:58.383022+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "SUPPORT",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_6e8a30_4608",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "PYSPY_TOP_JSON",
+        "source": {
+          "tool_name": "pyspy",
+          "task_id": "task_20261001_154358_6e8a30",
+          "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+          "artifact_id": "4608",
+          "artifact_sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "analysis_job_id": "analysis_3084eced023fdec2",
+          "analyzer_type": "collector.pyspy",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:00.240755Z",
+          "end": "2026-10-01T15:44:21.789386Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "top_json",
+          "object_key": "tasks/task_20261001_154358_6e8a30/analysis/top.json",
+          "content_type": "application/json",
+          "size_bytes": 2879,
+          "metadata": {
+            "schema_version": "pyspy_analysis.v1",
+            "sample_count": 527,
+            "top_functions": [
+              {
+                "name": "find_longest_match",
+                "samples": 305,
+                "percent": 57.7,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 385
+              },
+              {
+                "name": "__chain_b",
+                "samples": 69,
+                "percent": 13.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 281
+              },
+              {
+                "name": "__chain_b",
+                "samples": 34,
+                "percent": 6.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 280
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 21,
+                "percent": 4.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 386
+              },
+              {
+                "name": "__chain_b",
+                "samples": 19,
+                "percent": 3.6,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 282
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 16,
+                "percent": 3.0,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 379
+              },
+              {
+                "name": "<lambda>",
+                "samples": 15,
+                "percent": 2.8,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 73
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 7,
+                "percent": 1.3,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 383
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 7,
+                "percent": 1.3,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 377
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 6,
+                "percent": 1.1,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 381
+              },
+              {
+                "name": "_worker",
+                "samples": 3,
+                "percent": 0.6,
+                "file": "/usr/lib/python3.12/concurrent/futures/thread.py",
+                "line": 89
+              },
+              {
+                "name": "_query",
+                "samples": 3,
+                "percent": 0.6,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 70
+              },
+              {
+                "name": "measure",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/fixture.py",
+                "line": 70
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 387
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 419
+              },
+              {
+                "name": "<genexpr>",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 619
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 382
+              },
+              {
+                "name": "readinto",
+                "samples": 2,
+                "percent": 0.4,
+                "file": "/usr/lib/python3.12/socket.py",
+                "line": 707
+              },
+              {
+                "name": "ratio",
+                "samples": 1,
+                "percent": 0.2,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 620
+              },
+              {
+                "name": "find_longest_match",
+                "samples": 1,
+                "percent": 0.2,
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 374
+              }
+            ],
+            "profile_quality": {
+              "status": "USABLE",
+              "reason_code": "OK",
+              "sample_count": 527,
+              "renderable_function_count": 20
+            },
+            "collector_type": "pyspy",
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "SUPPORT",
+              "version": "hypothesis-predicate-v2",
+              "reason": "Registered Python source-profile concentration was observed in its own collection window",
+              "criterion_indexes": [
+                0
+              ],
+              "metrics": {
+                "dominant_function": "find_longest_match",
+                "dominant_percent": 69.80000000000001,
+                "concentrated_percent": 92.80000000000001,
+                "concentrated_functions": [
+                  {
+                    "name": "find_longest_match",
+                    "percent": 69.80000000000001,
+                    "locations": [
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 385,
+                        "percent": 57.7
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 386,
+                        "percent": 4.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 379,
+                        "percent": 3.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 383,
+                        "percent": 1.3
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 377,
+                        "percent": 1.3
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 381,
+                        "percent": 1.1
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 387,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 419,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 382,
+                        "percent": 0.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 374,
+                        "percent": 0.2
+                      }
+                    ]
+                  },
+                  {
+                    "name": "__chain_b",
+                    "percent": 23.0,
+                    "locations": [
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 281,
+                        "percent": 13.0
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 280,
+                        "percent": 6.4
+                      },
+                      {
+                        "file": "/usr/lib/python3.12/difflib.py",
+                        "line": 282,
+                        "percent": 3.6
+                      }
+                    ]
+                  }
+                ],
+                "profile_semantics": "source_function_share",
+                "observation_contract": "python-profile-and-os-cpu.v1"
+              }
+            }
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 527,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 50
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_SUPPORT",
+        "can_support_conclusion": true,
+        "reasons": []
+      },
+      "created_at": "2026-10-01 15:44:58.383022+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "COUNTER",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_b600d6_4609",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "SYS_METRICS_SYS_METRICS",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20261001_154358_b600d6",
+          "task_attempt_id": "attempt_e8f1a67cd5944049942ca48fdd3c3c59",
+          "artifact_id": "4609",
+          "artifact_sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "analysis_job_id": "analysis_22bb89dececac978",
+          "analyzer_type": "collector.sys_metrics",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:20.700478Z",
+          "end": "2026-10-01T15:44:36.884407Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "sys_metrics",
+          "object_key": "tasks/task_20261001_154358_b600d6/attempts/attempt_e8f1a67cd5944049942ca48fdd3c3c59/raw/sys_metrics.json",
+          "content_type": "application/json",
+          "size_bytes": 7695,
+          "metadata": {
+            "collector_plugin": "sys_metrics",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0",
+            "schema_version": "sys_metrics_analysis.v2",
+            "source_schema_version": "sys_metrics.v2",
+            "sample_count": 14,
+            "window_duration_seconds": 13.004,
+            "process_identity": {
+              "pid": 701154,
+              "namespace_pid": 701154,
+              "start_ticks": 234383085,
+              "verified": true
+            },
+            "summary": {
+              "vmrss_mb": 30.754,
+              "vmrss_mb_first": 30.754,
+              "vmrss_mb_max": 30.754,
+              "vmrss_mb_delta": 0.0,
+              "fd_count": 4.0,
+              "fd_count_first": 4.0,
+              "fd_count_max": 4.0,
+              "thread_count": 5.0,
+              "thread_count_first": 5.0,
+              "thread_count_max": 5.0,
+              "fd_trend": 0.0,
+              "thread_trend": 0.0,
+              "load1m": 0.446,
+              "load1m_max": 0.48,
+              "process_cpu_core_usage": 23.916,
+              "avg_cpu_user_pct": 12.674,
+              "avg_cpu_sys_pct": 0.966,
+              "avg_cpu_iowait_pct": 0.077,
+              "host_cpu_busy_pct": 13.64,
+              "disk_read_kbps": 0.0,
+              "disk_write_kbps": 0.0,
+              "ctx_nonvoluntary_rate": 0.0
+            },
+            "process_cpu_window": {
+              "source": "linux_proc_stat",
+              "clock_ticks_per_second": 100,
+              "start_cpu_ticks": 800,
+              "end_cpu_ticks": 1111,
+              "start_unix_ms": 1790869460795.0,
+              "end_unix_ms": 1790869473799.0,
+              "sample_count": 14,
+              "process_cpu_core_usage": 23.915718240541374
+            },
+            "application_metrics": null,
+            "application_metrics_status": "UNAVAILABLE",
+            "application_metrics_limitations": [
+              "target application did not expose the optional bounded metrics snapshot"
+            ],
+            "signals": {
+              "cpu_hotspot": {
+                "detected": false,
+                "reason": "target process CPU usage checked against the observation threshold",
+                "metrics": {
+                  "process_cpu_core_usage": 23.916
+                }
+              },
+              "memory_growth": {
+                "detected": false,
+                "reason": "process memory footprint and retained memory change checked against the growth threshold",
+                "metrics": {
+                  "retained_memory_mb": 0.0,
+                  "rss_delta_mb": 0.0
+                }
+              }
+            },
+            "analysis_limitations": [],
+            "collector_type": "sys_metrics",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0",
+            "hypothesis_predicate": {
+              "outcome": "COUNTER",
+              "version": "hypothesis-predicate-v3",
+              "reason": "Independent Linux process CPU counters measured 23.916% of one core over 13.004s; the specified low-CPU falsification was observed",
+              "criterion_indexes": [
+                0
+              ],
+              "metrics": {
+                "source": "linux_proc_stat",
+                "clock_ticks_per_second": 100,
+                "start_cpu_ticks": 800,
+                "end_cpu_ticks": 1111,
+                "start_unix_ms": 1790869460795.0,
+                "end_unix_ms": 1790869473799.0,
+                "sample_count": 14,
+                "process_cpu_core_usage": 23.915718240541374,
+                "pid": 701154,
+                "start_ticks": 234383085
+              }
+            }
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 14,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 5
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_COUNTER",
+        "can_support_conclusion": true,
+        "reasons": []
+      },
+      "created_at": "2026-10-01 15:44:58.495204+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_154358_b600d6_4610",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_154358_b600d6_4610",
+        "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+        "evidence_type": "SYS_METRICS_MANIFEST",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20261001_154358_b600d6",
+          "task_attempt_id": "attempt_e8f1a67cd5944049942ca48fdd3c3c59",
+          "artifact_id": "4610",
+          "artifact_sha256": "e99fcf8123e8ef35d6b02dcdc7904a5e49ee9ec0dca76182ff2357b3dc0d3d7c",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "tencent-cvm-worker-1",
+          "service": "rag-fix-case",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 701154
+        },
+        "time_range": {
+          "start": "2026-10-01T15:44:20.700478Z",
+          "end": "2026-10-01T15:44:36.884407Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20261001_154358_b600d6/attempts/attempt_e8f1a67cd5944049942ca48fdd3c3c59/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1107,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": "",
+            "hypothesis_predicate": {
+              "outcome": "NEUTRAL",
+              "version": "hypothesis-predicate-v3",
+              "reason": "This artifact does not implement the registered CPU observation domain",
+              "criterion_indexes": [],
+              "metrics": {}
+            }
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 5
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-10-01 15:44:58.495204+00:00"
+    }
+  ],
+  "tool-calls": [
+    {
+      "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "tool_name": "start_pyspy_profile",
+      "arguments": {
+        "agent_id": "tencent-cvm-worker-1",
+        "pid": 701154,
+        "duration_seconds": 20,
+        "sample_rate": 99
+      },
+      "policy_decision": "REQUIRE_APPROVAL",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "REQUIRE_APPROVAL"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": null,
+          "required_seconds": 50
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 20,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 16777216,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "start_pyspy_profile 需要人工批准",
+      "status": "COMPLETED",
+      "task_id": "task_20261001_154358_6e8a30",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20261001_154358_6e8a30"
+      },
+      "budget_reservation": {
+        "duration_seconds": 20,
+        "artifact_bytes": 16777216,
+        "agent_id": "tencent-cvm-worker-1",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 20,
+        "artifact_bytes": 43596,
+        "agent_id": "tencent-cvm-worker-1",
+        "settled_at": "2026-10-01T15:44:58.352301+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "EVIDENCE_IMPORTED",
+      "terminal_processed_at": null,
+      "requested_by": "legacy_admin",
+      "approved_by": "legacy_admin",
+      "approval_reason": "用户已授权隔离业务的真实诊断及同负载修复验收",
+      "created_at": "2026-10-01 15:43:58.716410+00:00",
+      "decided_at": "2026-10-01 15:43:58.768506+00:00",
+      "executed_at": "2026-10-01 15:43:58.785798+00:00"
+    },
+    {
+      "tool_call_id": "toolcall_58f71c2941734699b5e18a6b2e206968",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "tencent-cvm-worker-1",
+        "pid": 701154,
+        "duration_seconds": 14
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": null,
+          "required_seconds": 44
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 34,
+          "limit": 300
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 2,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 18874368,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20261001_154358_b600d6",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20261001_154358_b600d6"
+      },
+      "budget_reservation": {
+        "duration_seconds": 14,
+        "artifact_bytes": 2097152,
+        "agent_id": "tencent-cvm-worker-1",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 14,
+        "artifact_bytes": 8802,
+        "agent_id": "tencent-cvm-worker-1",
+        "settled_at": "2026-10-01T15:44:58.454726+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-10-01 15:45:01.619677+00:00",
+      "requested_by": "legacy_admin",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-10-01 15:43:58.835059+00:00",
+      "decided_at": null,
+      "executed_at": "2026-10-01 15:43:58.850496+00:00"
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "statement": "本次诊断中，Python 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径",
+      "expected_observations": [
+        "Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%"
+      ],
+      "falsification_criteria": [
+        "目标进程 CPU 占用率低于 50%"
+      ],
+      "status": "SUPPORTED",
+      "source": "USER",
+      "round_index": 1,
+      "parent_hypothesis_id": null,
+      "generation_reason": "",
+      "created_at": "2026-10-01 15:43:58.658217+00:00",
+      "updated_at": "2026-10-01 15:45:01.571554+00:00"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event_c4876ed7130c4636b1d9c1683621a09b",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "AUTO",
+        "created_by": "legacy_admin",
+        "auto_scope": true,
+        "health_check": false
+      },
+      "occurred_at": "2026-10-01 15:43:58.481598+00:00"
+    },
+    {
+      "event_id": "event_aa7162b56ee146058480713cc1d37a6c",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 2,
+      "event_type": "diagnosis.clarified",
+      "actor": "AI_SCOPE_RESOLVER",
+      "payload": {
+        "target": {
+          "service": "rag-fix-case",
+          "environment": "session-53182.scope",
+          "agent_id": "tencent-cvm-worker-1",
+          "pid": 701154,
+          "process_binding": {
+            "agent_id": "tencent-cvm-worker-1",
+            "pid": 701154,
+            "boot_id": "1c90a702-e68a-4193-b533-0b5af38e1418",
+            "process_start_ticks": 234383085,
+            "pid_namespace_inode": 4026531836,
+            "namespace_pid": 701154,
+            "executable_identity": "python3.12",
+            "process_snapshot_id": "psnap_016365d7d777286a",
+            "snapshot_generation": 207011,
+            "snapshot_received_at": "2026-10-01T15:43:55.181306+00:00"
+          }
+        },
+        "time_range": {
+          "start": "2026-10-01T15:43:58.592777Z",
+          "end": "2026-10-01T15:48:58.592777Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "requested_time_range": {
+          "start": "2026-10-01T15:43:58.592777Z",
+          "end": "2026-10-01T15:48:58.592777Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "effective_time_range": {}
+      },
+      "occurred_at": "2026-10-01 15:43:58.594393+00:00"
+    },
+    {
+      "event_id": "event_a0312d5f90354d37ae82aee5678cb430",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 3,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_14c0c5d3b6d74fd5b8258702be36ba8b",
+        "source": "USER",
+        "round_index": 1,
+        "parent_hypothesis_id": null,
+        "observation_contract": {
+          "contract_id": "python-profile-and-os-cpu.v1",
+          "runtime": "PYTHON",
+          "cpu_threshold": 50.0,
+          "profile_threshold": 70.0,
+          "scope": "SEPARATELY_COLLECTED_OBSERVATIONS_NOT_CAUSATION"
+        }
+      },
+      "occurred_at": "2026-10-01 15:43:58.658217+00:00"
+    },
+    {
+      "event_id": "event_2c677c4d866544fabfcbc2199216bcc2",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 4,
+      "event_type": "tool_call.requested",
+      "actor": "PLANNER",
+      "payload": {
+        "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+        "tool_name": "start_pyspy_profile",
+        "policy_decision": "REQUIRE_APPROVAL",
+        "status": "PENDING_APPROVAL"
+      },
+      "occurred_at": "2026-10-01 15:43:58.716410+00:00"
+    },
+    {
+      "event_id": "event_093b2c3f7fc441748d33b7b8ccf8fa0a",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 5,
+      "event_type": "tool_call.approval_decided",
+      "actor": "USER",
+      "payload": {
+        "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+        "approved": true,
+        "decided_by": "legacy_admin"
+      },
+      "occurred_at": "2026-10-01 15:43:58.768506+00:00"
+    },
+    {
+      "event_id": "event_6fff70b133bd4f7f975325b5b57fb3de",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 6,
+      "event_type": "tool_call.task_created",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+        "task_id": "task_20261001_154358_6e8a30"
+      },
+      "occurred_at": "2026-10-01 15:43:58.785798+00:00"
+    },
+    {
+      "event_id": "event_41d5abc2dbd343649f08c0dc43f902d7",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 7,
+      "event_type": "tool_call.requested",
+      "actor": "PLANNER",
+      "payload": {
+        "tool_call_id": "toolcall_58f71c2941734699b5e18a6b2e206968",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "status": "APPROVED"
+      },
+      "occurred_at": "2026-10-01 15:43:58.835059+00:00"
+    },
+    {
+      "event_id": "event_3fdc625c14d640a29da21c7dd6d0fc35",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 8,
+      "event_type": "tool_call.task_created",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_58f71c2941734699b5e18a6b2e206968",
+        "task_id": "task_20261001_154358_b600d6"
+      },
+      "occurred_at": "2026-10-01 15:43:58.850496+00:00"
+    },
+    {
+      "event_id": "event_1640f0c2b210438297beaa273be3ec22",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 9,
+      "event_type": "tool_call.progress",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+        "task_id": "task_20261001_154358_6e8a30",
+        "task_status": "RUNNING",
+        "status": "RUNNING"
+      },
+      "occurred_at": "2026-10-01 15:44:01.606424+00:00"
+    },
+    {
+      "event_id": "event_c14ea09880b74986a2cf7cc2788f7d52",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 10,
+      "event_type": "tool_call.task_terminal",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_c867398d1e6c4344b3a6bf689babccd6",
+        "task_id": "task_20261001_154358_6e8a30",
+        "task_status": "DONE"
+      },
+      "occurred_at": "2026-10-01 15:44:58.352301+00:00"
+    },
+    {
+      "event_id": "event_f7cbb6520a4643e09708d96a60df9ed6",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 11,
+      "event_type": "task_evidence.imported",
+      "actor": "SYSTEM",
+      "payload": {
+        "task_id": "task_20261001_154358_6e8a30",
+        "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+        "evidence_refs": [
+          "ev_task_task_20261001_154358_6e8a30_4605",
+          "ev_task_task_20261001_154358_6e8a30_4606",
+          "ev_task_task_20261001_154358_6e8a30_4607",
+          "ev_task_task_20261001_154358_6e8a30_4608"
+        ]
+      },
+      "occurred_at": "2026-10-01 15:44:58.383022+00:00"
+    },
+    {
+      "event_id": "event_92207c60023d4931b72ecc86802e1e58",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 12,
+      "event_type": "tool_call.task_terminal",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_58f71c2941734699b5e18a6b2e206968",
+        "task_id": "task_20261001_154358_b600d6",
+        "task_status": "DONE"
+      },
+      "occurred_at": "2026-10-01 15:44:58.454726+00:00"
+    },
+    {
+      "event_id": "event_62df65b169254bd8b2b46363f618c784",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 13,
+      "event_type": "task_evidence.imported",
+      "actor": "SYSTEM",
+      "payload": {
+        "task_id": "task_20261001_154358_b600d6",
+        "task_attempt_id": "attempt_e8f1a67cd5944049942ca48fdd3c3c59",
+        "evidence_refs": [
+          "ev_task_task_20261001_154358_b600d6_4609",
+          "ev_task_task_20261001_154358_b600d6_4610"
+        ]
+      },
+      "occurred_at": "2026-10-01 15:44:58.495204+00:00"
+    },
+    {
+      "event_id": "event_88d5f44b27d24bd8bde8a50a0d75db0a",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 14,
+      "event_type": "report.generated",
+      "actor": "SYSTEM",
+      "payload": {
+        "report_id": "report_6719ee4921d31321dcdd711ec18466ca",
+        "confidence": 0.65,
+        "coverage_ratio": 1.0,
+        "evidence_refs": [
+          "ev_task_task_20261001_154358_6e8a30_4607",
+          "ev_task_task_20261001_154358_6e8a30_4608"
+        ],
+        "verification_status": "VERIFIED",
+        "verified_claim_count": 57,
+        "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+        "minimum_diagnosis_rounds": 1,
+        "observed_diagnosis_rounds": 1,
+        "minimum_rounds_satisfied": true
+      },
+      "occurred_at": "2026-10-01 15:45:01.571554+00:00"
+    },
+    {
+      "event_id": "event_eb0973a181714c8e9ad7dcc1423730db",
+      "diagnosis_id": "insight_1c11b8b7314d4108be44811fd8ded2ca",
+      "sequence": 15,
+      "event_type": "diagnosis.route_learned",
+      "actor": "SYSTEM",
+      "payload": {
+        "report_id": "report_6719ee4921d31321dcdd711ec18466ca",
+        "tool_route": [
+          "start_pyspy_profile",
+          "collect_sys_metrics"
+        ],
+        "learning_scope": "verified_route_prior",
+        "note": "仅提升后续路线排序，不自动新增工具或绕过策略。"
+      },
+      "occurred_at": "2026-10-01 15:45:01.603967+00:00"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task_20261001_154358_6e8a30",
+      "collector_type": "pyspy",
+      "status": "DONE",
+      "status_reason": "pyspy 原始栈已生成火焰图与 TopN 热点",
+      "error_code": null,
+      "collection_status": "COLLECTED",
+      "analysis_status": "SUCCESS",
+      "event_count": 5,
+      "attempts": [
+        {
+          "id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+          "status": "SUCCEEDED",
+          "started_at": "2026-10-01T15:44:00.240755Z",
+          "finished_at": "2026-10-01T15:44:20.633486Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 4605,
+          "artifact_type": "raw",
+          "size_bytes": 31288,
+          "sha256": "db73cb270d30fdda9cd899e003bce5399d3276603293462215e2f425ba0ea38f",
+          "integrity_status": "VERIFIED",
+          "sample_count": 0
+        },
+        {
+          "id": 4606,
+          "artifact_type": "manifest",
+          "size_bytes": 1102,
+          "sha256": "09ac903a9998f97f780ea4c39a8de95df19e2137a7ce7589f47eff8d3d99dacd",
+          "integrity_status": "VERIFIED",
+          "sample_count": 0
+        },
+        {
+          "id": 4607,
+          "artifact_type": "flamegraph_json",
+          "size_bytes": 8327,
+          "sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "integrity_status": "VERIFIED",
+          "sample_count": 527
+        },
+        {
+          "id": 4608,
+          "artifact_type": "top_json",
+          "size_bytes": 2879,
+          "sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "integrity_status": "VERIFIED",
+          "sample_count": 527
+        }
+      ],
+      "_raw_artifacts": [
+        {
+          "artifact_type": "raw",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:20.633486Z",
+          "filename": "pyspy-speedscope.json",
+          "id": 4605,
+          "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "artifact_type": "raw",
+            "content_type": "application/json",
+            "object_key": "tasks/task_20261001_154358_6e8a30/attempts/attempt_e78acc069216491ca3cb4ba71edc4225/raw/pyspy-speedscope.json",
+            "schema_version": "mini-drop.artifact.v1",
+            "sha256": "db73cb270d30fdda9cd899e003bce5399d3276603293462215e2f425ba0ea38f",
+            "size_bytes": 31288,
+            "task_attempt_id": "attempt_e78acc069216491ca3cb4ba71edc4225",
+            "task_id": "task_20261001_154358_6e8a30"
+          },
+          "metadata": {
+            "collector_plugin": "pyspy",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0"
+          },
+          "object_key": "tasks/task_20261001_154358_6e8a30/attempts/attempt_e78acc069216491ca3cb4ba71edc4225/raw/pyspy-speedscope.json",
+          "sha256": "db73cb270d30fdda9cd899e003bce5399d3276603293462215e2f425ba0ea38f",
+          "size_bytes": 31288,
+          "task_id": "task_20261001_154358_6e8a30"
+        },
+        {
+          "artifact_type": "manifest",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:20.633486Z",
+          "filename": "manifest.json",
+          "id": 4606,
+          "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "manifest_version": "mini-drop.artifact.v1",
+            "producer": "native-cpp"
+          },
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          },
+          "object_key": "tasks/task_20261001_154358_6e8a30/attempts/attempt_e78acc069216491ca3cb4ba71edc4225/manifest.json",
+          "sha256": "09ac903a9998f97f780ea4c39a8de95df19e2137a7ce7589f47eff8d3d99dacd",
+          "size_bytes": 1102,
+          "task_id": "task_20261001_154358_6e8a30"
+        },
+        {
+          "artifact_type": "flamegraph_json",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:21.783764Z",
+          "filename": "flamegraph.json",
+          "id": 4607,
+          "integrity_reason": "Analyzer verified local bytes before temporary workspace cleanup",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "artifact_type": "flamegraph_json",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "filename": "flamegraph.json",
+            "manifest_version": "mini-drop.artifact.v1",
+            "object_key": "tasks/task_20261001_154358_6e8a30/analysis/flamegraph.json",
+            "sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+            "size_bytes": 8327,
+            "task_id": "task_20261001_154358_6e8a30"
+          },
+          "metadata": {
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "collector_type": "pyspy",
+            "profile_quality": {
+              "reason_code": "OK",
+              "renderable_function_count": 20,
+              "sample_count": 527,
+              "status": "USABLE"
+            },
+            "sample_count": 527,
+            "schema_version": "pyspy_analysis.v1",
+            "top_functions": [
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 385,
+                "name": "find_longest_match",
+                "percent": 57.7,
+                "samples": 305
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 281,
+                "name": "__chain_b",
+                "percent": 13,
+                "samples": 69
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 280,
+                "name": "__chain_b",
+                "percent": 6.4,
+                "samples": 34
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 386,
+                "name": "find_longest_match",
+                "percent": 4,
+                "samples": 21
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 282,
+                "name": "__chain_b",
+                "percent": 3.6,
+                "samples": 19
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 379,
+                "name": "find_longest_match",
+                "percent": 3,
+                "samples": 16
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 73,
+                "name": "<lambda>",
+                "percent": 2.8,
+                "samples": 15
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 383,
+                "name": "find_longest_match",
+                "percent": 1.3,
+                "samples": 7
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 377,
+                "name": "find_longest_match",
+                "percent": 1.3,
+                "samples": 7
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 381,
+                "name": "find_longest_match",
+                "percent": 1.1,
+                "samples": 6
+              },
+              {
+                "file": "/usr/lib/python3.12/concurrent/futures/thread.py",
+                "line": 89,
+                "name": "_worker",
+                "percent": 0.6,
+                "samples": 3
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 70,
+                "name": "_query",
+                "percent": 0.6,
+                "samples": 3
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/fixture.py",
+                "line": 70,
+                "name": "measure",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 387,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 419,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 619,
+                "name": "<genexpr>",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 382,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/socket.py",
+                "line": 707,
+                "name": "readinto",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 620,
+                "name": "ratio",
+                "percent": 0.2,
+                "samples": 1
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 374,
+                "name": "find_longest_match",
+                "percent": 0.2,
+                "samples": 1
+              }
+            ]
+          },
+          "object_key": "tasks/task_20261001_154358_6e8a30/analysis/flamegraph.json",
+          "sha256": "a0d716526fb8dcfcdb0c0b9f2663425feac4efac1800a14342f73ca768b99d71",
+          "size_bytes": 8327,
+          "task_id": "task_20261001_154358_6e8a30"
+        },
+        {
+          "artifact_type": "top_json",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:21.783764Z",
+          "filename": "top.json",
+          "id": 4608,
+          "integrity_reason": "Analyzer verified local bytes before temporary workspace cleanup",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "artifact_type": "top_json",
+            "bucket": "mini-drop",
+            "content_type": "application/json",
+            "filename": "top.json",
+            "manifest_version": "mini-drop.artifact.v1",
+            "object_key": "tasks/task_20261001_154358_6e8a30/analysis/top.json",
+            "sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+            "size_bytes": 2879,
+            "task_id": "task_20261001_154358_6e8a30"
+          },
+          "metadata": {
+            "analyzer_type": "collector.pyspy",
+            "analyzer_version": "1.0.0",
+            "collector_type": "pyspy",
+            "profile_quality": {
+              "reason_code": "OK",
+              "renderable_function_count": 20,
+              "sample_count": 527,
+              "status": "USABLE"
+            },
+            "sample_count": 527,
+            "schema_version": "pyspy_analysis.v1",
+            "top_functions": [
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 385,
+                "name": "find_longest_match",
+                "percent": 57.7,
+                "samples": 305
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 281,
+                "name": "__chain_b",
+                "percent": 13,
+                "samples": 69
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 280,
+                "name": "__chain_b",
+                "percent": 6.4,
+                "samples": 34
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 386,
+                "name": "find_longest_match",
+                "percent": 4,
+                "samples": 21
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 282,
+                "name": "__chain_b",
+                "percent": 3.6,
+                "samples": 19
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 379,
+                "name": "find_longest_match",
+                "percent": 3,
+                "samples": 16
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 73,
+                "name": "<lambda>",
+                "percent": 2.8,
+                "samples": 15
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 383,
+                "name": "find_longest_match",
+                "percent": 1.3,
+                "samples": 7
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 377,
+                "name": "find_longest_match",
+                "percent": 1.3,
+                "samples": 7
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 381,
+                "name": "find_longest_match",
+                "percent": 1.1,
+                "samples": 6
+              },
+              {
+                "file": "/usr/lib/python3.12/concurrent/futures/thread.py",
+                "line": 89,
+                "name": "_worker",
+                "percent": 0.6,
+                "samples": 3
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/before.py",
+                "line": 70,
+                "name": "_query",
+                "percent": 0.6,
+                "samples": 3
+              },
+              {
+                "file": "/home/ubuntu/mini-drop-business-fix-20261001T155100Z/fixture.py",
+                "line": 70,
+                "name": "measure",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 387,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 419,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 619,
+                "name": "<genexpr>",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 382,
+                "name": "find_longest_match",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/socket.py",
+                "line": 707,
+                "name": "readinto",
+                "percent": 0.4,
+                "samples": 2
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 620,
+                "name": "ratio",
+                "percent": 0.2,
+                "samples": 1
+              },
+              {
+                "file": "/usr/lib/python3.12/difflib.py",
+                "line": 374,
+                "name": "find_longest_match",
+                "percent": 0.2,
+                "samples": 1
+              }
+            ]
+          },
+          "object_key": "tasks/task_20261001_154358_6e8a30/analysis/top.json",
+          "sha256": "bf8151410bef6f6099f4ded7cfb16c170996a192eea14411da2cb36b43a1c929",
+          "size_bytes": 2879,
+          "task_id": "task_20261001_154358_6e8a30"
+        }
+      ]
+    },
+    {
+      "task_id": "task_20261001_154358_b600d6",
+      "collector_type": "sys_metrics",
+      "status": "DONE",
+      "status_reason": "系统指标产物已完成兼容契约校验",
+      "error_code": null,
+      "collection_status": "COLLECTED",
+      "analysis_status": "SUCCESS",
+      "event_count": 5,
+      "attempts": [
+        {
+          "id": "attempt_e8f1a67cd5944049942ca48fdd3c3c59",
+          "status": "SUCCEEDED",
+          "started_at": "2026-10-01T15:44:20.700478Z",
+          "finished_at": "2026-10-01T15:44:35.994828Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 4609,
+          "artifact_type": "sys_metrics",
+          "size_bytes": 7695,
+          "sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "integrity_status": "VERIFIED",
+          "sample_count": 14
+        },
+        {
+          "id": 4610,
+          "artifact_type": "manifest",
+          "size_bytes": 1107,
+          "sha256": "e99fcf8123e8ef35d6b02dcdc7904a5e49ee9ec0dca76182ff2357b3dc0d3d7c",
+          "integrity_status": "VERIFIED",
+          "sample_count": 0
+        }
+      ],
+      "_raw_artifacts": [
+        {
+          "artifact_type": "sys_metrics",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:35.994828Z",
+          "filename": "sys_metrics.json",
+          "id": 4609,
+          "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "artifact_type": "sys_metrics",
+            "content_type": "application/json",
+            "object_key": "tasks/task_20261001_154358_b600d6/attempts/attempt_e8f1a67cd5944049942ca48fdd3c3c59/raw/sys_metrics.json",
+            "schema_version": "mini-drop.artifact.v1",
+            "sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+            "size_bytes": 7695,
+            "task_attempt_id": "attempt_e8f1a67cd5944049942ca48fdd3c3c59",
+            "task_id": "task_20261001_154358_b600d6"
+          },
+          "metadata": {
+            "analysis_limitations": [],
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0",
+            "application_metrics": null,
+            "application_metrics_limitations": [
+              "target application did not expose the optional bounded metrics snapshot"
+            ],
+            "application_metrics_status": "UNAVAILABLE",
+            "collector_plugin": "sys_metrics",
+            "collector_runtime": "native-cpp",
+            "collector_type": "sys_metrics",
+            "contract_version": "1.0.0",
+            "process_cpu_window": {
+              "clock_ticks_per_second": 100,
+              "end_cpu_ticks": 1111,
+              "end_unix_ms": 1790869473799,
+              "process_cpu_core_usage": 23.915718240541374,
+              "sample_count": 14,
+              "source": "linux_proc_stat",
+              "start_cpu_ticks": 800,
+              "start_unix_ms": 1790869460795
+            },
+            "process_identity": {
+              "namespace_pid": 701154,
+              "pid": 701154,
+              "start_ticks": 234383085,
+              "verified": true
+            },
+            "sample_count": 14,
+            "schema_version": "sys_metrics_analysis.v2",
+            "signals": {
+              "cpu_hotspot": {
+                "detected": false,
+                "metrics": {
+                  "process_cpu_core_usage": 23.916
+                },
+                "reason": "target process CPU usage checked against the observation threshold"
+              },
+              "memory_growth": {
+                "detected": false,
+                "metrics": {
+                  "retained_memory_mb": 0,
+                  "rss_delta_mb": 0
+                },
+                "reason": "process memory footprint and retained memory change checked against the growth threshold"
+              }
+            },
+            "source_schema_version": "sys_metrics.v2",
+            "summary": {
+              "avg_cpu_iowait_pct": 0.077,
+              "avg_cpu_sys_pct": 0.966,
+              "avg_cpu_user_pct": 12.674,
+              "ctx_nonvoluntary_rate": 0,
+              "disk_read_kbps": 0,
+              "disk_write_kbps": 0,
+              "fd_count": 4,
+              "fd_count_first": 4,
+              "fd_count_max": 4,
+              "fd_trend": 0,
+              "host_cpu_busy_pct": 13.64,
+              "load1m": 0.446,
+              "load1m_max": 0.48,
+              "process_cpu_core_usage": 23.916,
+              "thread_count": 5,
+              "thread_count_first": 5,
+              "thread_count_max": 5,
+              "thread_trend": 0,
+              "vmrss_mb": 30.754,
+              "vmrss_mb_delta": 0,
+              "vmrss_mb_first": 30.754,
+              "vmrss_mb_max": 30.754
+            },
+            "window_duration_seconds": 13.004
+          },
+          "object_key": "tasks/task_20261001_154358_b600d6/attempts/attempt_e8f1a67cd5944049942ca48fdd3c3c59/raw/sys_metrics.json",
+          "sha256": "c68485465bb46d77f3d8cbc1d8338d675eb7fed9c178a861dce0bf62fcfd2c6f",
+          "size_bytes": 7695,
+          "task_id": "task_20261001_154358_b600d6"
+        },
+        {
+          "artifact_type": "manifest",
+          "bucket": "mini-drop",
+          "content_type": "application/json",
+          "created_at": "2026-10-01T15:44:35.994828Z",
+          "filename": "manifest.json",
+          "id": 4610,
+          "integrity_reason": "Analyzer verified artifact SHA-256 and size",
+          "integrity_status": "VERIFIED",
+          "local_path": null,
+          "manifest": {
+            "manifest_version": "mini-drop.artifact.v1",
+            "producer": "native-cpp"
+          },
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          },
+          "object_key": "tasks/task_20261001_154358_b600d6/attempts/attempt_e8f1a67cd5944049942ca48fdd3c3c59/manifest.json",
+          "sha256": "e99fcf8123e8ef35d6b02dcdc7904a5e49ee9ec0dca76182ff2357b3dc0d3d7c",
+          "size_bytes": 1107,
+          "task_id": "task_20261001_154358_b600d6"
+        }
+      ]
+    }
+  ]
+}

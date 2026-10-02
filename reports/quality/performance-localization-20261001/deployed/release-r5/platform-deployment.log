@@ -1,0 +1,98 @@
+Sending build context to Docker daemon  9.256MB
+
+Step 1/4 : FROM sha256:ffadeda47a6b8828f157d3ad389096f3ccf2952db78f87bc538605fe1bca2f1c
+ ---> ffadeda47a6b
+Step 2/4 : COPY server/ /app/server/
+ ---> 9f1a6b4fb1ea
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> ce6d999e8753
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> a26c72009aa6
+Successfully built a26c72009aa6
+Successfully tagged mini-drop-diagnosis-worker:20261001T094553Z
+candidate imports passed
+Sending build context to Docker daemon  9.256MB
+
+Step 1/4 : FROM sha256:ffb3f5a353ab1b1199ffd867b30b6a99ee0b8ec289e59852e13f26a0af270bbd
+ ---> ffb3f5a353ab
+Step 2/4 : COPY server/ /app/server/
+ ---> 69637b6c3071
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> 7c981048d117
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> e77855982c9e
+Successfully built e77855982c9e
+Successfully tagged mini-drop-analyzer:20261001T094553Z
+candidate imports passed
+Sending build context to Docker daemon  9.256MB
+
+Step 1/2 : FROM sha256:4b4490204425c2b56ad0d9c40e5cbe0762e1a57e29b77a40a58ca995a1bd7cf2
+ ---> 4b4490204425
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 7159a13281fc
+Successfully built 7159a13281fc
+Successfully tagged mini-drop-web:20261001T094553Z
+Sending build context to Docker daemon  19.46kB
+
+Step 1/8 : FROM golang:1.26.8-alpine AS build
+ ---> 8ac98ca534ac
+Step 2/8 : WORKDIR /src
+ ---> Using cache
+ ---> 624adee25dd2
+Step 3/8 : COPY go.mod main.go ./
+ ---> 2237c1f5346a
+Step 4/8 : RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/go-hotspot .
+ ---> Running in 6508cfee1f22
+ ---> Removed intermediate container 6508cfee1f22
+ ---> 4de75a5dcbcc
+Step 5/8 : FROM alpine:3.24.1
+ ---> 28bd5fe8b56d
+Step 6/8 : COPY --from=build /out/go-hotspot /usr/local/bin/go-hotspot
+ ---> fd26091e1707
+Step 7/8 : EXPOSE 6060
+ ---> Running in 6e991049aac2
+ ---> Removed intermediate container 6e991049aac2
+ ---> ec5340fd64a9
+Step 8/8 : ENTRYPOINT ["/usr/local/bin/go-hotspot"]
+ ---> Running in a5ec64a50850
+ ---> Removed intermediate container a5ec64a50850
+ ---> 7ac9f8a12f56
+Successfully built 7ac9f8a12f56
+Successfully tagged mini-drop-go-hotspot:20261001T094553Z
+{"release": "/opt/mini-drop-releases/20261001T094553Z", "previous_release": "/opt/mini-drop-releases/20261001T085318Z", "status": "HEALTHY", "manifest_sha256": "143d544f7136d259106892e09fa695832607365d17af15348c9b58215d5e2959", "source_head": "c59aac566cedef6a239eb1d640ee8fb796524ae3", "changed_services": ["diagnosis-worker", "analyzer", "web", "go-hotspot"], "images": {"diagnosis-worker": {"old": "sha256:ffadeda47a6b8828f157d3ad389096f3ccf2952db78f87bc538605fe1bca2f1c", "new": "sha256:a26c72009aa68fbb584c88c2bd2cd8349bb37ca84ab621b285d89eb4bc0c04e9", "tag": "mini-drop-diagnosis-worker:20261001T094553Z"}, "analyzer": {"old": "sha256:ffb3f5a353ab1b1199ffd867b30b6a99ee0b8ec289e59852e13f26a0af270bbd", "new": "sha256:e77855982c9e562e4bb0a818fbcb7620a642084d4faed65b88cee17921ab5cf3", "tag": "mini-drop-analyzer:20261001T094553Z"}, "web": {"old": "sha256:4b4490204425c2b56ad0d9c40e5cbe0762e1a57e29b77a40a58ca995a1bd7cf2", "new": "sha256:7159a13281fcdab18190c062c55f11aa8fab5021287508894b8c6d06d9f5ff25", "tag": "mini-drop-web:20261001T094553Z"}, "go-hotspot": {"old": "sha256:5b872b0f0bde544b25ca58bf8b3cf5e3f15ee818bdb5ddd5a3350d43f5239696", "new": "sha256:7ac9f8a12f561f841acb621ce0c531653fc5545cdce005454be843e191cfd1e5", "tag": "mini-drop-go-hotspot:20261001T094553Z"}}, "untouched_container_count": 9, "rollback_config": "/opt/mini-drop-releases/20261001T094553Z/private/rollback.compose.json"}
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+time="2026-10-01T17:52:39+08:00" level=warning msg="Found orphan containers ([mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-go-hotspot-1  Recreate
+ Container mini-drop-control-go-hotspot-1  Recreated
+ Container mini-drop-control-go-hotspot-1  Starting
+ Container mini-drop-control-go-hotspot-1  Started
+time="2026-10-01T17:52:46+08:00" level=warning msg="Found orphan containers ([mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started
+time="2026-10-01T17:53:10+08:00" level=warning msg="Found orphan containers ([mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-analyzer-1  Recreate
+ Container mini-drop-control-analyzer-1  Recreated
+ Container mini-drop-control-analyzer-1  Starting
+ Container mini-drop-control-analyzer-1  Started
+time="2026-10-01T17:53:35+08:00" level=warning msg="Found orphan containers ([mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-diagnosis-worker-1  Recreate
+ Container mini-drop-control-diagnosis-worker-1  Recreated
+ Container mini-drop-control-diagnosis-worker-1  Starting
+ Container mini-drop-control-diagnosis-worker-1  Started

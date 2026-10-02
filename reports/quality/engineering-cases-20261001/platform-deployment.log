@@ -1,0 +1,20 @@
+Sending build context to Docker daemon  6.787MB
+
+Step 1/2 : FROM sha256:6c1072906ba066e9775fae31b27b77d9cccfbddf289a37931e2cfcde66423b68
+ ---> 6c1072906ba0
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 97153af74639
+Successfully built 97153af74639
+Successfully tagged mini-drop-web:20260930T180319Z
+{"release": "/opt/mini-drop-releases/20260930T180319Z", "previous_release": "/opt/mini-drop-releases/20260930T164946Z", "status": "HEALTHY", "manifest_sha256": "41b033c276b2a36f12ead968dabf188bbbf98e4990445df40dcd9cac89d11a9a", "source_head": "dbdf2656c1fb643ff5512b675c05e6e76202940c", "changed_services": ["web"], "images": {"web": {"old": "sha256:6c1072906ba066e9775fae31b27b77d9cccfbddf289a37931e2cfcde66423b68", "new": "sha256:97153af7463904abe444bcb090dfcae8237a70040a85b932e6422bfcb4420309", "tag": "mini-drop-web:20260930T180319Z"}}, "untouched_container_count": 12, "rollback_config": "/opt/mini-drop-releases/20260930T180319Z/private/rollback.compose.json"}
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+time="2026-10-01T02:05:50+08:00" level=warning msg="Found orphan containers ([mini-drop-control-diagnosis-worker-1 mini-drop-control-analyzer-1 mini-drop-control-apiserver-1 mini-drop-control-chroma-1 mini-drop-control-demo-agent-1 mini-drop-control-control-plane-1 mini-drop-control-migrate-1 mini-drop-control-java-hotspot-1 mini-drop-control-python-hotspot-1 mini-drop-control-go-hotspot-1 mini-drop-control-cpp-hotspot-1 mini-drop-control-minio-1 mini-drop-control-postgres-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container mini-drop-control-web-1  Recreate
+ Container mini-drop-control-web-1  Recreated
+ Container mini-drop-control-web-1  Starting
+ Container mini-drop-control-web-1  Started

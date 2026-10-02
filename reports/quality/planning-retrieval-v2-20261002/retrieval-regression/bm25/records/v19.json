@@ -1,0 +1,192 @@
+{
+  "case_id": "v19",
+  "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.iowait.shared_block_device",
+    "sre.recovery.acceptance"
+  ],
+  "matches": [
+    {
+      "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.iowait.shared_block_device",
+      "title": "共享块设备与 I/O wait 争抢",
+      "document": "knowledge/linux_iowait.md",
+      "content_hash": "e3971659434c227524eaf75bccdb04f539cc7745b94d4c4ba5a23596a9ed4cea",
+      "chunk_id": "0be9ff17e3bf65ba7611d5bc5dbc283050fe97a3d45dff5b67cda6f3f95a04bd",
+      "score": 89.159324,
+      "matched_terms": [
+        "block",
+        "享块设",
+        "共享块",
+        "块设备",
+        "备队列",
+        "目标与",
+        "直方图",
+        "相关性",
+        "设备队",
+        "争抢",
+        "享块",
+        "共享",
+        "关性",
+        "块设",
+        "备队",
+        "实例"
+      ],
+      "required_evidence": [
+        "目标与邻居 iowait",
+        "块设备延迟直方图",
+        "设备队列深度"
+      ],
+      "caveats": [
+        "相关性不等于噪声邻居导致",
+        "虚拟磁盘可能共享宿主物理设备"
+      ],
+      "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。"
+    },
+    {
+      "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "sre.recovery.acceptance",
+      "title": "Agent 恢复与容量验收",
+      "document": "knowledge/sre_recovery.md",
+      "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+      "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+      "score": 6.638748,
+      "matched_terms": [
+        "磁盘",
+        "队列",
+        "验证"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "# SRE Agent 故障恢复验收\n\n分别验收 API、任务队列、采集器、分析器、模型供应商、数据库和对象存储；健康检查通过不表示运行中任务可恢复。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

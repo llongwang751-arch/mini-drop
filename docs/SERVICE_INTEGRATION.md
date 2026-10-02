@@ -1,5 +1,44 @@
 # 真实后台服务接入
 
+## 2026-10-01 Web安全依赖已发布
+
+Axios最低版本提高到1.20.0，生成lock后生产npm audit为0，228项前端测试与bundle检查通过；精确提交7403815的CI36746799170成功13/13，Web发布20260930T164946Z，45文件一致，其余12容器保持。办公助手原入口/鉴权、业务源及数据保持。发布与逐文件SHA状态以PROJECT_CONTEXT和性能修复交付报告为准，不把依赖扫描通过解释为根因能力或业务性能通过。
+
+## 2026-09-30 查询实体提取缓存
+
+`backend_entry.py`在依赖构造前安装`query_extraction_cache.py`，仅在`KGStore.search`上下文复用成功查询实体结果（含明确合法JSON的空实体）。缓存是内存内128项/300秒，查询最多2048字符，以user_id、配置SHA和原问题为键；文档提取不复用，不缓存图谱或chunk候选，仍执行原搜索与用户过滤；有实体时重新读取数据库，合法空实体保持原空结果，异常、解析失败及来源未知的空结果不缓存。不同实例可共享同用户/配置的提取；配置变化立即隔离，过期或重启自然失效。并发冷查询允许重复计算，不用全局锁包住模型HTTP请求。该缓存不保存问答或数据库结果，不改变数据库和原应用业务文件。
+
+部署需将backend_entry、query_extraction_cache及观测器一起放入新Office release并编译/健康检查，失败切回旧release；不能只发布引用新模块的入口文件。演示在三段前固定一次不注入的准备请求，公开其请求ID/耗时，三段严格比较仍为+2000ms。冷启动性能另行保留，不当作温热查询表现。
+
+## 2026-09-24 云端样本文档清理
+
+旧的 14 篇办公助手 `user_upload` 验收样本已清除。应用 `DELETE /api/documents/{id}` 会删除检索块并把文档标为 `deleted`，但本地 SQLite 仍保留旧版本正文，且不可用的 Elasticsearch 投影任务会使旧 Milvus 删除任务在队列中滞留。因此清理先通过原接口按 ID 删除，确认全部旧文档已删除且检索块为 0；再停止办公助手，按已确认的 14 个 ID 移除旧版本和文档行、清空仅由这些检索块产生的投影任务、重建空 `rag_chunks` 向量集合，对 SQLite 运行 `VACUUM` 与完整性检查，最后重启服务。数据库文件、向量库目录与平台卷均未删除。新建的小型健康样本经重启后仍有 1 个 1024 维向量、语义召回和正确问答。旧请求观测仅保存数字，可在 24 小时内作历史记录，但对应文档已不可再查询。当前容量及步骤见 [清理验收](../reports/business-acceptance/cloud-data-cleanup-20260924.md)。
+
+## 2026-09-23 百万字文档与真实向量库
+
+办公助手原网页 `/api/office/` 的上传仍由原 FastAPI 处理。原 SQLite 每个分块提交一次，百万字可形成 7,701 次提交；现在按最多 100 块一事务提交，Embedding 和向量写入按最多 32 块一批流式执行，避免构造整篇向量数组。已安装 `pymilvus==3.0.2` 与 `milvus-lite==3.2.1`，本机向量库位于 `/var/lib/agi-office/vector/milvus.db`，重启后显式 load collection。Embedding 使用硅基流动 OpenAI 兼容接口的 `BAAI/bge-m3`（1024 维）；API URL、模型、密钥和向量库路径由 `/etc/agi-office/backend.env` 注入，密钥绝不写进观察、Git 或网页。部署依赖见 `integrations/agi_saber/requirements-vector.txt`；对云端原始 AGI-saber 发布的补丁见 `integrations/agi_saber/patches/`，补丁需对记录的原始源码版本应用，不能盲目套用到其他版本。
+
+公网办公助手路由 `/api/office/` 的 Nginx `proxy_read_timeout` 是独立配置。百万字向量上传首轮因旧 120 秒限额收到 HTTP 504；`deploy/nginx/control-tls.conf` 将该路由改为 600 秒，保留其他 API 的原超时。该调整只允许长请求返回，不代表消除了远程 Embedding 的耗时，页面仍需明确展示慢阶段。
+
+`rag.ingest` 记录上传 request_id、文本长度、块数、Embedding 调用与失败数、**已成功向量入库数**、各阶段真实耗时、进程 CPU/RSS 峰值和 systemd cgroup CPU/内存峰值与限额。诊断选择该请求后，页面先给出主要慢阶段与资源数字，完整明细按需展开。新字段没有采到时显示缺失，不会填零。百万字实测 7,701 块、241 次远程 Embedding 全部成功、总 289.1 秒，其中向量化 230.8 秒。旧 512 MiB systemd 限额小于 Milvus Lite 加应用的服务组峰值；初升至 768 MiB 后网页复验仍触发 cgroup 回收，升至 1 GiB 后网页上传成功，但在多篇百万字文档重启加载时发生一次 OOM 自动重启。当前持久限额设为 1.5 GiB，启动加载实测峰值约 1.26 GiB。主机可用内存另行观察，不能把 cgroup 限额命中说成主机内存不足。
+
+故障演示通过受限服务端接口给**当前问答请求**的检索阶段加入 2,500 ms 延迟；基线、故障、撤销后在三个请求窗口对比，超时自动撤销。撤销注入是恢复演示条件，不代表完成代码修复或真实故障根因 VERIFIED。原生 Agent 仍独立采集当前进程窗口，历史上传的请求级数字不冒充同时间窗原生 Evidence。端到端步骤与证据见 [全链路验收](FULL_CHAIN_ACCEPTANCE.md)。
+
+进程内近 100 条请求快照升级为 `mini-drop.office-observations.v2`，启动时从旧快照继承通过字段白名单、时间窗和大小校验的历史数字，不继承问题、答案、文档正文或未知字段。Mini-Drop 只读解析旧 v1 和新 v2；v2 的 `producer_started_at_unix` 用于区分旧 PID 在重启前已完成的请求与当前 PID 的新请求。历史 PID 不授权当前进程采集，也不影响 Agent 的新鲜绑定。云端从两份保留的真实快照合并 12 条后上线，经新问答与再次重启有 14 条、4 个历史 PID，百万字上传仍可在页面选择、`invalid_records=0`。这仍是有界近 24 小时快照，不是永久审计库。
+请求下拉框支持按操作名称、字数等可见标签搜索；历史上传即使排在虚拟列表后部，也能输入 `999,999` 找到。关联旧请求后的体检仍绑定当前服务进程，页面将两种时间窗分别标注；原请求观测里的内存限额保持历史值，不自动改写为当前限额。
+
+## 2026-09-23 AGI-saber 知识库问答阶段
+
+原办公助手保持 `/api/office/` 入口。`integrations/agi_saber/request_observations.py` 在部署入口 `backend_entry.py` 构造依赖前安装有界埋点：`LLMRewriter.rewrite`、`HybridStore.search_multi`、实际使用的 `_embed_fn`、启用时的 `HybridStore._finalize` 重排、`UnifiedAgent._llm_generate`，以及 `process_with_options`/`process_stream` 的总执行时间。多查询检索并发线程继承请求上下文；阶段只记录耗时，搜索阶段按向量化与重排窗口的并集及父窗口交集扣除，避免并行重复扣减；6项细分计时为包含关系，不能相加。生成的 request_id 采用原 `Response.trace_id` UUID；没有可用 UUID 时生成独立 ID。快照只保留最近 100 条、24 小时内读入、最大 256 KiB，不导出问答文本、文档或凭据。宿主业务根目录仍为 0700；Worker 只读挂载专用观测子目录以跟踪原子更新，0644 的快照文件供非特权 UID 读取，其他业务库和数据不挂载。
+
+Mini-Drop 从只读文件选择真实 `rag.question` 记录，诊断仍由登记服务和 Native Agent 重新发现、校验目标进程。请求记录中的 PID 只是应用自报，不授予采样权限；后续 CPU、RSS、栈与探针属于复现窗口，不是历史请求的执行轨迹。此处原发布曾使用本地词法检索；2026-09-23 接入 Milvus Lite 后，当前发布可执行语义检索，历史记录保持原样。这个接入是专用请求级业务遥测，不是完整 OTel/跨服务 Trace，也没有 SQL span、首 token 计时或自动修复效果证明。旧发布验收见 [发布记录](../reports/architecture/agi-saber-rag-release-20260923.md)。
+
+快照将 HTTP 状态与业务结果分开记录：原接口即使在响应体返回错误时仍可能返回 HTTP 200，届时记录 `status=200`、`result=FAILED`，不会把业务失败冒充 HTTP 500。终态办公助手发布为 `20260923T105939Z`。
+
+## 2026-09-22 办公助手业务指标
+
+办公助手入口已加入依赖无关的 ASGI 聚合中间件，并发布到 `/opt/agi-office/releases/20260922T094352Z`。它只输出与当前进程 PID 绑定的请求数、5xx 数、处理中请求、累计耗时和最近 256 次请求的平均/P95，不保存 URL、正文、响应内容或凭据。systemd 的 `PrivateTmp=true` 保持不变；Native Agent 通过 `/proc/<pid>/root/tmp/mini-drop-app-metrics.json` 读取该进程自己的快照。Analyzer 执行 PID 身份核对与字段白名单，再把窗口前后差值写入 Evidence。该路径属于受限业务指标接入，不等于完整 OTel Trace；函数阶段、SQL span 与跨服务拓扑仍未接入。
+
 ## 2026-09-14 已运行的四个轻量业务
 
 四个业务的原网页、账号、数据库和文件独立保留。Mini-Drop 新增服务请求关联和采集保护，使用现有两台 Worker，不增加服务器。
@@ -78,7 +117,7 @@ Cookie 按主机共享而非按端口隔离。业务反代只转发各上游自�
 - `/opt/agi-office/releases/<版本>` 与 `/opt/agi-office/current` 保存代码；`/var/lib/agi-office` 保存业务数据。
 - `/etc/agi-office/backend.env` 在服务器生成 JWT 密钥并单独配置原助手的生成模型凭据，权限 0600；不是复制 Mini-Drop 的模型账号。模型值不进入报告或源码包。
 - 原助手设置 `AGI_LLM_ALLOW_MOCK=0`；模型调用失败不能回退成“模拟 LLM 回复”冒充成功。
-- 当前使用本地 SQLite 词法检索与真实生成模型，未启用 Milvus/远程 embedding/ES/Kafka/Neo4j，不把这些列为已验收。命令沙箱关闭。
+- 2026-09-13 当时使用本地 SQLite 词法检索与真实生成模型，未启用 Milvus/远程 embedding/ES/Kafka/Neo4j；2026-09-23 已接入 Milvus Lite 和远程 Embedding，其余仍不列为已验收。命令沙箱关闭。
 - Web 使用 `VITE_API_BASE=/api/office` 和 `vite build --base=/api/office/`，保留原 Vue 界面。Nginx 对这个前缀先用 Mini-Drop HttpOnly 会话验证访问资格，再反代到 `172.17.0.1:18090`，不将 Mini-Drop Cookie/API Key 转交业务后台。
 - Diagnosis Worker 通过同路径只读 `/opt/agi-office` 挂载实际发布源码，`MINI_DROP_OFFICE_SOURCE_PATH=/opt/agi-office`；保留绝对符号链接的解析路径，源码映射只是定位参考，运行证据门禁不变。
 

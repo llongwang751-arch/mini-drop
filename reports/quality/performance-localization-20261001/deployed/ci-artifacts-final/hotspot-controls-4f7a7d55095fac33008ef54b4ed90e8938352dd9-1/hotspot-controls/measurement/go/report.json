@@ -1,0 +1,54 @@
+{
+  "runtime": "go",
+  "status": "CONTROL_VERIFIED",
+  "windows": {
+    "baseline": {
+      "pid": 3571,
+      "create_time": 1790847956.6,
+      "duration_seconds": 4.000252519,
+      "cpu_start_seconds": 0.0,
+      "cpu_end_seconds": 0.02,
+      "cpu_percent": 0.4999684371175569,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "fault": {
+      "pid": 3571,
+      "create_time": 1790847956.6,
+      "duration_seconds": 8.000244454000011,
+      "cpu_start_seconds": 0.02,
+      "cpu_end_seconds": 8.65,
+      "cpu_percent": 107.87170379131504,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "recovery": {
+      "pid": 3571,
+      "create_time": 1790847956.6,
+      "duration_seconds": 4.000211906000004,
+      "cpu_start_seconds": 13.48,
+      "cpu_end_seconds": 13.5,
+      "cpu_percent": 0.4999735131531693,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    }
+  },
+  "profile": {
+    "function": "main.goCPUHotFunction",
+    "cumulative_percent": 92.11,
+    "sample_cpu_seconds": 5.45
+  },
+  "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+  "profile_observer": "Go CPU pprof",
+  "cleanup_verified": true,
+  "injection_active_through_fault_window": true,
+  "reasons": [],
+  "ai_root_cause_verified": false,
+  "fix_verified": false,
+  "artifact_sha256": {
+    "cleanup-snapshot.json": "763542bec2a0b9f4eebe814d5ddfb4bf19c7a6800efce17780b553d0edc183e0",
+    "fault-snapshots.json": "d2b1fca993932332983317efc17bb403ae198ed22bd793e164031eb360523280",
+    "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pprof-top.txt": "d7e48f999f2bb4ac97b36c4a798e509f7257dc707b8bf7b4166e8dff9d5c47b5",
+    "go-hotspot": "eef5f2b7e368deeec8857132317f973275e932113df10b221bcc567f02204a1a",
+    "recovery-snapshot.json": "d0bf7b72f70cfad28b493c78a4399bcf3a639bd9deea13f46af48e6abb874667",
+    "cpu.pprof": "06afe4ef3bc0efa0134749aeb80db94ac3b9b197d72218a634df4842eeef8b5d"
+  }
+}

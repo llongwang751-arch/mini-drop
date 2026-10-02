@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "b14",
+  "status": "OK",
+  "response": {
+    "id": "01a0fc95782fb291ba130050b0def897",
+    "object": "chat.completion",
+    "created": 1790944051,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户描述了RabbitMQ仲裁复制可能延迟的迹象，但未提供任何可验证的测量数据（如副本确认延迟、复制周期）。同时，访问被禁止且不允许收集证据。因此，无法提出可执行的取证计划来验证或反驳该异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"RabbitMQ仲裁队列的副本确认延迟或复制周期的具体测量值。\",\n    \"对目标RabbitMQ节点或集群进行性能指标采集的权限。\"\n  ],\n  \"limitations\": [\n    \"本次判断仅基于描述和规划范围，未对当前系统状态进行检查。\",\n    \"由于证据缺失且无法采集，无法确认是否存在性能异常。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3581,
+      "completion_tokens": 211,
+      "total_tokens": 3792,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 3200
+      },
+      "prompt_cache_hit_tokens": 3200,
+      "prompt_cache_miss_tokens": 381
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fc95782fb291ba130050b0def897\",\"object\":\"chat.completion\",\"created\":1790944051,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户描述了RabbitMQ仲裁复制可能延迟的迹象，但未提供任何可验证的测量数据（如副本确认延迟、复制周期）。同时，访问被禁止且不允许收集证据。因此，无法提出可执行的取证计划来验证或反驳该异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"RabbitMQ仲裁队列的副本确认延迟或复制周期的具体测量值。\\\",\\n    \\\"对目标RabbitMQ节点或集群进行性能指标采集的权限。\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次判断仅基于描述和规划范围，未对当前系统状态进行检查。\\\",\\n    \\\"由于证据缺失且无法采集，无法确认是否存在性能异常。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3581,\"completion_tokens\":211,\"total_tokens\":3792,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":3200},\"prompt_cache_hit_tokens\":3200,\"prompt_cache_miss_tokens\":381},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "5e045f92ff0a77da64be3b599fefa04748ebac4fd0e946fb6c03e9b676c1e08a",
+  "seconds": 16.441881,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

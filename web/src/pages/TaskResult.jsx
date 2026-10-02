@@ -404,7 +404,7 @@ export default function TaskResult() {
 
   if (loading) {
     return (
-      <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+      <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
         <Skeleton.Input active size="small" style={{ width: 200 }} />
         <div className={styles.skeletonCard}>
           <Skeleton active paragraph={{ rows: 4 }} />
@@ -422,9 +422,9 @@ export default function TaskResult() {
   // ── 主渲染 ────────────────────────────────────────────
 
   return (
-    <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+    <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
       {/* 页面标题 + 返回 + 自动刷新指示 */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <div className="workspace-page-header">
         <Space align="center">
           <Button
             icon={<ArrowLeftOutlined />}

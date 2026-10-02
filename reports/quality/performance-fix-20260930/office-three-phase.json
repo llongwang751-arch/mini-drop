@@ -1,0 +1,82 @@
+{
+  "passed": false,
+  "checks": {
+    "answers": true,
+    "completed": true,
+    "injection": true,
+    "same_process_version": true,
+    "semantic": false,
+    "fault_vs_baseline": true,
+    "fault_vs_recovery": true,
+    "measured_sleep": true
+  },
+  "requests": [
+    {
+      "request_id": "81f475df4d604b17abf55c9e1e884379",
+      "exercise_phase": "baseline",
+      "injected_delay_ms": 0,
+      "duration_ms": 4883.718,
+      "stage_ms": {
+        "embedding_ms": 250.535,
+        "generation_ms": 995.708,
+        "retrieval_ms": 1911.57
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 27.899,
+        "chunk_load_ms": 28.464,
+        "search_wall_ms": 2162.105
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3492440,
+      "version": "observer-20260930T132211Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "f174e4e1f9534fbbbc449b93ecfbfcf0",
+      "exercise_phase": "fault",
+      "injected_delay_ms": 2500,
+      "duration_ms": 11077.437,
+      "stage_ms": {
+        "embedding_ms": 219.524,
+        "generation_ms": 831.218,
+        "retrieval_ms": 8094.453
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 11.963,
+        "chunk_load_ms": 8.369,
+        "fault_delay_ms": 2500.069,
+        "search_wall_ms": 8313.977
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3492440,
+      "version": "observer-20260930T132211Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "d37bdd86aac641aabdff3eeb16f39dc8",
+      "exercise_phase": "recovery",
+      "injected_delay_ms": 0,
+      "duration_ms": 9075.172,
+      "stage_ms": {
+        "embedding_ms": 231.778,
+        "generation_ms": 833.263,
+        "retrieval_ms": 5739.163
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 10.522,
+        "chunk_load_ms": 4.009,
+        "search_wall_ms": 5970.94
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3492440,
+      "version": "observer-20260930T132211Z",
+      "http_status": 200,
+      "answer_matches": true
+    }
+  ]
+}

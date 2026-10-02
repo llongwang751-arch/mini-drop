@@ -1,0 +1,51 @@
+{
+  "case": "reports\\ai-diagnosis\\fault-plaza-strict-pilot-20260928-cases\\source-hotspot.json",
+  "case_sha256": "24cbc630670fe3be867ea179fcb3c44071aedbeea2b2068559f402f9b8ad5e08",
+  "hypothesis_id": "hyp_a966a102be7d4c3b9b706b23deeb45a7",
+  "proposal": {
+    "reasoning_summary": "如果 CPU 升高由 Python 用户代码引起，py-spy 应能捕获到少数函数占用大量 CPU 时间",
+    "tool_name": "start_pyspy_profile",
+    "hypotheses": [
+      {
+        "statement": "目标 Python 进程存在用户态热点函数，导致 CPU 持续升高",
+        "expected_observations": [
+          "py-spy 样本集中在少数 Python 函数（如 Top3 函数占比超过 50%）",
+          "火焰图显示明显的函数调用热点区域"
+        ],
+        "falsification_criteria": [
+          "Python 栈样本均匀分布，无明显热点函数集中",
+          "主要样本落在解释器内部或系统库而非用户代码"
+        ],
+        "rationale": "如果 CPU 升高由 Python 用户代码引起，py-spy 应能捕获到少数函数占用大量 CPU 时间"
+      }
+    ]
+  },
+  "before": {
+    "accepted": true,
+    "proposal": {
+      "reasoning_summary": "如果 CPU 升高由 Python 用户代码引起，py-spy 应能捕获到少数函数占用大量 CPU 时间",
+      "tool_name": "start_pyspy_profile",
+      "hypotheses": [
+        {
+          "statement": "目标 Python 进程存在用户态热点函数，导致 CPU 持续升高",
+          "expected_observations": [
+            "py-spy 样本集中在少数 Python 函数（如 Top3 函数占比超过 50%）",
+            "火焰图显示明显的函数调用热点区域"
+          ],
+          "falsification_criteria": [
+            "Python 栈样本均匀分布，无明显热点函数集中",
+            "主要样本落在解释器内部或系统库而非用户代码"
+          ],
+          "rationale": "如果 CPU 升高由 Python 用户代码引起，py-spy 应能捕获到少数函数占用大量 CPU 时间",
+          "prior_probability": null,
+          "estimated_value": null
+        }
+      ]
+    }
+  },
+  "expected": {
+    "accepted": false,
+    "code": "INVALID_FALSIFICATION"
+  },
+  "regression_reproduced": true
+}

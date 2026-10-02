@@ -25,12 +25,13 @@ import {
   diagnosticStatusLabel,
   diagnosticToolLabel,
   skillPolicyLabel,
+  TERMINAL_DIAGNOSIS_STATUSES as TERMINAL,
 } from "../utils/diagnosisDisplay";
+import { selectBestReport, isCausalRootReport, isObservationReport } from "../utils/reportPresentation";
 import { shortDiagnosisId } from "../utils/hypothesisSemantics";
 import "./DiagnosisShowcase.css";
 
 const { Paragraph, Text, Title } = Typography;
-const TERMINAL = new Set(["COMPLETED", "INSUFFICIENT_EVIDENCE", "FAILED", "CANCELLED"]);
 export const SKILL_AB_HISTORY_KEY = "mini-drop:skill-ab-history:v1";
 const MAX_HISTORY = 12;
 const BENCHMARK_REPORT_URL = "/report-assets/evaluation/root-cause-skill-ab.json";
@@ -79,28 +80,11 @@ function emptyArm(policy, diagnosisId = "") {
   };
 }
 
-const REPORT_STATUS_RANK = {
-  VERIFIED: 3,
-  PARTIAL_WITHOUT_COUNTER: 2,
-  INSUFFICIENT_EVIDENCE: 1,
-};
-
 // Reports are per hypothesis, not successive versions of one final report.
-// Prefer the strongest supported hypothesis so a later dead-end branch cannot
-// hide a root cause that was already established earlier in the exploration.
-function bestReport(reports = []) {
-  return [...reports].sort((left, right) => {
-    const leftStatus = String(left?.verification?.status || left?.verification_status || "").toUpperCase();
-    const rightStatus = String(right?.verification?.status || right?.verification_status || "").toUpperCase();
-    const statusDelta = (REPORT_STATUS_RANK[rightStatus] || 0) - (REPORT_STATUS_RANK[leftStatus] || 0);
-    if (statusDelta) return statusDelta;
-    const referenceDelta = (right?.evidence_refs?.length || 0) - (left?.evidence_refs?.length || 0);
-    if (referenceDelta) return referenceDelta;
-    const confidenceDelta = Number(right?.confidence || 0) - Number(left?.confidence || 0);
-    if (confidenceDelta) return confidenceDelta;
-    return new Date(right?.updated_at || right?.created_at || 0) - new Date(left?.updated_at || left?.created_at || 0);
-  })[0] || null;
-}
+// The shared selectBestReport prefers the strongest supported hypothesis so a
+// later dead-end branch cannot hide a root cause that was already established
+// earlier in the exploration.
+const bestReport = selectBestReport;
 
 function scopeKey(detail) {
   const target = detail?.target || {};
@@ -218,7 +202,7 @@ function evidenceLimitation(evidence = []) {
 
 function reportLabel(report) {
   const status = String(report?.verification?.status || report?.verification_status || "").toUpperCase();
-  if (status === "VERIFIED") return "已验证";
+  if (status === "VERIFIED") return isObservationReport(report) ? "观测已验证" : isCausalRootReport(report) ? "已验证" : "范围未确认";
   if (status === "PARTIAL_WITHOUT_COUNTER") return "阶段性结论";
   if (status === "INSUFFICIENT_EVIDENCE") return "证据不足";
   return report ? "待校验" : "尚未生成";
@@ -235,8 +219,7 @@ function routePosition(route, toolName) {
 
 function reportResult(arm) {
   const report = bestReport(arm?.reports || []);
-  const verification = String(report?.verification?.status || report?.verification_status || "").toUpperCase();
-  const verified = verification === "VERIFIED";
+  const verified = isCausalRootReport(report);
   return {
     report,
     verified,

@@ -1,0 +1,175 @@
+{
+  "type": "result",
+  "case_id": "v07",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe531820f726807d995e8c375e6",
+    "object": "chat.completion",
+    "created": 1790932497,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户描述了关于Elasticsearch搜索分片合并可能阻塞的猜想，但明确指出索引任务与延迟记录均未获取。当前缺乏目标进程身份、时间窗口以及任何与问题对应的原始观测（如合并队列深度、IO延迟、线程状态等）。知识检索结果与Elasticsearch领域不匹配，无法提供有效指导。由于缺失必要的观测证据，无法提出可执行的取证计划来验证或推翻任何假设。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"目标Elasticsearch进程的身份标识与问题时间窗口\",\n    \"与分片合并操作相关的原始观测，如合并队列状态、线程堆栈、IO活动或延迟指标\",\n    \"索引任务的执行状态或延迟记录\"\n  ],\n  \"limitations\": [\n    \"规划范围仅限于基于现有证据提出可验证假设。当前证据严重不足，无法规划具体调查步骤。\",\n    \"知识检索命中了PostgreSQL、Go和RAG相关内容，与Elasticsearch问题领域不匹配，不能作为本次诊断的证据或行动依据。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4286,
+      "completion_tokens": 282,
+      "total_tokens": 4568,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1598
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe531820f726807d995e8c375e6\",\"object\":\"chat.completion\",\"created\":1790932497,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户描述了关于Elasticsearch搜索分片合并可能阻塞的猜想，但明确指出索引任务与延迟记录均未获取。当前缺乏目标进程身份、时间窗口以及任何与问题对应的原始观测（如合并队列深度、IO延迟、线程状态等）。知识检索结果与Elasticsearch领域不匹配，无法提供有效指导。由于缺失必要的观测证据，无法提出可执行的取证计划来验证或推翻任何假设。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"目标Elasticsearch进程的身份标识与问题时间窗口\\\",\\n    \\\"与分片合并操作相关的原始观测，如合并队列状态、线程堆栈、IO活动或延迟指标\\\",\\n    \\\"索引任务的执行状态或延迟记录\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"规划范围仅限于基于现有证据提出可验证假设。当前证据严重不足，无法规划具体调查步骤。\\\",\\n    \\\"知识检索命中了PostgreSQL、Go和RAG相关内容，与Elasticsearch问题领域不匹配，不能作为本次诊断的证据或行动依据。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4286,\"completion_tokens\":282,\"total_tokens\":4568,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1598},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "ff2a57cac8178c4b31b00afc7fcd857766f79949c80249887ebe7a15030b1c74",
+  "seconds": 14.07446,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "postgres.waits",
+      "go.profile.selection",
+      "rag.quality.lifecycle"
+    ],
+    "matches": [
+      {
+        "query": "Elasticsearch 搜索分片合并有没有阻塞目前只是猜想，索引任务与延迟记录都没拿到，请保持无法判断。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "lock_wait"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "lock_wait"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": [
+              "POSTGRES"
+            ]
+          }
+        },
+        "knowledge_id": "postgres.waits",
+        "title": "PostgreSQL 长事务与锁等待",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "score": 12.160308,
+        "matched_terms": [
+          "保持",
+          "务与",
+          "无法",
+          "没有"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## PostgreSQL 处置前后比较\n\n先区分连接池排队、锁等待与查询计算消耗。取消或终止事务会影响业务，不能由知识命中自动执行。复测保持相同事务组合与到达率，并比较等待时长、错误率和吞吐。没有数据库连接器时应明确无法观测。\n\n来源：https://www.postgresql.org/docs/current/monitoring-stats.html 。核对日期 2026-09-19；以部署主版本为准。"
+      },
+      {
+        "query": "Elasticsearch 搜索分片合并有没有阻塞目前只是猜想，索引任务与延迟记录都没拿到，请保持无法判断。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "lock_wait"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "lock_wait",
+              "sampling"
+            ],
+            "runtime_scopes": [
+              "GO"
+            ],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "score": 6.870086,
+        "matched_terms": [
+          "保持",
+          "延迟",
+          "阻塞"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Go 堆增长与修复复测\n\n分别阅读累计分配与仍存活对象，保持采样口径、GC 阶段和工作负载可比。修复后同时观察存活量、分配速率、CPU 与请求延迟，避免把性能转移到另一资源算作成功。\n\n来源：https://go.dev/doc/diagnostics 。核对日期 2026-09-19；本文是项目调查摘要。"
+      },
+      {
+        "query": "Elasticsearch 搜索分片合并有没有阻塞目前只是猜想，索引任务与延迟记录都没拿到，请保持无法判断。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "retrieval_quality"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "retrieval_quality"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "rag.quality.lifecycle",
+        "title": "RAG 质量与索引生命周期",
+        "document": "knowledge/rag_quality.md",
+        "content_hash": "75ea8452e470643f175cc5c42cd667030fc46e304219833ff27e83777f6b41fc",
+        "chunk_id": "15c33a079131f97920bfa88987cfef55ea9fb316b568a7cc7c730b1c4456f8d6",
+        "score": 5.862745,
+        "matched_terms": [
+          "索引",
+          "记录"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## 词法、向量与重排\n\n函数名、错误码适合精确词法匹配，症状改写可使用向量召回，混合后再重排。使用独立问题集测 Recall@K、MRR、无答案误召回与查询耗时，并记录实际后端。降级 BM25 时不能标为向量验证成功。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

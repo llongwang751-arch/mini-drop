@@ -1,0 +1,916 @@
+{
+  "source": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920.json",
+  "source_sha256": "49dc946437131a9d3041b43bb255eea172fc5e1801834e591eb3ade43889c2ca",
+  "counts": {
+    "lineage_verified": 10,
+    "root_cause_accepted": 1,
+    "cleanup_verified": 21,
+    "recovery_observed": 21,
+    "root_gate_verified": 1
+  },
+  "rows": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "diagnosis_id": "insight_337db834b6bc4f979e48413480ff6956",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_a1864e77dc5762cc00fbf6f9477a7ff8",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_3eb77b6318a791997ae9bc4a35c01ffb",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_3f3c78e6960291e9c936fcd548c38cea",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_9c56536db4fb66aaacd6fc681e0fcabd",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpu-hotspot.json",
+      "source_sha256": "b59bc375f8fdcd7ea6a735ebfbf099fdbe668922f832d6decb759cd3886047a5"
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "diagnosis_id": "insight_025469967add4a66a8c2329569729775",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_8ec221e3358e11a2533db319800c44ab",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_04c1cc9b8ccc3b5cd370df5c151fec5b",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4f8b98164af12d63ff5f2715840c26bf",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/source-hotspot.json",
+      "source_sha256": "75050797145bbab018512553861e092c9151179e1c27d0cb853c4fb83e2e1785"
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "diagnosis_id": "insight_1a3e73cbd9a348b2b8c286b06e283dda",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "GET /api/tasks/task_20260920_190824_fe8e25/attempts: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1077)",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_64bf9a20d1aafe64e7fe48e6b9addf70",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f095f92989a000409f946a995fd80a9c",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_745493e6c726a268da8010db36dac81a",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_07e3199814e6b64a954c32b245fb4fd8",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/memory-pressure.json",
+      "source_sha256": "31fee943dfeff7929e6a7d3b171edf9fe0abb117f4528c7de9a2a3ba63345c52"
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "diagnosis_id": "insight_fbc80b80e540430c941d6d8111a8d5ee",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_fbc80b80e540430c941d6d8111a8d5ee ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_9a8c171468200476178997c790116cd6",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_87033f85b50df6afac594f7be948ae81",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_28a5504c1ecde49859e52e8e5954624d",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/io-write-latency.json",
+      "source_sha256": "d4c8bd1034fd02922b741155c23aa3fd8d71508fcb7e7c1f577cd4470bcbff0b"
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "diagnosis_id": "insight_07607d9fde9b4cc6ad51a079f9d521bf",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_7e7662feb1b6979c81d50121efe35c83",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_493bf21ff0a41373f2bacf4f4ed8aec1",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_8d9f2554f2daa473f8e6ab0a4e898ec2",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/noisy-neighbor.json",
+      "source_sha256": "f5d0085b2b82553aa0cd629573a6e78f75439b2861b51baf1bfb42b57dcf4d20"
+    },
+    {
+      "scenario_id": "load-saturation",
+      "diagnosis_id": "insight_1b654a786f5442bf89374f42e6853bee",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_1b654a786f5442bf89374f42e6853bee ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_b44952e5c899f1ff6fcc253461811c3d",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f29ff73e12087e87a39e5a6b600aeddd",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_0e5fb9767647998437eec0a2570f2a03",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/load-saturation.json",
+      "source_sha256": "4e4b3c5c7cead02734e03f288bc0901737728189c1979239b0a3adfd554ac136"
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "diagnosis_id": "insight_8ef7b69b14d944a6a8315b0981b7adf6",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_3b4b8b5952d3951701e2aba22b235ca4",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_e2e048fc06c499b2d2528c8426a32537",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c257d9a0a4473e507c446bb6bd64bd98",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/queue-backlog.json",
+      "source_sha256": "72363bc25c12a72b1fad32688694ed07e560808e4a30768738454de30009a5c3"
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "diagnosis_id": "insight_dbd860689e4645239b8852802f4ae55f",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_216f931c3ac444a64a66ab029b544848",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ced2e6ca7b2fb89475752b6869752645",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_527a56c25e30aa57feda01f603c720d2",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/go-cpu-hotspot.json",
+      "source_sha256": "f52757e55a2a1f43c1f022822f067fa0c12c967e3a96db8899a3302857854825"
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "diagnosis_id": "insight_031b7253521548139fe38b208ae42529",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_031b7253521548139fe38b208ae42529 ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_ab86f234ca83faf9263ddaca80daeb2d",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_c436ffd500a9dbb178a8558c1882ae31",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f1fb59dbff7323b7afba2b194d32b55d",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/go-network-latency.json",
+      "source_sha256": "685fdcfc90b870daf255d4ef84da304df65559efa50cd17664481f60ce6f1e7b"
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "diagnosis_id": "insight_533b9fe6bdde40ddb59200d133283671",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_e6d55b885cd9ee24892c4616335311b6",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_f214ce77542c6fc13f1347a6c3cb9958",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_23402665577ab5a128b4307caacc48b3",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/go-memory-growth.json",
+      "source_sha256": "12a1d42c98444f0c24f1b8014188b30d7954cad169c4f6606d50e33761ace710"
+    },
+    {
+      "scenario_id": "go-file-io",
+      "diagnosis_id": "insight_12caeb81fc5c4d2895cc78a3d481e05c",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_12caeb81fc5c4d2895cc78a3d481e05c ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_c43b5786521fc8e6f12ecf788a7a0d58",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ebbc19c2c564e38f46dbdac99c4d3d9c",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_9b35a636dc5d2fe54b0faca78ab3e435",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/go-file-io.json",
+      "source_sha256": "0b8db1a5e8ddf437fe80b5148aa562970e5d7b1cd9e60297d219c649f3273508"
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "diagnosis_id": "insight_3255fe70fe4f45f98e9cdacb9995c0a6",
+      "lineage_verified": true,
+      "root_cause_accepted": true,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": true,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_1d632c8226306d2c8e7d831834cd7812",
+            "gate_status": "VERIFIED",
+            "verified": true,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": true
+          },
+          {
+            "report_id": "report_96214dcc5c4dba221e74ab05dda54185",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_d71b4db0d8c263dcd7b6583d976c20bf",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": true,
+        "root_cause_accepted": true,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/java-gc-pressure.json",
+      "source_sha256": "f34579f42598b84c81d546e28c262ff40902dadafb9509f2c7d8ff162a1a98a6"
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "diagnosis_id": "insight_b7c819648c5049de800d42fc7a680629",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_b7c819648c5049de800d42fc7a680629 ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_a17f24fd3878e491103eb30d2ae219a7",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_20300f6b963b6f7763ab63640c5cbec0",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/java-lock-contention.json",
+      "source_sha256": "546d5ddeb43d22f9fd57704c97bcba9556e4c412c9aadf203a0686d693917f86"
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "diagnosis_id": "insight_cdb9dbf502ba4023b9db9fb7bf66760f",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_cdb9dbf502ba4023b9db9fb7bf66760f ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_ee766ebf2b1fe3d480f2533e1dd442c9",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_1b8f7a2bbff630f10070428eb589f110",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_7a83ede2d83be15bfccc35da1c2ce897",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/java-downstream-latency.json",
+      "source_sha256": "552d9527e1d4468a0f88cba5f4f853ab4ff50c7082e4a7a4df52464be8bf486f"
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "diagnosis_id": "insight_e811d9081ac14208972b9dc422ab9fc8",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_44784c124c084649ef61b0c72e80ffdd",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_8f67f19b79f6965bfd1d46ab801eb5d0",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_9b5f7687bc491737a2bf15ea515fad58",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/java-offheap-growth.json",
+      "source_sha256": "65eb2c35b08f2b804868f73e89c1f07b3abd5fe565f3d9f03958084a060a9019"
+    },
+    {
+      "scenario_id": "java-file-io",
+      "diagnosis_id": "insight_1c57db1277504610ad70e918f9ba9616",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_1c57db1277504610ad70e918f9ba9616 ebpf_io profile did not produce conclusion-supporting Evidence",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_2e173e63bee87836d8ad6c72a2381bdd",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4fb5238ed4c46d4beba6afc8e9e0a9cf",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_5729bf398c88b286b2f45aa735f5a44a",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/java-file-io.json",
+      "source_sha256": "e3f803a374b3600d468773961b89eebd5194da3a8258ca9fe36ed4a88f957688"
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "diagnosis_id": "insight_4cef207cc5ef45a7af435df2ba39bad0",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_3606be07ef62dca29dc4c10c18daa1e6",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_5cc1907af033bb5b182b8b017af72d78",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_4104f9a259f9c9ccfd8205088aeecf9e",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": true,
+            "oracle_vocabulary_match": true,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpp-cpu-hotspot.json",
+      "source_sha256": "99f04b6e6bb152106be75a4ca60c8b42c0621c16ef0fc69b9c1ddfe019e28047"
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "diagnosis_id": "insight_dc1bc44e1add44ce8b46de3e3e75b807",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_dc1bc44e1add44ce8b46de3e3e75b807 ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_df573fe33cf03022266de62f1c8f8b9c",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_bec4fa71dad77bb72ea5d53f46e433c1",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_50371f438f981877845c4fe2e8078ae6",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpp-lock-contention.json",
+      "source_sha256": "4f3fbe0d65ac1a5237a93b4578f6f396ef6071ba1677d02d9712bc7c5d30c84e"
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "diagnosis_id": "insight_f522bad903c34ba48fcb559434a90738",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_f522bad903c34ba48fcb559434a90738 ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_da28e972c90b040ca991eb3bfd3e9d9b",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_b4033079492cfd46adf362d37f14d268",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpp-memory-growth.json",
+      "source_sha256": "3a0ab16385d59059f482a67bc013768cfd9d9b3643b1bbcef087520a370e4920"
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "diagnosis_id": "insight_582f8206b7a244628ff6f5bf7ababa04",
+      "lineage_verified": false,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": "diagnosis insight_582f8206b7a244628ff6f5bf7ababa04 ended as INSUFFICIENT_EVIDENCE",
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_c68c8bfc762007bf7ed433253867ab2a",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_ce77d701931964daac24249c142b11f0",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_8ccdface5e704d6b0e9523b9dc7e9f20",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpp-file-io.json",
+      "source_sha256": "7fcc77f89139a5a9454e7da96919ea323d7c70b2f872ad2e55d54bc32e9cc98c"
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "diagnosis_id": "insight_b2bb7338f5fa43b3b8f7086bbe427021",
+      "lineage_verified": true,
+      "root_cause_accepted": false,
+      "cleanup_verified": true,
+      "recovery_observed": true,
+      "root_gate_verified": false,
+      "error": null,
+      "report_evaluation": {
+        "reports": [
+          {
+            "report_id": "report_5b21c5b19aa39244d968554a00f57c0c",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_b3305e0c849d5fa6573e499e68f96351",
+            "gate_status": "INSUFFICIENT_EVIDENCE",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          },
+          {
+            "report_id": "report_e7022d26a6b2db6dfc5697c674bb84ad",
+            "gate_status": "PARTIAL_WITHOUT_COUNTER",
+            "verified": false,
+            "concrete_finding": false,
+            "oracle_vocabulary_match": false,
+            "accepted": false
+          }
+        ],
+        "root_gate_verified": false,
+        "root_cause_accepted": false,
+        "match_boundary": "Conservative scenario vocabulary check after the evidence gate; not a production accuracy metric."
+      },
+      "source_case": "reports/ai-diagnosis/fault-plaza-strict-21-gate-tightening-20260920-cases/cpp-downstream-latency.json",
+      "source_sha256": "43ea18495b9f271e20fe1a0626175e61e7c57f5b292087b6517ecf7f47d383ad"
+    }
+  ]
+}

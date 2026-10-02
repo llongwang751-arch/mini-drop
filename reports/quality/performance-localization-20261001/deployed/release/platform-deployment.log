@@ -1,0 +1,67 @@
+Sending build context to Docker daemon  9.246MB
+
+Step 1/4 : FROM sha256:16acd8fc7abf090f2959a0fc40627f627a60255325a3ad8161de2cc74fb37784
+ ---> 16acd8fc7abf
+Step 2/4 : COPY server/ /app/server/
+ ---> bf57adee67cd
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> 0c4974e1dd93
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> ffadeda47a6b
+Successfully built ffadeda47a6b
+Successfully tagged mini-drop-diagnosis-worker:20261001T084015Z
+candidate imports passed
+Sending build context to Docker daemon  9.246MB
+
+Step 1/4 : FROM sha256:d45d02c5df6d34f021712dab751573a4dbbefe0855c74360b83c7491d6c9d411
+ ---> d45d02c5df6d
+Step 2/4 : COPY server/ /app/server/
+ ---> 9c79faa1636c
+Step 3/4 : COPY analyzer/ /app/analyzer/
+ ---> 6ee65db19d26
+Step 4/4 : COPY scripts/ /app/scripts/
+ ---> ffb3f5a353ab
+Successfully built ffb3f5a353ab
+Successfully tagged mini-drop-analyzer:20261001T084015Z
+candidate imports passed
+Sending build context to Docker daemon  9.246MB
+
+Step 1/2 : FROM sha256:7cd59c760e83efcedcb760cc286d590ad7e1a1775a3edf8b898ceeb797e1a221
+ ---> 7cd59c760e83
+Step 2/2 : COPY web/dist/ /usr/share/nginx/html/
+ ---> 4b4490204425
+Successfully built 4b4490204425
+Successfully tagged mini-drop-web:20261001T084015Z
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+couldn't find env file: /opt/mini-drop-current/deploy/env/control.env
+Traceback (most recent call last):
+  File "/root/incoming-20261001T084015Z/deploy_runtime.py", line 172, in <module>
+    main()
+  File "/root/incoming-20261001T084015Z/deploy_runtime.py", line 87, in main
+    base = json.loads(output(args + ['config', '--format', 'json']))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/incoming-20261001T084015Z/deploy_runtime.py", line 19, in output
+    return subprocess.check_output(args, text=True).strip()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'compose', '-p', 'mini-drop-control', '--env-file', '/opt/mini-drop-current/deploy/env/control.env', '--env-file', '/opt/mini-drop-current/deploy/env/interview-demo.env', '-f', '/opt/mini-drop-current/docker-compose.control.yml', 'config', '--format', 'json']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['python3', '/root/incoming-20261001T084015Z/deploy_runtime.py']' returned non-zero exit status 1.

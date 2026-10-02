@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "h16",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2eedcfe8860f1031bb82efd36b",
+    "object": "chat.completion",
+    "created": 1790920552,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"QUEUE\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"collect_sys_metrics\",\n  \"reasoning_summary\": \"观测到队列积压增长，消费速率低于到达速率，符合队列异常。\",\n  \"expected_observations\": [\"queue_backlog.queue_lag >= 1\"],\n  \"falsification_criteria\": [\"queue_backlog.queue_lag < 1\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2579,
+      "completion_tokens": 112,
+      "total_tokens": 2691,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 275
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2eedcfe8860f1031bb82efd36b\",\"object\":\"chat.completion\",\"created\":1790920552,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"QUEUE\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"collect_sys_metrics\\\",\\n  \\\"reasoning_summary\\\": \\\"观测到队列积压增长，消费速率低于到达速率，符合队列异常。\\\",\\n  \\\"expected_observations\\\": [\\\"queue_backlog.queue_lag \\u003e= 1\\\"],\\n  \\\"falsification_criteria\\\": [\\\"queue_backlog.queue_lag \\u003c 1\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":2579,\"completion_tokens\":112,\"total_tokens\":2691,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":275},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "086cecb2c842d0b88429fecbdfa948552fe46730bb3b9faa039a0131809b7eb2",
+  "seconds": 14.28713,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "seconds": 0.012689
+  }
+}

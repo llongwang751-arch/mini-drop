@@ -1,0 +1,387 @@
+{
+  "schema_version": "mini-drop.clean-stack-acceptance.v1",
+  "status": "FAILED",
+  "source_head": "de94beda6b03fbbdf0f5d2f619b9efe49ed3a687",
+  "project": "mini-drop-clean-400db9c9fe1953d1",
+  "started_at": "2026-10-02T06:30:18.373959+00:00",
+  "scope": "FRESH_CHECKOUT_CORE_PLATFORM_REAL_SYS_METRICS",
+  "stages": [
+    {
+      "name": "preflight",
+      "status": "PASSED",
+      "elapsed_seconds": 1.317
+    },
+    {
+      "name": "configuration",
+      "status": "PASSED",
+      "elapsed_seconds": 5.408
+    },
+    {
+      "name": "build",
+      "status": "PASSED",
+      "elapsed_seconds": 484.704
+    },
+    {
+      "name": "start",
+      "status": "PASSED",
+      "elapsed_seconds": 48.6
+    },
+    {
+      "name": "migration",
+      "status": "PASSED",
+      "elapsed_seconds": 0.15
+    },
+    {
+      "name": "heartbeat",
+      "status": "PASSED",
+      "elapsed_seconds": 6.015
+    },
+    {
+      "name": "task",
+      "status": "PASSED",
+      "elapsed_seconds": 18.059
+    },
+    {
+      "name": "artifacts",
+      "status": "FAILED",
+      "elapsed_seconds": 0.151
+    },
+    {
+      "name": "cleanup",
+      "status": "PASSED",
+      "elapsed_seconds": 15.522
+    }
+  ],
+  "excluded": [
+    "Office",
+    "Go/Java/C++ workload deployment",
+    "perf/BPF/other collectors",
+    "external model quality",
+    "OS installation",
+    "airgap",
+    "hour endurance"
+  ],
+  "security": {
+    "private_grpc_mtls": true,
+    "grpc_token_auth": true,
+    "api_key_auth": true,
+    "public_http": "loopback ephemeral port only",
+    "model_mode": "none",
+    "production_credentials": false
+  },
+  "cleanup": {
+    "status": "PASSED",
+    "removed_container_ids": [
+      "eea9208e5a3481b5b9cc4d7b5e91bd10d02e4254b5db0a5c88b1350335900e89",
+      "ab4f437080e54c997038d73d7afd137452faedd6cc590e1a776d833d7745e19c",
+      "1da6d7edfe77d0bcb52bef99139c75fe31a26bfc488249df4f36a49d1f127144",
+      "ded78feaed3d992591863da1bc32685aa0b6d7df004ccfdb8f15eb231c53adff",
+      "ec9d34c8aa5b48e2f987efc658603a458b64b36198b3fe2345eefdd4221cbe5e",
+      "21d6e9af51910aec401fd83d6192585d40697f83a0aa302a8f21c17f512fa6d2",
+      "e3b731cfe6d688a8cf48cd45a1a5456da91bc1a1bdf54c0825a2693aa3e04343",
+      "8e70628f6fa51a45269d59a70a4a2b42b6346eddb27569271e2b6615fb043095",
+      "f412ed2c91aa28290e1e294e58e87f564c3cf0b570c1b51f69e653c4ae8e1c5c",
+      "2099e854a13a314c03e8e191961e8475a9d1c1bf162bfd7c82066eb1266b966a"
+    ],
+    "removed_network_ids": [
+      "8c61101005b6"
+    ],
+    "retained_own_volumes_for_runner_teardown": [
+      "mini-drop-clean-400db9c9fe1953d1_agentoutbox",
+      "mini-drop-clean-400db9c9fe1953d1_miniodata",
+      "mini-drop-clean-400db9c9fe1953d1_pgdata"
+    ],
+    "volumes_deleted": false,
+    "global_prune": false
+  },
+  "source_tree": "bdfbd3a28f78cf6fbc794b7357c2575e333aca16",
+  "runner": {
+    "docker_version": "28.0.4",
+    "cpus": 4,
+    "memory_bytes": 16765411328,
+    "disk_free_bytes": 92092809216,
+    "runtime_memory_ceiling_mb": 4416,
+    "native_build_jobs": 1,
+    "build_mode": "sequential_no_cache_official_base_pull"
+  },
+  "canonical_sources": {
+    "docker-compose.yml": "5be18fd9a2a41b502761f0e98a1a9a4e803a65c595bd010916dc53cfe32eba80",
+    "deploy/dockerfiles/apiserver.Dockerfile": "a6bf0406516c99afd7ab5d50759077c9bf86640177424c034cd06ddb37776a6b",
+    "deploy/dockerfiles/local-sre-api.Dockerfile": "ef6febb4ff89dd166e1b38f9448044dd695b927147587b761cb159f57859fa50",
+    "deploy/dockerfiles/local-sre-python.Dockerfile": "3a6dfb309fc4a0e7a14c71d26bec1ef3cfbf4baaa0f8635c1306d20a0d537fbd",
+    "deploy/dockerfiles/minio-source.Dockerfile": "0c515872b500551058a91d544aad0357c7b29c64e9fd29e3d328acbc8e29928b",
+    "deploy/dockerfiles/native-agent-source-overlay.Dockerfile": "2171abab89e7b82bc5dc2f1a6b2b65ac961b4bbf64607daee6ddf1a6ecc6bc8e",
+    "deploy/dockerfiles/native-agent.Dockerfile": "468bf0f263b35c15450a4a378d195e42eec8a7bb375f62b8b8b7979ceed482d0",
+    "deploy/dockerfiles/native-control.Dockerfile": "92511eff5025d0e9c1406ef75297219c60c850769adf447cdd30feffbd731cbb",
+    "deploy/dockerfiles/python-worker-source-overlay.Dockerfile": "4009b85a615b687adc8031c20e503a2ff4eece9d7b48efe5748f87d4852b3ddf",
+    "deploy/dockerfiles/python-worker.Dockerfile": "5966fcd2effc796736ac3626ccc89dda4c2027756877dc74f65caa0df7bf5c40",
+    "deploy/dockerfiles/sre-release-python.Dockerfile": "ca5ba837643a48908491af791ff5b2905f27bd8b2a73b347c94010a384d4698f",
+    "deploy/dockerfiles/web-prebuilt.Dockerfile": "6a62d4ae730ae9f123bd19f9a0b002b7a9d5d01cdc78e72a1fc5c35ea80e85ab",
+    "deploy/dockerfiles/web.Dockerfile": "6b756e2a003681c90942f5b74c6f46c8dad48178425ecf210259ea1000f3a7ab",
+    "demo/python-hotspot/Dockerfile": "fda4626a61bea4ed93e738875a086d396b324704d9b6c59a7d55fc62a6dafc51",
+    "deploy/scripts/generate-dev-certs.sh": "3e4357fcc2c0b9bf6ad8081c92b1df483f9e6adf0a8c0753e6cccf75df94df93"
+  },
+  "configuration": {
+    "sanitized_sha256": "1c6c5d738e0062652e59648780461832cd21ac2a24dbe16cc68810b12ed51f5b",
+    "template": "docker-compose.yml",
+    "services": [
+      "analyzer",
+      "apiserver",
+      "control-plane",
+      "diagnosis-worker",
+      "migrate",
+      "minio",
+      "native-agent",
+      "postgres",
+      "python-hotspot",
+      "web"
+    ],
+    "image_tags_unique": true,
+    "private_key_permissions": {
+      "client.key": {
+        "uid": 65532,
+        "mode": "0600"
+      },
+      "agent.key": {
+        "uid": 0,
+        "mode": "0600"
+      }
+    },
+    "permitted_overrides": [
+      "unique project/images",
+      "private PKI/env/source absolute paths",
+      "official build mirrors and serial native build",
+      "bounded runtime resources and no restart",
+      "loopback ephemeral Web port",
+      "single idle Python target",
+      "sys_metrics-only Agent capabilities/mounts"
+    ]
+  },
+  "services_ready": {
+    "healthy": 8,
+    "agent_running_pending_heartbeat": 1,
+    "migration_exit_zero": 1
+  },
+  "migration": {
+    "source_heads": [
+      "20260910_0008"
+    ],
+    "database_heads": [
+      "20260910_0008"
+    ]
+  },
+  "agent": {
+    "id": "clean_agent_400db9c9fe1953d1",
+    "fresh_heartbeats_observed": 2,
+    "snapshot_id": "psnap_e2b8d9a732a2d3f9",
+    "owned_target_container_id": "f412ed2c91aa28290e1e294e58e87f564c3cf0b570c1b51f69e653c4ae8e1c5c",
+    "owned_target_host_pid": 30696
+  },
+  "artifact": {
+    "sha256": "d7d3ad87537c6200a994c7676b7030a6ccc8f4f6e2ca61e08936e40893714658",
+    "size_bytes": 12680,
+    "sample_count": 6,
+    "window_ms": 5004,
+    "target_pid": 30696,
+    "process_start_ticks": 65876,
+    "analyzer_type": "collector.sys_metrics",
+    "analysis_schema": "sys_metrics_analysis.v2",
+    "task_id": "task_20261002_063924_7ff54054"
+  },
+  "failure": "PermissionError: [Errno 13] Permission denied: '/proc/30696/ns/pid'",
+  "finished_at": "2026-10-02T06:39:58.413517+00:00",
+  "evidence_files": {
+    "agent-heartbeat.json": {
+      "sha256": "d1fbe1b8f6c1c8847a9ababeffde8484686f12b143db6f9f1a803f854921a04f",
+      "size_bytes": 996
+    },
+    "agent-runtime-permissions.json": {
+      "sha256": "603fd5028f8aebdcf64224ae520e2853befd44a54a4f4978bb8d238727176b6f",
+      "size_bytes": 123
+    },
+    "built-images.json": {
+      "sha256": "22d56da459a7a8760fe4c9c3b598344133418e6e28d293536cd9314005b2df4b",
+      "size_bytes": 2337
+    },
+    "command-001.log": {
+      "sha256": "abca911a2c7fe0acd2fe247afefb26fff77a0aa625427d6e3939f6dc1a39a4bb",
+      "size_bytes": 42
+    },
+    "command-002.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-003.log": {
+      "sha256": "796d92daecce3c19e5b807bfce19ff93e395726c5472ff9da0bcb1e1e21399b5",
+      "size_bytes": 42
+    },
+    "command-005.log": {
+      "sha256": "5a3af0cf1fa88a89bef2e8386bd4bc37c1306c4de8de182a6c5d00f66de03809",
+      "size_bytes": 32
+    },
+    "command-006.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-007.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-008.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-009.log": {
+      "sha256": "ef973ac9af3d3d5b08cb87cfc5c4840f64c539c8d97801f065059f166e1e5407",
+      "size_bytes": 461
+    },
+    "command-010.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-011.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-012.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-013.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-015.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-016.log": {
+      "sha256": "6533a8299e54ff0a9b8aee7c7aba734e28536416aec302beddb7997e6e0ee1c5",
+      "size_bytes": 32387
+    },
+    "command-017.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-018.log": {
+      "sha256": "5cb0202ce783fd7258753fb072e9fc01b70d721374181a4b91975a167ad3427e",
+      "size_bytes": 67485
+    },
+    "command-019.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-020.log": {
+      "sha256": "2ee3379ef51cd55659856dff331a6bd6b0b98b676a68a645b5af2f0f10162742",
+      "size_bytes": 77945
+    },
+    "command-021.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-022.log": {
+      "sha256": "1a10aba8e5f41c1ddb4e2feff1f8815633813deb37548605a35c8fd28627c313",
+      "size_bytes": 105962
+    },
+    "command-023.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-024.log": {
+      "sha256": "372d2e4075034d7b23135877e9095bb31931006607e66e7ba704ff82d64e7b0e",
+      "size_bytes": 7852
+    },
+    "command-025.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-026.log": {
+      "sha256": "60106a7d19964cba2090519a1ae9510aacce302020049a776e1eeeb1037496b0",
+      "size_bytes": 10036
+    },
+    "command-027.log": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_bytes": 1
+    },
+    "command-028.log": {
+      "sha256": "17c32288ddc6096b2e68f54848a7b79ef7031dbba73386daa42f41c3bed31204",
+      "size_bytes": 2351
+    },
+    "command-029.log": {
+      "sha256": "3f813cecc00c14ffe12423eec877a87df340ba0c54204e10d69702fdbdf765fa",
+      "size_bytes": 8277
+    },
+    "command-040.log": {
+      "sha256": "b7c0ec8c1a83c76fc5943ba168fb2bd5106ecd26c9be984e946b80b91a2cc1b9",
+      "size_bytes": 5430
+    },
+    "command-051.log": {
+      "sha256": "5654c9d49f72ffa1a4db5a08167b5e71cc39f6b2d05f9b54b4f04bf865828be7",
+      "size_bytes": 17
+    },
+    "command-052.log": {
+      "sha256": "9bd7b3db9c1c7cd3c18610e9d97a2025ac9f6181167ab0f8c77654a804ae73d1",
+      "size_bytes": 225
+    },
+    "command-053.log": {
+      "sha256": "b0768f2f6ad20bf6a1779f26348993b629a7aa0b6001fd41cf9cc9a4f35e26b7",
+      "size_bytes": 114
+    },
+    "command-054.log": {
+      "sha256": "b77a768b82c9e81e74d18e860e8ae374f1c0a6d9c601f4bdc8c731f4fe82f7d6",
+      "size_bytes": 15
+    },
+    "command-056.log": {
+      "sha256": "7d2a00b435134481ae8e85c698b98301be9c97a068cb9525b2c002d560800815",
+      "size_bytes": 412
+    },
+    "command-057.log": {
+      "sha256": "2217439217fc49f0cbb3ec0c56bc0482af099959b9393e4acbe70622271e56e3",
+      "size_bytes": 15430
+    },
+    "command-060.log": {
+      "sha256": "12159e895723ffb3fb5ecfe9e8e8947d44c386cdd48841c553c7edd939829028",
+      "size_bytes": 706
+    },
+    "command-061.log": {
+      "sha256": "74b6959114a390801b57fe06ba5f06540c9addbdcd860a71bf3baaf3c731413c",
+      "size_bytes": 651
+    },
+    "command-064.log": {
+      "sha256": "af816fbeeee8c3f474f22c6c415cbf69ff3614f5908eef4748f6130cced6ecfc",
+      "size_bytes": 14
+    },
+    "compose-sanitized.json": {
+      "sha256": "1c6c5d738e0062652e59648780461832cd21ac2a24dbe16cc68810b12ed51f5b",
+      "size_bytes": 22458
+    },
+    "minio-source-version.json": {
+      "sha256": "3679be62f6b118b55faf49a98387fdbc488cb7573cd6523c47bde921a64fed25",
+      "size_bytes": 650
+    },
+    "process-snapshot.json": {
+      "sha256": "07eaafe38f56e3998426d7f182057196a3f43f32792f6d514696db729d079458",
+      "size_bytes": 689
+    },
+    "service-readiness.json": {
+      "sha256": "34d1fbf9e748988319df635d3d195ccc95651eb4f5ef083812394bfb5640053a",
+      "size_bytes": 1777
+    },
+    "sys_metrics.raw.json": {
+      "sha256": "d7d3ad87537c6200a994c7676b7030a6ccc8f4f6e2ca61e08936e40893714658",
+      "size_bytes": 12680
+    },
+    "task-admission.json": {
+      "sha256": "1ba2564f8e5cc016cfdfb49e13438d2094c7964cb81d522e67049717450efe27",
+      "size_bytes": 124
+    },
+    "task-artifacts.json": {
+      "sha256": "e5d49356c577112373d6db900cb7bbeca3d333af3307a3c6c2fdd3f300dd857c",
+      "size_bytes": 8773
+    },
+    "task-final.json": {
+      "sha256": "e4cd7437c3bb92ebffe09bf1ff87fd3728662919f640a9df30902296437a5042",
+      "size_bytes": 1152
+    }
+  }
+}

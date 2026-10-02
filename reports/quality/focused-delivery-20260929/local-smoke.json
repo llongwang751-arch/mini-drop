@@ -1,0 +1,163 @@
+{
+  "schema": "mini-drop.quality-report.v1",
+  "run_id": "20260929T160030Z-3c063c6e",
+  "state": "COMPLETED",
+  "profile": "smoke",
+  "started_at": "2026-09-29T16:00:30.222157+00:00",
+  "scope": "Repository regression only; live diagnosis, capacity and production release are separate acceptances.",
+  "plan_sha256": "9640595bde93f92fd5688a6526b56735a9c3db0983fb721aa802916f0abc200a",
+  "environment": {
+    "python": "3.14.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_head": "240019025473b3e85f1e7828251afcbdc0f96284",
+    "tracked_diff_sha256": "da3e3c94d833adc94f4cc2b88d5421a819593fc0477837013aa68766472e08e9",
+    "dirty": true,
+    "source_sha256": "e2af19a23d9a05eb67987538d3ca3fa21710a2ac08257ff6a72cfb12d7ee4111",
+    "source_files": 423
+  },
+  "selected_suites": [
+    "contracts",
+    "critical-python"
+  ],
+  "suites": [
+    {
+      "id": "contracts",
+      "title": "协议与业务测试计划一致性",
+      "risks": [
+        "contract-drift"
+      ],
+      "started_at": "2026-09-29T16:00:30.677681+00:00",
+      "returncodes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "logs": [
+        "contracts/command-1.log",
+        "contracts/command-2.log",
+        "contracts/command-3.log",
+        "contracts/command-4.log",
+        "contracts/command-5.log",
+        "contracts/command-6.log"
+      ],
+      "counts": null,
+      "duration_seconds": 0.83,
+      "status": "PASSED",
+      "artifacts": {
+        "contracts/command-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contracts/command-5.log": "940e1ef1c14de914c44c52c023bb7e7d604c4bfc41488009eb5f06ef9b82188b",
+        "contracts/command-6.log": "66ae9af18ecff350fd36112bb1137e00a595d63f6fdbfd0b3278e70f1caa5927"
+      }
+    },
+    {
+      "id": "critical-python",
+      "title": "高风险行为回归",
+      "risks": [
+        "task-lifecycle",
+        "false-conclusion",
+        "business-regression",
+        "test-harness"
+      ],
+      "started_at": "2026-09-29T16:00:31.513035+00:00",
+      "returncodes": [
+        0
+      ],
+      "logs": [
+        "critical-python/command-1.log"
+      ],
+      "counts": {
+        "total": 175,
+        "passed": 175,
+        "failed": 0,
+        "skipped": 0,
+        "unexpected_skips": [],
+        "failures": [],
+        "skips": []
+      },
+      "duration_seconds": 6.458,
+      "status": "PASSED",
+      "artifacts": {
+        "critical-python/command-1.log": "b85b23e7a230b223938e86e25180516a0af42585f66aae2f8378cd1c888e8146",
+        "critical-python/junit.xml": "3c80044b897cd8dc321463f8122ce75d50db72b2cd1dac1e31ef5e0e172fbe0d"
+      }
+    }
+  ],
+  "status": "PASSED",
+  "risk_results": {
+    "contract-drift": {
+      "description": "跨语言协议或生成物漂移",
+      "suites": [
+        "contracts"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "task-lifecycle": {
+      "description": "非法状态迁移、重复效果与预算泄漏",
+      "suites": [
+        "critical-python"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "false-conclusion": {
+      "description": "无效证据或缺失观测被误判为已验证",
+      "suites": [
+        "critical-python"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "business-regression": {
+      "description": "降低负载或牺牲回答质量换取更快延迟",
+      "suites": [
+        "critical-python"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "ui-regression": {
+      "description": "页面状态、异步竞争与报告展示错误",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "api-regression": {
+      "description": "接口鉴权、调度与并发行为回归",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "test-harness": {
+      "description": "测试未执行、跳过或报告损坏却被判通过",
+      "suites": [
+        "critical-python"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    }
+  },
+  "finished_at": "2026-09-29T16:00:37.973618+00:00",
+  "environment_after": {
+    "python": "3.14.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_head": "240019025473b3e85f1e7828251afcbdc0f96284",
+    "tracked_diff_sha256": "da3e3c94d833adc94f4cc2b88d5421a819593fc0477837013aa68766472e08e9",
+    "dirty": true,
+    "source_sha256": "e2af19a23d9a05eb67987538d3ca3fa21710a2ac08257ff6a72cfb12d7ee4111",
+    "source_files": 423
+  }
+}

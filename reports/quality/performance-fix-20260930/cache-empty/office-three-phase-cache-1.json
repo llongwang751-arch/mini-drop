@@ -1,0 +1,109 @@
+{
+  "passed": true,
+  "checks": {
+    "preparation_answer": true,
+    "answers": true,
+    "completed": true,
+    "injection": true,
+    "same_process_version": true,
+    "semantic": true,
+    "fault_vs_baseline": true,
+    "fault_vs_recovery": true,
+    "measured_sleep": true
+  },
+  "requests": [
+    {
+      "request_id": "a786dc0df5d64315afbdf98bcc06f910",
+      "exercise_phase": "baseline",
+      "injected_delay_ms": 0,
+      "duration_ms": 3665.62,
+      "stage_ms": {
+        "embedding_ms": 273.254,
+        "generation_ms": 1558.579,
+        "retrieval_ms": 46.07
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 22.659,
+        "chunk_load_ms": 5.334,
+        "keyword_search_ms": 17.578,
+        "graph_search_ms": 0.118,
+        "search_wall_ms": 319.325
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3686734,
+      "version": "observer-20260930T145902Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "7f71181daaef4f559d17ff78c78e2d2f",
+      "exercise_phase": "fault",
+      "injected_delay_ms": 2500,
+      "duration_ms": 5537.348,
+      "stage_ms": {
+        "embedding_ms": 208.477,
+        "generation_ms": 1031.278,
+        "retrieval_ms": 2531.257
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 10.985,
+        "chunk_load_ms": 3.987,
+        "fault_delay_ms": 2500.064,
+        "keyword_search_ms": 15.914,
+        "graph_search_ms": 0.065,
+        "search_wall_ms": 2739.734
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3686734,
+      "version": "observer-20260930T145902Z",
+      "http_status": 200,
+      "answer_matches": true
+    },
+    {
+      "request_id": "cef778ee87564ce68f3722cc96ebbfbd",
+      "exercise_phase": "recovery",
+      "injected_delay_ms": 0,
+      "duration_ms": 3574.736,
+      "stage_ms": {
+        "embedding_ms": 337.953,
+        "generation_ms": 1269.979,
+        "retrieval_ms": 30.292
+      },
+      "retrieval_detail_ms": {
+        "vector_search_ms": 10.432,
+        "chunk_load_ms": 3.999,
+        "keyword_search_ms": 15.555,
+        "graph_search_ms": 0.064,
+        "search_wall_ms": 368.245
+      },
+      "retrieval_mode": "hybrid",
+      "result": "COMPLETED",
+      "pid": 3686734,
+      "version": "observer-20260930T145902Z",
+      "http_status": 200,
+      "answer_matches": true
+    }
+  ],
+  "preparation": {
+    "request_id": "c1a518e2c403414289cc695f71101f82",
+    "duration_ms": 5722.485,
+    "stage_ms": {
+      "embedding_ms": 296.084,
+      "generation_ms": 1144.271,
+      "retrieval_ms": 1822.355
+    },
+    "retrieval_detail_ms": {
+      "vector_search_ms": 23.137,
+      "chunk_load_ms": 14.636,
+      "keyword_search_ms": 22.143,
+      "graph_search_ms": 1762.071,
+      "search_wall_ms": 2118.439
+    },
+    "pid": 3686734,
+    "version": "observer-20260930T145902Z",
+    "http_status": 200,
+    "answer_matches": true
+  }
+}

@@ -1,0 +1,1213 @@
+{
+  "status": "READY",
+  "reason": "",
+  "lab_kind": "ALLOW_LISTED_CONTROLLED_FAULTS",
+  "production_safe": false,
+  "labs": {
+    "python": {
+      "status": "READY",
+      "reason": ""
+    },
+    "go": {
+      "status": "READY",
+      "reason": ""
+    },
+    "java": {
+      "status": "READY",
+      "reason": ""
+    },
+    "cpp": {
+      "status": "READY",
+      "reason": ""
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": "cpu-hotspot",
+      "title": "CPU 计算热点",
+      "family": "CPU",
+      "symptom": "单进程 CPU 持续升高，并出现稳定的用户态热点函数",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu",
+        "pyspy"
+      ],
+      "expected_signals": [
+        "目标进程 CPU 升高",
+        "调用栈出现集中热点",
+        "停止故障后 CPU 回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 服务 CPU 持续升高。先做系统初筛，再定位调用栈热点，最后寻找 I/O 等待和同机争抢反证并观察停止后的恢复；不要在第一轮直接下结论。",
+      "related_skill": "cpu-hotspot-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_037ff1a933194733b4e52874fa974358",
+        "finished_at": "2026-09-30T07:27:33.470639+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "966bce1f1fb3b424fdd6ff3e69dc8ef4a7bf3fcc164b6a6ff0150404cdb51de1"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "source-hotspot",
+      "title": "Python 源码热点",
+      "family": "运行时",
+      "symptom": "Python 业务函数占用 CPU，可定位到稳定的文件、函数和行号",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "pyspy"
+      ],
+      "expected_signals": [
+        "Python 帧占比集中",
+        "source_hot_function 成为 TopN",
+        "源码映射可解析"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 服务，先确认 CPU 异常，再定位源码级热点函数，最后用系统指标排除 I/O 和宿主机争抢；至少经过两类独立证据再下结论。",
+      "related_skill": "python-runtime-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_ae97021aff9048e18c9a481d49b0a6e2",
+        "finished_at": "2026-09-30T07:31:18.745533+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "79d9f995a611c0ad1de2a0cb4793ebc39911b6a4bc98d40bec313093c90c43e6"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "memory-pressure",
+      "title": "进程内存增长",
+      "family": "内存",
+      "symptom": "目标进程持续保留内存，RSS 在短时间内明显增长",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "memory_smaps"
+      ],
+      "expected_signals": [
+        "RSS/PSS 增长",
+        "retained memory 增长",
+        "停止并清理后内存回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 服务内存持续增长。先确认 RSS/PSS 趋势，再区分进程对象保留、页缓存和系统内存压力，最后检查停止故障后的恢复窗口；不要凭单点 RSS 下结论。",
+      "related_skill": "memory-growth-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_8e46839549a24fb68d08995241938c03",
+        "finished_at": "2026-09-30T07:35:02.051173+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "47a77d5d47b7aefce9ed5c1ac54b946d77c67b1dce638ea0cf85819fe2ae5847"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "io-write-latency",
+      "title": "同步写入压力",
+      "family": "I/O",
+      "symptom": "目标进程持续同步写文件，写入字节和 I/O 等待升高",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "ebpf_io"
+      ],
+      "expected_signals": [
+        "write_bytes 增长",
+        "块设备延迟升高",
+        "CPU 热点不能单独解释现象"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 服务写入变慢。先用系统指标确认 I/O 方向，再采集块设备延迟和进程写入证据，随后寻找 CPU 热点或同机 I/O 争抢反证，并验证停止后的恢复。",
+      "related_skill": "io-latency-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_6529eb57fecf428aa41755d407cfef54",
+        "finished_at": "2026-09-30T07:39:06.447126+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "69dcab2ada7e33cf7eaac54f828516a6556ec33f111db126169b0f2024787521"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "noisy-neighbor",
+      "title": "同机噪声邻居",
+      "family": "资源竞争",
+      "symptom": "另一个同宿主机进程争抢 CPU，目标进程自身并无主导热点",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu"
+      ],
+      "expected_signals": [
+        "宿主机 CPU 饱和",
+        "目标栈无主导热点",
+        "同机 peer CPU ticks 增长"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 服务吞吐下降。先比较目标进程与宿主机 CPU，再定位目标自身调用栈，最后寻找同机其他进程争抢的反证或支持证据，并观察停止后的恢复。",
+      "related_skill": "same-host-contention-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_ebde6b1b327840bb92f50fb4171d7022",
+        "finished_at": "2026-09-30T07:43:12.799441+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "877b15afdded6d03c4085be9327be4b7173f3ef4ebd60ab07b4f2142336adde5"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "load-saturation",
+      "title": "入口负载饱和",
+      "family": "负载",
+      "symptom": "请求到达速度超过处理速度，拒绝数和延迟同时升高",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu"
+      ],
+      "expected_signals": [
+        "offered RPS 高于 completed RPS",
+        "rejected requests 增长",
+        "CPU 使用率升高"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 入口请求被拒绝且吞吐下降。先确认到达率与完成率，再定位目标 CPU 路径，最后区分入口负载饱和、代码热点和下游等待，并观察停止后的恢复。",
+      "related_skill": "load-saturation-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": false,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_c403de5d8b9547b29f98ab71bc6ca942",
+        "finished_at": "2026-09-30T07:46:57.395855+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "4ef537a64fd5ce23db2a4c94877b5c1e04882cbd6a24867291326f81d97a00d3"
+      },
+      "skill_ab_unavailable_reason": "关联 Skill load-saturation-diagnosis 尚未发布；可先使用“启动并诊断”演示动态探索。",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "queue-backlog",
+      "title": "生产消费队列堆积",
+      "family": "队列",
+      "symptom": "生产速率高于消费速率，队列深度和排队延迟持续增长",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics"
+      ],
+      "expected_signals": [
+        "producer rate 高于 consumer rate",
+        "queue depth 增长",
+        "停止注入后积压消退"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 python-hotspot 任务队列持续堆积。先比较生产和消费速率，再检查消费者资源与热点，最后排除突发流量和下游等待，并验证停止注入后积压是否消退。",
+      "related_skill": "queue-backlog-diagnosis",
+      "lab_key": "python",
+      "target_runtime": "Python",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_66b6b9600c364b23bb0141647a001360",
+        "finished_at": "2026-09-30T07:50:43.167097+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "47ec4efb820e5f746ed6e61492b0c133c9ff62a0a699d927a13537b233b091ee"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "title": "Go 服务 CPU 热点",
+      "family": "Go 运行时",
+      "symptom": "Go 进程 CPU 持续升高，需要区分业务计算、运行时开销和系统等待",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "go_pprof",
+        "perf_cpu"
+      ],
+      "expected_signals": [
+        "目标进程 CPU 升高",
+        "pprof 热点集中",
+        "系统等待不足以解释 CPU"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 go-hotspot 服务 CPU 持续升高。第一轮做系统初筛，第二轮用 Go pprof 定位热点，第三轮用系统或 perf 证据寻找运行时等待和 I/O 反证，并确认停止后的恢复。",
+      "related_skill": "go-runtime-diagnosis",
+      "lab_key": "go",
+      "target_runtime": "Go",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_58716b2cbaf24f95bda58c051257a600",
+        "finished_at": "2026-09-30T07:54:29.777752+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "c2ea22c132a959aa84272151cd021c21e6129769e9e83d753788bb75d7927261"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "title": "Go 网络等待与下游慢响应",
+      "family": "网络",
+      "symptom": "请求处理时间升高但 CPU 不一定饱和，需要区分本地热点、网络等待和下游变慢",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "go_pprof"
+      ],
+      "expected_signals": [
+        "请求等待时间升高",
+        "CPU 不能单独解释延迟",
+        "停止注入后请求时延回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 go-hotspot 服务出现网络等待和下游慢响应。先检查端点 CPU 与系统指标，再查看 Go 阻塞栈，最后寻找本地计算热点反证并验证恢复窗口，不要只凭一次超时判断网络故障。",
+      "related_skill": "network-degradation-diagnosis",
+      "lab_key": "go",
+      "target_runtime": "Go",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_d5916dd3d5254358914d84f87df49815",
+        "finished_at": "2026-09-30T07:58:13.688441+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "5691e0665c5fc54132b474b8659e1646aa50064ef3f2bcf956a4f23cf9e4539d"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "go-memory-growth",
+      "title": "Go 堆内存持续增长",
+      "family": "内存",
+      "symptom": "Go 服务分阶段保留堆对象，RSS 与堆内存同步增长，但总量被安全上限约束",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "memory_smaps",
+        "go_pprof"
+      ],
+      "expected_signals": [
+        "Go heap inuse 持续增长",
+        "RSS/PSS 同向上升",
+        "停止并触发回收后内存回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 go-hotspot 服务内存持续增长。第一轮确认进程与宿主机内存趋势，第二轮用 Go heap profile 区分对象保留和系统页缓存，第三轮寻找 swap、I/O 或短命分配反证并观察停止后的恢复；不要把一次 RSS 上升直接当成泄漏。",
+      "related_skill": "go-runtime-diagnosis",
+      "lab_key": "go",
+      "target_runtime": "Go",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_8c7ad6462cc84f768d3a188bf062d196",
+        "finished_at": "2026-09-30T08:02:00.705646+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "f69a0959060c3491272ba0efc19ed7b1d239a4e56d9b526b1d284eeefc200955"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "go-file-io",
+      "title": "Go 同步文件写入",
+      "family": "I/O",
+      "symptom": "Go 服务反复执行固定临时文件写入与同步落盘，制造可恢复的块设备等待",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "ebpf_io",
+        "go_pprof"
+      ],
+      "expected_signals": [
+        "进程 write bytes 持续增长",
+        "同步写调用与 I/O 等待可见",
+        "停止后写入速率和等待回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 go-hotspot 服务文件写入变慢。第一轮确认 CPU、I/O wait 与进程写入量，第二轮用 eBPF 定位同步写和块设备延迟，第三轮检查 Go 阻塞栈并排除 CPU 热点、网络等待与同机争抢，最后验证停止后的恢复。",
+      "related_skill": "io-latency-diagnosis",
+      "lab_key": "go",
+      "target_runtime": "Go",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_891775971aa24b7089756ea67a55e562",
+        "finished_at": "2026-09-30T08:06:07.511213+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "ae698ce1dcb79aabf08adadc6699327c9ef5cee2e7daeb6b0818ba586d2444cf"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "java-gc-pressure",
+      "title": "Java 分配风暴与 GC 压力",
+      "family": "Java 运行时",
+      "symptom": "Java 服务持续制造短命对象，堆呈锯齿并可能出现 GC 与延迟抖动",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "memory_smaps",
+        "java_async"
+      ],
+      "expected_signals": [
+        "分配量快速增长",
+        "GC 次数增加",
+        "堆使用呈回收锯齿而非单调泄漏"
+      ],
+      "diagnosis_query": "诊断 demo 环境中进程名为 java 的 Java 服务出现 GC 和延迟抖动。先确认系统与堆趋势，再采集 JVM 调用栈定位分配路径，最后排除对象长期保留、锁等待和纯 CPU 热点，并验证停止后的恢复。",
+      "related_skill": "gc-pressure-diagnosis",
+      "lab_key": "java",
+      "target_runtime": "Java",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_d618e3c310e640d785a9f11dfaaa13c5",
+        "finished_at": "2026-09-30T08:10:18.965844+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "98f7aa130bba851ac89c6cd5545d64291f5b66abd5e5a9fd1efccd7643c87a53"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "java-lock-contention",
+      "title": "Java 锁竞争",
+      "family": "锁竞争",
+      "symptom": "多个 Java 线程竞争同一临界区，吞吐下降且阻塞/上下文切换增加",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "java_async",
+        "perf_cpu"
+      ],
+      "expected_signals": [
+        "锁等待次数增长",
+        "调用栈出现 ReentrantLock/park",
+        "CPU 热点不能单独解释吞吐"
+      ],
+      "diagnosis_query": "诊断 demo 环境中进程名为 java 的 Java 服务吞吐下降并疑似锁竞争。先比较 CPU、线程和上下文切换，再用 JVM Profile 定位锁路径，最后寻找 GC、I/O 或纯计算热点反证并观察恢复。",
+      "related_skill": "lock-contention-diagnosis",
+      "lab_key": "java",
+      "target_runtime": "Java",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_af17e79c7a7e40a2828f33b50e449cba",
+        "finished_at": "2026-09-30T08:13:51.181091+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "6dd9bc48c3793bd88ede69356e4a49de495443015f99120951f368dc63e11db5"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "java-downstream-latency",
+      "title": "Java 下游依赖慢响应",
+      "family": "下游依赖",
+      "symptom": "Java 请求线程等待受控下游响应，端到端延迟升高但本地 CPU 保持中低水平",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "java_async"
+      ],
+      "expected_signals": [
+        "请求等待时间升高",
+        "线程栈以等待/park 为主",
+        "本地 CPU 热点不足以解释延迟"
+      ],
+      "diagnosis_query": "诊断 demo 环境中进程名为 java 的 Java 服务端到端延迟升高。先检查本实例资源，再观察等待线程路径，随后对比下游响应与本地计算反证，最后验证停止故障后的恢复。",
+      "related_skill": "dependency-latency-diagnosis",
+      "lab_key": "java",
+      "target_runtime": "Java",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_5a28e9cf52d847e8b2d7928bc72de5db",
+        "finished_at": "2026-09-30T08:17:42.220071+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "e4135877a429f8bcc3a32a474ed06bc7f7e005db494b09f2f2a532fd56ce081f"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "java-offheap-growth",
+      "title": "Java 堆外内存持续增长",
+      "family": "内存",
+      "symptom": "Java 服务分阶段保留 DirectByteBuffer，进程 RSS 上升但 Java 堆指标不能完整解释",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "memory_smaps",
+        "java_async"
+      ],
+      "expected_signals": [
+        "RSS/PSS 持续增长",
+        "匿名内存占比增加",
+        "Java 堆增幅小于进程 RSS 增幅"
+      ],
+      "diagnosis_query": "诊断 demo 环境中进程名为 java 的 Java 服务进程内存持续增长。第一轮对比 RSS/PSS 与 JVM 堆趋势，第二轮检查 Native/DirectByteBuffer 路径和内存映射，第三轮排除 GC 抖动、页缓存与宿主机压力并观察停止后的恢复；必须说明堆内与堆外证据差异。",
+      "related_skill": "memory-growth-diagnosis",
+      "lab_key": "java",
+      "target_runtime": "Java",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_3aeb47d926c6467396cc626bf7d3b216",
+        "finished_at": "2026-09-30T08:21:27.492515+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "0c81e03d3a8d29a55582050220d768c97969a646c817770562f9aa5625482c16"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "java-file-io",
+      "title": "Java 同步文件写入",
+      "family": "I/O",
+      "symptom": "Java 服务使用 FileChannel 强制同步固定临时文件，写入延迟和 I/O 等待升高",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "ebpf_io",
+        "java_async"
+      ],
+      "expected_signals": [
+        "FileChannel 写入累计增长",
+        "force/fsync 路径可见",
+        "CPU 与 GC 不能单独解释等待"
+      ],
+      "diagnosis_query": "诊断 demo 环境中进程名为 java 的 Java 服务文件写入变慢。第一轮检查系统 I/O 与进程写入趋势，第二轮用 eBPF 和 JVM 栈定位 FileChannel.force 路径，第三轮寻找 GC、锁竞争、CPU 热点和下游等待反证，最后验证停止后的恢复。",
+      "related_skill": "io-latency-diagnosis",
+      "lab_key": "java",
+      "target_runtime": "Java",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_e9c31116effc4d4b9f078940033a0923",
+        "finished_at": "2026-09-30T08:24:57.374409+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "555a6c45c8f965c23eba96914c8acc2f3098466b45287cb6c776296cccd1df2a"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "cpp-cpu-hotspot",
+      "title": "C++ 计算热点",
+      "family": "C++",
+      "symptom": "C++ 进程出现稳定计算热点，需要区分业务循环、锁自旋和系统调用开销",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu",
+        "continuous_perf"
+      ],
+      "expected_signals": [
+        "目标 CPU 升高",
+        "perf 热点集中在固定函数",
+        "锁等待和 I/O 不占主导"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 cpp-hotspot 服务 CPU 持续升高。先做系统初筛，再用 perf 定位计算热点，最后寻找锁竞争、I/O 等待和同机争抢反证，并确认停止后的恢复。",
+      "related_skill": "cpp-runtime-diagnosis",
+      "lab_key": "cpp",
+      "target_runtime": "C++",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_95af589e163149f3af867b66c72c7b9c",
+        "finished_at": "2026-09-30T08:28:45.941310+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "ef0a4a08bec0299e212e699715e872ada11e43b56f71c192883d82d89e5d74cc"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "cpp-lock-contention",
+      "title": "C++ 互斥锁竞争",
+      "family": "锁竞争",
+      "symptom": "多个 C++ 线程争抢同一互斥锁，等待时间和上下文切换上升",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu",
+        "continuous_perf"
+      ],
+      "expected_signals": [
+        "互斥锁等待累计增长",
+        "futex/锁调用栈集中",
+        "降低竞争后吞吐恢复"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 cpp-hotspot 服务吞吐下降。先用系统指标区分 CPU 计算和阻塞等待，再用 perf 定位 mutex/futex 路径，最后寻找 I/O 或纯计算热点反证并观察恢复。",
+      "related_skill": "lock-contention-diagnosis",
+      "lab_key": "cpp",
+      "target_runtime": "C++",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_43a74dc214f14cb198c24758e3834afb",
+        "finished_at": "2026-09-30T08:32:38.222617+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": true,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "d27d69fe710bd8cd8e619e4f31736735bb9d8868754fbccdb19529e3609845e0"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "cpp-memory-growth",
+      "title": "C++ 有界内存保留",
+      "family": "内存",
+      "symptom": "C++ 进程分阶段保留匿名内存，RSS 上升但不会耗尽宿主机",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "memory_smaps"
+      ],
+      "expected_signals": [
+        "RSS/PSS 持续增长",
+        "匿名映射占比增加",
+        "停止并释放后内存回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 cpp-hotspot 服务 RSS 持续增长。先确认趋势，再区分匿名内存保留、页缓存和宿主机压力，最后观察停止释放后的恢复，不能凭单点 RSS 断言泄漏。",
+      "related_skill": "memory-growth-diagnosis",
+      "lab_key": "cpp",
+      "target_runtime": "C++",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_0aa75674e0d742c3a1af09e251bef9be",
+        "finished_at": "2026-09-30T08:36:22.872065+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "e423c21bab342419111662d9d1685543508c2c7c90651b473e7a8a3abaea457e"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "cpp-file-io",
+      "title": "C++ 同步文件写入",
+      "family": "I/O",
+      "symptom": "C++ 服务对固定临时文件执行有界 write 与 fdatasync，制造可停止的磁盘等待",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "ebpf_io",
+        "perf_cpu"
+      ],
+      "expected_signals": [
+        "进程写入字节增长",
+        "write/fdatasync 系统调用路径可见",
+        "停止后 I/O wait 回落"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 cpp-hotspot 服务文件 I/O 变慢。第一轮确认进程写入量与 I/O wait，第二轮用 eBPF 定位 write/fdatasync 和块设备延迟，第三轮用 perf 排除计算热点、锁竞争与内存压力，并验证停止后的恢复。",
+      "related_skill": "io-latency-diagnosis",
+      "lab_key": "cpp",
+      "target_runtime": "C++",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_53875d4c11884123835fbf8dda9b3bce",
+        "finished_at": "2026-09-30T08:40:08.624609+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "0f8a65760593f2cf58f1e59de5fa715f37c028ac1772678a6ea39c1c0f9616be"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    },
+    {
+      "scenario_id": "cpp-downstream-latency",
+      "title": "C++ 下游响应变慢",
+      "family": "下游依赖",
+      "symptom": "C++ 请求线程等待固定回环下游，端到端延迟上升但本地 CPU 不一定饱和",
+      "active": false,
+      "recommended_collectors": [
+        "sys_metrics",
+        "perf_cpu",
+        "continuous_perf"
+      ],
+      "expected_signals": [
+        "回环请求延迟升高",
+        "socket 等待路径可见",
+        "本地计算热点不足以解释时延"
+      ],
+      "diagnosis_query": "诊断 demo 环境中的 cpp-hotspot 服务请求延迟升高。第一轮比较 CPU、运行队列与请求延迟，第二轮用 perf/持续采样识别 socket 等待路径，第三轮排除锁竞争、同步文件 I/O 和纯计算热点，并验证关闭下游延迟后的恢复。",
+      "related_skill": "dependency-latency-diagnosis",
+      "lab_key": "cpp",
+      "target_runtime": "C++",
+      "available": true,
+      "unavailable_reason": "",
+      "minimum_diagnosis_rounds": 3,
+      "investigation_stages": [
+        "低开销系统初筛",
+        "运行时或内核专项取证",
+        "寻找反证并观察恢复窗口"
+      ],
+      "duration_options_seconds": [
+        30,
+        60,
+        120
+      ],
+      "supports_skill_ab": true,
+      "acceptance_level": "HISTORICAL_LINEAGE_VERIFIED",
+      "latest_acceptance": {
+        "diagnosis_id": "insight_9554f73ea8cb4cae88763325f64e6632",
+        "finished_at": "2026-09-30T08:43:53.082868+00:00",
+        "tested_release": "20260930T071955Z",
+        "passed": false,
+        "lineage_verified": false,
+        "root_cause_accepted": false,
+        "recovery_observed": true,
+        "cleanup_verified": true,
+        "fix_verified": false,
+        "source_report": "fault-plaza-strict-21-deployed-20260930.json",
+        "source_sha256": "c3c9a105a3eb3c246ebce7e341ff5f1112b6638018d7c77fcde88d3af812cc8b",
+        "case_sha256": "bdb5df2344f89558f2a46cf723461e664b13d5fe84cc8eb545b67104c11c6719"
+      },
+      "skill_ab_unavailable_reason": "",
+      "safety": {
+        "allow_listed": true,
+        "auto_stop": true,
+        "max_duration_seconds": 300,
+        "production_target": false
+      }
+    }
+  ]
+}

@@ -94,7 +94,7 @@ export default function AuditLogs() {
 
   if (loading) {
     return (
-      <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+      <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
         <Skeleton.Input active size="small" style={{ width: 140 }} />
         <Card size="small">
           <Skeleton active paragraph={{ rows: 8 }} />
@@ -104,9 +104,9 @@ export default function AuditLogs() {
   }
 
   return (
-    <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+    <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
       {/* 页头 */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <div className="workspace-page-header">
         <Space align="center">
           <AuditOutlined style={{ fontSize: 20, color: COLORS.primary }} />
           <Typography.Title level={4} style={{ margin: 0 }}>

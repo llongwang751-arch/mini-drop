@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <set>
 #include <thread>
 #include <vector>
 #include <ctime>
@@ -161,6 +162,87 @@ std::string bounded_json_object(const fs::path& path) {
   return value.substr(begin, end - begin + 1);
 }
 
+std::string unified_cgroup_path(const std::string& raw) {
+  std::istringstream input(raw);
+  std::string line;
+  while (std::getline(input, line)) {
+    if (line.rfind("0::", 0) == 0) return line.substr(3);
+  }
+  return "";  // v1 or an unavailable mount is explicitly unobserved.
+}
+
+std::string resource_competition_snapshot(const fs::path& proc, int target_pid,
+                                          const ProcessStatSnapshot& target) {
+  const std::string group = unified_cgroup_path(read_text(proc / "cgroup"));
+  if (!target.valid || group.empty()) return "";
+  fs::path cpu_root = proc / "root/sys/fs/cgroup";
+  // Prefer the host cgroup path if visible to this collector. Container roots
+  // expose their own cgroup as /sys/fs/cgroup when cgroup namespaces are used.
+  const fs::path relative = fs::path(group).relative_path();
+  if (group.find("..") == std::string::npos &&
+      !read_text(fs::path("/sys/fs/cgroup") / relative / "cpu.max").empty()) {
+    cpu_root = fs::path("/sys/fs/cgroup") / relative;
+  }
+  std::istringstream limits(read_text(cpu_root / "cpu.max"));
+  std::string quota_token, period_token;
+  long long quota = 0, period = 0;
+  if (!(limits >> quota_token >> period_token) ||
+      !parse_non_negative_integer(period_token, period) || period <= 0) return "";
+  const bool limited = quota_token != "max";
+  if (limited && (!parse_non_negative_integer(quota_token, quota) || quota <= 0)) return "";
+  long long nr_periods = -1, nr_throttled = -1, throttled_usec = -1;
+  std::istringstream counters(read_text(cpu_root / "cpu.stat"));
+  std::string key, token;
+  while (counters >> key >> token) {
+    long long value = 0;
+    if (!parse_non_negative_integer(token, value)) continue;
+    if (key == "nr_periods") nr_periods = value;
+    else if (key == "nr_throttled") nr_throttled = value;
+    else if (key == "throttled_usec") throttled_usec = value;
+  }
+  if (nr_periods < 0 || nr_throttled < 0 || throttled_usec < 0) return "";
+  std::ostringstream peers;
+  bool first = true;
+  // Kernel-owned direct-child identities, not a peer PID supplied by the app.
+  // Bound discovery to 16 entries; this channel is a finite observation.
+  std::set<int> child_pids;
+  std::error_code task_error;
+  int task_count = 0;
+  for (fs::directory_iterator it(proc / "task", task_error), end;
+       !task_error && it != end && task_count++ < 256; it.increment(task_error)) {
+    std::istringstream children(read_text(it->path() / "children"));
+    int child_pid = 0;
+    while (child_pids.size() < 16 && children >> child_pid) {
+      if (child_pid > 0) child_pids.insert(child_pid);
+    }
+  }
+  for (const int peer_pid : child_pids) {
+    const fs::path peer_proc = fs::path("/proc") / std::to_string(peer_pid);
+    const auto peer = parse_process_stat(read_text(peer_proc / "stat"));
+    const auto peer_group = unified_cgroup_path(read_text(peer_proc / "cgroup"));
+    if (peer_pid <= 0 || peer_pid == target_pid || !peer.valid || peer_group != group) continue;
+    if (!first) peers << ',';
+    first = false;
+    peers << "{\"pid\":" << peer_pid << ",\"start_ticks\":" << peer.start_ticks
+          << ",\"cpu_ticks\":" << peer.cpu_ticks << ",\"cgroup_path\":\""
+          << escape_json(peer_group) << "\"}";
+  }
+  const std::string boot = read_text("/proc/sys/kernel/random/boot_id");
+  std::ostringstream output;
+  output << "{\"schema_version\":\"mini-drop.cgroup-cpu-observation.v1\","
+         << "\"source\":\"linux_proc_and_cgroup_v2\",\"target_pid\":" << target_pid
+         << ",\"target_start_ticks\":" << target.start_ticks
+         << ",\"target_cpu_ticks\":" << target.cpu_ticks
+         << ",\"boot_id\":\"" << escape_json(boot) << "\",\"cgroup_path\":\""
+         << escape_json(group) << "\",\"cpu_quota_us\":";
+  if (limited) output << quota;
+  else output << "null";
+  output << ",\"cpu_period_us\":" << period << ",\"nr_periods\":" << nr_periods
+         << ",\"nr_throttled\":" << nr_throttled
+         << ",\"throttled_usec\":" << throttled_usec << ",\"peers\":[" << peers.str() << "]}";
+  return output.str();
+}
+
 TaskResult upload_json(const Config& config, const Task& task,
                        const std::string& collector, const fs::path& path,
                        const std::string& artifact_type) {
@@ -307,6 +389,7 @@ class SysMetricsCollector final : public Collector {
           parse_process_stat(read_text(proc / "stat"));
       const HostCpuSnapshot host_cpu = parse_host_cpu(read_text("/proc/stat"));
       const std::string process_io = read_text(proc / "io");
+      const std::string resource_competition = resource_competition_snapshot(proc, task.pid, process_stat);
       std::string application_metrics = bounded_json_object(
           proc / "root/tmp/mini-drop-app-metrics.json");
       if (application_metrics.empty()) {
@@ -348,6 +431,10 @@ class SysMetricsCollector final : public Collector {
              << ",\"host_cpu_softirq_ticks\":" << host_cpu.softirq
              << ",\"host_cpu_steal_ticks\":" << host_cpu.steal
              << ",\"host_cpu_total_ticks\":" << host_cpu.total;
+      if (!resource_competition.empty()) {
+        output << ",\"resource_competition_json\":\""
+               << escape_json(resource_competition) << '\"';
+      }
       if (!application_metrics.empty()) {
         output << ",\"application_metrics_json\":\""
                << escape_json(application_metrics) << '\"';

@@ -1,0 +1,56 @@
+{
+  "event": "WINDOW_STARTED",
+  "phase": "baseline",
+  "identity": {
+    "pid": 698446,
+    "start_ticks": 234337890,
+    "boot_id": "1c90a702-e68a-4193-b533-0b5af38e1418"
+  },
+  "source_sha256": "9293bd0204c7700778d3110ceff2fb6f9af853696d7e63dc8a4517cee6c93df2",
+  "settings": {
+    "rerank_candidates": 4,
+    "shared_ingest_queue": false,
+    "dependency_latency_ms": 0,
+    "dependency_timeout_ms": 600,
+    "allow_extractive_fallback": false
+  },
+  "request_count": 360,
+  "arrival_rate": 4,
+  "question_sha256": "8bc6cbb36695a3fbe675bdac8772e6ac55bdfcd828657917debed15f388bee41",
+  "dataset_sha256": "21d055283e22f5ab714a908655a67dab2623502518f9ae46441b8304f11587ab",
+  "slow_request": {
+    "slot": -4,
+    "success": true,
+    "quality_passed": true,
+    "trace_id": "b52e27854dbf4d95a6c36b0861b4260a",
+    "candidate_count": 4,
+    "stage_ms": {
+      "queue": 0.06080092862248421,
+      "retrieval": 0.4015602171421051,
+      "rerank": 2.408483065664768,
+      "generation": 0.06821565330028534
+    },
+    "latency_ms": 3.879239782691002,
+    "dispatch_lag_ms": 0.00030780211091041565,
+    "response": {
+      "trace_id": "b52e27854dbf4d95a6c36b0861b4260a",
+      "service": "knowledge-api",
+      "generator": "EXTRACTIVE_LOCAL",
+      "answer": "Employees request annual leave through the HR portal. Manager approval is required before travel.",
+      "citations": [
+        "leave"
+      ],
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "latency_ms": 2.966869156807661,
+      "stage_ms": {
+        "queue": 0.06080092862248421,
+        "retrieval": 0.4015602171421051,
+        "rerank": 2.408483065664768,
+        "generation": 0.06821565330028534
+      },
+      "candidate_count": 4
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "type": "result",
+  "case_id": "h10",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2e50e4d0248b48bcd6cfccd7b3",
+    "object": "chat.completion",
+    "created": 1790920512,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"NETWORK\",\n  \"disposition\": \"OBSERVATION_REFUTED\",\n  \"next_tool\": \"NO_TOOL\",\n  \"reasoning_summary\": \"合成观测显示，在完整的连接窗口内，TCP重传数为0，RTT稳定在2ms。这反驳了‘TCP重传导致问题’的主张。\",\n  \"expected_observations\": [\"network_latency.average_latency_ms >= 2\"],\n  \"falsification_criteria\": [\"network_latency.average_latency_ms < 2\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3190,
+      "completion_tokens": 137,
+      "total_tokens": 3327,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 886
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2e50e4d0248b48bcd6cfccd7b3\",\"object\":\"chat.completion\",\"created\":1790920512,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"NETWORK\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_REFUTED\\\",\\n  \\\"next_tool\\\": \\\"NO_TOOL\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示，在完整的连接窗口内，TCP重传数为0，RTT稳定在2ms。这反驳了‘TCP重传导致问题’的主张。\\\",\\n  \\\"expected_observations\\\": [\\\"network_latency.average_latency_ms \\u003e= 2\\\"],\\n  \\\"falsification_criteria\\\": [\\\"network_latency.average_latency_ms \\u003c 2\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3190,\"completion_tokens\":137,\"total_tokens\":3327,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":886},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "134b96bcf63ab05f24ccbad96ded752d5076f141e345b3f883b0c61962d7ed02",
+  "seconds": 29.419616,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.network.retransmit",
+      "linux.iowait.shared_block_device"
+    ],
+    "matches": [
+      {
+        "query": "有人坚持是TCP重传，完整连接窗口没出现一包重传且RTT稳定在2ms，还需要把丢包当成已确认吗？",
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "score": 24.42453,
+        "matched_terms": [
+          "rtt",
+          "tcp",
+          "丢包",
+          "连接",
+          "重传"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      },
+      {
+        "query": "有人坚持是TCP重传，完整连接窗口没出现一包重传且RTT稳定在2ms，还需要把丢包当成已确认吗？",
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+        "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+        "score": 3.973402,
+        "matched_terms": [
+          "出现"
+        ],
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。"
+      }
+    ],
+    "seconds": 0.014217
+  }
+}

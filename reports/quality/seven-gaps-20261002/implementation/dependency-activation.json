@@ -1,0 +1,24 @@
+{
+  "status": "HEALTHY",
+  "release": "/opt/mini-drop-releases/20261001T172534Z",
+  "images": {
+    "diagnosis-worker": {
+      "tag": "mini-drop-diagnosis-worker:seven-binutils-20261002",
+      "image_id": "sha256:00900f5f3222c97f705a96791d0b161f30f59529008f4e539e6bbb3840f3c73e",
+      "base_image": "sha256:7b723bebc4812bd009e32e709bc06ed62c8d2e1aa94b2155e60bfa2668686982"
+    },
+    "analyzer": {
+      "tag": "mini-drop-analyzer:seven-binutils-20261002",
+      "image_id": "sha256:ba08dc5a3221c18bbf8f66d51e86d5b0c30c0808e134aeec469d3b057c670efa",
+      "base_image": "sha256:8f2873cdd488caec037a3ebe794b82200fa5b958804fb8e60494e08491202d65"
+    }
+  },
+  "changed_services": [
+    "analyzer",
+    "diagnosis-worker"
+  ],
+  "untouched_containers": 11,
+  "office_state": "MainPID=2670585\nNRestarts=0\nActiveState=active",
+  "office_release": "/opt/agi-office/releases/agent-workspace-20261001T160559Z",
+  "rollback_config": "/opt/mini-drop-releases/20261001T172534Z/private/dependency-rollback.compose.json"
+}

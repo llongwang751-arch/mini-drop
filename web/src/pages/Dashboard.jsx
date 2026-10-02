@@ -43,7 +43,7 @@ import TaskCreatePanel from "../components/TaskCreatePanel";
 import StatusTag from "../components/StatusTag";
 import ErrorAlert from "../components/ErrorAlert";
 import usePolling from "../hooks/usePolling";
-import useSSE from "../hooks/useSSE";
+import { useControlEvents } from "../hooks/SSEContext";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import { collectorMeta } from "../utils/collectors";
 import { agentMetric } from "../utils/agentMetrics";
@@ -238,7 +238,7 @@ export default function Dashboard() {
 
   // ── SSE 实时事件 ──────────────────────────────────────
 
-  useSSE({
+  useControlEvents({
     onTaskChanged(data) {
       showEventNotification("task_changed", data);
       refresh(); // 事件到达后刷新数据
@@ -452,7 +452,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+      <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
         <Skeleton.Input active size="small" style={{ width: 160 }} />
         <Row gutter={SPACING.lg}>
           {[1, 2, 3, 4].map((i) => (
@@ -474,17 +474,9 @@ export default function Dashboard() {
   }
 
   return (
-    <Space direction="vertical" size={SPACING.lg} style={{ width: "100%" }}>
+    <Space direction="vertical" size={SPACING.xl} className="workspace-page" style={{ width: "100%" }}>
       {/* ── 页头 ──────────────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 8,
-        }}
-      >
+      <div className="workspace-page-header">
         <Space align="center">
           <DashboardOutlined style={{ fontSize: 20, color: COLORS.primary }} />
           <Typography.Title level={4} style={{ margin: 0 }}>

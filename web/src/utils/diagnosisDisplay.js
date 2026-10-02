@@ -163,7 +163,7 @@ const ACTOR_LABELS = {
   TOOL_RUNTIME: "工具运行环境",
 };
 
-const TOOL_LABELS = {
+export const TOOL_LABELS = {
   collect_sys_metrics: "采集系统指标",
   collect_database_diagnostics: "采集数据库诊断信息",
   start_perf_profile: "采集 CPU 火焰图",
@@ -185,6 +185,15 @@ const TOOL_LABELS = {
   java_async: "JVM async-profiler 采样",
   go_pprof: "Go pprof 采样",
 };
+
+// 诊断会话的终态集合：唯一权威来源，各页面/组件统一引用，
+// 不再各自维护一份会漂移的副本。
+export const TERMINAL_DIAGNOSIS_STATUSES = new Set([
+  "COMPLETED",
+  "INSUFFICIENT_EVIDENCE",
+  "FAILED",
+  "CANCELLED",
+]);
 
 const EXACT_TEXT = new Map([
   [

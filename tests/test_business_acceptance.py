@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 from server.app.drop_insight.business_acceptance import (
-    Workload,RequestOutcome,MeasurementWindow,AcceptancePolicy,compare_business_windows,
+    Workload,RequestOutcome,MeasurementWindow,AcceptancePolicy,compare_business_windows,summarize,
 )
 
 
@@ -25,6 +25,42 @@ def test_same_load_improvement_requires_quality_and_non_degraded_results():
     assert check()['outcome']=='REJECTED'
     a.requests[0].quality_passed=True;a.requests[0].degraded=True
     assert check()['outcome']=='DEGRADED_AVAILABLE'
+
+
+def test_stage_percentiles_use_only_observed_samples_and_preserve_real_zero():
+    measured = window(200)
+    measured.requests[0].stage_ms = {'retrieval': 123, 'queue': 0}
+    measured.requests[1].stage_ms = {'queue': 0}
+    # A failed request remains in end-to-end/error metrics without inventing
+    # stage timing for the request that never returned telemetry.
+    measured.requests[-1].success = False
+    measured.requests[-1].quality_passed = False
+    summary = summarize(measured)
+    assert summary['stage_p95_ms'] == {'queue': 0, 'retrieval': 123}
+    assert summary['stage_sample_counts'] == {'queue': 2, 'retrieval': 1}
+    assert summary['request_count'] == 30
+    assert summary['success_rate'] == 29 / 30
+    assert summary['quality_rate'] == 29 / 30
+    assert summary['p95_ms'] == 200
+
+
+def test_missing_stage_telemetry_stays_missing():
+    summary = summarize(window(10))
+    assert summary['stage_p95_ms'] == {}
+    assert summary['stage_sample_counts'] == {}
+
+
+@pytest.mark.parametrize('bad_responses,minimum_quality_rate', [(30, .98), (1, .90)])
+def test_degraded_response_must_preserve_quality_threshold_and_baseline(bad_responses, minimum_quality_rate):
+    baseline, fault, after = window(10), window(100, 'b'), window(10, degraded=True)
+    for row in after.requests[:bad_responses]:
+        row.quality_passed = False
+    result = compare_business_windows(
+        baseline, fault, after, AcceptancePolicy(minimum_quality_rate=minimum_quality_rate),
+        'timeout with extractive fallback',
+    )
+    assert result['outcome'] == 'REJECTED'
+    assert result['summaries']['after']['degraded_count'] == 30
 
 
 @pytest.mark.parametrize('field,value',[('arrival_rate',3),('dataset_sha256','d'*64),('concurrency_limit',4),('service','other')])
@@ -101,7 +137,8 @@ def test_readonly_report_hash_and_rpc_route(monkeypatch,tmp_path):
     assert get_business_acceptance()['status']=='INVALID'
 
 
-def test_actual_source_projection_recomputes_summary_and_rejects_wrong_target(tmp_path):
+@pytest.mark.parametrize('legacy_summary', [False, True])
+def test_actual_source_projection_recomputes_summary_and_rejects_wrong_target(tmp_path, legacy_summary):
     import json
     from scripts.build_business_acceptance_view import build
     from server.app.drop_insight.business_acceptance import canonical_hash
@@ -115,9 +152,20 @@ def test_actual_source_projection_recomputes_summary_and_rejects_wrong_target(tm
             'policy':AcceptancePolicy().model_dump(),'change':'read text columns','business_description':'slow retrieval',
             'windows':dict(zip(('baseline','fault','after'),[w.model_dump() for w in (b,f,a)])),
             'comparison':compare_business_windows(b,f,a,AcceptancePolicy(),'read text columns')}
+    if legacy_summary:
+        for summary in actual['comparison']['summaries'].values():
+            summary.pop('stage_sample_counts')
     path=save('actual.json',actual,'sha256')
-    assert build(source,path)['cases'][0]['source_kind']=='ACTUAL_RAG_ENGINE'
+    original=path.read_bytes()
+    projected=build(source,path)['cases'][0]
+    assert projected['source_kind']=='ACTUAL_RAG_ENGINE'
+    assert projected['comparison']['summaries']['fault']['stage_sample_counts']=={}
+    assert path.read_bytes()==original
     actual['comparison']['summaries']['fault']['p95_ms']=999
+    save('actual.json',actual,'sha256')
+    with pytest.raises(ValueError,match='comparison'):build(source,path)
+    actual['comparison']=compare_business_windows(b,f,a,AcceptancePolicy(),'read text columns')
+    actual['comparison']['summaries']['fault']['stage_sample_counts']['retrieval']=30
     save('actual.json',actual,'sha256')
     with pytest.raises(ValueError,match='comparison'):build(source,path)
     actual['comparison']=compare_business_windows(b,f,a,AcceptancePolicy(),'read text columns')

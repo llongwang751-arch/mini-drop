@@ -1,0 +1,115 @@
+{
+  "schema": "mini-drop.retirement-backend-review.v1",
+  "head": "de094fff754f2d8cb7139dd99e31c7a30d5fb754",
+  "comparison_base": "9edb1d35d586b876b7fb4cd5ce2345073c9822ad",
+  "review_mode": "READ_ONLY_PRODUCT_AND_GIT; OUTPUT_SUMMARY_ONLY",
+  "changed_files": [
+    "README.md",
+    "contracts/performance_audit.json",
+    "docs/DIAGNOSIS_ACCEPTANCE.md",
+    "docs/ENGINEERING_CASES.md",
+    "docs/FAULT_PLAZA_ACCEPTANCE.md",
+    "docs/INTERVIEW_DEMO_GUIDE.md",
+    "docs/PERFORMANCE_DIAGNOSIS.md",
+    "docs/PROJECT_CONTEXT.md",
+    "docs/PROJECT_LEARNING_GUIDE.md",
+    "docs/README.md",
+    "docs/RESTART_HANDOFF.md",
+    "reports/architecture/engineering-score-only-20261002.md",
+    "scripts/build_performance_audit.py",
+    "scripts/verify_frontend_workbench.mjs",
+    "server/app/drop_insight/fault_plaza.py",
+    "tests/test_fault_plaza.py",
+    "tests/test_performance_audit_index.py",
+    "web/public/report-assets/performance-audit/index.json",
+    "web/src/components/EngineeringDiagnosisSummary.jsx",
+    "web/src/components/EngineeringDiagnosisSummary.test.jsx",
+    "web/src/components/EvalPanel.jsx",
+    "web/src/components/EvalPanel.test.jsx",
+    "web/src/components/FaultPlazaPanel.jsx",
+    "web/src/components/FaultPlazaPanel.test.jsx",
+    "web/src/components/PerformanceDiagnosisSummary.jsx",
+    "web/src/components/PerformanceDiagnosisSummary.test.jsx"
+  ],
+  "blocking_findings": [],
+  "default_ui_api_old_grade_removed": true,
+  "engineering_metrics": {
+    "accepted": 21,
+    "localized": 6,
+    "refuted": 8,
+    "current_campaign": 7,
+    "historical_records": 14,
+    "causal_or_fix_claim_promoted": false
+  },
+  "fault_scenarios": {
+    "count": 21,
+    "definitions_unchanged": true,
+    "public_grade_keys_omitted": true
+  },
+  "retirement_marker": {
+    "schema": "mini-drop.retired-performance-index.v1",
+    "status": "RETIRED",
+    "replacement_profile": "engineering-diagnosis.v1",
+    "replacement_url": "/report-assets/engineering-diagnosis/index.json"
+  },
+  "generator_negative_controls_rejected": [
+    "missing",
+    "active",
+    "wrong_destination",
+    "changed_evidence_bytes"
+  ],
+  "unchanged_protected_git_ids": {
+    "reports/quality": {
+      "base": "00ea219aed0588211f0298c0d42d6281574849aa",
+      "head": "00ea219aed0588211f0298c0d42d6281574849aa"
+    },
+    "reports/ai-diagnosis": {
+      "base": "fe6924d396c0781dffce711f85ef8dfa0aec5da5",
+      "head": "fe6924d396c0781dffce711f85ef8dfa0aec5da5"
+    },
+    "contracts/engineering_diagnosis.json": {
+      "base": "fafa8a566bbb07b34314887e6d2431e35b09851f",
+      "head": "fafa8a566bbb07b34314887e6d2431e35b09851f"
+    },
+    "web/public/report-assets/engineering-diagnosis/index.json": {
+      "base": "b7ad26af75ba357efcd9e88208d03a4b96659aec",
+      "head": "b7ad26af75ba357efcd9e88208d03a4b96659aec"
+    },
+    "tests/fixtures/engineering_diagnosis_before_seven_gaps.json": {
+      "base": "a6b6242ad55c31907e87bcd358641a595c3200c5",
+      "head": "a6b6242ad55c31907e87bcd358641a595c3200c5"
+    },
+    "native": {
+      "base": "a99276c64fb1fc9ba564ebcce12e61ad15ff7d35",
+      "head": "a99276c64fb1fc9ba564ebcce12e61ad15ff7d35"
+    },
+    "proto": {
+      "base": "04b785e6c2d77361948b1dc3b8c222011f5a220b",
+      "head": "04b785e6c2d77361948b1dc3b8c222011f5a220b"
+    },
+    "demo": {
+      "base": "c190c310cefe6f5a57e55b7404087e0107c9b41a",
+      "head": "c190c310cefe6f5a57e55b7404087e0107c9b41a"
+    }
+  },
+  "strict_source_pins_verified": 21,
+  "engineering_case_pins_verified": 21,
+  "engineering_manifest_pins_verified": {
+    "reports/quality/performance-localization-20261001/manifest.json": 559,
+    "reports/quality/interview-completion-20261001/performance-manifest.json": 98,
+    "reports/quality/seven-gaps-20261002/performance-manifest.json": 56
+  },
+  "engineering_manifest_files_sha_verified": 713,
+  "nonblocking_findings": [
+    {
+      "severity": "documentation",
+      "path": "scripts/generate_learning_guide_file_index.py",
+      "line": 73,
+      "generated_path": "docs/PROJECT_LEARNING_GUIDE.md",
+      "generated_line": 3361,
+      "issue": "Description still says fault_acceptance.py provides fault-plaza latest results, but the runtime caller has been removed.",
+      "suggestion": "Update the source generator description to describe retained historical/offline validation, then regenerate the guide."
+    }
+  ],
+  "limits": "Exact committed code and pinned workspace bytes inspected; no live deployment verification or product tests executed by this review."
+}

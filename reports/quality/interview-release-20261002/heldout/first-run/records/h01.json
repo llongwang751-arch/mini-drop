@@ -1,0 +1,75 @@
+{
+  "type": "result",
+  "case_id": "h01",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2dc0fa02d5c54453ba8e1d474d",
+    "object": "chat.completion",
+    "created": 1790920475,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"CPU\",\n  \"disposition\": \"OBSERVATION_SUPPORTED\",\n  \"next_tool\": \"start_pyspy_profile\",\n  \"reasoning_summary\": \"合成观测显示目标 Python 进程 CPU 占用率约为 76%（单核），符合问题描述。为定位具体热点函数，需进行源码级采样。\",\n  \"expected_observations\": [\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\"],\n  \"falsification_criteria\": [\"目标进程 CPU 占用率低于 50%\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2922,
+      "completion_tokens": 137,
+      "total_tokens": 3059,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 2922
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2dc0fa02d5c54453ba8e1d474d\",\"object\":\"chat.completion\",\"created\":1790920475,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"CPU\\\",\\n  \\\"disposition\\\": \\\"OBSERVATION_SUPPORTED\\\",\\n  \\\"next_tool\\\": \\\"start_pyspy_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"合成观测显示目标 Python 进程 CPU 占用率约为 76%（单核），符合问题描述。为定位具体热点函数，需进行源码级采样。\\\",\\n  \\\"expected_observations\\\": [\\\"Python 源码采样中最多三个具备源码位置的函数合计占比至少 70%\\\"],\\n  \\\"falsification_criteria\\\": [\\\"目标进程 CPU 占用率低于 50%\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":2922,\"completion_tokens\":137,\"total_tokens\":3059,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":2922},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "bdad27605d4df342fe2ff0672b36cee78db4051369f71f1c5a7dc89064d4fe39",
+  "seconds": 9.009501,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "python.sampling.attribution"
+    ],
+    "matches": [
+      {
+        "query": "Python 订单验签线程持续吃掉约四分之三个核，业务没有放量，下一步怎样取证？",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "score": 10.420296,
+        "matched_terms": [
+          "python",
+          "业务",
+          "线程"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。"
+      }
+    ],
+    "seconds": 0.014012
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "case_id": "b24",
+  "query": "Translate a poem about memory and childhood into Spanish; memory means personal recollection here, not a running process or technical diagnostic request.",
+  "trace": {
+    "relevance_policy": "knowledge-subject-admission-v3-coverage",
+    "relevance_query": "Translate a poem about memory and childhood into Spanish; memory means personal recollection here, not a running process or technical diagnostic request.",
+    "query_profile": {
+      "concepts": [],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [],
+      "active_clauses": [
+        "Translate a poem about memory and childhood into Spanish",
+        "memory means personal recollection here"
+      ],
+      "excluded_mentions": [
+        "a running process or technical diagnostic request"
+      ]
+    },
+    "accepted": [],
+    "rejected": [
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.032522,
+        "recall_channels": [
+          "BM25",
+          "ENTITY"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Translate a poem about memory and childhood into Spanish"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "memory means personal recollection here"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.memory.process_growth",
+        "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+        "score": 0.032266,
+        "recall_channels": [
+          "BM25",
+          "ENTITY"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "memory"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Translate a poem about memory and childhood into Spanish"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "memory means personal recollection here"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "ee73bfb9ae1b2971ab7d2ea3e174ffb6c4caa298d0e220e2b9586023fe124515",
+        "score": 0.032002,
+        "recall_channels": [
+          "BM25",
+          "ENTITY"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "recovery",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "Translate a poem about memory and childhood into Spanish"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "memory means personal recollection here"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "outcome": "NO_RELEVANT_KNOWLEDGE",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 3,
+        "chunk_ids": [
+          "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 3,
+        "chunk_ids": [
+          "2dc3ef7690461e1ba98d3c5bb307d7b6ca2cffde82dda105c9db6ad23d8c77a6",
+          "fb55ec42ba637922d33a5c31309ff763655cc3ca703d8409c897ca2ab2b76fba",
+          "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 0,
+        "chunk_ids": []
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-1fc768893a779a751320bfb1aa428567",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "Translate a poem about memory and childhood into Spanish; memory means personal recollection here, not a running process or technical diagnostic request.",
+    "query_hash": "a2bc115f9fed1574ac5a76e68815c5130747f70fe715c747d84c0bbe9eb43f4d",
+    "relevance_query_hash": "a2bc115f9fed1574ac5a76e68815c5130747f70fe715c747d84c0bbe9eb43f4d",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 0,
+    "matches": [],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": []
+}

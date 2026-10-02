@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="42" failures="5" errors="0" time="0.6889536">
+    <testsuite name="src/components/ObservabilityOverview.test.jsx" timestamp="2026-10-01T10:24:27.566Z" hostname="LAPTOP-BTHCSF99" tests="15" failures="3" errors="0" skipped="0" time="0.6441622">
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows a real complete I/O refutation separately from global health" time="0.034067">
+            <failure message="expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;OBSERVATION_REFUTED&apos; // Object.is equality" type="AssertionError">
+AssertionError: expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;OBSERVATION_REFUTED&apos; // Object.is equality
+
+Expected: &quot;OBSERVATION_REFUTED&quot;
+Received: &quot;INSUFFICIENT_OBSERVABILITY&quot;
+
+ ❯ src/components/ObservabilityOverview.test.jsx:74:35
+            </failure>
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not let a later invalid window replace a qualified observation" time="0.0019225">
+            <failure message="expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;NORMAL_OBSERVED&apos; // Object.is equality" type="AssertionError">
+AssertionError: expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;NORMAL_OBSERVED&apos; // Object.is equality
+
+Expected: &quot;NORMAL_OBSERVED&quot;
+Received: &quot;INSUFFICIENT_OBSERVABILITY&quot;
+
+ ❯ src/components/ObservabilityOverview.test.jsx:83:35
+            </failure>
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps unrelated CPU anomalies visible when an I/O hypothesis was refuted" time="0.002116">
+            <failure message="expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;ANOMALY_OBSERVED&apos; // Object.is equality" type="AssertionError">
+AssertionError: expected &apos;INSUFFICIENT_OBSERVABILITY&apos; to be &apos;ANOMALY_OBSERVED&apos; // Object.is equality
+
+Expected: &quot;ANOMALY_OBSERVED&quot;
+Received: &quot;INSUFFICIENT_OBSERVABILITY&quot;
+
+ ❯ src/components/ObservabilityOverview.test.jsx:91:35
+            </failure>
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not turn a cancelled workflow into a completed refutation" time="0.0010035">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows the localized path and its remaining causal boundary" time="0.0011199">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows independently verified observations without claiming a causal root" time="0.0008542">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; treats a completed measured window without support as no verified fault" time="0.0007832">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps the default view concise and exposes provenance on demand" time="0.3637386">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not claim a normal window when no system baseline exists" time="0.0005158">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not turn a failed run with partial metrics into a healthy window" time="0.0009913">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows process-bound HTTP business metrics inside the disclosure" time="0.0514709">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows an associated RAG request without treating it as process evidence" time="0.0442558">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps an observed controlled business fault distinct from an unverified AI root cause" time="0.050774">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows an uploaded document&apos;s actual ingest stages before any AI root-cause claim" time="0.0523832">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; identifies remote embedding as the slow phase when measured time dominates" time="0.0340029">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/utils/reportPresentation.test.js" timestamp="2026-10-01T10:24:27.578Z" hostname="LAPTOP-BTHCSF99" tests="27" failures="2" errors="0" skipped="0" time="0.0447914">
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; keeps a fully measured refutation above a later inconclusive host I/O report" time="0.0307295">
+            <failure message="expected { …(8) } to deeply equal { …(8) }" type="AssertionError">
+AssertionError: expected { …(8) } to deeply equal { …(8) }
+
+- Expected
++ Received
+
+  {
+-   &quot;claims&quot;: [
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;HYPOTHESIS_PREDICATE&quot;,
+-       &quot;claimed_value&quot;: &quot;COUNTER&quot;,
+-       &quot;criterion&quot;: {
+-         &quot;index&quot;: 0,
+-         &quot;kind&quot;: &quot;falsification&quot;,
+-       },
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/hypothesis_predicate/outcome&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;Exact numeric performance observation matched declared criteria&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_CPU_USER_PERCENT&quot;,
+-       &quot;claimed_value&quot;: 15.217,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/avg_cpu_user_pct&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;用户态 CPU 占比: 15.217&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_CPU_SYSTEM_PERCENT&quot;,
+-       &quot;claimed_value&quot;: 5.761,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/avg_cpu_sys_pct&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;系统态 CPU 占比: 5.761&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_IO_WAIT_PERCENT&quot;,
+-       &quot;claimed_value&quot;: 0.87,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/avg_cpu_iowait_pct&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;I/O wait 占比: 0.87&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_PROCESS_CPU_USAGE&quot;,
+-       &quot;claimed_value&quot;: 1.142,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/process_cpu_core_usage&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;进程 CPU 核占用: 1.142&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_SYSTEM_LOAD&quot;,
+-       &quot;claimed_value&quot;: 1.099,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/load1m&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;系统一分钟负载: 1.099&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_PROCESS_RSS&quot;,
+-       &quot;claimed_value&quot;: 12.766,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/vmrss_mb&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;进程 RSS: 12.766&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_PROCESS_RSS_MAX&quot;,
+-       &quot;claimed_value&quot;: 12.766,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/vmrss_mb_max&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;进程 RSS 峰值: 12.766&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_FD_COUNT&quot;,
+-       &quot;claimed_value&quot;: 7,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/fd_count&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;文件描述符数量: 7.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_FD_TREND&quot;,
+-       &quot;claimed_value&quot;: -4,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/fd_trend&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;文件描述符趋势: -4.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_THREAD_COUNT&quot;,
+-       &quot;claimed_value&quot;: 6,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/thread_count&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;线程数量: 6.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_THREAD_TREND&quot;,
+-       &quot;claimed_value&quot;: 0,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/thread_trend&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;线程数量趋势: 0.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_CONTEXT_SWITCH_RATE&quot;,
+-       &quot;claimed_value&quot;: 0,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/ctx_nonvoluntary_rate&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;非自愿上下文切换速率: 0.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_DISK_READ_THROUGHPUT&quot;,
+-       &quot;claimed_value&quot;: 0,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/disk_read_kbps&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;磁盘读取吞吐: 0.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-     {
+-       &quot;artifact_id&quot;: &quot;4511&quot;,
+-       &quot;artifact_sha256&quot;: &quot;4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880&quot;,
+-       &quot;claim_type&quot;: &quot;SYS_METRIC_DISK_WRITE_THROUGHPUT&quot;,
+-       &quot;claimed_value&quot;: 0,
+-       &quot;criterion&quot;: null,
+-       &quot;direction&quot;: &quot;COUNTER&quot;,
+-       &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       &quot;json_pointer&quot;: &quot;/metadata/summary/disk_write_kbps&quot;,
+-       &quot;reasons&quot;: [],
+-       &quot;statement&quot;: &quot;磁盘写入吞吐: 0.0&quot;,
+-       &quot;valid&quot;: true,
+-     },
+-   ],
+-   &quot;conclusion&quot;: &quot;本轮判断：现有可信证据未支持该假设，且存在反证；暂不接受假设“目标进程存在同步写操作延迟异常，平均延迟≥10ms且操作数≥5”。&quot;,
++   &quot;claims&quot;: [],
++   &quot;conclusion&quot;: &quot;尚未定位根因：本轮观察到宿主机块设备 I/O，但没有把这些请求归属到目标进程。缺少正常基线与业务关联，不能据此确认磁盘异常或队列积压原因。&quot;,
+    &quot;confidence&quot;: 0,
+-   &quot;counter_evidence_refs&quot;: [
+-     &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-   ],
+-   &quot;created_at&quot;: &quot;2026-10-01 10:08:15.026318+00:00&quot;,
++   &quot;counter_evidence_refs&quot;: [],
++   &quot;created_at&quot;: &quot;2026-10-01 10:09:24.254826+00:00&quot;,
+    &quot;evidence_refs&quot;: [],
+-   &quot;report_id&quot;: &quot;report_70fc5abb0dded2e9baca3c71e80bfbe9&quot;,
++   &quot;report_id&quot;: &quot;report_167d2394618d4f04fef6aeb8d6de8fc2&quot;,
+    &quot;verification&quot;: {
+      &quot;bottleneck_localization&quot;: {
+        &quot;causal_root_cause_verified&quot;: false,
+        &quot;claim_scope&quot;: &quot;BOUNDED_OBSERVATION&quot;,
+        &quot;evidence_refs&quot;: [],
+        &quot;same_load_fix_verified&quot;: false,
+        &quot;schema_version&quot;: &quot;bottleneck-localization.v1&quot;,
+        &quot;status&quot;: &quot;NOT_LOCALIZED&quot;,
+      },
+-     &quot;causal_root_cause_verified&quot;: false,
+-     &quot;claim_scope&quot;: &quot;BOUNDED_OBSERVATION&quot;,
+      &quot;observation_verification&quot;: {
+        &quot;causal_root_cause_verified&quot;: false,
+-       &quot;checked_ratio&quot;: 1,
++       &quot;checked_ratio&quot;: 0,
+        &quot;claim_scope&quot;: &quot;BOUNDED_OBSERVATION&quot;,
+-       &quot;criteria&quot;: [
+-         {
+-           &quot;checked&quot;: true,
+-           &quot;criterion&quot;: &quot;io_latency.average_latency_ms &gt;= 10&quot;,
+-           &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-           &quot;index&quot;: 0,
+-           &quot;kind&quot;: &quot;expected&quot;,
+-           &quot;matches&quot;: false,
+-           &quot;measurement&quot;: {
+-             &quot;field&quot;: &quot;average_latency_ms&quot;,
+-             &quot;matches&quot;: false,
+-             &quot;signal&quot;: &quot;io_latency&quot;,
+-             &quot;threshold&quot;: 10,
+-             &quot;value&quot;: 0.081,
+-           },
+-         },
+-         {
+-           &quot;checked&quot;: true,
+-           &quot;criterion&quot;: &quot;io_latency.operation_count_delta &gt;= 5&quot;,
+-           &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-           &quot;index&quot;: 1,
+-           &quot;kind&quot;: &quot;expected&quot;,
+-           &quot;matches&quot;: true,
+-           &quot;measurement&quot;: {
+-             &quot;field&quot;: &quot;operation_count_delta&quot;,
+-             &quot;matches&quot;: true,
+-             &quot;signal&quot;: &quot;io_latency&quot;,
+-             &quot;threshold&quot;: 5,
+-             &quot;value&quot;: 684,
+-           },
+-         },
+-         {
+-           &quot;checked&quot;: true,
+-           &quot;criterion&quot;: &quot;io_latency.average_latency_ms &lt; 10&quot;,
+-           &quot;evidence_id&quot;: &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-           &quot;index&quot;: 0,
+-           &quot;kind&quot;: &quot;falsification&quot;,
+-           &quot;matches&quot;: true,
+-           &quot;measurement&quot;: {
+-             &quot;field&quot;: &quot;average_latency_ms&quot;,
+-             &quot;matches&quot;: true,
+-             &quot;signal&quot;: &quot;io_latency&quot;,
+-             &quot;threshold&quot;: 10,
+-             &quot;value&quot;: 0.081,
+-           },
+-         },
+-       ],
+-       &quot;evidence_refs&quot;: [
+-         &quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;,
+-       ],
++       &quot;criteria&quot;: [],
++       &quot;evidence_refs&quot;: [],
+        &quot;independent_control_verified&quot;: false,
+        &quot;schema_version&quot;: &quot;performance-observation-verification.v1&quot;,
+-       &quot;status&quot;: &quot;REFUTED&quot;,
++       &quot;status&quot;: &quot;UNSUPPORTED_PLAN&quot;,
+      },
+      &quot;status&quot;: &quot;INSUFFICIENT_EVIDENCE&quot;,
+    },
+  }
+
+ ❯ src/utils/reportPresentation.test.js:10:52
+            </failure>
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; distinguishes a measured false hypothesis from missing evidence" time="0.0041023">
+            <failure message="expected &apos;阶段性观测&apos; to be &apos;已测量，异常假设被反驳&apos; // Object.is equality" type="AssertionError">
+AssertionError: expected &apos;阶段性观测&apos; to be &apos;已测量，异常假设被反驳&apos; // Object.is equality
+
+Expected: &quot;已测量，异常假设被反驳&quot;
+Received: &quot;阶段性观测&quot;
+
+ ❯ src/utils/reportPresentation.test.js:13:44
+            </failure>
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;claim_scope&quot;:&quot;CAUSAL_ROOT_CAUSE&quot;}" time="0.0008285">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;causal_root_cause_verified&quot;:true}" time="0.0002956">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:0.5,&quot;criteria&quot;:[{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &gt;= 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:false,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:false},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:1,&quot;criterion&quot;:&quot;io_latency.operation_count_delta &gt;= 5&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;operation_count_delta&quot;,&quot;value&quot;:684,&quot;threshold&quot;:5,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;falsification&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &lt; 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;}],&quot;evidence_refs&quot;:[&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0002524">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:1,&quot;criteria&quot;:[],&quot;evidence_refs&quot;:[&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0002073">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:1,&quot;criteria&quot;:[{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &gt;= 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:false,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:false},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:1,&quot;criterion&quot;:&quot;io_latency.operation_count_delta &gt;= 5&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;operation_count_delta&quot;,&quot;value&quot;:684,&quot;threshold&quot;:5,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;falsification&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &lt; 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;}],&quot;evidence_refs&quot;:[&quot;unreferenced&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0002075">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; presents a localized path while preserving the causal boundary" time="0.00043">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;status&quot;:&quot;PARTIAL_WITHOUT_COUNTER&quot;}" time="0.0002926">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;claim_scope&quot;:&quot;CAUSAL_ROOT_CAUSE&quot;}" time="0.0002735">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;causal_root_cause_verified&quot;:true}" time="0.0001937">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;bottleneck_localization&quot;:{&quot;status&quot;:&quot;LOCALIZED&quot;,&quot;causal_root_cause_verified&quot;:false,&quot;same_load_fix_verified&quot;:true,&quot;location&quot;:&quot;HTTP 调用耗时路径&quot;,&quot;evidence_refs&quot;:[&quot;ev-1&quot;]}}" time="0.0001531">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;bottleneck_localization&quot;:{&quot;status&quot;:&quot;LOCALIZED&quot;,&quot;causal_root_cause_verified&quot;:false,&quot;same_load_fix_verified&quot;:false,&quot;location&quot;:&quot;HTTP 调用耗时路径&quot;,&quot;evidence_refs&quot;:[]}}" time="0.0000972">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; keeps historical host-only I/O outside localized process assessments" time="0.000208">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; presents a verified bounded observation without a causal title or fixes" time="0.0004303">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope &quot;FUTURE_SCOPE&quot;" time="0.0002476">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope null" time="0.0001657">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope 1" time="0.0001503">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope {}" time="0.0001321">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope undefined" time="0.0001692">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: false" time="0.0002454">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: &quot;true&quot;" time="0.0001178">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: 1" time="0.0001239">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: null" time="0.0003996">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; preserves the legacy report title and explicit causal scope" time="0.0002904">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; projects report-node titles without changing the persisted tree" time="0.0004526">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; prioritizes a causal report over a higher-scoring observation" time="0.0001582">
+        </testcase>
+    </testsuite>
+</testsuites>

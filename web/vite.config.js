@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => {
   plugins: [react()],
   root: ".",
   test: {
+    // Bound DOM test workers on shared CI runners; keep the existing 5s timeout.
+    maxWorkers: 2,
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/setupTests.js",

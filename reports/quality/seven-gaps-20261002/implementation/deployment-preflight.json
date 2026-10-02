@@ -1,0 +1,61 @@
+{
+  "compose_checks": [
+    {
+      "service": "demo-agent",
+      "resolvable": true,
+      "configured_services": [
+        "analyzer",
+        "apiserver",
+        "control-plane",
+        "diagnosis-worker",
+        "migrate",
+        "minio",
+        "postgres",
+        "web"
+      ]
+    },
+    {
+      "service": "python-hotspot",
+      "resolvable": false,
+      "configured_services": []
+    },
+    {
+      "service": "java-hotspot",
+      "resolvable": false,
+      "configured_services": []
+    },
+    {
+      "service": "cpp-hotspot",
+      "resolvable": false,
+      "configured_services": []
+    },
+    {
+      "service": "diagnosis-worker",
+      "resolvable": true,
+      "configured_services": [
+        "analyzer",
+        "diagnosis-worker",
+        "web"
+      ]
+    },
+    {
+      "service": "analyzer",
+      "resolvable": true,
+      "configured_services": [
+        "analyzer",
+        "diagnosis-worker",
+        "web"
+      ]
+    },
+    {
+      "service": "web",
+      "resolvable": true,
+      "configured_services": [
+        "analyzer",
+        "diagnosis-worker",
+        "web"
+      ]
+    }
+  ],
+  "active_tasks": []
+}

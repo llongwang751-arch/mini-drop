@@ -1,9 +1,62 @@
 # Mini-Drop 如何接入业务：优化设计与执行顺序
 
+## 2026-10-02 求职材料的当前口径
+
+当前定位是面向 Linux 多语言服务的性能与可靠性测试平台：体检、受控故障、采集分析、受约束 Agent 调查和工程回归形成可审计链路。展示成绩为 **工程诊断判断 21/21、异常路径定位 6/21、有效反证 8 类**；21 条结果分为 6 条定位、8 条反证、7 条有证据支持的候选判断。来源是 7 类新真机窗口与 14 条此前记录的工程重评，不能称为本轮重跑 21 类或 21 类因果根因全部定位。4 个工程缺陷修复案例另列，不能加到上述 21 类中。
+
+已部署基线为源码 `de094fff754f2d8cb7139dd99e31c7a30d5fb754`、发布 `20261002T045234Z`。[CI 36966142203](https://github.com/llongwang751-arch/mini-drop/actions/runs/36966142203)实际完成 14/14 作业：Python 1682 项通过、16 项登记跳过；Web 317 项通过，真实 PostgreSQL 专项 14 项零跳过，Chromium 固定数据回归 8 项。16 项跳过仍保留在普通套件中，由 PostgreSQL/Chroma 独立作业实际覆盖，不能凑成“零跳过”或把专项重复加到主套件数量。真实浏览器另完成 41 份下载 SHA 核验和 48 次四视口布局检查，它与固定数据浏览器回归分别统计。
+
+已完成的一小时双机实验实发 19,950 请求，成功率与固定质量检查均为 100%；120 个 30 秒窗口中 1 个延迟超限。用户接受它用于求职演示；原严格报告仍为 FAILED，200ms 门槛不改，不能写成所有窗口达标或生产容量证明。证据见[双机测量](DISTRIBUTED_LOAD.md)。
+
+正常体检仅表示已检查范围正常；无法采到必要观测时为无法判断；REFUTED 是测量反驳指定异常假设，不等于整个业务正常。三种同步 I/O 在 tmpfs 中测得低延迟，不叫磁盘瓶颈；CPP I/O 后续 perf 预算拒绝仍保留，不能说七类完整预期工具链均通过。旧专项当前成绩和入口已移除，历史原始报告与 SHA 保持；工程判断、因果验证与同负载修复分别陈述。
+
+干净 Linux 核心平台复刻已按 [独立 CI 36975451670](https://github.com/llongwang751-arch/mini-drop/actions/runs/36975451670) 的真实回执完成：从精确 Git 源码构建七个独立镜像，以全新项目、私有 PKI、数据库和对象卷验证迁移、8 项服务健康、Agent 新心跳、真实系统采集、S3 上传/下载 SHA、独立 Analyzer 与持久化身份绑定，最后只清理本次容器和网络。私有目录已删除，卷保留给临时 Runner 回收；未执行全局 prune。它验证核心平台与一个空闲 Python 目标，不包含 Office、Go/Java/C++ 工作负载部署、perf/BPF、外部模型、操作系统安装、离线安装或小时压测。首次失败及修复回执保留，详见[干净平台原始报告](../reports/quality/interview-release-20261002/clean-ci/36975451670/reports/clean-stack/report.json)与[复刻范围](REPLICATION.md)。
+
+24 题冻结新题的模型规划/检索评估流程已 **COMPLETED，效果存在缺口**：22/24 次响应成功、2 次超时且零重试；完整结构 15/24、分类 15/24、合成窗口判断 11/24、下一工具符合冻结预期 13/24。BM25 recall@3 为 75.83%、MRR@3 为 0.80；无答案题仍召回 3/4。只有 22 次 usage 已知，成本未知。题目由项目维护者预先冻结，不是第三方出题；评估不执行真实工具、故障或平台 Agent 闭环，不能计为现场诊断/因果准确率。原失败、评分规则及 50 份来源/请求/响应 SHA 保持，clean Git 独立复算相同，见[新题评估与失败解释](HELDOUT_EVALUATION.md)。
+
+本轮已验证的源码候选为 `34b74e7b15c81a883e8a7dc2698d8ba7a356dcbf`，[主 CI 36975451853](https://github.com/llongwang751-arch/mini-drop/actions/runs/36975451853) 实际 14/14 作业成功：Python 1827 通过/16 登记跳过、Web 317、真实 PostgreSQL 14 零跳过、Chromium 固定数据 8；跳过和专项仍分别统计，见[精确 CI 主报告](../reports/quality/interview-release-20261002/main-ci-34b74e7b/summary.json)。这些是候选源码与新环境证据，线上演示应用仍为 `de094fff` / `20261002T045234Z`，没有把候选提交冒称新生产部署。
+
+剩余优先事项是本人彩排、理解源码并说明真实参与边界，以及在新的冻结版本中改进正常/缺测/拒绝结果的结构合同、无答案检索与保守返回策略；不能修改本轮题目、规则或原成绩来追求通过。收尾状态和已发布事实优先查[当前交付事实](CURRENT_DELIVERY.md)的源合同生成页；文档与讲稿准备不表示用户已掌握或完成彩排。原始回执见[当前成绩交付](../reports/architecture/engineering-score-only-20261002.md)、[归档清单](../reports/quality/engineering-score-only-20261002/manifest.json)与[项目上下文](PROJECT_CONTEXT.md)。下文带旧日期、版本和测试数的过程段落保留其当时状态，不能当作当前待办或当前成绩。
+
+### 现在怎样诊断一个没有已知故障的业务
+
+业务接入不要求先人为制造故障。登记服务并确认 Agent/进程身份后，先做一次当前状态体检：必要观测完整且在阈值内，返回已检查范围正常；观测到异常，带当前绑定进入后续调查；缺少必要采样或采集失败，返回无法判断并提供重采入口。业务请求/阶段记录可辅助说明症状，不能直接替代 Task/Artifact/Analyzer 的来源门禁。
+
+接入成本分为已有和后续：已有服务登记、可信进程发现、受控采样及专用请求/阶段关联；通用 OTel、SQL span、跨服务拓扑、完整租户过滤与流式终态仍是后续设计。正常检查只覆盖当前测到的 CPU/RSS 等范围，不判断所有业务回答正确或所有下游健康。
+
+现有可演示修复为隔离真实 HTTP/SQLite FTS5 样例，模式 EXTRACTIVE_LOCAL：固定输入、同一进程、96 候选、4 RPS、每窗 360 请求、并发上限 8，人工修复缓存及连接处理后三窗质量均 100%，P95 68.377ms→2.696ms。平台采到 find_longest_match 路径，6 份原始下载 SHA 一致。此案可说明人工假设→平台取证→代码修复→同负载复测；不能换称 Office 或在线 LLM 的自动修复效果，也不能将所有 HTTP 收益只归于缓存。[独立比较记录](../reports/quality/interview-completion-20261001/business-fix-r3/validated-comparison.json)保持原字节。
+
+下面的原助手通用接入计划按 2026-09-13 设计理解；上述专用接入和隔离样例已完成，不能继续统称“业务关联与修复均未做”。核心平台新环境复制已通过，新保留集流程已完成；它们不扩大办公助手的实际接入、因果关联或修复范围。
+
+## 历史记录：2026-10-02 当前演示补齐（已部署）
+
+统一版本已发布`20261001T160532Z`，后端与Web都来自同一Git源码`f8562dfb6e5ee94f1e228d2515f4f4a1cd6115ff`。[CI36888942005](https://github.com/llongwang751-arch/mini-drop/actions/runs/36888942005)成功13/13；PR测试merge7cfa9e7与发布提交Git tree一致，证据已核对。Python1451通过/16登记跳过、Web309通过、真实PG14通过零跳过、真实Chromium7项回归通过；Chroma独立零跳过及Go race/安全/真实镜像与连续I/O专项通过。之前的CI浏览器失败、业务两次失败和原8/18评分保留。
+
+Worker/Analyzer各208份源码、Web58份容器内和公网文件SHA一致；13容器健康，另10容器ID保持，21故障inactive。部署前后Office保持紧邻基线PID2670585/NRestarts=0、agent-workspace-20261001T160559Z；本轮更早Office由外部工作独立更新，不能声称整轮不变。API二进制SHA保持。回滚配置`/opt/mini-drop-releases/20261001T160532Z/private/rollback.compose.json`，旧发布与数据保留。
+
+真实浏览器验证工程14/21/路径4/21/反证5、18新+3旧范围、五个体检状态、业务find_longest_match报告、原CPU/HTTP/I/O路径及浏览器前进后退、4工程案例/9份下载SHA与1440/1024/768/375宽度，无JS/HTTP错误。上线后另一个真实Go正常检查验证trace/span关联标签在可信重绑后保留，2份原始下载SHA一致；标签为明确测试值，不冒充真实请求因果。三次隔离业务进程均已退出。全部证据及发布回执见[补齐交付](../reports/architecture/interview-completion-20261001.md)与[归档清单](../reports/quality/interview-completion-20261001/manifest.json)。
+
+
+
+入口仍为 https://120.24.187.205/ai-diagnosis，具体线上提交及发布状态先看PROJECT_CONTEXT顶部。当前21类工程索引为判断21/21、路径6/21、反证8类（7类新真机窗口+14条此前记录重评），旧专项公开成绩入口已移除，原始记录保留。不要把工程判断、具体定位与因果根因混为同一个成功率。
+
+面试用5分钟完成一条主线：先展示正常、异常、无法判断三个体检结果，再看真实采样产物和目标寿命，最后展示同负载修复记录。正常仅说明本次已检查范围；异常可以进入深入调查，采集不足可以重新采集，后续新会话须重绑当前进程，不复用旧PID权限。管理服务后续按钮已有实浏览器记录，本轮隔离Go三态的后续恢复/重采是独立新会话。
+
+可直接打开[正常体检](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_8d7d9d15496e42f18be26711329658b3)、[CPU异常体检](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_7785e3d08c3942e7b82f654c7eaf5e83)、[采集不足](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_9655a7bce3e74b58af7ff18e7695be68)、[真实业务采样报告](https://120.24.187.205/ai-diagnosis?case=drop_insight_v2:insight_1c11b8b7314d4108be44811fd8ded2ca)。这是历史现场证据，当前状态要再次检查。
+
+业务讲稿：固定问题与96候选的HTTP知识检索服务，排序计算中采到difflib.find_longest_match；人工修复缓存与连接处理，三窗各360请求，同一进程/输入/4RPS，上限8并发，P95从68.38ms降至2.70ms，质量100%。6份采样下载SHA一致。它是独立真实SQLite业务样例，不是Office/LLM效果评测，也不是AI自动因果根因。面试官可按[原始修复记录](../reports/quality/interview-completion-20261001/business-fix-r3/validated-comparison.json)重算。
+
+测开重点讲测试预言、三窗对照、原始证据校验、负向篡改用例与PG进程中断；后端重点讲行锁、原子事件与状态、取消竞争、trace/span在可信重绑时保留；Agent重点讲执行合同、预算/审批、取证及反证，不能用采样占比替代CPU百分比。14项真实PG通过零跳过，其他测试与最终CI见补齐交付。不要在现场重跑一小时或承诺21类全部定位。
+
+复核命令：`python scripts/build_engineering_diagnosis.py --check`；`python scripts/evaluate_same_load_business_fix.py reports/quality/interview-completion-20261001/business-fix-r3`；`python -m pytest tests/test_same_load_business_fix.py tests/test_diagnosis_trace_correlation.py tests/test_engineering_java_profiles.py -q`。真实PG需要专用测试库及RUN_POSTGRES_TESTS=1，CI负责实际运行；不要把本机跳过算通过。样例复现源为scripts/same_load_rag_fix_fixture.py及原始记录中的source目录，用隔离一次性进程，stdin依次发送baseline/before/after，关闭stdin退出；平台取证仍需可信Agent绑定和批准。
+
+
+> 2026-09-23 增量：AGI-saber 已接入请求级 RAG 阶段计时，并在 Mini-Drop 中选择真实问答发起诊断。此项属于专用业务遥测，不等于下文设计中的通用 OTel 连接器、SQL span、跨服务拓扑或同负载修复复测。实际状态见 [服务接入](SERVICE_INTEGRATION.md)。
+
 > 2026-09-14 实施进展：首批 Memos、File Browser、linkding、ntfy 已运行并接入网关 request_id 与可信进程采集。八项基础操作通过；真实标题抓取与受控依赖延迟另测。详情见 [业务验收](../reports/business-acceptance/轻量业务接入与验收-20260914.md)。本文函数 span、数据库连接器与完整业务修复闭环仍属后续设计，不因部署了应用而视为完成。
 
 
-日期：2026-09-13。状态：代码审查后的设计，本文新增能力尚未实现或部署。现有部署与实测结果仍以 [SERVICE_INTEGRATION.md](SERVICE_INTEGRATION.md) 为准。
+原设计日期：2026-09-13。下文通用OTel/SQL/流式等能力按该设计时点理解；已交付专用关联与隔离业务修复见顶部，其余未实现的设计不冒充部署。现有部署与实测结果仍以 [SERVICE_INTEGRATION.md](SERVICE_INTEGRATION.md) 为准。
 
 ## 1. 面试官关心的问题
 
@@ -50,27 +103,27 @@ OpenTelemetry 的上下文传播可以关联跨组件调用；Collector gateway 
 
 OpenTelemetry Collector 与 Mini-Drop 的 C++ Agent 分工不同：前者处理遥测，后者发现进程并执行受控采样。业务请求不应同步等待诊断服务，Mini-Drop 不可用也不应使问答不可用。
 
-## 4. 当前实现与具体缺口
+## 4. 原设计的实现位置与具体缺口（2026-09-13）
 
 | 位置 | 已经存在 | 需要优化 |
 | --- | --- | --- |
 | `server/app/drop_insight/managed_services.json` | 服务到指定 Agent/systemd 的静态登记 | 增加受控的业务归属、环境、实例、版本及遥测源关联；先保持配置登记，暂不做复杂自助门户 |
-| `server/app/drop_insight/managed_services.py` | 新鲜快照、精确服务匹配、重启后重新绑定 | 诊断目前只接收症状和模式；增加来自已校验业务异常记录的上下文 |
-| `server/app/diagnostic_ai_rpc.py` | 服务查询与创建诊断接口 | 增加异常查询/选择入口及范围授权，维护源模型和 OpenAPI 合同 |
+| `server/app/drop_insight/managed_services.py` | 新鲜快照、精确服务匹配、重启后重新绑定 | 专用请求记录与后续体检/调查已接入；通用异常源/跨服务上下文仍需受控合同 |
+| `server/app/diagnostic_ai_rpc.py` | 服务查询与创建诊断接口 | 专用请求查询/诊断与体检入口已交付；新通用异常源仍需同步更新授权、源模型和OpenAPI合同 |
 | `server/app/drop_insight/evidence.py` | Task/Artifact/Analyzer 来源链与质量门禁 | 业务观察与原生采样分开建模；不能伪造 task_id 或直接把请求日志当成有效支持证据 |
 | `web/src/components/ManagedServicesPanel.jsx` | 选择后台、输入现象并诊断 | 复用此处展示近期异常和选中的请求上下文，不再另造只有说明文字的业务页面 |
 | 原助手 `internal/handler/handler.py` | HTTP request_id、日志、普通与流式问答接口 | 修正计时口径；跨线程传播上下文；验证同步处理阻塞、流式取消及错误语义 |
 | 原助手 `internal/application/api.py` | 按用户隔离的 RAG trace 查询 | 梳理与 HTTP 请求的关联，仅输出授权、脱敏的诊断投影，不整包导出问题和文档正文 |
 | `integrations/agi_saber/traffic.py` | 有界真实 HTTP 流量 | 增加原 UI 使用的流式请求验收、登录与问答分开测量、上传与问答并发场景 |
 
-上表原助手路径相对于 `D:/洛伦兹力不做功/Desktop/AGI-Core项目/AGI-saber-python/final`。这些是待修改位置，不是已经交付的功能列表。
+上表原助手路径相对于 `D:/洛伦兹力不做功/Desktop/AGI-Core项目/AGI-saber-python/final`。这是2026-09-13设计审查的位置清单，不是当前全部未完成项；后续专用请求/阶段计时和服务入口已交付，流式终态等缺口仍需对应验证。
 
 代码审查发现的具体问题：
 
 1. `production_guardrails` 在 `await call_next(request)` 后记录耗时，尚未跟踪流式响应最后一个消息发送完毕。该日志不能直接称为流式问答总耗时；应分别记录响应开始、首个有效答案 token、正常结束/取消/失败。
 2. 普通 `async def chat` 直接调用同步 `process_with_options`。若调用在事件循环线程执行耗时工作，会阻塞其他请求。先用并发问答及轻量健康请求复现；再根据业务对象的线程安全和取消语义选择异步调用、受限执行池或后台任务，不能机械地换成无限制线程。
 3. 流式路径用显式 `threading.Thread` 执行业务。新增 trace/span 上下文时必须传入线程并测试并发隔离，不能只在 HTTP 中间件设置一次上下文。
-4. 当前原生采样包含登录和问答混合负载。`AuthService.login` 占样本较多不等于一次问答主要慢在登录，不能将进程栈比例当作请求各阶段耗时。
+4. 2026-09-13该原生采样窗口包含登录和问答混合负载。`AuthService.login` 占样本较多不等于一次问答主要慢在登录，不能将进程栈比例当作请求各阶段耗时。
 
 以上第 2 项是源码支持的风险，尚无本轮复现数据，不能写成已确认的线上根因。
 
@@ -136,7 +189,7 @@ OpenTelemetry Collector 与 Mini-Drop 的 C++ Agent 分工不同：前者处理�
 
 演示从原办公助手开始：发起真实问答，展示等待或失败；凭请求记录进入 Mini-Drop，解释选中的服务、实例及时间；展示某阶段异常与对应运行时证据、排除过的其他解释；打开具体修复差异；最后回到办公助手及相同条件下的复测记录。
 
-只有完成这条流程，才可以陈述“帮助业务解决了什么问题”。当前可以陈述“已部署独立业务后台并能绑定、采集”，还不能陈述“业务请求自动关联和完整修复案例已完成”。
+只有完成这条流程，才可以陈述“帮助业务解决了什么问题”。当前可以陈述专用业务请求关联与受控采集已交付，隔离HTTP/SQLite样例有人工定位和同负载修复记录；不能把该样例说成Office/真实LLM自动根因闭环，通用连接器与流式验收仍未完成。
 
 ## 10. 开源业务项目选型（用户追加要求，2026-09-13）
 

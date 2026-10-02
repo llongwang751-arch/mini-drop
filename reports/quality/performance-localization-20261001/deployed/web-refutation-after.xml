@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="42" failures="0" errors="0" time="0.2844317">
+    <testsuite name="src/components/ObservabilityOverview.test.jsx" timestamp="2026-10-01T10:26:10.760Z" hostname="LAPTOP-BTHCSF99" tests="15" failures="0" errors="0" skipped="0" time="0.2790502">
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows a real complete I/O refutation separately from global health" time="0.0130902">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not let a later invalid window replace a qualified observation" time="0.0004554">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps unrelated CPU anomalies visible when an I/O hypothesis was refuted" time="0.0006028">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not turn a cancelled workflow into a completed refutation" time="0.0004238">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows the localized path and its remaining causal boundary" time="0.0004253">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows independently verified observations without claiming a causal root" time="0.0004378">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; treats a completed measured window without support as no verified fault" time="0.0004298">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps the default view concise and exposes provenance on demand" time="0.1638294">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not claim a normal window when no system baseline exists" time="0.0001874">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; does not turn a failed run with partial metrics into a healthy window" time="0.0004523">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows process-bound HTTP business metrics inside the disclosure" time="0.0221652">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows an associated RAG request without treating it as process evidence" time="0.0210473">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; keeps an observed controlled business fault distinct from an unverified AI root cause" time="0.0159562">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; shows an uploaded document&apos;s actual ingest stages before any AI root-cause claim" time="0.0192769">
+        </testcase>
+        <testcase classname="src/components/ObservabilityOverview.test.jsx" name="ObservabilityOverview &gt; identifies remote embedding as the slow phase when measured time dominates" time="0.0183889">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/utils/reportPresentation.test.js" timestamp="2026-10-01T10:26:10.765Z" hostname="LAPTOP-BTHCSF99" tests="27" failures="0" errors="0" skipped="0" time="0.0053815">
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; keeps a fully measured refutation above a later inconclusive host I/O report" time="0.0014227">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; distinguishes a measured false hypothesis from missing evidence" time="0.0003745">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;claim_scope&quot;:&quot;CAUSAL_ROOT_CAUSE&quot;}" time="0.0002968">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;causal_root_cause_verified&quot;:true}" time="0.0001372">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:0.5,&quot;criteria&quot;:[{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &gt;= 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:false,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:false},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:1,&quot;criterion&quot;:&quot;io_latency.operation_count_delta &gt;= 5&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;operation_count_delta&quot;,&quot;value&quot;:684,&quot;threshold&quot;:5,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;falsification&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &lt; 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;}],&quot;evidence_refs&quot;:[&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0000894">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:1,&quot;criteria&quot;:[],&quot;evidence_refs&quot;:[&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0000825">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="live I/O refutation presentation &gt; does not label an incomplete or contradictory observation as refuted {&quot;observation_verification&quot;:{&quot;schema_version&quot;:&quot;performance-observation-verification.v1&quot;,&quot;status&quot;:&quot;REFUTED&quot;,&quot;checked_ratio&quot;:1,&quot;criteria&quot;:[{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &gt;= 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:false,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:false},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;expected&quot;,&quot;index&quot;:1,&quot;criterion&quot;:&quot;io_latency.operation_count_delta &gt;= 5&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;operation_count_delta&quot;,&quot;value&quot;:684,&quot;threshold&quot;:5,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;},{&quot;kind&quot;:&quot;falsification&quot;,&quot;index&quot;:0,&quot;criterion&quot;:&quot;io_latency.average_latency_ms &lt; 10&quot;,&quot;checked&quot;:true,&quot;matches&quot;:true,&quot;measurement&quot;:{&quot;signal&quot;:&quot;io_latency&quot;,&quot;field&quot;:&quot;average_latency_ms&quot;,&quot;value&quot;:0.081,&quot;threshold&quot;:10,&quot;matches&quot;:true},&quot;evidence_id&quot;:&quot;ev_task_task_20261001_100754_6e0d9c_4511&quot;}],&quot;evidence_refs&quot;:[&quot;unreferenced&quot;],&quot;independent_control_verified&quot;:false,&quot;claim_scope&quot;:&quot;BOUNDED_OBSERVATION&quot;,&quot;causal_root_cause_verified&quot;:false}}" time="0.0000921">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; presents a localized path while preserving the causal boundary" time="0.0002052">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;status&quot;:&quot;PARTIAL_WITHOUT_COUNTER&quot;}" time="0.0000972">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;claim_scope&quot;:&quot;CAUSAL_ROOT_CAUSE&quot;}" time="0.0000915">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;causal_root_cause_verified&quot;:true}" time="0.0000522">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;bottleneck_localization&quot;:{&quot;status&quot;:&quot;LOCALIZED&quot;,&quot;causal_root_cause_verified&quot;:false,&quot;same_load_fix_verified&quot;:true,&quot;location&quot;:&quot;HTTP 调用耗时路径&quot;,&quot;evidence_refs&quot;:[&quot;ev-1&quot;]}}" time="0.0000581">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote incomplete or contradictory localization {&quot;bottleneck_localization&quot;:{&quot;status&quot;:&quot;LOCALIZED&quot;,&quot;causal_root_cause_verified&quot;:false,&quot;same_load_fix_verified&quot;:false,&quot;location&quot;:&quot;HTTP 调用耗时路径&quot;,&quot;evidence_refs&quot;:[]}}" time="0.0000459">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; keeps historical host-only I/O outside localized process assessments" time="0.0000751">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; presents a verified bounded observation without a causal title or fixes" time="0.0001954">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope &quot;FUTURE_SCOPE&quot;" time="0.000121">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope null" time="0.0000744">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope 1" time="0.0000577">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope {}" time="0.0000401">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; does not promote an unknown or malformed scope undefined" time="0.0000376">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: false" time="0.0000838">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: &quot;true&quot;" time="0.0000356">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: 1" time="0.0000317">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; requires an exact boolean causal marker when provided: null" time="0.0000294">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; preserves the legacy report title and explicit causal scope" time="0.0000633">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; projects report-node titles without changing the persisted tree" time="0.0001658">
+        </testcase>
+        <testcase classname="src/utils/reportPresentation.test.js" name="structured report scope &gt; prioritizes a causal report over a higher-scoring observation" time="0.0000639">
+        </testcase>
+    </testsuite>
+</testsuites>

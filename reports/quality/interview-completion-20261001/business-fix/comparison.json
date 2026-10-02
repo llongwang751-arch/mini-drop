@@ -1,0 +1,65 @@
+{
+  "schema": "mini-drop.same-load-business-fix.v1",
+  "passed": false,
+  "checks": {
+    "all_slots_recorded": true,
+    "same_workload": true,
+    "same_actual_candidates": true,
+    "same_lifetime": true,
+    "target_lifetime_matches": true,
+    "changed_source_matches": true,
+    "success_and_quality_preserved": true,
+    "user_latency_improved": true,
+    "rerank_improved": true,
+    "slow_request_linked": true,
+    "diagnosis_closed": true,
+    "raw_downloads": false,
+    "remote_cleanup": true
+  },
+  "metrics": {
+    "baseline": {
+      "requests": 360,
+      "p95_ms": 5.896452814340591,
+      "rerank_p95_ms": 2.9901573434472084,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.22031599655747414,
+      "candidate_counts": [
+        4
+      ]
+    },
+    "before": {
+      "requests": 360,
+      "p95_ms": 79.44029197096825,
+      "rerank_p95_ms": 75.71130385622382,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.19226502627134323,
+      "candidate_counts": [
+        96
+      ]
+    },
+    "after": {
+      "requests": 360,
+      "p95_ms": 2.7058199048042297,
+      "rerank_p95_ms": 0.1451689749956131,
+      "successes": 360,
+      "quality_passed": 360,
+      "dispatch_p95_ms": 0.1942720264196396,
+      "candidate_counts": [
+        96
+      ]
+    }
+  },
+  "source_manifest": {
+    "before.py": "9293bd0204c7700778d3110ceff2fb6f9af853696d7e63dc8a4517cee6c93df2",
+    "after.py": "016074fdfe4aa48f7f4f67b9ed492bb27696f5b46d1cd451a8dc6b5b92cf9be1",
+    "fixture.py": "4b2cdd24f1616ab1b611788488ef93cf7e56b17820a55534bf560db6631e72b9"
+  },
+  "diagnosis_id": "insight_a1de9d6ce367485eb1a868fa19ce61c6",
+  "reports": [],
+  "download_sha_verified": 0,
+  "scope": "ISOLATED_REAL_SQLITE_FTS5_HTTP_BUSINESS; EXTRACTIVE_LOCAL; NOT_OFFICE_OR_LIVE_LLM",
+  "change": "same 96 returned candidates and same 4RPS/360 requests; frozen uncached code -> bounded lexical score cache",
+  "causal_root_cause_verified_by_agent": false
+}

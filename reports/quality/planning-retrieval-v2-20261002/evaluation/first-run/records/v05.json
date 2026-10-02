@@ -1,0 +1,177 @@
+{
+  "type": "result",
+  "case_id": "v05",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe5019074d425a3b9531767c78a",
+    "object": "chat.completion",
+    "created": 1790932484,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户报告 NVIDIA GPU 上 CUDA 图执行变慢，但未提供任何指标、时间窗口或调用轨迹。当前允许的工具集（系统指标、Python Profile、内存 Profile、eBPF IO Profile）均无法直接观测 GPU 或 CUDA 活动。因此无法提出可执行的取证计划来验证性能异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"目标进程的 GPU 利用率、显存带宽或 CUDA 内核执行时间的观测\",\n    \"问题发生的时间窗口或可复现的负载条件\",\n    \"CUDA 图执行前后的性能基线或调用轨迹\"\n  ],\n  \"limitations\": [\n    \"规划范围仅限于允许的工具白名单，无法直接采集 GPU/CUDA 性能指标。\",\n    \"知识检索结果涉及 CPU 诊断，与用户明确指出的 GPU 问题领域不匹配，不能作为本次证据。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4319,
+      "completion_tokens": 253,
+      "total_tokens": 4572,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 4319
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe5019074d425a3b9531767c78a\",\"object\":\"chat.completion\",\"created\":1790932484,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 NVIDIA GPU 上 CUDA 图执行变慢，但未提供任何指标、时间窗口或调用轨迹。当前允许的工具集（系统指标、Python Profile、内存 Profile、eBPF IO Profile）均无法直接观测 GPU 或 CUDA 活动。因此无法提出可执行的取证计划来验证性能异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"目标进程的 GPU 利用率、显存带宽或 CUDA 内核执行时间的观测\\\",\\n    \\\"问题发生的时间窗口或可复现的负载条件\\\",\\n    \\\"CUDA 图执行前后的性能基线或调用轨迹\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"规划范围仅限于允许的工具白名单，无法直接采集 GPU/CUDA 性能指标。\\\",\\n    \\\"知识检索结果涉及 CPU 诊断，与用户明确指出的 GPU 问题领域不匹配，不能作为本次证据。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4319,\"completion_tokens\":253,\"total_tokens\":4572,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":4319},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "197f98cb868517f09bcf6a9b3b100f76366aa9a84748d40337fd0d973848b938",
+  "seconds": 12.284789,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.cpu.kernel_overhead",
+      "linux.cpu.process_pressure",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "NVIDIA GPU 上执行 CUDA 图好像慢了，但没有任何指标、时间窗或调用轨迹；不要将 GPU 当作进程 CPU。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 10.326419,
+        "matched_terms": [
+          "cpu",
+          "指标",
+          "调用"
+        ],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "NVIDIA GPU 上执行 CUDA 图好像慢了，但没有任何指标、时间窗或调用轨迹；不要将 GPU 当作进程 CPU。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 9.817254,
+        "matched_terms": [
+          "cpu",
+          "指标",
+          "调用",
+          "进程"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "NVIDIA GPU 上执行 CUDA 图好像慢了，但没有任何指标、时间窗或调用轨迹；不要将 GPU 当作进程 CPU。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "score": 5.956421,
+        "matched_terms": [
+          "cpu",
+          "时间窗",
+          "时间",
+          "进程",
+          "间窗"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# 容器 CPU 配额与节流\n\n容器延迟升高而宿主机仍空闲时，应检查目标进程所在 cgroup 的 CPU 限额。先校验 /proc/PID/cgroup 与进程启动身份，避免读错容器。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "source": "reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-deployed-20260930.json",
+    "run_status": "STOPPED_UNSAFE_TO_CONTINUE",
+    "campaign_sha256": "01eea384a92924a793bc79ed985bd5b992b403bfe9871d25d58ad02d497abb36",
+    "case_sha256": "f99aa1fe551ba047bab7073921216f1a3a5e5647d8869560e7dca6d5737c40ea",
+    "diagnosis_id": "insight_5affe48c051d40d4bdc9d4a869728501",
+    "passed": false,
+    "cleanup_verified": false,
+    "session_drained": false,
+    "error": "Remote end closed connection without response",
+    "records_error": "The read operation timed out",
+    "cleanup_error": "GET /api/v2/showcases/fault-plaza: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1077)",
+    "intervention": {
+      "field": "allocated_bytes",
+      "values": {},
+      "process_identity": {
+        "verified": false,
+        "error": "'recovery'",
+        "snapshot_count": 4
+      },
+      "injection_observed": false,
+      "recovery_observed": false,
+      "error": "'recovery'"
+    }
+  },
+  {
+    "source": "reports/ai-diagnosis/fault-plaza-instance-scope-1-bounded-retry-deployed-20260930.json",
+    "run_status": "STOPPED_UNSAFE_TO_CONTINUE",
+    "campaign_sha256": "39fc81709466a50b53527d34522075575d3612b3cd367c738207b6060fbd5ef9",
+    "case_sha256": "858403587e075316cbbaa82efdcb283ceefb78f058bf97d85689832e3a24fc5f",
+    "diagnosis_id": "insight_048c13f198c14ce8b031904158262ab0",
+    "passed": false,
+    "cleanup_verified": true,
+    "session_drained": false,
+    "error": "The read operation timed out",
+    "records_error": "The read operation timed out",
+    "cleanup_error": null,
+    "intervention": {
+      "field": "allocated_bytes",
+      "mode": "counter",
+      "values": {
+        "baseline": 0.0,
+        "fault": 110111712.56763916,
+        "recovery": 0.0
+      },
+      "process_identity": {
+        "verified": true,
+        "identity": {
+          "source": "host_proc_and_docker_inspect",
+          "host_pid": 1322033,
+          "namespace_pid": 1,
+          "start_ticks": 15546764,
+          "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+          "container_id": "2a979cccfcdd19aa7319a7f2a3f81b7650e89b4a890e8fa89cf1b59a1f50a921",
+          "container_started_at": "2026-09-08T08:38:12.585649507Z"
+        },
+        "snapshot_count": 6
+      },
+      "injection_observed": true,
+      "recovery_observed": true,
+      "scope": "WITHDRAWAL_OF_INJECTED_WORKLOAD; NOT_SAME_LOAD_FIX_OR_SLO_VERIFICATION"
+    }
+  }
+]

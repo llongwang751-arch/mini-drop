@@ -1,0 +1,35 @@
+{
+  "schema": "mini-drop.parallel-timing-reproduction.v1",
+  "scope": "DETERMINISTIC_TELEMETRY_REPLAY; NO_LIVE_LLM; NO_AI_ROOT_GRADE",
+  "expected_retrieval_ms": 2000.0,
+  "intervals_seconds": {
+    "search": [
+      0,
+      10
+    ],
+    "embeddings": [
+      [
+        0,
+        6
+      ],
+      [
+        2,
+        8
+      ]
+    ]
+  },
+  "before": {
+    "source_sha256": "f89afa3c24e80e89009e993155c920ce4f538248144b569e06dde9158e5c1669",
+    "actual_retrieval_ms": 0.0,
+    "matches_expected": false,
+    "source_line": 439,
+    "calculation": "stages[\"retrieval_ms\"] = round(max(0.0, stages.pop(\"search_total_ms\") - stages.get(\"embedding_ms\", 0.0) - stages.get(\"rerank_ms\", 0.0)), 3)"
+  },
+  "after": {
+    "source_sha256": "5c26f368fafd6bc2a802df8ed30c95f0866950dd15c6710ec3577cb9ebaad64d",
+    "actual_retrieval_ms": 2000,
+    "matches_expected": true
+  },
+  "status": "VERIFIED_DEFECT_FIX",
+  "measured_at": "2026-09-30T17:35:32.979456+00:00"
+}

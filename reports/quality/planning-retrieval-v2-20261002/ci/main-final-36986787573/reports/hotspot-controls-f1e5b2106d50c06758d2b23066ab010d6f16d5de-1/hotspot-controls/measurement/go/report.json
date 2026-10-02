@@ -1,0 +1,54 @@
+{
+  "runtime": "go",
+  "status": "CONTROL_VERIFIED",
+  "windows": {
+    "baseline": {
+      "pid": 3614,
+      "create_time": 1790931359.28,
+      "duration_seconds": 4.0002227169999856,
+      "cpu_start_seconds": 0.0,
+      "cpu_end_seconds": 0.02,
+      "cpu_percent": 0.49997216192500493,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "fault": {
+      "pid": 3614,
+      "create_time": 1790931359.28,
+      "duration_seconds": 8.000201567000005,
+      "cpu_start_seconds": 0.02,
+      "cpu_end_seconds": 8.600000000000001,
+      "cpu_percent": 107.24729781049024,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "recovery": {
+      "pid": 3614,
+      "create_time": 1790931359.28,
+      "duration_seconds": 4.000209213000005,
+      "cpu_start_seconds": 13.26,
+      "cpu_end_seconds": 13.29,
+      "cpu_percent": 0.7499607746140983,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    }
+  },
+  "profile": {
+    "function": "main.goCPUHotFunction",
+    "cumulative_percent": 90.71,
+    "sample_cpu_seconds": 5.38
+  },
+  "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+  "profile_observer": "Go CPU pprof",
+  "cleanup_verified": true,
+  "injection_active_through_fault_window": true,
+  "reasons": [],
+  "ai_root_cause_verified": false,
+  "fix_verified": false,
+  "artifact_sha256": {
+    "cleanup-snapshot.json": "0fec4791c5259aee642f6c4229d264eb474604ad67e817556d0e3cd4a591c1b7",
+    "fault-snapshots.json": "192451026f23808f8c2ee42308471ad5c2fccf3e9d68219f4ac19a33590a1d0e",
+    "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pprof-top.txt": "e77666be3747be8abd5a294b38d53f8adef959a43832468ccef1800421245006",
+    "go-hotspot": "cc98c29e1e5ed1c5a59d1ef099e01b795c18e61c15dbbf184a7e5f6d1c0e02bf",
+    "recovery-snapshot.json": "c03cba93704995c2d12b75d8f1b108e79bad57153668ade0d288072ecafa1211",
+    "cpu.pprof": "a4ecdb0d773476e6eec114bdf0545b41428c273874e854ce4425e190ca515a01"
+  }
+}

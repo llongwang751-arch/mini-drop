@@ -1,0 +1,296 @@
+{
+  "source_head": "e17f287ee7ab7270ffc73534c90c14af297d3228",
+  "run_id": 37002790710,
+  "artifact_id": 11224313582,
+  "official_zip_digest_verified": true,
+  "official_zip_size_verified": true,
+  "download_sha256": "aab534ae4e4d76d1e31b6ee500485c43b153028d40ef5b638d071644256b6a39",
+  "download_bytes": 20894963,
+  "zip_retention_scope": "LOCAL_STAGE_ONLY_NOT_PUBLIC_REPORTS",
+  "archive_members": 5072,
+  "files": [
+    {
+      "path": "official-artifact.json",
+      "sha256": "8ca75e214a92ae5a7a66eb105672fdda0df90f4063e3f063c932ab41b54f9d83",
+      "bytes": 857
+    },
+    {
+      "path": "artifact.zip",
+      "sha256": "aab534ae4e4d76d1e31b6ee500485c43b153028d40ef5b638d071644256b6a39",
+      "bytes": 20894963
+    },
+    {
+      "path": "python-all/coverage.json",
+      "sha256": "80268fcc8d02ad5d546a8aef6c7511961b081e7ccc7ba7985579c886912269ac",
+      "bytes": 1232571
+    },
+    {
+      "path": "python-all/junit.xml",
+      "sha256": "b6f1105302a149c56ec88bb71aa696d177f5dda3896585f1c72a31a9284325eb",
+      "bytes": 377842
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_at_or_a0/critical/coverage.json",
+      "sha256": "5063ffe907b5720105a243956d0be1bbd391e4132e0ffae7a00f817532486b5b",
+      "bytes": 130
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_at_or_acurrent/critical/coverage.json",
+      "sha256": "5063ffe907b5720105a243956d0be1bbd391e4132e0ffae7a00f817532486b5b",
+      "bytes": 130
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_below_f0/critical/coverage.json",
+      "sha256": "5c481448702262fcf5244d0ac7093a28dc06bd404f151f3dbe5f63edea23b3a3",
+      "bytes": 130
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_below_fcurrent/critical/coverage.json",
+      "sha256": "5c481448702262fcf5244d0ac7093a28dc06bd404f151f3dbe5f63edea23b3a3",
+      "bytes": 130
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_names_o0/critical/coverage.json",
+      "sha256": "a76ba7a08a57d4a7b15621bb0d08bde0303acb1ad548043154dad7d3d6121f9c",
+      "bytes": 218
+    },
+    {
+      "path": "python-all/tmp/test_critical_coverage_names_ocurrent/critical/coverage.json",
+      "sha256": "a76ba7a08a57d4a7b15621bb0d08bde0303acb1ad548043154dad7d3d6121f9c",
+      "bytes": 218
+    },
+    {
+      "path": "python-all/tmp/test_critical_module_missing_f0/critical/coverage.json",
+      "sha256": "63b249bf3093b3f6751bf8774db59dae58ccb784697f65bf8d2b519b216286ae",
+      "bytes": 50
+    },
+    {
+      "path": "python-all/tmp/test_critical_module_missing_fcurrent/critical/coverage.json",
+      "sha256": "63b249bf3093b3f6751bf8774db59dae58ccb784697f65bf8d2b519b216286ae",
+      "bytes": 50
+    },
+    {
+      "path": "report.json",
+      "sha256": "4b4dc271885b85aaee5aec77b9d36d4b43ab1af3d21d5fd6c544bc030c2ba04c",
+      "bytes": 13317
+    }
+  ],
+  "counts": {
+    "executed": 2175,
+    "passed": 2140,
+    "failed": 19,
+    "skipped": 16
+  },
+  "failures": [
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_frozen_v3_question_or_truth_cannot_change[public]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "ValueError: previous frozen question bytes changed"
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_frozen_v3_question_or_tru0')\nsuffix = 'public'\n\n    @pytest.mark.parametrize(\"suffix\", [\"public\", \"private\", \"manifest\"])\n    def test_frozen_v3_question_or_truth_cannot_change(tmp_path, suffix):\n>       manifest, _ = evaluation.validate_freeze()\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:16: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_frozen_v3_question_or_truth_cannot_change[private]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "ValueError: previous frozen question bytes changed"
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_frozen_v3_question_or_tru1')\nsuffix = 'private'\n\n    @pytest.mark.parametrize(\"suffix\", [\"public\", \"private\", \"manifest\"])\n    def test_frozen_v3_question_or_truth_cannot_change(tmp_path, suffix):\n>       manifest, _ = evaluation.validate_freeze()\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:16: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_frozen_v3_question_or_truth_cannot_change[manifest]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "ValueError: previous frozen question bytes changed"
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_frozen_v3_question_or_tru2')\nsuffix = 'manifest'\n\n    @pytest.mark.parametrize(\"suffix\", [\"public\", \"private\", \"manifest\"])\n    def test_frozen_v3_question_or_truth_cannot_change(tmp_path, suffix):\n>       manifest, _ = evaluation.validate_freeze()\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:16: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_all_transport_failures_stay_in_32_with_unknown_usage",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "ValueError: previous frozen question bytes changed"
+      },
+      "details": "def test_all_transport_failures_stay_in_32_with_unknown_usage():\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:54: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_duplicate_record_cannot_fill_missing_response",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "ValueError: previous frozen question bytes changed"
+      },
+      "details": "def test_duplicate_record_cannot_fill_missing_response():\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:67: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[scope-LIVE_CAUSAL_ACCURACY]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7062b25290>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[third_party_independent_author-True]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa1')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7063b18450>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[actual_langgraph_agent_execution-True]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa2')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f707987bbd0>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[server_deterministic_route_counted_as_model-True]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa3')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7073fcb910>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[retrieval_is_evidence-True]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa4')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f70703b5a10>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[retries-1]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa5')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7063793110>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_scope_server_route_and_failure_denominator_cannot_be_relabelled[chat_calls_attempted-31]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_scope_server_route_and_fa6')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7073eeded0>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[score]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7073873290>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[ranking]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_1')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f70738c7590>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[private_context]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_2')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7078361310>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[http_success]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_3')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7063b72d50>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[source_behavior]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_4')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f70738de150>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[intent_behavior]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_5')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f70737b8610>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    },
+    {
+      "identity": {
+        "classname": "tests.test_planning_boundary_v3",
+        "name": "test_repinned_evidence_cannot_forge_projection_or_new_policy[corpus_contract]",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "failed on setup with \"ValueError: previous frozen question bytes changed\""
+      },
+      "details": "tmp_path = PosixPath('/home/runner/work/mini-drop/mini-drop/output/quality-python/python-all/tmp/test_repinned_evidence_cannot_6')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7062c30910>\n\n    @pytest.fixture\n    def synthetic_report(tmp_path, monkeypatch):\n        \"\"\"All 32 are synthetic TIMEOUTs; retrieval is a protocol stub, never scored live.\"\"\"\n        monkeypatch.setattr(evaluation, \"bm25_record\", lambda *args, **kwargs: empty_retrieval())\n>       manifest, questions = evaluation.validate_freeze()\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_planning_boundary_v3.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nroot = PosixPath('/home/runner/work/mini-drop/mini-drop')\n\n    def validate_freeze(root=ROOT):\n        raw = (root / (PREFIX + \"manifest.json\")).read_bytes()\n        if sha(raw) != MANIFEST_SHA:\n            raise ValueError(\"frozen manifest changed\")\n        manifest = json.loads(raw)\n        for suffix, key in ((\"public\", \"question_sha256\"), (\"private\", \"oracle_sha256\")):\n            if sha((root / (PREFIX + suffix + \".json\")).read_bytes()) != manifest[key]:\n                raise ValueError(\"frozen question or truth changed\")\n        for name, digest in manifest[\"previous_question_pins\"].items():\n            if sha((root / name).read_bytes()) != digest:\n>               raise ValueError(\"previous frozen question bytes changed\")\nE               ValueError: previous frozen question bytes changed\n\nscripts/evaluate_planning_boundary_v3.py:80: ValueError"
+    }
+  ],
+  "report_status": "FAILED"
+}

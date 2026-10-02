@@ -9,30 +9,30 @@
 
 export const COLORS = {
   // 品牌
-  primary: "#1677ff",
-  primaryBg: "rgba(22,119,255,0.08)",
+  primary: "#2458d3",
+  primaryBg: "#edf2fd",
 
   // 状态
-  success: "#52c41a",
-  warning: "#faad14",
-  error: "#ff4d4f",
-  running: "#1677ff",
+  success: "#14795a",
+  warning: "#a46b10",
+  error: "#bf3e4c",
+  running: "#2458d3",
   pending: "#d9d9d9",
   offline: "#8c8c8c",
 
   // 中性色
-  border: "#f0f0f0",
-  borderSecondary: "#e8e8e8",
-  background: "#fafafa",
+  border: "#e3e7ef",
+  borderSecondary: "#d5dce8",
+  background: "#f6f7fa",
   cardBackground: "#ffffff",
-  textPrimary: "rgba(0,0,0,0.88)",
-  textSecondary: "rgba(0,0,0,0.65)",  // WCAG AA: ~5.1:1 对比度
-  textTertiary: "rgba(0,0,0,0.50)",   // WCAG AA: ~4.5:1 对比度
+  textPrimary: "#18243b",
+  textSecondary: "#5d6b82",
+  textTertiary: "#65738a", // 辅助文字也在浅色底上保持可读。
 
   // 特殊
-  nlpHighlight: "#faad14",
+  nlpHighlight: "#a46b10",
   aiTag: "orange",
-  codeBackground: "#f5f5f5",
+  codeBackground: "#f0f3f8",
 };
 
 // ── 间距 ──────────────────────────────────────────────────
@@ -59,15 +59,40 @@ export const FONT_SIZES = {
 // ── 布局 ──────────────────────────────────────────────────
 
 export const LAYOUT = {
-  siderWidth: 200,
-  contentMaxWidth: 1400,
-  headerHeight: 48,
+  siderWidth: 232,
+  contentMaxWidth: 1460,
+  headerHeight: 72,
 };
 
 // ── 动画 ──────────────────────────────────────────────────
 
 export const ANIMATION = {
   fadeIn: "fadeIn 0.3s ease-in-out",
+};
+
+export const APP_THEME = {
+  token: {
+    colorPrimary: COLORS.primary, colorSuccess: COLORS.success,
+    colorWarning: COLORS.warning, colorError: COLORS.error,
+    colorInfo: COLORS.primary, colorInfoBg: "#f0f4fe", colorInfoBorder: "#d3def6",
+    colorSuccessBg: "#eef7f3", colorSuccessBorder: "#cce5d9",
+    colorWarningBg: "#fff8e9", colorWarningBorder: "#e9d8b2",
+    colorErrorBg: "#fff2f3", colorErrorBorder: "#edcbd1",
+    colorText: COLORS.textPrimary, colorTextSecondary: COLORS.textSecondary,
+    colorTextPlaceholder: COLORS.textTertiary,
+    colorBorder: COLORS.borderSecondary, colorBorderSecondary: COLORS.border,
+    colorBgLayout: COLORS.background, colorBgContainer: COLORS.cardBackground,
+    borderRadius: 10, fontSize: 14, controlHeight: 40,
+    fontFamily: '"Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
+    motionDurationMid: "0.2s", motionDurationSlow: "0.28s",
+  },
+  components: {
+    Button: { fontWeight: 600, primaryShadow: "0 3px 8px rgba(36, 88, 211, 0.14)" },
+    Card: { headerFontSize: 16, headerHeight: 58, paddingLG: 24 },
+    Menu: { itemHeight: 46, itemSelectedBg: COLORS.primaryBg, itemSelectedColor: COLORS.primary },
+    Segmented: { trackBg: "#eef1f6", itemSelectedBg: "#ffffff" },
+    Table: { headerBg: "#f8f9fc", cellPaddingBlock: 16 },
+  },
 };
 
 // ── 火焰图 ────────────────────────────────────────────────

@@ -1,0 +1,127 @@
+{
+  "type": "result",
+  "case_id": "h15",
+  "status": "OK",
+  "response": {
+    "id": "01a0fb2ec4d77e19b14eb86d3c56ad69",
+    "object": "chat.completion",
+    "created": 1790920541,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"category\": \"LOCK\",\n  \"disposition\": \"INSUFFICIENT_DATA\",\n  \"next_tool\": \"collect_go_profile\",\n  \"reasoning_summary\": \"用户报告 Go 进程有大量 goroutine 在通道和互斥锁上等待，CPU 接近空闲。合成观测显示进程 CPU 使用率仅为 1%，等待中的 goroutine 数量为 300，但阻塞或互斥锁 profile 不存在。根据知识库指导，CPU 火焰图（CPU profile）用于描述执行消耗，不能直接证明等待时间。当前缺少用于调查阻塞和锁竞争的 block 或 mutex profile 证据。\",\n  \"expected_observations\": [\"Go block profile 显示至少一个阻塞操作（如通道接收/发送、互斥锁）的累计等待时间占比显著\", \"Go mutex profile 显示至少一个互斥锁的累计等待时间占比显著\"],\n  \"falsification_criteria\": [\"Go block profile 中所有阻塞操作的累计等待时间占比可忽略不计\", \"Go mutex profile 中所有互斥锁的累计等待时间占比可忽略不计\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3439,
+      "completion_tokens": 251,
+      "total_tokens": 3690,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2304
+      },
+      "prompt_cache_hit_tokens": 2304,
+      "prompt_cache_miss_tokens": 1135
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fb2ec4d77e19b14eb86d3c56ad69\",\"object\":\"chat.completion\",\"created\":1790920541,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"category\\\": \\\"LOCK\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_DATA\\\",\\n  \\\"next_tool\\\": \\\"collect_go_profile\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 Go 进程有大量 goroutine 在通道和互斥锁上等待，CPU 接近空闲。合成观测显示进程 CPU 使用率仅为 1%，等待中的 goroutine 数量为 300，但阻塞或互斥锁 profile 不存在。根据知识库指导，CPU 火焰图（CPU profile）用于描述执行消耗，不能直接证明等待时间。当前缺少用于调查阻塞和锁竞争的 block 或 mutex profile 证据。\\\",\\n  \\\"expected_observations\\\": [\\\"Go block profile 显示至少一个阻塞操作（如通道接收/发送、互斥锁）的累计等待时间占比显著\\\", \\\"Go mutex profile 显示至少一个互斥锁的累计等待时间占比显著\\\"],\\n  \\\"falsification_criteria\\\": [\\\"Go block profile 中所有阻塞操作的累计等待时间占比可忽略不计\\\", \\\"Go mutex profile 中所有互斥锁的累计等待时间占比可忽略不计\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3439,\"completion_tokens\":251,\"total_tokens\":3690,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2304},\"prompt_cache_hit_tokens\":2304,\"prompt_cache_miss_tokens\":1135},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "a7baca9914f85b6e83e8d1d2adfa19de0b38410c085a0452518b3aa05e972415",
+  "seconds": 16.464502,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "go.profile.selection",
+      "python.sampling.attribution",
+      "postgres.waits"
+    ],
+    "matches": [
+      {
+        "query": "Go 的goroutine堆积在通道和互斥等待，CPU接近空闲；单拿CPU火焰图够不够？",
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "score": 22.514217,
+        "matched_terms": [
+          "goroutine",
+          "cpu",
+          "火焰图",
+          "go",
+          "火焰",
+          "焰图",
+          "等待"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Go CPU、堆与阻塞采样选型\n\n按问题选择 profile：CPU 描述执行消耗，heap 描述堆分配视角，block 与 mutex 用于阻塞及锁竞争调查。不要用 CPU 火焰图直接证明等待时间。"
+      },
+      {
+        "query": "Go 的goroutine堆积在通道和互斥等待，CPU接近空闲；单拿CPU火焰图够不够？",
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "score": 5.078068,
+        "matched_terms": [
+          "cpu",
+          "空闲"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Python 采样归因：先检查采样语义\n\npy-spy 的线程栈分布不直接等于进程 CPU 使用率。调查前记录 PID、进程启动时间、Python 版本、采集参数、时间窗和每线程样本数。先用进程 CPU 增量确认计算压力，再用栈寻找代码位置。"
+      },
+      {
+        "query": "Go 的goroutine堆积在通道和互斥等待，CPU接近空闲；单拿CPU火焰图够不够？",
+        "knowledge_id": "postgres.waits",
+        "title": "PostgreSQL 长事务与锁等待",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+        "score": 4.894592,
+        "matched_terms": [
+          "cpu",
+          "等待"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# PostgreSQL 等待事件与阻塞关系\n\n通过 pg_stat_activity 的状态、事务开始时间、wait_event_type 和 wait_event 判断调查方向。active 状态不保证正在消耗 CPU；可能同时存在等待。"
+      }
+    ],
+    "seconds": 0.013753
+  }
+}

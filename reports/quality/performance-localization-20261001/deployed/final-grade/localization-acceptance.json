@@ -1,0 +1,493 @@
+{
+  "schema": "mini-drop.performance-localization-acceptance.v1",
+  "provenance": {
+    "source_sha256": {
+      "scripts/run_fault_plaza_strict_acceptance.py": "197382d654ac84d16f821acd979146a0d74cce2a357a3b5cc9725a0013866708",
+      "scripts/run_fault_plaza_closure_campaign.py": "f91f949cc7a3a4924625012425042dc608e81e814aa84d792145d2db88f9b0a8",
+      "scripts/verify_interview_demo.py": "34bce28d788390ceaa98f3226015376ab008ce56271d1be97e9cd91257786850",
+      "scripts/audit_fault_plaza_failures.py": "036be7442c370777b5ee01ed7a395c3548c753f2ab5f3147758824924f3e0aed"
+    },
+    "deployment": {
+      "release": "/opt/mini-drop-releases/20261001T094553Z",
+      "previous_release": "/opt/mini-drop-releases/20261001T085318Z",
+      "status": "HEALTHY",
+      "manifest_sha256": "143d544f7136d259106892e09fa695832607365d17af15348c9b58215d5e2959",
+      "source_head": "c59aac566cedef6a239eb1d640ee8fb796524ae3",
+      "changed_services": [
+        "diagnosis-worker",
+        "analyzer",
+        "web",
+        "go-hotspot"
+      ],
+      "images": {
+        "diagnosis-worker": {
+          "old": "sha256:ffadeda47a6b8828f157d3ad389096f3ccf2952db78f87bc538605fe1bca2f1c",
+          "new": "sha256:a26c72009aa68fbb584c88c2bd2cd8349bb37ca84ab621b285d89eb4bc0c04e9",
+          "tag": "mini-drop-diagnosis-worker:20261001T094553Z"
+        },
+        "analyzer": {
+          "old": "sha256:ffb3f5a353ab1b1199ffd867b30b6a99ee0b8ec289e59852e13f26a0af270bbd",
+          "new": "sha256:e77855982c9e562e4bb0a818fbcb7620a642084d4faed65b88cee17921ab5cf3",
+          "tag": "mini-drop-analyzer:20261001T094553Z"
+        },
+        "web": {
+          "old": "sha256:4b4490204425c2b56ad0d9c40e5cbe0762e1a57e29b77a40a58ca995a1bd7cf2",
+          "new": "sha256:7159a13281fcdab18190c062c55f11aa8fab5021287508894b8c6d06d9f5ff25",
+          "tag": "mini-drop-web:20261001T094553Z"
+        },
+        "go-hotspot": {
+          "old": "sha256:5b872b0f0bde544b25ca58bf8b3cf5e3f15ee818bdb5ddd5a3350d43f5239696",
+          "new": "sha256:7ac9f8a12f561f841acb621ce0c531653fc5545cdce005454be843e191cfd1e5",
+          "tag": "mini-drop-go-hotspot:20261001T094553Z"
+        }
+      },
+      "untouched_container_count": 9,
+      "rollback_config": "/opt/mini-drop-releases/20261001T094553Z/private/rollback.compose.json"
+    },
+    "git_head": "c59aac566cedef6a239eb1d640ee8fb796524ae3"
+  },
+  "selected_count": 3,
+  "localized_count": 2,
+  "passed_count": 2,
+  "results": [
+    {
+      "scenario_id": "go-cpu-hotspot",
+      "localization_accepted": true,
+      "reports": [
+        {
+          "report_id": "report_d8d07fa4ff99b3306533e56061254a43",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_2a3470ccb96562a3fd50c949938a8e55",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_c45097843ac98795520072c62416514c",
+          "domain": "cpu_hot_path",
+          "location": "main.runCPUFault；main.goCPUHotFunction",
+          "localization_accepted": true
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_b043658db8444bf3a34dfedc69a4fa9e",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "UNSUPPORTED_PLAN",
+        "checked_ratio": 0.0,
+        "criteria": [],
+        "evidence_refs": [],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_100006_6fff8c",
+          "artifact_type": "raw",
+          "sha256": "40aa2220e634ca7332efc5d6bdf0a614c4ac68484b1de64a83e4738af578d9f4",
+          "bytes": 11589
+        },
+        {
+          "task_id": "task_20261001_100006_6fff8c",
+          "artifact_type": "manifest",
+          "sha256": "770bfd9cd497434c23d66f628a6b745408582975770bc938890b0553a9904468",
+          "bytes": 1094
+        },
+        {
+          "task_id": "task_20261001_100006_6fff8c",
+          "artifact_type": "flamegraph_json",
+          "sha256": "75fbdaa8d586c58755e7971240c9961d8ba7868e82a06ba57fc636f2c7036df9",
+          "bytes": 22333
+        },
+        {
+          "task_id": "task_20261001_100006_6fff8c",
+          "artifact_type": "top_json",
+          "sha256": "52a5458c7695c753ee35b8b381a4460e8b7431b869580ed81cf91066b2589a67",
+          "bytes": 3013
+        },
+        {
+          "task_id": "task_20261001_100023_91e27e",
+          "artifact_type": "sys_metrics",
+          "sha256": "aa3121823f81c253f2750ddfffed403dfb84fe6abe33baa556f25ca1272a3c6d",
+          "bytes": 15138
+        },
+        {
+          "task_id": "task_20261001_100023_91e27e",
+          "artifact_type": "manifest",
+          "sha256": "027c0215edcb3c87637b583192f6e4cb074706664f4879323f135b2ea9f61d94",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "raw",
+          "sha256": "95c71d176792286d818843cfeeb3b8144d6c74496c53ea5f7b299c48f76ca3dd",
+          "bytes": 108244
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "manifest",
+          "sha256": "30d85dfda1db9b722c9a3bfcf8f634cdefccccb7b07cd38b35ecd5f99e899c1b",
+          "bytes": 1272
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "flamegraph_json",
+          "sha256": "35c686adeaa8834cf61c7254af42b2d522e16f1e61f8271f1976fef0f96bacf2",
+          "bytes": 954
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "flamegraph_svg",
+          "sha256": "44b8350eedb6575fa29bf21cf9883ace84385e7b2bb46318c87bcea2f60588d9",
+          "bytes": 16936
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "top_json",
+          "sha256": "267e8de9123751bf49f53e4405a7c3d21ea7176b97b4892f25c135aea4a198c1",
+          "bytes": 227
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "callgraph_json",
+          "sha256": "c0640f8f12706be2dd5d1c2005dd95edc4264b4e9f385b90e2222d5c5b80abc0",
+          "bytes": 554
+        },
+        {
+          "task_id": "task_20261001_100106_58e946",
+          "artifact_type": "suggestions_md",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        },
+        {
+          "task_id": "task_20261001_100153_d06eb9",
+          "artifact_type": "ebpf_metrics",
+          "sha256": "f3f5784f2f0741cd82ed1087479d068b29f560b6ba97bfdc15fdb72e9d77a4ac",
+          "bytes": 138
+        },
+        {
+          "task_id": "task_20261001_100153_d06eb9",
+          "artifact_type": "ebpf_raw",
+          "sha256": "165aeeef1e02207d7b417bec3a2d74e44ff4d1cfba22d2378e2910a573b7c496",
+          "bytes": 2743
+        },
+        {
+          "task_id": "task_20261001_100153_d06eb9",
+          "artifact_type": "manifest",
+          "sha256": "4393db1d37cb6dee429617e52ecbc3a8ba6b82fb2b2efff66989ce7159671779",
+          "bytes": 1942
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": true,
+      "measurement_checked": false
+    },
+    {
+      "scenario_id": "go-network-latency",
+      "localization_accepted": true,
+      "reports": [
+        {
+          "report_id": "report_edde7124ef71a1cafad121c60943c593",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_cb9dd59ba03f7c77b011fafe19ca6c98",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_8ee8026fd4c3af8a3b2e3a4807e5f48d",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_ea74a942832835c6b0d4596cdcce3812",
+          "domain": "network_latency",
+          "location": "HTTP 调用耗时路径（未区分服务处理与传输）",
+          "localization_accepted": true
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_c0e59fdba9ce4147bf9729b0535a5c43",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "VERIFIED",
+        "checked_ratio": 1.0,
+        "criteria": [
+          {
+            "kind": "expected",
+            "index": 0,
+            "criterion": "network_latency.average_latency_ms >= 100",
+            "checked": true,
+            "matches": true,
+            "measurement": {
+              "signal": "network_latency",
+              "field": "average_latency_ms",
+              "value": 240.713,
+              "threshold": 100.0,
+              "matches": true
+            },
+            "evidence_id": "ev_task_task_20261001_100329_fc5b72_4495"
+          },
+          {
+            "kind": "falsification",
+            "index": 0,
+            "criterion": "network_latency.average_latency_ms < 100",
+            "checked": true,
+            "matches": false,
+            "measurement": {
+              "signal": "network_latency",
+              "field": "average_latency_ms",
+              "value": 240.713,
+              "threshold": 100.0,
+              "matches": false
+            },
+            "evidence_id": "ev_task_task_20261001_100329_fc5b72_4495"
+          }
+        ],
+        "evidence_refs": [
+          "ev_task_task_20261001_100329_fc5b72_4495"
+        ],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_100329_fc5b72",
+          "artifact_type": "sys_metrics",
+          "sha256": "c97eed539afcadf3129a0692f4fe47b69166388e59797944aba7ac5c6067ccaf",
+          "bytes": 15445
+        },
+        {
+          "task_id": "task_20261001_100329_fc5b72",
+          "artifact_type": "manifest",
+          "sha256": "167e1d81d9c469c71601a23aa02058ada2e9628f9d62be01f9e21742851f1325",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_100438_f87a54",
+          "artifact_type": "raw",
+          "sha256": "69476384ac952e45f316d71bfe51ac2ca75839c1b7e0abd3e0866e95df65deae",
+          "bytes": 3000
+        },
+        {
+          "task_id": "task_20261001_100438_f87a54",
+          "artifact_type": "manifest",
+          "sha256": "b29b04fadb54ca6e0475ebf1984e9490cd47b81c6361800cbf89d7019001b292",
+          "bytes": 1092
+        },
+        {
+          "task_id": "task_20261001_100438_f87a54",
+          "artifact_type": "flamegraph_json",
+          "sha256": "491a4a45cd494b47cadfb588595f2ffe7cc67204f5a961b73aac6cdf4304ffa8",
+          "bytes": 7846
+        },
+        {
+          "task_id": "task_20261001_100438_f87a54",
+          "artifact_type": "top_json",
+          "sha256": "bdb57d84ab42e748187e85463027ee2122e8b921f99974a3b9e42e6f16506406",
+          "bytes": 2862
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "raw",
+          "sha256": "cda0abb9963d7f9e8595141fbf2e3495c20c57b4084887c0b91b34298ac15243",
+          "bytes": 5660
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "manifest",
+          "sha256": "2f06ec11fa642661728b34fd5ff081ef154fbc9147e366a27feddcbce7af62aa",
+          "bytes": 1268
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "flamegraph_json",
+          "sha256": "9a427b9068cf21ca4adb4404807142b460e665e6918c50d6a520cf73fbfa5874",
+          "bytes": 272
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "flamegraph_svg",
+          "sha256": "2e1bff6cded5db455d69bdd90b5f8c8f7502b42e481facf4f4704005dd219d7a",
+          "bytes": 14261
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "top_json",
+          "sha256": "76cdad15672cebacdcd49db9256879bbe6ca0e9e3caa8c645c5a6daec74bffd9",
+          "bytes": 153
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "callgraph_json",
+          "sha256": "d9a78ea94e9f543d6c9917010480521bd734fb375bd48f5313a6e46226e8462f",
+          "bytes": 381
+        },
+        {
+          "task_id": "task_20261001_100541_7413e7",
+          "artifact_type": "suggestions_md",
+          "sha256": "49ea6526eac1ff61987202858649766e8e2ab9ff617d8bbaa8f762f2599311e4",
+          "bytes": 60
+        },
+        {
+          "task_id": "task_20261001_100606_43f9c5",
+          "artifact_type": "ebpf_metrics",
+          "sha256": "c8613416927b3acd1bde552fc350d1b1d1ef0dd55801e25135e5b2dbf5cc05c2",
+          "bytes": 138
+        },
+        {
+          "task_id": "task_20261001_100606_43f9c5",
+          "artifact_type": "ebpf_raw",
+          "sha256": "df19887920294689acb2b5f5b0d74c4dd138b092dff506b05ca10444347470c9",
+          "bytes": 2743
+        },
+        {
+          "task_id": "task_20261001_100606_43f9c5",
+          "artifact_type": "manifest",
+          "sha256": "4a305eb5926a0c2c65c605d6e4b754b18604c512758edc042bf1b3e6450acf59",
+          "bytes": 1942
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": true,
+      "measurement_checked": true
+    },
+    {
+      "scenario_id": "go-file-io",
+      "localization_accepted": false,
+      "reports": [
+        {
+          "report_id": "report_167d2394618d4f04fef6aeb8d6de8fc2",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        },
+        {
+          "report_id": "report_70fc5abb0dded2e9baca3c71e80bfbe9",
+          "domain": null,
+          "location": null,
+          "localization_accepted": false
+        }
+      ],
+      "boundary": "Observed path localization only; not causal root or same-load fix verification.",
+      "diagnosis_id": "insight_3093704de5e4496ebc10b58379014b18",
+      "lineage_verified": true,
+      "cleanup_verified": true,
+      "session_drained": true,
+      "root_cause_accepted": false,
+      "observation": {
+        "schema_version": "performance-observation-verification.v1",
+        "status": "REFUTED",
+        "checked_ratio": 1.0,
+        "criteria": [
+          {
+            "kind": "expected",
+            "index": 0,
+            "criterion": "io_latency.average_latency_ms >= 10",
+            "checked": true,
+            "matches": false,
+            "measurement": {
+              "signal": "io_latency",
+              "field": "average_latency_ms",
+              "value": 0.081,
+              "threshold": 10.0,
+              "matches": false
+            },
+            "evidence_id": "ev_task_task_20261001_100754_6e0d9c_4511"
+          },
+          {
+            "kind": "expected",
+            "index": 1,
+            "criterion": "io_latency.operation_count_delta >= 5",
+            "checked": true,
+            "matches": true,
+            "measurement": {
+              "signal": "io_latency",
+              "field": "operation_count_delta",
+              "value": 684.0,
+              "threshold": 5.0,
+              "matches": true
+            },
+            "evidence_id": "ev_task_task_20261001_100754_6e0d9c_4511"
+          },
+          {
+            "kind": "falsification",
+            "index": 0,
+            "criterion": "io_latency.average_latency_ms < 10",
+            "checked": true,
+            "matches": true,
+            "measurement": {
+              "signal": "io_latency",
+              "field": "average_latency_ms",
+              "value": 0.081,
+              "threshold": 10.0,
+              "matches": true
+            },
+            "evidence_id": "ev_task_task_20261001_100754_6e0d9c_4511"
+          }
+        ],
+        "evidence_refs": [
+          "ev_task_task_20261001_100754_6e0d9c_4511"
+        ],
+        "independent_control_verified": false,
+        "claim_scope": "BOUNDED_OBSERVATION",
+        "causal_root_cause_verified": false
+      },
+      "raw_downloads": [
+        {
+          "task_id": "task_20261001_100754_6e0d9c",
+          "artifact_type": "sys_metrics",
+          "sha256": "4b0e1d25402f44e73176bc59be99e2fb2dc1679326ce2e2f3178e2ea59c37880",
+          "bytes": 15759
+        },
+        {
+          "task_id": "task_20261001_100754_6e0d9c",
+          "artifact_type": "manifest",
+          "sha256": "4f33bb8f135d6b043ca11f04d4f7770cb538805436266a11c64926210ae5a5aa",
+          "bytes": 1109
+        },
+        {
+          "task_id": "task_20261001_100859_8dba95",
+          "artifact_type": "ebpf_metrics",
+          "sha256": "929328e92d822d6825a8a5eb5022291986c9281551166f2ece6fd7d3dbf525c3",
+          "bytes": 172
+        },
+        {
+          "task_id": "task_20261001_100859_8dba95",
+          "artifact_type": "ebpf_raw",
+          "sha256": "5a87d210a46e1141c5b6c62e7e1fdb9957b8eaaecfb96dde1e4f182a910be6b5",
+          "bytes": 4533
+        },
+        {
+          "task_id": "task_20261001_100859_8dba95",
+          "artifact_type": "manifest",
+          "sha256": "6dfdc493c018b224d39877ce6267b0b72db080a4b03eb3505fd597fcdb3f6faf",
+          "bytes": 1942
+        }
+      ],
+      "integrity_verified": true,
+      "acceptance_passed": false,
+      "measurement_checked": true
+    }
+  ],
+  "boundary": "Observed paths only; old 21 RCA grades unchanged; no causal or same-load fix claim."
+}

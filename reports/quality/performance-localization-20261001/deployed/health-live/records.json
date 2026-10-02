@@ -1,0 +1,1079 @@
+{
+  "detail": {
+    "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+    "query": "检查当前进程状态与本次资源观测窗口",
+    "target": {
+      "service": "agi-office-backend.service",
+      "environment": "interview",
+      "agent_id": "control-interview-demo-agent",
+      "pid": 1650962,
+      "process_binding": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1650962,
+        "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+        "process_start_ticks": 214134784,
+        "pid_namespace_inode": 4026531836,
+        "namespace_pid": 1650962,
+        "executable_identity": "python3.12",
+        "process_snapshot_id": "psnap_b894d177925119ff",
+        "snapshot_generation": 302772,
+        "snapshot_received_at": "2026-10-01T10:10:44.866053+00:00"
+      }
+    },
+    "time_range": {
+      "start": "2026-10-01T10:10:49.332127Z",
+      "end": "2026-10-01T10:15:49.332127Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "requested_time_range": {
+      "start": "2026-10-01T10:10:49.332127Z",
+      "end": "2026-10-01T10:15:49.332127Z",
+      "timezone": "Asia/Shanghai"
+    },
+    "effective_time_range": {},
+    "mode": "AUTONOMOUS",
+    "skill_policy": "AUTO",
+    "created_by": "legacy_admin",
+    "budget": {
+      "investigation_strategy": "LATS",
+      "max_duration_seconds": 120,
+      "max_tool_calls": 1,
+      "min_diagnosis_rounds": 1,
+      "max_diagnosis_rounds": 1,
+      "max_concurrent_tasks": 3,
+      "max_hosts": 5,
+      "max_artifact_bytes": 524288000,
+      "max_risk_level": "R2",
+      "lats_top_k": 3,
+      "max_lats_iterations": null,
+      "lats_exploration_constant": 1.4142135623730951,
+      "lats_selection_policy": "UCT",
+      "lats_value_lambda": 0.5
+    },
+    "status": "INSUFFICIENT_EVIDENCE",
+    "version": 8,
+    "clarification_questions": [],
+    "created_at": "2026-10-01 10:10:49.307808+00:00",
+    "updated_at": "2026-10-01 10:11:06.182274+00:00",
+    "deleted_at": null,
+    "deleted_by": null
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_task_task_20261001_101049_bb29a0_4516",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_101049_bb29a0_4516",
+        "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+        "evidence_type": "SYS_METRICS_SYS_METRICS",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20261001_101049_bb29a0",
+          "task_attempt_id": "attempt_63b8b8a2f7b84376b9b31f61b7a21fe4",
+          "artifact_id": "4516",
+          "artifact_sha256": "6accf484c0e6b754adcf5b0f92a9780111b154909273362244e2069393cacd66",
+          "analysis_job_id": "analysis_f36294856f2f5827",
+          "analyzer_type": "collector.sys_metrics",
+          "analyzer_version": "1.0.0",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 1650962
+        },
+        "time_range": {
+          "start": "2026-10-01T10:10:49.921040Z",
+          "end": "2026-10-01T10:11:05.413732Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "sys_metrics",
+          "object_key": "tasks/task_20261001_101049_bb29a0/attempts/attempt_63b8b8a2f7b84376b9b31f61b7a21fe4/raw/sys_metrics.json",
+          "content_type": "application/json",
+          "size_bytes": 13289,
+          "metadata": {
+            "collector_plugin": "sys_metrics",
+            "collector_runtime": "native-cpp",
+            "contract_version": "1.0.0",
+            "schema_version": "sys_metrics_analysis.v2",
+            "source_schema_version": "sys_metrics.v2",
+            "sample_count": 15,
+            "window_duration_seconds": 14.004,
+            "process_identity": {
+              "pid": 1650962,
+              "namespace_pid": 1650962,
+              "start_ticks": 214134784,
+              "verified": true
+            },
+            "summary": {
+              "vmrss_mb": 211.434,
+              "vmrss_mb_first": 211.434,
+              "vmrss_mb_max": 211.434,
+              "vmrss_mb_delta": 0.0,
+              "fd_count": 27.0,
+              "fd_count_first": 27.0,
+              "fd_count_max": 27.0,
+              "thread_count": 26.0,
+              "thread_count_first": 26.0,
+              "thread_count_max": 26.0,
+              "fd_trend": 0.0,
+              "thread_trend": 0.0,
+              "load1m": 0.363,
+              "load1m_max": 0.39,
+              "process_cpu_core_usage": 0.286,
+              "avg_cpu_user_pct": 12.559,
+              "avg_cpu_sys_pct": 4.633,
+              "avg_cpu_iowait_pct": 0.109,
+              "host_cpu_busy_pct": 17.191,
+              "disk_read_kbps": 0.0,
+              "disk_write_kbps": 9.14,
+              "ctx_nonvoluntary_rate": 0.143
+            },
+            "process_cpu_window": {
+              "source": "linux_proc_stat",
+              "clock_ticks_per_second": 100,
+              "start_cpu_ticks": 2786,
+              "end_cpu_ticks": 2790,
+              "start_unix_ms": 1790849449962.0,
+              "end_unix_ms": 1790849463966.0,
+              "sample_count": 15,
+              "process_cpu_core_usage": 0.2856326763781777
+            },
+            "application_metrics": {
+              "schema_version": "application_metrics_analysis.v1",
+              "sample_count": 15,
+              "identity": {
+                "pid": 1650962,
+                "namespace_pid": 1650962,
+                "identity_verified": true,
+                "runtime": "python-asgi",
+                "host_pid": 1650962
+              },
+              "before": {
+                "http_duration_ms": 147042.507,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 1400.405,
+                "http_recent_p95_latency_ms": 482.76,
+                "http_requests": 105.0
+              },
+              "after": {
+                "http_duration_ms": 147042.507,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 1400.405,
+                "http_recent_p95_latency_ms": 482.76,
+                "http_requests": 105.0
+              },
+              "max": {
+                "http_duration_ms": 147042.507,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 1400.405,
+                "http_recent_p95_latency_ms": 482.76,
+                "http_requests": 105.0
+              },
+              "delta": {
+                "http_duration_ms": 0.0,
+                "http_failures": 0.0,
+                "http_inflight_requests": 0.0,
+                "http_recent_average_latency_ms": 0.0,
+                "http_recent_p95_latency_ms": 0.0,
+                "http_requests": 0.0
+              }
+            },
+            "application_metrics_status": "AVAILABLE",
+            "application_metrics_limitations": [],
+            "signals": {
+              "cpu_hotspot": {
+                "detected": false,
+                "reason": "target process CPU usage checked against the observation threshold",
+                "metrics": {
+                  "process_cpu_core_usage": 0.286
+                }
+              },
+              "memory_growth": {
+                "detected": false,
+                "reason": "process memory footprint and retained memory change checked against the growth threshold",
+                "metrics": {
+                  "retained_memory_mb": 0.0,
+                  "rss_delta_mb": 0.0
+                }
+              }
+            },
+            "analysis_limitations": [],
+            "collector_type": "sys_metrics",
+            "analyzer_type": "collector.sys_metrics",
+            "analyzer_version": "1.0.0"
+          }
+        },
+        "quality": {
+          "level": "HIGH",
+          "sample_count": 15,
+          "sample_count_known": true,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": true,
+          "analyzer_validated": true,
+          "minimum_samples": 5
+        },
+        "limitations": []
+      },
+      "classification": {
+        "decision": "ACCEPT_NEUTRAL",
+        "can_support_conclusion": false,
+        "reasons": [
+          "Analyzer 未产出能够支持或证伪当前假设的结构化谓词"
+        ]
+      },
+      "created_at": "2026-10-01 10:11:06.069433+00:00"
+    },
+    {
+      "evidence_id": "ev_task_task_20261001_101049_bb29a0_4517",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+      "role": "NEUTRAL",
+      "envelope": {
+        "evidence_id": "ev_task_task_20261001_101049_bb29a0_4517",
+        "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+        "evidence_type": "SYS_METRICS_MANIFEST",
+        "source": {
+          "tool_name": "sys_metrics",
+          "task_id": "task_20261001_101049_bb29a0",
+          "task_attempt_id": "attempt_63b8b8a2f7b84376b9b31f61b7a21fe4",
+          "artifact_id": "4517",
+          "artifact_sha256": "7445c23020dcba1f8316ee2e3f8e7a48f51e24ce04ecd4a488be453f86461fdd",
+          "analysis_job_id": "",
+          "analyzer_type": "",
+          "analyzer_version": "unknown",
+          "analyzer_output_schema_version": "1.0.0",
+          "observation_json_pointer": "/metadata"
+        },
+        "scope": {
+          "agent_id": "control-interview-demo-agent",
+          "service": "agi-office-backend.service",
+          "host_id": null,
+          "instance_id": null,
+          "container_id": null,
+          "pid": 1650962
+        },
+        "time_range": {
+          "start": "2026-10-01T10:10:49.921040Z",
+          "end": "2026-10-01T10:11:05.413732Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "observation": {
+          "artifact_type": "manifest",
+          "object_key": "tasks/task_20261001_101049_bb29a0/attempts/attempt_63b8b8a2f7b84376b9b31f61b7a21fe4/manifest.json",
+          "content_type": "application/json",
+          "size_bytes": 1109,
+          "metadata": {
+            "schema_version": "mini-drop.attempt-manifest.v1",
+            "trace_id": "",
+            "traceparent": ""
+          }
+        },
+        "quality": {
+          "level": "LOW",
+          "sample_count": 0,
+          "sample_count_known": false,
+          "degraded": false,
+          "target_match": true,
+          "time_overlap": true,
+          "schema_valid": false,
+          "analyzer_validated": false,
+          "minimum_samples": 5
+        },
+        "limitations": [
+          "该产物是原始文件或不属于已注册的诊断证据类型",
+          "产物未经过成功的版本化 Analyzer Job 验证",
+          "采集器未提供可核验的样本数量"
+        ]
+      },
+      "classification": {
+        "decision": "REJECT",
+        "can_support_conclusion": false,
+        "reasons": [
+          "产物不属于已注册的诊断证据契约",
+          "产物未经过 Analyzer Job 验证",
+          "缺少 AnalysisJob 引用"
+        ]
+      },
+      "created_at": "2026-10-01 10:11:06.069433+00:00"
+    }
+  ],
+  "reports": [
+    {
+      "report_id": "report_13d23344e74e67f8c231bf80262fd2c8",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+      "conclusion": "本轮判断：当前没有能够支持该假设的可信证据；假设“目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线”仍待验证。",
+      "confidence": 0.0,
+      "evidence_refs": [],
+      "counter_evidence_refs": [],
+      "assumptions": [
+        "结论仅适用于当前诊断目标与时间窗口"
+      ],
+      "limitations": [
+        "没有通过证据门禁的支持证据，当前不能建立根因结论。"
+      ],
+      "next_actions": [
+        "先定位具体瓶颈：在同一负载窗口采集目标进程资源变化与运行时调用栈，关联业务延迟；定位后再制定修复并复测。"
+      ],
+      "claims": [],
+      "verification": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "claims": [],
+        "rejected_claims": [],
+        "support_claim_count": 0,
+        "counter_claim_count": 0,
+        "coverage_ratio": 0.0,
+        "has_independent_counter_or_control": false,
+        "control_claim_count": 0,
+        "remediation": {
+          "schema_version": 2,
+          "mitigations": [
+            {
+              "title": "补齐证据与同负载对照",
+              "urgency": "LOW",
+              "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+            }
+          ],
+          "root_cause_fixes": []
+        },
+        "verification": {
+          "status": "INSUFFICIENT_EVIDENCE",
+          "has_independent_counter_or_control": false,
+          "support_claim_count": 0,
+          "counter_claim_count": 0,
+          "control_claim_count": 0,
+          "coverage_ratio": 0.0,
+          "covered_expected": [],
+          "covered_falsification": [],
+          "missing_expected": [
+            0
+          ],
+          "missing_falsification": [
+            0
+          ],
+          "needs_independent_counter_or_control": true,
+          "rejected_count": 0,
+          "remediation": {
+            "schema_version": 2,
+            "mitigations": [
+              {
+                "title": "补齐证据与同负载对照",
+                "urgency": "LOW",
+                "action": "当前原因尚未充分验证。保持目标与负载一致，补采缺失判据；不要仅依据本轮判断变更资源或重启。"
+              }
+            ],
+            "root_cause_fixes": []
+          },
+          "observation_verification": {
+            "schema_version": "performance-observation-verification.v1",
+            "status": "UNSUPPORTED_PLAN",
+            "checked_ratio": 0.0,
+            "criteria": [],
+            "evidence_refs": [],
+            "independent_control_verified": false,
+            "claim_scope": "BOUNDED_OBSERVATION",
+            "causal_root_cause_verified": false
+          }
+        },
+        "observation_verification": {
+          "schema_version": "performance-observation-verification.v1",
+          "status": "UNSUPPORTED_PLAN",
+          "checked_ratio": 0.0,
+          "criteria": [],
+          "evidence_refs": [],
+          "independent_control_verified": false,
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "causal_root_cause_verified": false
+        },
+        "source_context": {
+          "configured_roots": 7,
+          "language_filter": "python",
+          "scanned_files": 0,
+          "scanned_by_language": {
+            "python": 0,
+            "go": 0,
+            "java": 0,
+            "ruby": 0,
+            "cpp": 0
+          },
+          "mappings": [],
+          "unresolved_symbols": []
+        },
+        "bottleneck_localization": {
+          "schema_version": "bottleneck-localization.v1",
+          "status": "NOT_LOCALIZED",
+          "claim_scope": "BOUNDED_OBSERVATION",
+          "causal_root_cause_verified": false,
+          "same_load_fix_verified": false,
+          "evidence_refs": []
+        }
+      },
+      "effects_status": "APPLIED",
+      "effects_phase": "EFFECTS_COMPLETED",
+      "effects_owner": null,
+      "effects_lease_expires_at": null,
+      "effects_fencing_token": 1,
+      "effects_applied_at": "2026-10-01 10:11:06.195576+00:00",
+      "created_at": "2026-10-01 10:11:06.091125+00:00"
+    }
+  ],
+  "tool-calls": [
+    {
+      "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+      "tool_name": "collect_sys_metrics",
+      "arguments": {
+        "agent_id": "control-interview-demo-agent",
+        "pid": 1650962,
+        "duration_seconds": 15
+      },
+      "policy_decision": "ALLOW",
+      "policy_checks": [
+        {
+          "name": "SCHEMA",
+          "result": "PASS"
+        },
+        {
+          "name": "TARGET_SCOPE",
+          "result": "PASS"
+        },
+        {
+          "name": "AGENT_CAPABILITY",
+          "result": "PASS"
+        },
+        {
+          "name": "BUDGET",
+          "result": "PASS"
+        },
+        {
+          "name": "RISK_LIMIT",
+          "result": "PASS"
+        },
+        {
+          "name": "HUMAN_APPROVAL",
+          "result": "NOT_REQUIRED"
+        },
+        {
+          "name": "BUDGET_WALL_CLOCK",
+          "result": "PASS",
+          "remaining_seconds": 119.597684,
+          "required_seconds": 45
+        },
+        {
+          "name": "BUDGET_DURATION",
+          "result": "PASS",
+          "reserved": 15,
+          "limit": 120
+        },
+        {
+          "name": "BUDGET_CONCURRENCY",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 3
+        },
+        {
+          "name": "BUDGET_HOSTS",
+          "result": "PASS",
+          "reserved": 1,
+          "limit": 5
+        },
+        {
+          "name": "BUDGET_ARTIFACT_BYTES",
+          "result": "PASS",
+          "reserved": 2097152,
+          "limit": 524288000
+        }
+      ],
+      "policy_reason": "策略检查通过",
+      "status": "COMPLETED",
+      "task_id": "task_20261001_101049_bb29a0",
+      "result": {
+        "task_status": "DONE",
+        "task_id": "task_20261001_101049_bb29a0"
+      },
+      "budget_reservation": {
+        "duration_seconds": 15,
+        "artifact_bytes": 2097152,
+        "agent_id": "control-interview-demo-agent",
+        "concurrent_tasks": 1
+      },
+      "budget_settlement": {
+        "duration_seconds": 15,
+        "artifact_bytes": 14398,
+        "agent_id": "control-interview-demo-agent",
+        "settled_at": "2026-10-01T10:11:06.052148+00:00"
+      },
+      "budget_reservation_status": "SETTLED",
+      "terminal_processing_status": "REPORT_EFFECTS_DONE",
+      "terminal_processed_at": "2026-10-01 10:11:06.201034+00:00",
+      "requested_by": "system:autonomous-worker",
+      "approved_by": null,
+      "approval_reason": null,
+      "created_at": "2026-10-01 10:10:49.710140+00:00",
+      "decided_at": null,
+      "executed_at": "2026-10-01 10:10:49.730255+00:00"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event_cf6c08e49e6742368658302e084df9fe",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 1,
+      "event_type": "diagnosis.created",
+      "actor": "USER",
+      "payload": {
+        "status": "NEEDS_CLARIFICATION",
+        "skill_policy": "AUTO",
+        "created_by": "legacy_admin",
+        "auto_scope": false,
+        "health_check": true
+      },
+      "occurred_at": "2026-10-01 10:10:49.307808+00:00"
+    },
+    {
+      "event_id": "event_855c272675154c638efca0c76b495cbf",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 2,
+      "event_type": "diagnosis.clarified",
+      "actor": "legacy_admin",
+      "payload": {
+        "target": {
+          "service": "agi-office-backend.service",
+          "environment": "interview",
+          "agent_id": "control-interview-demo-agent",
+          "pid": 1650962,
+          "process_binding": {
+            "agent_id": "control-interview-demo-agent",
+            "pid": 1650962,
+            "boot_id": "a641bc20-0b78-44fb-8965-0e709dfd487a",
+            "process_start_ticks": 214134784,
+            "pid_namespace_inode": 4026531836,
+            "namespace_pid": 1650962,
+            "executable_identity": "python3.12",
+            "process_snapshot_id": "psnap_b894d177925119ff",
+            "snapshot_generation": 302772,
+            "snapshot_received_at": "2026-10-01T10:10:44.866053+00:00"
+          }
+        },
+        "time_range": {
+          "start": "2026-10-01T10:10:49.332127Z",
+          "end": "2026-10-01T10:15:49.332127Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "requested_time_range": {
+          "start": "2026-10-01T10:10:49.332127Z",
+          "end": "2026-10-01T10:15:49.332127Z",
+          "timezone": "Asia/Shanghai"
+        },
+        "effective_time_range": {}
+      },
+      "occurred_at": "2026-10-01 10:10:49.332875+00:00"
+    },
+    {
+      "event_id": "event_2befc5f513af464aa8b50a7b47279eed",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 3,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "source": "DETERMINISTIC_RULE",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 10:10:49.671276+00:00"
+    },
+    {
+      "event_id": "event_53296b03e3134a82af343247960f0abc",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 4,
+      "event_type": "hypothesis.created",
+      "actor": "SYSTEM",
+      "payload": {
+        "hypothesis_id": "hyp_0e9d9c996fe648a38fa567ca2e7c7dab",
+        "source": "SYSTEM_FALLBACK",
+        "round_index": 1,
+        "parent_hypothesis_id": null
+      },
+      "occurred_at": "2026-10-01 10:10:49.679030+00:00"
+    },
+    {
+      "event_id": "event_8fc65f5e9e7341dc99eff54812a35551",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 5,
+      "event_type": "lats.search_started",
+      "actor": "SYSTEM",
+      "payload": {
+        "algorithm": "LATS-UCT",
+        "algorithm_version": "drop-insight-lats-v1",
+        "semantics": {
+          "execution_mode": "BUDGETED_LATS",
+          "environment_semantics": "LIVE_PROGRESSIVE",
+          "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+          "strict_environment_reversibility": false,
+          "observation_policy": "PROGRESSIVE_WIDENING_CACHED_OBSERVATIONS"
+        },
+        "config": {
+          "investigation_strategy": "LATS",
+          "top_k": 3,
+          "exploration_constant": 1.4142135623730951,
+          "max_iterations": 1,
+          "max_tool_calls": 1,
+          "selection_policy": "UCT",
+          "value_lambda": 0.5,
+          "value_formula": "lambda*LM(s)+(1-lambda)*SC(s) when server SC exists",
+          "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL"
+        },
+        "safety_authority": "opaque Agent/PID binding + registered tool allowlist + resource budget + Evidence Gate",
+        "model_has_shell_access": false
+      },
+      "occurred_at": "2026-10-01 10:10:49.687041+00:00"
+    },
+    {
+      "event_id": "event_c95b90b9096f437bb6800183c9921079",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 6,
+      "event_type": "lats.candidates_expanded",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 2,
+        "candidates": [
+          {
+            "candidate_key": "candidate:483478c4da174fe1776f",
+            "statement": "目标进程可能存在资源异常，需要先建立当前窗口的系统指标基线",
+            "expected_observations": [
+              "采到目标进程 CPU、RSS、线程和文件描述符的当前窗口指标"
+            ],
+            "falsification_criteria": [
+              "当前窗口指标不支持资源异常，或没有取得可信系统指标"
+            ],
+            "reason": "",
+            "recommended_tool": "collect_sys_metrics",
+            "evidence_domain": null,
+            "prior": 0.925926,
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 0,
+            "is_open_world_sentinel": false,
+            "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+            "hypothesis_id": "hyp_b7edc54e3c5b4f4abb39037669954c95",
+            "depth": 0,
+            "parent_node_id": null
+          },
+          {
+            "candidate_key": "candidate:other-unknown",
+            "statement": "其他未知原因（OTHER/UNKNOWN）",
+            "expected_observations": [
+              "存在尚未被既有候选假设充分解释的观测现象"
+            ],
+            "falsification_criteria": [
+              "所有观测现象均能被既有候选假设充分解释"
+            ],
+            "reason": "",
+            "recommended_tool": "collect_sys_metrics",
+            "evidence_domain": null,
+            "prior": 0.074074,
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK",
+            "prior_source": "DETERMINISTIC_FALLBACK",
+            "rank": 1,
+            "is_open_world_sentinel": true,
+            "node_id": "hypothesis:hyp_0e9d9c996fe648a38fa567ca2e7c7dab",
+            "hypothesis_id": "hyp_0e9d9c996fe648a38fa567ca2e7c7dab",
+            "depth": 0,
+            "parent_node_id": null
+          }
+        ],
+        "progressive_widening": true
+      },
+      "occurred_at": "2026-10-01 10:10:49.687041+00:00"
+    },
+    {
+      "event_id": "event_2065645ccd8d495eab95ad344bcb186f",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 7,
+      "event_type": "lats.candidates_evaluated",
+      "actor": "AGENT",
+      "payload": {
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "evaluations": [
+          {
+            "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+            "initial_value": 0.68,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": 0.68,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          },
+          {
+            "node_id": "hypothesis:hyp_0e9d9c996fe648a38fa567ca2e7c7dab",
+            "initial_value": -0.05,
+            "lm_value": null,
+            "self_consistency": null,
+            "heuristic_value": -0.05,
+            "value_lambda": 0.5,
+            "value_formula": "deterministic heuristic; LM(s)=SC(s)=null",
+            "value_source": "DETERMINISTIC_FALLBACK"
+          }
+        ],
+        "self_consistency_source": "SERVER_INDEPENDENT_SAMPLES_OR_NULL",
+        "evidence_gate_is_separate": true
+      },
+      "occurred_at": "2026-10-01 10:10:49.687041+00:00"
+    },
+    {
+      "event_id": "event_c056d0223a2644919b18d7a52b8e9fc8",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 8,
+      "event_type": "lats.node_selected",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "candidate_key": "candidate:483478c4da174fe1776f",
+        "score": 1000000.0,
+        "components": {
+          "q": 0.68,
+          "exploration": 1000000.0,
+          "prior_bonus": 0.0,
+          "prior": 0.925926,
+          "visits": 0,
+          "virtual_loss": 0.0,
+          "unvisited": true
+        },
+        "rank": 0,
+        "reason": "UCT 在当前可执行候选中选择平均回报与探索项之和最高的分支；未访问分支优先，并列时按候选生成顺序稳定选择。",
+        "selection_policy": "UCT",
+        "scores": [
+          {
+            "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+            "candidate_key": "candidate:483478c4da174fe1776f",
+            "score": 1000000.0,
+            "components": {
+              "q": 0.68,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.925926,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 0
+          },
+          {
+            "node_id": "hypothesis:hyp_0e9d9c996fe648a38fa567ca2e7c7dab",
+            "candidate_key": "candidate:other-unknown",
+            "score": 1000000.0,
+            "components": {
+              "q": -0.05,
+              "exploration": 1000000.0,
+              "prior_bonus": 0.0,
+              "prior": 0.074074,
+              "visits": 0,
+              "virtual_loss": 0.0,
+              "unvisited": true
+            },
+            "rank": 1
+          }
+        ],
+        "phase": "INITIAL_EXPANSION",
+        "iteration": 1,
+        "round_index": 1,
+        "tree_depth": 1,
+        "parent_node_id": null,
+        "candidate_count": 2,
+        "frontier_policy": "GLOBAL_ELIGIBLE_LEAF_PROGRESSIVE_WIDENING"
+      },
+      "occurred_at": "2026-10-01 10:10:49.687041+00:00"
+    },
+    {
+      "event_id": "event_0d97e1f03b3041b3be2010f28a1d63af",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 9,
+      "event_type": "tool_call.requested",
+      "actor": "PLANNER",
+      "payload": {
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "status": "APPROVED"
+      },
+      "occurred_at": "2026-10-01 10:10:49.710140+00:00"
+    },
+    {
+      "event_id": "event_3b7182f0ec214b0e9572acb04409612f",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 10,
+      "event_type": "tool_call.task_created",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0"
+      },
+      "occurred_at": "2026-10-01 10:10:49.730255+00:00"
+    },
+    {
+      "event_id": "event_928ba93aff814329a7b066e10e789254",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 11,
+      "event_type": "lats.action_proposed",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "status": "TASK_CREATED",
+        "proposal_only": false
+      },
+      "occurred_at": "2026-10-01 10:10:49.738810+00:00"
+    },
+    {
+      "event_id": "event_b2aa3eafa3244895a6f778a8c193c228",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 12,
+      "event_type": "lats.simulation_started",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false,
+        "simulation_kind": "REAL_TOOL_ENVIRONMENT_STEP",
+        "note": "线上分支只执行一次真实工具动作；未选择兄弟没有观测、没有奖励，也不宣称可回滚到等价环境。"
+      },
+      "occurred_at": "2026-10-01 10:10:49.738810+00:00"
+    },
+    {
+      "event_id": "event_2150fbd6ad314b829636a178c503c149",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 13,
+      "event_type": "lats.action_dispatched",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0",
+        "tool_name": "collect_sys_metrics",
+        "policy_decision": "ALLOW",
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false
+      },
+      "occurred_at": "2026-10-01 10:10:49.738810+00:00"
+    },
+    {
+      "event_id": "event_f8d237e8c8a143ddbe2fde87764e5b19",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 14,
+      "event_type": "tool_call.progress",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0",
+        "task_status": "RUNNING",
+        "status": "RUNNING"
+      },
+      "occurred_at": "2026-10-01 10:10:51.815697+00:00"
+    },
+    {
+      "event_id": "event_2a20b55528b94b369a78937cd8c71ea5",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 15,
+      "event_type": "tool_call.task_terminal",
+      "actor": "SYSTEM",
+      "payload": {
+        "tool_call_id": "toolcall_41e760b1a8ff4d179c8dccde61f6db40",
+        "task_id": "task_20261001_101049_bb29a0",
+        "task_status": "DONE"
+      },
+      "occurred_at": "2026-10-01 10:11:06.052148+00:00"
+    },
+    {
+      "event_id": "event_75011bda1947497f93bcb7e53c3e9f4a",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 16,
+      "event_type": "task_evidence.imported",
+      "actor": "SYSTEM",
+      "payload": {
+        "task_id": "task_20261001_101049_bb29a0",
+        "task_attempt_id": "attempt_63b8b8a2f7b84376b9b31f61b7a21fe4",
+        "evidence_refs": [
+          "ev_task_task_20261001_101049_bb29a0_4516",
+          "ev_task_task_20261001_101049_bb29a0_4517"
+        ]
+      },
+      "occurred_at": "2026-10-01 10:11:06.069433+00:00"
+    },
+    {
+      "event_id": "event_9b27c47d77564751aa4da258aa047056",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 17,
+      "event_type": "report.generated",
+      "actor": "SYSTEM",
+      "payload": {
+        "report_id": "report_13d23344e74e67f8c231bf80262fd2c8",
+        "confidence": 0.0,
+        "coverage_ratio": 0.0,
+        "evidence_refs": [],
+        "verification_status": "INSUFFICIENT_EVIDENCE",
+        "verified_claim_count": 0,
+        "generation_mode": "SERVER_EVIDENCE_RULES_V1",
+        "minimum_diagnosis_rounds": 1,
+        "observed_diagnosis_rounds": 1,
+        "minimum_rounds_satisfied": true
+      },
+      "occurred_at": "2026-10-01 10:11:06.091125+00:00"
+    },
+    {
+      "event_id": "event_45909632ca63470ca258c80b42a97d36",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 18,
+      "event_type": "lats.observation_recorded",
+      "actor": "ENVIRONMENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "observation_id": "report:report_13d23344e74e67f8c231bf80262fd2c8",
+        "observation_source": "REAL_TOOL_EVIDENCE_GATE",
+        "summary": "真实采集完成：支持 0 条、反证 0 条、质量拒绝 1 条；门禁=INSUFFICIENT_EVIDENCE。",
+        "tool_call_ids": [
+          "toolcall_41e760b1a8ff4d179c8dccde61f6db40"
+        ],
+        "task_ids": [
+          "task_20261001_101049_bb29a0"
+        ],
+        "evidence_ids": [
+          "ev_task_task_20261001_101049_bb29a0_4516",
+          "ev_task_task_20261001_101049_bb29a0_4517"
+        ],
+        "report_id": "report_13d23344e74e67f8c231bf80262fd2c8",
+        "external_observation": true,
+        "cached_observation": true,
+        "rollout_semantics": "REAL_TOOL_SINGLE_STEP_NO_ROLLBACK",
+        "equivalent_sibling_rollback": false
+      },
+      "occurred_at": "2026-10-01 10:11:06.122959+00:00"
+    },
+    {
+      "event_id": "event_c323d20c39c44c07bea704aec613b6ab",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 19,
+      "event_type": "lats.reflection_recorded",
+      "actor": "AGENT",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "report_id": "report_13d23344e74e67f8c231bf80262fd2c8",
+        "decision": "PROGRESSIVE_WIDEN",
+        "summary": "当前证据区分力不足；缓存本次真实观测并在预算内扩展新的证据域。",
+        "grounded_in_observation": "report:report_13d23344e74e67f8c231bf80262fd2c8",
+        "reflection_is_evidence": false
+      },
+      "occurred_at": "2026-10-01 10:11:06.122959+00:00"
+    },
+    {
+      "event_id": "event_b11ebd6c6fc24d3ca251305b490c03b3",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 20,
+      "event_type": "lats.backpropagated",
+      "actor": "SYSTEM",
+      "payload": {
+        "node_id": "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95",
+        "report_id": "report_13d23344e74e67f8c231bf80262fd2c8",
+        "path_node_ids": [
+          "hypothesis:hyp_b7edc54e3c5b4f4abb39037669954c95"
+        ],
+        "reward": -0.49,
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "components": {
+          "evidence_gate": -0.35,
+          "confidence": -0.1,
+          "quality_penalty": 0.04,
+          "support_count": 0,
+          "counter_count": 0,
+          "rejected_count": 1
+        }
+      },
+      "occurred_at": "2026-10-01 10:11:06.122959+00:00"
+    },
+    {
+      "event_id": "event_957c39686b9d407c83ce90c3b8358372",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 21,
+      "event_type": "diagnosis.insufficient_evidence_finalized",
+      "actor": "SYSTEM",
+      "payload": {
+        "termination_reason": "BUDGET_EXHAUSTED",
+        "termination_detail": "证据仍需交叉验证，但已达到最多四轮的自动探索边界。",
+        "accepted_support_report": false,
+        "best_supported_report_id": null,
+        "minimum_diagnosis_rounds": 1,
+        "observed_diagnosis_rounds": 1,
+        "minimum_rounds_satisfied": true
+      },
+      "occurred_at": "2026-10-01 10:11:06.182274+00:00"
+    },
+    {
+      "event_id": "event_9138c56466134404877da437c0c4434e",
+      "diagnosis_id": "insight_d9219470b9394bc7b9eb4e3c8768eb1f",
+      "sequence": 22,
+      "event_type": "lats.search_terminated",
+      "actor": "SYSTEM",
+      "payload": {
+        "reason": "BUDGET_EXHAUSTED",
+        "detail": "证据仍需交叉验证，但已达到最多四轮的自动探索边界。",
+        "final_status": "INSUFFICIENT_EVIDENCE",
+        "best_report_id": null
+      },
+      "occurred_at": "2026-10-01 10:11:06.188308+00:00"
+    }
+  ],
+  "downloaded_artifact_hashes": [
+    {
+      "task_id": "task_20261001_101049_bb29a0",
+      "artifact_id": 4516,
+      "sha256": "6accf484c0e6b754adcf5b0f92a9780111b154909273362244e2069393cacd66"
+    },
+    {
+      "task_id": "task_20261001_101049_bb29a0",
+      "artifact_id": 4517,
+      "sha256": "7445c23020dcba1f8316ee2e3f8e7a48f51e24ce04ecd4a488be453f86461fdd"
+    }
+  ]
+}
