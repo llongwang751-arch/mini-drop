@@ -17,6 +17,8 @@
 
 所有结果 `causal_root_cause_verified=false`。知识没有命中也不表示服务正常，它只表示没有相关排查先验。检索可用性 `HEALTHY/DEGRADED` 与业务健康分列。
 
+无答案修复采用 `knowledge-subject-admission-v2`。主能力由公开 catalog 的 title、keywords 和 applies_to 声明，summary 中的备选诊断不能扩大覆盖范围；查询中的具名主体须由公开条目覆盖，明确排除的技术替代对象不能借作锚点。无品牌黑名单或评测 case ID 规则；新增主体/能力可通过新 catalog 条目扩展。CPU、TCP 等日常同名词需技术语境，未知应用同时出现独立进程 CPU/RSS 观测时仍可保留通用 Linux 指南。BM25、dense、RRF、rerank 和降级路线共用准入判定，排序分数不等于事实置信度。
+
 ## 先冻结再调用
 
 公共题、评分真值、规则与预算在评估器实现和任何供应商调用前，于 **2026-10-02 08:07:24 UTC** 固定。此前已协商公共 schema 接口且生产模块文件已存在，因此不声称在全部生产实现前冻结。题目由维护者编写，不称第三方独立作者。
@@ -56,6 +58,19 @@ python -B scripts/evaluate_planning_retrieval_v2.py --retrieval-only --backend H
 ```
 
 当前出题与代码门禁完成；真实执行状态必须以新目录原始报告为准，不能从单元测试虚构供应商成绩。正式发布报告与项目上下文登记实际结果。
+
+## 首轮真实结果与后续回归边界
+
+精确源码 `df0d3ef00a945e7d909f73868819799b2b7cc7f7` 在发布 `20261002T085733Z` 后完成一次实评：24 次真实 chat、21 次 HTTP 200、3 次 ReadTimeout，零重试。21 份成功响应均通过共享生产 parser，结构、disposition、下一工具分别为 21/24；结果分布为 NORMAL 8、INSUFFICIENT_EVIDENCE 4、REFUSED 4、INVESTIGATE 5。超时没有可判断的内容，保持在分母中，不能说成合同错误或删去。已知 usage 为 90,583 tokens，另外 3 次 usage 和所有价格未知。
+
+| 检索路线 | Recall@3（16 有答案题） | MRR@3 | 无答案误召回（8 题） |
+|---|---:|---:|---:|
+| BM25 | 0.96875 | 0.875 | 5/8 |
+| 实际 HYBRID | 0.90625 | 0.9375 | 1/8 |
+
+HYBRID 实际 21 次经过 BM25/entity/Chroma/RRF/Rerank，3 次无候选止于 RRF；全部无降级原因。原始 24 请求/响应、24 条 HYBRID trace、原始语料/chunk SHA、254 个精确 Git 文件和独立复算已归档于 `reports/quality/planning-retrieval-v2-20261002/evaluation/`。首轮结果不会随修复改写；后续使用同题只能称 `REGRESSION_ON_EXPOSED_V2_QUESTIONS_NOT_NEW_BLIND`，只运行检索、不增加本次 24 次模型预算。旧源码已归档，首轮复核从该版本执行，不能假称与更新后的生产源码相同。
+
+实际 LangGraph 只读规划烟测首批 2/3：缺测、拒绝输出合法，无新工具、采集任务或 Evidence；NORMAL 请求遭供应商 OpenAITimeoutError，没有伪造 NORMAL。真实浏览器已检查两张输出卡和无答案提示、四种宽度，无 console/network 错误；没有本轮证据下载。后续正常分支补验必须保留这个首批结果并单列新批次。检查点隔离另外由真实 LangGraph 测试证实，应使用带版本的 thread_id，顶层 checkpoint_ns 可以为空。
 
 ## 旧报告的历史复算
 

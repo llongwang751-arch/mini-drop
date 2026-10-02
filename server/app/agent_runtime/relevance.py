@@ -11,7 +11,7 @@ import unicodedata
 from typing import Any
 
 
-POLICY_VERSION = "knowledge-domain-admission-v1"
+POLICY_VERSION = "knowledge-subject-admission-v2"
 
 # Runtime names and generic product words deliberately are not observation
 # domains. A Java lock query must not qualify a MySQL/Go lock guide merely
@@ -74,23 +74,156 @@ def _labels(text: str, vocabulary: dict[str, tuple[str, ...]]) -> list[str]:
     return sorted(label for label, phrases in vocabulary.items() if any(_contains(text, phrase) for phrase in phrases))
 
 
-def query_profile(query: str) -> dict[str, Any]:
-    normalized = _normalize(query)
+def _active_clauses(query: str) -> tuple[list[str], list[str]]:
+    """Keep real topics, excluding explicit substitutions and out-of-scope mentions.
+
+    These are query semantics, not trusted instructions. Ordinary negative
+    observations ("CPU is normal", "no retransmits") remain useful topics.
+    """
+    clauses, excluded = [], []
+    for clause in re.split(r"[;；。!?！？\n]|(?<!\d)\.(?!\d|[a-zA-Z_])", str(query or "")):
+        clause = clause.strip(" ,，")
+        if not clause:
+            continue
+        parts = re.split(r"[,，]|\b(?:but|whereas)\b|(?:但是|但|而且|另外|同时)", clause, flags=re.I)
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+            # "Do not substitute MySQL" and "不要将 GPU 当作 CPU" cannot
+            # provide affirmative MySQL/CPU coverage. No technology is named
+            # in this rule; arbitrary scopes obey the same comparison grammar.
+            if re.search(r"\b(?:do\s+not|don't|not)\s+(?:substitute|use|treat|confuse|involve|about)\b|"
+                         r"(?:不要|别|不能)(?:将|把|用|拿|当|混淆|替代)|(?:不涉及|不属于|不是讨论)", part, re.I):
+                excluded.append(part)
+                continue
+            # Preserve the affirmative half of 'X, not Y' contrast.
+            contrast = re.split(r"\bnot\s+(?=[a-zA-Z])|(?:而非|而不是)", part, maxsplit=1, flags=re.I)
+            if len(contrast) == 2:
+                part = contrast[0].strip()
+                excluded.append(contrast[1].strip())
+            if part:
+                clauses.append(part)
+    return clauses, excluded
+
+
+def _primary_text(item: dict[str, Any]) -> str:
+    """Capabilities come from the headline and reviewed anchors, not caveats.
+
+    A summary can mention alternative diagnoses; those mentions must not turn
+    a CPU guide into GC/network coverage. Body text still participates in rank.
+    """
+    values = [str(item.get("title") or "")]
+    for field in ("keywords", "applies_to"):
+        if isinstance(item.get(field), list):
+            values.extend(str(value) for value in item[field])
+    return " ".join(values)
+
+
+def _technical_subjects(text: str) -> list[str]:
+    """Recognize named subject syntax rather than a list of unsupported products.
+
+    Acronyms, mixed-case product names, quoted names and Latin subjects in
+    Chinese prose expose scope that a resource keyword must not silently erase.
+    Lowercase names are recognized in explicit protocol/engine/runtime slots.
+    Code-level identifiers are not automatically product scopes.
+    """
+    subjects = set()
+    for match in re.finditer(r"(?<![a-zA-Z0-9_])[a-zA-Z][a-zA-Z0-9+]*(?![a-zA-Z0-9_])", text):
+        value = match.group()
+        if len(value) < 2:
+            continue
+        around = text[max(0, match.start() - 2):match.end() + 2]
+        acronym = value.isupper() and len(value) >= 2
+        mixed_case = bool(re.search(r"[a-z][A-Z]", value))
+        cjk_name = bool(re.search(r"[\u3400-\u9fff]", around))
+        quoted = match.start() > 0 and text[match.start() - 1] in "`\"'"
+        named_slot = bool(re.match(r"\s+(?:protocol|database|engine|runtime|framework|cluster)\b|\s*(?:协议|引擎|集群|框架)", text[match.end():], re.I))
+        if acronym or mixed_case or cjk_name or quoted or named_slot:
+            subjects.add(_normalize(value))
+    # Identifiers like request_id or a SQL column are observations rather than
+    # named implementations. Unit/identity acronyms likewise do not add scope.
+    return sorted(subjects - {"pid", "tid", "id", "api", "s3", "sha", "sha256", "http", "https",
+                              "p95", "p99", "mib", "gib", "ms", "r1", "r2"})
+
+
+def _subject_known(subject: str, entries: list[dict[str, Any]]) -> bool:
+    # Aliases for resource measures and known runtimes are syntax context;
+    # admission still checks the source's actual capability below.
+    aliases = [phrase for vocabulary in (_CONCEPTS, _RUNTIME_SCOPES, _DATABASE_SCOPES)
+               for phrases in vocabulary.values() for phrase in phrases]
+    if subject in {_normalize(phrase) for phrase in aliases} | _GENERIC_ANCHORS | {
+        "process", "application", "data", "heap", "cache", "query", "protocol",
+    }:
+        return True
+    return any(_contains(_normalize(_primary_text(entry)), subject) for entry in entries)
+
+
+def _portable_observation(text: str, shared: list[str]) -> bool:
+    """An independently named OS observation can survive an unknown app brand.
+
+    'ThreadLocal leak, process RSS rises' has portable memory guidance. A
+    product's 'index wait' or a GPU question mentioning CPU does not establish
+    such an observation. This does not claim the observation is verified.
+    """
+    if "cpu" in shared and re.search(r"(?:cpu|processor|用户态|系统态).{0,30}(?:high|hot|usage|utilization|%|高|升|占用|热点)|"
+                                     r"(?:high|hot|高).{0,15}(?:cpu|processor)|用户态|核满|计算压力", text, re.I):
+        return True
+    if "memory" in shared and re.search(r"(?:rss|resident).{0,35}(?:grow|ris|increas|leak|增长|升|泄漏)|"
+                                         r"(?:process|进程).{0,25}(?:memory|内存).{0,20}(?:leak|grow|增长|泄漏)|"
+                                         r"(?:java|jvm|python|golang|c\+\+).{0,45}(?:leak|泄漏)", text, re.I):
+        return True
+    return ("block_io" in shared and any(_contains(_normalize(text), term) for term in ("fsync", "fdatasync", "iowait", "block device", "块设备")))
+
+
+def _source_profile(item: dict[str, Any]) -> dict[str, Any]:
+    text = _primary_text(item)
+    profile = _profile(text, require_context=False)
+    # These capabilities are more specific than the resource named in their
+    # titles. CPU alone does not request quota, nor memory alone OOM controls.
+    required = set(profile["concepts"]) & {"cpu_quota", "memory_pressure"}
+    if required:
+        profile["concepts"] = sorted(required)
+    if "kernel" in profile["concepts"]:
+        profile["concepts"] = ["kernel"]
+    return profile
+
+
+def _profile(text: str, *, require_context: bool) -> dict[str, Any]:
+    normalized = _normalize(text)
     concepts = _labels(normalized, _CONCEPTS)
-    # 'Memory' also means recollection; a resource observation needs a
-    # technical qualifier. This is domain disambiguation, not an off-topic
-    # topic blacklist. Bare runtime/product nouns remain insufficient.
-    if any(_contains(normalized, term) for term in ("memory", "heap")) and any(
-        _contains(normalized, term) for term in (
-            "process", "rss", "allocation", "leak", "pressure", "growth", "usage",
-            "system", "service", "server", "container", "application", "free",
+    # Generic 'network' includes social networks, and CPU can describe a game
+    # character. Actual transport/measurement vocabulary disambiguates them.
+    if require_context:
+        if "network" in concepts and not any(_contains(normalized, term) for term in (
+            "tcp", "retransmit", "retransmission", "retransmissions", "packet", "rtt",
+            "connection", "socket", "latency", "bandwidth", "重传", "丢包", "连接", "时延", "带宽", "链路",
+        )):
+            concepts.remove("network")
+        if "cpu" in concepts and not any(_contains(normalized, term) for term in (
+            "high", "usage", "utilization", "userland", "processor", "process", "profile", "profiling",
+            "hotspot", "sampling", "cores", "kernel", "throttled", "quota", "cpu.max", "cpu.stat",
+            "用户态", "系统态", "高", "热点", "进程", "利用率", "占用", "采样", "核满", "计算压力",
+        )) and not re.search(r"cpu.{0,20}(?:\d|%)", normalized):
+            concepts.remove("cpu")
+    if any(_contains(normalized, term) for term in ("memory", "heap")) and (
+        not require_context or any(_contains(normalized, term) for term in (
+            "process", "rss", "allocation", "leak", "pressure", "growth", "usage", "gc",
+            "system", "service", "server", "container", "application", "free", "heap",
             "limit", "limits", "database", "pod", "cpu", "swap", "cache", "mib", "gib",
-        )
+        ))
     ):
         concepts = sorted(set(concepts) | {"memory"})
     return {"concepts": concepts,
             "runtime_scopes": _labels(normalized, _RUNTIME_SCOPES),
             "database_scopes": _labels(normalized, _DATABASE_SCOPES)}
+
+
+def query_profile(query: str) -> dict[str, Any]:
+    clauses, excluded = _active_clauses(query)
+    profile = _profile(" ".join(clauses), require_context=True)
+    return {**profile, "technical_subjects": _technical_subjects(" ".join(clauses)),
+            "active_clauses": clauses, "excluded_mentions": excluded}
 
 
 def curated_anchor_text(item: dict[str, Any]) -> str:
@@ -103,49 +236,79 @@ def curated_anchor_text(item: dict[str, Any]) -> str:
 
 def concept_score(query: str, item: dict[str, Any]) -> float:
     """Local alias recall without interpreting similarity as a probability."""
-    shared = set(query_profile(query)["concepts"]) & set(query_profile(curated_anchor_text(item))["concepts"])
+    shared = set(query_profile(query)["concepts"]) & set(_source_profile(item)["concepts"])
     return 0.4 * len(shared)
 
 
-def assess_relevance(query: str, item: dict[str, Any]) -> dict[str, Any]:
-    """Admit a catalog entry from the genuine query, never its inferred category.
+def assess_relevance(query: str, item: dict[str, Any], *,
+                     catalog_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Require supported technical subjects and primary capabilities together.
 
-    A distinctive curated technical identifier can admit new domains without
-    adding them to this vocabulary. Generic aliases still need an observation
-    concept. Instructions in Markdown or evidence/caveat text cannot admit it.
+    Matching a resource noun, or a named implementation with no supported
+    capability, is insufficient. Independent clauses allow an unsupported
+    application question alongside a genuinely supported OS observation.
     """
-    query_text = _normalize(query)
-    source = query_profile(curated_anchor_text(item))
+    entries = catalog_entries if catalog_entries is not None else [item]
+    source = _source_profile(item)
     profile = query_profile(query)
-    shared = sorted(set(profile["concepts"]) & set(source["concepts"]))
-    anchors = []
-    for field in ("keywords", "applies_to"):
-        values = item.get(field) if isinstance(item.get(field), list) else []
-        for value in values:
-            value = str(value).strip()
-            normalized = _normalize(value)
-            if len(normalized) < 3 or normalized in _GENERIC_ANCHORS:
-                continue
-            if _contains(query_text, value):
-                anchors.append(value)
-    reason = "DOMAIN_ANCHOR_MATCH"
-    accepted = bool(shared or anchors)
-    # Multi-domain queries may intentionally discuss more than one runtime;
-    # a specialized source must match at least one explicit runtime scope.
     query_runtime, source_runtime = profile["runtime_scopes"], source["runtime_scopes"]
     query_database, source_database = profile["database_scopes"], source["database_scopes"]
-    if not accepted:
-        reason = "NO_DISTINCTIVE_DOMAIN_ANCHOR"
-    elif query_runtime and source_runtime and not set(query_runtime) & set(source_runtime):
-        accepted, reason = False, "RUNTIME_SCOPE_CONFLICT"
-    elif query_runtime and source_database and not query_database and not any(
-        _contains(query_text, term) for term in ("database", "sql", "数据库", "事务")
-    ):
-        accepted, reason = False, "DATABASE_SCOPE_NOT_REQUESTED"
-    elif query_database and source_database and not set(query_database) & set(source_database):
-        accepted, reason = False, "DATABASE_SCOPE_CONFLICT"
-    return {"accepted": accepted, "reason": reason, "shared_concepts": shared,
-            "matched_anchors": sorted(set(anchors)), "source_profile": source}
+    query_unsupported = [subject for subject in profile["technical_subjects"]
+                         if not _subject_known(subject, entries)]
+    decisions = []
+    for clause in profile["active_clauses"]:
+        text = _normalize(clause)
+        local = _profile(clause, require_context=True)
+        shared = sorted(set(local["concepts"]) & set(source["concepts"]))
+        anchors = []
+        for field in ("keywords", "applies_to"):
+            values = item.get(field) if isinstance(item.get(field), list) else []
+            for value in values:
+                value = str(value).strip()
+                normalized = _normalize(value)
+                if len(normalized) >= 3 and normalized not in _GENERIC_ANCHORS and _contains(text, value):
+                    anchors.append(value)
+        subjects = _technical_subjects(clause)
+        local_unsupported = [subject for subject in subjects if not _subject_known(subject, entries)]
+        # Commas do not reset the product being discussed. An omitted subject
+        # in 'its index task' inherits the declared technology; a separately
+        # named supported topic or portable OS observation can still qualify.
+        named_source_topic = any(subject not in _GENERIC_ANCHORS and
+                                 _contains(_normalize(_primary_text(item)), subject)
+                                 for subject in subjects if subject not in local_unsupported)
+        unsupported = local_unsupported if named_source_topic else query_unsupported
+        accepted, reason = bool(shared or anchors), "PRIMARY_CAPABILITY_MATCH"
+        if not accepted:
+            reason = "NO_DISTINCTIVE_DOMAIN_ANCHOR"
+        elif query_runtime and source_runtime and not set(query_runtime) & set(source_runtime):
+            accepted, reason = False, "RUNTIME_SCOPE_CONFLICT"
+        elif source_runtime and not query_runtime:
+            accepted, reason = False, "RUNTIME_SCOPE_NOT_REQUESTED"
+        elif query_database and source_database and not set(query_database) & set(source_database):
+            accepted, reason = False, "DATABASE_SCOPE_CONFLICT"
+        elif source_database and not query_database and not any(
+            _contains(_normalize(" ".join(profile["active_clauses"])), term)
+            for term in ("database", "sql", "数据库", "事务")
+        ):
+            accepted, reason = False, "DATABASE_SCOPE_NOT_REQUESTED"
+        elif unsupported and not _portable_observation(clause, shared):
+            accepted, reason = False, "TECHNICAL_SUBJECT_NOT_COVERED"
+        # A runtime/database brand is scope, not a capability. New reviewed
+        # identifiers such as 'evictions' can qualify without vocabulary edits.
+        elif not shared and anchors and all(
+            _labels(_normalize(anchor), _RUNTIME_SCOPES) or _labels(_normalize(anchor), _DATABASE_SCOPES)
+            for anchor in anchors
+        ):
+            accepted, reason = False, "SUBJECT_WITHOUT_CAPABILITY"
+        decisions.append({"accepted": accepted, "reason": reason, "shared_concepts": shared,
+                          "matched_anchors": sorted(set(anchors)), "unsupported_subjects": unsupported,
+                          "clause": clause})
+    matching = [decision for decision in decisions if decision["accepted"]]
+    chosen = matching[0] if matching else next((decision for decision in decisions
+        if decision["reason"] != "NO_DISTINCTIVE_DOMAIN_ANCHOR"),
+        {"accepted": False, "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR", "shared_concepts": [],
+         "matched_anchors": [], "unsupported_subjects": [], "clause": ""})
+    return {**chosen, "source_profile": source, "clause_decisions": decisions}
 
 
 def relevance_audit(query: str, decisions: list[dict[str, Any]], *, degraded: bool = False) -> dict[str, Any]:

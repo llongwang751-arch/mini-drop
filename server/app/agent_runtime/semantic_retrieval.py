@@ -220,7 +220,9 @@ def search(query: str, root: Path, top_k: int = 3, *, provider=None, client=None
     relevance_query = query if relevance_query is None else str(relevance_query).strip()
     chunks = corpus(root)
     entries = {str(item.get("knowledge_id")): item for item in _catalog_entries(root)}
-    admissions = [assess_relevance(relevance_query, entries[c["knowledge_id"]]) for c in chunks]
+    public_entries = [entries[kid] for kid in {c["knowledge_id"] for c in chunks}]
+    admissions = [assess_relevance(relevance_query, entries[c["knowledge_id"]],
+                                   catalog_entries=public_entries) for c in chunks]
     top_k = max(1, min(top_k, 8))
     if not query.strip() or len(query) > 4000:
         raise RetrievalUnavailable("QUERY_INVALID")

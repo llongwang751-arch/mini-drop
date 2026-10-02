@@ -55,6 +55,7 @@ from server.app.agent_runtime.runtime import (
     AGENT_FRAMEWORK,
     AGENT_VERSION,
     SCOPE_AGENT_VERSION,
+    checkpoint_thread_id,
 )
 from server.app.agent_runtime.themes import (
     diagnosis_system_prompt,
@@ -794,8 +795,7 @@ def select_scope_with_diagnosis_agent(
             {"messages": [{"role": "user", "content": "为当前诊断自主选择安全目标。"}]},
             config={
                 "configurable": {
-                    "thread_id": diagnosis_id,
-                    "checkpoint_ns": SCOPE_AGENT_VERSION,
+                    "thread_id": checkpoint_thread_id(diagnosis_id, agent_version=SCOPE_AGENT_VERSION),
                 },
                 "recursion_limit": 6,
                 "tags": ["mini-drop", "scope-agent"],
@@ -1016,7 +1016,7 @@ def plan_with_diagnosis_agent(
     )
     agent = _agent_for(settings)
     invoke_config = {
-        "configurable": {"thread_id": context.diagnosis_id, "checkpoint_ns": AGENT_VERSION},
+        "configurable": {"thread_id": checkpoint_thread_id(context.diagnosis_id, agent_version=AGENT_VERSION)},
         # Graph supersteps include middleware, not just model/tool calls.
         # Leave room for four lookups and the final probe; the separate
         # ModelCallLimitMiddleware still caps model calls at six.

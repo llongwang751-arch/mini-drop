@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4368 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4370 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3436,9 +3436,9 @@ python scripts/render_learning_guide.py
 | `server/app/agent_runtime/memory.py` | 短期 Checkpoint 与上下文窗口策略。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
 | `server/app/agent_runtime/model_factory.py` | Python 服务模块，负责Agent Runtime。 | `create_chat_model` |
 | `server/app/agent_runtime/planning_output.py` | Python 服务模块，负责Agent Runtime。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
-| `server/app/agent_runtime/relevance.py` | Python 服务模块，负责Agent Runtime。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 8 个声明 |
+| `server/app/agent_runtime/relevance.py` | Python 服务模块，负责Agent Runtime。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 15 个声明 |
 | `server/app/agent_runtime/retrieval.py` | Knowledge 目录的本地 BM25/词法混合检索。 | `retrieve_knowledge`、`build_retrieval_trace` 等 11 个声明 |
-| `server/app/agent_runtime/runtime.py` | 框架、模型和 Checkpoint 后端身份描述。 | `RuntimeDescriptor` |
+| `server/app/agent_runtime/runtime.py` | 框架、模型和 Checkpoint 后端身份描述。 | `checkpoint_thread_id`、`RuntimeDescriptor` |
 | `server/app/agent_runtime/semantic_retrieval.py` | Python 服务模块，负责Agent Runtime。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
 | `server/app/agent_runtime/themes.py` | 版本化诊断行为主题和系统提示。 | `diagnosis_system_prompt`、`scope_system_prompt` |
 | `server/app/ai_provider.py` | Python 服务模块，负责对应模块行为。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
@@ -3760,6 +3760,7 @@ python scripts/render_learning_guide.py
 | `tests/test_business_acceptance_properties.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `workload`、`clean_window`、`sparse_windows`、`after_windows`、`test_percentiles_are_observed_latencies_in_nearest_rank_order` 等 10 个声明 |
 | `tests/test_business_observations.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `source`、`record`、`write`、`test_observation_timing_is_not_business_success_or_process_identity`、`test_reject_wrong_scope_nonfinite_future_and_sensitive_extra_fields` 等 15 个声明 |
 | `tests/test_business_repeat.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `window`、`row`、`test_aggregate_records_every_run_and_reports_spread`、`test_stable_outcomes_aggregate_to_a_single_verdict`、`test_aggregate_refuses_to_fabricate_statistics_from_no_runs` 等 11 个声明 |
+| `tests/test_checkpoint_thread_isolation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `bounded_runtime`、`test_production_planning_uses_isolated_keys_and_keeps_legacy_history`、`test_production_scope_uses_its_own_versioned_thread`、`test_empty_checkpoint_identity_cannot_merge_unrelated_sessions` |
 | `tests/test_clean_stack_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `runtime_config`、`raw_fixture`、`test_valid_documented_config_and_realistic_artifact_shape`、`test_runtime_cannot_attach_production_or_silently_weaken_scope`、`test_raw_presence_is_not_analyzed_verified_evidence` 等 24 个声明 |
 | `tests/test_continuous_bundle_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_continuous_bundle_maps_each_window_and_keeps_local_outputs`、`test_continuous_bundle_rejects_matching_symlink` |
 | `tests/test_contracts.py` | Python 自动化测试，验证跨语言合同的成功、失败与边界条件。 | `test_openapi_spec_exists_and_is_valid`、`test_openapi_routes_match_public_implementations`、`test_openapi_covers_new_feature_endpoints`、`test_openapi_create_diagnosis_exposes_autonomous_and_assisted_modes`、`test_openapi_exposes_strict_lats_budget_and_frozen_replay_contract` 等 11 个声明 |
@@ -3855,6 +3856,7 @@ python scripts/render_learning_guide.py
 | `tests/test_quality_gate.py` | 防止空报告、跳过、失败重试覆盖、超时和不完整报告导致质量门禁假绿。 | `junit`、`test_junit_uses_executed_cases_and_preserves_failures`、`test_skip_allowlist_requires_class_and_reason_and_is_never_plain_pass`、`test_all_skipped_is_failed_even_if_every_skip_is_allowed`、`test_empty_or_collection_error_report_cannot_pass` 等 25 个声明 |
 | `tests/test_report_conclusion.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_java_alloc_report_names_observed_function_and_boundary`、`test_java_alloc_report_renders_independent_gc_counter_window`、`test_verified_profile_without_intervention_stays_an_observation`、`test_support_without_specific_finding_is_not_promoted_to_root_cause`、`test_numeric_performance_findings_render_actual_measurements_with_scope` 等 27 个声明 |
 | `tests/test_retrieval_abstention.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_technical_queries_preserve_portable_and_scoped_guides`、`test_unknown_domains_and_generic_platform_words_abstain`、`test_inferred_category_cannot_turn_an_unknown_query_into_a_match`、`test_empty_genuine_query_is_not_replaced_with_category`、`test_explicit_user_correction_can_supply_the_actual_domain` 等 21 个声明 |
+| `tests/test_retrieval_subject_boundaries.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_unsupported_subjects_and_everyday_resource_words_do_not_admit`、`test_supported_observations_survive_scope_and_missing_evidence`、`test_excluded_substitution_is_auditable_without_rejecting_negative_observations`、`test_only_primary_capabilities_admit_not_summary_alternatives`、`test_quota_and_gc_require_their_specific_capability` 等 10 个声明 |
 | `tests/test_root_cause_benchmark.py` | Python 自动化测试，验证评测数据与指标的成功、失败与边界条件。 | `test_root_cause_dataset_has_540_ground_truth_cases_and_500_pair_capacity`、`test_root_cause_evaluator_runs_540_cases_and_exactly_500_paired_arms`、`test_root_cause_observations_do_not_leak_expected_signals`、`test_root_cause_replay_is_deterministic`、`test_root_cause_markdown_reports_method_results_regressions_and_boundaries` |
 | `tests/test_same_load_business_fix.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_real_business_fix_preserves_workload_quality_and_probe_integrity`、`test_business_comparison_rejects_changed_inputs_or_unverified_outputs` |
 | `tests/test_seven_gap_acceptance.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_old_failures_remain_immutable_and_are_not_upgraded_by_new_rules`、`test_fifty_percent_cpu_contract_preserves_percentage_units`、`test_cpu_source_samples_cannot_be_relabelled_as_lock_holder_or_shared_quota_evidence`、`test_registered_cpp_path_requires_recomputed_independent_cpu_and_exact_plan`、`test_cpp_runtime_observation_rejects_correlated_or_forged_proof` 等 12 个声明 |

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-RETRIEVER_VERSION = "knowledge-hybrid-v4-domain-admission"
+RETRIEVER_VERSION = "knowledge-hybrid-v5-subject-admission"
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 _DEFAULT_KNOWLEDGE_ROOT = _REPOSITORY_ROOT / "knowledge"
 _ENGLISH_TOKEN = re.compile(r"[a-z0-9][a-z0-9.+]*", re.IGNORECASE)
@@ -257,7 +257,10 @@ def _lexical_search(
     root = Path(knowledge_root).resolve() if knowledge_root else _DEFAULT_KNOWLEDGE_ROOT
     candidates: list[dict[str, Any]] = []
     corpus: list[list[str]] = []
-    for item in _catalog_entries(root):
+    entries = _catalog_entries(root)
+    public_entries = [item for item in entries if item.get("visibility", "PUBLIC") == "PUBLIC"
+                      and not any(item.get(k) for k in ("tenant_id", "acl", "principal_id"))]
+    for item in entries:
         if item.get("visibility", "PUBLIC") != "PUBLIC" or any(item.get(k) for k in ("tenant_id", "acl", "principal_id")):
             continue
         knowledge_id = str(item.get("knowledge_id") or "").strip()
@@ -318,7 +321,7 @@ def _lexical_search(
         score = raw_score + 0.28 * len(anchor_matched) + concept_score(relevance_query, candidate["item"])
         if score < min_score:
             continue
-        admission = assess_relevance(relevance_query, candidate["item"])
+        admission = assess_relevance(relevance_query, candidate["item"], catalog_entries=public_entries)
         if not admission["accepted"]:
             rejected_by_id.setdefault(candidate["knowledge_id"], {
                 "knowledge_id": candidate["knowledge_id"], "document": candidate["document"],

@@ -10,6 +10,13 @@ AGENT_VERSION = "diagnosis-agent-v6-planning-output"
 SCOPE_AGENT_VERSION = "scope-agent-v1"
 
 
+def checkpoint_thread_id(diagnosis_id: str, *, agent_version: str = AGENT_VERSION) -> str:
+    """Version the physical thread key; top-level LangGraph namespaces are empty."""
+    if not diagnosis_id.strip() or not agent_version.strip():
+        raise ValueError("checkpoint identity requires diagnosis ID and agent version")
+    return f"{agent_version}:{diagnosis_id}"
+
+
 @dataclass(frozen=True)
 class RuntimeDescriptor:
     framework: str = AGENT_FRAMEWORK
