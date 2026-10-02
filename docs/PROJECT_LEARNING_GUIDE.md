@@ -3845,7 +3845,7 @@ python scripts/render_learning_guide.py
 | `tests/test_performance_observation_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `measured`、`verify`、`test_abnormal_numeric_plan_is_checkable_without_requiring_its_opposite_to_be_true`、`test_observation_check_cannot_bypass_trust_quality_or_target_gates`、`test_unknown_slot_is_unchecked_and_conflicting_windows_are_not_merged` 等 12 个声明 |
 | `tests/test_performance_plan_display.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_display_normalization_preserves_the_complete_executable_contract` |
 | `tests/test_planning_output_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `output`、`investigate`、`test_noninvestigation_is_valid_without_probe_or_anomaly`、`test_no_probe_contract_rejects_hidden_action_or_unbounded_claim`、`test_investigation_keeps_falsification_numeric_and_authorization_gates` 等 22 个声明 |
-| `tests/test_planning_retrieval_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `proposal`、`response`、`test_noninvestigation_branches_allow_empty_conditions_and_no_tool`、`test_normal_branch_cannot_claim_cause_or_select_tool_or_drop_scope`、`test_private_truth_never_reaches_public_model_projection` 等 13 个声明 |
+| `tests/test_planning_retrieval_v2.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `proposal`、`response`、`test_noninvestigation_branches_allow_empty_conditions_and_no_tool`、`test_normal_branch_cannot_claim_cause_or_select_tool_or_drop_scope`、`test_private_truth_never_reaches_public_model_projection` 等 16 个声明 |
 | `tests/test_pprof_analyzer.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_load_profile_handles_gzip_and_raw`、`test_analyze_profile_rebuilds_top_and_flame_tree`、`test_pprof_cli_writes_outputs`、`test_pprof_cli_rejects_corrupt_input`、`test_analyzer_runner_pprof_integration` 等 6 个声明 |
 | `tests/test_process_cpu_control.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `document`、`hypothesis`、`test_real_analyzer_counter_window_makes_control_reachable`、`test_low_cpu_is_counter_and_zero_is_observed`、`test_explicit_threshold_languages_and_exact_boundary` 等 22 个声明 |
 | `tests/test_process_resource_monitor.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `rows`、`test_stable_resources_pass_and_first_cpu_sample_is_not_fabricated`、`test_sustained_growth_cannot_pass`、`test_threshold_is_inclusive_and_transient_peak_is_not_leak_proof`、`test_missing_or_sparse_resources_are_invalid` 等 14 个声明 |
@@ -3898,7 +3898,7 @@ python scripts/render_learning_guide.py
 | `scripts/evaluate_engineering_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `evaluate_engineering_case` |
 | `scripts/evaluate_heldout_diagnosis.py` | 工程脚本，负责AI 诊断状态与流程的生成、检查或验收。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
 | `scripts/evaluate_performance_localization.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate_localization_reports` |
-| `scripts/evaluate_planning_retrieval_v2.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `sha`、`canonical`、`public_only`、`validate_freeze`、`source_receipt` 等 18 个声明 |
+| `scripts/evaluate_planning_retrieval_v2.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
 | `scripts/evaluate_same_load_business_fix.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `evaluate`、`main` |
 | `scripts/evaluate_sre_retrieval.py` | 工程脚本，负责对应模块行为的生成、检查或验收。 | `main` |
 | `scripts/generate_business_contracts.py` | 从 Pydantic 源合同生成业务测量与验收策略 JSON Schema。 | — |

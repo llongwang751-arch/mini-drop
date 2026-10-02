@@ -34,6 +34,7 @@ MANIFEST_SHA = "ae57be9a369db8df7c10131810f4deaa68bf2ea91104911233a6ad67c8f58d4e
 SCOPE = "AUTHOR_FROZEN_SYNTHETIC_OFFLINE_PLANNING"
 PROJECTION = "JSON_PROJECTION_OF_CURRENT_PUBLIC_PRODUCTION_SCHEMA_NO_AGENT_EXECUTION"
 METRIC_ARITHMETIC = "FSUM_FLOAT_MEANS_EXACT_INTEGER_COUNTERS"
+AST_CANONICALIZATION = "AST_NODE_VALUES_V1_OMIT_EMPTY_LIST_FIELDS_ONLY"
 ORACLE_KEYS = frozenset({"acceptable_dispositions", "acceptable_tools", "relevant_ids",
                         "ground_truth", "expected_answer", "evaluator_only_sentinel", "oracle"})
 SOURCE_PATHS = ("server/app/agent_runtime/planning_output.py",
@@ -53,6 +54,30 @@ def sha(raw):
 
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+
+
+def behavior_digest(raw):
+    """Canonical source behavior independent of ast.dump formatting/version.
+
+    Empty AST list fields (including type_params added in 3.12) carry no
+    statements or arguments. All node types, nonempty fields and values remain
+    represented; exact raw source SHA is also preserved in its receipt.
+    """
+    def project(value):
+        if isinstance(value, ast.AST):
+            return {"node": type(value).__name__, "fields": {
+                name: project(item) for name, item in ast.iter_fields(value)
+                if not isinstance(item, list) or item}}
+        if isinstance(value, list):
+            return [project(item) for item in value]
+        if isinstance(value, bytes):
+            return {"bytes_base64": base64.b64encode(value).decode()}
+        if isinstance(value, complex):
+            return {"complex_real": value.real.hex(), "complex_imag": value.imag.hex()}
+        if value is Ellipsis:
+            return {"constant_ellipsis": True}
+        return value
+    return sha(canonical(project(ast.parse(raw))))
 
 
 def public_only(value):
@@ -98,7 +123,7 @@ def source_receipt(root=ROOT):
         path = root / name
         raw = path.read_bytes()
         result[name] = {"sha256": sha(raw), "bytes": len(raw), "base64": base64.b64encode(raw).decode(),
-                        "ast_sha256": sha(ast.dump(ast.parse(raw), include_attributes=False).encode())}
+                        "ast_sha256": behavior_digest(raw), "ast_canonicalization": AST_CANONICALIZATION}
     return result
 
 
@@ -322,7 +347,7 @@ def verify_report(path):
         target = (directory / name).resolve()
         if not target.is_relative_to(directory) or sha(target.read_bytes()) != digest:
             raise ValueError("raw evidence changed")
-    if ast.dump(ast.parse((directory / "evaluator-source.py").read_bytes()), include_attributes=False) != ast.dump(ast.parse(Path(__file__).read_bytes()), include_attributes=False):
+    if behavior_digest((directory / "evaluator-source.py").read_bytes()) != behavior_digest(Path(__file__).read_bytes()):
         raise ValueError("original evaluator behavior differs")
     captured = json.loads((directory / "implementation-source.json").read_bytes())
     current = source_receipt()
@@ -330,7 +355,9 @@ def verify_report(path):
         raise ValueError("candidate source scope changed")
     for name, row in captured.items():
         raw = base64.b64decode(row["base64"], validate=True)
-        if len(raw) != row["bytes"] or sha(raw) != row["sha256"] or row["ast_sha256"] != sha(ast.dump(ast.parse(raw), include_attributes=False).encode()) or row["ast_sha256"] != current[name]["ast_sha256"]:
+        if (len(raw) != row["bytes"] or sha(raw) != row["sha256"]
+            or row.get("ast_canonicalization") != AST_CANONICALIZATION
+            or row["ast_sha256"] != behavior_digest(raw) or row["ast_sha256"] != current[name]["ast_sha256"]):
             raise ValueError("candidate behavior changed from first run")
     provider = json.loads((directory / "provider.json").read_bytes())
     if report["provider"] != provider or provider.get("candidate_prompt_sha256") != sha((SYSTEM_PROMPT + "\n" + EVIDENCE_PLANNING_REQUIREMENT).encode()):

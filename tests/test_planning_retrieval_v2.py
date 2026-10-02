@@ -1,5 +1,6 @@
 """Synthetic negative controls; fixtures never masquerade as real model trials."""
 from copy import deepcopy
+import ast
 import json
 from pathlib import Path
 import shutil
@@ -187,3 +188,34 @@ def test_retrieval_rank_mean_uses_explicit_portable_float_arithmetic():
     assert naive / 16 == 0.33333333333333326
     assert metrics["mrr_at_3"] == 1 / 3
     assert type(metrics["no_answer_false_positive_count"]) is int
+
+
+def test_source_behavior_digest_does_not_depend_on_native_ast_dump_or_empty_fields(monkeypatch):
+    source = b"def probe():\n    return 42\n"
+    expected = evaluation.behavior_digest(source)
+    monkeypatch.setattr(evaluation.ast, "dump", lambda *args, **kwargs: "DIFFERENT_INTERPRETER_FORMAT")
+    assert evaluation.behavior_digest(source) == expected
+    original_parse = ast.parse
+    def parse_with_new_empty_field(*args, **kwargs):
+        tree = original_parse(*args, **kwargs)
+        function = tree.body[0]
+        function._fields = (*function._fields, "added_interpreter_empty_list")
+        function.added_interpreter_empty_list = []
+        return tree
+    monkeypatch.setattr(evaluation.ast, "parse", parse_with_new_empty_field)
+    assert evaluation.behavior_digest(source) == expected
+
+
+@pytest.mark.parametrize("different", [b"def probe():\n    return 43\n",
+                                      b"def probe(value):\n    return 42\n",
+                                      b"@decorate\ndef probe():\n    return 42\n"])
+def test_source_behavior_digest_rejects_value_argument_and_nonempty_structural_changes(different):
+    assert evaluation.behavior_digest(b"def probe():\n    return 42\n") != evaluation.behavior_digest(different)
+
+
+def test_source_behavior_digest_supports_real_pipeline_ellipsis_and_bytes_constants():
+    receipt = evaluation.source_receipt()
+    assert set(receipt) == set(evaluation.SOURCE_PATHS)
+    assert all(row["ast_canonicalization"] == evaluation.AST_CANONICALIZATION for row in receipt.values())
+    assert evaluation.behavior_digest(b"signature: tuple[str, ...]\n") != evaluation.behavior_digest(b"signature: tuple[str, None]\n")
+    assert evaluation.behavior_digest(b"payload = b'bytes'\n") != evaluation.behavior_digest(b"payload = 'bytes'\n")
