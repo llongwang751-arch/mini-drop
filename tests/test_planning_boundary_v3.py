@@ -26,6 +26,38 @@ def test_frozen_v3_question_or_truth_cannot_change(tmp_path, suffix):
         evaluation.validate_freeze(tmp_path)
 
 
+def copy_frozen_inputs(target_root):
+    manifest, _ = evaluation.validate_freeze()
+    names = [evaluation.PREFIX + ending + ".json" for ending in ("public", "private", "manifest")]
+    names.extend(manifest["previous_question_pins"])
+    for name in names:
+        target = target_root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(evaluation.ROOT / name, target)
+
+
+@pytest.mark.parametrize("ending", ["LF", "CRLF"])
+def test_single_legacy_prior_pin_accepts_only_exact_git_line_projection(tmp_path, ending):
+    copy_frozen_inputs(tmp_path)
+    target = tmp_path / evaluation.LEGACY_DEVELOPMENT_PATH
+    raw_lf = target.read_bytes().replace(b"\r\n", b"\n")
+    assert evaluation.sha(raw_lf) == evaluation.LEGACY_DEVELOPMENT_GIT_LF_SHA
+    raw = raw_lf if ending == "LF" else raw_lf.replace(b"\n", b"\r\n")
+    target.write_bytes(raw)
+    assert evaluation.validate_freeze(tmp_path)[0]["question_count"] == 32
+
+
+@pytest.mark.parametrize("ending", ["LF", "CRLF"])
+def test_legacy_prior_pin_rejects_body_tampering_for_both_line_endings(tmp_path, ending):
+    copy_frozen_inputs(tmp_path)
+    target = tmp_path / evaluation.LEGACY_DEVELOPMENT_PATH
+    raw_lf = target.read_bytes().replace(b"\r\n", b"\n")
+    raw = raw_lf if ending == "LF" else raw_lf.replace(b"\n", b"\r\n")
+    target.write_bytes(raw.replace(b"query", b"QUERY", 1))
+    with pytest.raises(ValueError, match="previous frozen question bytes changed"):
+        evaluation.validate_freeze(tmp_path)
+
+
 @pytest.mark.parametrize("value", [{"oracle": "private"}, {"nested": {"relevant_ids": []}},
                                    '{"acceptable_dispositions":["NORMAL"]}', "EVALUATOR_ONLY_BOUNDARY_V3_test"])
 def test_private_truth_and_nested_json_never_reach_model(value):

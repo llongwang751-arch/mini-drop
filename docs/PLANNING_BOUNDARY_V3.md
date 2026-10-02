@@ -27,4 +27,7 @@ Java/JVM 线程CPU与Linux进程/线程的有界观测；same-node、same-host�
 
 模型DTO评估不执行LangGraph/Task/Evidence；原只描述NORMAL的实际服务器收束另验来源合同、模型0、持久事件、无Task/Evidence及浏览器显示。历史v2同题回归0/8且Recall0.875仍是a6a旧结果；新知识不能改写它。v2门禁在原字节历史沙箱复算，current v2 --check-freeze应拒绝新语料，原始报告从归档原源码核验。
 
+
+CI 首次在 Linux 暴露 legacy `sre_queries.json` 的 Windows CRLF 捕获与 Git LF 的差异：e17f 主 CI 13/14，19 项新评测保护失败，分类生产回归无失败；失败原回执保留且该来源不部署。该唯一旧开发输入的正文只接受原冻结 CRLF 或精确原 Git LF 投影，其余旧 pins 和新 v3 三冻结文件仍逐字校验；不改题目、真值、分母或成绩。修复后的精确 CI/发布来源待验收。
+
 当前仅实现和本地验证，部署及实评成绩待实际原始回执确认；以PROJECT_CONTEXT最上方为当前状态。

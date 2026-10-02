@@ -30,6 +30,9 @@ from scripts.evaluate_planning_retrieval_v2 import AST_CANONICALIZATION, behavio
 
 PREFIX = "benchmarks/retrieval/planning_boundary_v3_"
 MANIFEST_SHA = "bd1c8ada128c384b447e817c804def2dfe29d3dfa650f586a7909ebbe19cfbfa"
+LEGACY_DEVELOPMENT_PATH = "benchmarks/retrieval/sre_queries.json"
+LEGACY_DEVELOPMENT_RAW_SHA = "7cc753b96cf5cfa64a66617f095c9f5a55ece0eb2f5a0a78c1614ce6c6f925a2"
+LEGACY_DEVELOPMENT_GIT_LF_SHA = "0b857132135ac69b5ce719cab7539c86dca6d0611717bb5dd004a28a2a2fbecb"
 COUNT = 32
 POSITIVE_COUNT = NO_ANSWER_COUNT = 16
 SCOPE = "AUTHOR_FROZEN_SYNTHETIC_OFFLINE_PLANNING"
@@ -76,13 +79,28 @@ def validate_freeze(root=ROOT):
         if sha((root / (PREFIX + suffix + ".json")).read_bytes()) != manifest[key]:
             raise ValueError("frozen question or truth changed")
     for name, digest in manifest["previous_question_pins"].items():
-        if sha((root / name).read_bytes()) != digest:
+        previous_raw = (root / name).read_bytes()
+        if not previous_question_pin_matches(name, previous_raw, digest):
             raise ValueError("previous frozen question bytes changed")
     questions = json.loads((root / (PREFIX + "public.json")).read_bytes())
     if len(questions["cases"]) != COUNT or len({case["case_id"] for case in questions["cases"]}) != COUNT:
         raise ValueError("32 unique public cases required")
     public_only(questions)
     return manifest, questions
+
+
+def previous_question_pin_matches(name, raw, digest):
+    """Accept one exact legacy Git LF projection of frozen CRLF input.
+
+    The 13dc Git blob has 90 LF separators; its Windows worktree projection
+    was pinned before evaluator implementation. Both full-byte SHA values are
+    fixed here. No text, generic whitespace or other frozen file is normalized.
+    """
+    if sha(raw) == digest:
+        return True
+    return (name == LEGACY_DEVELOPMENT_PATH and digest == LEGACY_DEVELOPMENT_RAW_SHA
+            and sha(raw) == LEGACY_DEVELOPMENT_GIT_LF_SHA and b"\r" not in raw
+            and sha(raw.replace(b"\n", b"\r\n")) == digest)
 
 
 def corpus_receipt(root=ROOT):
