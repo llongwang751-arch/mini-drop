@@ -90,6 +90,22 @@ def validate_minio_version(text: str) -> None:
             "actual MinIO version differs from pinned upstream source")
 
 
+def validate_minio_healthcheck(test: object) -> None:
+    require(isinstance(test, list) and len(test) >= 4 and test[:2] == ["CMD", "curl"]
+            and test[-1] == "http://127.0.0.1:9000/minio/health/ready",
+            "MinIO ready check must directly contact its exact loopback HTTP endpoint")
+    flags = set()
+    long_flags = {"--fail": "f", "--silent": "s", "--show-error": "S"}
+    for option in test[2:-1]:
+        require(isinstance(option, str), "MinIO curl option must be a string")
+        if option in long_flags:
+            flags.add(long_flags[option])
+        else:
+            require(re.fullmatch(r"-[fsS]+", option), "unexpected MinIO curl option or shell argument")
+            flags.update(option[1:])
+    require({"f", "s"} <= flags, "MinIO ready HTTP errors must return a failing status")
+
+
 def redact(text: str, secret_values: list[str]) -> str:
     for value in sorted((v for v in secret_values if v), key=len, reverse=True):
         text = text.replace(value, "<REDACTED>")
@@ -198,8 +214,7 @@ def validate_runtime_config(config: dict, project: str, private: Path) -> None:
                     and build.get("dockerfile") == MINIO_DOCKERFILE, "MinIO canonical source Dockerfile required")
             validate_minio_source((ROOT / MINIO_DOCKERFILE).read_text(encoding="utf-8"), build.get("args", {}))
             require(spec.get("pull_policy") == "never", "MinIO must not pull a prebuilt server")
-            require(spec.get("healthcheck", {}).get("test") == ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"],
-                    "MinIO real ready HTTP healthcheck required")
+            validate_minio_healthcheck(spec.get("healthcheck", {}).get("test"))
         if name == "native-agent":
             require(spec.get("pid") == "host", "Agent PID scope changed")
             require(not spec.get("cap_add") and spec.get("cap_drop") == ["ALL"], "unexpected collector privilege")

@@ -14,7 +14,8 @@ from scripts.verify_clean_stack import (
     AcceptanceError, BUILD, CORE, MEMORY_MB, MINIO_DOCKERFILE, MINIO_RELEASE,
     MINIO_SOURCE_COMMIT, MINIO_SOURCE_SHA256, ROOT, owned_container_ids,
     prepare_compose, public_config, redact, sha, source_migration_heads,
-    validate_artifact, validate_key_stat, validate_minio_source, validate_minio_version, validate_runtime_config,
+    validate_artifact, validate_key_stat, validate_minio_healthcheck, validate_minio_source,
+    validate_minio_version, validate_runtime_config,
 )
 
 
@@ -31,8 +32,11 @@ def runtime_config(tmp_path: Path) -> dict:
         if name == "postgres":
             spec["image"] = "postgres:16"
         elif name == "minio":
+            # Bind this guard to the maintained YAML rather than mirroring a
+            # hand-written health command that can diverge from the deployment.
+            canonical_health = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))["services"]["minio"]["healthcheck"]
             spec.update({"build": {"context": str(ROOT), "dockerfile": MINIO_DOCKERFILE}, "pull_policy": "never",
-                "healthcheck": {"test": ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"]}})
+                "healthcheck": copy.deepcopy(canonical_health)})
         elif name == "native-agent":
             spec.update({"pid": "host", "cap_drop": ["ALL"], "environment": {"AGENT_GRPC_SECURE": "1"}})
         elif name == "python-hotspot":
@@ -265,3 +269,26 @@ def test_minio_is_built_first_and_version_must_contain_full_original_commit():
                    f"minio version RELEASE.2026-01-01T00-00-00Z (commit-id={MINIO_SOURCE_COMMIT})"):
         with pytest.raises(AcceptanceError):
             validate_minio_version(output)
+
+
+def test_actual_canonical_health_command_and_equivalent_direct_curl_flags():
+    template = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
+    command = template["services"]["minio"]["healthcheck"]["test"]
+    validate_minio_healthcheck(command)
+    prepared = prepare_compose(template, Path("/unused-private-config"), PROJECT)
+    assert prepared["services"]["minio"]["healthcheck"]["test"] == command
+    validate_minio_healthcheck(["CMD", "curl", "-fsS", command[-1]])
+    validate_minio_healthcheck(["CMD", "curl", "--silent", "--show-error", "--fail", command[-1]])
+
+
+@pytest.mark.parametrize("command", [
+    ["CMD-SHELL", "curl --fail http://127.0.0.1:9000/minio/health/ready || true"],
+    ["CMD", "curl", "--silent", "http://127.0.0.1:9000/minio/health/ready"],
+    ["CMD", "curl", "--fail", "--silent", "http://example.com/minio/health/ready"],
+    ["CMD", "curl", "--fail", "--silent", "--insecure", "http://127.0.0.1:9000/minio/health/ready"],
+    ["CMD", "curl", "--fail", "--silent", "||", "true", "http://127.0.0.1:9000/minio/health/ready"],
+    ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/live"],
+])
+def test_health_gate_keeps_real_endpoint_error_status_and_no_shell(command):
+    with pytest.raises(AcceptanceError):
+        validate_minio_healthcheck(command)
