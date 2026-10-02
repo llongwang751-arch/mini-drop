@@ -299,6 +299,21 @@ def owned_container_ids(inspected: list[dict], project: str) -> list[str]:
     return result
 
 
+def validate_process_binding(binding: dict, identity: dict, agent_id: str) -> None:
+    """Compare persisted attestation to independently observed owned process."""
+    require(identity.get("uid") == 0 and identity.get("cap_effective") == 0
+            and identity.get("cap_permitted") == 0, "identity witness expanded process privileges")
+    fields = ("pid", "boot_id", "process_start_ticks", "pid_namespace_inode", "namespace_pid", "executable_identity")
+    for field in ("pid", "process_start_ticks", "pid_namespace_inode", "namespace_pid"):
+        require(type(identity.get(field)) is int and identity[field] > 0, "identity witness incomplete")
+    require(identity.get("boot_id") and identity.get("executable_identity"), "immutable process witness missing")
+    persisted = binding.get("process_binding", {})
+    require(persisted.get("agent_id") == agent_id
+            and all(persisted.get(field) == identity[field] for field in fields)
+            and binding.get("snapshot_id")
+            and persisted.get("process_snapshot_id") == binding["snapshot_id"], "persisted attestation mismatch")
+
+
 def source_migration_heads() -> list[str]:
     revisions, parents = set(), set()
     for path in (ROOT / "server/migrations/versions").glob("*.py"):
@@ -573,12 +588,11 @@ class Runner:
         raise AcceptanceError("fresh heartbeats and authoritative owned-PID snapshot unavailable")
 
     def task(self) -> None:
-        # Read the owned container's host identity independently of API before submission.
-        identity = json.loads(self.run(["docker", "inspect", self.target_container], record=False))[0]
-        owned_container_ids([identity], self.project)
-        require(identity["State"]["Pid"] == self.target_pid and identity["State"]["Running"], "target identity changed")
-        stat = Path(f"/proc/{self.target_pid}/stat").read_text()
-        self.start_ticks = int(stat[stat.rfind(")") + 2:].split()[19])
+        # /proc/PID/ns requires the target's credentials. Read inside only the
+        # owned cap-free target, not from the unprivileged runner or a broad sudo.
+        self.initial_identity = self.target_identity()
+        self.start_ticks = self.initial_identity["process_start_ticks"]
+        self.evidence("target-identity-before.json", self.initial_identity)
         data = self.api("/api/tasks", {"name": "clean-stack-real-sys-metrics", "agent_id": self.agent_id,
                 "target_pid": self.target_pid, "collector_type": "sys_metrics", "duration_sec": 6, "sample_rate": 11,
                 "options": {"interval_ms": 1000}, "resource_budget": {"max_cpu_percent": 50, "max_memory_mb": 128, "max_output_mb": 8, "max_duration_sec": 6}})
@@ -597,6 +611,35 @@ class Runner:
             time.sleep(3)
         raise AcceptanceError("real Task did not reach DONE within budget")
 
+    def target_identity(self) -> dict:
+        def inspect_target() -> None:
+            value = json.loads(self.run(["docker", "inspect", self.target_container], record=False))[0]
+            owned_container_ids([value], self.project)
+            require(value["Id"] == self.target_container
+                    and value["Config"]["Labels"]["com.docker.compose.service"] == "python-hotspot"
+                    and value["State"]["Running"] and value["State"]["Pid"] == self.target_pid
+                    and value["Image"] == self.built_images["python-hotspot"]["image_id"],
+                    "owned target container/PID/image changed")
+        inspect_target()
+        code = (
+            "import json,os,pathlib,sys; p=int(sys.argv[1]); root=pathlib.Path('/proc')/str(p); "
+            "s=(root/'stat').read_text(); rows=dict(x.split(':',1) for x in (root/'status').read_text().splitlines() if ':' in x); "
+            "selfrows=dict(x.split(':',1) for x in pathlib.Path('/proc/self/status').read_text().splitlines() if ':' in x); "
+            "print(json.dumps({'pid':p,'uid':os.geteuid(),'cap_effective':int(selfrows['CapEff'].strip(),16),"
+            "'cap_permitted':int(selfrows['CapPrm'].strip(),16),'process_start_ticks':int(s[s.rfind(')')+2:].split()[19]),"
+            "'boot_id':pathlib.Path('/proc/sys/kernel/random/boot_id').read_text().strip(),"
+            "'pid_namespace_inode':os.stat(root/'ns/pid').st_ino,'namespace_pid':int(rows['NSpid'].split()[-1]),"
+            "'executable_identity':(root/'exe').readlink().name}))"
+        )
+        observed = json.loads(self.run(["docker", "exec", self.target_container, "python", "-c", code, str(self.target_pid)], record=False))
+        inspect_target()
+        require(observed.get("uid") == 0 and observed.get("cap_effective") == 0 and observed.get("cap_permitted") == 0,
+                "owned target identity reader must remain UID0 with no capabilities")
+        require(observed.get("pid") == self.target_pid
+                and observed.get("boot_id") == Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+                "owned process witness differs from original host/PID")
+        return observed
+
     def artifacts(self) -> None:
         artifacts = self.api(f"/api/tasks/{self.task_id}/artifacts")
         self.evidence("task-artifacts.json", artifacts)
@@ -611,11 +654,11 @@ class Runner:
         self.report["artifact"] = proof
         query = f"SELECT json_build_object('process_binding',process_binding_json,'snapshot_id',process_snapshot_id) FROM tasks WHERE id='{self.task_id}';"
         binding = json.loads(self.sql(query))
-        b = binding["process_binding"]
-        require(b.get("agent_id") == self.agent_id and b.get("pid") == self.target_pid and b.get("process_start_ticks") == self.start_ticks
-                and b.get("boot_id") == Path("/proc/sys/kernel/random/boot_id").read_text().strip()
-                and b.get("pid_namespace_inode") == os.stat(f"/proc/{self.target_pid}/ns/pid").st_ino
-                and binding.get("snapshot_id"), "persisted attestation mismatch")
+        identity = self.target_identity()
+        require(identity == self.initial_identity and identity["process_start_ticks"] == self.start_ticks,
+                "owned process identity changed across real collection")
+        validate_process_binding(binding, identity, self.agent_id)
+        self.evidence("target-identity-after.json", identity)
         jobs = json.loads(self.sql(f"SELECT COALESCE(json_agg(json_build_object('id',id,'task_id',task_id,'status',status,'analyzer_type',analyzer_type,'input_artifact_ids',input_artifact_ids_json)), '[]'::json) FROM analysis_jobs WHERE task_id='{self.task_id}';"))
         require(len(jobs) == 1 and jobs[0]["status"] == "SUCCEEDED" and jobs[0]["analyzer_type"] == "collector.sys_metrics"
                 and artifact["id"] in jobs[0]["input_artifact_ids"], "independent persisted Analyzer job not SUCCEEDED")

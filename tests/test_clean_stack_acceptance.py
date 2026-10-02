@@ -15,7 +15,7 @@ from scripts.verify_clean_stack import (
     MINIO_SOURCE_COMMIT, MINIO_SOURCE_SHA256, ROOT, owned_container_ids,
     prepare_compose, public_config, redact, sha, source_migration_heads,
     validate_artifact, validate_key_stat, validate_minio_healthcheck, validate_minio_source,
-    validate_minio_version, validate_runtime_config,
+    validate_minio_version, validate_process_binding, validate_runtime_config,
 )
 
 
@@ -292,3 +292,39 @@ def test_actual_canonical_health_command_and_equivalent_direct_curl_flags():
 def test_health_gate_keeps_real_endpoint_error_status_and_no_shell(command):
     with pytest.raises(AcceptanceError):
         validate_minio_healthcheck(command)
+
+
+def bound_identity_fixture():
+    identity = {"pid": 4242, "boot_id": "host-boot", "process_start_ticks": 123, "pid_namespace_inode": 456,
+                "namespace_pid": 4242, "executable_identity": "python3.12", "uid": 0, "cap_effective": 0, "cap_permitted": 0}
+    binding = {"snapshot_id": "snapshot-1", "process_binding": {**{k: v for k, v in identity.items() if k not in {"uid", "cap_effective", "cap_permitted"}},
+                "agent_id": "owned-agent", "process_snapshot_id": "snapshot-1"}}
+    return binding, identity
+
+
+def test_persisted_binding_matches_independent_cap_free_owned_process_witness():
+    binding, identity = bound_identity_fixture()
+    validate_process_binding(binding, identity, "owned-agent")
+
+
+@pytest.mark.parametrize("field,value", [
+    ("pid", 9999), ("boot_id", "other-host"), ("process_start_ticks", 124),
+    ("pid_namespace_inode", 457), ("namespace_pid", 1), ("executable_identity", "other-process"),
+    ("agent_id", "other-agent"), ("process_snapshot_id", "other-snapshot"),
+])
+def test_wrong_pid_boot_namespace_or_snapshot_cannot_pass_binding(field, value):
+    binding, identity = bound_identity_fixture()
+    binding["process_binding"][field] = value
+    with pytest.raises(AcceptanceError, match="attestation mismatch"):
+        validate_process_binding(binding, identity, "owned-agent")
+
+
+@pytest.mark.parametrize("field,value", [
+    ("uid", 1001), ("cap_effective", 1), ("cap_permitted", 1),
+    ("pid_namespace_inode", 0), ("process_start_ticks", None), ("boot_id", ""),
+])
+def test_namespace_permission_failure_cannot_be_hidden_by_missing_identity_or_extra_caps(field, value):
+    binding, identity = bound_identity_fixture()
+    identity[field] = value
+    with pytest.raises(AcceptanceError):
+        validate_process_binding(binding, identity, "owned-agent")
